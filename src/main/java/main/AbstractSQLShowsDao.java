@@ -1,6 +1,3 @@
-/**
- * 
- */
 package main;
 
 import java.sql.Connection;
@@ -25,24 +22,24 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 			/* Fill "preparedStatement". */
 			int i = 1;
-			preparedStatement.setLong(i++, discordID);
+			preparedStatement.setLong(i, discordID);
+
 
 			/* Execute query. */
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 			if (!resultSet.next()) {
-					throw new RuntimeException("a");
+				return null;
 			}
 
 			/* Get results. */
 			i = 1;
 			long resDiscordID = resultSet.getLong(i++);
-			String lastFmID = resultSet.getString(i++);
+			String lastFmID = resultSet.getString(i);
 
 			/* Return show. */
-			LastFMData data = new LastFMData( lastFmID, resDiscordID);
 
-			return data;
+			return new LastFMData(lastFmID, resDiscordID);
 
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -65,7 +62,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 			int i = 1;
 			preparedStatement.setString(i++, lastFMData.getName());
 
-			preparedStatement.setLong(i++, lastFMData.getShowID());
+			preparedStatement.setLong(i, lastFMData.getShowID());
 
 			/* Execute query. */
 			int updatedRows = preparedStatement.executeUpdate();
@@ -90,7 +87,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 			/* Fill "preparedStatement". */
 			int i = 1;
-			preparedStatement.setLong(i++, showID);
+			preparedStatement.setLong(i, showID);
 
 			/* Execute query. */
 			int removedRows = preparedStatement.executeUpdate();
