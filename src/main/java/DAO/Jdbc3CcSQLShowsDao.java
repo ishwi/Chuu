@@ -1,6 +1,8 @@
-package main;
+package DAO;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 

@@ -1,4 +1,4 @@
-package main;
+package DAO;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
