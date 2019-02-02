@@ -5,14 +5,20 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.security.auth.login.LoginException;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class Main extends ListenerAdapter {
 
 
-    public static void main(String[] args) throws LoginException {
+    public static void main(String[] args) {
         JDABuilder builder = new JDABuilder(AccountType.BOT);
-        String token = "NTM3MzUzNzc0MjA1ODk0Njc2.DykBoQ.T0D6ajlonlcuKCCcJCBZ0eAy2p8";
+        String token = readToken();
+
         builder.setToken(token);
+        builder.addEventListeners();
         builder.addEventListeners(new ListenerLauncher());
         try {
             builder.build();
@@ -20,6 +26,32 @@ public class Main extends ListenerAdapter {
             e.printStackTrace();
         }
 
+    }
+
+    private static String readToken() {
+        BufferedReader br = null;
+        String token = null;
+        try {
+            br = new BufferedReader(new FileReader("C:\\Users\\Ishwi\\token.txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            StringBuilder sb = new StringBuilder();
+            assert br != null;
+            token = br.readLine();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                assert br != null;
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return token;
     }
 }
 
