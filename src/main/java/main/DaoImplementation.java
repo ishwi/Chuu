@@ -1,9 +1,9 @@
-package main.last;
+package main;
 
-import main.Jdbc3CcSQLShowsDao;
-import main.LastFMData;
-import main.SQLShowsDao;
-import main.SimpleDataSource;
+import DAO.Jdbc3CcSQLShowsDao;
+import DAO.LastFMData;
+import DAO.SQLShowsDao;
+import DAO.SimpleDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

@@ -1,7 +1,7 @@
 package main;
 
+import DAO.LastFMData;
 import main.last.ConcurrentLastFM;
-import main.last.DaoImplementation;
 import main.last.LastFMService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -82,6 +82,8 @@ public class ListenerLauncher extends ListenerAdapter {
         String time = "7day";
         String username = "";
         MessageChannel channel = event.getChannel();
+        MessageBuilder mes = new MessageBuilder();
+        EmbedBuilder embed = new EmbedBuilder();
 
         if (message.length == 1 || message.length == 2) {
             long id = event.getAuthor().getIdLong();
@@ -107,20 +109,24 @@ public class ListenerLauncher extends ListenerAdapter {
             list = event.getMessage().getMentionedUsers();
             username = message[2];
             if (!list.isEmpty()) {
+                User user = list.get(0);
+                user.getDiscriminator();
                 LastFMData data = this.impl.findShow((list.get(0).getIdLong()));
                 if (data == null) {
                     System.out.println("Problemo");
+                    channel.sendMessage("Userd doesnt have an account set").queue();
                     return;
                 }
                 username = data.getName();
             }
+            if (username.startsWith("@"))
+                return;
         }
 
 
         channel.sendTyping().queue();
 
-        MessageBuilder mes = new MessageBuilder();
-        EmbedBuilder embed = new EmbedBuilder();
+
         embed.setImage("attachment://cat.png") // we specify this in sendFile as "cat.png"
                 .setDescription("Most Listened Albums in last " + time);
         mes.setEmbed(embed.build());
