@@ -1,5 +1,6 @@
 package main.last;
 
+import DAO.ArtistData;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -15,8 +16,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class NonConcurrentLastFm implements LastFMService {
 
@@ -26,7 +27,12 @@ public class NonConcurrentLastFm implements LastFMService {
         private final String ending = "&format=json";
 
     @Override
-    public Map<String, Integer> getSimiliraties(String User) {
+    public List<UserInfo> getUserInfo(List<String> lastFmNames) {
+        return null;
+    }
+
+    @Override
+    public LinkedList<ArtistData> getSimiliraties(String User) {
         return null;
     }
 

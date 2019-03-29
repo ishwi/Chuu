@@ -1,5 +1,6 @@
 package main.last;
 
+import DAO.ArtistData;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -13,8 +14,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 
 
@@ -23,18 +24,58 @@ public class ConcurrentLastFM implements LastFMService {
 	private final String BASE = "http://ws.audioscrobbler.com/2.0/";
 	private final String getAlbums = "?method=user.gettopalbums&user=";
 	private final String getLibrary = "?method=library.getartists&user=";
+	private final String getUser = "?method=user.getinfo&user=";
 	private final String ending = "&format=json";
 	private final BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 
+
 	@Override
-	public Map<String, Integer> getSimiliraties(String User) {
+	public List<UserInfo> getUserInfo(List<String> lastFmNames) {
+		HttpClient client = new HttpClient();
+		List<UserInfo> returnList = new ArrayList<>();
+
+		try {
+
+			for (String lastFmName : lastFmNames) {
+				String url = BASE + getUser + lastFmName + API_KEY + ending;
+				GetMethod method = new GetMethod(url);
+				int statusCode = client.executeMethod(method);
+				if (statusCode != HttpStatus.SC_OK) {
+					System.err.println("Method failed: " + method.getStatusLine());
+				}
+				byte[] responseBody = method.getResponseBody();
+				JSONObject obj = new JSONObject(new String(responseBody));
+				obj = obj.getJSONObject("user");
+				JSONArray image = obj.getJSONArray("image");
+				JSONObject bigImage = image.getJSONObject(2);
+				String image2 = bigImage.getString("#text");
+				int playcount = obj.getInt("playcount");
+				returnList.add(new UserInfo(playcount, image2, lastFmName));
+
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// Execute the method.
+
+
+		// Read the response body.
+
+
+		return returnList;
+
+	}
+
+	@Override
+	public LinkedList<ArtistData> getSimiliraties(String User) {
 		String url = BASE + getLibrary + User + API_KEY + ending;
 		int page = 1;
 		int pages = 1;
 		HttpClient client = new HttpClient();
 		url += "&limit=500";
 
-
+		LinkedList<ArtistData> linkedlist = new LinkedList<>();
 		Map<String, Integer> map = new HashMap<>();
 		while (page <= pages) {
 
@@ -61,11 +102,12 @@ public class ConcurrentLastFM implements LastFMService {
 				JSONArray arr = obj.getJSONArray("artist");
 				for (int i = 0; i < arr.length(); i++) {
 					JSONObject artistObj = arr.getJSONObject(i);
-					String mbid = artistObj.getString("mbid");
-					if (mbid.equals("") || mbid.isEmpty())
-						mbid = artistObj.getString("name");
+					String mbid = artistObj.getString("name");
+
 					int count = artistObj.getInt("playcount");
-					map.put(mbid, count);
+					JSONArray image = artistObj.getJSONArray("image");
+					JSONObject bigImage = image.getJSONObject(2);
+					linkedlist.add(new ArtistData(mbid, count, bigImage.getString("#text")));
 				}
 
 
@@ -73,7 +115,7 @@ public class ConcurrentLastFM implements LastFMService {
 				e.printStackTrace();
 			}
 		}
-		return map;
+		return linkedlist;
 	}
 
 
