@@ -1,8 +1,11 @@
 package main;
 
+import DAO.ArtistData;
 import DAO.LastFMData;
+import main.ImageRenderer.imageRenderer;
 import main.last.ConcurrentLastFM;
 import main.last.LastFMService;
+import main.last.UserInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -10,15 +13,18 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import javax.imageio.ImageIO;
+import javax.management.InstanceNotFoundException;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 public class ListenerLauncher extends ListenerAdapter {
@@ -59,8 +65,8 @@ public class ListenerLauncher extends ListenerAdapter {
 				onTopMessageReceived(subMessage, event.getChannel());
 				break;
 
-			case "taste":
-				onTaste(subMessage, event.getAuthor().getIdLong(), event);
+			case "update":
+				onUpdate(subMessage, event.getAuthor().getIdLong(), event);
 				break;
 			case "ping":
 				returnText = "!pong";
@@ -68,6 +74,9 @@ public class ListenerLauncher extends ListenerAdapter {
 				break;
 			case "setLastFm":
 				onSetterMessageReceived(subMessage, event.getAuthor().getIdLong());
+				break;
+			case "taste":
+				onTaste(subMessage, event.getAuthor().getIdLong(), event);
 		}
 
 
@@ -88,35 +97,114 @@ public class ListenerLauncher extends ListenerAdapter {
 
 	}
 
-	private void onTaste(String[] message, long id, MessageReceivedEvent event) {
-		boolean flag = false;
+	private void onUpdate(String[] message, long id, MessageReceivedEvent event) {
 		String username;
-
-		if ((message.length > 1) || (message.length == 0)) {
-			//recuperar de db
-			username = this.impl.findShow(id).getName();
-		} else {
-			//Caso con @ y sin @
-			List<User> list = event.getMessage().getMentionedUsers();
-			username = message[0];
-			if (!list.isEmpty()) {
-				LastFMData data = this.impl.findShow((list.get(0).getIdLong()));
-				if (data == null) {
-					System.out.println("Problemo");
-					event.getChannel().sendMessage("Userd doesnt have an account set").queue();
+		try {
+			if ((message.length > 1) || (message.length == 0)) {
+				username = this.impl.findShow(id).getName();
+			} else {
+				//Caso con @ y sin @
+				List<User> list = event.getMessage().getMentionedUsers();
+				username = message[0];
+				if (!list.isEmpty()) {
+					LastFMData data = this.impl.findShow((list.get(0).getIdLong()));
+					username = data.getName();
+				}
+				if (username.startsWith("@")) {
+					event.getChannel().sendMessage("Trolled xD").queue();
 					return;
 				}
-				username = data.getName();
 			}
-			if (username.startsWith("@")) {
-				event.getChannel().sendMessage("Trolled xD").queue();
-				return;
-			}
+			LinkedList<ArtistData> list = lastAccess.getSimiliraties(username);
+			impl.addData(list, username);
+
+		} catch (InstanceNotFoundException e) {
+			userNotOnDB(event);
+			return;
+
 		}
-		Map<String, Integer> map = lastAccess.getSimiliraties(username);
-		impl.addData(map, username);
 
 	}
+
+	private void onTaste(String[] message, long id, MessageReceivedEvent event) {
+		//message 0
+		//message 1 *optional
+		if (message.length == 0)
+			return;
+		String[] userList = {"", ""};
+		if (message.length == 1) {
+			userList[1] = message[0];
+			try {
+				userList[0] = impl.findShow(id).getName();
+			} catch (InstanceNotFoundException e) {
+				userNotOnDB(event);
+				return;
+			}
+		} else {
+			userList[0] = message[0];
+			userList[1] = message[1];
+		}
+
+		// Si userList contains @ -> user
+		try {
+			List<User> list = event.getMessage().getMentionedUsers();
+			List<String> lastfMNames = Arrays.stream(userList)
+					.map(s -> lambda(s, list))
+					.collect(Collectors.toList());
+			lastfMNames.forEach(System.out::println);
+
+			ResultWrapper resultWrapper = impl.getSimilarities(lastfMNames);
+			System.out.println("resultWrapper = " + resultWrapper.getRows());
+			java.util.List<String> users = new ArrayList<>();
+			users.add(resultWrapper.getResultList().get(0).getUserA());
+			users.add(resultWrapper.getResultList().get(0).getUserB());
+			List<UserInfo> userInfoLiust = lastAccess.getUserInfo(users);
+			BufferedImage image = imageRenderer.generateTasteImage(resultWrapper, userInfoLiust);
+
+			ByteArrayOutputStream b = new ByteArrayOutputStream();
+			try {
+				ImageIO.write(image, "jpg", b);
+				byte[] img = b.toByteArray();
+				if (img.length < 8388608) {
+					event.getChannel().sendFile(img, "cat.png").queue();
+				}
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		} catch (RuntimeException | InstanceNotFoundException e) {
+			userNotOnDB(event);
+		}
+
+	}
+
+	private void userNotOnDB(MessageReceivedEvent event) {
+
+		System.out.println("Problemo");
+		event.getChannel().sendMessage("Userd doesnt have an account set").queue();
+	}
+
+
+	private User findUSername(String name, List<User> userList) {
+		Optional<User> match = userList.stream().filter(user -> user.getIdLong() == Long.valueOf(name.substring(2, name.indexOf(">")))).findFirst();
+		return match.orElse(null);
+	}
+
+	private String lambda(String s, List<User> list) {
+		if (s.startsWith("<@")) {
+			User result = this.findUSername(s, list);
+			if (result != null) {
+				try {
+					return impl.findShow(result.getIdLong()).getName();
+				} catch (InstanceNotFoundException e) {
+					throw new RuntimeException();
+				}
+			}
+		}
+		return s;
+	}
+
 
 	private void onChartMessageReceived(String[] message, MessageReceivedEvent event) {
 		String time = "7day";
@@ -166,10 +254,11 @@ public class ListenerLauncher extends ListenerAdapter {
 			list = event.getMessage().getMentionedUsers();
 			username = discordName;
 			if (!list.isEmpty()) {
-				LastFMData data = this.impl.findShow((list.get(0).getIdLong()));
-				if (data == null) {
-					System.out.println("Problemo");
-					channel.sendMessage("Userd doesnt have an account set").queue();
+				LastFMData data = null;
+				try {
+					data = this.impl.findShow((list.get(0).getIdLong()));
+				} catch (InstanceNotFoundException e) {
+					userNotOnDB(event);
 					return;
 				}
 				username = data.getName();
@@ -180,9 +269,10 @@ public class ListenerLauncher extends ListenerAdapter {
 			}
 		} else {
 			long id = event.getAuthor().getIdLong();
-			username = this.impl.findShow(id).getName();
-			if (username == null) {
-				System.out.println("error");
+			try {
+				username = this.impl.findShow(id).getName();
+			} catch (InstanceNotFoundException e) {
+				userNotOnDB(event);
 				return;
 			}
 		}
