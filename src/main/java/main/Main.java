@@ -9,17 +9,17 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public class Main extends ListenerAdapter {
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, GeneralSecurityException {
         JDABuilder builder = new JDABuilder(AccountType.BOT);
         String token = readToken();
-
         builder.setToken(token);
-        builder.addEventListeners();
         builder.addEventListeners(new ListenerLauncher());
+
         try {
             builder.build();
         } catch (LoginException e) {

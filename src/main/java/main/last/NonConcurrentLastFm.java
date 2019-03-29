@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class NonConcurrentLastFm implements LastFMService {
 
@@ -24,7 +25,12 @@ public class NonConcurrentLastFm implements LastFMService {
         private final String getAlbums = "?method=user.gettopalbums&user=";
         private final String ending = "&format=json";
 
-        public byte[] getUserList(String User, String weekly) {
+    @Override
+    public Map<String, Integer> getSimiliraties(String User) {
+        return null;
+    }
+
+    public byte[] getUserList(String User, String weekly, int x, int y) {
 
             String url = BASE + getAlbums + User + API_KEY + ending+"&period=" + weekly;
 
