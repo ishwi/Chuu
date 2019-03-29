@@ -1123,66 +1123,98 @@
       <DefaultForCharset>0</DefaultForCharset>
     </collation>
     <table id="283" parent="3" name="artist"/>
-    <table id="284" parent="3" name="lastfm"/>
-    <column id="285" parent="283" name="artist_id">
+    <table id="284" parent="3" name="artist_url"/>
+    <table id="285" parent="3" name="lastfm"/>
+    <column id="286" parent="283" name="artist_id">
       <Position>1</Position>
       <DataType>varchar(80)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="286" parent="283" name="playNumber">
+    <column id="287" parent="283" name="playNumber">
       <Position>2</Position>
       <DataType>int(11)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="287" parent="283" name="lastFMID">
+    <column id="288" parent="283" name="lastFMID">
       <Position>3</Position>
       <DataType>varchar(45)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="288" parent="283" name="artist_lastfm_lastFmId_fk">
+    <index id="289" parent="283" name="artist_lastfm_lastFmId_fk">
       <ColNames>lastFMID</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="289" parent="283" name="PRIMARY">
+    <key id="290" parent="283" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>artist_id
 lastFMID</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="290" parent="283" name="artist_lastfm_lastFmId_fk">
+    <foreign-key id="291" parent="283" name="artist_lastfm_lastFmId_fk">
       <ColNames>lastFMID</ColNames>
       <RefSchemaName>lastfm</RefSchemaName>
       <RefTableName>lastfm</RefTableName>
       <RefColNames>lastFmId</RefColNames>
     </foreign-key>
-    <column id="291" parent="284" name="discordID">
+    <column id="292" parent="284" name="artist_id">
+      <Position>1</Position>
+      <DataType>varchar(90)|0s</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="293" parent="284" name="url">
+      <Position>2</Position>
+      <DataType>varchar(90)|0s</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <index id="294" parent="284" name="artist_url_artist_id_uindex">
+      <ColNames>artist_id</ColNames>
+      <Unique>1</Unique>
+      <Type>btree</Type>
+    </index>
+    <key id="295" parent="284" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>artist_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <key id="296" parent="284" name="artist_url_artist_id_uindex">
+      <ColNames>artist_id</ColNames>
+      <UnderlyingIndexName>artist_url_artist_id_uindex</UnderlyingIndexName>
+    </key>
+    <foreign-key id="297" parent="284" name="artist_url_artist_url_artist_id_fk">
+      <ColNames>artist_id</ColNames>
+      <RefSchemaName>lastfm</RefSchemaName>
+      <RefTableName>artist_url</RefTableName>
+      <RefColNames>artist_id</RefColNames>
+    </foreign-key>
+    <column id="298" parent="285" name="discordID">
       <Position>1</Position>
       <DataType>bigint(20)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="292" parent="284" name="lastFmId">
+    <column id="299" parent="285" name="lastFmId">
       <Position>2</Position>
       <DataType>varchar(45)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="293" parent="284" name="lastfm_pk">
+    <index id="300" parent="285" name="lastfm_pk">
       <ColNames>lastFmId</ColNames>
       <Unique>1</Unique>
       <Type>btree</Type>
     </index>
-    <index id="294" parent="284" name="lastfm_lastFmId_index">
+    <index id="301" parent="285" name="lastfm_lastFmId_index">
       <ColNames>lastFmId</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="295" parent="284" name="PRIMARY">
+    <key id="302" parent="285" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>discordID</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="296" parent="284" name="lastfm_pk">
+    <key id="303" parent="285" name="lastfm_pk">
       <ColNames>lastFmId</ColNames>
       <UnderlyingIndexName>lastfm_pk</UnderlyingIndexName>
     </key>

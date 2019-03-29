@@ -35,6 +35,33 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 	}
 
 	@Override
+	public void addUrl(Connection con, ArtistData artistData) {
+		/* Create "queryString". */
+		String queryString = "INSERT IGNORE INTO lastfm.artist_url"
+				+ " ( artist_id,url) " + " VALUES (?, ?) ";
+
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i++, artistData.getArtist());
+			preparedStatement.setString(i++, artistData.getUrl());
+
+
+			/* Execute query. */
+			preparedStatement.executeUpdate();
+
+			/* Get generated identifier. */
+
+			/* Return booking. */
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	@Override
 	public ArtistData addArtist(Connection con, ArtistData artistData) {
 		/* Create "queryString". */
 		String queryString = "INSERT INTO lastfm.artist"
