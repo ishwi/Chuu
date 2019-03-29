@@ -34,4 +34,33 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 		}
 	}
 
+	@Override
+	public ArtistData addArtist(Connection con, ArtistData artistData) {
+		/* Create "queryString". */
+		String queryString = "INSERT INTO lastfm.artist"
+				+ " ( lastFMID,artist_id,playNumber) " + " VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE playNumber=" + "?";
+
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i++, artistData.getDiscordID());
+			preparedStatement.setString(i++, artistData.getArtist());
+			preparedStatement.setLong(i++, artistData.getCount());
+			preparedStatement.setLong(i++, artistData.getCount());
+
+
+			/* Execute query. */
+			preparedStatement.executeUpdate();
+
+			/* Get generated identifier. */
+
+			/* Return booking. */
+			return artistData;
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

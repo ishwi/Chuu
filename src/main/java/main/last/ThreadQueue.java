@@ -14,10 +14,14 @@ import java.util.concurrent.BlockingQueue;
 public class ThreadQueue implements Runnable {
     private final BlockingQueue<UrlCapsule> queue;
     private final  Graphics g;
+	private final int y;
+	private final int x;
 
-    ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics g) {
+	ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics g, int x, int y) {
         this.queue = queue;
         this.g = g;
+		this.x = x;
+		this.y = y;
 
     }
 
@@ -30,22 +34,23 @@ public class ThreadQueue implements Runnable {
                 URL url;
                 try {
                     int pos = encapsuler.getPos();
-                    int x = Math.round(pos / 5);
-                    int y = pos % 5;
+	                int y = (int) Math.floor(pos / this.x);
+	                int x = pos % this.x;
                     url = new URL(encapsuler.getUrl());
                     image = ImageIO.read(url);
                     g.drawImage(image, x*300, y*300, null);
-
+	                System.out.println(x + "                " + y);
                 } catch (IOException e) {
                     e.printStackTrace();
                     System.out.println( "\n \n" + encapsuler.getUrl() + encapsuler.getPos()  + "\n \n ");
                 }
 
 
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+	    System.out.println("\n \n \n\n\n\n\n\n\n           THREAD FINISHED             \n \n \n\n\n\n\n\n\n");
 
     }
 }
