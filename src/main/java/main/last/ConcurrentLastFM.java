@@ -13,88 +13,160 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.*;
 
 
-public class ConcurrentLastFM implements  LastFMService {
-    private final String API_KEY = "&api_key=a5e08a41d7b5a3c71c45708190b792f4";
-    private final String BASE = "http://ws.audioscrobbler.com/2.0/";
-    private final String getAlbums = "?method=user.gettopalbums&user=";
-    private final String ending = "&format=json";
-    private final BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
+public class ConcurrentLastFM implements LastFMService {
+	private final String API_KEY = "&api_key=a5e08a41d7b5a3c71c45708190b792f4";
+	private final String BASE = "http://ws.audioscrobbler.com/2.0/";
+	private final String getAlbums = "?method=user.gettopalbums&user=";
+	private final String getLibrary = "?method=library.getartists&user=";
+	private final String ending = "&format=json";
+	private final BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 
-    public byte[] getUserList(String User, String weekly) {
-
-        String url = BASE + getAlbums + User + API_KEY + ending+"&period=" + weekly;
-
-
-        HttpClient client = new HttpClient();
-        GetMethod method = new GetMethod(url);
-
-        byte[] img = new byte[0];
-        try {
-
-            // Execute the method.
-            int statusCode = client.executeMethod(method);
-
-            if (statusCode != HttpStatus.SC_OK) {
-                System.err.println("Method failed: " + method.getStatusLine());
-            }
-
-            // Read the response body.
-            byte[] responseBody = method.getResponseBody();
-            JSONObject obj = new JSONObject(new String(responseBody));
-            obj = obj.getJSONObject("topalbums");
-
-            JSONArray arr = obj.getJSONArray("album");
-            for (int i = 0; i < arr.length() && i < 25 ; i++) {
-                JSONObject albumObj = arr.getJSONObject(i);
-                JSONArray image = albumObj.getJSONArray("image");
-                JSONObject bigImage = image.getJSONObject(3);
-                queue.add(new UrlCapsule(bigImage.getString("#text"),i));
-            }
-            BufferedImage image = generateCollage();
-            ByteArrayOutputStream b = new ByteArrayOutputStream();
-            ImageIO.write(image, "jpg", b);
-            img = b.toByteArray();
-            // Deal with the response.
-            // Use caution: ensure correct character encoding and is not binary data
-
-        } catch (HttpException e) {
-            System.err.println("Fatal protocol violation: " + e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.err.println("Fatal transport error: " + e.getMessage());
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } finally {
-            // Release the connection.
-            method.releaseConnection();
-        }
-
-        return img;
-    }
+	@Override
+	public Map<String, Integer> getSimiliraties(String User) {
+		String url = BASE + getLibrary + User + API_KEY + ending;
+		int page = 1;
+		int pages = 1;
+		HttpClient client = new HttpClient();
+		url += "&limit=500";
 
 
-    private BufferedImage generateCollage() {
+		Map<String, Integer> map = new HashMap<>();
+		while (page <= pages) {
+
+			String urlPage = url + "&page=" + page;
+			GetMethod method = new GetMethod(urlPage);
+
+			try {
+
+				// Execute the method.
+				int statusCode = client.executeMethod(method);
+
+				if (statusCode != HttpStatus.SC_OK) {
+					System.err.println("Method failed: " + method.getStatusLine());
+				}
+
+				// Read the response body.
+				byte[] responseBody = method.getResponseBody();
+				JSONObject obj = new JSONObject(new String(responseBody));
+				obj = obj.getJSONObject("artists");
+				if (page++ == 1) {
+					pages = obj.getJSONObject("@attr").getInt("totalPages");
+				}
+
+				JSONArray arr = obj.getJSONArray("artist");
+				for (int i = 0; i < arr.length(); i++) {
+					JSONObject artistObj = arr.getJSONObject(i);
+					String mbid = artistObj.getString("mbid");
+					if (mbid.equals("") || mbid.isEmpty())
+						mbid = artistObj.getString("name");
+					int count = artistObj.getInt("playcount");
+					map.put(mbid, count);
+				}
 
 
-        BufferedImage result = new BufferedImage(
-                1500, 1500, //work these out
-                BufferedImage.TYPE_INT_RGB);
-        Graphics g = result.getGraphics();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return map;
+	}
 
-        ExecutorService es = Executors.newCachedThreadPool();
-        for(int i=0;i<4;i++)
-            es.execute((new ThreadQueue(queue, g)));
-        es.shutdown();
-        try {
-            boolean finished = es.awaitTermination(1, TimeUnit.MINUTES);
-            System.out.println(finished);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
+	public byte[] getUserList(String User, String weekly, int x, int y) {
+
+		String url = BASE + getAlbums + User + API_KEY + ending + "&period=" + weekly;
+
+
+		HttpClient client = new HttpClient();
+
+		int requestedSize = x * y;
+		int size = 0;
+		int page = 1;
+		while (size < requestedSize) {
+
+			String urlPage = url + "&page=" + page;
+			GetMethod method = new GetMethod(urlPage);
+			++page;
+			System.out.println(page + " :page             size: " + size);
+			try {
+
+				// Execute the method.
+				int statusCode = client.executeMethod(method);
+
+				if (statusCode != HttpStatus.SC_OK) {
+					System.err.println("Method failed: " + method.getStatusLine());
+				}
+
+				// Read the response body.
+				byte[] responseBody = method.getResponseBody();
+				JSONObject obj = new JSONObject(new String(responseBody));
+				obj = obj.getJSONObject("topalbums");
+
+				JSONArray arr = obj.getJSONArray("album");
+				for (int i = 0; i < arr.length() && size < requestedSize; i++) {
+					JSONObject albumObj = arr.getJSONObject(i);
+					JSONArray image = albumObj.getJSONArray("image");
+					JSONObject bigImage = image.getJSONObject(3);
+					queue.add(new UrlCapsule(bigImage.getString("#text"), size));
+					++size;
+				}
+
+
+			} catch (HttpException e) {
+				System.err.println("Fatal protocol violation: " + e.getMessage());
+				e.printStackTrace();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				// Release the connection.
+				method.releaseConnection();
+			}
+		}
+		byte[] img;
+		BufferedImage image = generateCollage(x, y);
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
+
+		try {
+			ImageIO.write(image, "jpg", b);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		img = b.toByteArray();
+		// Deal with the response.
+		// Use caution: ensure correct character encoding and is not binary data
+
+		return img;
+	}
+
+
+	private BufferedImage generateCollage(int x, int y) {
+
+		BufferedImage result = new BufferedImage(
+				x * 300, y * 300, //work these out
+				BufferedImage.TYPE_INT_RGB);
+
+		Graphics g = result.getGraphics();
+		System.out.println("a");
+
+
+		ExecutorService es = Executors.newCachedThreadPool();
+		for (int i = 0; i < 4; i++)
+			es.execute((new ThreadQueue(queue, g, x, y)));
+		es.shutdown();
+		try {
+			boolean finished = es.awaitTermination(10, TimeUnit.MINUTES);
+			System.out.println(finished);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 //                for (String  item : urls) {
 //            BufferedImage image ;
@@ -116,8 +188,8 @@ public class ConcurrentLastFM implements  LastFMService {
 //
 //
 //        }
-        return result;
-    }
+		return result;
+	}
 
 }
 

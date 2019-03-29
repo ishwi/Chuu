@@ -11,4 +11,5 @@ public interface SQLShowsDao {
 
 	void remove(Connection con, Long showID);
 
+	ArtistData addArtist(Connection con, ArtistData artistData);
 }

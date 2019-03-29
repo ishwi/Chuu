@@ -1,13 +1,11 @@
 package main;
 
-import DAO.Jdbc3CcSQLShowsDao;
-import DAO.LastFMData;
-import DAO.SQLShowsDao;
-import DAO.SimpleDataSource;
+import DAO.*;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class DaoImplementation {
     private DataSource dataSource;
@@ -19,6 +17,41 @@ public class DaoImplementation {
 
     }
 
+    public void addData(Map<String, Integer> map, String id) {
+        try (Connection connection = dataSource.getConnection()) {
+
+            try {
+
+                /* Prepare connection. */
+                connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+                connection.setAutoCommit(false);
+
+                /* Do work. */
+                map.forEach((k, v) -> dao.addArtist(connection, new ArtistData(id, k, v)));
+
+
+                /* Commit. */
+                // Seguramente haya mejor solucion
+
+
+                connection.commit();
+
+                // Relacionar post con show ?
+
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new RuntimeException(e);
+            } catch (RuntimeException | Error e) {
+                connection.rollback();
+                throw e;
+//			} catch (InstanceNotFoundException e) {
+//				throw new RuntimeException(e);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public LastFMData addData(LastFMData data)  {
         try (Connection connection = dataSource.getConnection()) {
