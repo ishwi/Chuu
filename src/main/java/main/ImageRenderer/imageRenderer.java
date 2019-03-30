@@ -62,21 +62,41 @@ public class imageRenderer {
 			g.drawString("" + userInfo.getPlaycount(), stringx, rectangle_start_y + rectangle_height - 1);
 			x++;
 		}
-
+		y = rectangle_start_y + 64 + 20;
 		String a = String.valueOf(resultWrapper.getRows());
 		int lengt = a.length();
 
 		Font titleFont = new Font(Font.SERIF, Font.PLAIN, 21);
 
 		g.setFont(titleFont);
-		g.drawString("" + resultWrapper.getRows(), x_MAX / 2 - 28 * lengt / 2, rectangle_start_y + 64 + 20);
+		g.drawString("" + resultWrapper.getRows(), x_MAX / 2 - 28 * lengt / 2, y - 30);
 
 		Font subtitle = new Font(Font.DIALOG, Font.PLAIN, 12);
 		g.setFont(subtitle);
-		g.drawString("common artists", x_MAX / 2 + 28 * lengt / 4 + 4, rectangle_start_y + 64 + 20);
+
+		g.drawString("common artists", x_MAX / 2 + 28 * lengt / 8 + 4, y - 30);
+		Font titleFont22 = new Font(Font.SERIF, Font.PLAIN, 14);
+
+		g.setFont(titleFont22);
 
 		for (Results item : resultWrapper.getResultList()) {
+			g.setColor(Color.LIGHT_GRAY);
 
+			String artistID = item.getArtistID();
+			int countA = item.getCountA();
+			int countB = item.getCountB();
+			g.drawString("" + countA, 100, y);
+			g.drawString(artistID, x_MAX / 2 - 5 * artistID.length() / 2, y);
+			g.drawString("" + countB, x_MAX - 100, y);
+			int halfDistance = x_MAX - 200;
+			int ac = Math.round((float) countA / (float) (countA + countB) * halfDistance);
+			int bc = Math.round((float) countB / (float) (countA + countB) * halfDistance);
+			g.setColor(Color.orange);
+			g.fillRect(x_MAX / 2 - ac / 2, y + 2, ac / 2, 5);
+			g.setColor(Color.CYAN);
+			g.fillRect(x_MAX / 2, y + 2, bc / 2, 5);
+
+			y += 20;
 		}
 
 		return canvas;
