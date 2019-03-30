@@ -19,7 +19,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 	@Override
 	public ResultWrapper similar(Connection connection, List<String> lastfMNames) throws InstanceNotFoundException {
-
+		int MAX_IN_DISPLAY = 14;
 		String userA = lastfMNames.get(0);
 		String userB = lastfMNames.get(1);
 
@@ -58,7 +58,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 			resultSet.beforeFirst();
 			/* Get results. */
 			int j = 0;
-			while (resultSet.next() && (j < 40 && j < rows)) {
+			while (resultSet.next() && (j < MAX_IN_DISPLAY && j < rows)) {
 				j++;
 				String name = resultSet.getString("a.artist_id");
 				int count_a = resultSet.getInt("a.playNumber");
