@@ -1,4 +1,4 @@
-package main.last;
+package DAO.Entities;
 
 public class UrlCapsule {
 

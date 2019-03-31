@@ -1,7 +1,8 @@
 package main.last;
 
 
-import DAO.ArtistData;
+import DAO.Entities.ArtistData;
+import DAO.Entities.UserInfo;
 
 import java.util.LinkedList;
 import java.util.List;

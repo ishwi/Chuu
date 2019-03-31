@@ -1,5 +1,8 @@
 package DAO;
 
+import DAO.Entities.ArtistData;
+import DAO.Entities.LastFMData;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -59,6 +62,12 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 			throw new RuntimeException(e);
 		}
 
+	}
+
+	@Override
+	public void knows(Connection connection, String artist) {
+		String queryString = "SELECT username, count " +
+				"FROM ";
 	}
 
 	@Override

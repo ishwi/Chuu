@@ -1,4 +1,4 @@
-package main;
+package DAO.Entities;
 
 public class Results {
 	private int countA;

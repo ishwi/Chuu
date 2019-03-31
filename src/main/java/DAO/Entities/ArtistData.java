@@ -1,4 +1,4 @@
-package DAO;
+package DAO.Entities;
 
 public class ArtistData {
 	private String discordID;
