@@ -24,12 +24,41 @@ import java.util.concurrent.*;
 public class ConcurrentLastFM implements LastFMService {
 	private final String API_KEY = "&api_key=a5e08a41d7b5a3c71c45708190b792f4";
 	private final String BASE = "http://ws.audioscrobbler.com/2.0/";
-	private final String getAlbums = "?method=user.gettopalbums&user=";
-	private final String getLibrary = "?method=library.getartists&user=";
-	private final String getUser = "?method=user.getinfo&user=";
+	private final String GET_ALBUMS = "?method=user.gettopalbums&user=";
+	private final String GET_LIBRARY = "?method=library.getartists&user=";
+	private final String GET_USER = "?method=user.getinfo&user=";
 	private final String ending = "&format=json";
+	private final String GET_NOW_PLAYINH = "?method=user.getrecenttracks&limit=1&user=";
 	private final BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 
+	public void getNowPlayingInfo(String user) {
+		HttpClient client = new HttpClient();
+		String url = BASE + GET_NOW_PLAYINH + user + API_KEY + ending;
+		GetMethod method = new GetMethod(url);
+		try {
+			int statusCode = client.executeMethod(method);
+			if (statusCode != HttpStatus.SC_OK) {
+				System.err.println("Method failed: " + method.getStatusLine());
+				return;
+			}
+			byte[] responseBody = method.getResponseBody();
+			JSONObject obj = new JSONObject(new String(responseBody));
+			obj = obj.getJSONObject("recenttracks");
+			JSONObject tracltObj = obj.getJSONArray("track").getJSONObject(0);
+			JSONObject artistObj = tracltObj.getJSONObject("artist");
+			String artistname = artistObj.getString("#text");
+			String mbid = artistObj.getString("#mbid");
+			Boolean nowPlayin = tracltObj.getJSONObject("@attr").getBoolean("nowplaying");
+			String albumName = tracltObj.getJSONObject("album").getString("#text");
+			String songName = tracltObj.getString("name");
+			String image_url = tracltObj.getJSONArray("image").getJSONObject(2).getString("#text");
+			int a = 2;
+			a++;
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public List<UserInfo> getUserInfo(List<String> lastFmNames) {
@@ -39,7 +68,7 @@ public class ConcurrentLastFM implements LastFMService {
 		try {
 
 			for (String lastFmName : lastFmNames) {
-				String url = BASE + getUser + lastFmName + API_KEY + ending;
+				String url = BASE + GET_USER + lastFmName + API_KEY + ending;
 				GetMethod method = new GetMethod(url);
 				int statusCode = client.executeMethod(method);
 				if (statusCode != HttpStatus.SC_OK) {
@@ -71,7 +100,7 @@ public class ConcurrentLastFM implements LastFMService {
 
 	@Override
 	public LinkedList<ArtistData> getSimiliraties(String User) {
-		String url = BASE + getLibrary + User + API_KEY + ending;
+		String url = BASE + GET_LIBRARY + User + API_KEY + ending;
 		int page = 1;
 		int pages = 1;
 		HttpClient client = new HttpClient();
@@ -123,7 +152,7 @@ public class ConcurrentLastFM implements LastFMService {
 
 	public byte[] getUserList(String User, String weekly, int x, int y) {
 
-		String url = BASE + getAlbums + User + API_KEY + ending + "&period=" + weekly;
+		String url = BASE + GET_ALBUMS + User + API_KEY + ending + "&period=" + weekly;
 
 
 		HttpClient client = new HttpClient();
