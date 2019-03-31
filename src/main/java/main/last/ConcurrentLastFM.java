@@ -31,6 +31,7 @@ public class ConcurrentLastFM implements LastFMService {
 	private final String GET_NOW_PLAYINH = "?method=user.getrecenttracks&limit=1&user=";
 	private final BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 
+	@Override
 	public void getNowPlayingInfo(String user) {
 		HttpClient client = new HttpClient();
 		String url = BASE + GET_NOW_PLAYINH + user + API_KEY + ending;

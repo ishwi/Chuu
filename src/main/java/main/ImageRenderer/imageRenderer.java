@@ -14,10 +14,11 @@ import java.util.List;
 public class imageRenderer {
 
 	public static BufferedImage generatewhoKnowsImage() {
-		int X_MAX;
-		int Y_MAX;
+        int X_MAX = 2;
+        int Y_MAX = 9;
 		BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = canvas.createGraphics();
+        return canvas;
 	}
 	public static BufferedImage generateTasteImage(ResultWrapper resultWrapper, List<UserInfo> userInfoLiust) {
 		int PROFILE_IMAGE_SIZE = 100;

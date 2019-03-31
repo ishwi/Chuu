@@ -79,6 +79,8 @@ public class ListenerLauncher extends ListenerAdapter {
                 break;
             case "taste":
                 onTaste(subMessage, event.getAuthor().getIdLong(), event);
+            case "np":
+                onWhoKnows(subMessage[0], 1);
         }
 
 
@@ -101,8 +103,7 @@ public class ListenerLauncher extends ListenerAdapter {
 
     private void onWhoKnows(String artist, long id) {
 
-        impl.whoKnows(artist);
-
+        lastAccess.getNowPlayingInfo(artist);
 
     }
 
