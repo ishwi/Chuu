@@ -1,7 +1,8 @@
 package DAO;
 
-import main.ResultWrapper;
-import main.Results;
+import DAO.Entities.LastFMData;
+import DAO.Entities.ResultWrapper;
+import DAO.Entities.Results;
 
 import javax.management.InstanceNotFoundException;
 import java.sql.Connection;

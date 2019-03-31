@@ -1,6 +1,8 @@
 package main.last;
 
-import DAO.ArtistData;
+import DAO.Entities.ArtistData;
+import DAO.Entities.UrlCapsule;
+import DAO.Entities.UserInfo;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;

@@ -1,6 +1,8 @@
 package DAO;
 
-import main.ResultWrapper;
+import DAO.Entities.ArtistData;
+import DAO.Entities.LastFMData;
+import DAO.Entities.ResultWrapper;
 
 import javax.management.InstanceNotFoundException;
 import java.sql.Connection;
@@ -21,4 +23,5 @@ public interface SQLShowsDao {
 
 	void addUrl(Connection con, ArtistData artistData);
 
+	void knows(Connection connection, String artist);
 }
