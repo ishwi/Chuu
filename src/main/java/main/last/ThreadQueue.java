@@ -1,5 +1,7 @@
 package main.last;
 
+import DAO.Entities.UrlCapsule;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;

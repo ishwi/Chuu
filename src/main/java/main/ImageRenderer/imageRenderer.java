@@ -1,8 +1,8 @@
 package main.ImageRenderer;
 
-import main.ResultWrapper;
-import main.Results;
-import main.last.UserInfo;
+import DAO.Entities.ResultWrapper;
+import DAO.Entities.Results;
+import DAO.Entities.UserInfo;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -12,6 +12,13 @@ import java.net.MalformedURLException;
 import java.util.List;
 
 public class imageRenderer {
+
+	public static BufferedImage generatewhoKnowsImage() {
+		int X_MAX;
+		int Y_MAX;
+		BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = canvas.createGraphics();
+	}
 	public static BufferedImage generateTasteImage(ResultWrapper resultWrapper, List<UserInfo> userInfoLiust) {
 		int PROFILE_IMAGE_SIZE = 100;
 		int x_MAX = 600;

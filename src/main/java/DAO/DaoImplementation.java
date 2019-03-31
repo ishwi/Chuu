@@ -1,6 +1,8 @@
-package main;
+package DAO;
 
-import DAO.*;
+import DAO.Entities.ArtistData;
+import DAO.Entities.LastFMData;
+import DAO.Entities.ResultWrapper;
 
 import javax.management.InstanceNotFoundException;
 import javax.sql.DataSource;
@@ -169,6 +171,14 @@ public class DaoImplementation {
 	public ResultWrapper getSimilarities(List<String> lastfMNames) throws InstanceNotFoundException {
 		try (Connection connection = dataSource.getConnection()) {
 			return dao.similar(connection, lastfMNames);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void whoKnows(String artist) {
+		try (Connection connection = dataSource.getConnection()) {
+			dao.knows(connection, artist);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
