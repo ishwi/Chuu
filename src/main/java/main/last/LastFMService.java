@@ -9,7 +9,9 @@ import java.util.List;
 
 public interface LastFMService {
 
-	List<UserInfo> getUserInfo(List<String> lastFmNames);
+    void getNowPlayingInfo(String user);
+
+    List<UserInfo> getUserInfo(List<String> lastFmNames);
 
 	LinkedList<ArtistData> getSimiliraties(String User);
 

@@ -28,6 +28,11 @@ public class NonConcurrentLastFm implements LastFMService {
         private final String ending = "&format=json";
 
     @Override
+    public void getNowPlayingInfo(String user) {
+
+    }
+
+    @Override
     public List<UserInfo> getUserInfo(List<String> lastFmNames) {
         return null;
     }
