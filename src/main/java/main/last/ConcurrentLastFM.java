@@ -1,6 +1,10 @@
 package main.last;
 
-import DAO.ArtistData;
+import DAO.Entities.ArtistData;
+import DAO.Entities.NowPlayingArtist;
+import DAO.Entities.UrlCapsule;
+import DAO.Entities.UserInfo;
+import main.ImageRenderer.CollageMaker;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -10,38 +14,73 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class ConcurrentLastFM implements LastFMService {
 	private final String API_KEY = "&api_key=a5e08a41d7b5a3c71c45708190b792f4";
 	private final String BASE = "http://ws.audioscrobbler.com/2.0/";
-	private final String getAlbums = "?method=user.gettopalbums&user=";
-	private final String getLibrary = "?method=library.getartists&user=";
-	private final String getUser = "?method=user.getinfo&user=";
+	private final String GET_ALBUMS = "?method=user.gettopalbums&user=";
+	private final String GET_LIBRARY = "?method=library.getartists&user=";
+	private final String GET_USER = "?method=user.getinfo&user=";
 	private final String ending = "&format=json";
+	private final String GET_NOW_PLAYINH = "?method=user.getrecenttracks&limit=1&user=";
 	private final BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 
+	@Override
+	public NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException {
+		HttpClient client = new HttpClient();
+		String url = BASE + GET_NOW_PLAYINH + user + API_KEY + ending;
+		GetMethod method = new GetMethod(url);
+		try {
+			int statusCode = client.executeMethod(method);
+			if (statusCode != HttpStatus.SC_OK) {
+				System.err.println("Method failed: " + method.getStatusLine());
+				throw new LastFMServiceException("Error in the service: " + method.getStatusLine());
+			}
+			byte[] responseBody = method.getResponseBody();
+			JSONObject obj = new JSONObject(new String(responseBody));
+			obj = obj.getJSONObject("recenttracks");
+			JSONObject tracltObj = obj.getJSONArray("track").getJSONObject(0);
+			JSONObject artistObj = tracltObj.getJSONObject("artist");
+			String artistname = artistObj.getString("#text");
+			String mbid = artistObj.getString("mbid");
+			boolean nowPlayin;
+			try {
+				nowPlayin = tracltObj.getJSONObject("@attr").getBoolean("nowplaying");
+			} catch (JSONException e) {
+				nowPlayin = false;
+			}
+			String albumName = tracltObj.getJSONObject("album").getString("#text");
+			String songName = tracltObj.getString("name");
+			String image_url = tracltObj.getJSONArray("image").getJSONObject(2).getString("#text");
+
+			return new NowPlayingArtist(artistname, mbid, nowPlayin, albumName, songName, image_url);
+		} catch (IOException e) {
+			throw new LastFMServiceException("Error in the service: " + method.getStatusLine());
+		}
+
+	}
 
 	@Override
-	public List<UserInfo> getUserInfo(List<String> lastFmNames) {
+	public List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFMServiceException {
 		HttpClient client = new HttpClient();
 		List<UserInfo> returnList = new ArrayList<>();
 
 		try {
 
 			for (String lastFmName : lastFmNames) {
-				String url = BASE + getUser + lastFmName + API_KEY + ending;
+				String url = BASE + GET_USER + lastFmName + API_KEY + ending;
 				GetMethod method = new GetMethod(url);
 				int statusCode = client.executeMethod(method);
 				if (statusCode != HttpStatus.SC_OK) {
 					System.err.println("Method failed: " + method.getStatusLine());
+					throw new LastFMServiceException("Error in the service: " + method.getStatusLine());
 				}
 				byte[] responseBody = method.getResponseBody();
 				JSONObject obj = new JSONObject(new String(responseBody));
@@ -68,8 +107,8 @@ public class ConcurrentLastFM implements LastFMService {
 	}
 
 	@Override
-	public LinkedList<ArtistData> getSimiliraties(String User) {
-		String url = BASE + getLibrary + User + API_KEY + ending;
+	public LinkedList<ArtistData> getLibrary(String User) throws LastFMServiceException {
+		String url = BASE + GET_LIBRARY + User + API_KEY + ending;
 		int page = 1;
 		int pages = 1;
 		HttpClient client = new HttpClient();
@@ -89,6 +128,7 @@ public class ConcurrentLastFM implements LastFMService {
 
 				if (statusCode != HttpStatus.SC_OK) {
 					System.err.println("Method failed: " + method.getStatusLine());
+					throw new LastFMServiceException("Error in the service: " + method.getStatusLine());
 				}
 
 				// Read the response body.
@@ -106,6 +146,7 @@ public class ConcurrentLastFM implements LastFMService {
 
 					int count = artistObj.getInt("playcount");
 					JSONArray image = artistObj.getJSONArray("image");
+
 					JSONObject bigImage = image.getJSONObject(2);
 					linkedlist.add(new ArtistData(mbid, count, bigImage.getString("#text")));
 				}
@@ -119,9 +160,9 @@ public class ConcurrentLastFM implements LastFMService {
 	}
 
 
-	public byte[] getUserList(String User, String weekly, int x, int y) {
+	public byte[] getUserList(String User, String weekly, int x, int y) throws LastFMServiceException {
 
-		String url = BASE + getAlbums + User + API_KEY + ending + "&period=" + weekly;
+		String url = BASE + GET_ALBUMS + User + API_KEY + ending + "&period=" + weekly;
 
 
 		HttpClient client = new HttpClient();
@@ -142,6 +183,7 @@ public class ConcurrentLastFM implements LastFMService {
 
 				if (statusCode != HttpStatus.SC_OK) {
 					System.err.println("Method failed: " + method.getStatusLine());
+					throw new LastFMServiceException("Error in the service: " + method.getStatusLine());
 				}
 
 				// Read the response body.
@@ -152,9 +194,12 @@ public class ConcurrentLastFM implements LastFMService {
 				JSONArray arr = obj.getJSONArray("album");
 				for (int i = 0; i < arr.length() && size < requestedSize; i++) {
 					JSONObject albumObj = arr.getJSONObject(i);
+					JSONObject artistObj = albumObj.getJSONObject("artist");
+					String albumName = albumObj.getString("name");
+					String artistName = artistObj.getString("name");
 					JSONArray image = albumObj.getJSONArray("image");
 					JSONObject bigImage = image.getJSONObject(3);
-					queue.add(new UrlCapsule(bigImage.getString("#text"), size));
+					queue.add(new UrlCapsule(bigImage.getString("#text"), size,albumName,artistName));
 					++size;
 				}
 
@@ -162,9 +207,7 @@ public class ConcurrentLastFM implements LastFMService {
 			} catch (HttpException e) {
 				System.err.println("Fatal protocol violation: " + e.getMessage());
 				e.printStackTrace();
-			} catch (JSONException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
+			} catch (JSONException | IOException e) {
 				e.printStackTrace();
 			} finally {
 				// Release the connection.
@@ -172,7 +215,7 @@ public class ConcurrentLastFM implements LastFMService {
 			}
 		}
 		byte[] img;
-		BufferedImage image = generateCollage(x, y);
+		BufferedImage image = CollageMaker.generateCollageThreaded(x, y, queue);
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 
 		try {
@@ -188,50 +231,6 @@ public class ConcurrentLastFM implements LastFMService {
 		return img;
 	}
 
-
-	private BufferedImage generateCollage(int x, int y) {
-
-		BufferedImage result = new BufferedImage(
-				x * 300, y * 300, //work these out
-				BufferedImage.TYPE_INT_RGB);
-
-		Graphics g = result.getGraphics();
-		System.out.println("a");
-
-
-		ExecutorService es = Executors.newCachedThreadPool();
-		for (int i = 0; i < 4; i++)
-			es.execute((new ThreadQueue(queue, g, x, y)));
-		es.shutdown();
-		try {
-			boolean finished = es.awaitTermination(10, TimeUnit.MINUTES);
-			System.out.println(finished);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-//                for (String  item : urls) {
-//            BufferedImage image ;
-//            URL url;
-//            try {
-//
-//                url = new URL(item);
-//                image = ImageIO.read(url);
-//                g.drawImage(image,x,y,null);
-//                x+=300;
-//                if(x >=result.getWidth()){
-//                    x = 0;
-//                    y += image.getHeight();
-//                }
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//
-//        }
-		return result;
-	}
 
 }
 

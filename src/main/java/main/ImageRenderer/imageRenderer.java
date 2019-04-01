@@ -1,9 +1,8 @@
 package main.ImageRenderer;
 
-import de.androidpit.colorthief.ColorThief;
-import main.ResultWrapper;
-import main.Results;
-import main.last.UserInfo;
+import DAO.Entities.ResultWrapper;
+import DAO.Entities.Results;
+import DAO.Entities.UserInfo;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -12,8 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.Math.sqrt;
 
 public class imageRenderer {
 	private static String pathNoImage = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
@@ -60,9 +57,10 @@ public class imageRenderer {
 		int rectangle_width = drawx2 - drawx1 - PROFILE_IMAGE_SIZE - 8;
 
 		g.drawRect(rectangle_start_x, rectangle_start_y, rectangle_width, rectangle_height);
-		Font font = new Font(Font.MONOSPACED, Font.BOLD, 10);
 
-		g.setFont(font);
+
+		Font font = new Font(Font.MONOSPACED, Font.BOLD, 10);
+		Font fontName = (new Font("Times New Roman Bold", Font.PLAIN, 22));
 
 
 		for (BufferedImage image : imageList) {
@@ -71,10 +69,19 @@ public class imageRenderer {
 			int drawx = x == 1 ? drawx2 : drawx1;
 
 			g.drawImage(image, drawx, y, 100, 100, null);
-			int stringx = x == 0 ? drawx + PROFILE_IMAGE_SIZE + 5 : drawx - 8 * 5;
 			UserInfo userInfo = userInfoLiust.get(x);
+			int length1 = drawx - g.getFontMetrics().getHeight() * String.valueOf(userInfo.getPlaycount()).length() / 2;
+			int countString = x == 0 ? drawx + PROFILE_IMAGE_SIZE + 5 : length1;
 
-			g.drawString("" + userInfo.getPlaycount(), stringx, rectangle_start_y + rectangle_height - 1);
+			g.setFont(fontName);
+			int length2 = drawx - g.getFontMetrics().getHeight() * (int) (String.valueOf(userInfo.getUsername()).length() * 0.45);
+			int nameString = x == 0 ? drawx + PROFILE_IMAGE_SIZE + 5 : length2;
+
+			int fontnameheight = g.getFontMetrics().getHeight();
+			g.drawString(userInfo.getUsername(), nameString, rectangle_start_y - fontnameheight);
+
+			g.setFont(font);
+			g.drawString("" + userInfo.getPlaycount(), countString, rectangle_start_y + rectangle_height - 1);
 			x++;
 		}
 
@@ -118,25 +125,6 @@ public class imageRenderer {
 		return canvas;
 	}
 
-	private static Color getColor(BufferedImage image) {
-		int[] color = ColorThief.getColor(image);
-
-		return new Color(color[0], color[1], color[2]);
-
-	}
-
-	private static Color getAverageTwo(Color color1, Color color2) {
-		float r1 = color1.getRed();
-		float g1 = color1.getGreen();
-		float b1 = color1.getBlue();
-		float r2 = color2.getRed();
-		float g2 = color2.getGreen();
-		float b2 = color2.getBlue();
-
-
-		Color a = new Color((int) sqrt((Math.pow(r1, 2) + Math.pow(r2, 2)) / 2), (int) sqrt((Math.pow(g1, 2) + Math.pow(g2, 2)) / 2), (int) sqrt((Math.pow(b1, 2) + Math.pow(b2, 2)) / 2));
-		return a;
-	}
 
 
 }
