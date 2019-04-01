@@ -1,6 +1,6 @@
-package main;
+package DAO;
 
-import DAO.*;
+import DAO.Entities.*;
 
 import javax.management.InstanceNotFoundException;
 import javax.sql.DataSource;
@@ -14,6 +14,7 @@ public class DaoImplementation {
 	private SQLShowsDao dao;
 
 	public DaoImplementation() {
+
 		this.dataSource = new SimpleDataSource();
 		this.dao = new Jdbc3CcSQLShowsDao();
 
@@ -33,7 +34,8 @@ public class DaoImplementation {
 					artistData.setDiscordID(id);
 					dao.addArtist(connection, artistData);
 					dao.addUrl(connection, artistData);
-				});
+					});
+				dao.setUpdatedTime(connection, id);
 
 
 				/* Commit. */
@@ -70,6 +72,7 @@ public class DaoImplementation {
 
 				/* Do work. */
 				LastFMData createdShow = dao.create(connection, data);
+				dao.addGuild(connection, data.getShowID(), data.getGuildID());
 
 				/* Commit. */
 				// Seguramente haya mejor solucion
@@ -173,4 +176,21 @@ public class DaoImplementation {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public WrapperReturnNowPlaying whoKnows(String artist, long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.knows(connection, artist, guildId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public UsersWrapper getLessUpdated() {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.getLessUpdated(connection);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

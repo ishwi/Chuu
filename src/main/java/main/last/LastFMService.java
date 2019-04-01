@@ -1,16 +1,20 @@
 package main.last;
 
 
-import DAO.ArtistData;
+import DAO.Entities.ArtistData;
+import DAO.Entities.NowPlayingArtist;
+import DAO.Entities.UserInfo;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public interface LastFMService {
 
-	List<UserInfo> getUserInfo(List<String> lastFmNames);
+    NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException;
 
-	LinkedList<ArtistData> getSimiliraties(String User);
+    List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFMServiceException;
 
-	byte[] getUserList(String username, String time, int x, int y);
+	LinkedList<ArtistData> getLibrary(String User) throws LastFMServiceException;
+
+	byte[] getUserList(String username, String time, int x, int y) throws LastFMServiceException;
 }
