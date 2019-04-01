@@ -130,7 +130,8 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 				"JOIN artist_url b ON temp.artist_id=b.artist_id " +
 				"JOIN lastfm c on c.lastFmId = temp.lastFMID " +
 				"JOIN user_guild d on c.discordID = d.discordId " +
-				"where d.guildId = ?";
+				"where d.guildId = ? " +
+				"ORDER BY temp.playNumber desc";
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
 			/* Fill "preparedStatement". */
@@ -177,7 +178,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 
 
 	@Override
-	public ArtistData addArtist(Connection con, ArtistData artistData) {
+	public void addArtist(Connection con, ArtistData artistData) {
 		/* Create "queryString". */
 		String queryString = "INSERT INTO lastfm.artist"
 				+ " ( lastFMID,artist_id,playNumber) " + " VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE playNumber=" + "?";
@@ -198,7 +199,6 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 			/* Get generated identifier. */
 
 			/* Return booking. */
-			return artistData;
 
 		} catch (SQLException e) {
 			throw new RuntimeException(e);

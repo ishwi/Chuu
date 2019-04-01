@@ -3,7 +3,7 @@ package DAO.Entities;
 public class ReturnNowPlaying {
 	private long discordId;
 	private String lastFMId;
-	private String artist;
+	private final String artist;
 	private int playnumber;
 
 	public ReturnNowPlaying(long discordId, String lastFMId, String artist, int playnumber) {

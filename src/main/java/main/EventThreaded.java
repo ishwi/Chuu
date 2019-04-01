@@ -27,15 +27,17 @@ import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class EventThreaded implements Runnable {
+class EventThreaded implements Runnable {
 
-	private MessageReceivedEvent event;
-	private DaoImplementation impl;
-	private LastFMService lastAccess;
+	private final MessageReceivedEvent event;
+	private final DaoImplementation impl;
+	private final LastFMService lastAccess;
+	private final Spotify spotify;
 
-	public EventThreaded(MessageReceivedEvent event, DaoImplementation dao, LastFMService last) {
+	public EventThreaded(MessageReceivedEvent event, DaoImplementation dao, LastFMService last, Spotify spotify) {
 		this.event = event;
 		this.impl = dao;
+		this.spotify = spotify;
 		this.lastAccess = last;
 	}
 
@@ -44,8 +46,8 @@ public class EventThreaded implements Runnable {
 
 		System.out.println("We received a message from " +
 				event.getAuthor().getName() + "; " + event.getMessage().getContentDisplay());
-
-		String[] message = event.getMessage().getContentRaw().substring(1).split("\\s+");
+		String message1 = event.getMessage().getContentRaw().substring(1);
+		String[] message = message1.split("\\s+");
 		String[] subMessage = Arrays.copyOfRange(message, 1, message.length);
 
 
@@ -75,6 +77,15 @@ public class EventThreaded implements Runnable {
 			case "whoknows":
 				onWhoKnowsArtist(subMessage, event);
 				break;
+			case "np":
+				onNowPlaying(subMessage, event);
+				break;
+			case "playing":
+				onAllPlaying(subMessage, event);
+				break;
+			case "npspotify":
+				onNPSpotify(subMessage, event);
+				break;
 			default:
 				printHelp(event);
 
@@ -83,13 +94,94 @@ public class EventThreaded implements Runnable {
 
 	}
 
+	private void onNPSpotify(String[] subMessage, MessageReceivedEvent event) {
+		String username;
+		MessageBuilder messageBuilder = new MessageBuilder();
+		try {
+			username = getLastFmUsername1input(subMessage, event.getAuthor().getIdLong(), event);
+			NowPlayingArtist nowPlayingArtist = lastAccess.getNowPlayingInfo(username);
+			StringBuilder a = new StringBuilder();
+			event.getChannel().sendTyping().queue();
+			String uri = spotify.searchItems(nowPlayingArtist.getSongName(), nowPlayingArtist.getArtistName(), nowPlayingArtist.getAlbumName());
+			messageBuilder.setContent(uri).sendTo(event.getChannel()).queue();
+		} catch (InstanceNotFoundException | LastFMServiceException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void onAllPlaying(String[] subMessage, MessageReceivedEvent event) {
+		boolean noFlag = Arrays.stream(subMessage).noneMatch(s -> s.equals("--recent"));
+		List<UsersWrapper> list = impl.getAll(event.getGuild().getIdLong());
+		MessageBuilder messageBuilder = new MessageBuilder();
+
+		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(randomColor()).setThumbnail(event.getGuild().getIconUrl())
+				.setTitle("What is being played now in " + event.getGuild().getName());
+		StringBuilder a = new StringBuilder();
+		event.getChannel().sendTyping().queue();
+
+
+		for (UsersWrapper usersWrapper : list) {
+
+			try {
+				NowPlayingArtist nowPlayingArtist = lastAccess.getNowPlayingInfo(usersWrapper.getLastFMName());
+				if (noFlag) {
+					if (!nowPlayingArtist.isNowPlaying()) {
+						continue;
+					}
+				}
+
+				String username = event.getGuild().getMemberById(usersWrapper.getDiscordID()).getEffectiveName();
+				a.append("+ ").append("[")
+						.append(username).append("](").append("https://www.last.fm/user/").append(usersWrapper.getLastFMName())
+						.append("): ")
+						.append("**").append(nowPlayingArtist.getSongName()).append("**")
+						.append(" - ").append(nowPlayingArtist.getAlbumName()).append(" | ")
+						.append(nowPlayingArtist.getArtistName()).append("\n");
+			} catch (LastFMServiceException e) {
+			}
+
+
+		}
+		embedBuilder.setDescription(a);
+		messageBuilder.setEmbed(embedBuilder.build()).sendTo(event.getChannel()).queue();
+	}
+
+	private void onNowPlaying(String[] subMessage, MessageReceivedEvent event) {
+		try {
+			String username = getLastFmUsername1input(subMessage, event.getAuthor().getIdLong(), event);
+			NowPlayingArtist nowPlayingArtist = lastAccess.getNowPlayingInfo(username);
+			StringBuilder a = new StringBuilder();
+			event.getChannel().sendTyping().queue();
+
+			a.append("**[").append(username).append("'s Profile](").append("https://www.last.fm/user/").append(username).append(")**\n\n")
+					.append(nowPlayingArtist.isNowPlaying() ? "Current" : "Last")
+					.append(":\n")
+					.append("**").append(nowPlayingArtist.getSongName()).append("**")
+					.append(" - ").append(nowPlayingArtist.getAlbumName()).append(" | ")
+					.append(nowPlayingArtist.getArtistName());
+
+			EmbedBuilder embedBuilder = new EmbedBuilder().setColor(randomColor()).setThumbnail(nowPlayingArtist.getUrl())
+					.setTitle("Now Playing:")
+					.setDescription(a);
+
+			MessageBuilder messageBuilder = new MessageBuilder();
+			messageBuilder.setEmbed(embedBuilder.build()).sendTo(event.getChannel()).queue();
+
+		} catch (InstanceNotFoundException e) {
+			userNotOnDB(event);
+		} catch (LastFMServiceException e) {
+			onLastFMError(event);
+		}
+	}
+
 
 	private void printHelp(MessageReceivedEvent event) {
 
 		MessageBuilder mes = new MessageBuilder();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		StringBuilder a = new StringBuilder();
-		String[] methods = {"set", "update", "chart", "top", "taste", "whoknowsnp", "whoknows"};
+		String[] methods = {"set", "update", "chart", "top", "taste", "whoknowsnp", "whoknows", "np", "playing"};
 		for (String s : methods) {
 			a.append(printCommand(s));
 		}
@@ -115,21 +207,60 @@ public class EventThreaded implements Runnable {
 	}
 
 	private void onWhoKnowsArtist(String[] message, MessageReceivedEvent event) {
+
+
 		MessageBuilder messageBuilder = new MessageBuilder();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
-		if (message.length != 1) {
+		if (message.length == 0) {
 			messageBuilder.setContent(printUsage("whoknows")).sendTo(event.getChannel()).queue();
 			return;
 		}
-		WrapperReturnNowPlaying wrapperReturnNowPlaying = impl.whoKnows(message[0], event.getGuild().getIdLong());
-		BufferedImage image = NPMaker.generateNP(wrapperReturnNowPlaying, event.getGuild().getName());
+		boolean flag = false;
+		String[] message1 = Arrays.stream(message).filter(s -> !s.equals("--image")).toArray(String[]::new);
+		if (message1.length != message.length) {
+			message = message1;
+			flag = true;
+		}
+		String artist;
+		if (message.length > 1) {
+			StringBuilder a = new StringBuilder();
+			for (String s : message) {
+				a.append(s).append(" ");
+			}
+			artist = a.toString().trim();
+		} else {
+			artist = message[0];
+		}
 
-		ByteArrayOutputStream b = new ByteArrayOutputStream();
+		WrapperReturnNowPlaying wrapperReturnNowPlaying = impl.whoKnows(artist, event.getGuild().getIdLong());
 		try {
+
+			if (!flag) {
+				StringBuilder builder = new StringBuilder();
+				int counter = 1;
+				for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {
+					String userName = event.getGuild().getMemberById(returnNowPlaying.getDiscordId()).getEffectiveName();
+					builder.append(counter++)
+							.append(". ")
+							.append("[").append(userName).append("]")
+							.append("(https://www.last.fm/user/").append(returnNowPlaying.getLastFMId()).append(") - ")
+							.append(returnNowPlaying.getPlaynumber()).append(" plays\n");
+				}
+
+				embedBuilder.setTitle("Who knows " + wrapperReturnNowPlaying.getArtist() + " in " + event.getGuild().getName() + "?").
+						setThumbnail(wrapperReturnNowPlaying.getUrl()).setDescription(builder)
+						.setColor(randomColor());
+				//.setFooter("Command invoked by " + event.getMember().getUser().getDiscriminator() + " · " + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toString(), );
+				messageBuilder.setEmbed(embedBuilder.build()).sendTo(event.getChannel()).queue();
+				return;
+			}
+			BufferedImage image = NPMaker.generateNP(wrapperReturnNowPlaying, event.getGuild().getName());
+			ByteArrayOutputStream b = new ByteArrayOutputStream();
 			ImageIO.write(image, "jpg", b);
 			byte[] img = b.toByteArray();
 			if (img.length < 8388608)
 				messageBuilder.sendTo(event.getChannel()).addFile(img, "cat.png").queue();
+
 
 		} catch (IOException | IllegalArgumentException e2) {
 			messageBuilder.setContent("No nibba listens to " + message[0]).sendTo(event.getChannel()).queue();
@@ -140,7 +271,9 @@ public class EventThreaded implements Runnable {
 
 	private void onWhoKnows(String[] message, long id, MessageReceivedEvent event) {
 
+
 		try {
+
 			event.getChannel().sendTyping().queue();
 			String username = getLastFmUsername1input(message, id, event);
 			NowPlayingArtist nowPlayingArtist = lastAccess.getNowPlayingInfo(username);
@@ -161,6 +294,13 @@ public class EventThreaded implements Runnable {
 
 	}
 
+	private Color randomColor() {
+		Random rand = new Random();
+		double r = rand.nextFloat() / 2f + 0.5;
+		double g = rand.nextFloat() / 2f + 0.5;
+		double b = rand.nextFloat() / 2f + 0.5;
+		return new Color((float) r, (float) g, (float) b);
+	}
 
 	private void onUpdate(String[] message, long id, MessageReceivedEvent event) {
 		String username;
@@ -278,6 +418,13 @@ public class EventThreaded implements Runnable {
 						"\t If useranme is not specified defaults to authors account\n\n";
 			case "whoknows":
 				return "**!whoknows artist** \n\n";
+			case "np":
+				return "**!np *username **\n" +
+						"\t If useranme is not specified defaults to authors account\n" +
+						"\t --image for image\n\n";
+			case "playing":
+				return "**!playing ** \n" +
+						"--recent for last track\n\n ";
 			default:
 				return "Something weird Happened";
 
@@ -293,7 +440,12 @@ public class EventThreaded implements Runnable {
 
 
 	private User findUSername(String name, java.util.List<User> userList) {
-		Optional<User> match = userList.stream().filter(user -> user.getIdLong() == Long.valueOf(name.substring(2, name.indexOf(">")))).findFirst();
+		Optional<User> match = userList.stream().
+				filter(user -> {
+					long a = Long.valueOf(name.substring(3, name.indexOf(">")));
+					return (user.getIdLong() == a);
+				})
+				.findFirst();
 		return match.orElse(null);
 	}
 
@@ -429,7 +581,6 @@ public class EventThreaded implements Runnable {
 
 		} catch (LastFMServiceException e) {
 			onLastFMError(event);
-			return;
 		}
 		// Max Discord File length
 
@@ -471,6 +622,7 @@ public class EventThreaded implements Runnable {
 		}
 		return username;
 	}
+
 
 }
 

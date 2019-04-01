@@ -12,10 +12,10 @@ import java.util.List;
 
 public class NPMaker {
 
-	private static String pathNoImage = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
-	private static int ALBUM_IMAGE_SIZE = 150;
-	private static int x_MAX = 600;
-	private static int y_MAX = 500;
+	private static final String pathNoImage = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
+	private static final int ALBUM_IMAGE_SIZE = 150;
+	private static final int x_MAX = 600;
+	private static final int y_MAX = 500;
 
 	public static BufferedImage generateNP(WrapperReturnNowPlaying wrapperReturnNowPlaying,String discordName) {
 
