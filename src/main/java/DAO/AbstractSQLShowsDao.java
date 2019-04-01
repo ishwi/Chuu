@@ -46,6 +46,31 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 	}
 
 	@Override
+	public List<UsersWrapper> getAll(Connection connection, long guildID) {
+		String queryString = "Select a.discordID, a.lastFmId FROM lastfm a join (Select discordId from user_guild where guildId = ? ) b on a.discordID = b.discordId";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+
+			/* Execute query. */
+			preparedStatement.setLong(1, guildID);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			List<UsersWrapper> returnList = new ArrayList<>();
+			while (resultSet.next()) {
+
+				String name = resultSet.getString("a.lastFmId");
+				long discordID = resultSet.getLong("a.discordID");
+				returnList.add(new UsersWrapper(discordID, name));
+			}
+			/* Return show. */
+			return returnList;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	@Override
 	public ResultWrapper similar(Connection connection, List<String> lastfMNames) throws InstanceNotFoundException {
 		int MAX_IN_DISPLAY = 14;
 		String userA = lastfMNames.get(0);

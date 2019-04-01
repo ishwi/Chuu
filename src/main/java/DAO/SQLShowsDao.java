@@ -6,7 +6,7 @@ import javax.management.InstanceNotFoundException;
 import java.sql.Connection;
 import java.util.List;
 
-public interface SQLShowsDao {
+interface SQLShowsDao {
 	LastFMData create(Connection con, LastFMData show);
 
 	LastFMData find(Connection con, Long showID) throws InstanceNotFoundException;
@@ -15,9 +15,11 @@ public interface SQLShowsDao {
 
 	void remove(Connection con, Long showID);
 
-	ArtistData addArtist(Connection con, ArtistData artistData);
+	void addArtist(Connection con, ArtistData artistData);
 
 	UsersWrapper getLessUpdated(Connection connection);
+
+	List<UsersWrapper> getAll(Connection connection, long guildId);
 
 	ResultWrapper similar(Connection connection, List<String> lastfMNames) throws InstanceNotFoundException;
 

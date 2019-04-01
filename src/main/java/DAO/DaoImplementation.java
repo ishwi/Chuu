@@ -10,8 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class DaoImplementation {
-	private DataSource dataSource;
-	private SQLShowsDao dao;
+	private final DataSource dataSource;
+	private final SQLShowsDao dao;
 
 	public DaoImplementation() {
 
@@ -34,7 +34,7 @@ public class DaoImplementation {
 					artistData.setDiscordID(id);
 					dao.addArtist(connection, artistData);
 					dao.addUrl(connection, artistData);
-					});
+				});
 				dao.setUpdatedTime(connection, id);
 
 
@@ -61,7 +61,7 @@ public class DaoImplementation {
 		}
 	}
 
-	public LastFMData addData(LastFMData data) {
+	public void addData(LastFMData data) {
 		try (Connection connection = dataSource.getConnection()) {
 
 			try {
@@ -81,7 +81,6 @@ public class DaoImplementation {
 				connection.commit();
 
 				// Relacionar post con show ?
-				return createdShow;
 
 			} catch (SQLException e) {
 				connection.rollback();
@@ -193,4 +192,11 @@ public class DaoImplementation {
 		}
 	}
 
+	public List<UsersWrapper> getAll(long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.getAll(connection, guildId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

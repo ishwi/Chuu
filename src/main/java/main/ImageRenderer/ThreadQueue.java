@@ -14,7 +14,7 @@ import java.util.concurrent.BlockingQueue;
 //        1500   ,1500, //work these out
 //        BufferedImage.TYPE_INT_RGB);
 //        Graphics g = result.getGraphics();
-public class ThreadQueue implements Runnable {
+class ThreadQueue implements Runnable {
 	private final BlockingQueue<UrlCapsule> queue;
 	private final Graphics2D g;
 	private final int y;
@@ -54,9 +54,7 @@ public class ThreadQueue implements Runnable {
 					Color mycolor = new Color(a);
 					g.setColor(getBetter(mycolor));
 					int accu = fontHeight - 10;
-					g.drawString(encapsuler.getArtistName(), x * 300, y * 300 + accu);
-					accu += accu;
-					g.drawString(encapsuler.getArtistName(), x * 300, y * 300 + accu);
+					drawNames(encapsuler, y, x, accu);
 					System.out.println(x + "                " + y);
 				} catch (IOException e) {
 					Color temp  = g.getColor();
@@ -68,9 +66,7 @@ public class ThreadQueue implements Runnable {
 					g.fillRect(x*300,y*300,300,300);
 					g.setColor(Color.BLACK);
 
-					g.drawString(encapsuler.getArtistName(), x * 300, y * 300 + accu);
-					accu += accu;
-					g.drawString(encapsuler.getArtistName(), x * 300, y * 300 + accu);
+					drawNames(encapsuler, y, x, accu);
 					g.setColor(temp);
 					e.printStackTrace();
 					System.out.println("\n JAJAJAJa\n" + encapsuler.getUrl() + encapsuler.getPos() + "\n \n ");
@@ -83,6 +79,12 @@ public class ThreadQueue implements Runnable {
 		}
 		System.out.println("\n \n \n\n\n\n\n\n\n           THREAD FINISHED             \n \n \n\n\n\n\n\n\n");
 
+	}
+
+	private void drawNames(UrlCapsule encapsuler, int y, int x, int accu) {
+		g.drawString(encapsuler.getArtistName(), x * 300, y * 300 + accu);
+		accu += accu;
+		g.drawString(encapsuler.getAlbumName(), x * 300, y * 300 + accu);
 	}
 
 	private Color getBetter(Color color) {

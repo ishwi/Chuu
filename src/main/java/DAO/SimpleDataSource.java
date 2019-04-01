@@ -7,10 +7,9 @@ import java.beans.PropertyVetoException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
 
-public class SimpleDataSource implements DataSource {
+class SimpleDataSource implements DataSource {
 	private static final String URL_PARAMETER =
 			"SimpleDataSource.url";
 	private static final String USER_PARAMETER =
@@ -20,7 +19,7 @@ public class SimpleDataSource implements DataSource {
 	private static String url;
 	private static String user;
 	private static String password;
-	private ComboPooledDataSource cpds;
+	private final ComboPooledDataSource cpds;
 
 	public SimpleDataSource() {
 		this.cpds = new ComboPooledDataSource();
@@ -46,42 +45,42 @@ public class SimpleDataSource implements DataSource {
 	}
 
 	@Override
-	public Connection getConnection(String s, String s1) throws SQLException {
+	public Connection getConnection(String s, String s1) {
 		return null;
 	}
 
 	@Override
-	public <T> T unwrap(Class<T> aClass) throws SQLException {
+	public <T> T unwrap(Class<T> aClass) {
 		return null;
 	}
 
 	@Override
-	public boolean isWrapperFor(Class<?> aClass) throws SQLException {
+	public boolean isWrapperFor(Class<?> aClass) {
 		return false;
 	}
 
 	@Override
-	public PrintWriter getLogWriter() throws SQLException {
+	public PrintWriter getLogWriter() {
 		return null;
 	}
 
 	@Override
-	public void setLogWriter(PrintWriter printWriter) throws SQLException {
+	public void setLogWriter(PrintWriter printWriter) {
 
 	}
 
 	@Override
-	public int getLoginTimeout() throws SQLException {
+	public int getLoginTimeout() {
 		return 0;
 	}
 
 	@Override
-	public void setLoginTimeout(int i) throws SQLException {
+	public void setLoginTimeout(int i) {
 
 	}
 
 	@Override
-	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+	public Logger getParentLogger() {
 		return null;
 	}
 }
