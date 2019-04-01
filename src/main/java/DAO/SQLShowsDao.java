@@ -1,6 +1,6 @@
 package DAO;
 
-import main.ResultWrapper;
+import DAO.Entities.*;
 
 import javax.management.InstanceNotFoundException;
 import java.sql.Connection;
@@ -17,8 +17,15 @@ public interface SQLShowsDao {
 
 	ArtistData addArtist(Connection con, ArtistData artistData);
 
+	UsersWrapper getLessUpdated(Connection connection);
+
 	ResultWrapper similar(Connection connection, List<String> lastfMNames) throws InstanceNotFoundException;
 
 	void addUrl(Connection con, ArtistData artistData);
 
+	WrapperReturnNowPlaying knows(Connection connection, String artist, long guildId);
+
+	void addGuild(Connection con, long userId, long guildId);
+
+	void setUpdatedTime(Connection connection, String id);
 }

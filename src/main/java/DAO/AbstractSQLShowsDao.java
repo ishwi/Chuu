@@ -1,7 +1,9 @@
 package DAO;
 
-import main.ResultWrapper;
-import main.Results;
+import DAO.Entities.LastFMData;
+import DAO.Entities.ResultWrapper;
+import DAO.Entities.Results;
+import DAO.Entities.UsersWrapper;
 
 import javax.management.InstanceNotFoundException;
 import java.sql.Connection;
@@ -16,6 +18,32 @@ import java.util.List;
  * @author Miguel
  */
 public abstract class AbstractSQLShowsDao implements SQLShowsDao {
+
+
+	@Override
+	public UsersWrapper getLessUpdated(Connection connection) {
+		String queryString = "Select a.discordID, a.lastFmId FROM lastfm a LEFT JOIN updated b on a.lastFmId=b.discordID" +
+				"  order by  last_update asc LIMIT 1";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+
+			/* Execute query. */
+			ResultSet resultSet = preparedStatement.executeQuery();
+			List<UsersWrapper> returnList = new ArrayList<>();
+			if (resultSet.next()) {
+
+				String name = resultSet.getString("a.lastFmId");
+				long discordID = resultSet.getLong("a.discordID");
+				return new UsersWrapper(discordID, name);
+			}
+			/* Return show. */
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		return null;
+	}
 
 	@Override
 	public ResultWrapper similar(Connection connection, List<String> lastfMNames) throws InstanceNotFoundException {
