@@ -1,17 +1,16 @@
 plugins {
     id 'java'
     id 'application'
-    id 'com.github.johnrengelman.shadow' version '2.0.1'
-
+        id "com.github.johnrengelman.shadow" version "5.0.0"
+    
 }
 apply plugin: 'java'
 apply plugin: 'idea'
 
-
 mainClassName = "main.Main"
 
 group 'ish'
-version '1.0-SNAPSHOT'
+version '1.0'
 apply plugin: 'java'
 
 sourceCompatibility = 1.8
@@ -26,6 +25,7 @@ repositories {
 
 dependencies {
 // https://mvnrepository.com/artifact/com.mchange/c3p0
+    compile 'se.michaelthelin.spotify:spotify-web-api-java:2.1.2'
     compile group: 'com.mchange', name: 'c3p0', version: '0.9.5.2'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.2'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.2'
@@ -33,6 +33,7 @@ dependencies {
     compile 'net.dv8tion:JDA:4.ALPHA.0_17'
     compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
 // https://mvnrepository.com/artifact/c3p0/c3p0
+// https://mvnrepository.com/artifact/com.github.jengelman.gradle.plugins/shadow
 
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.12'
     compile group: 'org.json', name: 'json', version: '20180130'

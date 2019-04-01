@@ -3,7 +3,6 @@ package main;
 import DAO.DaoImplementation;
 import main.last.ConcurrentLastFM;
 import main.last.LastFMService;
-import main.last.UpdaterThread;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -13,22 +12,20 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Main extends ListenerAdapter {
+class Main extends ListenerAdapter {
 
 
-	public static void main(String[] args) throws IOException, GeneralSecurityException {
+	public static void main(String[] args) {
+		Map<String, String> map = readToken();
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
 		LastFMService last = new ConcurrentLastFM();
 		DaoImplementation dao = new DaoImplementation();
-
-		String token = readToken();
-		builder.setToken(token);
-		builder.addEventListeners(new ListenerLauncher(last, dao));
+		Spotify spotifyWrapper = new Spotify(map.get("clientId"), map.get("clientSecret"));
+		builder.setToken(map.get("discordtoken"));
+		builder.addEventListeners(new ListenerLauncher(last, dao, spotifyWrapper));
 
 
 		try {
@@ -38,13 +35,13 @@ public class Main extends ListenerAdapter {
 			e.printStackTrace();
 
 		}
-		final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleAtFixedRate(new UpdaterThread(dao, last), 0, 15, TimeUnit.MINUTES);
+
 	}
 
-	private static String readToken() {
+	private static Map<String, String> readToken() {
 		BufferedReader br = null;
-		String token = null;
+
+		Map<String, String> map = new HashMap<>();
 		try {
 			br = new BufferedReader(new FileReader("C:\\Users\\Ishwi\\token.txt"));
 		} catch (FileNotFoundException e) {
@@ -53,7 +50,11 @@ public class Main extends ListenerAdapter {
 		try {
 			StringBuilder sb = new StringBuilder();
 			assert br != null;
-			token = br.readLine();
+			map.put("discordtoken", br.readLine());
+			map.put("clientId", br.readLine());
+			map.put("clientSecret", br.readLine());
+
+			return map;
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -65,7 +66,8 @@ public class Main extends ListenerAdapter {
 				e.printStackTrace();
 			}
 		}
-		return token;
+		throw new RuntimeException();
+
 	}
 }
 

@@ -13,10 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class imageRenderer {
-	private static String pathNoImage = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
-	private static int PROFILE_IMAGE_SIZE = 100;
-	private static int x_MAX = 600;
-	private static int y_MAX = 500;
+	private static final String pathNoImage = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
+	private static final int PROFILE_IMAGE_SIZE = 100;
+	private static final int x_MAX = 600;
+	private static final int y_MAX = 500;
 
 	public static BufferedImage generateTasteImage(ResultWrapper resultWrapper, List<UserInfo> userInfoLiust) {
 
