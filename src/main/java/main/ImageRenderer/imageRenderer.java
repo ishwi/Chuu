@@ -121,7 +121,7 @@ public class imageRenderer {
 			g.fillRect(x_MAX / 2, y + 2, bc / 2, 5);
 			y += 20;
 		}
-
+		g.dispose();
 		return canvas;
 	}
 

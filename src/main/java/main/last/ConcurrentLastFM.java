@@ -47,6 +47,7 @@ public class ConcurrentLastFM implements LastFMService {
 			JSONObject obj = new JSONObject(new String(responseBody));
 			obj = obj.getJSONObject("recenttracks");
 			JSONObject tracltObj = obj.getJSONArray("track").getJSONObject(0);
+
 			JSONObject artistObj = tracltObj.getJSONObject("artist");
 			String artistname = artistObj.getString("#text");
 			String mbid = artistObj.getString("mbid");
@@ -190,7 +191,9 @@ public class ConcurrentLastFM implements LastFMService {
 				byte[] responseBody = method.getResponseBody();
 				JSONObject obj = new JSONObject(new String(responseBody));
 				obj = obj.getJSONObject("topalbums");
-
+				int limit = obj.getJSONObject("@attr").getInt("total");
+				if (limit == size)
+					break;
 				JSONArray arr = obj.getJSONArray("album");
 				for (int i = 0; i < arr.length() && size < requestedSize; i++) {
 					JSONObject albumObj = arr.getJSONObject(i);
@@ -199,7 +202,7 @@ public class ConcurrentLastFM implements LastFMService {
 					String artistName = artistObj.getString("name");
 					JSONArray image = albumObj.getJSONArray("image");
 					JSONObject bigImage = image.getJSONObject(3);
-					queue.add(new UrlCapsule(bigImage.getString("#text"), size,albumName,artistName));
+					queue.add(new UrlCapsule(bigImage.getString("#text"), size, albumName, artistName));
 					++size;
 				}
 
@@ -215,11 +218,12 @@ public class ConcurrentLastFM implements LastFMService {
 			}
 		}
 		byte[] img;
-		BufferedImage image = CollageMaker.generateCollageThreaded(x, y, queue);
+		//
+		BufferedImage image = CollageMaker.generateCollageThreaded(Integer.max(1, size / x), Integer.max(1, (size / y)), queue);
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 
 		try {
-			ImageIO.write(image, "jpg", b);
+			ImageIO.write(image, "png", b);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -52,6 +52,7 @@ public class CollageMaker {
 //
 //
 //        }
+		g.dispose();
 		return result;
 	}
 }

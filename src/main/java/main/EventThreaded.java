@@ -4,6 +4,7 @@ import DAO.DaoImplementation;
 import DAO.Entities.*;
 import main.ImageRenderer.NPMaker;
 import main.ImageRenderer.imageRenderer;
+import main.last.ConcurrentLastFM;
 import main.last.LastFMService;
 import main.last.LastFMServiceException;
 import main.last.UpdaterThread;
@@ -38,7 +39,7 @@ class EventThreaded implements Runnable {
 		this.event = event;
 		this.impl = dao;
 		this.spotify = spotify;
-		this.lastAccess = last;
+		this.lastAccess = new ConcurrentLastFM();
 	}
 
 	@Override
@@ -135,8 +136,8 @@ class EventThreaded implements Runnable {
 				a.append("+ ").append("[")
 						.append(username).append("](").append("https://www.last.fm/user/").append(usersWrapper.getLastFMName())
 						.append("): ")
-						.append("**").append(nowPlayingArtist.getSongName()).append("**")
-						.append(" - ").append(nowPlayingArtist.getAlbumName()).append(" | ")
+						.append("**").append(nowPlayingArtist.getSongName())
+						.append("** - ").append(nowPlayingArtist.getAlbumName()).append(" | ")
 						.append(nowPlayingArtist.getArtistName()).append("\n");
 			} catch (LastFMServiceException e) {
 			}

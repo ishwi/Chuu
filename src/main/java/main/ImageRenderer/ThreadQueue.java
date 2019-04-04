@@ -77,6 +77,7 @@ class ThreadQueue implements Runnable {
 				e.printStackTrace();
 			}
 		}
+
 		System.out.println("\n \n \n\n\n\n\n\n\n           THREAD FINISHED             \n \n \n\n\n\n\n\n\n");
 
 	}
