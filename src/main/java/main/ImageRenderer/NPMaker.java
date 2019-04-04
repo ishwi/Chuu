@@ -60,6 +60,7 @@ public class NPMaker {
 			g.drawString(a,x_MAX/3 ,y);
 			y += g.getFontMetrics().getHeight() + 1;
 		}
+		g.dispose();
 	return canvas;
 	}
 

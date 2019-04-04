@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface LastFMService {
 
-    NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException;
+	NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException;
 
     List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFMServiceException;
 
