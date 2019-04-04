@@ -32,6 +32,8 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile 'net.dv8tion:JDA:4.ALPHA.0_17'
     compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
+    compile 'com.jagrosh:jda-utilities:JDA-UTILITIES-VERSION'
+    compile 'net.dv8tion:JDA:JDA-VERSION'
 // https://mvnrepository.com/artifact/c3p0/c3p0
 // https://mvnrepository.com/artifact/com.github.jengelman.gradle.plugins/shadow
 
