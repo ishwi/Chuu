@@ -3,10 +3,10 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import main.last.ConcurrentLastFM;
+import main.last.LastFMNoPlaysException;
 import main.last.LastFMServiceException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,8 +23,18 @@ public class WhoKnowsNPCommand extends MyCommandDbAccess {
 			returned = parse(e);
 			CommandUtil.a(returned[0], getDao(), e, Boolean.valueOf(returned[1]));
 		} catch (ParseException e1) {
-			sendMessage(e, "You are a dumbass");
-			return;
+			switch (e1.getMessage()) {
+				case "lastFM":
+					errorMessage(e, 0, e1.getMessage());
+					break;
+				case "NoPlays":
+					errorMessage(e, 2, e1.getMessage());
+					break;
+				case "DB":
+					errorMessage(e, 1, e1.getMessage());
+				default:
+					errorMessage(e, 1000, e1.getMessage());
+			}
 		}
 
 	}
@@ -66,15 +76,38 @@ public class WhoKnowsNPCommand extends MyCommandDbAccess {
 			subMessage = message1;
 		}
 		String username = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
-		NowPlayingArtist nowPlayingArtist = null;
+		NowPlayingArtist nowPlayingArtist;
 		try {
 			nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(username);
 
 
 		} catch (LastFMServiceException e1) {
-			throw new ParseException("a", 1);
+			throw new ParseException("LastFM");
+		} catch (LastFMNoPlaysException e1) {
+			throw new ParseException("NoPlays");
 		}
 		return new String[]{nowPlayingArtist.getArtistName(), Boolean.toString(flag)};
 
+	}
+
+	@Override
+	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
+		String message;
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
+
+		switch (code) {
+			case 0:
+				message = "User was not found on the database, register first!";
+				break;
+			case 1:
+				message = "There was a problem with Last FM Api" + cause;
+				break;
+			case 2:
+				message = "User hasnt played any song recently!" + cause;
+				break;
+			default:
+				message = "Unknown Error";
+		}
+		sendMessage(e, base + message);
 	}
 }

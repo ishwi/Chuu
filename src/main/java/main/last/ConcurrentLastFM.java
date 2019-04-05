@@ -33,7 +33,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private static final BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 
 	//@Override
-	public static NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException {
+	public static NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException, LastFMNoPlaysException {
 		HttpClient client = new HttpClient();
 		String url = BASE + GET_NOW_PLAYINH + user + API_KEY + ending;
 		GetMethod method = new GetMethod(url);
@@ -46,17 +46,23 @@ public class ConcurrentLastFM {//implements LastFMService {
 			byte[] responseBody = method.getResponseBody();
 			JSONObject obj = new JSONObject(new String(responseBody));
 			obj = obj.getJSONObject("recenttracks");
+			JSONObject attrObj = obj.getJSONObject("@attr");
+			if (attrObj.getInt("total") == 0) {
+				throw new LastFMNoPlaysException(user);
+			}
+			boolean nowPlayin;
+
+			try {
+				nowPlayin = attrObj.getBoolean("nowplaying");
+			} catch (JSONException e) {
+				nowPlayin = false;
+			}
 			JSONObject tracltObj = obj.getJSONArray("track").getJSONObject(0);
 
 			JSONObject artistObj = tracltObj.getJSONObject("artist");
 			String artistname = artistObj.getString("#text");
 			String mbid = artistObj.getString("mbid");
-			boolean nowPlayin;
-			try {
-				nowPlayin = tracltObj.getJSONObject("@attr").getBoolean("nowplaying");
-			} catch (JSONException e) {
-				nowPlayin = false;
-			}
+
 			String albumName = tracltObj.getJSONObject("album").getString("#text");
 			String songName = tracltObj.getString("name");
 			String image_url = tracltObj.getJSONArray("image").getJSONObject(2).getString("#text");

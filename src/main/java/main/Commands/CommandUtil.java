@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.util.Random;
 
 public class CommandUtil {
+	static String noImageUrl(String artist) {
+		return !artist.isEmpty() ? artist : "https://lastfm-img2.akamaized.net/i/u/174s/4128a6eb29f94943c9d206c08e625904";
+	}
 
 	public static void a(String who, DaoImplementation dao, MessageReceivedEvent event, Boolean isImage) {
 		MessageBuilder messageBuilder = new MessageBuilder();
@@ -31,7 +34,8 @@ public class CommandUtil {
 					builder.append(counter++)
 							.append(". ")
 							.append("[").append(userName).append("]")
-							.append("(https://www.last.fm/user/").append(returnNowPlaying.getLastFMId()).append(") - ")
+							.append("(https://www.last.fm/user/").append(returnNowPlaying.getLastFMId())
+							.append("/library/music/").append(wrapperReturnNowPlaying.getArtist().replaceAll(" ", "+")).append(") - ")
 							.append(returnNowPlaying.getPlaynumber()).append(" plays\n");
 				}
 
@@ -55,7 +59,7 @@ public class CommandUtil {
 		}
 	}
 
-	public static Color randomColor() {
+	static Color randomColor() {
 		Random rand = new Random();
 		double r = rand.nextFloat() / 2f + 0.5;
 		double g = rand.nextFloat() / 2f + 0.5;

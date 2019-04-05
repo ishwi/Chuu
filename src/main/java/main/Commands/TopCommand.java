@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class TopCommand extends MyCommandDbAccess {
 		try {
 			message = parse(e);
 		} catch (ParseException e1) {
-			//Unrechable
+			errorMessage(e, 0, e1.getMessage());
 			return;
 		}
 		e.getChannel().sendTyping().queue();
@@ -32,11 +31,9 @@ public class TopCommand extends MyCommandDbAccess {
 				.setDescription("Most Listened Artists");
 		mes.setEmbed(embed.build());
 		try {
-
-
 			e.getChannel().sendFile(ConcurrentLastFM.getUserList(message[0], "overall", 5, 5), "cat.png", mes.build()).queue();
 		} catch (LastFMServiceException ex) {
-			onLastFMError(e);
+			errorMessage(e, 1, ex.getMessage());
 		}
 
 	}
@@ -68,5 +65,15 @@ public class TopCommand extends MyCommandDbAccess {
 	public String[] parse(MessageReceivedEvent e) throws ParseException {
 
 		return new String[]{getLastFmUsername1input(getSubMessage(e.getMessage()), e.getAuthor().getIdLong(), e)};
+	}
+
+	@Override
+	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:";
+		if (code == 0) {
+			userNotOnDB(e, code);
+			return;
+		}
+		sendMessage(e, base + "There was a problem with Last FM Api" + cause);
 	}
 }

@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -85,6 +84,11 @@ public class HelpCommand extends MyCommand {
 		return new String[0];
 	}
 
+	@Override
+	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
+
+	}
+
 	private void sendPrivate(PrivateChannel channel, String[] args) {
 		if (args.length < 2) {
 			StringBuilder s = new StringBuilder();
@@ -112,24 +116,19 @@ public class HelpCommand extends MyCommand {
 					usageInstructions = (usageInstructions == null || usageInstructions.isEmpty()) ? Collections.singletonList(NO_USAGE) : usageInstructions;
 
 					//TODO: Replace with a PrivateMessage
-					channel.sendMessage(new MessageBuilder()
-							.append("**Name:** " + name + "\n")
-							.append("**Description:** " + description + "\n")
-							.append("**Alliases:** " + String.join(", ", c.getAliases()) + "\n")
+					channel.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n").append("**Description:** ").append(description).append("\n").append("**Alliases:** ").append(String.join(", ", c.getAliases())).append("\n")
 							.append("**Usage:** ")
 							.append(usageInstructions.get(0))
 							.build()).queue();
 					for (int i = 1; i < usageInstructions.size(); i++) {
-						channel.sendMessage(new MessageBuilder()
-								.append("__" + name + " Usage Cont. (" + (i + 1) + ")__\n")
+						channel.sendMessage(new MessageBuilder().append("__").append(name).append(" Usage Cont. (").append(String.valueOf(i + 1)).append(")__\n")
 								.append(usageInstructions.get(i))
 								.build()).queue();
 					}
 					return;
 				}
 			}
-			channel.sendMessage(new MessageBuilder()
-					.append("The provided command '**" + args[1] + "**' does not exist. Use .help to list all commands.")
+			channel.sendMessage(new MessageBuilder().append("The provided command '**").append(args[1]).append("**' does not exist. Use .help to list all commands.")
 					.build()).queue();
 		}
 	}

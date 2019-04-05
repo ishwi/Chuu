@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -48,7 +47,14 @@ public class ChartCommand extends MyCommandDbAccess {
 		try {
 			returned = parse(e);
 		} catch (ParseException e1) {
-			new MessageBuilder("You are a dumbass").sendTo(cha).queue();
+			switch (e1.getMessage()) {
+				case "DB":
+					errorMessage(e, 0, e1.getMessage());
+					break;
+				case "Commands":
+					errorMessage(e, 1, e1.getMessage());
+					break;
+			}
 			return;
 		}
 
@@ -85,7 +91,7 @@ public class ChartCommand extends MyCommandDbAccess {
 
 
 		} catch (LastFMServiceException ex2) {
-			onLastFMError(e);
+			errorMessage(e, 3, ex2.getMessage());
 		}
 
 	}
@@ -132,7 +138,7 @@ public class ChartCommand extends MyCommandDbAccess {
 		String[] message = getSubMessage(e.getMessage());
 
 		if (message.length > 3) {
-			throw new ParseException(message[3], 0);
+			throw new ParseException("Command");
 		}
 		Stream<String> firstStream = Arrays.stream(message).filter(s -> s.matches(pattern));
 		Optional<String> opt = firstStream.filter(s -> s.matches(pattern)).findAny();
@@ -158,5 +164,27 @@ public class ChartCommand extends MyCommandDbAccess {
 		}
 		timeFrame = getTimeFromChar(timeFrame);
 		return new String[]{x, y, discordName, timeFrame};
+	}
+
+	@Override
+	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
+
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
+		String message;
+		switch (code) {
+			case 1:
+				message = "You introduced too many words";
+				break;
+			case 0:
+				userNotOnDB(e, 0);
+				return;
+			case 2:
+				message = "There was a problem with Last FM Api" + cause;
+				break;
+			default:
+				message = "Unknown Error happened";
+				break;
+		}
+		sendMessage(e, base + message);
 	}
 }

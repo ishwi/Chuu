@@ -28,7 +28,7 @@ class Main extends ListenerAdapter {
 		}
 	}
 
-	public static File getThisJarFile() throws UnsupportedEncodingException {
+	static File getThisJarFile() throws UnsupportedEncodingException {
 		//Gets the path of the currently running Jar file
 		String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		String decodedPath = URLDecoder.decode(path, "UTF-8");
@@ -85,7 +85,7 @@ class Main extends ListenerAdapter {
 		builder.addEventListeners(help.registerCommand(new UpdateCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao, spotifyWrapper)));
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(1);
-		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao), 0, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao), 5, 10, TimeUnit.MINUTES);
 
 		try {
 			builder.build().awaitReady();
