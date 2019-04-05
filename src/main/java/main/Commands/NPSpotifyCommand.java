@@ -4,11 +4,11 @@ import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import main.Spotify;
 import main.last.ConcurrentLastFM;
+import main.last.LastFMNoPlaysException;
 import main.last.LastFMServiceException;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +19,27 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 
 	}
 
+	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
+		String message;
+		switch (code) {
+			case 0:
+				message = "User Was not found on the database";
+				break;
+			case 1:
+				message = "Didnt find what you were playing on Spotify";
+				break;
+			case 2:
+				message = "There was a problem with Last FM Api" + cause;
+				break;
+			case 3:
+				message = "User hasnt played any song recently!";
+				break;
+			default:
+				message = "An unkown error happened while processing your request";
+		}
+		sendMessage(e, message);
+	}
+
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		String username;
@@ -27,7 +48,7 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 		try {
 			username = parse(e)[0];
 		} catch (ParseException ex) {
-			sendMessage(e, "aaa");
+			errorMessage(e, 0, ex.getMessage());
 			return;
 		}
 		try {
@@ -35,9 +56,16 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 			StringBuilder a = new StringBuilder();
 			e.getChannel().sendTyping().queue();
 			String uri = spotify.searchItems(nowPlayingArtist.getSongName(), nowPlayingArtist.getArtistName(), nowPlayingArtist.getAlbumName());
+
+			if (uri.equals("")) {
+				errorMessage(e, 1, "Spotify");
+				return;
+			}
 			messageBuilder.setContent(uri).sendTo(e.getChannel()).queue();
 		} catch (LastFMServiceException ex) {
-			onLastFMError(e);
+			errorMessage(e, 2, ex.getMessage());
+		} catch (LastFMNoPlaysException e1) {
+			errorMessage(e, 3, e1.getMessage());
 		}
 
 	}
@@ -63,7 +91,7 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 	}
 
 	@Override
-	public String[] parse(MessageReceivedEvent e) throws ParseException {
+	public String[] parse(MessageReceivedEvent e) throws main.Commands.ParseException {
 		return new String[]{getLastFmUsername1input(getSubMessage(e.getMessage()), e.getAuthor().getIdLong(), e)};
 	}
 }

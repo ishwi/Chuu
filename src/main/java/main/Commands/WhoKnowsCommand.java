@@ -1,10 +1,8 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,8 +21,7 @@ public class WhoKnowsCommand extends MyCommandDbAccess {
 			returned = parse(e);
 			CommandUtil.a(returned[0], getDao(), e, Boolean.valueOf(returned[1]));
 		} catch (ParseException e1) {
-			new MessageBuilder("You are a dumbass").sendTo(e.getChannel()).queue();
-			return;
+			errorMessage(e, 0, e1.getMessage());
 		}
 
 	}
@@ -59,7 +56,7 @@ public class WhoKnowsCommand extends MyCommandDbAccess {
 
 		if (message.length == 0) {
 			//No Commands Inputed
-			throw new ParseException("", 0);
+			throw new ParseException("Input");
 		}
 		boolean flag = false;
 		String[] message1 = Arrays.stream(message).filter(s -> !s.equals("--image")).toArray(String[]::new);
@@ -79,5 +76,15 @@ public class WhoKnowsCommand extends MyCommandDbAccess {
 		}
 		return new String[]{artist, Boolean.toString(flag)};
 
+	}
+
+	@Override
+	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
+		if (code == 0) {
+			sendMessage(e, base + " You need to specify the Artist!");
+			return;
+		}
+		sendMessage(e, base + "Unknown Error");
 	}
 }
