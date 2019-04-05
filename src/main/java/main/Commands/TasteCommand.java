@@ -16,7 +16,6 @@ import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,11 +32,20 @@ public class TasteCommand extends MyCommandDbAccess {
 		try {
 			lastfMNames = Arrays.asList((parse(e)));
 		} catch (ParseException ex) {
-			sendMessage(e, "err ");
+			switch (ex.getMessage()) {
+				case "Commands":
+					errorMessage(e, 0, ex.getMessage());
+					break;
+				case "db":
+					errorMessage(e, 1, ex.getMessage());
+					break;
+				default:
+					errorMessage(e, 2, ex.getMessage());
+					break;
+			}
 			return;
 		}
-
-		ResultWrapper resultWrapper = null;
+		ResultWrapper resultWrapper;
 		try {
 			resultWrapper = getDao().getSimilarities(lastfMNames);
 			System.out.println("resultWrapper = " + resultWrapper.getRows());
@@ -49,21 +57,19 @@ public class TasteCommand extends MyCommandDbAccess {
 
 			ByteArrayOutputStream b = new ByteArrayOutputStream();
 			try {
-				ImageIO.write(image, "jpg", b);
+				ImageIO.write(image, "png", b);
 				byte[] img = b.toByteArray();
 				if (img.length < 8388608) {
-					messageBuilder.sendTo(e.getChannel()).addFile(img, "cat.png").queue();
+					messageBuilder.sendTo(e.getChannel()).addFile(img, "taste.png").queue();
 				}
 
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
 		} catch (InstanceNotFoundException e1) {
-			userNotOnDB(e);
-			return;
+			errorMessage(e, 1, e1.getMessage());
 		} catch (LastFMServiceException e1) {
-			onLastFMError(e);
-			return;
+			errorMessage(e, 3, e1.getMessage());
 		}
 
 
@@ -91,12 +97,12 @@ public class TasteCommand extends MyCommandDbAccess {
 	}
 
 	@Override
-	public String[] parse(MessageReceivedEvent e) throws ParseException {
+	public String[] parse(MessageReceivedEvent e) throws main.Commands.ParseException {
 		MessageBuilder mes = new MessageBuilder();
 
 		String[] message = getSubMessage(e.getMessage());
 		if (message.length == 0)
-			throw new ParseException("a", 3);
+			throw new ParseException("Commands");
 
 		e.getChannel().sendTyping().queue();
 		String[] userList = {"", ""};
@@ -105,8 +111,7 @@ public class TasteCommand extends MyCommandDbAccess {
 			try {
 				userList[0] = getDao().findShow(e.getAuthor().getIdLong()).getName();
 			} catch (InstanceNotFoundException ex) {
-				userNotOnDB(e);
-				throw new ParseException("Base dE datos", 1);
+				throw new ParseException("bd");
 			}
 		} else {
 			userList[0] = message[0];
@@ -122,13 +127,37 @@ public class TasteCommand extends MyCommandDbAccess {
 					.collect(Collectors.toList());
 			lastfMNames.forEach(System.out::println);
 		} catch (Exception ex) {
-			throw new ParseException("a", 3);
+			throw new ParseException(ex.getMessage());
 
 		}
 		return new String[]{lastfMNames.get(0), lastfMNames.get(1)};
 	}
 
-	private User findUSername(String name, java.util.List<User> userList) {
+	@Override
+	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
+		String message;
+		switch (code) {
+			case 0:
+				message = "Need at least one argument!";
+				break;
+			case 1:
+				message = "User not on db ,register first!";
+				break;
+			case 2:
+				message = "User " + cause + " hasnt registered yet!";
+				break;
+			case 3:
+				message = "There was a problem with Last FM Api" + cause;
+				break;
+			default:
+				message = "Unknown Error happened";
+				break;
+		}
+		sendMessage(e, base + message);
+	}
+
+	private User findUsername(String name, java.util.List<User> userList) {
 		Optional<User> match = userList.stream().
 				filter(user -> {
 					long a = Long.valueOf(name.substring(3, name.indexOf(">")));
@@ -140,12 +169,12 @@ public class TasteCommand extends MyCommandDbAccess {
 
 	private String lambda(String s, java.util.List<User> list) {
 		if (s.startsWith("<@")) {
-			User result = this.findUSername(s, list);
+			User result = this.findUsername(s, list);
 			if (result != null) {
 				try {
 					return getDao().findShow(result.getIdLong()).getName();
 				} catch (InstanceNotFoundException e) {
-					throw new RuntimeException();
+					throw new RuntimeException(result.getName());
 				}
 			}
 		}
