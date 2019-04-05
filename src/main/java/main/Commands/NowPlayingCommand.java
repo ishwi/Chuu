@@ -3,12 +3,12 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import main.last.ConcurrentLastFM;
+import main.last.LastFMNoPlaysException;
 import main.last.LastFMServiceException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class NowPlayingCommand extends MyCommandDbAccess {
 					.append(" - ").append(nowPlayingArtist.getAlbumName()).append(" | ")
 					.append(nowPlayingArtist.getArtistName());
 
-			EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(nowPlayingArtist.getUrl())
+			EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
 					.setTitle("Now Playing:")
 					.setDescription(a);
 
@@ -41,9 +41,11 @@ public class NowPlayingCommand extends MyCommandDbAccess {
 			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 
 		} catch (ParseException ex) {
-			userNotOnDB(e);
+			errorMessage(e, 0, ex.getMessage());
 		} catch (LastFMServiceException ex) {
-			onLastFMError(e);
+			errorMessage(e, 1, ex.getMessage());
+		} catch (LastFMNoPlaysException e1) {
+			errorMessage(e, 2, e1.getMessage());
 		}
 
 	}
@@ -75,5 +77,23 @@ public class NowPlayingCommand extends MyCommandDbAccess {
 		String[] message = getSubMessage(e.getMessage());
 		return new String[]{getLastFmUsername1input(message, e.getAuthor().getIdLong(), e)};
 
+	}
+
+	@Override
+	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
+		String message;
+		if (code == 0) {
+			userNotOnDB(e, code);
+			return;
+		}
+
+		if (code == 2) {
+			message = "User hasnt played any song recently!";
+
+		} else {
+			message = "There was a problem with Last FM Api " + cause;
+		}
+		sendMessage(e, base + message);
 	}
 }

@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +23,7 @@ public abstract class MyCommand extends ListenerAdapter {
 
 	public abstract String[] parse(MessageReceivedEvent e) throws ParseException;
 
+	public abstract void errorMessage(MessageReceivedEvent e, int code, String cause);
 
 	@Override
 	public void onMessageReceived(MessageReceivedEvent e) {
@@ -60,12 +60,7 @@ public abstract class MyCommand extends ListenerAdapter {
 		return false;
 	}
 
-	public void onLastFMError(MessageReceivedEvent event) {
-		MessageBuilder messageBuilder = new MessageBuilder();
-		messageBuilder.setContent("An error happened with the Last.fm API, Try again later");
-		messageBuilder.sendTo(event.getChannel()).queue();
 
-	}
 
 	public String[] getSubMessage(Message message) {
 		String[] parts = message.getContentRaw().substring(1).split("\\s+");

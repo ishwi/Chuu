@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
-import java.text.ParseException;
 import java.util.List;
 
 public abstract class MyCommandDbAccess extends MyCommand {
@@ -16,7 +15,7 @@ public abstract class MyCommandDbAccess extends MyCommand {
 		this.dao = dao;
 	}
 
-	public String getLastFmUsername1input(String[] message, Long id, MessageReceivedEvent event) throws ParseException {
+	String getLastFmUsername1input(String[] message, Long id, MessageReceivedEvent event) throws ParseException {
 		String username;
 		try {
 			if ((message.length > 1) || (message.length == 0)) {
@@ -34,17 +33,25 @@ public abstract class MyCommandDbAccess extends MyCommand {
 				}
 			}
 		} catch (InstanceNotFoundException e) {
-			throw new ParseException("a", 1);
+			throw new ParseException("DB");
 		}
 		return username;
 	}
 
-	public void userNotOnDB(MessageReceivedEvent event) {
+	void userNotOnDB(MessageReceivedEvent e, int code) {
 
-		System.out.println("Problemo");
-		event.getChannel().sendMessage("User doesnt have an account set").queue();
+		String message;
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
 
-
+		switch (code) {
+			case 0:
+				message = "User was not found on the database, register first!";
+				break;
+			default:
+				message = "Unknown Error";
+				break;
+		}
+		sendMessage(e, base + message);
 	}
 
 
