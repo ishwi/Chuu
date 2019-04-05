@@ -12,7 +12,7 @@ import com.wrapper.spotify.requests.data.search.SearchItemRequest;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
-class Spotify {
+public class Spotify {
 
 	private final SpotifyApi spotifyApi;
 	private final ClientCredentialsRequest clientCredentialsRequest;
