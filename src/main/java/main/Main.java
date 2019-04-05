@@ -1,8 +1,7 @@
 package main;
 
 import DAO.DaoImplementation;
-import main.last.ConcurrentLastFM;
-import main.last.LastFMService;
+import main.Commands.*;
 import main.last.UpdaterThread;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDABuilder;
@@ -70,13 +69,23 @@ class Main extends ListenerAdapter {
 	private static void setupBot() {
 		Map<String, String> map = readToken();
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
-		LastFMService last = new ConcurrentLastFM();
 		DaoImplementation dao = new DaoImplementation();
 		Spotify spotifyWrapper = new Spotify(map.get("clientId"), map.get("clientSecret"));
 		builder.setToken(map.get("discordtoken"));
-		builder.addEventListeners(new ListenerLauncher(last, dao, spotifyWrapper));
+		HelpCommand help = new HelpCommand();
+		builder.addEventListeners(help);
+		builder.addEventListeners(help.registerCommand(new NowPlayingCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new WhoKnowsCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new ChartCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new SetCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new AllPlayingCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new TasteCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new TopCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new UpdateCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao, spotifyWrapper)));
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(1);
-		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, last), 0, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao), 0, 10, TimeUnit.MINUTES);
 
 		try {
 			builder.build().awaitReady();

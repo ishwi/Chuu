@@ -22,18 +22,18 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
-public class ConcurrentLastFM implements LastFMService {
-	private final String API_KEY = "&api_key=***REMOVED***";
-	private final String BASE = "http://ws.audioscrobbler.com/2.0/";
-	private final String GET_ALBUMS = "?method=user.gettopalbums&user=";
-	private final String GET_LIBRARY = "?method=library.getartists&user=";
-	private final String GET_USER = "?method=user.getinfo&user=";
-	private final String ending = "&format=json";
-	private final String GET_NOW_PLAYINH = "?method=user.getrecenttracks&limit=1&user=";
-	private final BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
+public class ConcurrentLastFM {//implements LastFMService {
+	private static final String API_KEY = "&api_key=***REMOVED***";
+	private static final String BASE = "http://ws.audioscrobbler.com/2.0/";
+	private static final String GET_ALBUMS = "?method=user.gettopalbums&user=";
+	private static final String GET_LIBRARY = "?method=library.getartists&user=";
+	private static final String GET_USER = "?method=user.getinfo&user=";
+	private static final String ending = "&format=json";
+	private static final String GET_NOW_PLAYINH = "?method=user.getrecenttracks&limit=1&user=";
+	private static final BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 
-	@Override
-	public NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException {
+	//@Override
+	public static NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException {
 		HttpClient client = new HttpClient();
 		String url = BASE + GET_NOW_PLAYINH + user + API_KEY + ending;
 		GetMethod method = new GetMethod(url);
@@ -68,8 +68,8 @@ public class ConcurrentLastFM implements LastFMService {
 
 	}
 
-	@Override
-	public List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFMServiceException {
+	//@Override
+	public static List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFMServiceException {
 		HttpClient client = new HttpClient();
 		List<UserInfo> returnList = new ArrayList<>();
 
@@ -107,8 +107,8 @@ public class ConcurrentLastFM implements LastFMService {
 
 	}
 
-	@Override
-	public LinkedList<ArtistData> getLibrary(String User) throws LastFMServiceException {
+	//@Override
+	public static LinkedList<ArtistData> getLibrary(String User) throws LastFMServiceException {
 		String url = BASE + GET_LIBRARY + User + API_KEY + ending;
 		int page = 1;
 		int pages = 1;
@@ -161,7 +161,7 @@ public class ConcurrentLastFM implements LastFMService {
 	}
 
 
-	public byte[] getUserList(String User, String weekly, int x, int y) throws LastFMServiceException {
+	public static byte[] getUserList(String User, String weekly, int x, int y) throws LastFMServiceException {
 
 		String url = BASE + GET_ALBUMS + User + API_KEY + ending + "&period=" + weekly;
 
