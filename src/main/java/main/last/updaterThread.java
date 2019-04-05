@@ -1,3 +1,4 @@
+
 package main.last;
 
 import DAO.DaoImplementation;
@@ -12,11 +13,9 @@ import java.util.LinkedList;
 public class UpdaterThread implements Runnable {
 
 	private final DaoImplementation dao;
-	private final LastFMService last;
 
-	public UpdaterThread(DaoImplementation dao, LastFMService last) {
+	public UpdaterThread(DaoImplementation dao) {
 		this.dao = dao;
-		this.last = last;
 	}
 
 	@Override
@@ -25,7 +24,7 @@ public class UpdaterThread implements Runnable {
 
 		UsersWrapper usertoWork = dao.getLessUpdated();
 		try {
-			LinkedList<ArtistData> artistDataLinkedList = last.getLibrary(usertoWork.getLastFMName());
+			LinkedList<ArtistData> artistDataLinkedList = ConcurrentLastFM.getLibrary(usertoWork.getLastFMName());
 			dao.addData(artistDataLinkedList, usertoWork.getLastFMName());
 
 			System.out.println("Updated Info of" + usertoWork + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
