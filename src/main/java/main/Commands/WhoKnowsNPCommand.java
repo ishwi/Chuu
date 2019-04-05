@@ -2,9 +2,10 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
+import main.Exceptions.ParseException;
 import main.last.ConcurrentLastFM;
-import main.last.LastFMNoPlaysException;
-import main.last.LastFMServiceException;
+import main.Exceptions.LastFMNoPlaysException;
+import main.Exceptions.LastFMServiceException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;

@@ -2,7 +2,6 @@ package main;
 
 import DAO.DaoImplementation;
 import main.Commands.*;
-import main.last.UpdaterThread;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
