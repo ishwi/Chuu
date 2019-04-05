@@ -4,6 +4,8 @@ import DAO.Entities.ArtistData;
 import DAO.Entities.NowPlayingArtist;
 import DAO.Entities.UrlCapsule;
 import DAO.Entities.UserInfo;
+import main.Exceptions.LastFMNoPlaysException;
+import main.Exceptions.LastFMServiceException;
 import main.ImageRenderer.CollageMaker;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;

@@ -1,8 +1,9 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import main.Exceptions.ParseException;
 import main.last.ConcurrentLastFM;
-import main.last.LastFMServiceException;
+import main.Exceptions.LastFMServiceException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

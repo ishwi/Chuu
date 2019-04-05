@@ -3,9 +3,10 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.ResultWrapper;
 import DAO.Entities.UserInfo;
+import main.Exceptions.ParseException;
 import main.ImageRenderer.imageRenderer;
 import main.last.ConcurrentLastFM;
-import main.last.LastFMServiceException;
+import main.Exceptions.LastFMServiceException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.User;
@@ -97,7 +98,7 @@ public class TasteCommand extends MyCommandDbAccess {
 	}
 
 	@Override
-	public String[] parse(MessageReceivedEvent e) throws main.Commands.ParseException {
+	public String[] parse(MessageReceivedEvent e) throws ParseException {
 		MessageBuilder mes = new MessageBuilder();
 
 		String[] message = getSubMessage(e.getMessage());

@@ -2,10 +2,11 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
+import main.Exceptions.ParseException;
 import main.Spotify;
 import main.last.ConcurrentLastFM;
-import main.last.LastFMNoPlaysException;
-import main.last.LastFMServiceException;
+import main.Exceptions.LastFMNoPlaysException;
+import main.Exceptions.LastFMServiceException;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -91,7 +92,7 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 	}
 
 	@Override
-	public String[] parse(MessageReceivedEvent e) throws main.Commands.ParseException {
+	public String[] parse(MessageReceivedEvent e) throws ParseException {
 		return new String[]{getLastFmUsername1input(getSubMessage(e.getMessage()), e.getAuthor().getIdLong(), e)};
 	}
 }

@@ -1,6 +1,7 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import main.Exceptions.ParseException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;

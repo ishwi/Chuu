@@ -15,6 +15,7 @@
  */
 package main.Commands;
 
+import main.Exceptions.ParseException;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.PrivateChannel;

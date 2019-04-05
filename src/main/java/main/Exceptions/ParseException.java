@@ -1,4 +1,4 @@
-package main.Commands;
+package main.Exceptions;
 
 public class ParseException extends Exception {
 	public ParseException(String message) {
