@@ -44,6 +44,8 @@ public class imageRenderer {
 		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 		g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
 		g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+		String urlTop = resultWrapper.getResultList().get(0).getUrl();
+
 		a(g);
 
 		//Gets Profile Images
@@ -198,6 +200,7 @@ public class imageRenderer {
 	private static void a(Graphics2D g) {
 		BufferedImage bim = null;
 		try {
+
 			File dir = new File("C:\\Users\\Ishwi\\Desktop\\Wallpaper\\");
 			File[] files = dir.listFiles();
 			Random rand = new Random();
@@ -224,6 +227,7 @@ public class imageRenderer {
 ////		g2.drawImage(bim, 0, 0, null);
 //		g2.fillOval(300 - radius, 250 - radius, radius * 2, radius * 2);
 		g2.dispose();
+
 		g.drawImage(bim, new GaussianFilter(45), 0, 0);
 
 
