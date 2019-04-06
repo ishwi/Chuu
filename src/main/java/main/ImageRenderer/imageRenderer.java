@@ -30,7 +30,9 @@ public class imageRenderer {
 		g.setRenderingHint(
 				RenderingHints.KEY_TEXT_ANTIALIASING,
 				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		a(g);
 
+		//Gets Profile Images
 		for (UserInfo userInfo : userInfoLiust) {
 			BufferedImage image = null;
 			try {
@@ -45,86 +47,153 @@ public class imageRenderer {
 			}
 		}
 
+
+		//Init Of Variables
+		Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, 19);
+		Font numberFont = new Font("HEEBO-LIGHT", Font.PLAIN, 19);
+		Font titleFont = new Font("HEEBO-LIGHT", Font.PLAIN, 23);
+		Font scrobbleFont = new Font("HEEBO-LIGHT", Font.BOLD, 17);
+		int startFont = 26;
+		Font usernameFont = (new Font("ROBOTO-MEDIUM", Font.PLAIN, startFont));
+		Font subtitle = new Font("ROBOTOCONDENSED-BOLD", Font.ITALIC, 12);
+
 		int x = 0;
 		int y = 20;
-		int drawx1, drawx2;
-		drawx1 = 30;
-		drawx2 = canvas.getWidth() - 180;
-		g.setColor(Color.LIGHT_GRAY);
-		int rectangle_start_x = drawx1 + PROFILE_IMAGE_SIZE + 4;
+		int image1StartPosition, image2StartPosition;
+		image1StartPosition = 30;
+		image2StartPosition = canvas.getWidth() - PROFILE_IMAGE_SIZE - 10;
+		g.setColor(Color.WHITE);
+		int rectangle_start_x = image1StartPosition + PROFILE_IMAGE_SIZE + 4;
 		int rectangle_start_y = y + PROFILE_IMAGE_SIZE - 20;
-		int rectangle_height = 18;
-		int rectangle_width = drawx2 - drawx1 - PROFILE_IMAGE_SIZE - 8;
+		int rectangle_height = g.getFontMetrics().getHeight();
+		int rectangle_width = image2StartPosition - image1StartPosition - PROFILE_IMAGE_SIZE - 8;
 
-		g.drawRect(rectangle_start_x, rectangle_start_y, rectangle_width, rectangle_height);
+		float[] rgb1 = new float[3];
+		Color.ORANGE.getRGBColorComponents(rgb1);
+		Color colorA = new Color(rgb1[0], rgb1[1], rgb1[2], 0.1f);
+		float[] rgb2 = new float[3];
+		Color.CYAN.getRGBColorComponents(rgb2);
+		Color colorB = new Color(rgb2[0], rgb2[1], rgb2[2], 0.1f);
 
+		g.setFont(usernameFont);
+		int widht1 = g.getFontMetrics().stringWidth(userInfoLiust.get(0).getUsername());
+		int width2 = g.getFontMetrics().stringWidth(userInfoLiust.get(1).getUsername());
+		int totalwidth = widht1 + width2 + 4;
+		int disponibleSize = rectangle_width + 8;
 
-		Font font = new Font(Font.MONOSPACED, Font.BOLD, 10);
-		Font fontName = (new Font("Times New Roman Bold", Font.PLAIN, 22));
+		while (totalwidth >= disponibleSize) {
+			startFont -= 2;
+			usernameFont = new Font("ROBOTO-MEDIUM", Font.PLAIN, startFont);
+			g.setFont(usernameFont);
+			widht1 = g.getFontMetrics().stringWidth(userInfoLiust.get(0).getUsername());
+			width2 = g.getFontMetrics().stringWidth(userInfoLiust.get(1).getUsername());
+			totalwidth = widht1 + width2 + 4;
+		}
+		int totalCount = userInfoLiust.stream().mapToInt(UserInfo::getPlaycount).sum();
 
-
+		//Draws Profile Images
 		for (BufferedImage image : imageList) {
-
-			g.setColor(Color.LIGHT_GRAY);
-			int drawx = x == 1 ? drawx2 : drawx1;
-
-			g.drawImage(image, drawx, y, 100, 100, null);
+			int drawx;
+			int nameStringPosition;
+			Color color;
+			int countStringPosition;
+			int rectanglePosition;
 			UserInfo userInfo = userInfoLiust.get(x);
-			int length1 = drawx - g.getFontMetrics().getHeight() * String.valueOf(userInfo.getPlaycount()).length() / 2;
-			int countString = x == 0 ? drawx + PROFILE_IMAGE_SIZE + 5 : length1;
+			float percentage = (float) userInfo.getPlaycount() / totalCount;
 
-			g.setFont(fontName);
-			int length2 = drawx - g.getFontMetrics().getHeight() * (int) (String.valueOf(userInfo.getUsername()).length() * 0.45);
-			int nameString = x == 0 ? drawx + PROFILE_IMAGE_SIZE + 5 : length2;
-
-			int fontnameheight = g.getFontMetrics().getHeight();
-			g.drawString(userInfo.getUsername(), nameString, rectangle_start_y - fontnameheight);
-
-			g.setFont(font);
-			g.drawString("" + userInfo.getPlaycount(), countString, rectangle_start_y + rectangle_height - 1);
+			if (x == 0) {
+				drawx = image1StartPosition;
+				nameStringPosition = image1StartPosition + PROFILE_IMAGE_SIZE + 4;
+				color = colorA.brighter();
+				countStringPosition = image1StartPosition + PROFILE_IMAGE_SIZE + 5;
+				rectanglePosition = countStringPosition - 1;
+			} else {
+				drawx = image2StartPosition;
+				nameStringPosition = image2StartPosition - width2 - 4;
+				color = colorB;
+				countStringPosition = image2StartPosition - g.getFontMetrics().stringWidth(String.valueOf(userInfo.getPlaycount())) - 5;
+				rectanglePosition = (int) (image2StartPosition - percentage * userInfo.getPlaycount());
+			}
+			g.setColor(color);
+			g.drawImage(image, drawx, y, 100, 100, null);
+			g.fillRect(rectanglePosition, rectangle_start_y, (int) (rectangle_width * percentage), rectangle_height);
+			g.setColor(Color.WHITE);
+			g.setFont(usernameFont);
+			g.drawString(userInfo.getUsername(), nameStringPosition, 20 + PROFILE_IMAGE_SIZE / 2);
+			g.setFont(scrobbleFont);
+			g.drawString("" + userInfo.getPlaycount(), countStringPosition, rectangle_start_y + rectangle_height - 1);
 			x++;
+
 		}
 
 
+		//Draws Common Artists
 		y = rectangle_start_y + 64 + 20;
 		String a = String.valueOf(resultWrapper.getRows());
-		int lengt = a.length();
 
-		Font titleFont = new Font(Font.SERIF, Font.PLAIN, 21);
 
 		g.setFont(titleFont);
-		g.drawString("" + resultWrapper.getRows(), x_MAX / 2 - 28 * lengt / 2, y - 30);
+		int length = g.getFontMetrics().stringWidth(a);
+		g.drawString("" + resultWrapper.getRows(), x_MAX / 2 - length / 2, y - 30);
 
-		Font subtitle = new Font(Font.DIALOG, Font.PLAIN, 12);
 		g.setFont(subtitle);
 
-		g.drawString("common artists", x_MAX / 2 + 28 * lengt / 8 + 4, y - 30);
-		Font titleFont22 = new Font(Font.SERIF, Font.BOLD, 14);
+		g.drawString("common artists", x_MAX / 2 + length / 2 + 4, y - 30);
 
-		g.setFont(titleFont22);
 
+		//Draws Top 10
 		for (Results item : resultWrapper.getResultList()) {
-			g.setColor(Color.LIGHT_GRAY);
+
 
 			String artistID = item.getArtistID();
 			int countA = item.getCountA();
 			int countB = item.getCountB();
-			g.drawString("" + countA, 100, y);
-			g.drawString(artistID, x_MAX / 2 - 5 * artistID.length() / 2, y);
-			g.drawString("" + countB, x_MAX - 100, y);
+
 			int halfDistance = x_MAX - 200;
 			int ac = Math.round((float) countA / (float) (countA + countB) * halfDistance);
 			int bc = Math.round((float) countB / (float) (countA + countB) * halfDistance);
-			g.setColor(Color.orange);
-			g.fillRect(x_MAX / 2 - ac / 2, y + 2, ac / 2, 5);
-			g.setColor(Color.CYAN);
-			g.fillRect(x_MAX / 2, y + 2, bc / 2, 5);
-			y += 20;
+			g.setColor(Color.orange.brighter());
+			g.fillRect(x_MAX / 2 - ac / 2, y + 3, ac / 2, 5);
+			g.setColor(Color.CYAN.brighter());
+			g.fillRect(x_MAX / 2, y + 3, bc / 2, 5);
+
+			g.setColor(Color.WHITE);
+			g.setFont(numberFont);
+			String strCountBString = String.valueOf(item.getCountB());
+
+			int widthB = g.getFontMetrics().stringWidth(strCountBString);
+
+			int countBStart = x_MAX - 100 - widthB;
+			g.drawString("" + countA, 100, y);
+			g.drawString("" + countB, countBStart, y);
+			g.setFont(artistFont);
+			int widthStr = g.getFontMetrics().stringWidth(item.getArtistID());
+			g.drawString(artistID, x_MAX / 2 - (widthStr / 2), y);
+
+			y += g.getFontMetrics().getHeight() + 5;
+			System.out.println(g.getFontMetrics().getHeight());
 		}
 		g.dispose();
 		return canvas;
 	}
 
+	private static void a(Graphics2D g) {
+		BufferedImage bim = null;
+		try {
+			bim = ImageIO.read(new File("C:\\Users\\Ishwi\\Desktop\\Wallpaper\\01 - ybtytfq.jpg"));
+		} catch (Exception ex) {
+			System.err.println("error in bim " + ex);
+			return;
+		}
+		int wc = bim.getWidth(), hc = bim.getHeight();
 
+		BufferedImage img = new BufferedImage(bim.getWidth(), bim.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = img.createGraphics();
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f));
+
+		g2.drawImage(bim, 0, 0, null);
+
+		g.drawImage(bim, 0, 0, null);
+	}
 
 }

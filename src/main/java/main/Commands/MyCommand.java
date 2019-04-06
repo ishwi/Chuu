@@ -30,8 +30,12 @@ public abstract class MyCommand extends ListenerAdapter {
 	public void onMessageReceived(MessageReceivedEvent e) {
 		if (e.getAuthor().isBot() && !respondToBots())
 			return;
-		if (containsCommand(e.getMessage()))
+		if (containsCommand(e.getMessage())) {
+			System.out.println("We received a message from " +
+					e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
+
 			onCommand(e, commandArgs(e.getMessage()));
+		}
 	}
 
 	protected boolean containsCommand(Message message) {
