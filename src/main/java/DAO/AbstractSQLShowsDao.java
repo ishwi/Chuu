@@ -72,11 +72,11 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 	@Override
 	public ResultWrapper similar(Connection connection, List<String> lastfMNames) throws InstanceNotFoundException {
-		int MAX_IN_DISPLAY = 14;
+		int MAX_IN_DISPLAY = 10;
 		String userA = lastfMNames.get(0);
 		String userB = lastfMNames.get(1);
 
-		String queryString = "SELECT a.artist_id ,a.lastFMID , a.playNumber, b.lastFMID,b.playNumber , abs(b.playNumber - a.playNumber) /2 media , c.url " +
+		String queryString = "SELECT a.artist_id ,a.lastFMID , a.playNumber, b.lastFMID,b.playNumber ,((a.playNumber + b.playNumber)/(abs(a.playNumber-b.playNumber)+1)* ((a.playNumber + b.playNumber))*2.5) media , c.url " +
 				"FROM " +
 				"(SELECT * " +
 				"FROM artist " +

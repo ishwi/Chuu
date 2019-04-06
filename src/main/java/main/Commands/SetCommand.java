@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class SetCommand extends MyCommandDbAccess {
 	public SetCommand(DaoImplementation dao) {
@@ -33,16 +34,23 @@ public class SetCommand extends MyCommandDbAccess {
 		long guildID = e.getGuild().getIdLong();
 		long userId = e.getAuthor().getIdLong();
 		List<UsersWrapper> list = getDao().getAll(guildID);
-		if (list.stream().anyMatch(user -> user.getDiscordID() == userId)) {
-			sendMessage(e, "Changing your username, might take a while");
-			e.getChannel().sendTyping().queue();
-			getDao().remove(userId);
-		}
 
+		Optional<UsersWrapper> u = (list.stream().filter(user -> user.getDiscordID() == userId).findFirst());
+		if (u.isPresent()) {
+			if (!u.get().getLastFMName().equals(lastFmID)) {
+
+				sendMessage(e, "Changing your username, might take a while");
+				e.getChannel().sendTyping().queue();
+				getDao().remove(userId);
+			} else {
+				sendMessage(e, "You already have that name!");
+				return;
+			}
+		}
 		getDao().addData(new LastFMData(lastFmID, userId, guildID));
 
 		new Thread(new UpdaterThread(getDao(), new UsersWrapper(userId, lastFmID))).run();
-		mes.setContent(e.getAuthor().getName() + "Has set his last FM name \n Updating his library on the background");
+		mes.setContent("**" + e.getAuthor().getName() + "** has set his last FM name \n Updating his library on the background");
 		mes.sendTo(e.getChannel()).queue();
 	}
 
