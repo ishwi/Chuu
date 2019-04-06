@@ -3,10 +3,10 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.ResultWrapper;
 import DAO.Entities.UserInfo;
+import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.imageRenderer;
 import main.last.ConcurrentLastFM;
-import main.Exceptions.LastFMServiceException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.User;
@@ -161,7 +161,9 @@ public class TasteCommand extends MyCommandDbAccess {
 	private User findUsername(String name, java.util.List<User> userList) {
 		Optional<User> match = userList.stream().
 				filter(user -> {
-					long a = Long.valueOf(name.substring(3, name.indexOf(">")));
+					String nameNoDigits = name.replaceAll("\\D+", "");
+
+					long a = Long.valueOf(nameNoDigits);
 					return (user.getIdLong() == a);
 				})
 				.findFirst();
