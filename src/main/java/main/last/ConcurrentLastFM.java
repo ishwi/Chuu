@@ -21,7 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 
 public class ConcurrentLastFM {//implements LastFMService {
@@ -32,7 +32,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private static final String GET_USER = "?method=user.getinfo&user=";
 	private static final String ending = "&format=json";
 	private static final String GET_NOW_PLAYINH = "?method=user.getrecenttracks&limit=1&user=";
-	private static final BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
+
 
 	//@Override
 	public static NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException, LastFMNoPlaysException {
@@ -172,13 +172,16 @@ public class ConcurrentLastFM {//implements LastFMService {
 	public static byte[] getUserList(String User, String weekly, int x, int y) throws LastFMServiceException {
 
 		String url = BASE + GET_ALBUMS + User + API_KEY + ending + "&period=" + weekly;
-
-
+		BlockingQueue<UrlCapsule> queue = new PriorityBlockingQueue<>(x * y, Comparator.comparing(u -> 0 - u.getAlbumName().length()));
 		HttpClient client = new HttpClient();
 
 		int requestedSize = x * y;
 		int size = 0;
 		int page = 1;
+
+		if (requestedSize > 150)
+			url += "&limit=500";
+
 		while (size < requestedSize) {
 
 			String urlPage = url + "&page=" + page;
@@ -227,7 +230,13 @@ public class ConcurrentLastFM {//implements LastFMService {
 		}
 		byte[] img;
 		//
-		BufferedImage image = CollageMaker.generateCollageThreaded(Integer.max(1, size / x), Integer.max(1, (size / y)), queue);
+
+		int minx = (int) Math.ceil((double) size / x);
+		int miny = (int) Math.ceil((double) size / y);
+
+		if (minx == 1)
+			x = size;
+		BufferedImage image = CollageMaker.generateCollageThreaded(x, minx, queue);
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 
 		try {

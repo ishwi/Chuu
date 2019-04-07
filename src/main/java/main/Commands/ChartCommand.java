@@ -1,9 +1,9 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
 import main.last.ConcurrentLastFM;
-import main.Exceptions.LastFMServiceException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -88,11 +88,12 @@ public class ChartCommand extends MyCommandDbAccess {
 				fos.write(file);
 				//fos.close(); There is no more need for this line since you had created the instance of "fos" inside the try. And this will automatically close the OutputStream
 			} catch (IOException ignored) {
+				errorMessage(e, 100, ignored.getMessage());
 			}
 
 
 		} catch (LastFMServiceException ex2) {
-			errorMessage(e, 3, ex2.getMessage());
+			errorMessage(e, 2, ex2.getMessage());
 		}
 
 	}
