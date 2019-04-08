@@ -14,42 +14,11 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("Duplicates")
-public class NowPlayingCommand extends MyCommandDbAccess {
+public class NowPlayingCommand extends ConcurrentCommand {
 	public NowPlayingCommand(DaoImplementation dao) {
 		super(dao);
 	}
 
-	@Override
-	public void onCommand(MessageReceivedEvent e, String[] args) {
-		try {
-			String username = parse(e)[0];
-			NowPlayingArtist nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(username);
-			StringBuilder a = new StringBuilder();
-			e.getChannel().sendTyping().queue();
-
-			a.append("**[").append(username).append("'s Profile](").append("https://www.last.fm/user/").append(username).append(")**\n\n")
-					.append(nowPlayingArtist.isNowPlaying() ? "Current" : "Last")
-					.append(":\n")
-					.append("**").append(nowPlayingArtist.getSongName()).append("**")
-					.append(" - ").append(nowPlayingArtist.getAlbumName()).append(" | ")
-					.append(nowPlayingArtist.getArtistName());
-
-			EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
-					.setTitle("Now Playing:")
-					.setDescription(a);
-
-			MessageBuilder messageBuilder = new MessageBuilder();
-			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
-
-		} catch (ParseException ex) {
-			errorMessage(e, 0, ex.getMessage());
-		} catch (LastFMServiceException ex) {
-			errorMessage(e, 1, ex.getMessage());
-		} catch (LastFMNoPlaysException e1) {
-			errorMessage(e, 2, e1.getMessage());
-		}
-
-	}
 
 	@Override
 	public List<String> getAliases() {
@@ -96,5 +65,36 @@ public class NowPlayingCommand extends MyCommandDbAccess {
 			message = "There was a problem with Last FM Api " + cause;
 		}
 		sendMessage(e, base + message);
+	}
+
+	@Override
+	public void threadableCode() {
+		try {
+			String username = parse(e)[0];
+			NowPlayingArtist nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(username);
+			StringBuilder a = new StringBuilder();
+			e.getChannel().sendTyping().queue();
+
+			a.append("**[").append(username).append("'s Profile](").append("https://www.last.fm/user/").append(username).append(")**\n\n")
+					.append(nowPlayingArtist.isNowPlaying() ? "Current" : "Last")
+					.append(":\n")
+					.append("**").append(nowPlayingArtist.getSongName()).append("**")
+					.append(" - ").append(nowPlayingArtist.getAlbumName()).append(" | ")
+					.append(nowPlayingArtist.getArtistName());
+
+			EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
+					.setTitle("Now Playing:")
+					.setDescription(a);
+
+			MessageBuilder messageBuilder = new MessageBuilder();
+			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+
+		} catch (ParseException ex) {
+			errorMessage(e, 0, ex.getMessage());
+		} catch (LastFMServiceException ex) {
+			errorMessage(e, 1, ex.getMessage());
+		} catch (LastFMNoPlaysException e1) {
+			errorMessage(e, 2, e1.getMessage());
+		}
 	}
 }

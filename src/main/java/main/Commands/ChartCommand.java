@@ -21,28 +21,14 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @SuppressWarnings("Duplicates")
-public class ChartCommand extends MyCommandDbAccess {
+public class ChartCommand extends ConcurrentCommand {
 
 	public ChartCommand(DaoImplementation dao) {
 		super(dao);
 	}
 
-	private String getTimeFromChar(String timeFrame) {
-		if (timeFrame.startsWith("y"))
-			return "12month";
-		if (timeFrame.startsWith("t"))
-			return "3month";
-		if (timeFrame.startsWith("m"))
-			return "1month";
-		if (timeFrame.startsWith("a"))
-			return "overall";
-		return "7day";
-	}
-
 	@Override
-	public void onCommand(MessageReceivedEvent e, String[] args) {
-		MessageBuilder mes = new MessageBuilder();
-		EmbedBuilder embed = new EmbedBuilder();
+	public void threadableCode() {
 		String[] returned;
 		MessageChannel cha = e.getChannel();
 		try {
@@ -97,6 +83,21 @@ public class ChartCommand extends MyCommandDbAccess {
 		}
 
 	}
+
+
+	private String getTimeFromChar(String timeFrame) {
+		if (timeFrame.startsWith("y"))
+			return "12month";
+		if (timeFrame.startsWith("t"))
+			return "3month";
+		if (timeFrame.startsWith("m"))
+			return "1month";
+		if (timeFrame.startsWith("a"))
+			return "overall";
+		return "7day";
+	}
+
+	
 
 	@Override
 	public List<String> getAliases() {
@@ -189,4 +190,7 @@ public class ChartCommand extends MyCommandDbAccess {
 		}
 		sendMessage(e, base + message);
 	}
+
+
+
 }

@@ -11,33 +11,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Collections;
 import java.util.List;
 
-public class TopCommand extends MyCommandDbAccess {
+public class TopCommand extends ConcurrentCommand {
 	public TopCommand(DaoImplementation dao) {
 		super(dao);
 	}
 
-	@Override
-	public void onCommand(MessageReceivedEvent e, String[] args) {
-		String[] message;
-		MessageBuilder mes = new MessageBuilder();
-		EmbedBuilder embed = new EmbedBuilder();
-		try {
-			message = parse(e);
-		} catch (ParseException e1) {
-			errorMessage(e, 0, e1.getMessage());
-			return;
-		}
-		e.getChannel().sendTyping().queue();
-		embed.setImage("attachment://cat.png") // we specify this in sendFile as "cat.png"
-				.setDescription("Most Listened Artists");
-		mes.setEmbed(embed.build());
-		try {
-			e.getChannel().sendFile(ConcurrentLastFM.getUserList(message[0], "overall", 5, 5), "cat.png", mes.build()).queue();
-		} catch (LastFMServiceException ex) {
-			errorMessage(e, 1, ex.getMessage());
-		}
-
-	}
 
 
 	@Override
@@ -76,5 +54,28 @@ public class TopCommand extends MyCommandDbAccess {
 			return;
 		}
 		sendMessage(e, base + "There was a problem with Last FM Api" + cause);
+	}
+
+	@Override
+	public void threadableCode() {
+		String[] message;
+		MessageBuilder mes = new MessageBuilder();
+		EmbedBuilder embed = new EmbedBuilder();
+		try {
+			message = parse(e);
+		} catch (ParseException e1) {
+			errorMessage(e, 0, e1.getMessage());
+			return;
+		}
+		e.getChannel().sendTyping().queue();
+		embed.setImage("attachment://cat.png") // we specify this in sendFile as "cat.png"
+				.setDescription("Most Listened Artists");
+		mes.setEmbed(embed.build());
+		try {
+			e.getChannel().sendFile(ConcurrentLastFM.getUserList(message[0], "overall", 5, 5), "cat.png", mes.build()).queue();
+		} catch (LastFMServiceException ex) {
+			errorMessage(e, 1, ex.getMessage());
+		}
+
 	}
 }

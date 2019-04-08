@@ -20,61 +20,11 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TasteCommand extends MyCommandDbAccess {
+public class TasteCommand extends ConcurrentCommand {
 	public TasteCommand(DaoImplementation dao) {
 		super(dao);
 	}
 
-	@Override
-	public void onCommand(MessageReceivedEvent e, String[] args) {
-		List<String> lastfMNames;
-		MessageBuilder messageBuilder = new MessageBuilder();
-		EmbedBuilder embedBuilder = new EmbedBuilder();
-		try {
-			lastfMNames = Arrays.asList((parse(e)));
-		} catch (ParseException ex) {
-			switch (ex.getMessage()) {
-				case "Commands":
-					errorMessage(e, 0, ex.getMessage());
-					break;
-				case "db":
-					errorMessage(e, 1, ex.getMessage());
-					break;
-				default:
-					errorMessage(e, 2, ex.getMessage());
-					break;
-			}
-			return;
-		}
-		ResultWrapper resultWrapper;
-		try {
-			resultWrapper = getDao().getSimilarities(lastfMNames);
-			System.out.println("resultWrapper = " + resultWrapper.getRows());
-			java.util.List<String> users = new ArrayList<>();
-			users.add(resultWrapper.getResultList().get(0).getUserA());
-			users.add(resultWrapper.getResultList().get(0).getUserB());
-			java.util.List<UserInfo> userInfoLiust = ConcurrentLastFM.getUserInfo(users);
-			BufferedImage image = imageRenderer.generateTasteImage(resultWrapper, userInfoLiust);
-
-			ByteArrayOutputStream b = new ByteArrayOutputStream();
-			try {
-				ImageIO.write(image, "png", b);
-				byte[] img = b.toByteArray();
-				if (img.length < 8388608) {
-					messageBuilder.sendTo(e.getChannel()).addFile(img, "taste.png").queue();
-				}
-
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		} catch (InstanceNotFoundException e1) {
-			errorMessage(e, 1, e1.getMessage());
-		} catch (LastFMServiceException e1) {
-			errorMessage(e, 3, e1.getMessage());
-		}
-
-
-	}
 
 	@Override
 	public List<String> getAliases() {
@@ -184,5 +134,55 @@ public class TasteCommand extends MyCommandDbAccess {
 		return s;
 	}
 
+	@Override
+	public void threadableCode() {
+		List<String> lastfMNames;
+		MessageBuilder messageBuilder = new MessageBuilder();
+		EmbedBuilder embedBuilder = new EmbedBuilder();
+		try {
+			lastfMNames = Arrays.asList((parse(e)));
+		} catch (ParseException ex) {
+			switch (ex.getMessage()) {
+				case "Commands":
+					errorMessage(e, 0, ex.getMessage());
+					break;
+				case "db":
+					errorMessage(e, 1, ex.getMessage());
+					break;
+				default:
+					errorMessage(e, 2, ex.getMessage());
+					break;
+			}
+			return;
+		}
+		ResultWrapper resultWrapper;
+		try {
+			resultWrapper = getDao().getSimilarities(lastfMNames);
+			System.out.println("resultWrapper = " + resultWrapper.getRows());
+			java.util.List<String> users = new ArrayList<>();
+			users.add(resultWrapper.getResultList().get(0).getUserA());
+			users.add(resultWrapper.getResultList().get(0).getUserB());
+			java.util.List<UserInfo> userInfoLiust = ConcurrentLastFM.getUserInfo(users);
+			BufferedImage image = imageRenderer.generateTasteImage(resultWrapper, userInfoLiust);
+
+			ByteArrayOutputStream b = new ByteArrayOutputStream();
+			try {
+				ImageIO.write(image, "png", b);
+				byte[] img = b.toByteArray();
+				if (img.length < 8388608) {
+					messageBuilder.sendTo(e.getChannel()).addFile(img, "taste.png").queue();
+				}
+
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		} catch (InstanceNotFoundException e1) {
+			errorMessage(e, 1, e1.getMessage());
+		} catch (LastFMServiceException e1) {
+			errorMessage(e, 3, e1.getMessage());
+		}
+
+
+	}
 }
 

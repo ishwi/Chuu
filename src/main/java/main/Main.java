@@ -83,6 +83,8 @@ class Main extends ListenerAdapter {
 		builder.addEventListeners(help.registerCommand(new TopCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new UpdateCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao, spotifyWrapper)));
+		builder.addEventListeners(help.registerCommand(new UniqueCommand(dao)));
+
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(1);
 		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao), 5, 10, TimeUnit.MINUTES);
 

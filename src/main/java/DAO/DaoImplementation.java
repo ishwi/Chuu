@@ -65,7 +65,6 @@ public class DaoImplementation {
 		try (Connection connection = dataSource.getConnection()) {
 
 			try {
-
 				/* Prepare connection. */
 				connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 				connection.setAutoCommit(false);
@@ -198,5 +197,14 @@ public class DaoImplementation {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public UniqueWrapper<UniqueData> getUniqueArtist(Long guildID, String  lastFmId) {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.getUniqueArtist(connection, guildID, lastFmId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 }

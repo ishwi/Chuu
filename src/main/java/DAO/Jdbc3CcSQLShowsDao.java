@@ -184,7 +184,6 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 				+ " ( lastFMID,artist_id,playNumber) " + " VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE playNumber=" + "?";
 
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
-			System.out.println(artistData.getArtist() + "\n");
 			/* Fill "preparedStatement". */
 			int i = 1;
 			preparedStatement.setString(i++, artistData.getDiscordID());
