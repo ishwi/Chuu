@@ -36,7 +36,6 @@ class ThreadQueue implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("Value of thread " + this.hashCode() + " : " + iters.get());
 		while (iters.getAndDecrement() > 0) {
 
 			Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, 24);
@@ -61,7 +60,6 @@ class ThreadQueue implements Runnable {
 
 					drawImage(image, encapsuler);
 					g.drawImage(image, x * 300, y * 300, null);
-					System.out.println(x + "                " + y);
 
 
 				} catch (Exception e) {
@@ -77,7 +75,6 @@ class ThreadQueue implements Runnable {
 					drawNames(encapsuler, y, x, g);
 					g.setColor(temp);
 					e.printStackTrace();
-					System.out.println("\n JAJAJAJa\n" + encapsuler.getUrl() + encapsuler.getPos() + "\n \n ");
 				}
 
 
@@ -86,7 +83,6 @@ class ThreadQueue implements Runnable {
 			}
 		}
 
-		System.out.println("\n \n \n\n\n\n\n\n\n           THREAD FINISHED             \n \n \n\n\n\n\n\n\n");
 
 	}
 

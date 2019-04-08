@@ -2,43 +2,21 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
-import main.Exceptions.ParseException;
-import main.last.ConcurrentLastFM;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
+import main.Exceptions.ParseException;
+import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class WhoKnowsNPCommand extends MyCommandDbAccess {
+public class WhoKnowsNPCommand extends ConcurrentCommand {
 	public WhoKnowsNPCommand(DaoImplementation dao) {
 		super(dao);
 	}
 
-	@Override
-	public void onCommand(MessageReceivedEvent e, String[] args) {
-		String[] returned;
-		try {
-			returned = parse(e);
-			CommandUtil.a(returned[0], getDao(), e, Boolean.valueOf(returned[1]));
-		} catch (ParseException e1) {
-			switch (e1.getMessage()) {
-				case "lastFM":
-					errorMessage(e, 0, e1.getMessage());
-					break;
-				case "NoPlays":
-					errorMessage(e, 2, e1.getMessage());
-					break;
-				case "DB":
-					errorMessage(e, 1, e1.getMessage());
-				default:
-					errorMessage(e, 1000, e1.getMessage());
-			}
-		}
-
-	}
 
 	@Override
 	public List<String> getAliases() {
@@ -110,5 +88,28 @@ public class WhoKnowsNPCommand extends MyCommandDbAccess {
 				message = "Unknown Error";
 		}
 		sendMessage(e, base + message);
+	}
+
+	@Override
+	public void threadableCode() {
+		String[] returned;
+		try {
+			returned = parse(e);
+			CommandUtil.a(returned[0], getDao(), e, Boolean.valueOf(returned[1]));
+		} catch (ParseException e1) {
+			switch (e1.getMessage()) {
+				case "lastFM":
+					errorMessage(e, 0, e1.getMessage());
+					break;
+				case "NoPlays":
+					errorMessage(e, 2, e1.getMessage());
+					break;
+				case "DB":
+					errorMessage(e, 1, e1.getMessage());
+				default:
+					errorMessage(e, 1000, e1.getMessage());
+			}
+
+		}
 	}
 }

@@ -1,9 +1,6 @@
 package DAO;
 
-import DAO.Entities.LastFMData;
-import DAO.Entities.ResultWrapper;
-import DAO.Entities.Results;
-import DAO.Entities.UsersWrapper;
+import DAO.Entities.*;
 
 import javax.management.InstanceNotFoundException;
 import java.sql.Connection;
@@ -18,7 +15,58 @@ import java.util.List;
  * @author Miguel
  */
 public abstract class AbstractSQLShowsDao implements SQLShowsDao {
+	@Override
+	public UniqueWrapper<UniqueData> getUniqueArtist(Connection connection, Long guildID, String lastFmId) {
+		String queryString = "SELECT * " +
+				"FROM(  " +
+				"       select artist_id, playNumber, a.lastFMID ,b.discordID" +
+				"       from artist a join lastfm b " +
+				"       ON a.lastFMID = b.lastFmId " +
+				"       JOIN user_guild c ON b.discordID = c.discordId " +
+				"       where c.guildId = ? and a.playNumber > 8 " +
+				"       group by a.artist_id " +
+				"       having count( *) = 1) temp " +
+				"Where temp.lastFMID = ?  " +
+				" order by temp.playNumber desc ";
 
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			int i = 1;
+			preparedStatement.setLong(i++, guildID);
+			preparedStatement.setString(i++, lastFmId);
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			if (!resultSet.next()) {
+				throw new InstanceNotFoundException("Not found ");
+			}
+
+			List<UniqueData> returnList = new ArrayList<>();
+			resultSet.last();
+			int rows = resultSet.getRow();
+			long discordId = resultSet.getLong("temp.discordID");
+
+
+			resultSet.beforeFirst();
+			/* Get results. */
+
+
+			int j = 0;
+			while (resultSet.next() && (j < 10 && j < rows)) {
+				j++;
+				String name = resultSet.getString("temp.artist_id");
+				int count_a = resultSet.getInt("temp.playNumber");
+
+				returnList.add(new UniqueData(name, count_a));
+
+			}
+			return new UniqueWrapper<>(rows, discordId, lastFmId, returnList);
+
+
+		} catch (SQLException | InstanceNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	@Override
 	public UsersWrapper getLessUpdated(Connection connection) {
@@ -121,7 +169,6 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 			}
 			/* Return show. */
-
 			return new ResultWrapper(rows, returnList);
 
 		} catch (SQLException e) {

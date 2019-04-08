@@ -17,6 +17,8 @@ interface SQLShowsDao {
 
 	void addArtist(Connection con, ArtistData artistData);
 
+	UniqueWrapper<UniqueData> getUniqueArtist(Connection connection, Long guildID, String lastFMID);
+
 	UsersWrapper getLessUpdated(Connection connection);
 
 	List<UsersWrapper> getAll(Connection connection, long guildId);

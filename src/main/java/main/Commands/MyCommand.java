@@ -31,18 +31,22 @@ public abstract class MyCommand extends ListenerAdapter {
 		if (e.getAuthor().isBot() && !respondToBots())
 			return;
 		if (containsCommand(e.getMessage())) {
-			long startTime = System.currentTimeMillis();
 			System.out.println("We received a message from " +
 					e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
 
-			onCommand(e, commandArgs(e.getMessage()));
-			long endTime = System.currentTimeMillis();
-			long timeElapsed = endTime - startTime;
-			System.out.println("Execution time in milliseconds: " + timeElapsed);
-			System.out.println();
+			measureTime(e);
 
 
 		}
+	}
+
+	protected void measureTime(MessageReceivedEvent e) {
+		long startTime = System.currentTimeMillis();
+		onCommand(e, commandArgs(e.getMessage()));
+		long endTime = System.currentTimeMillis();
+		long timeElapsed = endTime - startTime;
+		System.out.println("Execution time in milliseconds " + getName() + " : " + timeElapsed);
+		System.out.println();
 	}
 
 	protected boolean containsCommand(Message message) {
