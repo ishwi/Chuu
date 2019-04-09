@@ -4,8 +4,6 @@ import DAO.DaoImplementation;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
 import main.last.ConcurrentLastFM;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -73,8 +71,8 @@ public class ChartCommand extends ConcurrentCommand {
 			try (FileOutputStream fos = new FileOutputStream(path)) {
 				fos.write(file);
 				//fos.close(); There is no more need for this line since you had created the instance of "fos" inside the try. And this will automatically close the OutputStream
-			} catch (IOException ignored) {
-				errorMessage(e, 100, ignored.getMessage());
+			} catch (IOException ex) {
+				errorMessage(e, 100, ex.getMessage());
 			}
 
 
