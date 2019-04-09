@@ -5,8 +5,6 @@ import DAO.Entities.NowPlayingArtist;
 import DAO.Entities.UsersWrapper;
 import main.Exceptions.ParseException;
 import main.last.ConcurrentLastFM;
-import main.Exceptions.LastFMNoPlaysException;
-import main.Exceptions.LastFMServiceException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -14,14 +12,17 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-public class AllPlayingCommand extends MyCommandDbAccess {
+public class AllPlayingCommand extends ConcurrentCommand {
 	public AllPlayingCommand(DaoImplementation dao) {
 		super(dao);
 	}
 
+
 	@Override
-	public void onCommand(MessageReceivedEvent e, String[] args) {
+	public void threadableCode() {
 		String[] message;
 		try {
 			message = parse(e);
@@ -29,6 +30,7 @@ public class AllPlayingCommand extends MyCommandDbAccess {
 			errorMessage(e, 1000, e1.getMessage());
 			return;
 		}
+		boolean showFresh = Boolean.valueOf(message[0]);
 		List<UsersWrapper> list = getDao().getAll(e.getGuild().getIdLong());
 		MessageBuilder messageBuilder = new MessageBuilder();
 
@@ -38,32 +40,55 @@ public class AllPlayingCommand extends MyCommandDbAccess {
 		e.getChannel().sendTyping().queue();
 
 
-		for (UsersWrapper usersWrapper : list) {
+		Map<UsersWrapper, NowPlayingArtist> npList = list.parallelStream().collect(Collectors.toMap(u -> u, uw ->
 
+		{
 			try {
-				NowPlayingArtist nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(usersWrapper.getLastFMName());
-				if (Boolean.valueOf(message[0])) {
-					if (!nowPlayingArtist.isNowPlaying()) {
-						continue;
-					}
-				}
-
-				String username = e.getGuild().getMemberById(usersWrapper.getDiscordID()).getEffectiveName();
-				a.append("+ ").append("[")
-						.append(username).append("](").append("https://www.last.fm/user/").append(usersWrapper.getLastFMName())
-						.append("): ")
-						.append("**").append(nowPlayingArtist.getSongName())
-						.append("** - ").append(nowPlayingArtist.getAlbumName()).append(" | ")
-						.append(nowPlayingArtist.getArtistName()).append("\n");
-			} catch (LastFMServiceException ex) {
-				errorMessage(e, 0, ex.getMessage());
-			} catch (LastFMNoPlaysException e1) {
-				errorMessage(e, 1, e1.getMessage());
-
+				return ConcurrentLastFM.getNowPlayingInfo(uw.getLastFMName());
+			} catch (Exception ex) {
+				return null;
 			}
+		}));
 
 
-		}
+//		HashMap::new, (m, uw) ->
+//		{
+//			try {
+//				NowPlayingArtist nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(uw.getLastFMName());
+//				System.out.println(uw.getLastFMName() + ": " + nowPlayingArtist.getArtistName() + " " + nowPlayingArtist.isNowPlaying() + " " + showFresh);
+//				if (showFresh) {
+//					if (!nowPlayingArtist.isNowPlaying()) {
+//						System.out.println("Not printing");
+//
+//
+//					}
+//				}
+//				System.out.println("printing");
+//				m.put(uw, nowPlayingArtist);
+//			} catch (LastFMServiceException | LastFMNoPlaysException ignored) {
+//				System.out.println("Ignored");
+//			}
+//		},(u,k) -> {}
+//		);
+
+		npList.forEach((usersWrapper, nowPlayingArtist) -> {
+					if (nowPlayingArtist == null)
+						return;
+					if (showFresh) {
+
+						if (!nowPlayingArtist.isNowPlaying()) {
+							return;
+						}
+					}
+					String username = e.getGuild().getMemberById(usersWrapper.getDiscordID()).getEffectiveName();
+					a.append("+ ").append("[")
+							.append(username).append("](").append("https://www.last.fm/user/").append(usersWrapper.getLastFMName())
+							.append("): ")
+							.append("**").append(nowPlayingArtist.getSongName())
+							.append("** - ").append(nowPlayingArtist.getAlbumName()).append(" | ")
+							.append(nowPlayingArtist.getArtistName()).append("\n");
+				}
+		);
 		embedBuilder.setDescription(a);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 	}
@@ -93,9 +118,9 @@ public class AllPlayingCommand extends MyCommandDbAccess {
 	@Override
 	public String[] parse(MessageReceivedEvent e) throws ParseException {
 		String[] subMessage = getSubMessage(e.getMessage());
-		boolean noFlag = Arrays.stream(subMessage).noneMatch(s -> s.equals("--recent"));
+		boolean showFresh = Arrays.stream(subMessage).noneMatch(s -> s.equals("--recent"));
 
-		return new String[]{Boolean.toString(noFlag)};
+		return new String[]{Boolean.toString(showFresh)};
 	}
 
 	@Override

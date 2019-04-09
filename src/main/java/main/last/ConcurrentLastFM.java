@@ -54,13 +54,14 @@ public class ConcurrentLastFM {//implements LastFMService {
 			}
 			boolean nowPlayin;
 
+
+			JSONObject tracltObj = obj.getJSONArray("track").getJSONObject(0);
+
 			try {
-				nowPlayin = attrObj.getBoolean("nowplaying");
+				nowPlayin = tracltObj.getJSONObject("@attr").getBoolean("nowplaying");
 			} catch (JSONException e) {
 				nowPlayin = false;
 			}
-			JSONObject tracltObj = obj.getJSONArray("track").getJSONObject(0);
-
 			JSONObject artistObj = tracltObj.getJSONObject("artist");
 			String artistname = artistObj.getString("#text");
 			String mbid = artistObj.getString("mbid");

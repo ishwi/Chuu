@@ -3,12 +3,6 @@ package main.Commands;
 import DAO.DaoImplementation;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.util.Arrays;
-import java.util.Date;
 
 public abstract class ConcurrentCommand extends MyCommandDbAccess implements Runnable {
 	public MessageReceivedEvent e;
