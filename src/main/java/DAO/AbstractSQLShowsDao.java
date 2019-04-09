@@ -23,10 +23,10 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 				"       from artist a join lastfm b " +
 				"       ON a.lastFMID = b.lastFmId " +
 				"       JOIN user_guild c ON b.discordID = c.discordId " +
-				"       where c.guildId = ? and a.playNumber > 8 " +
+				"       where c.guildId = ? and a.playNumber > 2 " +
 				"       group by a.artist_id " +
 				"       having count( *) = 1) temp " +
-				"Where temp.lastFMID = ?  " +
+				"Where temp.lastFMID = ? and temp.playNumber > 1 " +
 				" order by temp.playNumber desc ";
 
 

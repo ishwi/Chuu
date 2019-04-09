@@ -52,6 +52,7 @@ public class UniqueCommand extends MyCommandDbAccess {
 			return;
 		}
 		int count = 0;
+
 		for (UniqueData uniqueData : resultWrapper.getUniqueData()) {
 			String artistName = uniqueData.getArtistName();
 			int playCount = uniqueData.getCount();
@@ -67,7 +68,7 @@ public class UniqueCommand extends MyCommandDbAccess {
 		Member member = e.getGuild().getMemberById(resultWrapper.getDiscordId());
 
 		embedBuilder.setDescription(a).setTitle(member.getEffectiveName() + "'s Top 10 unique Artists", "https://www.last.fm/user/" + lastFMID)
-				.setThumbnail(member.getUser().getAvatarUrl());
+				.setThumbnail(member.getUser().getAvatarUrl()).setFooter(member.getEffectiveName() + " has " + rows + " unique artists!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 		return;
 
