@@ -1,3 +1,4 @@
 + Fix parenthesis on Now playing url
 + Top scrobbles
-+ Most Wins? 
++ Most Wins?
++ Add YT CLIENT NAME
