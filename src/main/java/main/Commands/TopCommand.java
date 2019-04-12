@@ -1,9 +1,10 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import main.Exceptions.LastFMServiceException;
+import main.Exceptions.LastFmUserNotFoundException;
 import main.Exceptions.ParseException;
 import main.last.ConcurrentLastFM;
-import main.Exceptions.LastFMServiceException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -15,7 +16,6 @@ public class TopCommand extends ConcurrentCommand {
 	public TopCommand(DaoImplementation dao) {
 		super(dao);
 	}
-
 
 
 	@Override
@@ -52,6 +52,9 @@ public class TopCommand extends ConcurrentCommand {
 		if (code == 0) {
 			userNotOnDB(e, code);
 			return;
+		} else if (code == 3) {
+			sendMessage(e, base + cause + " is not a real lastFM username");
+			return;
 		}
 		sendMessage(e, base + "There was a problem with Last FM Api" + cause);
 	}
@@ -75,6 +78,8 @@ public class TopCommand extends ConcurrentCommand {
 			e.getChannel().sendFile(ConcurrentLastFM.getUserList(message[0], "overall", 5, 5), "cat.png", mes.build()).queue();
 		} catch (LastFMServiceException ex) {
 			errorMessage(e, 1, ex.getMessage());
+		} catch (LastFmUserNotFoundException e1) {
+			errorMessage(e, 3, e1.getMessage());
 		}
 
 	}
