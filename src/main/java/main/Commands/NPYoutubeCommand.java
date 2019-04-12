@@ -5,7 +5,7 @@ import DAO.Entities.NowPlayingArtist;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
-import main.Spotify;
+import main.Youtube.Search;
 import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -14,9 +14,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
-	public NPSpotifyCommand(DaoImplementation dao, Spotify spotify) {
-		super(dao, spotify);
+public class NPYoutubeCommand extends MyCommandDbAccess {
+	private Search search;
+
+	public NPYoutubeCommand(DaoImplementation dao) {
+		super(dao);
+		this.search = new Search();
 
 	}
 
@@ -27,7 +30,7 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 				message = "User Was not found on the database";
 				break;
 			case 1:
-				message = "Didnt find what you were playing on Spotify";
+				message = "Didnt find what you were playing on Youtube";
 				break;
 			case 2:
 				message = "There was a problem with Last FM Api" + cause;
@@ -56,10 +59,10 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 			NowPlayingArtist nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(username);
 			StringBuilder a = new StringBuilder();
 			e.getChannel().sendTyping().queue();
-			String uri = spotify.searchItems(nowPlayingArtist.getSongName(), nowPlayingArtist.getArtistName(), nowPlayingArtist.getAlbumName());
+			String uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
 
 			if (uri.equals("")) {
-				errorMessage(e, 1, "Spotify");
+				errorMessage(e, 1, "Youtube");
 				return;
 			}
 			messageBuilder.setContent(uri).sendTo(e.getChannel()).queue();
@@ -73,17 +76,17 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("!npspotify", "!spotify", "!nps", "!npspo");
+		return Arrays.asList("!npyoutube", "!npyt", "!yt", "!npyou");
 	}
 
 	@Override
 	public String getDescription() {
-		return "Returns a link to your current song via Spotify";
+		return "Returns a link to your current song via Youtube";
 	}
 
 	@Override
 	public String getName() {
-		return "Now Playing Spotify";
+		return "Now Playing Youtube";
 	}
 
 	@Override

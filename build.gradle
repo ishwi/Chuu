@@ -39,8 +39,13 @@ dependencies {
 
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.12'
     compile group: 'org.json', name: 'json', version: '20180130'
+
+    compile 'com.google.api-client:google-api-client:1.28.0'
+    compile 'com.google.apis:google-api-services-youtube:v3-rev209-1.25.0'
+    compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
+
+
 //    compile 'com.google.api-client:google-api-client:1.25.0'
-//    compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
 //    compile 'com.google.apis:google-api-services-drive:v3-rev110-1.23.0'
 //    compile group: 'com.cloudinary', name: 'cloudinary-http44', version: '1.2.0'
 }
