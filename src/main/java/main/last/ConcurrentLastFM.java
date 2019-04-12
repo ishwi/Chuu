@@ -6,10 +6,9 @@ import DAO.Entities.UrlCapsule;
 import DAO.Entities.UserInfo;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
+import main.Exceptions.LastFmUserNotFoundException;
 import main.ImageRenderer.CollageMaker;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +24,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 
 public class ConcurrentLastFM {//implements LastFMService {
-	private static final String API_KEY = "&api_key=***REMOVED***";
+	private static final String API_KEY = "&api_key=fdd31e327054d877dc77c85d3fd5cdf8";
 	private static final String BASE = "http://ws.audioscrobbler.com/2.0/";
 	private static final String GET_ALBUMS = "?method=user.gettopalbums&user=";
 	private static final String GET_LIBRARY = "?method=library.getartists&user=";
@@ -33,12 +32,11 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private static final String ending = "&format=json";
 	private static final String GET_NOW_PLAYINH = "?method=user.getrecenttracks&limit=1&user=";
 
-
 	//@Override
 	public static NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException, LastFMNoPlaysException {
 		HttpClient client = new HttpClient();
 		String url = BASE + GET_NOW_PLAYINH + user + API_KEY + ending;
-		GetMethod method = new GetMethod(url);
+		HttpMethodBase method = createMethod(url);
 		try {
 			int statusCode = client.executeMethod(method);
 			if (statusCode != HttpStatus.SC_OK) {
@@ -86,7 +84,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 			for (String lastFmName : lastFmNames) {
 				String url = BASE + GET_USER + lastFmName + API_KEY + ending;
-				GetMethod method = new GetMethod(url);
+				HttpMethodBase method = createMethod(url);
 				int statusCode = client.executeMethod(method);
 				if (statusCode != HttpStatus.SC_OK) {
 					System.err.println("Method failed: " + method.getStatusLine());
@@ -129,7 +127,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 		while (page <= pages) {
 
 			String urlPage = url + "&page=" + page;
-			GetMethod method = new GetMethod(urlPage);
+			HttpMethodBase method = createMethod(url);
+
 
 			try {
 
@@ -169,10 +168,9 @@ public class ConcurrentLastFM {//implements LastFMService {
 		return linkedlist;
 	}
 
+	public static byte[] getUserList(String userName, String weekly, int x, int y) throws LastFMServiceException, LastFmUserNotFoundException {
 
-	public static byte[] getUserList(String User, String weekly, int x, int y) throws LastFMServiceException {
-
-		String url = BASE + GET_ALBUMS + User + API_KEY + ending + "&period=" + weekly;
+		String url = BASE + GET_ALBUMS + userName + API_KEY + ending + "&period=" + weekly;
 		BlockingQueue<UrlCapsule> queue = new PriorityBlockingQueue<>(x * y, Comparator.comparing(u -> 0 - u.getAlbumName().length()));
 		HttpClient client = new HttpClient();
 
@@ -186,7 +184,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 		while (size < requestedSize) {
 
 			String urlPage = url + "&page=" + page;
-			GetMethod method = new GetMethod(urlPage);
+			HttpMethodBase method = createMethod(urlPage);
+
 			++page;
 			System.out.println(page + " :page             size: " + size);
 			try {
@@ -195,7 +194,9 @@ public class ConcurrentLastFM {//implements LastFMService {
 				int statusCode = client.executeMethod(method);
 
 				if (statusCode != HttpStatus.SC_OK) {
-					System.err.println("Method failed: " + method.getStatusLine());
+					if (statusCode == HttpStatus.SC_NOT_FOUND)
+						throw new LastFmUserNotFoundException(userName);
+
 					throw new LastFMServiceException("Error in the service: " + method.getStatusLine());
 				}
 
@@ -253,6 +254,12 @@ public class ConcurrentLastFM {//implements LastFMService {
 		return img;
 	}
 
+	private static HttpMethodBase createMethod(String url) {
+		GetMethod method = new GetMethod(url);
+		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
+		return method;
+
+	}
 
 }
 

@@ -2,6 +2,7 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import main.Exceptions.LastFMServiceException;
+import main.Exceptions.LastFmUserNotFoundException;
 import main.Exceptions.ParseException;
 import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -36,7 +37,7 @@ public class ChartCommand extends ConcurrentCommand {
 				case "DB":
 					errorMessage(e, 0, e1.getMessage());
 					break;
-				case "Commands":
+				case "Command":
 					errorMessage(e, 1, e1.getMessage());
 					break;
 			}
@@ -78,7 +79,10 @@ public class ChartCommand extends ConcurrentCommand {
 
 		} catch (LastFMServiceException ex2) {
 			errorMessage(e, 2, ex2.getMessage());
+		} catch (LastFmUserNotFoundException e1) {
+			errorMessage(e, 3, e1.getMessage());
 		}
+
 
 	}
 
@@ -95,7 +99,6 @@ public class ChartCommand extends ConcurrentCommand {
 		return "7day";
 	}
 
-	
 
 	@Override
 	public List<String> getAliases() {
@@ -170,7 +173,7 @@ public class ChartCommand extends ConcurrentCommand {
 	@Override
 	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
 
-		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:\n";
 		String message;
 		switch (code) {
 			case 1:
@@ -182,13 +185,15 @@ public class ChartCommand extends ConcurrentCommand {
 			case 2:
 				message = "There was a problem with Last FM Api" + cause;
 				break;
+			case 3:
+				message = cause + " is not a real lastFM username";
+				break;
 			default:
 				message = "Unknown Error happened";
 				break;
 		}
 		sendMessage(e, base + message);
 	}
-
 
 
 }
