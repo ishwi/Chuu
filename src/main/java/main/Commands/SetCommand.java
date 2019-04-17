@@ -48,10 +48,12 @@ public class SetCommand extends MyCommandDbAccess {
 			}
 		}
 		getDao().addData(new LastFMData(lastFmID, userId, guildID));
-
-		new Thread(new UpdaterThread(getDao(), new UsersWrapper(userId, lastFmID))).run();
 		mes.setContent("**" + e.getAuthor().getName() + "** has set his last FM name \n Updating his library on the background");
 		mes.sendTo(e.getChannel()).queue();
+
+		new Thread(new UpdaterThread(getDao(), new UsersWrapper(userId, lastFmID))).run();
+		sendMessage(e, "Finished updating " + e.getAuthor().getName() + " library, you are good to go!");
+
 	}
 
 	@Override
@@ -84,7 +86,7 @@ public class SetCommand extends MyCommandDbAccess {
 
 	@Override
 	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:\n";
 		if (code == 0) {
 			sendMessage(e, base + "You need to introduce a valid LastFm name");
 		} else {

@@ -127,7 +127,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		while (page <= pages) {
 
 			String urlPage = url + "&page=" + page;
-			HttpMethodBase method = createMethod(url);
+			HttpMethodBase method = createMethod(urlPage);
 
 
 			try {

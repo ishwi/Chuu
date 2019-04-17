@@ -1,4 +1,5 @@
-+ Fix parenthesis on Now playing url
+# + Fix parenthesis on Now playing url
+# + proper message on set
+# + Add YT CLIENT NAME
 + Top scrobbles
 + Most Wins?
-+ Add YT CLIENT NAME

@@ -161,11 +161,9 @@ public class ChartCommand extends ConcurrentCommand {
 
 		}
 		Optional<String> thirdOptional = Arrays.stream(message).findFirst();
-		if (thirdOptional.isPresent()) {
-			discordName = thirdOptional.get();
-		} else {
-			discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
-		}
+
+		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
+
 		timeFrame = getTimeFromChar(timeFrame);
 		return new String[]{x, y, discordName, timeFrame};
 	}
