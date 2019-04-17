@@ -76,7 +76,7 @@ public class Search {
 		youtube = new YouTube.Builder(new ApacheHttpTransport(), new JacksonFactory(), new HttpRequestInitializer() {
 			public void initialize(HttpRequest request) throws IOException {
 			}
-		}).build();
+		}).setApplicationName("discordBot").build();
 //setApplicationName("Discord Searcher").
 	}
 

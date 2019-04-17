@@ -35,7 +35,7 @@ public class CommandUtil {
 							.append(". ")
 							.append("[").append(userName).append("]")
 							.append("(https://www.last.fm/user/").append(returnNowPlaying.getLastFMId())
-							.append("/library/music/").append(wrapperReturnNowPlaying.getArtist().replaceAll(" ", "+")).append(") - ")
+							.append("/library/music/").append(wrapperReturnNowPlaying.getArtist().replaceAll(" ", "+").replaceAll("[)]", "%29")).append(") - ")
 							.append(returnNowPlaying.getPlaynumber()).append(" plays\n");
 				}
 
