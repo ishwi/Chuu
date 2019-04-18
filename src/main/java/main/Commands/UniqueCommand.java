@@ -44,13 +44,14 @@ public class UniqueCommand extends MyCommandDbAccess {
 		StringBuilder a = new StringBuilder();
 		e.getChannel().sendTyping().queue();
 
-		String lastFMID = resultWrapper.getLastFmId();
+
 		int rows = resultWrapper.getRows();
 
 		if (rows == 0) {
 			sendMessage(e, "You have no Unique Artists :(");
 			return;
 		}
+		String lastFMID = resultWrapper.getLastFmId();
 		int count = 0;
 
 		for (UniqueData uniqueData : resultWrapper.getUniqueData()) {

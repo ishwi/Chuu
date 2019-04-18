@@ -37,7 +37,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 			if (!resultSet.next()) {
-				throw new InstanceNotFoundException("Not found ");
+				return new UniqueWrapper<>(0, 0, lastFmId, new ArrayList<>());
 			}
 
 			List<UniqueData> returnList = new ArrayList<>();
@@ -62,7 +62,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 			return new UniqueWrapper<>(rows, discordId, lastFmId, returnList);
 
 
-		} catch (SQLException | InstanceNotFoundException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null;
