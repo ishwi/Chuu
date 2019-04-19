@@ -20,9 +20,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @SuppressWarnings("Duplicates")
-public class ChartCommand extends ConcurrentCommand {
+public class ArtistCommand extends ConcurrentCommand {
 
-	public ChartCommand(DaoImplementation dao) {
+	public ArtistCommand(DaoImplementation dao) {
 		super(dao);
 	}
 
@@ -50,14 +50,13 @@ public class ChartCommand extends ConcurrentCommand {
 		int y = Integer.parseInt(returned[1]);
 		String username = returned[2];
 		String time = returned[3];
-		boolean isAlbum = Boolean.parseBoolean(returned[4]);
 
 
 		if (x * y > 100) {
 			cha.sendMessage("Gonna Take a while").queue();
 		}
 		try {
-			byte[] file = ConcurrentLastFM.getUserList(username, time, x, y, isAlbum);
+			byte[] file = ConcurrentLastFM.getUserList(username, time, x, y, false);
 			if (file.length < 8388608) {
 				cha.sendFile(file, "cat.png").queue();
 				return;
@@ -103,22 +102,22 @@ public class ChartCommand extends ConcurrentCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!chart");
+		return Collections.singletonList("!artist");
 	}
 
 	@Override
 	public String getDescription() {
-		return "Returns a Chart with albums";
+		return "Returns a Chart with artist";
 	}
 
 	@Override
 	public String getName() {
-		return "Chart";
+		return "Artists";
 	}
 
 	@Override
 	public List<String> getUsageInstructions() {
-		return Collections.singletonList("**!chart *[w,m,t,y,a] *Username SizeXSize** \n" +
+		return Collections.singletonList("**!artists *[w,m,t,y,a] *Username SizeXSize** \n" +
 				"\tIf timeframe is not specified defaults to Weekly \n" +
 				"\tIf username is not specified defaults to authors account \n" +
 				"\tIf size is not specified defaults to 5x5 (As big as discord lets\n\n"
@@ -142,16 +141,10 @@ public class ChartCommand extends ConcurrentCommand {
 		String pattern = "\\d+[xX]\\d+";
 		String[] message = getSubMessage(e.getMessage());
 
-
-		boolean flag = true;
-		String[] message1 = Arrays.stream(message).filter(s -> !s.equals("--artist")).toArray(String[]::new);
-		if (message1.length != message.length) {
-			message = message1;
-			flag = false;
-		}
 		if (message.length > 3) {
 			throw new ParseException("Command");
 		}
+
 		Stream<String> firstStream = Arrays.stream(message).filter(s -> s.matches(pattern));
 		Optional<String> opt = firstStream.filter(s -> s.matches(pattern)).findAny();
 		if (opt.isPresent()) {
@@ -173,7 +166,7 @@ public class ChartCommand extends ConcurrentCommand {
 		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
 
 		timeFrame = getTimeFromChar(timeFrame);
-		return new String[]{x, y, discordName, timeFrame, Boolean.toString(flag)};
+		return new String[]{x, y, discordName, timeFrame};
 	}
 
 	@Override

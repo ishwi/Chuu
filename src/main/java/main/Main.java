@@ -85,6 +85,8 @@ class Main extends ListenerAdapter {
 		builder.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao, spotifyWrapper)));
 		builder.addEventListeners(help.registerCommand(new UniqueCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new NPYoutubeCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new ArtistCommand(dao)));
+
 
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(1);
