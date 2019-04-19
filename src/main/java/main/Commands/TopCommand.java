@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,8 +43,14 @@ public class TopCommand extends ConcurrentCommand {
 
 	@Override
 	public String[] parse(MessageReceivedEvent e) throws ParseException {
-
-		return new String[]{getLastFmUsername1input(getSubMessage(e.getMessage()), e.getAuthor().getIdLong(), e)};
+		String[] message = getSubMessage(e.getMessage());
+		boolean flag = true;
+		String[] message1 = Arrays.stream(message).filter(s -> !s.equals("--artist")).toArray(String[]::new);
+		if (message1.length != message.length) {
+			message = message1;
+			flag = false;
+		}
+		return new String[]{getLastFmUsername1input(message, e.getAuthor().getIdLong(), e), Boolean.toString(flag)};
 	}
 
 	@Override
@@ -70,12 +77,13 @@ public class TopCommand extends ConcurrentCommand {
 			errorMessage(e, 0, e1.getMessage());
 			return;
 		}
+		boolean isAlbum = Boolean.parseBoolean(message[1]);
 		e.getChannel().sendTyping().queue();
 		embed.setImage("attachment://cat.png") // we specify this in sendFile as "cat.png"
-				.setDescription("Most Listened Artists");
+				.setDescription(e.getAuthor().getName() + " 's most listened " + (isAlbum ? "albums" : "artist"));
 		mes.setEmbed(embed.build());
 		try {
-			e.getChannel().sendFile(ConcurrentLastFM.getUserList(message[0], "overall", 5, 5), "cat.png", mes.build()).queue();
+			e.getChannel().sendFile(ConcurrentLastFM.getUserList(message[0], "overall", 5, 5, isAlbum), "cat.png", mes.build()).queue();
 		} catch (LastFMServiceException ex) {
 			errorMessage(e, 1, ex.getMessage());
 		} catch (LastFmUserNotFoundException e1) {

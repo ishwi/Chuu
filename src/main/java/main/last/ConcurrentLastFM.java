@@ -20,7 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class ConcurrentLastFM {//implements LastFMService {
@@ -31,6 +31,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private static final String GET_USER = "?method=user.getinfo&user=";
 	private static final String ending = "&format=json";
 	private static final String GET_NOW_PLAYINH = "?method=user.getrecenttracks&limit=1&user=";
+	private static final String GET_ARTIST = "?method=user.gettopartists&user=";
 
 	//@Override
 	public static NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException, LastFMNoPlaysException {
@@ -168,10 +169,22 @@ public class ConcurrentLastFM {//implements LastFMService {
 		return linkedlist;
 	}
 
-	public static byte[] getUserList(String userName, String weekly, int x, int y) throws LastFMServiceException, LastFmUserNotFoundException {
+	public static byte[] getUserList(String userName, String weekly, int x, int y, boolean isAlbum) throws LastFMServiceException, LastFmUserNotFoundException {
 
-		String url = BASE + GET_ALBUMS + userName + API_KEY + ending + "&period=" + weekly;
-		BlockingQueue<UrlCapsule> queue = new PriorityBlockingQueue<>(x * y, Comparator.comparing(u -> 0 - u.getAlbumName().length()));
+		String apiMethod;
+		String leadingObject;
+		String arrayObject;
+		if (isAlbum) {
+			apiMethod = GET_ALBUMS;
+			leadingObject = "topalbums";
+			arrayObject = "album";
+		} else {
+			apiMethod = GET_ARTIST;
+			leadingObject = "topartists";
+			arrayObject = "artist";
+		}
+		String url = BASE + apiMethod + userName + API_KEY + ending + "&period=" + weekly;
+		BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 		HttpClient client = new HttpClient();
 
 		int requestedSize = x * y;
@@ -203,19 +216,18 @@ public class ConcurrentLastFM {//implements LastFMService {
 				// Read the response body.
 				byte[] responseBody = method.getResponseBody();
 				JSONObject obj = new JSONObject(new String(responseBody));
-				obj = obj.getJSONObject("topalbums");
+				obj = obj.getJSONObject(leadingObject);
 				int limit = obj.getJSONObject("@attr").getInt("total");
 				if (limit == size)
 					break;
-				JSONArray arr = obj.getJSONArray("album");
+				JSONArray arr = obj.getJSONArray(arrayObject);
 				for (int i = 0; i < arr.length() && size < requestedSize; i++) {
 					JSONObject albumObj = arr.getJSONObject(i);
-					JSONObject artistObj = albumObj.getJSONObject("artist");
-					String albumName = albumObj.getString("name");
-					String artistName = artistObj.getString("name");
-					JSONArray image = albumObj.getJSONArray("image");
-					JSONObject bigImage = image.getJSONObject(3);
-					queue.add(new UrlCapsule(bigImage.getString("#text"), size, albumName, artistName));
+					if (isAlbum)
+						queue.add(parseAlbum(albumObj, size));
+					else
+						queue.add(parseArtist(albumObj, size));
+
 					++size;
 				}
 
@@ -252,6 +264,22 @@ public class ConcurrentLastFM {//implements LastFMService {
 		// Use caution: ensure correct character encoding and is not binary data
 
 		return img;
+	}
+
+	private static UrlCapsule parseAlbum(JSONObject albumObj, int size) {
+		JSONObject artistObj = albumObj.getJSONObject("artist");
+		String albumName = albumObj.getString("name");
+		String artistName = artistObj.getString("name");
+		JSONArray image = albumObj.getJSONArray("image");
+		JSONObject bigImage = image.getJSONObject(3);
+		return new UrlCapsule(bigImage.getString("#text"), size, albumName, artistName);
+	}
+
+	private static UrlCapsule parseArtist(JSONObject artistObj, int size) {
+		String artistName = artistObj.getString("name");
+		JSONArray image = artistObj.getJSONArray("image");
+		JSONObject bigImage = image.getJSONObject(3);
+		return new UrlCapsule(bigImage.getString("#text"), size, "", artistName);
 	}
 
 	private static HttpMethodBase createMethod(String url) {
