@@ -35,18 +35,34 @@ public class SetCommand extends MyCommandDbAccess {
 		long userId = e.getAuthor().getIdLong();
 		List<UsersWrapper> list = getDao().getAll(guildID);
 
-		Optional<UsersWrapper> u = (list.stream().filter(user -> user.getDiscordID() == userId).findFirst());
-		if (u.isPresent()) {
-			if (!u.get().getLastFMName().equals(lastFmID)) {
 
+		Optional<UsersWrapper> u = (list.stream().filter(user -> user.getDiscordID() == userId).findFirst());
+		//User was already registered
+		if (u.isPresent()) {
+			//Registered with different username
+			if (!u.get().getLastFMName().equals(lastFmID)) {
 				sendMessage(e, "Changing your username, might take a while");
 				e.getChannel().sendTyping().queue();
+				//Remove pero solo de la guild if no guild remove all
 				getDao().remove(userId);
 			} else {
-				sendMessage(e, "You already have that name!");
+				sendMessage(e, e.getAuthor().getName() + " , you are good to go!");
 				return;
 			}
+			//First Time on the guild
+		} else {
+			//If it was registered in at least other  guild theres no need to update
+			if (getDao().getGuildList(userId).stream().anyMatch(user -> user != guildID)) {
+				//Adds the user to the guild
+				getDao().addGuildUser(userId, guildID);
+				sendMessage(e, e.getAuthor().getName() + " , you are good to go!");
+				return;
+
+			}
 		}
+
+
+		//Never registered before
 		getDao().addData(new LastFMData(lastFmID, userId, guildID));
 		mes.setContent("**" + e.getAuthor().getName() + "** has set his last FM name \n Updating his library on the background");
 		mes.sendTo(e.getChannel()).queue();

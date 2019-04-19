@@ -11,6 +11,8 @@ interface SQLShowsDao {
 
 	LastFMData find(Connection con, Long showID) throws InstanceNotFoundException;
 
+	List<Long> guildList(Connection connection, long userId);
+
 	void update(Connection con, LastFMData show);
 
 	void remove(Connection con, Long showID);
