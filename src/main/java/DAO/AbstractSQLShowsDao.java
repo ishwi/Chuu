@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -212,6 +213,34 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 	}
 
+	@Override
+	public List<Long> guildList(Connection connection, long userId) {
+		String queryString = "Select discordId,guildId "
+				+ " FROM user_guild  WHERE discordID = ?";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setLong(i++, userId);
+
+			List<Long> returnList = new LinkedList<>();
+			/* Execute query. */
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			while (resultSet.next()) {
+
+				long guildId = resultSet.getLong("guildId");
+
+				returnList.add(guildId);
+
+			}
+			return returnList;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
 
 	@Override
 	public void update(Connection connection, LastFMData lastFMData) {

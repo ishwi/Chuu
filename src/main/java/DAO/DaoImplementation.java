@@ -61,6 +61,15 @@ public class DaoImplementation {
 		}
 	}
 
+	public void addGuildUser(long userID, long guildID) {
+		try (Connection connection = dataSource.getConnection()) {
+			dao.addGuild(connection, userID, guildID);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
 	public void addData(LastFMData data) {
 		try (Connection connection = dataSource.getConnection()) {
 
@@ -199,12 +208,20 @@ public class DaoImplementation {
 		}
 	}
 
-	public UniqueWrapper<UniqueData> getUniqueArtist(Long guildID, String  lastFmId) {
+	public UniqueWrapper<UniqueData> getUniqueArtist(Long guildID, String lastFmId) {
 		try (Connection connection = dataSource.getConnection()) {
 			return dao.getUniqueArtist(connection, guildID, lastFmId);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
+
+	public List<Long> getGuildList(long userId) {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.guildList(connection, userId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }
