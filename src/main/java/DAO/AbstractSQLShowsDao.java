@@ -17,6 +17,33 @@ import java.util.List;
  */
 public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 	@Override
+	public List<UniqueData> getGuildTop(Connection connection, Long guildID) {
+		String queryString = "SELECT distinct artist_id , (select sum(playNumber) from (Select artist_id, playNumber,a.lastFMID from artist a join lastfm b on a.lastFMID=b.lastFmId join  user_guild c on b.discordID = c.discordId \n" +
+				"where c.guildId = ?) temp where temp.artist_id = main.artist_id) orden\n" +
+				"from (Select artist_id, playNumber,a.lastFMID from artist a join lastfm b on a.lastFMID=b.lastFmId join  user_guild c on b.discordID = c.discordId " +
+				"where c.guildId = ?) main " +
+				"order by orden desc";
+		List<UniqueData> list = new LinkedList<>();
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			int i = 1;
+			preparedStatement.setLong(i++, guildID);
+			preparedStatement.setLong(i++, guildID);
+
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				String artist = resultSet.getString("artist_id");
+				int plays = resultSet.getInt("orden");
+				list.add(new UniqueData(artist, plays));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	@Override
 	public UniqueWrapper<UniqueData> getUniqueArtist(Connection connection, Long guildID, String lastFmId) {
 		String queryString = "SELECT * " +
 				"FROM(  " +

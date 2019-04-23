@@ -34,4 +34,6 @@ interface SQLShowsDao {
 	void addGuild(Connection con, long userId, long guildId);
 
 	void setUpdatedTime(Connection connection, String id);
+
+	List<UniqueData> getGuildTop(Connection connection, Long guildID);
 }

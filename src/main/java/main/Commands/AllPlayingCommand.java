@@ -5,9 +5,9 @@ import DAO.Entities.NowPlayingArtist;
 import DAO.Entities.UsersWrapper;
 import main.Exceptions.ParseException;
 import main.last.ConcurrentLastFM;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.Collections;

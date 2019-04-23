@@ -1,10 +1,11 @@
 package main;
 
 import DAO.DaoImplementation;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import main.Commands.*;
-import net.dv8tion.jda.api.AccountType;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import javax.security.auth.login.LoginException;
 import java.io.*;
@@ -72,22 +73,25 @@ class Main extends ListenerAdapter {
 		Spotify spotifyWrapper = new Spotify(map.get("clientId"), map.get("clientSecret"));
 		builder.setToken(map.get("discordtoken"));
 		HelpCommand help = new HelpCommand();
-		builder.addEventListeners(help);
-		builder.addEventListeners(help.registerCommand(new NowPlayingCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new WhoKnowsCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new ChartCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new SetCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new AllPlayingCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new TasteCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new TopCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new UpdateCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao, spotifyWrapper)));
-		builder.addEventListeners(help.registerCommand(new UniqueCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new NPYoutubeCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new ArtistCommand(dao)));
+		builder.addEventListener(help);
+		builder.addEventListener(help.registerCommand(new NowPlayingCommand(dao)));
+		builder.addEventListener(help.registerCommand(new WhoKnowsCommand(dao)));
+		builder.addEventListener(help.registerCommand(new WhoKnowsNPCommand(dao)));
+		builder.addEventListener(help.registerCommand(new ChartCommand(dao)));
+		builder.addEventListener(help.registerCommand(new SetCommand(dao)));
+		builder.addEventListener(help.registerCommand(new AllPlayingCommand(dao)));
+		builder.addEventListener(help.registerCommand(new TasteCommand(dao)));
+		builder.addEventListener(help.registerCommand(new TopCommand(dao)));
+		builder.addEventListener(help.registerCommand(new UpdateCommand(dao)));
+		builder.addEventListener(help.registerCommand(new NPSpotifyCommand(dao, spotifyWrapper)));
+		builder.addEventListener(help.registerCommand(new UniqueCommand(dao)));
+		builder.addEventListener(help.registerCommand(new NPYoutubeCommand(dao)));
+		builder.addEventListener(help.registerCommand(new ArtistCommand(dao)));
+//		builder.addEventListeners(help.registerCommand(new AlbumSongPlaysCommand(dao)));
+		EventWaiter waiter = new EventWaiter(Executors.newSingleThreadScheduledExecutor(), false);
 
-
+		builder.addEventListener(waiter);
+		builder.addEventListener(help.registerCommand(new GuildTopCommand(dao, waiter)));
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(1);
 		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao), 5, 10, TimeUnit.MINUTES);

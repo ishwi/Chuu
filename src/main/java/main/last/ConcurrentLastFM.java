@@ -32,6 +32,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private static final String ending = "&format=json";
 	private static final String GET_NOW_PLAYINH = "?method=user.getrecenttracks&limit=1&user=";
 	private static final String GET_ARTIST = "?method=user.gettopartists&user=";
+	private static final String GET_TRACKS = "?method=user.getartisttracks&user=";
 
 	//@Override
 	public static NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException, LastFMNoPlaysException {
@@ -287,6 +288,74 @@ public class ConcurrentLastFM {//implements LastFMService {
 		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
 		return method;
 
+	}
+
+	public static int getPlaysAlbum_Artist(String username, boolean isAlbum, String artist, String queriedString) throws LastFmUserNotFoundException {
+
+		HttpClient client = new HttpClient();
+		String url = BASE + GET_TRACKS + username + "&artist=" + artist.replaceAll(" ", "+") + API_KEY + ending + "&size=500";
+		List<UserInfo> returnList = new ArrayList<>();
+		int counter = 0;
+		int page = 1;
+		int limit = 50;
+		int queryCounter = 0;
+
+		while (true) {
+
+			String urlPage = url + "&page=" + page;
+			++page;
+
+			HttpMethodBase method = createMethod(urlPage);
+
+			System.out.println(page + " :page             size: ");
+			try {
+
+				// Execute the method.
+				int statusCode = client.executeMethod(method);
+
+				if (statusCode != HttpStatus.SC_OK) {
+					if (statusCode == HttpStatus.SC_NOT_FOUND)
+						throw new LastFmUserNotFoundException(username);
+					throw new LastFMServiceException("Error in the service: " + method.getStatusLine());
+				}
+
+				// Read the response body.
+				byte[] responseBody = method.getResponseBody();
+				JSONObject obj = new JSONObject(new String(responseBody));
+				obj = obj.getJSONObject("artisttracks");
+
+
+				JSONArray arr = obj.getJSONArray("track");
+				int pageCounter = 0;
+				for (int i = 0; i < arr.length(); i++) {
+					JSONObject albumObj = arr.getJSONObject(i);
+					if (!albumObj.has("date"))
+						continue;
+
+					if (isAlbum) {
+						if (albumObj.getJSONObject("album").getString("#text").equalsIgnoreCase(queriedString))
+							++queryCounter;
+					} else if (albumObj.getString("name").equalsIgnoreCase(queriedString))
+						++queryCounter;
+
+					++pageCounter;
+				}
+				if (pageCounter != 50)
+					break;
+
+
+			} catch (HttpException e) {
+				System.err.println("Fatal protocol violation: " + e.getMessage());
+				e.printStackTrace();
+
+			} catch (JSONException e) {
+				return 0;
+			} catch (LastFMServiceException | IOException e) {
+				e.printStackTrace();
+
+			}
+		}
+		return queryCounter;
 	}
 
 }

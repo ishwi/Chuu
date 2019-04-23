@@ -2,12 +2,12 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
+import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
 import main.last.ConcurrentLastFM;
-import main.Exceptions.LastFMServiceException;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.LinkedList;

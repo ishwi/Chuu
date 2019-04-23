@@ -1,7 +1,7 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 
 public abstract class ConcurrentCommand extends MyCommandDbAccess implements Runnable {

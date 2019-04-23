@@ -5,8 +5,8 @@ import main.Exceptions.LastFMServiceException;
 import main.Exceptions.LastFmUserNotFoundException;
 import main.Exceptions.ParseException;
 import main.last.ConcurrentLastFM;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
