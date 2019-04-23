@@ -224,4 +224,11 @@ public class DaoImplementation {
 		}
 	}
 
+	public List<UniqueData> getGuildTop(long guildID) {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.getGuildTop(connection, guildID);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

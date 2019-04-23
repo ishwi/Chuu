@@ -3,8 +3,8 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.LastFMData;
 import main.Exceptions.ParseException;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
 import java.util.List;

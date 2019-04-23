@@ -7,10 +7,10 @@ import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.imageRenderer;
 import main.last.ConcurrentLastFM;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
 import javax.management.InstanceNotFoundException;

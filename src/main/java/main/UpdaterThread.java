@@ -3,9 +3,9 @@ package main;
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
 import DAO.Entities.UsersWrapper;
-import main.last.ConcurrentLastFM;
 import main.Exceptions.LastFMServiceException;
-import net.dv8tion.jda.api.MessageBuilder;
+import main.last.ConcurrentLastFM;
+import net.dv8tion.jda.core.MessageBuilder;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
