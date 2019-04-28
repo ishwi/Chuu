@@ -63,7 +63,7 @@ public class SetCommand extends MyCommandDbAccess {
 
 
 		//Never registered before
-		getDao().addData(new LastFMData(lastFmID, userId, guildID));
+		getDao().updateUserLibrary(new LastFMData(lastFmID, userId, guildID));
 		mes.setContent("**" + e.getAuthor().getName() + "** has set his last FM name \n Updating his library on the background");
 		mes.sendTo(e.getChannel()).queue();
 

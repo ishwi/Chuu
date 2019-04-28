@@ -20,7 +20,16 @@ public class DaoImplementation {
 
 	}
 
-	public void addData(LinkedList<ArtistData> list, String id) {
+	public void updateUserTimeStamp(String lastFmName) {
+		try (Connection connection = dataSource.getConnection()) {
+			dao.setUpdatedTime(connection, lastFmName);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	public void updateUserLibrary(LinkedList<ArtistData> list, String id) {
 		try (Connection connection = dataSource.getConnection()) {
 
 			try {
@@ -70,7 +79,7 @@ public class DaoImplementation {
 
 	}
 
-	public void addData(LastFMData data) {
+	public void updateUserLibrary(LastFMData data) {
 		try (Connection connection = dataSource.getConnection()) {
 
 			try {

@@ -38,13 +38,14 @@ public class UpdaterThread implements Runnable {
 
 		try {
 			LinkedList<ArtistData> artistDataLinkedList = ConcurrentLastFM.getLibrary(usertoWork.getLastFMName());
-			dao.addData(artistDataLinkedList, usertoWork.getLastFMName());
+			dao.updateUserLibrary(artistDataLinkedList, usertoWork.getLastFMName());
 
 			System.out.println("Updated Info of" + usertoWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 			MessageBuilder a = new MessageBuilder();
 
 		} catch (LastFMServiceException e) {
 			e.printStackTrace();
+			dao.updateUserTimeStamp(usertoWork.getLastFMName());
 		}
 
 	}

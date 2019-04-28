@@ -94,7 +94,7 @@ class Main extends ListenerAdapter {
 		builder.addEventListener(help.registerCommand(new GuildTopCommand(dao, waiter)));
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(1);
-		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao), 5, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao), 1, 10, TimeUnit.MINUTES);
 
 		try {
 			builder.build().awaitReady();

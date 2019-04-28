@@ -42,7 +42,6 @@ class ThreadQueue implements Runnable {
 			g.setFont(artistFont);
 			g.setColor(Color.BLACK);
 			int fontHeight = g.getFontMetrics().getHeight();
-			int fontWidth = (int) (fontHeight * 0.45);
 
 
 			try {
