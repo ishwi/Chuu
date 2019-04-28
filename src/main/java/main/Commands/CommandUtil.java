@@ -7,6 +7,7 @@ import main.ImageRenderer.NPMaker;
 import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
@@ -15,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class CommandUtil {
 	static String noImageUrl(String artist) {
@@ -58,12 +60,20 @@ public class CommandUtil {
 				messageBuilder.setEmbed(embedBuilder.build()).sendTo(event.getChannel()).queue();
 				return;
 			}
+			wrapperReturnNowPlaying.setReturnNowPlayings(wrapperReturnNowPlaying.getReturnNowPlayings().stream().map(element -> {
+				Member member = event.getGuild().getMemberById(element.getDiscordId());
+				element.setDiscordName(member.getEffectiveName());
+				element.setRoleColor(member.getColor());
+				return element;
+			}).collect(Collectors.toList()));
 			BufferedImage image = NPMaker.generateTasteImage(wrapperReturnNowPlaying, event.getGuild().getName());
 			ByteArrayOutputStream b = new ByteArrayOutputStream();
 			ImageIO.write(image, "png", b);
 			byte[] img = b.toByteArray();
 			if (img.length < 8388608)
 				messageBuilder.sendTo(event.getChannel()).addFile(img, "cat.png").queue();
+			else
+				messageBuilder.setContent("Boot to big").sendTo(event.getChannel()).queue();
 
 
 		} catch (IOException e2) {

@@ -160,7 +160,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 					int count = artistObj.getInt("playcount");
 					JSONArray image = artistObj.getJSONArray("image");
 
-					JSONObject bigImage = image.getJSONObject(2);
+					JSONObject bigImage = image.getJSONObject(image.length() - 1);
+
 					linkedlist.add(new ArtistData(mbid, count, bigImage.getString("#text")));
 				}
 			} catch (JSONException e) {
