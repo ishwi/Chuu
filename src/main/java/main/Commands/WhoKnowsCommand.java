@@ -9,14 +9,14 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("Duplicates")
-public class WhoKnowsCommand extends MyCommandDbAccess {
+public class WhoKnowsCommand extends ConcurrentCommand {
 	public WhoKnowsCommand(DaoImplementation dao) {
 		super(dao);
 	}
 
-	@Override
-	public void onCommand(MessageReceivedEvent e, String[] args) {
 
+	@Override
+	public void threadableCode() {
 		String[] returned;
 		try {
 			returned = parse(e);
@@ -55,15 +55,16 @@ public class WhoKnowsCommand extends MyCommandDbAccess {
 
 		String[] message = getSubMessage(e.getMessage());
 
-		if (message.length == 0) {
-			//No Commands Inputed
-			throw new ParseException("Input");
-		}
+
 		boolean flag = false;
 		String[] message1 = Arrays.stream(message).filter(s -> !s.equals("--image")).toArray(String[]::new);
 		if (message1.length != message.length) {
 			message = message1;
 			flag = true;
+		}
+		if (message.length == 0) {
+			//No Commands Inputed
+			throw new ParseException("Input");
 		}
 		String artist;
 		if (message.length > 1) {

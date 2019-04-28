@@ -21,14 +21,14 @@ public class NPMaker {
 	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
 	private static final Font ARTIST_FONT = new Font("Yu Gothic Bold", Font.PLAIN, 32);
 	private static final Font DESC_FONT = new Font("Yu Gothic UI Light", Font.PLAIN, 32);
-	private static final Color FONT_COLOR = Color.BLACK;
 	private static final String FIRST_LINE = "Who knows";
+	private static Color FONT_COLOR = Color.BLACK;
 
 	public static BufferedImage generateTasteImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, String discordName) {
 
 
 		BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
-		String artist = wrapperReturnNowPlaying.getArtist();
+		String artist = wrapperReturnNowPlaying.getArtist().toUpperCase();
 		String urlString = wrapperReturnNowPlaying.getUrl();
 		FontMetrics metrics;
 
@@ -62,8 +62,13 @@ public class NPMaker {
 
 		g.drawImage(backGroundimage, 0, 0, X_MAX, Y_MAX, 0, 0, backGroundimage.getWidth(), backGroundimage.getHeight(), null);
 		new GaussianFilter(90).filter(canvas, canvas);
-
-
+		float[] rgb2 = new float[3];
+		int a = canvas.getRGB(0, 0);
+		new Color(a).getRGBColorComponents(rgb2);
+		Color colorB = new Color(rgb2[0], rgb2[1], rgb2[2], 0.5f).darker();
+		Color colorB1 = new Color(rgb2[0], rgb2[1], rgb2[2], 0.7f);
+		colorB1 = colorB1.darker().darker();
+		FONT_COLOR = getBetter(new Color(a));
 		g.setColor(FONT_COLOR);
 
 		g.setFont(DESC_FONT);
@@ -80,8 +85,8 @@ public class NPMaker {
 		metrics = g.getFontMetrics(ARTIST_FONT);
 		y_counter += metrics.getAscent() - metrics.getDescent();
 
-		width = metrics.stringWidth(wrapperReturnNowPlaying.getArtist());
-		g.drawString(wrapperReturnNowPlaying.getArtist(), X_MAX / 2 - width / 2, y_counter);
+		width = metrics.stringWidth(artist);
+		g.drawString(artist, X_MAX / 2 - width / 2, y_counter);
 
 		y_counter += 12.5;
 
@@ -98,12 +103,6 @@ public class NPMaker {
 		g.drawImage(backGroundimage, X_MARGIN, y_counter, X_MARGIN + 320, y_counter + 320, 0, 0, backGroundimage.getWidth(), backGroundimage.getHeight(), null);
 
 
-		float[] rgb2 = new float[3];
-		int a = canvas.getRGB(0, 0);
-		new Color(a).getRGBColorComponents(rgb2);
-		Color colorB = new Color(rgb2[0], rgb2[1], rgb2[2], 0.5f).darker();
-		Color colorB1 = new Color(rgb2[0], rgb2[1], rgb2[2], 0.7f);
-		colorB1 = colorB1.darker().darker();
 		g.setColor(colorB);
 
 		int rectWidth = X_MAX - X_MARGIN - (X_MARGIN + 320);
@@ -111,7 +110,7 @@ public class NPMaker {
 
 		g.fillRect(X_MARGIN + 320, y_counter, rectWidth, 320);
 
-		g.setFont(DESC_FONT.deriveFont(22f));
+		g.setFont(DESC_FONT.deriveFont(18f));
 		metrics = g.getFontMetrics(g.getFont());
 		List<ReturnNowPlaying> nowPlayingArtistList = wrapperReturnNowPlaying.getReturnNowPlayings();
 		for (int i = 0; i < nowPlayingArtistList.size() && i < 10; i++) {
@@ -120,12 +119,22 @@ public class NPMaker {
 			g.fillRect(X_MARGIN + 320, y_counter, rectWidth, 28);
 
 			g.setColor(getBetter(colorB1));
-			g.drawString("#" + (i + 1) + " " + nowPlayingArtistList.get(i).getLastFMId(), X_MARGIN + 332, y_counter + 22);
+
+			float size = 18f;
+			while (g.getFontMetrics(g.getFont()).stringWidth(nowPlayingArtistList.get(i).getDiscordName()) > 190 && size > 14) {
+				g.setFont(g.getFont().deriveFont(size -= 1));
+			}
+			size = 18f;
+
+
+			g.drawString("#" + (i + 1) + " " + nowPlayingArtistList.get(i).getDiscordName(), X_MARGIN + 332, y_counter + (32 - metrics.getAscent() / 2));
+			g.setFont(DESC_FONT.deriveFont(size));
 			String plays = String.valueOf(nowPlayingArtistList.get(i).getPlaynumber());
 
-			g.drawString(plays, X_MARGIN + 320 + rectWidth - (34 + metrics.stringWidth(plays)), y_counter + 22);
+			g.drawString(plays, X_MARGIN + 320 + rectWidth - (34 + metrics.stringWidth(plays)), y_counter + (30 - metrics.getAscent() / 2));
 			g.drawImage(lastFmLogo, X_MARGIN + 320 + rectWidth - 28, y_counter + 9, null);
 			y_counter += 32;
+
 		}
 
 		return canvas;
