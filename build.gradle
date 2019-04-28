@@ -45,6 +45,8 @@ dependencies {
     compile 'com.google.apis:google-api-services-youtube:v3-rev209-1.25.0'
     compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
 
+// https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-jpeg
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.4.1'
 
 //    compile 'com.google.api-client:google-api-client:1.25.0'
 //    compile 'com.google.apis:google-api-services-drive:v3-rev110-1.23.0'

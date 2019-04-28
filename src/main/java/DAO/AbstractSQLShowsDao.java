@@ -18,18 +18,18 @@ import java.util.List;
 public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 	@Override
 	public List<UniqueData> getGuildTop(Connection connection, Long guildID) {
-		String queryString = "SELECT distinct artist_id , (select sum(playNumber) from (Select artist_id, playNumber,a.lastFMID from artist a join lastfm b on a.lastFMID=b.lastFmId join  user_guild c on b.discordID = c.discordId \n" +
-				"where c.guildId = ?) temp where temp.artist_id = main.artist_id) orden\n" +
-				"from (Select artist_id, playNumber,a.lastFMID from artist a join lastfm b on a.lastFMID=b.lastFmId join  user_guild c on b.discordID = c.discordId " +
-				"where c.guildId = ?) main " +
-				"order by orden desc";
+		String queryString = "SELECT artist_id, sum(playNumber) as orden FROM lastfm.artist a" +
+				" JOIN lastfm b" +
+				" ON a.lastFMID = b.lastFmId" +
+				" JOIN  user_guild c" +
+				" On b.discordID=c.discordId" +
+				" Where c.guildId = ?" +
+				" group by artist_id" +
+				" order BY orden DESC;";
 		List<UniqueData> list = new LinkedList<>();
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-			int i = 1;
-			preparedStatement.setLong(i++, guildID);
-			preparedStatement.setLong(i++, guildID);
-
+			preparedStatement.setLong(1, guildID);
 
 			ResultSet resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {

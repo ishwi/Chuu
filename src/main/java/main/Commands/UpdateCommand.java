@@ -34,9 +34,12 @@ public class UpdateCommand extends MyCommandDbAccess {
 
 		e.getChannel().sendTyping().queue();
 		try {
-
+			if (getDao().getAll(e.getGuild().getIdLong()).stream().noneMatch(s -> s.getLastFMName().equals(message[0]))) {
+				sendMessage(e, message[0] + " is not registered in this guild");
+				return;
+			}
 			LinkedList<ArtistData> list = ConcurrentLastFM.getLibrary(message[0]);
-			getDao().addData(list, message[0]);
+			getDao().updateUserLibrary(list, message[0]);
 			mes.setContent("Sucessfully updated " + message[0] + " info !").sendTo(e.getChannel()).queue();
 
 
@@ -70,6 +73,7 @@ public class UpdateCommand extends MyCommandDbAccess {
 
 	@Override
 	public String[] parse(MessageReceivedEvent e) throws ParseException {
+
 		return new String[]{getLastFmUsername1input(getSubMessage(e.getMessage()), e.getAuthor().getIdLong(), e)};
 
 	}

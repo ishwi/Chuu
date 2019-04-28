@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -33,6 +34,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private static final String GET_NOW_PLAYINH = "?method=user.getrecenttracks&limit=1&user=";
 	private static final String GET_ARTIST = "?method=user.gettopartists&user=";
 	private static final String GET_TRACKS = "?method=user.getartisttracks&user=";
+	private static final String GET_CORRECTION = "?method=artist.getcorrection&artist=";
 
 	//@Override
 	public static NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException, LastFMNoPlaysException {
@@ -161,7 +163,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 					JSONObject bigImage = image.getJSONObject(2);
 					linkedlist.add(new ArtistData(mbid, count, bigImage.getString("#text")));
 				}
-
+			} catch (JSONException e) {
+				throw new LastFMServiceException(e.getMessage());
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -290,9 +293,38 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
+	public static String getCorrection(String artistToCorrect) {
+		HttpClient client = new HttpClient();
+		try {
+
+
+			String url = BASE + GET_CORRECTION + URLEncoder.encode(artistToCorrect, "UTF-8") + API_KEY + ending;
+			HttpMethodBase method = createMethod(url);
+			int statusCode = client.executeMethod(method);
+			if (statusCode != HttpStatus.SC_OK) {
+				System.err.println("Method failed: " + method.getStatusLine());
+				return artistToCorrect;
+			}
+			byte[] responseBody = method.getResponseBody();
+			JSONObject obj = new JSONObject(new String(responseBody));
+			obj = obj.getJSONObject("corrections");
+			JSONObject artistObj = obj.getJSONObject("correction").getJSONObject("artist");
+
+
+			return artistObj.getString("name");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return artistToCorrect;
+
+		}
+
+	}
+
 	public static int getPlaysAlbum_Artist(String username, boolean isAlbum, String artist, String queriedString) throws LastFmUserNotFoundException {
 
 		HttpClient client = new HttpClient();
+
 		String url = BASE + GET_TRACKS + username + "&artist=" + artist.replaceAll(" ", "+") + API_KEY + ending + "&size=500";
 		List<UserInfo> returnList = new ArrayList<>();
 		int counter = 0;

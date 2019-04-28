@@ -33,11 +33,12 @@ public class GuildTopCommand extends ConcurrentCommand {
 				.showPageNumbers(true)
 				.waitOnSinglePage(false)
 				.useNumberedItems(true)
+				.setRoles(e.getGuild().getPublicRole())
 				.setFinalAction(m -> {
 					try {
 						m.clearReactions().queue();
 					} catch (PermissionException ex) {
-						m.delete().queue();
+						ex.printStackTrace();
 					}
 				})
 				.setEventWaiter(this.wait)
