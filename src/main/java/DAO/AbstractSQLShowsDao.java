@@ -13,7 +13,28 @@ import java.util.List;
 
 
 /**
- * @author Miguel
+ 
+SELECT *
+FROM  artist a
+where 	 lastFMID="nonparadisi"
+	and playNumber > 0
+	AND  playNumber >= all (Select max(b.playNumber) 
+						  from 
+								(Select in_A.lastFMID,in_A.artist_id,in_A.playNumber
+									from artist in_A  
+									join 
+										lastfm in_B
+										on in_A.lastFMID = in_B.lastFmid
+									join 
+										user_guild in_C
+										on in_b.discordID = in_C.discordId
+										
+									where guildId = 476779889102684160
+										) as b
+							where b.artist_id = a.artist_id
+                        group by artist_id
+                        )
+* @author Miguel
  */
 public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 	@Override
