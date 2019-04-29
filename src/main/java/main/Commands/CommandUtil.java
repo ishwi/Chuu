@@ -54,7 +54,7 @@ public class CommandUtil {
 				}
 
 				embedBuilder.setTitle("Who knows " + who + " in " + event.getGuild().getName() + "?").
-						setThumbnail(wrapperReturnNowPlaying.getUrl()).setDescription(builder)
+						setThumbnail(noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
 						.setColor(randomColor());
 				//.setFooter("Command invoked by " + event.getMember().getUser().getDiscriminator() + " · " + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toString(), );
 				messageBuilder.setEmbed(embedBuilder.build()).sendTo(event.getChannel()).queue();
