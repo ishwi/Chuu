@@ -67,7 +67,7 @@ public class SetCommand extends MyCommandDbAccess {
 		mes.setContent("**" + e.getAuthor().getName() + "** has set his last FM name \n Updating his library on the background");
 		mes.sendTo(e.getChannel()).queue();
 
-		new Thread(new UpdaterThread(getDao(), new UsersWrapper(userId, lastFmID))).run();
+		new Thread(new UpdaterThread(getDao(), new UsersWrapper(userId, lastFmID), false)).run();
 		sendMessage(e, "Finished updating " + e.getAuthor().getName() + " library, you are good to go!");
 
 	}

@@ -87,14 +87,16 @@ class Main extends ListenerAdapter {
 		builder.addEventListener(help.registerCommand(new UniqueCommand(dao)));
 		builder.addEventListener(help.registerCommand(new NPYoutubeCommand(dao)));
 		builder.addEventListener(help.registerCommand(new ArtistCommand(dao)));
+
 //		builder.addEventListeners(help.registerCommand(new AlbumSongPlaysCommand(dao)));
 		EventWaiter waiter = new EventWaiter(Executors.newSingleThreadScheduledExecutor(), false);
 
-		builder.addEventListener(waiter);
-		builder.addEventListener(help.registerCommand(new GuildTopCommand(dao, waiter)));
+//		builder.addEventListener(waiter);
+//		builder.addEventListener(help.registerCommand(new GuildTopCommand(dao, waiter)));
+//		builder.addEventListener(help.registerCommand(new CrownsCommand(dao, waiter)));
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(1);
-		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao), 1, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true), 0, 2, TimeUnit.MINUTES);
 
 		try {
 			builder.build().awaitReady();

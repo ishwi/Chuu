@@ -44,13 +44,42 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 	public void addUrl(Connection con, ArtistData artistData) {
 		/* Create "queryString". */
 		String queryString = "INSERT IGNORE INTO lastfm.artist_url"
-				+ " ( artist_id,url) " + " VALUES (?, ?) ";
+				+ " ( artist_id,url) " + " VALUES (?, ?)";
 
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
 			/* Fill "preparedStatement". */
 			int i = 1;
 			preparedStatement.setString(i++, artistData.getArtist());
+			preparedStatement.setString(i++, artistData.getUrl());
+
+
+
+			/* Execute query. */
+			preparedStatement.executeUpdate();
+
+			/* Get generated identifier. */
+
+			/* Return booking. */
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	@Override
+	public void upsertUrl(Connection con, ArtistData artistData) {
+		/* Create "queryString". */
+		String queryString = "INSERT  INTO lastfm.artist_url"
+				+ " ( artist_id,url) " + " VALUES (?, ?) ON DUPLICATE  KEY UPDATE url= ? ";
+
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i++, artistData.getArtist());
+			preparedStatement.setString(i++, artistData.getUrl());
 			preparedStatement.setString(i++, artistData.getUrl());
 
 
@@ -95,16 +124,21 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 	}
 
 	@Override
-	public void setUpdatedTime(Connection connection, String id) {
+	public void setUpdatedTime(Connection connection, String id, Integer timestamp) {
 		String queryString = "INSERT INTO lastfm.updated"
 				+ " ( discordID,last_update) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE last_update=" + "?";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
+			Timestamp timestamp1;
+			if (timestamp == null) {
+				timestamp1 = Timestamp.from(Instant.now());
+			} else {
+				timestamp1 = new Timestamp(timestamp.longValue() * 1000);
+			}
 			/* Fill "preparedStatement". */
 			int i = 1;
 			preparedStatement.setString(i++, id);
-			preparedStatement.setTimestamp(i++, Timestamp.from(Instant.now()));
-			preparedStatement.setTimestamp(i++, Timestamp.from(Instant.now()));
+			preparedStatement.setTimestamp(i++, timestamp1);
+			preparedStatement.setTimestamp(i++, timestamp1);
 
 
 			/* Execute query. */
@@ -203,6 +237,34 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public void upsertArtist(Connection con, ArtistData artistData) {
+		/* Create "queryString". */
+		String queryString = "INSERT INTO lastfm.artist"
+				+ " ( lastFMID,artist_id,playNumber) " + " VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE playNumber= playNumber + " + "?";
+
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i++, artistData.getDiscordID());
+			preparedStatement.setString(i++, artistData.getArtist());
+			preparedStatement.setLong(i++, artistData.getCount());
+			preparedStatement.setLong(i++, artistData.getCount());
+
+
+			/* Execute query. */
+			preparedStatement.executeUpdate();
+
+			/* Get generated identifier. */
+
+			/* Return booking. */
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 
 }
 

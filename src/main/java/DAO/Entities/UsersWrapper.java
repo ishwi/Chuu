@@ -3,10 +3,25 @@ package DAO.Entities;
 public class UsersWrapper {
 	private long discordID;
 	private String lastFMName;
+	private int timestamp;
 
 	public UsersWrapper(long discordID, String lastFMName) {
 		this.discordID = discordID;
 		this.lastFMName = lastFMName;
+	}
+
+	public UsersWrapper(long discordID, String lastFMName, int timestamp) {
+		this.discordID = discordID;
+		this.lastFMName = lastFMName;
+		this.timestamp = timestamp;
+	}
+
+	public int getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(int timestamp) {
+		this.timestamp = timestamp;
 	}
 
 	public long getDiscordID() {

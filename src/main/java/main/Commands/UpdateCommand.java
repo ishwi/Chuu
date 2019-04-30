@@ -2,6 +2,7 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
+import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
 import main.last.ConcurrentLastFM;
@@ -43,7 +44,7 @@ public class UpdateCommand extends MyCommandDbAccess {
 			mes.setContent("Sucessfully updated " + message[0] + " info !").sendTo(e.getChannel()).queue();
 
 
-		} catch (LastFMServiceException ex) {
+		} catch (LastFMServiceException | LastFMNoPlaysException ex) {
 			errorMessage(e, 1, ex.getMessage());
 		}
 
