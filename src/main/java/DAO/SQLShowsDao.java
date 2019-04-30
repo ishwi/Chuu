@@ -33,7 +33,13 @@ interface SQLShowsDao {
 
 	void addGuild(Connection con, long userId, long guildId);
 
-	void setUpdatedTime(Connection connection, String id);
+	void setUpdatedTime(Connection connection, String id, Integer timestamp);
+
+	List<UniqueData> getCrowns(Connection connection, String lastFmId, long guildID);
 
 	List<UniqueData> getGuildTop(Connection connection, Long guildID);
+
+	void upsertArtist(Connection con, ArtistData artistData);
+
+	void upsertUrl(Connection con, ArtistData artistData);
 }

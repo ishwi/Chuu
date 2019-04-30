@@ -1,6 +1,7 @@
 package DAO;
 
 import DAO.Entities.*;
+import main.last.TimestampWrapper;
 
 import javax.management.InstanceNotFoundException;
 import javax.sql.DataSource;
@@ -22,7 +23,7 @@ public class DaoImplementation {
 
 	public void updateUserTimeStamp(String lastFmName) {
 		try (Connection connection = dataSource.getConnection()) {
-			dao.setUpdatedTime(connection, lastFmName);
+			dao.setUpdatedTime(connection, lastFmName, null);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -44,7 +45,7 @@ public class DaoImplementation {
 					dao.addArtist(connection, artistData);
 					dao.addUrl(connection, artistData);
 				});
-				dao.setUpdatedTime(connection, id);
+				dao.setUpdatedTime(connection, id, null);
 
 
 				/* Commit. */
@@ -69,6 +70,48 @@ public class DaoImplementation {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public void incrementalUpdate(TimestampWrapper<LinkedList<ArtistData>> list, String id) {
+		try (Connection connection = dataSource.getConnection()) {
+
+			try {
+
+				/* Prepare connection. */
+				connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+				connection.setAutoCommit(false);
+
+				/* Do work. */
+				list.getWrapped().forEach(artistData -> {
+					artistData.setDiscordID(id);
+					dao.upsertArtist(connection, artistData);
+					dao.upsertUrl(connection, artistData);
+				});
+				dao.setUpdatedTime(connection, id, list.getTimestamp());
+
+
+				/* Commit. */
+				// Seguramente haya mejor solucion
+
+
+				connection.commit();
+
+				// Relacionar post con show ?
+
+			} catch (SQLException e) {
+				connection.rollback();
+				throw new RuntimeException(e);
+			} catch (RuntimeException | Error e) {
+				connection.rollback();
+				throw e;
+//			} catch (InstanceNotFoundException e) {
+//				throw new RuntimeException(e);
+			}
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 
 	public void addGuildUser(long userID, long guildID) {
 		try (Connection connection = dataSource.getConnection()) {
@@ -236,6 +279,14 @@ public class DaoImplementation {
 	public List<UniqueData> getGuildTop(long guildID) {
 		try (Connection connection = dataSource.getConnection()) {
 			return dao.getGuildTop(connection, guildID);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public List<UniqueData> getCrowns(String lastFmID, long guildID) {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.getCrowns(connection, lastFmID, guildID);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}

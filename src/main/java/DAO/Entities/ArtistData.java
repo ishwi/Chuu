@@ -18,6 +18,7 @@ public class ArtistData {
 		this.url = url;
 	}
 
+
 	public String getDiscordID() {
 		return discordID;
 	}

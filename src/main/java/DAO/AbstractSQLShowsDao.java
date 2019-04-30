@@ -3,40 +3,77 @@ package DAO;
 import DAO.Entities.*;
 
 import javax.management.InstanceNotFoundException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 
 /**
- 
-SELECT *
-FROM  artist a
-where 	 lastFMID="nonparadisi"
-	and playNumber > 0
-	AND  playNumber >= all (Select max(b.playNumber) 
-						  from 
-								(Select in_A.lastFMID,in_A.artist_id,in_A.playNumber
-									from artist in_A  
-									join 
-										lastfm in_B
-										on in_A.lastFMID = in_B.lastFmid
-									join 
-										user_guild in_C
-										on in_b.discordID = in_C.discordId
-										
-									where guildId = 476779889102684160
-										) as b
-							where b.artist_id = a.artist_id
-                        group by artist_id
-                        )
-* @author Miguel
+ * SELECT *
+ * FROM  artist a
+ * where 	 lastFMID="nonparadisi"
+ * and playNumber > 0
+ * AND  playNumber >= all (Select max(b.playNumber)
+ * from
+ * (Select in_A.lastFMID,in_A.artist_id,in_A.playNumber
+ * from artist in_A
+ * join
+ * lastfm in_B
+ * on in_A.lastFMID = in_B.lastFmid
+ * join
+ * user_guild in_C
+ * on in_b.discordID = in_C.discordId
+ * <p>
+ * where guildId = 476779889102684160
+ * ) as b
+ * where b.artist_id = a.artist_id
+ * group by artist_id
+ * )
+ *
+ * @author Miguel
  */
 public abstract class AbstractSQLShowsDao implements SQLShowsDao {
+	@Override
+	public List<UniqueData> getCrowns(Connection connection, String lastFmId, long guildID) {
+		List<UniqueData> returnList = new ArrayList<>();
+		String queryString = "SELECT artist_id, playNumber as orden" +
+				" FROM  artist  a" +
+				" where  lastFMID=?" +
+				" and playNumber > 0" +
+				" AND  playNumber >= all" +
+				"       (Select max(b.playNumber) " +
+				" from " +
+				"(Select in_A.lastFMID,in_A.artist_id,in_A.playNumber" +
+				" from artist in_A  " +
+				" join " +
+				" lastfm in_B" +
+				" on in_A.lastFMID = in_B.lastFmid" +
+				" join " +
+				" user_guild in_C" +
+				" on in_b.discordID = in_C.discordId" +
+				" where guildId = ?" +
+				"   ) as b" +
+				" where b.artist_id = a.artist_id" +
+				" group by artist_id)" +
+				" order by orden DESC";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			int i = 1;
+			preparedStatement.setString(i++, lastFmId);
+			preparedStatement.setLong(i++, guildID);
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				String artist = resultSet.getString("artist_id");
+				int plays = resultSet.getInt("orden");
+				returnList.add(new UniqueData(artist, plays));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return returnList;
+	}
+
 	@Override
 	public List<UniqueData> getGuildTop(Connection connection, Long guildID) {
 		String queryString = "SELECT artist_id, sum(playNumber) as orden FROM lastfm.artist a" +
@@ -119,7 +156,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 	@Override
 	public UsersWrapper getLessUpdated(Connection connection) {
-		String queryString = "Select a.discordID, a.lastFmId FROM lastfm a LEFT JOIN updated b on a.lastFmId=b.discordID" +
+		String queryString = "Select a.discordID, a.lastFmId,b.last_update FROM lastfm a LEFT JOIN updated b on a.lastFmId=b.discordID" +
 				"  order by  last_update asc LIMIT 1";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -132,7 +169,8 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 				String name = resultSet.getString("a.lastFmId");
 				long discordID = resultSet.getLong("a.discordID");
-				return new UsersWrapper(discordID, name);
+				Timestamp timestamp = resultSet.getTimestamp("b.last_update");
+				return new UsersWrapper(discordID, name, ((int) timestamp.toInstant().getEpochSecond()));
 			}
 			/* Return show. */
 
@@ -342,5 +380,4 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 		}
 
 	}
-
 }
