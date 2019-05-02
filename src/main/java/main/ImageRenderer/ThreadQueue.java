@@ -15,14 +15,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 //        BufferedImage.TYPE_INT_RGB);
 //        Graphics g = result.getGraphics();
 class ThreadQueue implements Runnable {
-	private final BlockingQueue<UrlCapsule> queue;
-	private final Graphics2D g;
-	private final int y;
-	private final int x;
+	public final BlockingQueue<UrlCapsule> queue;
+	public final Graphics2D g;
+	public final int y;
+	public final int x;
 	private final AtomicInteger iters;
-	private final int START_FONT_SIZE = 24;
-	private int fontSize1 = START_FONT_SIZE;
-	private int fontSize2 = START_FONT_SIZE;
+	final int START_FONT_SIZE = 24;
+	int fontSize1 = START_FONT_SIZE;
+	int fontSize2 = START_FONT_SIZE;
 
 
 	public ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iters) {
@@ -95,7 +95,7 @@ class ThreadQueue implements Runnable {
 		gtemp.dispose();
 	}
 
-	private void drawNames(UrlCapsule encapsuler, int y, int x, Graphics2D grap) {
+	public void drawNames(UrlCapsule encapsuler, int y, int x, Graphics2D grap) {
 		String artistName = encapsuler.getArtistName();
 		String albumName = encapsuler.getAlbumName();
 
@@ -134,7 +134,7 @@ class ThreadQueue implements Runnable {
 
 	}
 
-	private Color getBetter(Color color) {
+	public Color getBetter(Color color) {
 		Double y = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
 		return y < 128 ? Color.WHITE : Color.BLACK;
 

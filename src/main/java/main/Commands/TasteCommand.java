@@ -55,7 +55,6 @@ public class TasteCommand extends ConcurrentCommand {
 		if (message.length == 0)
 			throw new ParseException("Commands");
 
-		e.getChannel().sendTyping().queue();
 		String[] userList = {"", ""};
 		if (message.length == 1) {
 			userList[1] = message[0];

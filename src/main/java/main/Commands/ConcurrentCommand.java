@@ -12,7 +12,6 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess implements Run
 	}
 
 
-
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		this.e = e;
@@ -25,6 +24,7 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess implements Run
 		if (e.getAuthor().isBot() && !respondToBots())
 			return;
 		if (containsCommand(e.getMessage())) {
+			e.getChannel().sendTyping().queue();
 			System.out.println("We received a message from " +
 					e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
 

@@ -37,7 +37,7 @@ interface SQLShowsDao {
 
 	List<UniqueData> getCrowns(Connection connection, String lastFmId, long guildID);
 
-	List<UniqueData> getGuildTop(Connection connection, Long guildID);
+	List<UrlCapsule> getGuildTop(Connection connection, Long guildID);
 
 	void upsertArtist(Connection con, ArtistData artistData);
 

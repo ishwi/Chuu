@@ -78,7 +78,6 @@ public class TopCommand extends ConcurrentCommand {
 			return;
 		}
 		boolean isAlbum = Boolean.parseBoolean(message[1]);
-		e.getChannel().sendTyping().queue();
 		embed.setImage("attachment://cat.png") // we specify this in sendFile as "cat.png"
 				.setDescription(e.getAuthor().getName() + " 's most listened " + (isAlbum ? "albums" : "artist"));
 		mes.setEmbed(embed.build());

@@ -46,7 +46,6 @@ public class WhoKnowsNPCommand extends ConcurrentCommand {
 
 		boolean flag = false;
 
-		e.getChannel().sendTyping().queue();
 		String[] subMessage = getSubMessage(e.getMessage());
 		String[] message1 = Arrays.stream(subMessage).filter(s -> !s.equals("--image")).toArray(String[]::new);
 

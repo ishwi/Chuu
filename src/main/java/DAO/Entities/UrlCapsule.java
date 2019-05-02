@@ -7,6 +7,7 @@ public class UrlCapsule {
 	private final int pos;
 	private final String albumName;
 	private final String artistName;
+	private int plays;
 
 	public UrlCapsule(String url, int pos, String albumName, String artistName) {
 		this.url = url;
@@ -21,6 +22,14 @@ public class UrlCapsule {
 
 	public String getArtistName() {
 		return artistName;
+	}
+
+	public int getPlays() {
+		return plays;
+	}
+
+	public void setPlays(int plays) {
+		this.plays = plays;
 	}
 
 	public int getPos() {

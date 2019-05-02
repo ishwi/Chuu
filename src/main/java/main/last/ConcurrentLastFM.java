@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -85,23 +86,25 @@ public class ConcurrentLastFM {//implements LastFMService {
 	public static TimestampWrapper<LinkedList<ArtistData>> getWhole(String user, int timestampQuery) throws LastFMServiceException, LastFMNoPlaysException {
 		HttpClient client = new HttpClient();
 		List<NowPlayingArtist> list = new ArrayList<>();
-		String url = BASE + GET_ALL + user + API_KEY + ending;
+		String url = BASE + GET_ALL + user + API_KEY + ending + "&extended=1";
 
 		if (timestampQuery != 0)
 			url += "&from=" + (timestampQuery + 1);
-
 		int timestamp = 0;
-		int page = 1;
-		int pages = 2;
-		while (page <= pages) {
+		boolean catched = false;
+		int page = 0;
+		int total = 1;
+		int count = 0;
+		while (count < total) {
 
-			String urlPage = url + "&page=" + page;
+			String urlPage = url + "&page=" + ++page;
 			HttpMethodBase method = createMethod(urlPage);
 
 
 			try {
 
 				int statusCode = client.executeMethod(method);
+				timestamp = ((int) Instant.now().getEpochSecond());
 				if (statusCode != HttpStatus.SC_OK) {
 					System.err.println("Method failed: " + method.getStatusLine());
 					throw new LastFMServiceException("Error in the service: " + method.getStatusLine());
@@ -111,14 +114,9 @@ public class ConcurrentLastFM {//implements LastFMService {
 				obj = obj.getJSONObject("recenttracks");
 				JSONObject attrObj = obj.getJSONObject("@attr");
 				System.out.println("Plays " + attrObj.getInt("total"));
-
-				if (attrObj.getInt("total") == 0) {
+				total = attrObj.getInt("total");
+				if (total == 0) {
 					throw new LastFMNoPlaysException(user);
-				}
-
-				if (page++ == 1) {
-					pages = obj.getJSONObject("@attr").getInt("totalPages");
-					timestamp = obj.getJSONArray("track").getJSONObject(0).getJSONObject("date").getInt("uts");
 				}
 
 
@@ -126,12 +124,18 @@ public class ConcurrentLastFM {//implements LastFMService {
 				for (int i = 0; i < arr.length(); i++) {
 					JSONObject tracltObj = arr.getJSONObject(i);
 					JSONObject artistObj = tracltObj.getJSONObject("artist");
-					String artistname = artistObj.getString("#text");
+					JSONArray images = artistObj.getJSONArray("image");
+					String image_url = images.getJSONObject(images.length() - 1).getString("#text");
+
+					String artistname = artistObj.getString("name");
 
 					String albumName = tracltObj.getJSONObject("album").getString("#text");
 					String songName = tracltObj.getString("name");
-					JSONArray images = tracltObj.getJSONArray("image");
-					String image_url = images.getJSONObject(images.length() - 1).getString("#text");
+					if (!catched && tracltObj.has("date")) {
+						timestamp = tracltObj.getJSONObject("date").getInt("uts");
+						catched = true;
+					}
+					count++;
 					list.add(new NowPlayingArtist(artistname, "", false, albumName, songName, image_url));
 				}
 
@@ -356,14 +360,14 @@ public class ConcurrentLastFM {//implements LastFMService {
 		String albumName = albumObj.getString("name");
 		String artistName = artistObj.getString("name");
 		JSONArray image = albumObj.getJSONArray("image");
-		JSONObject bigImage = image.getJSONObject(3);
+		JSONObject bigImage = image.getJSONObject(image.length() - 1);
 		return new UrlCapsule(bigImage.getString("#text"), size, albumName, artistName);
 	}
 
 	private static UrlCapsule parseArtist(JSONObject artistObj, int size) {
 		String artistName = artistObj.getString("name");
 		JSONArray image = artistObj.getJSONArray("image");
-		JSONObject bigImage = image.getJSONObject(3);
+		JSONObject bigImage = image.getJSONObject(image.length() - 1);
 		return new UrlCapsule(bigImage.getString("#text"), size, "", artistName);
 	}
 
@@ -406,23 +410,24 @@ public class ConcurrentLastFM {//implements LastFMService {
 			LastFmUserNotFoundException {
 
 		HttpClient client = new HttpClient();
-
-		String url = BASE + GET_TRACKS + username + "&artist=" + artist.replaceAll(" ", "+") + API_KEY + ending + "&size=500";
-		List<UserInfo> returnList = new ArrayList<>();
-		int counter = 0;
-		int page = 1;
-		int limit = 50;
 		int queryCounter = 0;
 
-		while (true) {
+		try {
+			String url = BASE + GET_TRACKS + username + URLEncoder.encode(artist, "UTF-8") + API_KEY + ending + "&size=500";
+			List<UserInfo> returnList = new ArrayList<>();
+			int counter = 0;
+			int page = 1;
+			int limit = 50;
 
-			String urlPage = url + "&page=" + page;
-			++page;
+			while (true) {
 
-			HttpMethodBase method = createMethod(urlPage);
+				String urlPage = url + "&page=" + page;
+				++page;
 
-			System.out.println(page + " :page             size: ");
-			try {
+				HttpMethodBase method = createMethod(urlPage);
+
+				System.out.println(page + " :page             size: ");
+
 
 				// Execute the method.
 				int statusCode = client.executeMethod(method);
@@ -458,16 +463,16 @@ public class ConcurrentLastFM {//implements LastFMService {
 					break;
 
 
-			} catch (HttpException e) {
-				System.err.println("Fatal protocol violation: " + e.getMessage());
-				e.printStackTrace();
-
-			} catch (JSONException e) {
-				return 0;
-			} catch (LastFMServiceException | IOException e) {
-				e.printStackTrace();
-
 			}
+		} catch (HttpException e) {
+			System.err.println("Fatal protocol violation: " + e.getMessage());
+			e.printStackTrace();
+
+		} catch (JSONException e) {
+			return 0;
+		} catch (LastFMServiceException | IOException e) {
+			e.printStackTrace();
+
 		}
 		return queryCounter;
 	}
