@@ -33,7 +33,6 @@ public class UpdateCommand extends MyCommandDbAccess {
 		}
 
 
-		e.getChannel().sendTyping().queue();
 		try {
 			if (getDao().getAll(e.getGuild().getIdLong()).stream().noneMatch(s -> s.getLastFMName().equals(message[0]))) {
 				sendMessage(e, message[0] + " is not registered in this guild");

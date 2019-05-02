@@ -42,7 +42,6 @@ public class UniqueCommand extends MyCommandDbAccess {
 
 		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(e.getGuild().getIconUrl());
 		StringBuilder a = new StringBuilder();
-		e.getChannel().sendTyping().queue();
 
 
 		int rows = resultWrapper.getRows();

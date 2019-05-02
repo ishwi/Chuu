@@ -31,6 +31,7 @@ public abstract class MyCommand extends ListenerAdapter {
 		if (e.getAuthor().isBot() && !respondToBots())
 			return;
 		if (containsCommand(e.getMessage())) {
+			e.getChannel().sendTyping().queue();
 			System.out.println("We received a message from " +
 					e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
 

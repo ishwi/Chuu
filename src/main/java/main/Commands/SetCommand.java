@@ -42,7 +42,6 @@ public class SetCommand extends MyCommandDbAccess {
 			//Registered with different username
 			if (!u.get().getLastFMName().equals(lastFmID)) {
 				sendMessage(e, "Changing your username, might take a while");
-				e.getChannel().sendTyping().queue();
 				//Remove pero solo de la guild if no guild remove all
 				getDao().remove(userId);
 			} else {

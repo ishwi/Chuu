@@ -44,7 +44,6 @@ public class ChartCommand extends ConcurrentCommand {
 			return;
 		}
 
-		cha.sendTyping().queue();
 
 		int x = Integer.parseInt(returned[0]);
 		int y = Integer.parseInt(returned[1]);

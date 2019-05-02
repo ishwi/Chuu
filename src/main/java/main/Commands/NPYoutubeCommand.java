@@ -58,7 +58,6 @@ public class NPYoutubeCommand extends MyCommandDbAccess {
 		try {
 			NowPlayingArtist nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(username);
 			StringBuilder a = new StringBuilder();
-			e.getChannel().sendTyping().queue();
 			String uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
 
 			if (uri.equals("")) {

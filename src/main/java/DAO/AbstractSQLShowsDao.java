@@ -75,25 +75,34 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 	}
 
 	@Override
-	public List<UniqueData> getGuildTop(Connection connection, Long guildID) {
-		String queryString = "SELECT artist_id, sum(playNumber) as orden FROM lastfm.artist a" +
+	public List<UrlCapsule> getGuildTop(Connection connection, Long guildID) {
+		String queryString = "SELECT a.artist_id, sum(playNumber) as orden ,url  FROM lastfm.artist a" +
 				" JOIN lastfm b" +
 				" ON a.lastFMID = b.lastFmId" +
+				" JOIN artist_url d " +
+				" ON a.artist_id = d.artist_id" +
 				" JOIN  user_guild c" +
 				" On b.discordID=c.discordId" +
 				" Where c.guildId = ?" +
-				" group by artist_id" +
-				" order BY orden DESC;";
-		List<UniqueData> list = new LinkedList<>();
+				" group by artist_id,url" +
+				" order BY orden DESC" +
+				" LIMIT 25;";
+		List<UrlCapsule> list = new LinkedList<>();
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			preparedStatement.setLong(1, guildID);
 
 			ResultSet resultSet = preparedStatement.executeQuery();
+			int count = 0;
 			while (resultSet.next()) {
-				String artist = resultSet.getString("artist_id");
+				String artist = resultSet.getString("a.artist_id");
+				String url = resultSet.getString("url");
+
 				int plays = resultSet.getInt("orden");
-				list.add(new UniqueData(artist, plays));
+
+				UrlCapsule capsule = new UrlCapsule(url, count++, url, artist);
+				capsule.setPlays(plays);
+				list.add(capsule);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

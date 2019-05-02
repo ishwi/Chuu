@@ -1,61 +1,65 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import DAO.Entities.UniqueData;
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.jagrosh.jdautilities.menu.Paginator;
+import DAO.Entities.UrlCapsule;
 import main.Exceptions.ParseException;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.User;
+import main.ImageRenderer.GuildMaker;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.exceptions.PermissionException;
 
-import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
 import javax.management.InstanceNotFoundException;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class GuildTopCommand extends ConcurrentCommand {
-	EventWaiter wait;
 
-	public GuildTopCommand(DaoImplementation dao, EventWaiter wait) {
+	public GuildTopCommand(DaoImplementation dao) {
 		super(dao);
-		this.wait = wait;
 
 	}
 
 	@Override
 	public void threadableCode() {
 
-		Paginator.Builder pbuilder = new Paginator.Builder().setColumns(1)
-				.setItemsPerPage(10)
-				.showPageNumbers(true)
-				.waitOnSinglePage(false)
-				.useNumberedItems(true)
-				.setRoles(e.getGuild().getPublicRole())
-				.setFinalAction(m -> {
-					try {
-						m.clearReactions().queue();
-					} catch (PermissionException ex) {
-						ex.printStackTrace();
-					}
-				})
-				.setEventWaiter(this.wait)
-				.setTimeout(2, TimeUnit.MINUTES);
 
-		pbuilder.clearItems();
-		List<UniqueData> resultWrapper = getDao().getGuildTop(e.getGuild().getIdLong());
+		List<UrlCapsule> resultWrapper = getDao().getGuildTop(e.getGuild().getIdLong());
+		BufferedImage image = GuildMaker.generateCollageThreaded(5, 5, new LinkedBlockingDeque<>(resultWrapper));
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
 
-		resultWrapper.stream().map(g -> "**[" + g.getArtistName() + "](https://www.last.fm/music/" + g.getArtistName().replaceAll(" ", "+") +
-				")** - " + g.getCount() + " plays")
-				.forEach(pbuilder::addItems);
-		Paginator p = pbuilder.setColor(CommandUtil.randomColor())
-				.setText("**" + e.getGuild().getName() + "'s** top Artists")
-				.setUsers(e.getAuthor())
-				.build();
-		p.display(e.getChannel());
-		return;
+		try {
+			ImageIO.write(image, "png", b);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		byte[] img = b.toByteArray();
+		if (img.length < 8388608) {
+			e.getChannel().sendFile(img, "cat.png").queue();
+			return;
+		}
+		e.getChannel().sendMessage("boot to big").queue();
+
+
+		String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")
+				.withZone(ZoneOffset.UTC)
+				.format(Instant.now());
+
+		String path = "D:\\Games\\" + thisMoment + ".png";
+		try (FileOutputStream fos = new FileOutputStream(path)) {
+			fos.write(img);
+			//fos.close(); There is no more need for this line since you had created the instance of "fos" inside the try. And this will automatically close the OutputStream
+		} catch (IOException ex) {
+			errorMessage(e, 100, ex.getMessage());
+		}
+
 	}
 
 
@@ -117,14 +121,6 @@ public class GuildTopCommand extends ConcurrentCommand {
 		sendMessage(e, base + message);
 	}
 
-	protected boolean isValidUser(User user, @Nullable Guild guild) {
-		if (user.isBot())
-			return false;
-		if (guild == null || !guild.isMember(user))
-			return false;
-
-		return true;
-	}
 }
 
 

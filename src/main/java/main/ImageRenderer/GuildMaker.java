@@ -1,5 +1,6 @@
 package main.ImageRenderer;
 
+
 import DAO.Entities.UrlCapsule;
 
 import java.awt.*;
@@ -10,7 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CollageMaker {
+public class GuildMaker {
 
 	public static BufferedImage generateCollageThreaded(int x, int y, BlockingQueue<UrlCapsule> queue) {
 
@@ -24,7 +25,7 @@ public class CollageMaker {
 		AtomicInteger max = new AtomicInteger(queue.size());
 		ExecutorService es = Executors.newCachedThreadPool();
 		for (int i = 0; i < 4; i++)
-			es.execute((new ThreadQueue(queue, g, x, y, max)));
+			es.execute((new ThreadQueueGuild(queue, g, x, y, max)));
 		es.shutdown();
 		try {
 			boolean finished = es.awaitTermination(10, TimeUnit.MINUTES);
@@ -36,3 +37,4 @@ public class CollageMaker {
 		return result;
 	}
 }
+

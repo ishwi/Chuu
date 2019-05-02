@@ -92,7 +92,7 @@ class Main extends ListenerAdapter {
 		EventWaiter waiter = new EventWaiter(Executors.newSingleThreadScheduledExecutor(), false);
 
 //		builder.addEventListener(waiter);
-//		builder.addEventListener(help.registerCommand(new GuildTopCommand(dao, waiter)));
+		builder.addEventListener(help.registerCommand(new GuildTopCommand(dao)));
 //		builder.addEventListener(help.registerCommand(new CrownsCommand(dao, waiter)));
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(1);

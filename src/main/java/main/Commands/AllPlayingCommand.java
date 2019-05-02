@@ -37,7 +37,6 @@ public class AllPlayingCommand extends ConcurrentCommand {
 		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(e.getGuild().getIconUrl())
 				.setTitle("What is being played now in " + e.getGuild().getName());
 		StringBuilder a = new StringBuilder();
-		e.getChannel().sendTyping().queue();
 
 
 		Map<UsersWrapper, NowPlayingArtist> npList = list.parallelStream().collect(Collectors.toMap(u -> u, uw ->

@@ -276,7 +276,7 @@ public class DaoImplementation {
 		}
 	}
 
-	public List<UniqueData> getGuildTop(long guildID) {
+	public List<UrlCapsule> getGuildTop(long guildID) {
 		try (Connection connection = dataSource.getConnection()) {
 			return dao.getGuildTop(connection, guildID);
 		} catch (SQLException e) {

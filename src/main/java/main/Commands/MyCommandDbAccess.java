@@ -19,7 +19,7 @@ public abstract class MyCommandDbAccess extends MyCommand {
 	String getLastFmUsername1input(String[] message, Long id, MessageReceivedEvent event) throws ParseException {
 		String username;
 		try {
-			if ((message.length > 1) || (message.length == 0)) {
+			if (message.length != 1) {
 				username = this.dao.findShow(id).getName();
 			} else {
 				//Caso con @ y sin @

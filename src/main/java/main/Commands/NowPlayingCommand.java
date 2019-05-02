@@ -73,7 +73,6 @@ public class NowPlayingCommand extends ConcurrentCommand {
 			String username = parse(e)[0];
 			NowPlayingArtist nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(username);
 			StringBuilder a = new StringBuilder();
-			e.getChannel().sendTyping().queue();
 
 			a.append("**[").append(username).append("'s Profile](").append("https://www.last.fm/user/").append(username).append(")**\n\n")
 					.append(nowPlayingArtist.isNowPlaying() ? "Current" : "Last")
