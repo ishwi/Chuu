@@ -1,5 +1,9 @@
 # + Fix parenthesis on Now playing url
 # + proper message on set
 # + Add YT CLIENT NAME
-+ Top scrobbles
-+ Most Wins?
+# Top scrobbles
+# Most Wins?
+Remove on leaving all connected guilds;
+Check guild users on login
+Fix albums
+Add png per guild db

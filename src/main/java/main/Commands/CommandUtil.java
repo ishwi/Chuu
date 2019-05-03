@@ -67,7 +67,9 @@ public class CommandUtil {
 
 			wrapperReturnNowPlaying.setReturnNowPlayings(wrapperReturnNowPlaying.getReturnNowPlayings().stream().map(element -> {
 				Member member = event.getGuild().getMemberById(element.getDiscordId());
-				element.setDiscordName(member.getEffectiveName());
+				String userName = member == null ? element.getLastFMId() : member.getEffectiveName();
+
+				element.setDiscordName(userName);
 
 				return element;
 			}).collect(Collectors.toList()));
