@@ -24,6 +24,7 @@ repositories {
 
 
 dependencies {
+
 // https://mvnrepository.com/artifact/com.mchange/c3p0
     compile 'se.michaelthelin.spotify:spotify-web-api-java:2.1.2'
     compile group: 'com.mchange', name: 'c3p0', version: '0.9.5.2'
@@ -48,6 +49,12 @@ dependencies {
 // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-jpeg
     compile group: 'com.twelvemonkeys.imageio', name: 'imageio-core', version: '3.4.1'
     compile group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.4.1'
+  //String  difference
+    compile group: 'org.apache.commons', name: 'commons-text', version: '1.6'
+    //Rescaler
+    compile group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
+
+
 
 //    compile 'com.google.api-client:google-api-client:1.25.0'
 //    compile 'com.google.apis:google-api-services-drive:v3-rev110-1.23.0'

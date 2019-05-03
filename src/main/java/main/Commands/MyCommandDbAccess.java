@@ -3,6 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.LastFMData;
 import main.Exceptions.ParseException;
+import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -10,10 +11,12 @@ import javax.management.InstanceNotFoundException;
 import java.util.List;
 
 public abstract class MyCommandDbAccess extends MyCommand {
+	public ConcurrentLastFM lastFM;
 	private DaoImplementation dao;
 
 	public MyCommandDbAccess(DaoImplementation dao) {
 		this.dao = dao;
+		lastFM = new ConcurrentLastFM();
 	}
 
 	String getLastFmUsername1input(String[] message, Long id, MessageReceivedEvent event) throws ParseException {

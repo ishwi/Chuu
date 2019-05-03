@@ -6,7 +6,6 @@ import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
 import main.Youtube.Search;
-import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -56,7 +55,7 @@ public class NPYoutubeCommand extends MyCommandDbAccess {
 			return;
 		}
 		try {
-			NowPlayingArtist nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(username);
+			NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);
 			StringBuilder a = new StringBuilder();
 			String uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
 

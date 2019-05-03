@@ -1,10 +1,10 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import DAO.Entities.UrlCapsule;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.LastFmUserNotFoundException;
 import main.Exceptions.ParseException;
-import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -12,8 +12,10 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
-public class TopCommand extends ConcurrentCommand {
+public class TopCommand extends ChartCommand {
 	public TopCommand(DaoImplementation dao) {
 		super(dao);
 	}
@@ -82,7 +84,9 @@ public class TopCommand extends ConcurrentCommand {
 				.setDescription(e.getAuthor().getName() + " 's most listened " + (isAlbum ? "albums" : "artist"));
 		mes.setEmbed(embed.build());
 		try {
-			e.getChannel().sendFile(ConcurrentLastFM.getUserList(message[0], "overall", 5, 5, isAlbum), "cat.png", mes.build()).queue();
+			BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(25);
+			lastFM.getUserList(message[0], "overall", 5, 5, isAlbum, queue);
+			generateImage(queue, 5, 5);
 		} catch (LastFMServiceException ex) {
 			errorMessage(e, 1, ex.getMessage());
 		} catch (LastFmUserNotFoundException e1) {

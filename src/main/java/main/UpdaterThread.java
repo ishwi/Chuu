@@ -2,9 +2,12 @@ package main;
 
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
+import DAO.Entities.ArtistInfo;
 import DAO.Entities.UsersWrapper;
+import main.Exceptions.DiscogsServiceException;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
+import main.Youtube.DiscogsApi;
 import main.last.ConcurrentLastFM;
 import main.last.TimestampWrapper;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -12,24 +15,33 @@ import net.dv8tion.jda.core.MessageBuilder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
+import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 public class UpdaterThread implements Runnable {
 
 	private final DaoImplementation dao;
 	private UsersWrapper username;
 	private boolean isIncremental;
+	private DiscogsApi discogsApi;
+	private ConcurrentLastFM lastFM;
 
 	public UpdaterThread(DaoImplementation dao) {
 		this.dao = dao;
-
+		this.lastFM = new ConcurrentLastFM();
 	}
 
 	public UpdaterThread(DaoImplementation dao, UsersWrapper username, boolean isIncremental) {
-		this.dao = dao;
+		this(dao);
 		this.username = username;
 		this.isIncremental = isIncremental;
+	}
 
+
+	public UpdaterThread(DaoImplementation dao, UsersWrapper username, boolean isIncremental, DiscogsApi discogsApi) {
+		this(dao, username, isIncremental);
+		this.discogsApi = discogsApi;
 	}
 
 
@@ -47,15 +59,36 @@ public class UpdaterThread implements Runnable {
 
 		try {
 			if (isIncremental && chance <= 0.90f) {
-				TimestampWrapper<LinkedList<ArtistData>> artistDataLinkedList = ConcurrentLastFM.getWhole(usertoWork.getLastFMName(), usertoWork.getTimestamp());
+
+				TimestampWrapper<LinkedList<ArtistData>> artistDataLinkedList = lastFM.getWhole(usertoWork.getLastFMName(), usertoWork.getTimestamp());
+				CompletableFuture.runAsync(() -> {
+
+					for (ArtistData datum : artistDataLinkedList.getWrapped()) {
+						if (dao.getArtistUrl(datum.getUrl()) == null) {
+							try {
+								String newUrl = discogsApi.findArtistImage(datum.getArtist());
+								if (newUrl != null) {
+									System.out.println("Upserting buddy");
+									dao.upsertUrl(new ArtistInfo(newUrl, datum.getArtist()));
+								}
+							} catch (DiscogsServiceException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+
 				dao.incrementalUpdate(artistDataLinkedList, usertoWork.getLastFMName());
+
 
 				System.out.println("Updated Info Incremetally of " + usertoWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 				System.out.println(" Number of rows updated :" + artistDataLinkedList.getWrapped().size());
 				MessageBuilder a = new MessageBuilder();
+				Properties properties = new Properties();
+
 			} else {
 
-				LinkedList<ArtistData> artistDataLinkedList = ConcurrentLastFM.getLibrary(usertoWork.getLastFMName());
+				LinkedList<ArtistData> artistDataLinkedList = lastFM.getLibrary(usertoWork.getLastFMName());
 				dao.updateUserLibrary(artistDataLinkedList, usertoWork.getLastFMName());
 
 				System.out.println("Updated Info Normally  of " + usertoWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));

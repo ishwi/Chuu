@@ -20,16 +20,16 @@ import java.util.stream.Collectors;
 
 public class CommandUtil {
 	static String noImageUrl(String artist) {
-		return !artist.isEmpty() ? artist : "https://lastfm-img2.akamaized.net/i/u/174s/4128a6eb29f94943c9d206c08e625904";
+		return artist == null || artist.isEmpty() ? "https://lastfm-img2.akamaized.net/i/u/174s/4128a6eb29f94943c9d206c08e625904" : artist;
 	}
 
-	public static void a(String who, DaoImplementation dao, MessageReceivedEvent event, Boolean isImage) {
+	public static void a(String who, DaoImplementation dao, MessageReceivedEvent event, Boolean isImage, ConcurrentLastFM lastFM) {
 		MessageBuilder messageBuilder = new MessageBuilder();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		WrapperReturnNowPlaying wrapperReturnNowPlaying = dao.whoKnows(who, event.getGuild().getIdLong());
 
 		if (wrapperReturnNowPlaying.getRows() == 0) {
-			String repeated = ConcurrentLastFM.getCorrection(who);
+			String repeated = lastFM.getCorrection(who);
 			wrapperReturnNowPlaying = dao.whoKnows(repeated, event.getGuild().getIdLong());
 			//With db cache?? Extra
 			if (wrapperReturnNowPlaying.getRows() == 0) {
@@ -44,7 +44,10 @@ public class CommandUtil {
 				StringBuilder builder = new StringBuilder();
 				int counter = 1;
 				for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {
-					String userName = event.getGuild().getMemberById(returnNowPlaying.getDiscordId()).getEffectiveName();
+					Member member = event.getGuild().getMemberById(returnNowPlaying.getDiscordId());
+
+					String userName = member == null ? returnNowPlaying.getLastFMId() : member.getEffectiveName();
+
 					builder.append(counter++)
 							.append(". ")
 							.append("[").append(userName).append("]")
@@ -60,12 +63,15 @@ public class CommandUtil {
 				messageBuilder.setEmbed(embedBuilder.build()).sendTo(event.getChannel()).queue();
 				return;
 			}
+
+
 			wrapperReturnNowPlaying.setReturnNowPlayings(wrapperReturnNowPlaying.getReturnNowPlayings().stream().map(element -> {
 				Member member = event.getGuild().getMemberById(element.getDiscordId());
 				element.setDiscordName(member.getEffectiveName());
-				element.setRoleColor(member.getColor());
+
 				return element;
 			}).collect(Collectors.toList()));
+
 			BufferedImage image = NPMaker.generateTasteImage(wrapperReturnNowPlaying, event.getGuild().getName());
 			ByteArrayOutputStream b = new ByteArrayOutputStream();
 			ImageIO.write(image, "png", b);

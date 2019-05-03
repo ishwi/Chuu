@@ -12,6 +12,7 @@ import java.util.List;
 
 public abstract class MyCommand extends ListenerAdapter {
 
+
 	public abstract void onCommand(MessageReceivedEvent e, String[] args);
 
 	public abstract List<String> getAliases();

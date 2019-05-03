@@ -10,6 +10,7 @@ import java.util.List;
 
 @SuppressWarnings("Duplicates")
 public class WhoKnowsCommand extends ConcurrentCommand {
+
 	public WhoKnowsCommand(DaoImplementation dao) {
 		super(dao);
 	}
@@ -20,7 +21,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		String[] returned;
 		try {
 			returned = parse(e);
-			CommandUtil.a(returned[0], getDao(), e, Boolean.valueOf(returned[1]));
+			CommandUtil.a(returned[0], getDao(), e, Boolean.valueOf(returned[1]), lastFM);
 		} catch (ParseException e1) {
 			errorMessage(e, 0, e1.getMessage());
 		}

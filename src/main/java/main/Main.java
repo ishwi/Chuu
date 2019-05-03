@@ -3,6 +3,7 @@ package main;
 import DAO.DaoImplementation;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import main.Commands.*;
+import main.Youtube.DiscogsApi;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -71,8 +72,13 @@ class Main extends ListenerAdapter {
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
 		DaoImplementation dao = new DaoImplementation();
 		Spotify spotifyWrapper = new Spotify(map.get("clientId"), map.get("clientSecret"));
+		DiscogsApi discogsApi = new DiscogsApi();
 		builder.setToken(map.get("discordtoken"));
 		HelpCommand help = new HelpCommand();
+		//Dao get all users discord ID and if someone not already -> erase
+		// Add event listener for someone when he leaves -> erase
+
+
 		builder.addEventListener(help);
 		builder.addEventListener(help.registerCommand(new NowPlayingCommand(dao)));
 		builder.addEventListener(help.registerCommand(new WhoKnowsCommand(dao)));

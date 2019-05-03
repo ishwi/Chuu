@@ -3,10 +3,10 @@ package DAO.Entities;
 public class UrlCapsule {
 
 
-	private final String url;
-	private final int pos;
-	private final String albumName;
 	private final String artistName;
+	private final int pos;
+	private String url;
+	private final String albumName;
 	private int plays;
 
 	public UrlCapsule(String url, int pos, String albumName, String artistName) {
@@ -18,6 +18,10 @@ public class UrlCapsule {
 
 	public String getAlbumName() {
 		return albumName;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 	public String getArtistName() {
@@ -39,4 +43,5 @@ public class UrlCapsule {
 	public String getUrl() {
 		return url;
 	}
+
 }
