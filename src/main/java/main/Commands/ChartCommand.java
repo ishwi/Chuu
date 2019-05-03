@@ -1,13 +1,17 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import DAO.Entities.UrlCapsule;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.LastFmUserNotFoundException;
 import main.Exceptions.ParseException;
-import main.last.ConcurrentLastFM;
+import main.ImageRenderer.CollageMaker;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Instant;
@@ -17,6 +21,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Stream;
 
 @SuppressWarnings("Duplicates")
@@ -29,7 +35,6 @@ public class ChartCommand extends ConcurrentCommand {
 	@Override
 	public void threadableCode() {
 		String[] returned;
-		MessageChannel cha = e.getChannel();
 		try {
 			returned = parse(e);
 		} catch (ParseException e1) {
@@ -49,32 +54,15 @@ public class ChartCommand extends ConcurrentCommand {
 		int y = Integer.parseInt(returned[1]);
 		String username = returned[2];
 		String time = returned[3];
-		boolean isAlbum = Boolean.parseBoolean(returned[4]);
 
 
 		if (x * y > 100) {
-			cha.sendMessage("Gonna Take a while").queue();
+			e.getChannel().sendMessage("Gonna Take a while").queue();
 		}
 		try {
-			byte[] file = ConcurrentLastFM.getUserList(username, time, x, y, isAlbum);
-			if (file.length < 8388608) {
-				cha.sendFile(file, "cat.png").queue();
-				return;
-			}
-			cha.sendMessage("boot to big").queue();
-
-
-			String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")
-					.withZone(ZoneOffset.UTC)
-					.format(Instant.now());
-
-			String path = "D:\\Games\\" + thisMoment + ".png";
-			try (FileOutputStream fos = new FileOutputStream(path)) {
-				fos.write(file);
-				//fos.close(); There is no more need for this line since you had created the instance of "fos" inside the try. And this will automatically close the OutputStream
-			} catch (IOException ex) {
-				errorMessage(e, 100, ex.getMessage());
-			}
+			BlockingQueue<UrlCapsule> queue = new LinkedBlockingDeque<>();
+			lastFM.getUserList(username, time, x, y, true, queue);
+			generateImage(queue, x, y);
 
 
 		} catch (LastFMServiceException ex2) {
@@ -86,6 +74,48 @@ public class ChartCommand extends ConcurrentCommand {
 
 	}
 
+	public void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y) {
+		MessageChannel cha = e.getChannel();
+
+		int size = x * y;
+		int minx = (int) Math.ceil((double) size / x);
+		int miny = (int) Math.ceil((double) size / y);
+
+		if (minx == 1)
+			x = size;
+		BufferedImage image = CollageMaker.generateCollageThreaded(x, minx, queue);
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
+
+		try {
+			ImageIO.write(image, "png", b);
+		} catch (IOException e) {
+			e.printStackTrace();
+			cha.sendMessage("ish pc bad").queue();
+			return;
+		}
+
+		byte[] img = b.toByteArray();
+		if (img.length < 8388608) {
+			cha.sendFile(img, "cat.png").queue();
+			return;
+		}
+		cha.sendMessage("boot to big").queue();
+
+
+		String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")
+				.withZone(ZoneOffset.UTC)
+				.format(Instant.now());
+
+		String path = "D:\\Games\\" + thisMoment + ".png";
+		try (FileOutputStream fos = new FileOutputStream(path)) {
+			fos.write(img);
+			//fos.close(); There is no more need for this line since you had created the instance of "fos" inside the try. And this will automatically close the OutputStream
+		} catch (IOException ex) {
+			errorMessage(e, 100, ex.getMessage());
+		}
+
+
+	}
 
 	private String getTimeFromChar(String timeFrame) {
 		if (timeFrame.startsWith("y"))

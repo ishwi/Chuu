@@ -1,14 +1,13 @@
 package DAO;
 
-import DAO.Entities.ArtistData;
-import DAO.Entities.LastFMData;
-import DAO.Entities.ReturnNowPlaying;
-import DAO.Entities.WrapperReturnNowPlaying;
+import DAO.Entities.*;
 
 import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 
@@ -69,7 +68,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 	}
 
 	@Override
-	public void upsertUrl(Connection con, ArtistData artistData) {
+	public void upsertUrl(Connection con, ArtistInfo artistInfo) {
 		/* Create "queryString". */
 		String queryString = "INSERT  INTO lastfm.artist_url"
 				+ " ( artist_id,url) " + " VALUES (?, ?) ON DUPLICATE  KEY UPDATE url= ? ";
@@ -78,9 +77,9 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 
 			/* Fill "preparedStatement". */
 			int i = 1;
-			preparedStatement.setString(i++, artistData.getArtist());
-			preparedStatement.setString(i++, artistData.getUrl());
-			preparedStatement.setString(i++, artistData.getUrl());
+			preparedStatement.setString(i++, artistInfo.getArtistName());
+			preparedStatement.setString(i++, artistInfo.getArtistUrl());
+			preparedStatement.setString(i, artistInfo.getArtistUrl());
 
 
 			/* Execute query. */
@@ -210,6 +209,50 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 		}
 	}
 
+	@Override
+	public String getArtistUrl(Connection connection, String artist) {
+		String queryString = "SELECT url FROM artist_url where artist_id = ? ";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			preparedStatement.setString(1, artist);
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+
+			/* Get generated identifier. */
+
+			if (resultSet.next()) {
+				return (resultSet.getString("url"));
+			}
+			/* Return booking. */
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		return null;
+	}
+
+
+	@Override
+	public Set<String> selectNullUrls(Connection connection) {
+		Set<String> returnList = new HashSet<>();
+		String queryString = "SELECT * FROM artist_url where url is null limit 20";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+
+			/* Get generated identifier. */
+
+			while (resultSet.next()) {
+				returnList.add(resultSet.getString("artist_id"));
+			}
+			/* Return booking. */
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return returnList;
+	}
 
 	@Override
 	public void addArtist(Connection con, ArtistData artistData) {

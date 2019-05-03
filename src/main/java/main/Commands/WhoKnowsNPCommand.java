@@ -5,7 +5,6 @@ import DAO.Entities.NowPlayingArtist;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
-import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -13,8 +12,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class WhoKnowsNPCommand extends ConcurrentCommand {
+
 	public WhoKnowsNPCommand(DaoImplementation dao) {
 		super(dao);
+
 	}
 
 
@@ -56,7 +57,7 @@ public class WhoKnowsNPCommand extends ConcurrentCommand {
 		String username = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
 		NowPlayingArtist nowPlayingArtist;
 		try {
-			nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(username);
+			nowPlayingArtist = lastFM.getNowPlayingInfo(username);
 
 
 		} catch (LastFMServiceException e1) {
@@ -94,7 +95,7 @@ public class WhoKnowsNPCommand extends ConcurrentCommand {
 		String[] returned;
 		try {
 			returned = parse(e);
-			CommandUtil.a(returned[0], getDao(), e, Boolean.valueOf(returned[1]));
+			CommandUtil.a(returned[0], getDao(), e, Boolean.valueOf(returned[1]), lastFM);
 		} catch (ParseException e1) {
 			switch (e1.getMessage()) {
 				case "lastFM":

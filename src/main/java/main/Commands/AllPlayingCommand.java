@@ -4,7 +4,6 @@ import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import DAO.Entities.UsersWrapper;
 import main.Exceptions.ParseException;
-import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -43,7 +42,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
 
 		{
 			try {
-				return ConcurrentLastFM.getNowPlayingInfo(uw.getLastFMName());
+				return lastFM.getNowPlayingInfo(uw.getLastFMName());
 			} catch (Exception ex) {
 				return null;
 			}

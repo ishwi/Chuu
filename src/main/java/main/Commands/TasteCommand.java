@@ -6,7 +6,6 @@ import DAO.Entities.UserInfo;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.imageRenderer;
-import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
@@ -161,7 +160,7 @@ public class TasteCommand extends ConcurrentCommand {
 			java.util.List<String> users = new ArrayList<>();
 			users.add(resultWrapper.getResultList().get(0).getUserA());
 			users.add(resultWrapper.getResultList().get(0).getUserB());
-			java.util.List<UserInfo> userInfoLiust = ConcurrentLastFM.getUserInfo(users);
+			java.util.List<UserInfo> userInfoLiust = lastFM.getUserInfo(users);
 			BufferedImage image = imageRenderer.generateTasteImage(resultWrapper, userInfoLiust);
 
 			ByteArrayOutputStream b = new ByteArrayOutputStream();

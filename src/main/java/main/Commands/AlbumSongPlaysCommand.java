@@ -3,7 +3,6 @@ package main.Commands;
 import DAO.DaoImplementation;
 import main.Exceptions.LastFmUserNotFoundException;
 import main.Exceptions.ParseException;
-import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
@@ -26,7 +25,7 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 			return;
 		}
 		try {
-			int a = ConcurrentLastFM.getPlaysAlbum_Artist(getDao().findShow(e.getAuthor().getIdLong()).getName(), true, parsed[0], parsed[1]);
+			int a = lastFM.getPlaysAlbum_Artist(getDao().findShow(e.getAuthor().getIdLong()).getName(), true, parsed[0], parsed[1]);
 			sendMessage(e, "**" + e.getGuild().getMemberById(e.getAuthor().getIdLong()).getEffectiveName() + "** has listened " + a + " times the album **" + parsed[1] + "** by **" + parsed[0] + "**!");
 		} catch (LastFmUserNotFoundException e1) {
 			e1.printStackTrace();

@@ -5,7 +5,6 @@ import DAO.Entities.NowPlayingArtist;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
-import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -71,7 +70,7 @@ public class NowPlayingCommand extends ConcurrentCommand {
 	public void threadableCode() {
 		try {
 			String username = parse(e)[0];
-			NowPlayingArtist nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(username);
+			NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);
 			StringBuilder a = new StringBuilder();
 
 			a.append("**[").append(username).append("'s Profile](").append("https://www.last.fm/user/").append(username).append(")**\n\n")

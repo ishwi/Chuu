@@ -6,7 +6,6 @@ import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
 import main.Spotify;
-import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -53,7 +52,7 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 			return;
 		}
 		try {
-			NowPlayingArtist nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(username);
+			NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);
 			StringBuilder a = new StringBuilder();
 			String uri = spotify.searchItems(nowPlayingArtist.getSongName(), nowPlayingArtist.getArtistName(), nowPlayingArtist.getAlbumName());
 

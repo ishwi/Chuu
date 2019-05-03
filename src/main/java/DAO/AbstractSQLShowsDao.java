@@ -1,6 +1,7 @@
 package DAO;
 
 import DAO.Entities.*;
+import org.intellij.lang.annotations.Language;
 
 import javax.management.InstanceNotFoundException;
 import java.sql.*;
@@ -112,7 +113,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 	@Override
 	public UniqueWrapper<UniqueData> getUniqueArtist(Connection connection, Long guildID, String lastFmId) {
-		String queryString = "SELECT * " +
+		@Language("MySQL") String queryString = "SELECT * " +
 				"FROM(  " +
 				"       select artist_id, playNumber, a.lastFMID ,b.discordID" +
 				"       from artist a join lastfm b " +
@@ -165,8 +166,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 	@Override
 	public UsersWrapper getLessUpdated(Connection connection) {
-		String queryString = "Select a.discordID, a.lastFmId,b.last_update FROM lastfm a LEFT JOIN updated b on a.lastFmId=b.discordID" +
-				"  order by  last_update asc LIMIT 1";
+		@Language("MySQL") String queryString = "Select a.discordID, a.lastFmId,b.last_update FROM lastfm a LEFT JOIN updated b on a.lastFmId=b.discordID  order by  last_update asc LIMIT 1";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
 			/* Fill "preparedStatement". */
@@ -220,7 +220,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 		String userA = lastfMNames.get(0);
 		String userB = lastfMNames.get(1);
 
-		String queryString = "SELECT a.artist_id ,a.lastFMID , a.playNumber, b.lastFMID,b.playNumber ,((a.playNumber + b.playNumber)/(abs(a.playNumber-b.playNumber)+1)* ((a.playNumber + b.playNumber))*2.5) media , c.url " +
+		@Language("MySQL") String queryString = "SELECT a.artist_id ,a.lastFMID , a.playNumber, b.lastFMID,b.playNumber ,((a.playNumber + b.playNumber)/(abs(a.playNumber-b.playNumber)+1)* ((a.playNumber + b.playNumber))*2.5) media , c.url " +
 				"FROM " +
 				"(SELECT * " +
 				"FROM artist " +
@@ -310,8 +310,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 	@Override
 	public List<Long> guildList(Connection connection, long userId) {
-		String queryString = "Select discordId,guildId "
-				+ " FROM user_guild  WHERE discordID = ?";
+		@Language("MySQL") String queryString = "Select discordId,guildId  FROM user_guild  WHERE discordID = ?";
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -341,8 +340,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 	public void update(Connection connection, LastFMData lastFMData) {
 
 		/* Create "queryString". */
-		String queryString = "UPDATE lastfm"
-				+ " SET lastFmId= ? WHERE discordID = ?";
+		String queryString = "UPDATE lastfm SET lastFmId= ? WHERE discordID = ?";
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -369,7 +367,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 	public void remove(Connection connection, Long showID) {
 
 		/* Create "queryString". */
-		String queryString = "DELETE FROM lastfm.lastfm WHERE" + " discordID = ?";
+		@Language("MySQL") String queryString = "DELETE FROM lastfm.lastfm WHERE" + " discordID = ?";
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 

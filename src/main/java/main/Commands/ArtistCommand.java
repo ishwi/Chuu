@@ -4,15 +4,11 @@ import DAO.DaoImplementation;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.LastFmUserNotFoundException;
 import main.Exceptions.ParseException;
-import main.last.ConcurrentLastFM;
+import main.ImageRenderer.Stealing.UrlCapsuleConcurrentQueue;
+import main.Youtube.DiscogsApi;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +16,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @SuppressWarnings("Duplicates")
-public class ArtistCommand extends ConcurrentCommand {
+public class ArtistCommand extends ChartCommand {
 
 	public ArtistCommand(DaoImplementation dao) {
 		super(dao);
@@ -52,28 +48,14 @@ public class ArtistCommand extends ConcurrentCommand {
 
 
 		if (x * y > 100) {
-			cha.sendMessage("Gonna Take a while").queue();
+			e.getChannel().sendMessage("Gonna Take a while").queue();
 		}
 		try {
-			byte[] file = ConcurrentLastFM.getUserList(username, time, x, y, false);
-			if (file.length < 8388608) {
-				cha.sendFile(file, "cat.png").queue();
-				return;
-			}
-			cha.sendMessage("boot to big").queue();
-
-
-			String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")
-					.withZone(ZoneOffset.UTC)
-					.format(Instant.now());
-
-			String path = "D:\\Games\\" + thisMoment + ".png";
-			try (FileOutputStream fos = new FileOutputStream(path)) {
-				fos.write(file);
-				//fos.close(); There is no more need for this line since you had created the instance of "fos" inside the try. And this will automatically close the OutputStream
-			} catch (IOException ex) {
-				errorMessage(e, 100, ex.getMessage());
-			}
+			//TODO
+			//BLoqcking queu Interfaz when add checks urls bd or makes petition
+			UrlCapsuleConcurrentQueue queue = new UrlCapsuleConcurrentQueue(getDao(), new DiscogsApi());
+			lastFM.getUserList(username, time, x, y, false, queue);
+			generateImage(queue, x, y);
 
 
 		} catch (LastFMServiceException ex2) {
@@ -84,7 +66,6 @@ public class ArtistCommand extends ConcurrentCommand {
 
 
 	}
-
 
 	private String getTimeFromChar(String timeFrame) {
 		if (timeFrame.startsWith("y"))

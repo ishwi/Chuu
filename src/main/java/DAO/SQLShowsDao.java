@@ -5,6 +5,7 @@ import DAO.Entities.*;
 import javax.management.InstanceNotFoundException;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Set;
 
 interface SQLShowsDao {
 	LastFMData create(Connection con, LastFMData show);
@@ -41,5 +42,9 @@ interface SQLShowsDao {
 
 	void upsertArtist(Connection con, ArtistData artistData);
 
-	void upsertUrl(Connection con, ArtistData artistData);
+	void upsertUrl(Connection con, ArtistInfo artistInfo);
+
+	String getArtistUrl(Connection connection, String artist);
+
+	Set<String> selectNullUrls(Connection connection);
 }

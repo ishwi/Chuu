@@ -1,6 +1,7 @@
 package main.ImageRenderer;
 
 import DAO.Entities.UrlCapsule;
+import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -19,8 +20,8 @@ class ThreadQueue implements Runnable {
 	public final Graphics2D g;
 	public final int y;
 	public final int x;
-	private final AtomicInteger iters;
 	final int START_FONT_SIZE = 24;
+	private final AtomicInteger iters;
 	int fontSize1 = START_FONT_SIZE;
 	int fontSize2 = START_FONT_SIZE;
 
@@ -56,9 +57,13 @@ class ThreadQueue implements Runnable {
 
 					url = new URL(encapsuler.getUrl());
 					image = ImageIO.read(url);
-
+					if (image.getHeight() != 300 || image.getWidth() != 300) {
+						image = Scalr.resize(image, Scalr.Method.QUALITY,
+								300, 300, Scalr.OP_ANTIALIAS);
+					}
 					drawImage(image, encapsuler);
 					g.drawImage(image, x * 300, y * 300, null);
+					//g.drawImage(image, x * 300, y * 300, x * 300 + 300, y * 300 + 300, 0, 0, image.getWidth(), image.getHeight(), null);
 
 
 				} catch (Exception e) {
@@ -98,12 +103,12 @@ class ThreadQueue implements Runnable {
 	public void drawNames(UrlCapsule encapsuler, int y, int x, Graphics2D grap) {
 		String artistName = encapsuler.getArtistName();
 		String albumName = encapsuler.getAlbumName();
-
 		Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
 		Font albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
 		grap.setFont(artistFont);
 
 		int artistWidth = grap.getFontMetrics().stringWidth(artistName);
+
 		grap.setFont(albumFont);
 
 		int albumWidth = grap.getFontMetrics().stringWidth(albumName);
@@ -113,6 +118,12 @@ class ThreadQueue implements Runnable {
 			grap.setFont(artistFont);
 			artistWidth = grap.getFontMetrics().stringWidth(artistName);
 		}
+		grap.setFont(artistFont);
+		FontMetrics metric = grap.getFontMetrics();
+		int accu = metric.getAscent() - metric.getDescent() - metric.getLeading();
+		grap.drawString(encapsuler.getArtistName(), x * 300, y * 300 + accu);
+
+
 		while (albumWidth > 300 && fontSize2-- > 14) {
 			fontSize2--;
 			albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
@@ -120,12 +131,7 @@ class ThreadQueue implements Runnable {
 			albumWidth = grap.getFontMetrics().stringWidth(albumName);
 		}
 
-		grap.setFont(artistFont);
-		FontMetrics metric = grap.getFontMetrics();
-		int accu = metric.getAscent() - metric.getDescent() - metric.getLeading();
-		grap.drawString(encapsuler.getArtistName(), x * 300, y * 300 + accu);
 
-		grap.setFont(albumFont);
 		metric = grap.getFontMetrics();
 		accu += metric.getAscent() - metric.getDescent() - metric.getLeading() + 1;
 		grap.drawString(encapsuler.getAlbumName(), x * 300, y * 300 + accu);
@@ -134,8 +140,8 @@ class ThreadQueue implements Runnable {
 
 	}
 
-	public Color getBetter(Color color) {
-		Double y = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
+	private Color getBetter(Color color) {
+		double y = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
 		return y < 128 ? Color.WHITE : Color.BLACK;
 
 	}

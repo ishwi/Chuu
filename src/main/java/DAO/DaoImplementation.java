@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class DaoImplementation {
 	private final DataSource dataSource;
@@ -43,7 +44,7 @@ public class DaoImplementation {
 				list.forEach(artistData -> {
 					artistData.setDiscordID(id);
 					dao.addArtist(connection, artistData);
-					dao.addUrl(connection, artistData);
+					//dao.addUrl(connection, artistData);
 				});
 				dao.setUpdatedTime(connection, id, null);
 
@@ -81,21 +82,17 @@ public class DaoImplementation {
 				connection.setAutoCommit(false);
 
 				/* Do work. */
+
 				list.getWrapped().forEach(artistData -> {
 					artistData.setDiscordID(id);
 					dao.upsertArtist(connection, artistData);
-					dao.upsertUrl(connection, artistData);
+					//dao.upsertUrl(connection, artistData);
 				});
 				dao.setUpdatedTime(connection, id, list.getTimestamp());
 
 
-				/* Commit. */
-				// Seguramente haya mejor solucion
-
-
 				connection.commit();
 
-				// Relacionar post con show ?
 
 			} catch (SQLException e) {
 				connection.rollback();
@@ -290,5 +287,32 @@ public class DaoImplementation {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public Set<String> getNullUrls() {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.selectNullUrls(connection);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public String getArtistUrl(String url) {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.getArtistUrl(connection, url);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+	}
+
+	public void upsertUrl(ArtistInfo artistInfo) {
+		try (Connection connection = dataSource.getConnection()) {
+			dao.upsertUrl(connection, artistInfo);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+
 	}
 }

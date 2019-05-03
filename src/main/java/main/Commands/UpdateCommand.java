@@ -5,7 +5,6 @@ import DAO.Entities.ArtistData;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.ParseException;
-import main.last.ConcurrentLastFM;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -38,7 +37,7 @@ public class UpdateCommand extends MyCommandDbAccess {
 				sendMessage(e, message[0] + " is not registered in this guild");
 				return;
 			}
-			LinkedList<ArtistData> list = ConcurrentLastFM.getLibrary(message[0]);
+			LinkedList<ArtistData> list = lastFM.getLibrary(message[0]);
 			getDao().updateUserLibrary(list, message[0]);
 			mes.setContent("Sucessfully updated " + message[0] + " info !").sendTo(e.getChannel()).queue();
 
