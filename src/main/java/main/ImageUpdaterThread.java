@@ -20,14 +20,23 @@ public class ImageUpdaterThread implements Runnable {
 	@Override
 	public void run() {
 		Set<String> artistData = dao.getNullUrls();
-		try {
-			for (String artistDatum : artistData) {
+		System.out.println("Found at lest " + artistData.size() + "null artist ");
+		for (String artistDatum : artistData) {
+			String url;
+			System.out.println("Working with artist " + artistDatum);
+			try {
 
-				String url = discogsApi.findArtistImage(artistDatum);
-				dao.upsertUrl(new ArtistInfo(url, artistDatum));
+				url = discogsApi.findArtistImage(artistDatum);
+				if (url != null) {
+
+					System.out.println("Upserting buddy");
+					if (!url.isEmpty())
+						System.out.println(artistDatum);
+					dao.upsertUrl(new ArtistInfo(url, artistDatum));
+				}
+			} catch (DiscogsServiceException e) {
+				e.printStackTrace();
 			}
-		} catch (DiscogsServiceException e) {
-			e.printStackTrace();
 		}
 
 

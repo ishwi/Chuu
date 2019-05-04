@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class UrlCapsuleConcurrentQueue extends LinkedBlockingQueue<UrlCapsule> {
 	private DaoImplementation dao;
 	private DiscogsApi discogsApi;
+
 	private LinkedBlockingQueue<CompletableFuture<UrlCapsule>> wrapper;
 
 	public UrlCapsuleConcurrentQueue(DaoImplementation dao, DiscogsApi discogsApi) {

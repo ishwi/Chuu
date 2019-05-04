@@ -407,7 +407,7 @@ public class ImageMath {
 				break;
 		if (span > numKnots - 3)
 			span = numKnots - 3;
-		float t = (float) (x - xknots[span]) / (xknots[span + 1] - xknots[span]);
+		float t = (x - xknots[span]) / (xknots[span + 1] - xknots[span]);
 		span--;
 		if (span < 0) {
 			span = 0;
@@ -557,7 +557,7 @@ public class ImageMath {
 		for (j = 0; j < length; j++) {
 			while (out[i + 1] < j)
 				i++;
-			in[j] = i + (float) (j - out[i]) / (out[i + 1] - out[i]);
+			in[j] = i + (j - out[i]) / (out[i + 1] - out[i]);
 		}
 		in[length] = length;
 

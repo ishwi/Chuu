@@ -51,7 +51,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private void parseHttpCode(int code) throws HttpResponseException {
 		if (code / 100 == 2)
 			return;
-		throw new HttpResponseException(code, "error on discogs service");
+		throw new HttpResponseException(code, " Error Code: " + code);
 	}
 
 
@@ -66,7 +66,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		} catch (IOException e) {
 			method.releaseConnection();
 
-			throw new LastFMServiceException(e.getCause().toString());
+			throw new LastFMServiceException(e.getMessage());
 		}
 	}
 
