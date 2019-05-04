@@ -1,10 +1,10 @@
 package main;
 
 import DAO.DaoImplementation;
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import main.Commands.*;
 import main.Youtube.DiscogsApi;
 import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
@@ -93,20 +93,24 @@ class Main extends ListenerAdapter {
 		builder.addEventListener(help.registerCommand(new UniqueCommand(dao)));
 		builder.addEventListener(help.registerCommand(new NPYoutubeCommand(dao)));
 		builder.addEventListener(help.registerCommand(new ArtistCommand(dao)));
-
-//		builder.addEventListeners(help.registerCommand(new AlbumSongPlaysCommand(dao)));
-		EventWaiter waiter = new EventWaiter(Executors.newSingleThreadScheduledExecutor(), false);
-
-//		builder.addEventListener(waiter);
+		builder.addEventListener(help.registerCommand(new AlbumSongPlaysCommand(dao)));
 		builder.addEventListener(help.registerCommand(new GuildTopCommand(dao)));
+
+
+//		EventWaiter waiter = new EventWaiter(Executors.newSingleThreadScheduledExecutor(), false);
+//		builder.addEventListener(waiter);
 //		builder.addEventListener(help.registerCommand(new CrownsCommand(dao, waiter)));
 
-		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(1);
+		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
 		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true), 0, 2, TimeUnit.MINUTES);
 		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 1, 2, TimeUnit.MINUTES);
 
 		try {
-			builder.build().awaitReady();
+			JDA jda = builder.build().awaitReady();
+			AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
+			jda.addEventListener(commandAdministrator);
+			commandAdministrator.onStartup(jda);
+
 
 
 		} catch (LoginException | InterruptedException e) {

@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 // usage !command "song" "/@user"
+//Right now only for author
 public class AlbumSongPlaysCommand extends ConcurrentCommand {
 	public AlbumSongPlaysCommand(DaoImplementation dao) {
 		super(dao);
@@ -27,9 +28,7 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 		try {
 			int a = lastFM.getPlaysAlbum_Artist(getDao().findShow(e.getAuthor().getIdLong()).getName(), true, parsed[0], parsed[1]);
 			sendMessage(e, "**" + e.getGuild().getMemberById(e.getAuthor().getIdLong()).getEffectiveName() + "** has listened " + a + " times the album **" + parsed[1] + "** by **" + parsed[0] + "**!");
-		} catch (LastFmUserNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (InstanceNotFoundException e1) {
+		} catch (LastFmUserNotFoundException | InstanceNotFoundException e1) {
 			e1.printStackTrace();
 		}
 	}
@@ -65,10 +64,6 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 		StringBuilder builder = new StringBuilder();
 		String username;
 		for (String s : submessage) {
-			if (s.startsWith("@")) {
-				username = s;
-				continue;
-			}
 			builder.append(s).append(" ");
 		}
 		String s = builder.toString();
@@ -79,7 +74,7 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 		String artist = content[0].trim();
 		String album = content[1].trim();
 
-		return new String[]{artist, album};
+		return new String[]{artist, album,};
 	}
 
 	@Override

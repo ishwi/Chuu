@@ -1,6 +1,7 @@
 package DAO;
 
 import DAO.Entities.*;
+import org.apache.commons.collections4.map.MultiValueMap;
 
 import javax.management.InstanceNotFoundException;
 import java.sql.Connection;
@@ -13,6 +14,8 @@ interface SQLShowsDao {
 	LastFMData find(Connection con, Long showID) throws InstanceNotFoundException;
 
 	List<Long> guildList(Connection connection, long userId);
+
+	MultiValueMap<Long, Long> getWholeUser_Guild(Connection connection);
 
 	void update(Connection con, LastFMData show);
 

@@ -12,13 +12,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class SetCommand extends MyCommandDbAccess {
+public class SetCommand extends ConcurrentCommand {
 	public SetCommand(DaoImplementation dao) {
 		super(dao);
 	}
 
+
 	@Override
-	public void onCommand(MessageReceivedEvent e, String[] args) {
+	public void threadableCode() {
 		String[] returned;
 
 		try {
@@ -68,7 +69,6 @@ public class SetCommand extends MyCommandDbAccess {
 
 		new Thread(new UpdaterThread(getDao(), new UsersWrapper(userId, lastFmID), false)).run();
 		sendMessage(e, "Finished updating " + e.getAuthor().getName() + " library, you are good to go!");
-
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class SetCommand extends MyCommandDbAccess {
 	@Override
 	public String[] parse(MessageReceivedEvent e) throws ParseException {
 		String[] message = getSubMessage(e.getMessage());
-		if (message.length > 1 || message.length == 0)
+		if (message.length != 1)
 			throw new ParseException("Command");
 		return message;
 	}

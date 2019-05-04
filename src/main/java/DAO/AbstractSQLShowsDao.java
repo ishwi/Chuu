@@ -1,6 +1,7 @@
 package DAO;
 
 import DAO.Entities.*;
+import org.apache.commons.collections4.map.MultiValueMap;
 import org.intellij.lang.annotations.Language;
 
 import javax.management.InstanceNotFoundException;
@@ -61,7 +62,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			int i = 1;
 			preparedStatement.setString(i++, lastFmId);
-			preparedStatement.setLong(i++, guildID);
+			preparedStatement.setLong(i, guildID);
 
 			ResultSet resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
@@ -129,7 +130,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			int i = 1;
 			preparedStatement.setLong(i++, guildID);
-			preparedStatement.setString(i++, lastFmId);
+			preparedStatement.setString(i, lastFmId);
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 			if (!resultSet.next()) {
@@ -240,7 +241,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 			/* Fill "preparedStatement". */
 			int i = 1;
 			preparedStatement.setString(i++, userA);
-			preparedStatement.setString(i++, userB);
+			preparedStatement.setString(i, userB);
 
 
 			/* Execute query. */
@@ -316,7 +317,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 			/* Fill "preparedStatement". */
 			int i = 1;
-			preparedStatement.setLong(i++, userId);
+			preparedStatement.setLong(i, userId);
 
 			List<Long> returnList = new LinkedList<>();
 			/* Execute query. */
@@ -335,6 +336,32 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 		}
 
 	}
+
+	@Override
+	public MultiValueMap<Long, Long> getWholeUser_Guild(Connection connection) {
+		@Language("MySQL") String queryString = "Select discordId,guildId  FROM user_guild ";
+
+		MultiValueMap<Long, Long> map = new MultiValueMap<>();
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			while (resultSet.next()) {
+
+				long guildId = resultSet.getLong("guildId");
+				long discordId = resultSet.getLong("discordId");
+				map.put(guildId, discordId);
+
+
+			}
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		return map;
+	}
+
 
 	@Override
 	public void update(Connection connection, LastFMData lastFMData) {
@@ -379,7 +406,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 			int removedRows = preparedStatement.executeUpdate();
 
 			if (removedRows == 0) {
-				throw new RuntimeException("A");
+				System.err.println("No rows removed");
 			}
 
 		} catch (SQLException e) {
