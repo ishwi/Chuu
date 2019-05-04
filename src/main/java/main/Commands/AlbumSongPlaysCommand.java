@@ -51,7 +51,7 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 	@Override
 	public List<String> getUsageInstructions() {
 		return Collections.singletonList
-				("**!top username**\n" + "\tIf username is not specified defaults to authors account \n\n");
+				("!album artist-album \n\n");
 
 	}
 

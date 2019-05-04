@@ -67,7 +67,7 @@ public class UpdateCommand extends MyCommandDbAccess {
 
 	@Override
 	public List<String> getUsageInstructions() {
-		return Collections.singletonList("**!update lastFmUser**\\n\\n");
+		return Collections.singletonList("!update *user\n\tIf user is missing defaults to user account\n\n");
 	}
 
 	@Override

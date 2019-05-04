@@ -80,7 +80,7 @@ public class GuildTopCommand extends ConcurrentCommand {
 
 	@Override
 	public List<String> getUsageInstructions() {
-		return Collections.singletonList("**!guild** \n");
+		return Collections.singletonList("!guild \n");
 	}
 
 	@Override

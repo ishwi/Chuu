@@ -89,7 +89,7 @@ public class NPYoutubeCommand extends MyCommandDbAccess {
 
 	@Override
 	public List<String> getUsageInstructions() {
-		return Collections.singletonList("If not specified another user it defaults to yours");
+		return Collections.singletonList("!npyoutube *username  \n \tIf not specified another user it defaults to yours");
 	}
 
 	@Override

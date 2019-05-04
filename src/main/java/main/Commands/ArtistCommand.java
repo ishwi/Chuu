@@ -97,7 +97,7 @@ public class ArtistCommand extends ChartCommand {
 
 	@Override
 	public List<String> getUsageInstructions() {
-		return Collections.singletonList("**!artists *[w,m,t,y,a] *Username SizeXSize** \n" +
+		return Collections.singletonList("!artists *[w,m,t,y,a] *Username *SizeXSize \n" +
 				"\tIf timeframe is not specified defaults to Weekly \n" +
 				"\tIf username is not specified defaults to authors account \n" +
 				"\tIf size is not specified defaults to 5x5 (As big as discord lets\n\n"

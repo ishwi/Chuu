@@ -39,7 +39,7 @@ public class TopCommand extends ChartCommand {
 	@Override
 	public List<String> getUsageInstructions() {
 		return Collections.singletonList
-				("**!top username**\n" + "\tIf username is not specified defaults to authors account \n\n");
+				("!top *username\n\tIf username is not specified defaults to authors account \n\n");
 
 	}
 

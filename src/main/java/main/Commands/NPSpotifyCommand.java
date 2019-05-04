@@ -86,7 +86,7 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 
 	@Override
 	public List<String> getUsageInstructions() {
-		return Collections.singletonList("If not specified another user it defaults to yours");
+		return Collections.singletonList("!npspotify *username  \n \tIf not specified another user it defaults to yours");
 	}
 
 	@Override
