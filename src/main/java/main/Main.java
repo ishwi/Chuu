@@ -29,7 +29,7 @@ class Main extends ListenerAdapter {
 		}
 	}
 
-	static File getThisJarFile() throws UnsupportedEncodingException {
+	private static File getThisJarFile() throws UnsupportedEncodingException {
 		//Gets the path of the currently running Jar file
 		String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		String decodedPath = URLDecoder.decode(path, "UTF-8");
@@ -103,7 +103,7 @@ class Main extends ListenerAdapter {
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(1);
 		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true), 0, 2, TimeUnit.MINUTES);
-		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 1, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 1, 2, TimeUnit.MINUTES);
 
 		try {
 			builder.build().awaitReady();

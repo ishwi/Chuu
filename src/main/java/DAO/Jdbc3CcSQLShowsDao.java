@@ -23,7 +23,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 			int i = 1;
 			preparedStatement.setString(i++, lastFMData.getName());
 			preparedStatement.setLong(i++, lastFMData.getShowID());
-			preparedStatement.setString(i++, lastFMData.getName());
+			preparedStatement.setString(i, lastFMData.getName());
 
 
 			/* Execute query. */
@@ -50,7 +50,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 			/* Fill "preparedStatement". */
 			int i = 1;
 			preparedStatement.setString(i++, artistData.getArtist());
-			preparedStatement.setString(i++, artistData.getUrl());
+			preparedStatement.setString(i, artistData.getUrl());
 
 
 
@@ -106,7 +106,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 			/* Fill "preparedStatement". */
 			int i = 1;
 			preparedStatement.setLong(i++, userId);
-			preparedStatement.setLong(i++, guildId);
+			preparedStatement.setLong(i, guildId);
 
 
 			/* Execute query. */
@@ -137,7 +137,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 			int i = 1;
 			preparedStatement.setString(i++, id);
 			preparedStatement.setTimestamp(i++, timestamp1);
-			preparedStatement.setTimestamp(i++, timestamp1);
+			preparedStatement.setTimestamp(i, timestamp1);
 
 
 			/* Execute query. */
@@ -236,7 +236,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 	@Override
 	public Set<String> selectNullUrls(Connection connection) {
 		Set<String> returnList = new HashSet<>();
-		String queryString = "SELECT * FROM artist_url where url is null limit 20";
+		String queryString = "SELECT * FROM artist_url where url is null limit 30";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -266,7 +266,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 			preparedStatement.setString(i++, artistData.getDiscordID());
 			preparedStatement.setString(i++, artistData.getArtist());
 			preparedStatement.setLong(i++, artistData.getCount());
-			preparedStatement.setLong(i++, artistData.getCount());
+			preparedStatement.setLong(i, artistData.getCount());
 
 
 			/* Execute query. */
@@ -293,7 +293,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 			preparedStatement.setString(i++, artistData.getDiscordID());
 			preparedStatement.setString(i++, artistData.getArtist());
 			preparedStatement.setLong(i++, artistData.getCount());
-			preparedStatement.setLong(i++, artistData.getCount());
+			preparedStatement.setLong(i, artistData.getCount());
 
 
 			/* Execute query. */

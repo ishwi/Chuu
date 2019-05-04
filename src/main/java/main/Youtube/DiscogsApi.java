@@ -5,6 +5,7 @@ import main.Exceptions.DiscogsServiceException;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
@@ -25,7 +26,7 @@ public class DiscogsApi {
 	private final String KEY;
 	private final Header header;
 	private boolean slowness = false;
-
+	private HttpClient httpClient;
 	public DiscogsApi() {
 		Properties properties = new Properties();
 		try {
@@ -33,7 +34,7 @@ public class DiscogsApi {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-
+		this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
 		this.header = new Header();
 		this.header.setName("User-Agent");
 		this.header.setValue("discordArtistImageFetcher/ishwi6@gmail.com");
@@ -42,13 +43,8 @@ public class DiscogsApi {
 
 	}
 
-	public static void main(String[] args) throws IOException {
 
-
-	}
-
-	public int doSearch(String query) throws DiscogsServiceException {
-		HttpClient httpClient = new HttpClient();
+	private int doSearch(String query) throws DiscogsServiceException {
 
 		System.out.println("DOIUNG SERACH : " + query);
 		try {
@@ -74,8 +70,7 @@ public class DiscogsApi {
 		return id;
 	}
 
-	public String doArtistInfo(int id) throws DiscogsServiceException {
-		HttpClient httpClient = new HttpClient();
+	private String doArtistInfo(int id) throws DiscogsServiceException {
 
 		String imageUrl = null;
 
@@ -84,6 +79,8 @@ public class DiscogsApi {
 		String url = BASE_API + "/artists/" + id + "?key=" + KEY + "&secret=" + SECRET;
 		GetMethod getMethod = new GetMethod(url);
 		JSONObject obj = doMethod(httpClient, getMethod);
+		if (!obj.has("images"))
+			return "";
 
 		JSONArray images = obj.getJSONArray("images");
 		List<JSONObject> list = new ArrayList<>();
@@ -148,6 +145,6 @@ public class DiscogsApi {
 		if (code / 100 == 2)
 			return;
 
-		throw new HttpResponseException(code, "error on discogs service");
+		throw new HttpResponseException(code, "error on discogs service " + code);
 	}
 }

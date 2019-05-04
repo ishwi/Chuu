@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class WhoKnowsNPCommand extends ConcurrentCommand {
+public class WhoKnowsNPCommand extends WhoKnowsCommand {
 
 	public WhoKnowsNPCommand(DaoImplementation dao) {
 		super(dao);
@@ -95,7 +95,7 @@ public class WhoKnowsNPCommand extends ConcurrentCommand {
 		String[] returned;
 		try {
 			returned = parse(e);
-			CommandUtil.a(returned[0], getDao(), e, Boolean.valueOf(returned[1]), lastFM);
+			whoKnowsLogic(returned[0], Boolean.valueOf(returned[1]));
 		} catch (ParseException e1) {
 			switch (e1.getMessage()) {
 				case "lastFM":
