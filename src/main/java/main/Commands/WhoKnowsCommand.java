@@ -124,8 +124,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 	@Override
 	public List<String> getUsageInstructions() {
-		return Collections.singletonList("**!whoknows artist** \n" +
-				"\t --image for Image format\n\n"
+		return Collections.singletonList("!whoknows artist\n\t --image for Image format\n\n"
 		);
 	}
 

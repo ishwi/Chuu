@@ -36,7 +36,7 @@ public class NowPlayingCommand extends ConcurrentCommand {
 
 	@Override
 	public List<String> getUsageInstructions() {
-		return Collections.singletonList("**!np *username **\n" +
+		return Collections.singletonList("!np *username \n" +
 				"\t If useranme is not specified defaults to authors account\n\n");
 	}
 

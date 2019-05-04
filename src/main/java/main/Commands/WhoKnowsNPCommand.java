@@ -36,7 +36,7 @@ public class WhoKnowsNPCommand extends WhoKnowsCommand {
 
 	@Override
 	public List<String> getUsageInstructions() {
-		return Collections.singletonList("**!whoknowsnp *LastFmUser** \n" +
+		return Collections.singletonList("!whoknowsnp *LastFmUser \n" +
 				"\t If useranme is not specified defaults to authors account\n" +
 				"\t --image for Image format\n\n");
 	}

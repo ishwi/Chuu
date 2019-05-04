@@ -91,8 +91,7 @@ public class UniqueCommand extends MyCommandDbAccess {
 
 	@Override
 	public List<String> getUsageInstructions() {
-		return Collections.singletonList("**!unique **user \n" +
-				"If user is missing defaults to user account\n\n ");
+		return Collections.singletonList("!unique *user\n\tIf user is missing defaults to user account\n\n ");
 	}
 
 	@Override

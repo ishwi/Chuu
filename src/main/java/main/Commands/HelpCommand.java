@@ -18,7 +18,7 @@ package main.Commands;
 import main.Exceptions.ParseException;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -46,12 +46,45 @@ public class HelpCommand extends MyCommand {
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		if (!e.isFromType(ChannelType.PRIVATE)) {
-			e.getTextChannel().sendMessage(new MessageBuilder()
-					.append(e.getAuthor())
-					.append(": Help information was sent as a private message.")
-					.build()).queue();
+			if (args.length < 2) {
+				e.getTextChannel().sendMessage(new MessageBuilder()
+						.append(e.getAuthor())
+						.append(": Help information was sent as a private message.")
+						.build()).queue();
+			} else {
+				doSend(args, e.getChannel());
+			}
+
 		}
 		sendPrivate(e.getAuthor().openPrivateChannel().complete(), args);
+	}
+
+	private void doSend(String[] args, MessageChannel channel) {
+		String command = args[1].charAt(0) == '!' ? args[1] : "!" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
+		for (MyCommand c : commands.values()) {
+			if (c.getAliases().contains(command)) {
+				String name = c.getName();
+				String description = c.getDescription();
+				List<String> usageInstructions = c.getUsageInstructions();
+				name = (name == null || name.isEmpty()) ? NO_NAME : name;
+				description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
+				usageInstructions = (usageInstructions == null || usageInstructions.isEmpty()) ? Collections.singletonList(NO_USAGE) : usageInstructions;
+
+				//TODO: Replace with a PrivateMessage
+				channel.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n").append("**Description:** ").append(description).append("\n").append("**Alliases:** ").append(String.join(", ", c.getAliases())).append("\n")
+						.append("**Usage:** ")
+						.append(usageInstructions.get(0))
+						.build()).queue();
+				for (int i = 1; i < usageInstructions.size(); i++) {
+					channel.sendMessage(new MessageBuilder().append("__").append(name).append(" Usage Cont. (").append(String.valueOf(i + 1)).append(")__\n")
+							.append(usageInstructions.get(i))
+							.build()).queue();
+				}
+				return;
+			}
+		}
+		channel.sendMessage(new MessageBuilder().append("The provided command '**").append(args[1]).append("**' does not exist. Use .help to list all commands.")
+				.build()).queue();
 	}
 
 
@@ -90,7 +123,7 @@ public class HelpCommand extends MyCommand {
 
 	}
 
-	private void sendPrivate(PrivateChannel channel, String[] args) {
+	private void sendPrivate(MessageChannel channel, String[] args) {
 		if (args.length < 2) {
 			StringBuilder s = new StringBuilder();
 			for (MyCommand c : commands.values()) {
@@ -106,31 +139,7 @@ public class HelpCommand extends MyCommand {
 					.append(s.toString())
 					.build()).queue();
 		} else {
-			String command = args[1].charAt(0) == '!' ? args[1] : "!" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
-			for (MyCommand c : commands.values()) {
-				if (c.getAliases().contains(command)) {
-					String name = c.getName();
-					String description = c.getDescription();
-					List<String> usageInstructions = c.getUsageInstructions();
-					name = (name == null || name.isEmpty()) ? NO_NAME : name;
-					description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
-					usageInstructions = (usageInstructions == null || usageInstructions.isEmpty()) ? Collections.singletonList(NO_USAGE) : usageInstructions;
-
-					//TODO: Replace with a PrivateMessage
-					channel.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n").append("**Description:** ").append(description).append("\n").append("**Alliases:** ").append(String.join(", ", c.getAliases())).append("\n")
-							.append("**Usage:** ")
-							.append(usageInstructions.get(0))
-							.build()).queue();
-					for (int i = 1; i < usageInstructions.size(); i++) {
-						channel.sendMessage(new MessageBuilder().append("__").append(name).append(" Usage Cont. (").append(String.valueOf(i + 1)).append(")__\n")
-								.append(usageInstructions.get(i))
-								.build()).queue();
-					}
-					return;
-				}
-			}
-			channel.sendMessage(new MessageBuilder().append("The provided command '**").append(args[1]).append("**' does not exist. Use .help to list all commands.")
-					.build()).queue();
+			doSend(args, channel);
 		}
 	}
 }

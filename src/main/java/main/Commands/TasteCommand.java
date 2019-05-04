@@ -43,7 +43,7 @@ public class TasteCommand extends ConcurrentCommand {
 	@Override
 	public List<String> getUsageInstructions() {
 		return Collections.singletonList
-				("**!taste user1 *user2 ** \n \tIf user2 is missing it gets replaced by Author user\n\n");
+				("!taste user1 *user2\n \tIf user2 is missing it gets replaced by Author user\n\n");
 	}
 
 	@Override
