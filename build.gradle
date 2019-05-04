@@ -37,6 +37,8 @@ dependencies {
     implementation("net.dv8tion:JDA:3.8.3_462")
     compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
     compile 'com.jagrosh:jda-utilities:2.1.5'
+// https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
+    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.0'
 
 
 // https://mvnrepository.com/artifact/c3p0/c3p0

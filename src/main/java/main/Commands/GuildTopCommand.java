@@ -70,18 +70,17 @@ public class GuildTopCommand extends ConcurrentCommand {
 
 	@Override
 	public String getDescription() {
-		return ("Returns lists of all the unique artits you have scrobbled");
+		return ("Chart 5x5 of guild most listened artist");
 	}
 
 	@Override
 	public String getName() {
-		return "Unique List Of Artists";
+		return "Guild Top Artists";
 	}
 
 	@Override
 	public List<String> getUsageInstructions() {
-		return Collections.singletonList("**!unique **user \n" +
-				"If user is missing defaults to user account\n\n ");
+		return Collections.singletonList("**!guild** \n");
 	}
 
 	@Override

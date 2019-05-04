@@ -2,6 +2,7 @@ package DAO;
 
 import DAO.Entities.*;
 import main.last.TimestampWrapper;
+import org.apache.commons.collections4.map.MultiValueMap;
 
 import javax.management.InstanceNotFoundException;
 import javax.sql.DataSource;
@@ -160,8 +161,7 @@ public class DaoImplementation {
 		try (Connection connection = dataSource.getConnection()) {
 			try {
 				/* Prepare connection. */
-				connection.setTransactionIsolation(
-						Connection.TRANSACTION_SERIALIZABLE);
+
 				connection.setAutoCommit(false);
 				/* Do work. */
 				dao.remove(connection, discordID);
@@ -315,4 +315,14 @@ public class DaoImplementation {
 		}
 
 	}
+
+	public MultiValueMap<Long, Long> getMapGuildUsers() {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.getWholeUser_Guild(connection);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+	}
+
 }

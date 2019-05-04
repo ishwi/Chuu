@@ -27,6 +27,7 @@ public class DiscogsApi {
 	private final Header header;
 	private boolean slowness = false;
 	private HttpClient httpClient;
+
 	public DiscogsApi() {
 		Properties properties = new Properties();
 		try {
@@ -56,6 +57,7 @@ public class DiscogsApi {
 
 		GetMethod getMethod = new GetMethod(url);
 		JSONObject obj = doMethod(httpClient, getMethod);
+
 		JSONArray results = obj.getJSONArray("results");
 		int id = 0;
 		for (int i = 0; i < results.length(); i++) {
@@ -76,7 +78,7 @@ public class DiscogsApi {
 
 		if (id == 0)
 			return "";
-		String url = BASE_API + "/artists/" + id + "?key=" + KEY + "&secret=" + SECRET;
+		String url = BASE_API + "artists/" + id + "?key=" + KEY + "&secret=" + SECRET;
 		GetMethod getMethod = new GetMethod(url);
 		JSONObject obj = doMethod(httpClient, getMethod);
 		if (!obj.has("images"))
@@ -122,8 +124,10 @@ public class DiscogsApi {
 	private JSONObject doMethod(HttpClient httpClient, HttpMethod method) throws DiscogsServiceException {
 		method.addRequestHeader(header);
 		try {
-			if (slowness)
+			if (slowness) {
 				TimeUnit.SECONDS.sleep(1);
+				System.out.println("RATE LIMITED");
+			}
 
 			int response_code = httpClient.executeMethod(method);
 			parseHttpCode(response_code);
@@ -143,6 +147,8 @@ public class DiscogsApi {
 
 	private void parseHttpCode(int code) throws HttpResponseException {
 		if (code / 100 == 2)
+			return;
+		if (code == 404)
 			return;
 
 		throw new HttpResponseException(code, "error on discogs service " + code);
