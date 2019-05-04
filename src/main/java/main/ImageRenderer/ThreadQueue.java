@@ -71,6 +71,7 @@ class ThreadQueue implements Runnable {
 					Color temp = g.getColor();
 					g.setColor(Color.WHITE);
 					int pos = encapsuler.getPos();
+
 					int y = (int) Math.floor(pos / this.x);
 					int x = pos % this.x;
 					g.fillRect(x * 300, y * 300, 300, 300);

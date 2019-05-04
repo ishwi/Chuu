@@ -103,6 +103,7 @@ class Main extends ListenerAdapter {
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(1);
 		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true), 0, 2, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 1, 10, TimeUnit.MINUTES);
 
 		try {
 			builder.build().awaitReady();

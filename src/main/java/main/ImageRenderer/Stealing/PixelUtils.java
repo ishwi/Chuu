@@ -34,8 +34,8 @@ public class PixelUtils {
 	public final static int DST_IN = 18;
 	public final static int ALPHA = 19;
 	public final static int ALPHA_TO_GRAY = 20;
-	private final static float hsb1[] = new float[3];//FIXME-not thread safe
-	private final static float hsb2[] = new float[3];//FIXME-not thread safe
+	private final static float[] hsb1 = new float[3];//FIXME-not thread safe
+	private final static float[] hsb2 = new float[3];//FIXME-not thread safe
 	private static Random randomGenerator = new Random();
 
 	/**
