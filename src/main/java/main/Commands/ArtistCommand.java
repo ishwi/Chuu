@@ -4,7 +4,7 @@ import DAO.DaoImplementation;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.LastFmUserNotFoundException;
 import main.Exceptions.ParseException;
-import main.ImageRenderer.Stealing.UrlCapsuleConcurrentQueue;
+import main.ImageRenderer.UrlCapsuleConcurrentQueue;
 import main.Youtube.DiscogsApi;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;

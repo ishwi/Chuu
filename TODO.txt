@@ -3,7 +3,8 @@
 # + Add YT CLIENT NAME
 # Top scrobbles
 # Most Wins?
+*Fix albums
 Remove on leaving all connected guilds;
 Check guild users on login
-Fix albums
 Add png per guild db
+Migrate artist table with -> artist_url| incremental id

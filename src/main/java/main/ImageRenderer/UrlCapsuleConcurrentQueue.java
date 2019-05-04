@@ -1,4 +1,4 @@
-package main.ImageRenderer.Stealing;
+package main.ImageRenderer;
 
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistInfo;
@@ -49,6 +49,7 @@ public class UrlCapsuleConcurrentQueue extends LinkedBlockingQueue<UrlCapsule> {
 		return wrapper.offer(future);
 	}
 
+	@NotNull
 	public UrlCapsule take() throws InterruptedException {
 		try {
 			return wrapper.take().get();

@@ -6,12 +6,10 @@ import DAO.Entities.UsersWrapper;
 import main.Exceptions.ParseException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AllPlayingCommand extends ConcurrentCommand {
@@ -38,47 +36,33 @@ public class AllPlayingCommand extends ConcurrentCommand {
 		StringBuilder a = new StringBuilder();
 
 
-		Map<UsersWrapper, NowPlayingArtist> npList = list.parallelStream().collect(Collectors.toMap(u -> u, uw ->
+		Map<UsersWrapper, Optional<NowPlayingArtist>> npList = list.parallelStream().
+				collect(Collectors.toConcurrentMap(u -> u, uw ->
 
-		{
-			try {
-				return lastFM.getNowPlayingInfo(uw.getLastFMName());
-			} catch (Exception ex) {
-				return null;
-			}
-		}));
+				{
+					try {
+						return Optional.of(lastFM.getNowPlayingInfo(uw.getLastFMName()));
+					} catch (Exception ex) {
+						return Optional.empty();
+					}
+				}));
 
 
-//		HashMap::new, (m, uw) ->
-//		{
-//			try {
-//				NowPlayingArtist nowPlayingArtist = ConcurrentLastFM.getNowPlayingInfo(uw.getLastFMName());
-//				System.out.println(uw.getLastFMName() + ": " + nowPlayingArtist.getArtistName() + " " + nowPlayingArtist.isNowPlaying() + " " + showFresh);
-//				if (showFresh) {
-//					if (!nowPlayingArtist.isNowPlaying()) {
-//						System.out.println("Not printing");
-//
-//
-//					}
-//				}
-//				System.out.println("printing");
-//				m.put(uw, nowPlayingArtist);
-//			} catch (LastFMServiceException | LastFMNoPlaysException ignored) {
-//				System.out.println("Ignored");
-//			}
-//		},(u,k) -> {}
-//		);
-
-		npList.forEach((usersWrapper, nowPlayingArtist) -> {
-					if (nowPlayingArtist == null)
+		npList.forEach((usersWrapper, optionalNowPlayingArtist) -> {
+			if (!optionalNowPlayingArtist.isPresent())
 						return;
+			NowPlayingArtist nowPlayingArtist = optionalNowPlayingArtist.get();
 					if (showFresh) {
 
 						if (!nowPlayingArtist.isNowPlaying()) {
 							return;
 						}
 					}
-					String username = e.getGuild().getMemberById(usersWrapper.getDiscordID()).getEffectiveName();
+
+			Member member = e.getGuild().getMemberById(usersWrapper.getDiscordID());
+
+			String username = member == null ? usersWrapper.getLastFMName() : member.getEffectiveName();
+
 					a.append("+ ").append("[")
 							.append(username).append("](").append("https://www.last.fm/user/").append(usersWrapper.getLastFMName())
 							.append("): ")
@@ -87,6 +71,11 @@ public class AllPlayingCommand extends ConcurrentCommand {
 							.append(nowPlayingArtist.getArtistName()).append("\n");
 				}
 		);
+		if (a.length() == 0) {
+			sendMessage(e, "None is listening to music at the moment UwU");
+			return;
+		}
+
 		embedBuilder.setDescription(a);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 	}

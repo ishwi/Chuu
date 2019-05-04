@@ -10,6 +10,7 @@ import main.Exceptions.LastFmUserNotFoundException;
 import main.Youtube.DiscogsApi;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,12 +40,16 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private DiscogsApi discogsApi;
 
 	public ConcurrentLastFM() {
-		this.client = new HttpClient();
+		this.client = new HttpClient(new MultiThreadedHttpConnectionManager());
+		HttpClientParams params = new HttpClientParams();
+		params.setSoTimeout(4000);
+		params.setContentCharset("UTF-8");
+		client.setParams(params);
 	}
 
 	public ConcurrentLastFM(DiscogsApi discogsApi) {
+		this();
 		this.discogsApi = discogsApi;
-		this.client = new HttpClient();
 
 	}
 
@@ -207,7 +212,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 		url += "&limit=500";
 
 		LinkedList<ArtistData> linkedlist = new LinkedList<>();
-		Map<String, Integer> map = new HashMap<>();
 		while (page <= pages) {
 
 			String urlPage = url + "&page=" + page;
@@ -294,10 +298,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 				++size;
 			}
 
-
 		}
 		//
-		return;
 	}
 
 	private UrlCapsule parseAlbum(JSONObject albumObj, int size) {
@@ -326,7 +328,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 	}
 
 	public String getCorrection(String artistToCorrect) {
-		HttpClient client = new HttpClient();
 		try {
 
 
@@ -356,16 +357,11 @@ public class ConcurrentLastFM {//implements LastFMService {
 	public int getPlaysAlbum_Artist(String username, boolean isAlbum, String artist, String queriedString) throws
 			LastFmUserNotFoundException {
 
-		HttpClient client = new HttpClient();
 		int queryCounter = 0;
 
 		try {
 			String url = BASE + GET_TRACKS + username + URLEncoder.encode(artist, "UTF-8") + API_KEY + ending + "&size=500";
-			List<UserInfo> returnList = new ArrayList<>();
-			int counter = 0;
 			int page = 1;
-			int limit = 50;
-
 			while (true) {
 
 				String urlPage = url + "&page=" + page;
