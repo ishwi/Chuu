@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class MyCommand extends ListenerAdapter {
-
+	public final String PREFIX = "!";
 
 	public abstract void onCommand(MessageReceivedEvent e, String[] args);
 

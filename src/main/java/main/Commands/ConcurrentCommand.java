@@ -1,6 +1,7 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 
@@ -21,7 +22,8 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess implements Run
 
 	@Override
 	public void onMessageReceived(MessageReceivedEvent e) {
-		if (e.getAuthor().isBot() && !respondToBots())
+		Message message = e.getMessage();
+		if (!message.getContentDisplay().startsWith(PREFIX) || (e.getAuthor().isBot() && !respondToBots()))
 			return;
 		if (containsCommand(e.getMessage())) {
 			e.getChannel().sendTyping().queue();
