@@ -3,7 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.ResultWrapper;
 import DAO.Entities.UserInfo;
-import main.Exceptions.LastFMServiceException;
+import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.imageRenderer;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -176,7 +176,7 @@ public class TasteCommand extends ConcurrentCommand {
 			}
 		} catch (InstanceNotFoundException e1) {
 			errorMessage(e, 1, e1.getMessage());
-		} catch (LastFMServiceException e1) {
+		} catch (LastFmException e1) {
 			errorMessage(e, 3, e1.getMessage());
 		}
 

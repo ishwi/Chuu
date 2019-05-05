@@ -1,8 +1,8 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import main.Exceptions.LastFMServiceException;
-import main.Exceptions.LastFmUserNotFoundException;
+import main.Exceptions.LastFmEntityNotFoundException;
+import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.UrlCapsuleConcurrentQueue;
 import main.Youtube.DiscogsApi;
@@ -51,17 +51,17 @@ public class ArtistCommand extends ChartCommand {
 			e.getChannel().sendMessage("Gonna Take a while").queue();
 		}
 		try {
-			//TODO
-			//BLoqcking queu Interfaz when add checks urls bd or makes petition
+
 			UrlCapsuleConcurrentQueue queue = new UrlCapsuleConcurrentQueue(getDao(), new DiscogsApi());
 			lastFM.getUserList(username, time, x, y, false, queue);
 			generateImage(queue, x, y);
 
 
-		} catch (LastFMServiceException ex2) {
-			errorMessage(e, 2, ex2.getMessage());
-		} catch (LastFmUserNotFoundException e1) {
+		} catch (LastFmEntityNotFoundException e1) {
 			errorMessage(e, 3, e1.getMessage());
+		} catch (LastFmException ex) {
+			errorMessage(e, 2, ex.getMessage());
+
 		}
 
 
@@ -162,7 +162,7 @@ public class ArtistCommand extends ChartCommand {
 				userNotOnDB(e, 0);
 				return;
 			case 2:
-				message = "There was a problem with Last FM Api" + cause;
+				message = "Internal Server Error, Try again later";
 				break;
 			case 3:
 				message = cause + " is not a real lastFM username";

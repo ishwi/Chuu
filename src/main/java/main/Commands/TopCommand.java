@@ -2,8 +2,8 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.UrlCapsule;
-import main.Exceptions.LastFMServiceException;
-import main.Exceptions.LastFmUserNotFoundException;
+import main.Exceptions.LastFmEntityNotFoundException;
+import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -57,7 +57,7 @@ public class TopCommand extends ChartCommand {
 
 	@Override
 	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:";
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:\n";
 		if (code == 0) {
 			userNotOnDB(e, code);
 			return;
@@ -65,7 +65,8 @@ public class TopCommand extends ChartCommand {
 			sendMessage(e, base + cause + " is not a real lastFM username");
 			return;
 		}
-		sendMessage(e, base + "There was a problem with Last FM Api" + cause);
+		sendMessage(e, base + "Internal Server Error, Try again later");
+
 	}
 
 	@Override
@@ -87,11 +88,12 @@ public class TopCommand extends ChartCommand {
 			BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(25);
 			lastFM.getUserList(message[0], "overall", 5, 5, isAlbum, queue);
 			generateImage(queue, 5, 5);
-		} catch (LastFMServiceException ex) {
-			errorMessage(e, 1, ex.getMessage());
-		} catch (LastFmUserNotFoundException e1) {
+		} catch (LastFmEntityNotFoundException e1) {
 			errorMessage(e, 3, e1.getMessage());
-		}
+		} catch (LastFmException ex) {
+			errorMessage(e, 1, ex.getMessage());
 
+
+		}
 	}
 }
