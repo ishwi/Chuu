@@ -5,6 +5,7 @@ import DAO.Entities.NowPlayingArtist;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
+import main.Youtube.DiscogsApi;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -13,11 +14,10 @@ import java.util.List;
 
 public class WhoKnowsNPCommand extends WhoKnowsCommand {
 
-	public WhoKnowsNPCommand(DaoImplementation dao) {
-		super(dao);
 
+	public WhoKnowsNPCommand(DaoImplementation dao, DiscogsApi discogsApi) {
+		super(dao, discogsApi);
 	}
-
 
 	@Override
 	public List<String> getAliases() {
@@ -99,7 +99,7 @@ public class WhoKnowsNPCommand extends WhoKnowsCommand {
 			whoKnowsLogic(returned[0], Boolean.valueOf(returned[1]));
 		} catch (ParseException e1) {
 			switch (e1.getMessage()) {
-				case "lastFM":
+				case "LastFM":
 					errorMessage(e, 0, e1.getMessage());
 					break;
 				case "NoPlays":

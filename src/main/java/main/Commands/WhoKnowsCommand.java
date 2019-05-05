@@ -7,6 +7,7 @@ import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.NPMaker;
+import main.Youtube.DiscogsApi;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -24,9 +25,11 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("Duplicates")
 public class WhoKnowsCommand extends ConcurrentCommand {
+	public final DiscogsApi discogsApi;
 
-	public WhoKnowsCommand(DaoImplementation dao) {
+	public WhoKnowsCommand(DaoImplementation dao, DiscogsApi discogsApi) {
 		super(dao);
+		this.discogsApi = new DiscogsApi();
 	}
 
 	void whoKnowsLogic(String who, Boolean isImage) {
@@ -56,6 +59,9 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 		try {
 
+			if (wrapperReturnNowPlaying.getUrl() == null || wrapperReturnNowPlaying.getUrl().isEmpty()) {
+				wrapperReturnNowPlaying.setUrl(CommandUtil.getDiscogsUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao()));
+			}
 			if (!isImage) {
 				StringBuilder builder = new StringBuilder();
 				int counter = 1;

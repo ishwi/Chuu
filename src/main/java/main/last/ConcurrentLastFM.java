@@ -350,7 +350,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		int queryCounter = 0;
 		String url;
 		try {
-			url = BASE + GET_TRACKS + username + URLEncoder.encode(artist, "UTF-8") + API_KEY + ending + "&size=500";
+			url = BASE + GET_TRACKS + username + "&artist=" + URLEncoder.encode(artist, "UTF-8") + API_KEY + ending + "&size=500";
 		} catch (UnsupportedEncodingException e) {
 			throw new LastFMServiceException("500");
 		}
