@@ -43,7 +43,7 @@ public class SetCommand extends ConcurrentCommand {
 			//Registered with different username
 			if (!u.get().getLastFMName().equals(lastFmID)) {
 				sendMessage(e, "Changing your username, might take a while");
-				//Remove pero solo de la guild if no guild remove all
+				//Remove pero solo de la guild if no guild removeUser all
 				getDao().remove(userId);
 			} else {
 				sendMessage(e, e.getAuthor().getName() + " , you are good to go!");

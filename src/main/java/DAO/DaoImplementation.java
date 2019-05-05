@@ -6,6 +6,8 @@ import org.apache.commons.collections4.map.MultiValueMap;
 
 import javax.management.InstanceNotFoundException;
 import javax.sql.DataSource;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -164,7 +166,7 @@ public class DaoImplementation {
 
 				connection.setAutoCommit(false);
 				/* Do work. */
-				dao.remove(connection, discordID);
+				dao.removeUser(connection, discordID);
 				/* Commit. */
 				connection.commit();
 
@@ -309,6 +311,36 @@ public class DaoImplementation {
 	public void upsertUrl(ArtistInfo artistInfo) {
 		try (Connection connection = dataSource.getConnection()) {
 			dao.upsertUrl(connection, artistInfo);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+
+	}
+
+	public void addLogo(long guildId, BufferedImage in) {
+		try (Connection connection = dataSource.getConnection()) {
+			dao.addLogo(connection, guildId, in);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+
+	}
+
+	public void removeLogo(long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			dao.removeLogo(connection, guildId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+
+	}
+
+	public InputStream findLogo(long guildId) throws InstanceNotFoundException {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.findLogo(connection, guildId);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 

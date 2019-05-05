@@ -24,7 +24,7 @@ public class NPMaker {
 	private static final String FIRST_LINE = "Who knows";
 	private static Color FONT_COLOR = Color.BLACK;
 
-	public static BufferedImage generateTasteImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, String discordName) {
+	public static BufferedImage generateTasteImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, String discordName, BufferedImage logo) {
 
 
 		BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
@@ -45,7 +45,7 @@ public class NPMaker {
 
 		try {
 			lastFmLogo = ImageIO.read(new File("C:\\Users\\Ishwi\\Documents\\discord\\bot\\src\\main\\resources\\logo2.png"));
-			guildLogo = ImageIO.read(new File("C:\\Users\\Ishwi\\Desktop\\logo.png"));
+			guildLogo = logo;//new File("C:\\Users\\Ishwi\\Desktop\\logo.png"));
 
 
 			java.net.URL url = new java.net.URL(urlString);
@@ -106,7 +106,8 @@ public class NPMaker {
 		g.setColor(colorB);
 
 		int rectWidth = X_MAX - X_MARGIN - (X_MARGIN + 320);
-		g.drawImage(guildLogo, X_MARGIN + 320 + rectWidth - guildLogo.getWidth(), y_counter - 16 - guildLogo.getHeight(), null);
+		if (guildLogo != null)
+			g.drawImage(guildLogo, X_MARGIN + 320 + rectWidth - guildLogo.getWidth(), y_counter - 16 - guildLogo.getHeight(), null);
 
 		g.fillRect(X_MARGIN + 320, y_counter, rectWidth, 320);
 
@@ -141,7 +142,7 @@ public class NPMaker {
 	}
 
 	private static Color getBetter(Color color) {
-		Double y = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
+		double y = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
 		return y < 128 ? Color.WHITE : Color.BLACK;
 
 	}
