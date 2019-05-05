@@ -61,11 +61,9 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 	@Override
 	public String[] parse(MessageReceivedEvent e) throws ParseException {
 
-		String message = e.getMessage().getContentRaw();
 
 		String[] submessage = getSubMessage(e.getMessage());
 		StringBuilder builder = new StringBuilder();
-		String username;
 		for (String s : submessage) {
 			builder.append(s).append(" ");
 		}

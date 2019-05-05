@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -30,8 +31,11 @@ public class DiscogsApi {
 
 	public DiscogsApi() {
 		Properties properties = new Properties();
-		try {
-			properties.load(DiscogsApi.class.getResourceAsStream("/" + "all.properties"));
+		try (InputStream in = DiscogsApi.class.getResourceAsStream("/" + "all.properties")) {
+			properties.load(in);
+			this.SECRET = properties.getProperty("DC_SC");
+			this.KEY = properties.getProperty("DC_KY");
+
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -39,8 +43,6 @@ public class DiscogsApi {
 		this.header = new Header();
 		this.header.setName("User-Agent");
 		this.header.setValue("discordArtistImageFetcher/ishwi6@gmail.com");
-		this.SECRET = properties.getProperty("DC_SC");
-		this.KEY = properties.getProperty("DC_KY");
 
 	}
 

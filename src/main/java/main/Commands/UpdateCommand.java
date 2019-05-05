@@ -5,7 +5,6 @@ import DAO.Entities.ArtistData;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -22,7 +21,6 @@ public class UpdateCommand extends MyCommandDbAccess {
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		String[] message;
 		MessageBuilder mes = new MessageBuilder();
-		EmbedBuilder embed = new EmbedBuilder();
 		try {
 			message = parse(e);
 		} catch (ParseException e1) {

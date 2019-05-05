@@ -174,7 +174,6 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 			/* Execute query. */
 			ResultSet resultSet = preparedStatement.executeQuery();
-			List<UsersWrapper> returnList = new ArrayList<>();
 			if (resultSet.next()) {
 
 				String name = resultSet.getString("a.lastFmId");

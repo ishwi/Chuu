@@ -28,7 +28,6 @@ public class AdministrativeCommand extends ConcurrentCommand {
 	}
 
 
-
 	@Override
 	public void threadableCode() {
 		String urlParsed;
@@ -44,11 +43,18 @@ public class AdministrativeCommand extends ConcurrentCommand {
 					break;
 				case "Permissions":
 					errorMessage(e, 5, ex.getMessage());
+					break;
+				default:
+					errorMessage(e, 100, ex.getMessage());
 			}
 			return;
 		}
 		try (InputStream in = new URL(urlParsed).openStream()) {
 			BufferedImage image = ImageIO.read(in);
+			if (image == null) {
+				errorMessage(e, 6, "Could get an Image from link supplied");
+				return;
+			}
 			if (image.getWidth() > 150 || image.getHeight() > 150) {
 				errorMessage(e, 4, "File should be smaller than 150x150!");
 				return;
@@ -163,6 +169,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 				break;
 			case 2:
 			case 4:
+			case 6:
 				message = cause;
 				break;
 			case 3:

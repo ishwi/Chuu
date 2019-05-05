@@ -57,8 +57,7 @@ public class Search {
 	public Search() {
 
 		Properties properties = new Properties();
-		try {
-			InputStream in = Search.class.getResourceAsStream("/" + PROPERTIES_FILENAME);
+		try (InputStream in = Search.class.getResourceAsStream("/" + PROPERTIES_FILENAME)) {
 			properties.load(in);
 			API_KEY = properties.getProperty("YT_API");
 

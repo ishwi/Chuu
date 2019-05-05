@@ -45,6 +45,8 @@ public class ChartCommand extends ConcurrentCommand {
 				case "Command":
 					errorMessage(e, 1, e1.getMessage());
 					break;
+				default:
+					errorMessage(e, 1000, e1.getMessage());
 			}
 			return;
 		}
@@ -79,7 +81,7 @@ public class ChartCommand extends ConcurrentCommand {
 
 		int size = x * y;
 		int minx = (int) Math.ceil((double) size / x);
-		int miny = (int) Math.ceil((double) size / y);
+		//int miny = (int) Math.ceil((double) size / y);
 
 		if (minx == 1)
 			x = size;
@@ -197,7 +199,6 @@ public class ChartCommand extends ConcurrentCommand {
 			message = Arrays.stream(message).filter(s -> !s.equals(opt2.get())).toArray(String[]::new);
 
 		}
-		Optional<String> thirdOptional = Arrays.stream(message).findFirst();
 
 		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
 

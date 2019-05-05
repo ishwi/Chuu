@@ -57,7 +57,6 @@ public class NPYoutubeCommand extends MyCommandDbAccess {
 		}
 		try {
 			NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);
-			StringBuilder a = new StringBuilder();
 			String uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
 
 			if (uri.equals("")) {

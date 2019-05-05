@@ -54,7 +54,6 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 		}
 		try {
 			NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);
-			StringBuilder a = new StringBuilder();
 			String uri = spotify.searchItems(nowPlayingArtist.getSongName(), nowPlayingArtist.getArtistName(), nowPlayingArtist.getAlbumName());
 
 			if (uri.equals("")) {
