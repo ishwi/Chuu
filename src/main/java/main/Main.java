@@ -82,8 +82,8 @@ class Main extends ListenerAdapter {
 		AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
 		builder.addEventListener(help.registerCommand(commandAdministrator));
 		builder.addEventListener(help.registerCommand(new NowPlayingCommand(dao)));
-		builder.addEventListener(help.registerCommand(new WhoKnowsCommand(dao)));
-		builder.addEventListener(help.registerCommand(new WhoKnowsNPCommand(dao)));
+		builder.addEventListener(help.registerCommand(new WhoKnowsCommand(dao, discogsApi)));
+		builder.addEventListener(help.registerCommand(new WhoKnowsNPCommand(dao, discogsApi)));
 		builder.addEventListener(help.registerCommand(new ChartCommand(dao)));
 		builder.addEventListener(help.registerCommand(new SetCommand(dao)));
 		builder.addEventListener(help.registerCommand(new AllPlayingCommand(dao)));
@@ -103,7 +103,7 @@ class Main extends ListenerAdapter {
 //		builder.addEventListener(help.registerCommand(new CrownsCommand(dao, waiter)));
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
-		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true), 0, 2, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, discogsApi), 0, 2, TimeUnit.MINUTES);
 		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 1, 10, TimeUnit.MINUTES);
 
 		try {

@@ -2,7 +2,6 @@ package main;
 
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
-import DAO.Entities.ArtistInfo;
 import DAO.Entities.UsersWrapper;
 import main.Exceptions.DiscogsServiceException;
 import main.Exceptions.LastFMNoPlaysException;
@@ -59,22 +58,24 @@ public class UpdaterThread implements Runnable {
 			if (isIncremental && chance <= 0.90f) {
 
 				TimestampWrapper<LinkedList<ArtistData>> artistDataLinkedList = lastFM.getWhole(usertoWork.getLastFMName(), usertoWork.getTimestamp());
-				CompletableFuture.runAsync(() -> {
+				if (discogsApi != null) {
+					CompletableFuture.runAsync(() -> {
 
-					for (ArtistData datum : artistDataLinkedList.getWrapped()) {
-						if (dao.getArtistUrl(datum.getUrl()) == null) {
-							try {
-								String newUrl = discogsApi.findArtistImage(datum.getArtist());
-								if (newUrl != null) {
-									System.out.println("Upserting buddy");
-									dao.upsertUrl(new ArtistInfo(newUrl, datum.getArtist()));
+						for (ArtistData datum : artistDataLinkedList.getWrapped()) {
+							if (dao.getArtistUrl(datum.getArtist()) == null) {
+								try {
+									String newUrl = discogsApi.findArtistImage(datum.getArtist());
+									if (newUrl != null) {
+										System.out.println("Upserting buddy");
+										datum.setUrl(newUrl);
+									}
+								} catch (DiscogsServiceException e) {
+									e.printStackTrace();
 								}
-							} catch (DiscogsServiceException e) {
-								e.printStackTrace();
 							}
 						}
-					}
-				});
+					});
+				}
 
 				dao.incrementalUpdate(artistDataLinkedList, usertoWork.getLastFMName());
 
