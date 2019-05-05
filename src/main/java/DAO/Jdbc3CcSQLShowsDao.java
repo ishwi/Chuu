@@ -62,6 +62,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 			InputStream is2 = new ByteArrayInputStream(baos.toByteArray());
 			preparedStatement.setBlob(i++, new BufferedInputStream(is));
 
+
 			preparedStatement.setBlob(i, is2);
 			preparedStatement.executeUpdate();
 

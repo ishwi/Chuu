@@ -127,7 +127,6 @@ class Main extends ListenerAdapter {
 			e.printStackTrace();
 		}
 		try {
-			StringBuilder sb = new StringBuilder();
 			assert br != null;
 			map.put("discordtoken", br.readLine());
 			map.put("clientId", br.readLine());

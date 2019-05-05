@@ -5,8 +5,7 @@ import DAO.Entities.ResultWrapper;
 import DAO.Entities.UserInfo;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
-import main.ImageRenderer.imageRenderer;
-import net.dv8tion.jda.core.EmbedBuilder;
+import main.ImageRenderer.ImageRenderer;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -48,7 +47,6 @@ public class TasteCommand extends ConcurrentCommand {
 
 	@Override
 	public String[] parse(MessageReceivedEvent e) throws ParseException {
-		MessageBuilder mes = new MessageBuilder();
 
 		String[] message = getSubMessage(e.getMessage());
 		if (message.length == 0)
@@ -136,7 +134,6 @@ public class TasteCommand extends ConcurrentCommand {
 	public void threadableCode() {
 		List<String> lastfMNames;
 		MessageBuilder messageBuilder = new MessageBuilder();
-		EmbedBuilder embedBuilder = new EmbedBuilder();
 		try {
 			lastfMNames = Arrays.asList((parse(e)));
 		} catch (ParseException ex) {
@@ -161,7 +158,7 @@ public class TasteCommand extends ConcurrentCommand {
 			users.add(resultWrapper.getResultList().get(0).getUserA());
 			users.add(resultWrapper.getResultList().get(0).getUserB());
 			java.util.List<UserInfo> userInfoLiust = lastFM.getUserInfo(users);
-			BufferedImage image = imageRenderer.generateTasteImage(resultWrapper, userInfoLiust);
+			BufferedImage image = ImageRenderer.generateTasteImage(resultWrapper, userInfoLiust);
 
 			ByteArrayOutputStream b = new ByteArrayOutputStream();
 			try {

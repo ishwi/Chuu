@@ -6,7 +6,6 @@ import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.UrlCapsuleConcurrentQueue;
 import main.Youtube.DiscogsApi;
-import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -25,7 +24,6 @@ public class ArtistCommand extends ChartCommand {
 	@Override
 	public void threadableCode() {
 		String[] returned;
-		MessageChannel cha = e.getChannel();
 		try {
 			returned = parse(e);
 		} catch (ParseException e1) {
@@ -36,6 +34,8 @@ public class ArtistCommand extends ChartCommand {
 				case "Command":
 					errorMessage(e, 1, e1.getMessage());
 					break;
+				default:
+					errorMessage(e, 1000, e1.getMessage());
 			}
 			return;
 		}
@@ -141,7 +141,6 @@ public class ArtistCommand extends ChartCommand {
 			message = Arrays.stream(message).filter(s -> !s.equals(opt2.get())).toArray(String[]::new);
 
 		}
-		Optional<String> thirdOptional = Arrays.stream(message).findFirst();
 
 		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
 

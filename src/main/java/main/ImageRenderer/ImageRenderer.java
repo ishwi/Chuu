@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class imageRenderer {
+public class ImageRenderer {
 	private static final String pathNoImage = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
 	private static final int PROFILE_IMAGE_SIZE = 100;
 	private static final int x_MAX = 600;
@@ -42,7 +42,7 @@ public class imageRenderer {
 				imageList.add(ImageIO.read(url));
 			} catch (IOException e) {
 				try {
-					imageList.add(ImageIO.read(new File(imageRenderer.pathNoImage)));
+					imageList.add(ImageIO.read(new File(ImageRenderer.pathNoImage)));
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -65,7 +65,7 @@ public class imageRenderer {
 		image1StartPosition = 20;
 		image2StartPosition = canvas.getWidth() - PROFILE_IMAGE_SIZE - 20;
 		g.setColor(Color.WHITE);
-		int rectangle_start_x = image1StartPosition + PROFILE_IMAGE_SIZE + 4;
+		//int rectangle_start_x = image1StartPosition + PROFILE_IMAGE_SIZE + 4;
 		int rectangle_start_y = y + PROFILE_IMAGE_SIZE - 20;
 		int rectangle_height = g.getFontMetrics().getHeight();
 		int rectangle_width = image2StartPosition - image1StartPosition - PROFILE_IMAGE_SIZE - 8;
