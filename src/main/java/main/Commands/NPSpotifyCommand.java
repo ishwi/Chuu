@@ -3,7 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import main.Exceptions.LastFMNoPlaysException;
-import main.Exceptions.LastFMServiceException;
+import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.Spotify;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -20,6 +20,7 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 	}
 
 	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:\n";
 		String message;
 		switch (code) {
 			case 0:
@@ -37,7 +38,7 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 			default:
 				message = "An unkown error happened while processing your request";
 		}
-		sendMessage(e, message);
+		sendMessage(e, base + message);
 	}
 
 	@Override
@@ -61,10 +62,11 @@ public class NPSpotifyCommand extends MyCommandDbAndSpotifyAccess {
 				return;
 			}
 			messageBuilder.setContent(uri).sendTo(e.getChannel()).queue();
-		} catch (LastFMServiceException ex) {
-			errorMessage(e, 2, ex.getMessage());
 		} catch (LastFMNoPlaysException e1) {
 			errorMessage(e, 3, e1.getMessage());
+
+		} catch (LastFmException ex) {
+			errorMessage(e, 2, ex.getMessage());
 		}
 
 	}

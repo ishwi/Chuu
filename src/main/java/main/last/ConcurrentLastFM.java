@@ -6,17 +6,18 @@ import DAO.Entities.UrlCapsule;
 import DAO.Entities.UserInfo;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
-import main.Exceptions.LastFmUserNotFoundException;
+import main.Exceptions.LastFmEntityNotFoundException;
+import main.Exceptions.LastFmException;
 import main.Youtube.DiscogsApi;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -53,14 +54,17 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
-	private void parseHttpCode(int code) throws HttpResponseException {
+	private void parseHttpCode(int code) throws LastFmException {
 		if (code / 100 == 2)
 			return;
-		throw new HttpResponseException(code, " Error Code: " + code);
+		if (code == 404)
+			throw new LastFmEntityNotFoundException("404");
+		if (code == 500)
+			throw new LastFMServiceException("500");
+
 	}
 
-
-	private JSONObject doMethod(HttpMethod method) throws LastFMServiceException {
+	private JSONObject doMethod(HttpMethod method) throws LastFmException {
 		try {
 
 			int response_code = client.executeMethod(method);
@@ -70,13 +74,12 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 		} catch (IOException e) {
 			method.releaseConnection();
-
-			throw new LastFMServiceException(e.getMessage());
+			throw new LastFMServiceException("PC");
 		}
 	}
 
 	//@Override
-	public NowPlayingArtist getNowPlayingInfo(String user) throws LastFMServiceException, LastFMNoPlaysException {
+	public NowPlayingArtist getNowPlayingInfo(String user) throws LastFmException {
 		String url = BASE + GET_NOW_PLAYINH + user + API_KEY + ending;
 		HttpMethodBase method = createMethod(url);
 
@@ -109,7 +112,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
-	public TimestampWrapper<LinkedList<ArtistData>> getWhole(String user, int timestampQuery) throws LastFMServiceException, LastFMNoPlaysException {
+	public TimestampWrapper<LinkedList<ArtistData>> getWhole(String user, int timestampQuery) throws LastFmException {
 		List<NowPlayingArtist> list = new ArrayList<>();
 		String url = BASE + GET_ALL + user + API_KEY + ending + "&extended=1";
 
@@ -176,7 +179,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	}
 
 	//@Override
-	public List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFMServiceException {
+	public List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFmException {
 		List<UserInfo> returnList = new ArrayList<>();
 
 
@@ -193,19 +196,12 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 		}
 
-
-		// Execute the method.
-
-
-		// Read the response body.
-
-
 		return returnList;
 
 	}
 
 	//@Override
-	public LinkedList<ArtistData> getLibrary(String User) throws LastFMServiceException, LastFMNoPlaysException {
+	public LinkedList<ArtistData> getLibrary(String User) throws LastFmException {
 		String url = BASE + GET_LIBRARY + User + API_KEY + ending;
 		int page = 1;
 		int pages = 1;
@@ -249,7 +245,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	}
 
 	public void getUserList(String userName, String weekly, int x, int y, boolean isAlbum, BlockingQueue<UrlCapsule> queue) throws
-			LastFMServiceException, LastFmUserNotFoundException {
+			LastFmException {
 
 		String apiMethod;
 		String leadingObject;
@@ -327,96 +323,73 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
-	public String getCorrection(String artistToCorrect) {
+	public String getCorrection(String artistToCorrect) throws LastFmException {
+		String url;
 		try {
-
-
-			String url = BASE + GET_CORRECTION + URLEncoder.encode(artistToCorrect, "UTF-8") + API_KEY + ending;
-			HttpMethodBase method = createMethod(url);
-			int statusCode = client.executeMethod(method);
-			if (statusCode != HttpStatus.SC_OK) {
-				System.err.println("Method failed: " + method.getStatusLine());
-				return artistToCorrect;
-			}
-			byte[] responseBody = method.getResponseBody();
-			JSONObject obj = new JSONObject(new String(responseBody));
-			obj = obj.getJSONObject("corrections");
-			JSONObject artistObj = obj.getJSONObject("correction").getJSONObject("artist");
-
-
-			return artistObj.getString("name");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return artistToCorrect;
-
+			url = BASE + GET_CORRECTION + URLEncoder.encode(artistToCorrect, "UTF-8") + API_KEY + ending;
+		} catch (UnsupportedEncodingException e) {
+			throw new LastFMServiceException("500");
 		}
+		HttpMethodBase method = createMethod(url);
+		JSONObject obj = doMethod(method);
+
+		if (!obj.has("corrections"))
+			return artistToCorrect;
+		obj = obj.getJSONObject("corrections");
+		JSONObject artistObj = obj.getJSONObject("correction").getJSONObject("artist");
+
+
+		return artistObj.getString("name");
+
 
 	}
 
 	public int getPlaysAlbum_Artist(String username, boolean isAlbum, String artist, String queriedString) throws
-			LastFmUserNotFoundException {
+			LastFmException {
 
 		int queryCounter = 0;
-
+		String url;
 		try {
-			String url = BASE + GET_TRACKS + username + URLEncoder.encode(artist, "UTF-8") + API_KEY + ending + "&size=500";
-			int page = 1;
-			while (true) {
+			url = BASE + GET_TRACKS + username + URLEncoder.encode(artist, "UTF-8") + API_KEY + ending + "&size=500";
+		} catch (UnsupportedEncodingException e) {
+			throw new LastFMServiceException("500");
+		}
+		int page = 1;
+		while (true) {
 
-				String urlPage = url + "&page=" + page;
-				++page;
+			String urlPage = url + "&page=" + page;
+			++page;
 
-				HttpMethodBase method = createMethod(urlPage);
+			HttpMethodBase method = createMethod(urlPage);
 
-				System.out.println(page + " :page             size: ");
+			System.out.println(page + " :page             size: ");
 
-
-				// Execute the method.
-				int statusCode = client.executeMethod(method);
-
-				if (statusCode != HttpStatus.SC_OK) {
-					if (statusCode == HttpStatus.SC_NOT_FOUND)
-						throw new LastFmUserNotFoundException(username);
-					throw new LastFMServiceException("Error in the service: " + method.getStatusLine());
-				}
-
-				// Read the response body.
-				byte[] responseBody = method.getResponseBody();
-				JSONObject obj = new JSONObject(new String(responseBody));
-				obj = obj.getJSONObject("artisttracks");
+			JSONObject obj = doMethod(method);
+			obj = obj.getJSONObject("artisttracks");
 
 
-				JSONArray arr = obj.getJSONArray("track");
-				int pageCounter = 0;
-				for (int i = 0; i < arr.length(); i++) {
-					JSONObject albumObj = arr.getJSONObject(i);
-					if (!albumObj.has("date"))
-						continue;
+			JSONArray arr = obj.getJSONArray("track");
+			int pageCounter = 0;
+			for (int i = 0; i < arr.length(); i++) {
+				JSONObject albumObj = arr.getJSONObject(i);
+				if (!albumObj.has("date"))
+					continue;
 
-					if (isAlbum) {
-						if (albumObj.getJSONObject("album").getString("#text").equalsIgnoreCase(queriedString))
-							++queryCounter;
-					} else if (albumObj.getString("name").equalsIgnoreCase(queriedString))
+				if (isAlbum) {
+					if (albumObj.getJSONObject("album").getString("#text").equalsIgnoreCase(queriedString))
 						++queryCounter;
+				} else if (albumObj.getString("name").equalsIgnoreCase(queriedString))
+					++queryCounter;
 
-					++pageCounter;
-				}
-				if (pageCounter != 50)
-					break;
-
-
+				++pageCounter;
 			}
-		} catch (HttpException e) {
-			System.err.println("Fatal protocol violation: " + e.getMessage());
-			e.printStackTrace();
+			if (pageCounter != 50)
+				break;
 
-		} catch (JSONException e) {
-			return 0;
-		} catch (LastFMServiceException | IOException e) {
-			e.printStackTrace();
 
 		}
+
+
 		return queryCounter;
 	}
 

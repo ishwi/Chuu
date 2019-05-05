@@ -27,12 +27,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 		super(dao);
 	}
 
-	@Override
-	public void onMessageReceived(MessageReceivedEvent e) {
-		if (!e.getMember().hasPermission(Permission.ADMINISTRATOR))
-			return;
-		super.onMessageReceived(e);
-	}
+
 
 	@Override
 	public void threadableCode() {
@@ -47,13 +42,15 @@ public class AdministrativeCommand extends ConcurrentCommand {
 				case "Url":
 					errorMessage(e, 1, ex.getMessage());
 					break;
+				case "Permissions":
+					errorMessage(e, 5, ex.getMessage());
 			}
 			return;
 		}
 		try (InputStream in = new URL(urlParsed).openStream()) {
 			BufferedImage image = ImageIO.read(in);
 			if (image.getWidth() > 150 || image.getHeight() > 150) {
-				errorMessage(e, 3, "File should be smaller than 150x150!");
+				errorMessage(e, 4, "File should be smaller than 150x150!");
 				return;
 			}
 			getDao().addLogo(e.getGuild().getIdLong(), image);
@@ -132,12 +129,15 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
 	@Override
 	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!logo [*url|embedded file?]" +
+		return Collections.singletonList("!logo url" +
 				"\n\t User need to have administration permisions\n\n");
 	}
 
 	@Override
 	public String[] parse(MessageReceivedEvent e) throws ParseException {
+		if (!e.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+			throw new ParseException("Permissions");
+		}
 		String[] subMessage = getSubMessage(e.getMessage());
 		if (subMessage.length != 1)
 			throw new ParseException("Command");
@@ -167,6 +167,9 @@ public class AdministrativeCommand extends ConcurrentCommand {
 				break;
 			case 3:
 				message = cause + " is not a real lastFM username";
+				break;
+			case 5:
+				message = "Insufficient permission to perform the command";
 				break;
 			default:
 				message = "Unknown Error happened";

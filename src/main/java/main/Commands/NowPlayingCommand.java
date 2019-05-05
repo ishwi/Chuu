@@ -3,7 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import main.Exceptions.LastFMNoPlaysException;
-import main.Exceptions.LastFMServiceException;
+import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -50,7 +50,7 @@ public class NowPlayingCommand extends ConcurrentCommand {
 
 	@Override
 	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:\n";
 		String message;
 		if (code == 0) {
 			userNotOnDB(e, code);
@@ -89,10 +89,12 @@ public class NowPlayingCommand extends ConcurrentCommand {
 
 		} catch (ParseException ex) {
 			errorMessage(e, 0, ex.getMessage());
-		} catch (LastFMServiceException ex) {
-			errorMessage(e, 1, ex.getMessage());
 		} catch (LastFMNoPlaysException e1) {
 			errorMessage(e, 2, e1.getMessage());
+
+		} catch (LastFmException ex) {
+			errorMessage(e, 1, ex.getMessage());
+
 		}
 	}
 }

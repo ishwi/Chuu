@@ -6,16 +6,14 @@ import DAO.Entities.ArtistInfo;
 import DAO.Entities.UsersWrapper;
 import main.Exceptions.DiscogsServiceException;
 import main.Exceptions.LastFMNoPlaysException;
-import main.Exceptions.LastFMServiceException;
+import main.Exceptions.LastFmException;
 import main.Youtube.DiscogsApi;
 import main.last.ConcurrentLastFM;
 import main.last.TimestampWrapper;
-import net.dv8tion.jda.core.MessageBuilder;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
-import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
@@ -83,8 +81,7 @@ public class UpdaterThread implements Runnable {
 
 				System.out.println("Updated Info Incremetally of " + usertoWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 				System.out.println(" Number of rows updated :" + artistDataLinkedList.getWrapped().size());
-				MessageBuilder a = new MessageBuilder();
-				Properties properties = new Properties();
+
 
 			} else {
 
@@ -93,18 +90,17 @@ public class UpdaterThread implements Runnable {
 
 				System.out.println("Updated Info Normally  of " + usertoWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 				System.out.println(" Number of rows updated :" + artistDataLinkedList.size());
-				MessageBuilder a = new MessageBuilder();
 			}
-		} catch (LastFMServiceException e) {
-			System.out.println("Error while updating" + usertoWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-
-			e.printStackTrace();
 		} catch (LastFMNoPlaysException e) {
 			dao.updateUserTimeStamp(usertoWork.getLastFMName());
 			System.out.println("No plays " + usertoWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 
+		} catch (LastFmException e) {
+			System.out.println("Error while updating" + usertoWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+
+			e.printStackTrace();
+
+
 		}
-
-
 	}
 }

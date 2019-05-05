@@ -3,7 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
 import main.Exceptions.LastFMNoPlaysException;
-import main.Exceptions.LastFMServiceException;
+import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -42,8 +42,11 @@ public class UpdateCommand extends MyCommandDbAccess {
 			mes.setContent("Sucessfully updated " + message[0] + " info !").sendTo(e.getChannel()).queue();
 
 
-		} catch (LastFMServiceException | LastFMNoPlaysException ex) {
-			errorMessage(e, 1, ex.getMessage());
+		} catch (LastFMNoPlaysException e1) {
+			errorMessage(e, 3, e1.getMessage());
+
+		} catch (LastFmException ex) {
+			errorMessage(e, 2, ex.getMessage());
 		}
 
 
@@ -79,7 +82,20 @@ public class UpdateCommand extends MyCommandDbAccess {
 
 	@Override
 	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-		userNotOnDB(e, code);
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:\n";
+		String message;
+		switch (code) {
+			case 2:
+				message = "There was a problem with Last FM Api" + cause;
+				break;
+			case 3:
+				message = "User hasnt played any song recently!";
+				break;
+			default:
+				userNotOnDB(e, code);
+				return;
 
+		}
+		sendMessage(e, base + message);
 	}
 }

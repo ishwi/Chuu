@@ -3,7 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import main.Exceptions.LastFMNoPlaysException;
-import main.Exceptions.LastFMServiceException;
+import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -60,10 +60,11 @@ public class WhoKnowsNPCommand extends WhoKnowsCommand {
 			nowPlayingArtist = lastFM.getNowPlayingInfo(username);
 
 
-		} catch (LastFMServiceException e1) {
-			throw new ParseException("LastFM");
 		} catch (LastFMNoPlaysException e1) {
 			throw new ParseException("NoPlays");
+
+		} catch (LastFmException e1) {
+			throw new ParseException("LastFM");
 		}
 		return new String[]{nowPlayingArtist.getArtistName(), Boolean.toString(flag)};
 
@@ -75,10 +76,10 @@ public class WhoKnowsNPCommand extends WhoKnowsCommand {
 		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
 
 		switch (code) {
-			case 0:
+			case 1:
 				message = "User was not found on the database, register first!";
 				break;
-			case 1:
+			case 0:
 				message = "There was a problem with Last FM Api" + cause;
 				break;
 			case 2:

@@ -2,8 +2,8 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.UrlCapsule;
-import main.Exceptions.LastFMServiceException;
-import main.Exceptions.LastFmUserNotFoundException;
+import main.Exceptions.LastFmEntityNotFoundException;
+import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.CollageMaker;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -65,10 +65,10 @@ public class ChartCommand extends ConcurrentCommand {
 			generateImage(queue, x, y);
 
 
-		} catch (LastFMServiceException ex2) {
-			errorMessage(e, 2, ex2.getMessage());
-		} catch (LastFmUserNotFoundException e1) {
+		} catch (LastFmEntityNotFoundException e1) {
 			errorMessage(e, 3, e1.getMessage());
+		} catch (LastFmException ex2) {
+			errorMessage(e, 2, ex2.getMessage());
 		}
 
 
@@ -218,7 +218,7 @@ public class ChartCommand extends ConcurrentCommand {
 				userNotOnDB(e, 0);
 				return;
 			case 2:
-				message = "There was a problem with Last FM Api" + cause;
+				message = "Internal Server Error, Try again later";
 				break;
 			case 3:
 				message = cause + " is not a real lastFM username";

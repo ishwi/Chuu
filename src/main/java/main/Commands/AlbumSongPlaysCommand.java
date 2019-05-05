@@ -1,7 +1,8 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import main.Exceptions.LastFmUserNotFoundException;
+import main.Exceptions.LastFmEntityNotFoundException;
+import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -28,8 +29,10 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 		try {
 			int a = lastFM.getPlaysAlbum_Artist(getDao().findShow(e.getAuthor().getIdLong()).getName(), true, parsed[0], parsed[1]);
 			sendMessage(e, "**" + e.getGuild().getMemberById(e.getAuthor().getIdLong()).getEffectiveName() + "** has listened " + a + " times the album **" + parsed[1] + "** by **" + parsed[0] + "**!");
-		} catch (LastFmUserNotFoundException | InstanceNotFoundException e1) {
-			e1.printStackTrace();
+		} catch (LastFmEntityNotFoundException | InstanceNotFoundException e1) {
+			errorMessage(e, 2, "");
+		} catch (LastFmException ex) {
+			errorMessage(e, 3, "");
 		}
 	}
 
@@ -79,6 +82,22 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 
 	@Override
 	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
+		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:\n";
+		String message;
 
+		switch (code) {
+
+			case 1:
+				message = "Please separete artist and album with a \"-\"";
+				break;
+			case 2:
+				message = "Artist not found!";
+				break;
+			default:
+				message = "Internal Server Error, Try again later";
+
+
+		}
+		sendMessage(e, base + message);
 	}
 }

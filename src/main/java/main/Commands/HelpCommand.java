@@ -53,6 +53,7 @@ public class HelpCommand extends MyCommand {
 						.build()).queue();
 			} else {
 				doSend(args, e.getChannel());
+				return;
 			}
 
 		}

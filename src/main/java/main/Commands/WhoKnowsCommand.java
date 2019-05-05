@@ -3,6 +3,8 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.WrapperReturnNowPlaying;
+import main.Exceptions.LastFmEntityNotFoundException;
+import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.NPMaker;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -33,7 +35,17 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		WrapperReturnNowPlaying wrapperReturnNowPlaying = this.getDao().whoKnows(who, e.getGuild().getIdLong());
 
 		if (wrapperReturnNowPlaying.getRows() == 0) {
-			String repeated = lastFM.getCorrection(who);
+			String repeated = null;
+			try {
+				repeated = lastFM.getCorrection(who);
+			} catch (LastFmEntityNotFoundException ex) {
+				messageBuilder.setContent("No nibba listens to " + who).sendTo(e.getChannel()).queue();
+				return;
+			} catch (LastFmException ex2) {
+				errorMessage(e, 100, "");
+				return;
+			}
+
 			wrapperReturnNowPlaying = this.getDao().whoKnows(repeated, e.getGuild().getIdLong());
 			//With db cache?? Extra
 			if (wrapperReturnNowPlaying.getRows() == 0) {
@@ -172,6 +184,6 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 			sendMessage(e, base + " You need to specify the Artist!");
 			return;
 		}
-		sendMessage(e, base + "Unknown Error");
+		sendMessage(e, base + "Internal Server Error, Try Again later ");
 	}
 }
