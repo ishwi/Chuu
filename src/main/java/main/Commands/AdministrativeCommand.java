@@ -29,7 +29,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
 	@Override
 	public void onMessageReceived(MessageReceivedEvent e) {
-		if (!e.getMember().hasPermission(Permission.ADMINISTRATOR) || !e.getMember().isOwner())
+		if (!e.getMember().hasPermission(Permission.ADMINISTRATOR))
 			return;
 		super.onMessageReceived(e);
 	}
