@@ -391,8 +391,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 	}
 
 	@Override
-	public void remove(Connection connection, Long showID) {
-
+	public void removeUser(Connection connection, Long discordID) {
 		/* Create "queryString". */
 		@Language("MySQL") String queryString = "DELETE FROM lastfm.lastfm WHERE" + " discordID = ?";
 
@@ -400,7 +399,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 			/* Fill "preparedStatement". */
 			int i = 1;
-			preparedStatement.setLong(i, showID);
+			preparedStatement.setLong(i, discordID);
 
 			/* Execute query. */
 			int removedRows = preparedStatement.executeUpdate();

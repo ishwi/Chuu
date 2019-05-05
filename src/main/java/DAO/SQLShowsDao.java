@@ -4,6 +4,8 @@ import DAO.Entities.*;
 import org.apache.commons.collections4.map.MultiValueMap;
 
 import javax.management.InstanceNotFoundException;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +21,7 @@ interface SQLShowsDao {
 
 	void update(Connection con, LastFMData show);
 
-	void remove(Connection con, Long showID);
+	void removeUser(Connection con, Long showID);
 
 	void addArtist(Connection con, ArtistData artistData);
 
@@ -50,4 +52,10 @@ interface SQLShowsDao {
 	String getArtistUrl(Connection connection, String artist);
 
 	Set<String> selectNullUrls(Connection connection);
+
+	void addLogo(Connection con, long guildID, BufferedImage image);
+
+	void removeLogo(Connection connection, long guildId);
+
+	InputStream findLogo(Connection connection, long guildID) throws InstanceNotFoundException;
 }

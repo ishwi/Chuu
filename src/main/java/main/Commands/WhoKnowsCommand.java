@@ -11,6 +11,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
+import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -76,8 +77,13 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 						element.setDiscordName(userName);
 
 					}).collect(Collectors.toList()));
-
-			BufferedImage image = NPMaker.generateTasteImage(wrapperReturnNowPlaying, e.getGuild().getName());
+			BufferedImage logo = null;
+			try {
+				logo = ImageIO.read(getDao().findLogo(e.getGuild().getIdLong()));
+			} catch (InstanceNotFoundException ignored) {
+				System.out.println(e.getGuild().getName() + "Guild has no logo");
+			}
+			BufferedImage image = NPMaker.generateTasteImage(wrapperReturnNowPlaying, e.getGuild().getName(), logo);
 			ByteArrayOutputStream b = new ByteArrayOutputStream();
 			assert image != null;
 			ImageIO.write(image, "png", b);

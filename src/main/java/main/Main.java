@@ -78,8 +78,9 @@ class Main extends ListenerAdapter {
 		//Dao get all users discord ID and if someone not already -> erase
 		// Add event listener for someone when he leaves -> erase
 
-
 		builder.addEventListener(help);
+		AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
+		builder.addEventListener(help.registerCommand(commandAdministrator));
 		builder.addEventListener(help.registerCommand(new NowPlayingCommand(dao)));
 		builder.addEventListener(help.registerCommand(new WhoKnowsCommand(dao)));
 		builder.addEventListener(help.registerCommand(new WhoKnowsNPCommand(dao)));
@@ -107,10 +108,7 @@ class Main extends ListenerAdapter {
 
 		try {
 			JDA jda = builder.build().awaitReady();
-			AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
-			jda.addEventListener(commandAdministrator);
 			commandAdministrator.onStartup(jda);
-
 
 
 		} catch (LoginException | InterruptedException e) {

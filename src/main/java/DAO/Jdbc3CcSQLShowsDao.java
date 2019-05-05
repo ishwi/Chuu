@@ -1,7 +1,12 @@
 package DAO;
 
 import DAO.Entities.*;
+import org.intellij.lang.annotations.Language;
 
+import javax.imageio.ImageIO;
+import javax.management.InstanceNotFoundException;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -37,6 +42,89 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public void addLogo(Connection con, long guildID, BufferedImage image) {
+		@Language("MySQL") String queryString = "INSERT INTO guild_logo(guildId, logo) VALUES (?,?)" +
+				" ON DUPLICATE KEY UPDATE logo = ?";
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setLong(i++, guildID);
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(image, "png", baos);
+			InputStream is = new ByteArrayInputStream(baos.toByteArray());
+			ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
+			ImageIO.write(image, "png", baos2);
+			InputStream is2 = new ByteArrayInputStream(baos.toByteArray());
+			preparedStatement.setBlob(i++, new BufferedInputStream(is));
+
+			preparedStatement.setBlob(i, is2);
+			preparedStatement.executeUpdate();
+
+
+		} catch (SQLException | IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public InputStream findLogo(Connection connection, long guildID) throws InstanceNotFoundException {
+
+		/* Create "queryString". */
+		String queryString = "SELECT logo FROM guild_logo WHERE guildId = ?";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setLong(i, guildID);
+
+
+			/* Execute query. */
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			if (!resultSet.next()) {
+				throw new InstanceNotFoundException("Not found ");
+			}
+
+			/* Get results. */
+			return resultSet.getBinaryStream("logo");
+
+			/* Return show. */
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	@Override
+	public void removeLogo(Connection connection, long guildId) {
+
+		/* Create "queryString". */
+		@Language("MySQL") String queryString = "DELETE FROM guild_logo WHERE" + " guildId = ?";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setLong(i, guildId);
+
+			/* Execute query. */
+			int removedRows = preparedStatement.executeUpdate();
+
+			if (removedRows == 0) {
+				System.err.println("No rows removed");
+			}
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 
 	@Override
