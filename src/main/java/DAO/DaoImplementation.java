@@ -47,7 +47,7 @@ public class DaoImplementation {
 				list.forEach(artistData -> {
 					artistData.setDiscordID(id);
 					dao.addArtist(connection, artistData);
-					//dao.addUrl(connection, artistData);
+					dao.addUrl(connection, artistData);
 				});
 				dao.setUpdatedTime(connection, id, null);
 

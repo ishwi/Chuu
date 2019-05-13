@@ -132,14 +132,14 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 	public void addUrl(Connection con, ArtistData artistData) {
 		/* Create "queryString". */
 		String queryString = "INSERT IGNORE INTO lastfm.artist_url"
-				+ " ( artist_id,url) " + " VALUES (?, ?)";
+				+ " ( artist_id,url) " + " VALUES (?, NULL)";
 
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
 			/* Fill "preparedStatement". */
 			int i = 1;
 			preparedStatement.setString(i++, artistData.getArtist());
-			preparedStatement.setString(i, artistData.getUrl());
+			//	preparedStatement.setString(i, artistData.getUrl());
 
 
 

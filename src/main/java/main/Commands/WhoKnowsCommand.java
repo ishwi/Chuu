@@ -48,6 +48,10 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 				errorMessage(e, 100, "");
 				return;
 			}
+			if (repeated.equals(who)) {
+				messageBuilder.setContent("No nibba listens to " + who).sendTo(e.getChannel()).queue();
+				return;
+			}
 
 			wrapperReturnNowPlaying = this.getDao().whoKnows(repeated, e.getGuild().getIdLong());
 			//With db cache?? Extra

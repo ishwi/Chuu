@@ -11,7 +11,6 @@ import main.Exceptions.LastFmException;
 import main.Youtube.DiscogsApi;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpClientParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,11 +41,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private DiscogsApi discogsApi;
 
 	public ConcurrentLastFM() {
-		this.client = new HttpClient();
-		HttpClientParams params = new HttpClientParams();
-		params.setSoTimeout(4000);
-		params.setContentCharset("UTF-8");
-		client.setParams(params);
+		this.client = ClientSingleton.getInstance();
 		this.header = new Header();
 		this.header.setName("User-Agent");
 		this.header.setValue("discordBot/ishwi6@gmail.com");
@@ -352,15 +347,13 @@ public class ConcurrentLastFM {//implements LastFMService {
 		}
 		HttpMethodBase method = createMethod(url);
 		JSONObject obj = doMethod(method);
-
-		if (!obj.has("corrections"))
+		try {
+			obj = obj.getJSONObject("corrections");
+			JSONObject artistObj = obj.getJSONObject("correction").getJSONObject("artist");
+			return artistObj.getString("name");
+		} catch (JSONException e) {
 			return artistToCorrect;
-		obj = obj.getJSONObject("corrections");
-		JSONObject artistObj = obj.getJSONObject("correction").getJSONObject("artist");
-
-
-		return artistObj.getString("name");
-
+		}
 
 	}
 

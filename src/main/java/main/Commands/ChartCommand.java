@@ -98,6 +98,11 @@ public class ChartCommand extends ConcurrentCommand {
 
 		byte[] img = b.toByteArray();
 		if (img.length < 8388608) {
+//			EmbedBuilder embed = new EmbedBuilder();
+//			embed.setImage("attachment://cat.png") // we specify this in sendFile as "cat.png"
+//					.setDescription("Most Listened Artists");
+//
+//			cha.sendFile(img, "cat.png").embed(embed.build()).queue();
 			cha.sendFile(img, "cat.png").queue();
 			return;
 		}
