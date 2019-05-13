@@ -6,9 +6,9 @@ import DAO.Entities.UserInfo;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.ImageRenderer;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
 import javax.management.InstanceNotFoundException;
@@ -131,7 +131,7 @@ public class TasteCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode() {
+	public void threadableCode(MessageReceivedEvent e) {
 		List<String> lastfMNames;
 		MessageBuilder messageBuilder = new MessageBuilder();
 		try {

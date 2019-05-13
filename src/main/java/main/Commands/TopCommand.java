@@ -5,9 +5,9 @@ import DAO.Entities.UrlCapsule;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,7 +70,7 @@ public class TopCommand extends ChartCommand {
 	}
 
 	@Override
-	public void threadableCode() {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] message;
 		MessageBuilder mes = new MessageBuilder();
 		EmbedBuilder embed = new EmbedBuilder();
@@ -87,7 +87,7 @@ public class TopCommand extends ChartCommand {
 		try {
 			BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(25);
 			lastFM.getUserList(message[0], "overall", 5, 5, isAlbum, queue);
-			generateImage(queue, 5, 5);
+			generateImage(queue, 5, 5, e);
 		} catch (LastFmEntityNotFoundException e1) {
 			errorMessage(e, 3, e1.getMessage());
 		} catch (LastFmException ex) {

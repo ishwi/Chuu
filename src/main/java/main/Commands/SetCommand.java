@@ -5,8 +5,8 @@ import DAO.Entities.LastFMData;
 import DAO.Entities.UsersWrapper;
 import main.Exceptions.ParseException;
 import main.UpdaterThread;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +19,7 @@ public class SetCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode() {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
 
 		try {
@@ -64,7 +64,7 @@ public class SetCommand extends ConcurrentCommand {
 
 		//Never registered before
 		getDao().updateUserLibrary(new LastFMData(lastFmID, userId, guildID));
-		mes.setContent("**" + e.getAuthor().getName() + "** has set his last FM name \n Updating his library on the background");
+		mes.setContent("**" + e.getAuthor().getName() + "** has set its last FM name \n Updating his library on the background");
 		mes.sendTo(e.getChannel()).queue();
 
 		new Thread(new UpdaterThread(getDao(), new UsersWrapper(userId, lastFmID), false)).run();

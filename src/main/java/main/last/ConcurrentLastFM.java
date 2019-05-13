@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 
 public class ConcurrentLastFM {//implements LastFMService {
-	private final String API_KEY = "&api_key=fdd31e327054d877dc77c85d3fd5cdf8";
+	private final String API_KEY = "&api_key=***REMOVED***";
 	private final String BASE = "http://ws.audioscrobbler.com/2.0/";
 	private final String GET_ALBUMS = "?method=user.gettopalbums&user=";
 	private final String GET_LIBRARY = "?method=library.getartists&user=";
@@ -38,14 +38,18 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private final String GET_TRACKS = "?method=user.getartisttracks&user=";
 	private final String GET_CORRECTION = "?method=artist.getcorrection&artist=";
 	private final HttpClient client;
+	private final Header header;
 	private DiscogsApi discogsApi;
 
 	public ConcurrentLastFM() {
-		this.client = new HttpClient(new MultiThreadedHttpConnectionManager());
+		this.client = new HttpClient();
 		HttpClientParams params = new HttpClientParams();
 		params.setSoTimeout(4000);
 		params.setContentCharset("UTF-8");
 		client.setParams(params);
+		this.header = new Header();
+		this.header.setName("User-Agent");
+		this.header.setValue("discordBot/ishwi6@gmail.com");
 	}
 
 	public ConcurrentLastFM(DiscogsApi discogsApi) {
@@ -65,6 +69,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	}
 
 	private JSONObject doMethod(HttpMethod method) throws LastFmException {
+		method.addRequestHeader(this.header);
 		try {
 
 			int response_code = client.executeMethod(method);
@@ -72,10 +77,22 @@ public class ConcurrentLastFM {//implements LastFMService {
 			byte[] responseBody = method.getResponseBody();
 			return new JSONObject(new String(responseBody));
 
+		} catch (HttpException e) {
+			System.out.println("HTTP");
+			e.printStackTrace();
+			throw new LastFMServiceException("HTTP");
 		} catch (IOException e) {
+			System.out.println("IO");
+			e.printStackTrace();
+			throw new LastFMServiceException("IO");
+
+
+		} finally {
+
 			method.releaseConnection();
-			throw new LastFMServiceException("PC");
 		}
+
+
 	}
 
 	//@Override
@@ -267,8 +284,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 		if (requestedSize > 150)
 			url += "&limit=500";
-
-		while (size < requestedSize) {
+		int limit = requestedSize;
+		while (size < requestedSize && size < limit) {
 
 			String urlPage = url + "&page=" + page;
 			HttpMethodBase method = createMethod(urlPage);
@@ -280,7 +297,10 @@ public class ConcurrentLastFM {//implements LastFMService {
 			// Execute the method.
 			JSONObject obj = doMethod(method);
 			obj = obj.getJSONObject(leadingObject);
-			int limit = obj.getJSONObject("@attr").getInt("total");
+//			if (page== 2)
+//				requestedSize = obj.getJSONObject("@attr").getInt("total");
+			limit = obj.getJSONObject("@attr").getInt("total");
+
 			if (limit == size)
 				break;
 			JSONArray arr = obj.getJSONArray(arrayObject);

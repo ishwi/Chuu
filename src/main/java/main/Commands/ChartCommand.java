@@ -6,8 +6,8 @@ import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.CollageMaker;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -33,7 +33,7 @@ public class ChartCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode() {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
 		try {
 			returned = parse(e);
@@ -64,7 +64,7 @@ public class ChartCommand extends ConcurrentCommand {
 		try {
 			BlockingQueue<UrlCapsule> queue = new LinkedBlockingDeque<>();
 			lastFM.getUserList(username, time, x, y, true, queue);
-			generateImage(queue, x, y);
+			generateImage(queue, x, y, e);
 
 
 		} catch (LastFmEntityNotFoundException e1) {
@@ -76,10 +76,10 @@ public class ChartCommand extends ConcurrentCommand {
 
 	}
 
-	public void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y) {
+	public void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e) {
 		MessageChannel cha = e.getChannel();
 
-		int size = x * y;
+		int size = queue.size();
 		int minx = (int) Math.ceil((double) size / x);
 		//int miny = (int) Math.ceil((double) size / y);
 
@@ -90,8 +90,8 @@ public class ChartCommand extends ConcurrentCommand {
 
 		try {
 			ImageIO.write(image, "png", b);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException ex) {
+			ex.printStackTrace();
 			cha.sendMessage("ish pc bad").queue();
 			return;
 		}

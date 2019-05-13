@@ -18,7 +18,7 @@ public class ThreadQueueGuild extends ThreadQueue {
 
 
 	@Override
-	public void drawNames(UrlCapsule encapsuler, int y, int x, Graphics2D grap) {
+	public void drawNames(UrlCapsule encapsuler, int y, int x, Graphics2D grap, int width) {
 
 
 		float[] rgb2 = new float[3];
@@ -49,12 +49,12 @@ public class ThreadQueueGuild extends ThreadQueue {
 
 		int albumWidth = grap.getFontMetrics().stringWidth(plays + " plays");
 
-		while (artistWidth > 300 && fontSize1-- > 16) {
+		while (artistWidth > width && fontSize1-- > 16) {
 			artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
 			grap.setFont(artistFont);
 			artistWidth = grap.getFontMetrics().stringWidth(artistName);
 		}
-		while (albumWidth > 300 && fontSize2-- > 16) {
+		while (albumWidth > width && fontSize2-- > 16) {
 			fontSize2--;
 			albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
 			grap.setFont(albumFont);

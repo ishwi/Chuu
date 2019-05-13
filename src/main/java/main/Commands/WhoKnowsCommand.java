@@ -8,10 +8,10 @@ import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.NPMaker;
 import main.Youtube.DiscogsApi;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
 import javax.management.InstanceNotFoundException;
@@ -32,7 +32,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		this.discogsApi = new DiscogsApi();
 	}
 
-	void whoKnowsLogic(String who, Boolean isImage) {
+	void whoKnowsLogic(String who, Boolean isImage, MessageReceivedEvent e) {
 		MessageBuilder messageBuilder = new MessageBuilder();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		WrapperReturnNowPlaying wrapperReturnNowPlaying = this.getDao().whoKnows(who, e.getGuild().getIdLong());
@@ -62,6 +62,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 			if (wrapperReturnNowPlaying.getUrl() == null || wrapperReturnNowPlaying.getUrl().isEmpty()) {
 				wrapperReturnNowPlaying.setUrl(CommandUtil.getDiscogsUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao()));
 			}
+
 			if (!isImage) {
 				StringBuilder builder = new StringBuilder();
 				int counter = 1;
@@ -82,7 +83,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 						setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
 						.setColor(CommandUtil.randomColor());
 				//.setFooter("Command invoked by " + event.getMember().getUser().getDiscriminator() + " · " + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toString(), );
-				messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+				messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).submit();
 				return;
 			}
 
@@ -120,11 +121,11 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode() {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
 		try {
 			returned = parse(e);
-			whoKnowsLogic(returned[0], Boolean.valueOf(returned[1]));
+			whoKnowsLogic(returned[0], Boolean.valueOf(returned[1]), e);
 		} catch (ParseException e1) {
 			errorMessage(e, 0, e1.getMessage());
 		}

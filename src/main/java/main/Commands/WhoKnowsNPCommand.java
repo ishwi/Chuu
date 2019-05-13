@@ -6,7 +6,7 @@ import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.Youtube.DiscogsApi;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -92,11 +92,11 @@ public class WhoKnowsNPCommand extends WhoKnowsCommand {
 	}
 
 	@Override
-	public void threadableCode() {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
 		try {
 			returned = parse(e);
-			whoKnowsLogic(returned[0], Boolean.valueOf(returned[1]));
+			whoKnowsLogic(returned[0], Boolean.valueOf(returned[1]), e);
 		} catch (ParseException e1) {
 			switch (e1.getMessage()) {
 				case "LastFM":

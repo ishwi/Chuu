@@ -4,7 +4,7 @@ import DAO.DaoImplementation;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
 import java.util.Collections;
@@ -18,7 +18,7 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode() {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] parsed;
 		try {
 			parsed = parse(e);

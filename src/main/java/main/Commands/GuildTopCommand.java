@@ -4,7 +4,7 @@ import DAO.DaoImplementation;
 import DAO.Entities.UrlCapsule;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.GuildMaker;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
 import javax.management.InstanceNotFoundException;
@@ -23,11 +23,10 @@ public class GuildTopCommand extends ConcurrentCommand {
 
 	public GuildTopCommand(DaoImplementation dao) {
 		super(dao);
-
 	}
 
 	@Override
-	public void threadableCode() {
+	public void threadableCode(MessageReceivedEvent e) {
 
 
 		List<UrlCapsule> resultWrapper = getDao().getGuildTop(e.getGuild().getIdLong());
@@ -36,8 +35,8 @@ public class GuildTopCommand extends ConcurrentCommand {
 
 		try {
 			ImageIO.write(image, "png", b);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
 
 		byte[] img = b.toByteArray();
