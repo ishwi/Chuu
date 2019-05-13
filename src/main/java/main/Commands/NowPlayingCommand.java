@@ -5,9 +5,9 @@ import DAO.Entities.NowPlayingArtist;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -67,7 +67,7 @@ public class NowPlayingCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode() {
+	public void threadableCode(MessageReceivedEvent e) {
 		try {
 			String username = parse(e)[0];
 			NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);

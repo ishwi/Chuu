@@ -3,6 +3,7 @@ package main.ImageRenderer;
 import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.WrapperReturnNowPlaying;
 import main.ImageRenderer.Stealing.GaussianFilter;
+import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -100,12 +101,26 @@ public class NPMaker {
 		y_counter += 16;
 
 
-		g.drawImage(backGroundimage, X_MARGIN, y_counter, X_MARGIN + 320, y_counter + 320, 0, 0, backGroundimage.getWidth(), backGroundimage.getHeight(), null);
 
+
+
+
+		int rectWidth = X_MAX - X_MARGIN - (X_MARGIN + 320);
+		g.setColor(colorB1.brighter());
+
+		g.fillRect(X_MARGIN, y_counter, rectWidth, 320);
 
 		g.setColor(colorB);
 
-		int rectWidth = X_MAX - X_MARGIN - (X_MARGIN + 320);
+		backGroundimage = Scalr.resize(backGroundimage, Scalr.Method.QUALITY, 320, Scalr.OP_ANTIALIAS);
+		int x_image_starter = X_MARGIN + (320 - backGroundimage.getWidth()) / 2;
+
+		int y_image_starter = y_counter + (320 - backGroundimage.getHeight()) / 2;
+
+
+		g.drawImage(backGroundimage, x_image_starter, y_image_starter, null);
+		//g.drawImage(backGroundimage, X_MARGIN, y_counter, X_MARGIN + 320, y_counter + 320, 0, 0, 320-backGroundimage.getWidth(), backGroundimage.getHeight(), null);
+
 		if (guildLogo != null)
 			g.drawImage(guildLogo, X_MARGIN + 320 + rectWidth - guildLogo.getWidth(), y_counter - 16 - guildLogo.getHeight(), null);
 

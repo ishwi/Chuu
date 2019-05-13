@@ -89,7 +89,7 @@ public class DaoImplementation {
 				list.getWrapped().forEach(artistData -> {
 					artistData.setDiscordID(id);
 					dao.upsertArtist(connection, artistData);
-					//dao.upsertUrl(connection, artistData);
+					dao.upsertUrl(connection, new ArtistInfo(artistData.getUrl(), artistData.getArtist()));
 				});
 				dao.setUpdatedTime(connection, id, list.getTimestamp());
 

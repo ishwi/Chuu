@@ -3,10 +3,10 @@ package main;
 import DAO.DaoImplementation;
 import main.Commands.*;
 import main.Youtube.DiscogsApi;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.AccountType;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.security.auth.login.LoginException;
 import java.io.*;
@@ -70,6 +70,7 @@ class Main extends ListenerAdapter {
 	private static void setupBot() {
 		Map<String, String> map = readToken();
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
+
 		DaoImplementation dao = new DaoImplementation();
 		Spotify spotifyWrapper = new Spotify(map.get("clientId"), map.get("clientSecret"));
 		DiscogsApi discogsApi = new DiscogsApi();
@@ -78,24 +79,24 @@ class Main extends ListenerAdapter {
 		//Dao get all users discord ID and if someone not already -> erase
 		// Add event listener for someone when he leaves -> erase
 
-		builder.addEventListener(help);
+		builder.addEventListeners(help);
 		AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
-		builder.addEventListener(help.registerCommand(commandAdministrator));
-		builder.addEventListener(help.registerCommand(new NowPlayingCommand(dao)));
-		builder.addEventListener(help.registerCommand(new WhoKnowsCommand(dao, discogsApi)));
-		builder.addEventListener(help.registerCommand(new WhoKnowsNPCommand(dao, discogsApi)));
-		builder.addEventListener(help.registerCommand(new ChartCommand(dao)));
-		builder.addEventListener(help.registerCommand(new SetCommand(dao)));
-		builder.addEventListener(help.registerCommand(new AllPlayingCommand(dao)));
-		builder.addEventListener(help.registerCommand(new TasteCommand(dao)));
-		builder.addEventListener(help.registerCommand(new TopCommand(dao)));
-		builder.addEventListener(help.registerCommand(new UpdateCommand(dao)));
-		builder.addEventListener(help.registerCommand(new NPSpotifyCommand(dao, spotifyWrapper)));
-		builder.addEventListener(help.registerCommand(new UniqueCommand(dao)));
-		builder.addEventListener(help.registerCommand(new NPYoutubeCommand(dao)));
-		builder.addEventListener(help.registerCommand(new ArtistCommand(dao)));
-		builder.addEventListener(help.registerCommand(new AlbumSongPlaysCommand(dao)));
-		builder.addEventListener(help.registerCommand(new GuildTopCommand(dao)));
+		builder.addEventListeners(help.registerCommand(commandAdministrator));
+		builder.addEventListeners(help.registerCommand(new NowPlayingCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new WhoKnowsCommand(dao, discogsApi)));
+		builder.addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao, discogsApi)));
+		builder.addEventListeners(help.registerCommand(new ChartCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new SetCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new AllPlayingCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new TasteCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new TopCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new UpdateCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao, spotifyWrapper)));
+		builder.addEventListeners(help.registerCommand(new UniqueCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new NPYoutubeCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new ArtistCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new AlbumSongPlaysCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new GuildTopCommand(dao)));
 
 
 //		EventWaiter waiter = new EventWaiter(Executors.newSingleThreadScheduledExecutor(), false);
@@ -104,7 +105,7 @@ class Main extends ListenerAdapter {
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
 		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, discogsApi), 0, 2, TimeUnit.MINUTES);
-		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 1, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 0, 10, TimeUnit.MINUTES);
 
 		try {
 			JDA jda = builder.build().awaitReady();

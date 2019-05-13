@@ -6,7 +6,7 @@ import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.UrlCapsuleConcurrentQueue;
 import main.Youtube.DiscogsApi;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,7 +22,7 @@ public class ArtistCommand extends ChartCommand {
 	}
 
 	@Override
-	public void threadableCode() {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
 		try {
 			returned = parse(e);
@@ -54,7 +54,7 @@ public class ArtistCommand extends ChartCommand {
 
 			UrlCapsuleConcurrentQueue queue = new UrlCapsuleConcurrentQueue(getDao(), new DiscogsApi());
 			lastFM.getUserList(username, time, x, y, false, queue);
-			generateImage(queue, x, y);
+			generateImage(queue, x, y, e);
 
 
 		} catch (LastFmEntityNotFoundException e1) {

@@ -23,6 +23,8 @@ public class CollageMaker {
 
 		AtomicInteger max = new AtomicInteger(queue.size());
 		ExecutorService es = Executors.newCachedThreadPool();
+		System.out.println((Thread.activeCount()));
+
 		for (int i = 0; i < 4; i++)
 			es.execute((new ThreadQueue(queue, g, x, y, max)));
 		es.shutdown();

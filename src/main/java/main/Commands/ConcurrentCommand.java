@@ -1,12 +1,14 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
-public abstract class ConcurrentCommand extends MyCommandDbAccess implements Runnable {
-	public MessageReceivedEvent e;
+public abstract class ConcurrentCommand extends MyCommandDbAccess {
 
 	public ConcurrentCommand(DaoImplementation dao) {
 		super(dao);
@@ -15,9 +17,9 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess implements Run
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		this.e = e;
-		Thread thread = new Thread(this);
-		thread.start();
+		final ExecutorService executor = Executors.newCachedThreadPool();
+
+		executor.submit(() -> run(e));
 	}
 
 	@Override
@@ -35,12 +37,12 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess implements Run
 		}
 	}
 
-	public abstract void threadableCode();
+	public abstract void threadableCode(MessageReceivedEvent e);
 
-	public void run() {
-		MessageReceivedEvent e = this.e;
+	public void run(MessageReceivedEvent e) {
+
 		long startTime = System.currentTimeMillis();
-		threadableCode();
+		threadableCode(e);
 		long endTime = System.currentTimeMillis();
 		long timeElapsed = endTime - startTime;
 		System.out.println("Execution time in milliseconds " + getName() + " : " + timeElapsed);

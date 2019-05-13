@@ -2,14 +2,16 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import main.Exceptions.ParseException;
-import net.dv8tion.jda.client.events.group.GroupUserLeaveEvent;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.map.MultiValueMap;
+import org.imgscalr.Scalr;
 
+import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -29,7 +31,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode() {
+	public void threadableCode(MessageReceivedEvent e) {
 		String urlParsed;
 		try {
 			urlParsed = parse(e)[0];
@@ -51,14 +53,12 @@ public class AdministrativeCommand extends ConcurrentCommand {
 		}
 		try (InputStream in = new URL(urlParsed).openStream()) {
 			BufferedImage image = ImageIO.read(in);
+			image = Scalr.resize(image, Scalr.Method.QUALITY, 75, Scalr.OP_ANTIALIAS);
 			if (image == null) {
 				errorMessage(e, 6, "Could get an Image from link supplied");
 				return;
 			}
-			if (image.getWidth() > 150 || image.getHeight() > 150) {
-				errorMessage(e, 4, "File should be smaller than 150x150!");
-				return;
-			}
+
 			getDao().addLogo(e.getGuild().getIdLong(), image);
 			sendMessage(e, "Logo Updated");
 			return;
@@ -71,7 +71,8 @@ public class AdministrativeCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onGroupUserLeave(GroupUserLeaveEvent event) {
+	public void onGuildMemberLeave(@Nonnull GuildMemberLeaveEvent event) {
+
 		System.out.println("USER LEAVED");
 		System.out.println("USER LEAVED");
 		System.out.println("USER LEAVED");
@@ -81,7 +82,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
 		Executors.newSingleThreadExecutor()
 				.execute(() ->
-						getDao().remove(event.getUser().getIdLong())
+						getDao().remove(event.getMember().getIdLong())
 				);
 	}
 
@@ -168,7 +169,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 				message = " Invalid URL ";
 				break;
 			case 2:
-			case 4:
+
 			case 6:
 				message = cause;
 				break;

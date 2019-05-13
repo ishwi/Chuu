@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.Random;
-import java.util.concurrent.CompletableFuture;
 
 public class UpdaterThread implements Runnable {
 
@@ -59,7 +58,7 @@ public class UpdaterThread implements Runnable {
 
 				TimestampWrapper<LinkedList<ArtistData>> artistDataLinkedList = lastFM.getWhole(usertoWork.getLastFMName(), usertoWork.getTimestamp());
 				if (discogsApi != null) {
-					CompletableFuture.runAsync(() -> {
+
 
 						for (ArtistData datum : artistDataLinkedList.getWrapped()) {
 							if (dao.getArtistUrl(datum.getArtist()) == null) {
@@ -74,8 +73,8 @@ public class UpdaterThread implements Runnable {
 								}
 							}
 						}
-					});
 				}
+
 
 				dao.incrementalUpdate(artistDataLinkedList, usertoWork.getLastFMName());
 

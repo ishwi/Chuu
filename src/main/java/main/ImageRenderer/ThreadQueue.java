@@ -58,11 +58,13 @@ class ThreadQueue implements Runnable {
 					url = new URL(encapsuler.getUrl());
 					image = ImageIO.read(url);
 					if (image.getHeight() != 300 || image.getWidth() != 300) {
-						image = Scalr.resize(image, Scalr.Method.QUALITY,
-								300, 300, Scalr.OP_ANTIALIAS);
+
+						image = Scalr.resize(image, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, 300,
+								300, Scalr.OP_ANTIALIAS);
 					}
 					drawImage(image, encapsuler);
 					g.drawImage(image, x * 300, y * 300, null);
+
 					//g.drawImage(image, x * 300, y * 300, x * 300 + 300, y * 300 + 300, 0, 0, image.getWidth(), image.getHeight(), null);
 
 
@@ -77,7 +79,7 @@ class ThreadQueue implements Runnable {
 					g.fillRect(x * 300, y * 300, 300, 300);
 					g.setColor(Color.BLACK);
 
-					drawNames(encapsuler, y, x, g);
+					drawNames(encapsuler, y, x, g, 300);
 					g.setColor(temp);
 					e.printStackTrace();
 				}
@@ -97,11 +99,11 @@ class ThreadQueue implements Runnable {
 		Graphics2D gtemp = image.createGraphics();
 		GraphicUtils.setQuality(gtemp);
 		gtemp.setColor(getBetter(mycolor));
-		drawNames(encapsuler, 0, 0, gtemp);
+		drawNames(encapsuler, 0, 0, gtemp, image.getWidth());
 		gtemp.dispose();
 	}
 
-	public void drawNames(UrlCapsule encapsuler, int y, int x, Graphics2D grap) {
+	public void drawNames(UrlCapsule encapsuler, int y, int x, Graphics2D grap, int imageWidht) {
 		String artistName = encapsuler.getArtistName();
 		String albumName = encapsuler.getAlbumName();
 		Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
@@ -114,7 +116,7 @@ class ThreadQueue implements Runnable {
 
 		int albumWidth = grap.getFontMetrics().stringWidth(albumName);
 
-		while (artistWidth > 300 && fontSize1-- > 14) {
+		while (artistWidth > imageWidht && fontSize1-- > 14) {
 			artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
 			grap.setFont(artistFont);
 			artistWidth = grap.getFontMetrics().stringWidth(artistName);
@@ -125,7 +127,7 @@ class ThreadQueue implements Runnable {
 		grap.drawString(encapsuler.getArtistName(), x * 300, y * 300 + accu);
 
 
-		while (albumWidth > 300 && fontSize2-- > 14) {
+		while (albumWidth > imageWidht && fontSize2-- > 14) {
 			fontSize2--;
 			albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
 			grap.setFont(albumFont);
