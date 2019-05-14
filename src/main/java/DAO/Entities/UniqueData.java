@@ -20,11 +20,11 @@ public class UniqueData {
 	@Override
 	public String toString() {
 		StringBuilder a = new StringBuilder();
-		a.append(". **[")
+		a.append(". [")
 				.append(getArtistName())
 				.append("](https://www.last.fm/music/")
 				.append(getArtistName().replaceAll(" ", "+"))
-				.append(")** - ").append(getCount())
+				.append(") - ").append(getCount())
 				.append(" plays\n");
 		return a.toString();
 	}

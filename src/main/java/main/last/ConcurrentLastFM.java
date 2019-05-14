@@ -246,7 +246,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 					JSONObject bigImage = image.getJSONObject(image.length() - 1);
 
-					linkedlist.add(new ArtistData(mbid, count, bigImage.getString("#text")));
+					linkedlist.add(new ArtistData(mbid, count, null));
 				}
 			} catch (JSONException e) {
 				throw new LastFMNoPlaysException(e.getMessage());
@@ -328,7 +328,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		String artistName = artistObj.getString("name");
 		JSONArray image = artistObj.getJSONArray("image");
 		JSONObject bigImage = image.getJSONObject(image.length() - 1);
-		return new UrlCapsule(bigImage.getString("#text"), size, "", artistName);
+		return new UrlCapsule(null, size, "", artistName);
 	}
 
 	private HttpMethodBase createMethod(String url) {

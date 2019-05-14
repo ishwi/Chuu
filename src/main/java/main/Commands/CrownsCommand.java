@@ -2,6 +2,7 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.UniqueData;
+import DAO.Entities.UniqueWrapper;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import main.Exceptions.ParseException;
 import main.Youtube.Reactionario;
@@ -34,8 +35,8 @@ public class CrownsCommand extends ConcurrentCommand {
 		MessageBuilder mes = new MessageBuilder();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		StringBuilder a = new StringBuilder();
-		List<UniqueData> resultWrapper = getDao().getCrowns(message[0], e.getGuild().getIdLong());
-
+		UniqueWrapper<UniqueData> uniqueDataUniqueWrapper = getDao().getCrowns(message[0], e.getGuild().getIdLong());
+		List<UniqueData> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 		if (resultWrapper.isEmpty()) {
 			sendMessage(e, "You are a puny mortal without crowns");
 			return;
@@ -47,9 +48,8 @@ public class CrownsCommand extends ConcurrentCommand {
 
 		embedBuilder.setDescription(a);
 		embedBuilder.setColor(CommandUtil.randomColor());
-		long who = getDao().getDiscordIdFromLastfm(message[0], e.getGuild().getIdLong());
-		Member whoD = e.getGuild().getMemberById(who);
-		String name = whoD == null ? message[0] : whoD.getNickname();
+		Member whoD = e.getGuild().getMemberById(uniqueDataUniqueWrapper.getDiscordId());
+		String name = whoD == null ? message[0] : whoD.getEffectiveName();
 		embedBuilder.setTitle(name + "'s crowns");
 		embedBuilder.setFooter(name + " has " + resultWrapper.size() + " crowns!!\n", null);
 		if (whoD != null)

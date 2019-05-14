@@ -37,11 +37,14 @@ import java.util.List;
  */
 public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 	@Override
-	public List<UniqueData> getCrowns(Connection connection, String lastFmId, long guildID) {
+	public UniqueWrapper<UniqueData> getCrowns(Connection connection, String lastFmId, long guildID) {
 		List<UniqueData> returnList = new ArrayList<>();
-		String queryString = "SELECT artist_id, playNumber as orden" +
+		long discordID;
+
+		@Language("MySQL") String queryString = "SELECT artist_id, b.discordID , playNumber as orden" +
 				" FROM  artist  a" +
-				" where  lastFMID=?" +
+				" join lastfm b on a.lastFMID = b.lastFmId" +
+				" where  a.lastFMID = ?" +
 				" and playNumber > 0" +
 				" AND  playNumber >= all" +
 				"       (Select max(b.playNumber) " +
@@ -59,21 +62,35 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 				" where b.artist_id = a.artist_id" +
 				" group by artist_id)" +
 				" order by orden DESC";
+
+
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			int i = 1;
 			preparedStatement.setString(i++, lastFmId);
-			preparedStatement.setLong(i, guildID);
+			preparedStatement.setLong(i++, guildID);
 
 			ResultSet resultSet = preparedStatement.executeQuery();
+			int j = 0;
+
+			if (!resultSet.next()) {
+				return new UniqueWrapper<>(0, 0, lastFmId, returnList);
+
+			} else {
+				discordID = resultSet.getLong("b.discordID");
+				resultSet.beforeFirst();
+			}
+
 			while (resultSet.next()) {
+
 				String artist = resultSet.getString("artist_id");
 				int plays = resultSet.getInt("orden");
 				returnList.add(new UniqueData(artist, plays));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
-		return returnList;
+		return new UniqueWrapper<>(returnList.size(), discordID, lastFmId, returnList);
 	}
 
 	@Override

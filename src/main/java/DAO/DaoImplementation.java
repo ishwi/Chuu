@@ -283,7 +283,7 @@ public class DaoImplementation {
 		}
 	}
 
-	public List<UniqueData> getCrowns(String lastFmID, long guildID) {
+	public UniqueWrapper<UniqueData> getCrowns(String lastFmID, long guildID) {
 		try (Connection connection = dataSource.getConnection()) {
 			return dao.getCrowns(connection, lastFmID, guildID);
 		} catch (SQLException e) {

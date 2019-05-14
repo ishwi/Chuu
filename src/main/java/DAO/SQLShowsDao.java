@@ -41,7 +41,7 @@ interface SQLShowsDao {
 
 	void setUpdatedTime(Connection connection, String id, Integer timestamp);
 
-	List<UniqueData> getCrowns(Connection connection, String lastFmId, long guildID);
+	UniqueWrapper<UniqueData> getCrowns(Connection connection, String lastFmId, long guildID);
 
 	List<UrlCapsule> getGuildTop(Connection connection, Long guildID);
 

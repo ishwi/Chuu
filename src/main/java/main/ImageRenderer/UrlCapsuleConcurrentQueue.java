@@ -31,6 +31,7 @@ public class UrlCapsuleConcurrentQueue extends LinkedBlockingQueue<UrlCapsule> {
 
 	public boolean offer(@NotNull UrlCapsule name) {
 		CompletableFuture<UrlCapsule> future = CompletableFuture.supplyAsync(() -> {
+			name.setUrl(null);
 			String url = dao.getArtistUrl(name.getArtistName());
 			if (url == null) {
 				try {

@@ -35,14 +35,19 @@ public class Reactionario<T> extends ListenerAdapter {
 	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
 
 		System.out.println("ASDHASIUDHAISUDHUIA");
+
 		if (event.getUser().isBot() || event.getMessageIdLong() != message.getIdLong())
 			return;
 		int start;
-		switch (event.getReactionEmote().getEmoji()) {
-			case "⬅":
+		System.out.println(event.getReactionEmote().getEmoji());
+		System.out.println(event.getReactionEmote().getAsCodepoints());
+
+
+		switch (event.getReaction().getReactionEmote().getAsCodepoints()) {
+			case "U+2b05":
 				start = max(0, counter - pageSize);
 				break;
-			case "➡":
+			case "U+27a1":
 				start = min(list.size() - (list.size() % pageSize), counter + pageSize);
 				break;
 			default:
