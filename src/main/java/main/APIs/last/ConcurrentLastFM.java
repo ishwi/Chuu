@@ -151,9 +151,9 @@ public class ConcurrentLastFM {//implements LastFMService {
 				for (int i = 0; i < arr.length(); i++) {
 					JSONObject tracltObj = arr.getJSONObject(i);
 					JSONObject artistObj = tracltObj.getJSONObject("artist");
-					JSONArray images = artistObj.getJSONArray("image");
+					//JSONArray images = artistObj.getJSONArray("image");
 					//String image_url = images.getJSONObject(images.length() - 1).getString("#text");
-					String image_url = tracltObj.getJSONArray("image").getJSONObject(images.length() - 1).getString("#text");
+					//String image_url = tracltObj.getJSONArray("image").getJSONObject(images.length() - 1).getString("#text");
 
 					String artistname = artistObj.getString("name");
 
@@ -164,7 +164,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 						catched = true;
 					}
 					count++;
-					list.add(new NowPlayingArtist(artistname, "", false, albumName, songName, image_url));
+					list.add(new NowPlayingArtist(artistname, "", false, albumName, songName, null));
 				}
 
 
@@ -240,9 +240,9 @@ public class ConcurrentLastFM {//implements LastFMService {
 					String mbid = artistObj.getString("name");
 
 					int count = artistObj.getInt("playcount");
-					JSONArray image = artistObj.getJSONArray("image");
-
-					JSONObject bigImage = image.getJSONObject(image.length() - 1);
+//					JSONArray image = artistObj.getJSONArray("image");
+//
+//					JSONObject bigImage = image.getJSONObject(image.length() - 1);
 
 					linkedlist.add(new ArtistData(mbid, count, null));
 				}
@@ -324,8 +324,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	private UrlCapsule parseArtist(JSONObject artistObj, int size) {
 		String artistName = artistObj.getString("name");
-		JSONArray image = artistObj.getJSONArray("image");
-		JSONObject bigImage = image.getJSONObject(image.length() - 1);
+//		JSONArray image = artistObj.getJSONArray("image");
+//		JSONObject bigImage = image.getJSONObject(image.length() - 1);
 		return new UrlCapsule(null, size, "", artistName);
 	}
 

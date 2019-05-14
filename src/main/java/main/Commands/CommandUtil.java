@@ -18,6 +18,7 @@ public class CommandUtil {
 				dao.upsertUrl(new ArtistInfo(newUrl, artist));
 			}
 		} catch (DiscogsServiceException ignored) {
+
 		}
 		return newUrl;
 	}

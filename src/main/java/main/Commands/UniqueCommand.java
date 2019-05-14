@@ -46,7 +46,7 @@ public class UniqueCommand extends MyCommandDbAccess {
 		StringBuilder a = new StringBuilder();
 
 
-		int rows = resultWrapper.getRows();
+		int rows = resultWrapper.getUniqueData().size();
 
 		if (rows == 0) {
 			sendMessage(e, "You have no Unique Artists :(");
@@ -54,7 +54,7 @@ public class UniqueCommand extends MyCommandDbAccess {
 		}
 		String lastFMID = resultWrapper.getLastFmId();
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 10 && i < rows; i++) {
 			UniqueData g = resultWrapper.getUniqueData().get(i);
 			a.append(i + 1).append(g.toString());
 		}
@@ -63,6 +63,8 @@ public class UniqueCommand extends MyCommandDbAccess {
 		embedBuilder.setDescription(a).setTitle(member.getEffectiveName() + "'s Top 10 unique Artists", "https://www.last.fm/user/" + lastFMID)
 				.setThumbnail(member.getUser().getAvatarUrl()).setFooter(member.getEffectiveName() + " has " + rows + " unique artists!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(quee -> {
+			if (rows < 10)
+				return;
 			quee.addReaction("U+2B05").submit();
 			quee.addReaction("U+27A1").submit();
 			ListenerAdapter adapter = new Reactionario<>(resultWrapper.getUniqueData(), quee, embedBuilder);

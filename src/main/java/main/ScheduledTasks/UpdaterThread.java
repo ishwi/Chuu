@@ -61,20 +61,22 @@ public class UpdaterThread implements Runnable {
 
 
 						for (ArtistData datum : artistDataLinkedList.getWrapped()) {
-							if (dao.getArtistUrl(datum.getArtist()) == null) {
+							String prevUrl = dao.getArtistUrl(datum.getArtist());
+							if (prevUrl == null) {
 								try {
 									String newUrl = discogsApi.findArtistImage(datum.getArtist());
 									if (newUrl != null) {
 										System.out.println("Upserting buddy");
-										datum.setUrl(newUrl);
 									}
+									datum.setUrl(newUrl);
 								} catch (DiscogsServiceException e) {
 									e.printStackTrace();
 								}
+							} else {
+								datum.setUrl(prevUrl);
 							}
 						}
 				}
-
 
 				dao.incrementalUpdate(artistDataLinkedList, usertoWork.getLastFMName());
 
