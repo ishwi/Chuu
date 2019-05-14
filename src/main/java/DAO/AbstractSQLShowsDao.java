@@ -148,7 +148,7 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 
 			int j = 0;
-			while (resultSet.next() && (j < 10 && j < rows)) {
+			while (resultSet.next()) { //&& (j < 10 && j < rows)) {
 				j++;
 				String name = resultSet.getString("temp.artist_id");
 				int count_a = resultSet.getInt("temp.playNumber");
@@ -408,6 +408,40 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 			}
 
 		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	@Override
+	public long getDiscordIdFromLastfm(Connection connection, String lastFmName, long guildId) {
+		@Language("MySQL") String queryString = "Select a.discordID " +
+				"from  lastfm.lastfm a" +
+				" join lastfm.user_guild  b " +
+				"on a.discordID = b.discordId " +
+				" where " + " a.lastFmId = ? and b.guildId = ? ";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i++, lastFmName);
+			preparedStatement.setLong(i, guildId);
+
+			/* Execute query. */
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			if (!resultSet.next()) {
+				throw new InstanceNotFoundException("Not found ");
+			}
+
+			/* Get results. */
+
+			/* Return show. */
+
+			return resultSet.getLong(1);
+
+		} catch (SQLException | InstanceNotFoundException e) {
 			throw new RuntimeException(e);
 		}
 

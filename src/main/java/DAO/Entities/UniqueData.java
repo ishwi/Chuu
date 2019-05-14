@@ -16,4 +16,16 @@ public class UniqueData {
 	public int getCount() {
 		return count;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder a = new StringBuilder();
+		a.append(". **[")
+				.append(getArtistName())
+				.append("](https://www.last.fm/music/")
+				.append(getArtistName().replaceAll(" ", "+"))
+				.append(")** - ").append(getCount())
+				.append(" plays\n");
+		return a.toString();
+	}
 }
