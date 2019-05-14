@@ -30,7 +30,8 @@ public class CommandUtil {
 		return CompletableFuture.supplyAsync(() -> getDiscogsUrl(discogsApi, artist, dao));
 	}
 
-	static Color randomColor() {
+
+	public static Color randomColor() {
 		Random rand = new Random();
 		double r = rand.nextFloat() / 2f + 0.5;
 		double g = rand.nextFloat() / 2f + 0.5;

@@ -101,7 +101,7 @@ class Main extends ListenerAdapter {
 
 //		EventWaiter waiter = new EventWaiter(Executors.newSingleThreadScheduledExecutor(), false);
 //		builder.addEventListener(waiter);
-//		builder.addEventListener(help.registerCommand(new CrownsCommand(dao, waiter)));
+		builder.addEventListeners(help.registerCommand(new CrownsCommand(dao)));
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
 		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, discogsApi), 0, 2, TimeUnit.MINUTES);

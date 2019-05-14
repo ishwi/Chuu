@@ -4,10 +4,12 @@ import DAO.DaoImplementation;
 import DAO.Entities.UniqueData;
 import DAO.Entities.UniqueWrapper;
 import main.Exceptions.ParseException;
+import main.Youtube.Reactionario;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.management.InstanceNotFoundException;
 import java.util.Collections;
@@ -51,25 +53,28 @@ public class UniqueCommand extends MyCommandDbAccess {
 			return;
 		}
 		String lastFMID = resultWrapper.getLastFmId();
-		int count = 0;
 
-		for (UniqueData uniqueData : resultWrapper.getUniqueData()) {
-			String artistName = uniqueData.getArtistName();
-			int playCount = uniqueData.getCount();
-			a.append(++count)
-					.append(". ")
-					.append("[").append(artistName).append("]")
-					.append("(https://www.last.fm/user/").append(lastFMID)
-					.append("/library/music/").append(artistName.replaceAll(" ", "+")).append(") - ")
-					.append(playCount)
-					.append(" plays\n");
-
+		for (int i = 0; i < 10; i++) {
+			UniqueData g = resultWrapper.getUniqueData().get(i);
+			a.append(i + 1).append(g.toString());
 		}
 		Member member = e.getGuild().getMemberById(resultWrapper.getDiscordId());
 
 		embedBuilder.setDescription(a).setTitle(member.getEffectiveName() + "'s Top 10 unique Artists", "https://www.last.fm/user/" + lastFMID)
 				.setThumbnail(member.getUser().getAvatarUrl()).setFooter(member.getEffectiveName() + " has " + rows + " unique artists!\n", null);
-		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(quee -> {
+			quee.addReaction("U+2B05").submit();
+			quee.addReaction("U+27A1").submit();
+			ListenerAdapter adapter = new Reactionario<>(resultWrapper.getUniqueData(), quee, embedBuilder);
+			e.getJDA().addEventListener(adapter);
+			try {
+				Thread.sleep(40000);
+			} catch (InterruptedException ex) {
+				ex.printStackTrace();
+			}
+			e.getJDA().removeEventListener(adapter);
+			quee.clearReactions().queue();
+		});
 		return;
 
 	}

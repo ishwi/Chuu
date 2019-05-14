@@ -357,4 +357,13 @@ public class DaoImplementation {
 		}
 	}
 
+	public long getDiscordIdFromLastfm(String lasFmName, long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.getDiscordIdFromLastfm(connection, lasFmName, guildId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+	}
+
 }

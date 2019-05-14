@@ -58,4 +58,6 @@ interface SQLShowsDao {
 	void removeLogo(Connection connection, long guildId);
 
 	InputStream findLogo(Connection connection, long guildID) throws InstanceNotFoundException;
+
+	long getDiscordIdFromLastfm(Connection connection, String lastFmName, long guildId);
 }

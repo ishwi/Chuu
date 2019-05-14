@@ -1,9 +1,15 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import DAO.Entities.UniqueData;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import main.Exceptions.ParseException;
+import main.Youtube.Reactionario;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,50 +17,59 @@ import java.util.List;
 public class CrownsCommand extends ConcurrentCommand {
 	private EventWaiter wait;
 
-	public CrownsCommand(DaoImplementation dao, EventWaiter wait) {
+	public CrownsCommand(DaoImplementation dao) {
 		super(dao);
-		this.wait = wait;
-
 	}
 
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
-//		String[] message;
-//		try {
-//			message = parse(e);
-//		} catch (ParseException e1) {
-//			errorMessage(e, 0, e1.getMessage());
-//			return;
-//		}
-//		Paginator.Builder pbuilder = new Paginator.Builder().setColumns(1)
-//				.setItemsPerPage(10)
-//				.showPageNumbers(true)
-//				.setUsers(e.getGuild().getMembers().stream().map(Member::getUser).toArray(User[]::new))
-//				.waitOnSinglePage(false)
-//				.useNumberedItems(true)
-//				.setRoles(e.getGuild().getPublicRole())
-//				.setFinalAction(m -> {
-//					try {
-//						m.clearReactions().queue();
-//					} catch (PermissionException ex) {
-//						ex.printStackTrace();
-//					}
-//				})
-//				.setEventWaiter(this.wait)
-//				.setTimeout(2, TimeUnit.MINUTES);
-//
-//		pbuilder.clearItems();
-//		List<UniqueData> resultWrapper = getDao().getCrowns(message[0], e.getGuild().getIdLong());
-//
-//		resultWrapper.stream().map(g -> "**[" + g.getArtistName() + "](https://www.last.fm/music/" + g.getArtistName().replaceAll(" ", "+") +
-//				")** - " + g.getCount() + " plays")
-//				.forEach(pbuilder::addItems);
-//		Paginator p = pbuilder.setColor(CommandUtil.randomColor())
-//				.setText("**" + message[0] + " ** has " + resultWrapper.size() + " crowns")
-//				.setUsers(e.getAuthor())
-//				.build();
-//		p.display(e.getChannel());
-//		return;
+		String[] message;
+		try {
+			message = parse(e);
+		} catch (ParseException e1) {
+			errorMessage(e, 0, e1.getMessage());
+			return;
+		}
+
+		MessageBuilder mes = new MessageBuilder();
+		EmbedBuilder embedBuilder = new EmbedBuilder();
+		StringBuilder a = new StringBuilder();
+		List<UniqueData> resultWrapper = getDao().getCrowns(message[0], e.getGuild().getIdLong());
+
+		if (resultWrapper.isEmpty()) {
+			sendMessage(e, "You are a puny mortal without crowns");
+			return;
+		}
+		for (int i = 0; i < 10; i++) {
+			UniqueData g = resultWrapper.get(i);
+			a.append(i + 1).append(g.toString());
+		}
+
+		embedBuilder.setDescription(a);
+		embedBuilder.setColor(CommandUtil.randomColor());
+		long who = getDao().getDiscordIdFromLastfm(message[0], e.getGuild().getIdLong());
+		Member whoD = e.getGuild().getMemberById(who);
+		String name = whoD == null ? message[0] : whoD.getNickname();
+		embedBuilder.setTitle(name + "'s crowns");
+		embedBuilder.setFooter(name + " has " + resultWrapper.size() + " crowns!!\n", null);
+		if (whoD != null)
+			embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
+
+		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(quee -> {
+			quee.addReaction("U+2B05").submit();
+			quee.addReaction("U+27A1").submit();
+			ListenerAdapter adapter = new Reactionario<>(resultWrapper, quee, embedBuilder);
+			e.getJDA().addEventListener(adapter);
+			try {
+				Thread.sleep(40000);
+			} catch (InterruptedException ex) {
+				ex.printStackTrace();
+			}
+			e.getJDA().removeEventListener(adapter);
+			quee.clearReactions().queue();
+		});
+
+		return;
 	}
 
 
