@@ -1,8 +1,11 @@
 package main;
 
 import DAO.DaoImplementation;
+import main.APIs.Discogs.DiscogsApi;
+import main.APIs.Spotify.Spotify;
 import main.Commands.*;
-import main.Youtube.DiscogsApi;
+import main.ScheduledTasks.ImageUpdaterThread;
+import main.ScheduledTasks.UpdaterThread;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;

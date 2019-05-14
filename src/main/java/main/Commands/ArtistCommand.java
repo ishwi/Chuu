@@ -1,11 +1,11 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import main.APIs.Discogs.DiscogsApi;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import main.ImageRenderer.UrlCapsuleConcurrentQueue;
-import main.Youtube.DiscogsApi;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;

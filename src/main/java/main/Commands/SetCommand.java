@@ -4,7 +4,7 @@ import DAO.DaoImplementation;
 import DAO.Entities.LastFMData;
 import DAO.Entities.UsersWrapper;
 import main.Exceptions.ParseException;
-import main.UpdaterThread;
+import main.ScheduledTasks.UpdaterThread;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

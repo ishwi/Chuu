@@ -2,10 +2,10 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
+import main.APIs.Discogs.DiscogsApi;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
-import main.Youtube.DiscogsApi;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;

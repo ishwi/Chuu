@@ -3,8 +3,8 @@ package main.ImageRenderer;
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistInfo;
 import DAO.Entities.UrlCapsule;
+import main.APIs.Discogs.DiscogsApi;
 import main.Exceptions.DiscogsServiceException;
-import main.Youtube.DiscogsApi;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;

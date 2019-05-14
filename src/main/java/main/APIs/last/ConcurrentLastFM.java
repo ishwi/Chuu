@@ -1,14 +1,12 @@
-package main.last;
+package main.APIs.last;
 
-import DAO.Entities.ArtistData;
-import DAO.Entities.NowPlayingArtist;
-import DAO.Entities.UrlCapsule;
-import DAO.Entities.UserInfo;
+import DAO.Entities.*;
+import main.APIs.ClientSingleton;
+import main.APIs.Discogs.DiscogsApi;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
-import main.Youtube.DiscogsApi;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONArray;

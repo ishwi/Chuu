@@ -2,8 +2,8 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistInfo;
+import main.APIs.Discogs.DiscogsApi;
 import main.Exceptions.DiscogsServiceException;
-import main.Youtube.DiscogsApi;
 
 import java.awt.*;
 import java.util.Random;
