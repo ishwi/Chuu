@@ -1,4 +1,4 @@
-package main.Youtube;
+package main.APIs.Discogs;
 
 
 import main.Exceptions.DiscogsServiceException;

@@ -1,4 +1,4 @@
-package main;
+package main.APIs.Spotify;
 
 import com.neovisionaries.i18n.CountryCode;
 import com.wrapper.spotify.SpotifyApi;

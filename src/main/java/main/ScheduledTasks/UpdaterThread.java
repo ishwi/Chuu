@@ -1,14 +1,14 @@
-package main;
+package main.ScheduledTasks;
 
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
+import DAO.Entities.TimestampWrapper;
 import DAO.Entities.UsersWrapper;
+import main.APIs.Discogs.DiscogsApi;
+import main.APIs.last.ConcurrentLastFM;
 import main.Exceptions.DiscogsServiceException;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmException;
-import main.Youtube.DiscogsApi;
-import main.last.ConcurrentLastFM;
-import main.last.TimestampWrapper;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

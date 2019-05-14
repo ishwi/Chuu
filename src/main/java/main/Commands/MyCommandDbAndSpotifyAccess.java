@@ -1,7 +1,7 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import main.Spotify;
+import main.APIs.Spotify.Spotify;
 
 public abstract class MyCommandDbAndSpotifyAccess extends MyCommandDbAccess {
 	public Spotify spotify;
