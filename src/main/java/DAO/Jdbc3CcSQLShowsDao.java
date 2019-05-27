@@ -185,6 +185,34 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 	}
 
 	@Override
+	public void upsertSpotify(Connection con, ArtistInfo artistInfo) {
+		/* Create "queryString". */
+		String queryString = "INSERT  INTO lastfm.artist_url"
+				+ " ( artist_id,url,url_status) " + " VALUES (?, ?,0) ON DUPLICATE  KEY UPDATE url= ? , url_status = 0";
+
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i++, artistInfo.getArtistName());
+			preparedStatement.setString(i++, artistInfo.getArtistUrl());
+			preparedStatement.setString(i, artistInfo.getArtistUrl());
+
+
+			/* Execute query. */
+			preparedStatement.executeUpdate();
+
+			/* Get generated identifier. */
+
+			/* Return booking. */
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	@Override
 	public void addGuild(Connection con, long userId, long guildId) {
 		/* Create "queryString". */
 		String queryString = "INSERT IGNORE INTO lastfm.user_guild"
@@ -323,9 +351,10 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 
 
 	@Override
-	public Set<String> selectNullUrls(Connection connection) {
+	public Set<String> selectNullUrls(Connection connection, boolean doSpotifySearch) {
 		Set<String> returnList = new HashSet<>();
-		String queryString = "SELECT * FROM artist_url where url is null limit 30";
+
+		String queryString = doSpotifySearch ? "SELECT * FROM artist_url where url = \"\"  and  url_status = 1 limit 30" : "SELECT * FROM artist_url where url is null limit 30";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			ResultSet resultSet = preparedStatement.executeQuery();
 

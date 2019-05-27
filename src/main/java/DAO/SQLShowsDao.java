@@ -51,7 +51,7 @@ interface SQLShowsDao {
 
 	String getArtistUrl(Connection connection, String artist);
 
-	Set<String> selectNullUrls(Connection connection);
+	Set<String> selectNullUrls(Connection connection, boolean spotifyNull);
 
 	void addLogo(Connection con, long guildID, BufferedImage image);
 
@@ -60,4 +60,6 @@ interface SQLShowsDao {
 	InputStream findLogo(Connection connection, long guildID) throws InstanceNotFoundException;
 
 	long getDiscordIdFromLastfm(Connection connection, String lastFmName, long guildId);
+
+	void upsertSpotify(Connection con, ArtistInfo artistInfo);
 }

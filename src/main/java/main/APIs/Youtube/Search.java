@@ -14,8 +14,6 @@ package main.APIs.Youtube;
  */
 
 
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.apache.ApacheHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
@@ -72,11 +70,10 @@ public class Search {
 		// initialized when the HttpRequest is initialized, we override
 		// the interface and provide a no-op function.
 
-		youtube = new YouTube.Builder(new ApacheHttpTransport(), new JacksonFactory(), new HttpRequestInitializer() {
-			public void initialize(HttpRequest request) throws IOException {
-			}
+		youtube = new YouTube.Builder(new ApacheHttpTransport(), new JacksonFactory(), request -> {
 		}).setApplicationName("discordBot").build();
 //setApplicationName("Discord Searcher").
+
 	}
 
 	/*
@@ -99,6 +96,8 @@ public class Search {
 		String responseUrl = "";
 		try {
 			// Define the API request for retrieving search results.
+			youtube = new YouTube.Builder(new ApacheHttpTransport(), new JacksonFactory(), request -> {
+			}).setApplicationName("discordBot").build();
 			YouTube.Search.List search = youtube.search().list("id,snippet");
 
 			// Set your developer key from the Google Developers Console for

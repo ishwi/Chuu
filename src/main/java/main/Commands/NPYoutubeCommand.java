@@ -59,9 +59,14 @@ public class NPYoutubeCommand extends MyCommandDbAccess {
 			NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);
 			String uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
 
+
 			if (uri.equals("")) {
-				errorMessage(e, 1, "Youtube");
-				return;
+				System.out.println("Doing a second attempt");
+				uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
+				if (uri.equals("")) {
+					errorMessage(e, 1, "Youtube");
+					return;
+				}
 			}
 			messageBuilder.setContent(uri).sendTo(e.getChannel()).queue();
 		} catch (LastFMNoPlaysException e1) {
