@@ -6,6 +6,7 @@ import main.APIs.Discogs.DiscogsApi;
 import main.Exceptions.DiscogsServiceException;
 
 import java.awt.*;
+import java.net.URL;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
@@ -39,4 +40,16 @@ public class CommandUtil {
 		double b = rand.nextFloat() / 2f + 0.5;
 		return new Color((float) r, (float) g, (float) b);
 	}
+
+	public static boolean isValidURL(String urlString) {
+		try {
+			URL url = new URL(urlString);
+			url.toURI();
+			return true;
+		} catch (Exception exception) {
+			return false;
+		}
+	}
+
+
 }

@@ -5,6 +5,8 @@ import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.model_objects.special.SearchResult;
+import com.wrapper.spotify.model_objects.specification.Artist;
+import com.wrapper.spotify.model_objects.specification.Image;
 import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.search.SearchItemRequest;
@@ -34,7 +36,7 @@ public class Spotify {
 		if (!this.time.isAfter(LocalDateTime.now())) {
 			clientCredentials_Sync();
 		}
-
+		artist = artist.contains(":") ? "\"" + artist + "\"" : artist;
 		SearchItemRequest tracksRequest =
 				spotifyApi.searchItem("album:" + album + " artist:" + artist + " track:" + track, "album,artist,track").
 						market(CountryCode.NZ)
@@ -55,6 +57,31 @@ public class Spotify {
 		return returned;
 	}
 
+	public String getArtistUrlImage(String artist) {
+		if (!this.time.isAfter(LocalDateTime.now())) {
+			clientCredentials_Sync();
+		}
+		artist = artist.contains(":") ? "\"" + artist + "\"" : artist;
+		SearchItemRequest tracksRequest =
+				spotifyApi.searchItem(" artist:" + artist, "artist").
+						market(CountryCode.NZ)
+						.limit(1)
+						.offset(0)
+						.build();
+		String returned = "";
+		try {
+			SearchResult searchResult = tracksRequest.execute();
+
+			for (Artist item : searchResult.getArtists().getItems()) {
+				Image[] images = item.getImages();
+				if (images.length != 0)
+					returned = images[0].getUrl();
+			}
+		} catch (IOException | SpotifyWebApiException e) {
+			e.printStackTrace();
+		}
+		return returned;
+	}
 
 	private void clientCredentials_Sync() {
 		try {

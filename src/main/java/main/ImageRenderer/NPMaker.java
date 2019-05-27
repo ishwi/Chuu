@@ -20,7 +20,10 @@ public class NPMaker {
 	private static final int Y_MARGIN = 25;
 
 	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
-	private static final Font ARTIST_FONT = new Font("Gungsuh", Font.PLAIN, 32);
+	private static final Font KOREAN_FONT = new Font("NanumGothicBold", Font.PLAIN, 32);
+	private static final Font JAPANESE_FONT = new Font("Yu Gothic Ui Bold", Font.PLAIN, 32);
+
+	private static final Font ARTIST_FONT = new Font("NanumGothicBold", Font.PLAIN, 32);
 	private static final Font DESC_FONT = new Font("Yu Gothic UI Light", Font.PLAIN, 32);
 	private static final String FIRST_LINE = "Who knows";
 	private static Color FONT_COLOR = Color.BLACK;
@@ -79,17 +82,18 @@ public class NPMaker {
 
 		g.drawString(FIRST_LINE, X_MAX / 2 - width / 2, y_counter);
 
-		y_counter += 10;
+		y_counter += 12;
 
-
-		g.setFont(ARTIST_FONT);
-		metrics = g.getFontMetrics(ARTIST_FONT);
+		Font fontToUse = GraphicUtils.hasKorean(artist) ? KOREAN_FONT : JAPANESE_FONT;
+		g.setFont(fontToUse);
+		metrics = g.getFontMetrics(fontToUse);
 		y_counter += metrics.getAscent() - metrics.getDescent();
 
 		width = metrics.stringWidth(artist);
+		//GraphicUtils.do1(g,artist,GraphicUtils.getInverseBW(FONT_COLOR),FONT_COLOR,X_MAX / 2 - width / 2,y_counter);
 		g.drawString(artist, X_MAX / 2 - width / 2, y_counter);
 
-		y_counter += 10;
+		y_counter += 8;
 
 
 		g.setFont(DESC_FONT);

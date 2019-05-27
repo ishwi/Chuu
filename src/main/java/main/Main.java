@@ -5,6 +5,7 @@ import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Spotify.Spotify;
 import main.Commands.*;
 import main.ScheduledTasks.ImageUpdaterThread;
+import main.ScheduledTasks.SpotifyUpdaterThread;
 import main.ScheduledTasks.UpdaterThread;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
@@ -102,15 +103,18 @@ class Main {
 		builder.addEventListeners(help.registerCommand(new ArtistCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new AlbumSongPlaysCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new GuildTopCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new ArtistUrlCommand(dao)));
 
 
-//		EventWaiter waiter = new EventWaiter(Executors.newSingleThreadScheduledExecutor(), false);
-//		builder.addEventListener(waiter);
+		//EventWaiter waiter = new EventWaiter(Executors.newSingleThreadScheduledExecutor(), false);
+		//builder.addEventListener(waiter);
 		builder.addEventListeners(help.registerCommand(new CrownsCommand(dao)));
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
-		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, discogsApi), 0, 2, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, discogsApi), 0, 30, TimeUnit.SECONDS);
 		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 0, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new SpotifyUpdaterThread(dao, spotifyWrapper), 0, 2, TimeUnit.MINUTES);
+
 
 		try {
 			JDA jda = builder.build().awaitReady();

@@ -292,11 +292,20 @@ public class DaoImplementation {
 
 	public Set<String> getNullUrls() {
 		try (Connection connection = dataSource.getConnection()) {
-			return dao.selectNullUrls(connection);
+			return dao.selectNullUrls(connection, false);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public Set<String> getSpotifyNulledUrls() {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.selectNullUrls(connection, true);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 
 	public String getArtistUrl(String url) {
 		try (Connection connection = dataSource.getConnection()) {
@@ -310,6 +319,16 @@ public class DaoImplementation {
 	public void upsertUrl(ArtistInfo artistInfo) {
 		try (Connection connection = dataSource.getConnection()) {
 			dao.upsertUrl(connection, artistInfo);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+
+	}
+
+	public void upsertSpotify(ArtistInfo artistInfo) {
+		try (Connection connection = dataSource.getConnection()) {
+			dao.upsertSpotify(connection, artistInfo);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 

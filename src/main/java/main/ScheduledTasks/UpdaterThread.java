@@ -54,7 +54,7 @@ public class UpdaterThread implements Runnable {
 			usertoWork = this.username;
 
 		try {
-			if (isIncremental && chance <= 0.90f) {
+			if (isIncremental && chance <= 0.995f) {
 
 				TimestampWrapper<LinkedList<ArtistData>> artistDataLinkedList = lastFM.getWhole(usertoWork.getLastFMName(), usertoWork.getTimestamp());
 				if (discogsApi != null) {
