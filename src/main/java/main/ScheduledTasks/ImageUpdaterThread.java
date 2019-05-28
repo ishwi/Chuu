@@ -3,6 +3,7 @@ package main.ScheduledTasks;
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistInfo;
 import main.APIs.Discogs.DiscogsApi;
+import main.APIs.Discogs.DiscogsSingleton;
 import main.Exceptions.DiscogsServiceException;
 
 import java.util.Set;
@@ -13,7 +14,7 @@ public class ImageUpdaterThread implements Runnable {
 
 	public ImageUpdaterThread(DaoImplementation dao) {
 		this.dao = dao;
-		this.discogsApi = new DiscogsApi();
+		this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
 
 	}
 

@@ -2,6 +2,7 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import main.APIs.Discogs.DiscogsApi;
+import main.APIs.Discogs.DiscogsSingleton;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
@@ -16,9 +17,11 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("Duplicates")
 public class ArtistCommand extends ChartCommand {
+	private final DiscogsApi discogsApi;
 
 	public ArtistCommand(DaoImplementation dao) {
 		super(dao);
+		discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
 	}
 
 	@Override
@@ -52,7 +55,7 @@ public class ArtistCommand extends ChartCommand {
 		}
 		try {
 
-			UrlCapsuleConcurrentQueue queue = new UrlCapsuleConcurrentQueue(getDao(), new DiscogsApi());
+			UrlCapsuleConcurrentQueue queue = new UrlCapsuleConcurrentQueue(getDao(), discogsApi);
 			lastFM.getUserList(username, time, x, y, false, queue);
 			generateImage(queue, x, y, e);
 
