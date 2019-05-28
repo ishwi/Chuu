@@ -11,7 +11,7 @@ import java.net.URL;
 import java.util.Random;
 
 public class CommandUtil {
-	static String getDiscogsUrl(DiscogsApi discogsApi, String artist, DaoImplementation dao, Spotify spotify) {
+	public static String getDiscogsUrl(DiscogsApi discogsApi, String artist, DaoImplementation dao, Spotify spotify) {
 		String newUrl = null;
 		try {
 			newUrl = discogsApi.findArtistImage(artist);
