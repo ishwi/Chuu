@@ -7,14 +7,24 @@ public class NowPlayingArtist {
 	private String albumName;
 	private String songName;
 	private String url;
+	private String username;
 
-	public NowPlayingArtist(String artistName, String mbid, boolean nowPlaying, String albumName, String songName, String url) {
+	public NowPlayingArtist(String artistName, String mbid, boolean nowPlaying, String albumName, String songName, String url, String username) {
 		this.artistName = artistName;
 		this.mbid = mbid;
 		this.nowPlaying = nowPlaying;
 		this.albumName = albumName;
 		this.songName = songName;
 		this.url = url;
+		this.username = username;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	public String getArtistName() {

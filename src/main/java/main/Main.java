@@ -98,7 +98,7 @@ class Main {
 		builder.addEventListeners(help.registerCommand(new TasteCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new TopCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new UpdateCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao, SpotifySingleton.getInstanceUsingDoubleLocking())));
+		builder.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new UniqueCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new NPYoutubeCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new ArtistCommand(dao)));
