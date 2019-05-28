@@ -12,13 +12,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class DiscogsApi {
@@ -29,16 +27,9 @@ public class DiscogsApi {
 	private boolean slowness = false;
 	private HttpClient httpClient;
 
-	public DiscogsApi() {
-		Properties properties = new Properties();
-		try (InputStream in = DiscogsApi.class.getResourceAsStream("/" + "all.properties")) {
-			properties.load(in);
-			this.SECRET = properties.getProperty("DC_SC");
-			this.KEY = properties.getProperty("DC_KY");
-
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+	public DiscogsApi(String secret, String key) {
+		this.KEY = key;
+		this.SECRET = secret;
 		this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
 		this.header = new Header();
 		this.header.setName("User-Agent");

@@ -1,8 +1,8 @@
 package main;
 
 import DAO.DaoImplementation;
-import main.APIs.Discogs.DiscogsApi;
-import main.APIs.Spotify.Spotify;
+import main.APIs.Discogs.DiscogsSingleton;
+import main.APIs.Spotify.SpotifySingleton;
 import main.Commands.*;
 import main.ScheduledTasks.ImageUpdaterThread;
 import main.ScheduledTasks.SpotifyUpdaterThread;
@@ -78,8 +78,9 @@ class Main {
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
 
 		DaoImplementation dao = new DaoImplementation();
-		Spotify spotifyWrapper = new Spotify(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
-		DiscogsApi discogsApi = new DiscogsApi();
+		SpotifySingleton a = new SpotifySingleton(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
+		//Spotify spotifyWrapper = new Spotify(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
+		DiscogsSingleton b = new DiscogsSingleton(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
 		builder.setToken(properties.getProperty("DISCORD_TOKEN"));
 		HelpCommand help = new HelpCommand();
 		//Dao get all users discord ID and if someone not already -> erase
@@ -89,15 +90,15 @@ class Main {
 		AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
 		builder.addEventListeners(help.registerCommand(commandAdministrator));
 		builder.addEventListeners(help.registerCommand(new NowPlayingCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new WhoKnowsCommand(dao, discogsApi)));
-		builder.addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao, discogsApi)));
+		builder.addEventListeners(help.registerCommand(new WhoKnowsCommand(dao, DiscogsSingleton.getInstanceUsingDoubleLocking())));
+		builder.addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao, DiscogsSingleton.getInstanceUsingDoubleLocking())));
 		builder.addEventListeners(help.registerCommand(new ChartCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new SetCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new AllPlayingCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new TasteCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new TopCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new UpdateCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao, spotifyWrapper)));
+		builder.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao, SpotifySingleton.getInstanceUsingDoubleLocking())));
 		builder.addEventListeners(help.registerCommand(new UniqueCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new NPYoutubeCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new ArtistCommand(dao)));
@@ -111,9 +112,9 @@ class Main {
 		builder.addEventListeners(help.registerCommand(new CrownsCommand(dao)));
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
-		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, discogsApi), 0, 30, TimeUnit.SECONDS);
-		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 0, 10, TimeUnit.MINUTES);
-		scheduledManager.scheduleAtFixedRate(new SpotifyUpdaterThread(dao, spotifyWrapper), 0, 2, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, DiscogsSingleton.getInstanceUsingDoubleLocking()), 0, 30, TimeUnit.SECONDS);
+		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new SpotifyUpdaterThread(dao, SpotifySingleton.getInstanceUsingDoubleLocking()), 0, 10, TimeUnit.MINUTES);
 
 
 		try {

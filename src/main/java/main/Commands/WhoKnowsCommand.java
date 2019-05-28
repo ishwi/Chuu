@@ -4,6 +4,8 @@ import DAO.DaoImplementation;
 import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.WrapperReturnNowPlaying;
 import main.APIs.Discogs.DiscogsApi;
+import main.APIs.Spotify.Spotify;
+import main.APIs.Spotify.SpotifySingleton;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
@@ -26,10 +28,12 @@ import java.util.stream.Collectors;
 @SuppressWarnings("Duplicates")
 public class WhoKnowsCommand extends ConcurrentCommand {
 	public final DiscogsApi discogsApi;
+	private final Spotify spotify;
 
 	public WhoKnowsCommand(DaoImplementation dao, DiscogsApi discogsApi) {
 		super(dao);
-		this.discogsApi = new DiscogsApi();
+		this.discogsApi = discogsApi;
+		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
 	}
 
 	void whoKnowsLogic(String who, Boolean isImage, MessageReceivedEvent e) {
@@ -64,7 +68,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		try {
 
 			if (wrapperReturnNowPlaying.getUrl() == null) {
-				wrapperReturnNowPlaying.setUrl(CommandUtil.getDiscogsUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao()));
+				wrapperReturnNowPlaying.setUrl(CommandUtil.getDiscogsUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao(), spotify));
 			}
 
 			if (!isImage) {
