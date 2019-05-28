@@ -4,6 +4,8 @@ import DAO.DaoImplementation;
 import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.WrapperReturnNowPlaying;
 import main.APIs.Discogs.DiscogsApi;
+import main.APIs.Parsers.Parser;
+import main.APIs.Parsers.WhoKnowsParser;
 import main.APIs.Spotify.Spotify;
 import main.APIs.Spotify.SpotifySingleton;
 import main.Exceptions.LastFmEntityNotFoundException;
@@ -20,7 +22,6 @@ import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,7 +50,8 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 				messageBuilder.setContent("No nibba listens to " + who).sendTo(e.getChannel()).queue();
 				return;
 			} catch (LastFmException ex2) {
-				errorMessage(e, 100, "");
+
+				sendMessage(e, "Internal Server Error, Try Again later ");
 				return;
 			}
 			if (repeated.equals(who)) {
@@ -131,12 +133,13 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
-		try {
-			returned = parse(e);
-			whoKnowsLogic(returned[0], Boolean.valueOf(returned[1]), e);
-		} catch (ParseException e1) {
-			errorMessage(e, 0, e1.getMessage());
-		}
+		Parser parser = new WhoKnowsParser(e);
+
+		returned = parser.parse();
+		if (returned == null)
+			return;
+
+		whoKnowsLogic(returned[0], Boolean.valueOf(returned[1]), e);
 
 	}
 
@@ -161,36 +164,11 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		);
 	}
 
-
 	@Override
 	public String[] parse(MessageReceivedEvent e) throws ParseException {
-
-		String[] message = getSubMessage(e.getMessage());
-
-
-		boolean flag = false;
-		String[] message1 = Arrays.stream(message).filter(s -> !s.equals("--image")).toArray(String[]::new);
-		if (message1.length != message.length) {
-			message = message1;
-			flag = true;
-		}
-		if (message.length == 0) {
-			//No Commands Inputed
-			throw new ParseException("Input");
-		}
-		String artist;
-		if (message.length > 1) {
-			StringBuilder a = new StringBuilder();
-			for (String s : message) {
-				a.append(s).append(" ");
-			}
-			artist = a.toString().trim();
-		} else {
-			artist = message[0];
-		}
-		return new String[]{artist, Boolean.toString(flag)};
-
+		return new String[0];
 	}
+
 
 	@Override
 	public void errorMessage(MessageReceivedEvent e, int code, String cause) {

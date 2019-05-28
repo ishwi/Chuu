@@ -42,7 +42,7 @@ public class ChartParser extends DaoParser {
 			flag = false;
 		}
 		if (message.length > 3) {
-			sendError(getErrorMessage(1));
+			sendError(getErrorMessage(2));
 			return null;
 		}
 
@@ -65,7 +65,6 @@ public class ChartParser extends DaoParser {
 
 		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
 		if (discordName == null) {
-			sendError(getErrorMessage(2));
 			return null;
 		}
 
@@ -75,14 +74,10 @@ public class ChartParser extends DaoParser {
 
 	@Override
 	public void setUpErrorMessages() {
-		try {
-			errorMessages.put(1, "You Introduced too many words");
-			errorMessages.put(2, "User not on database");
-			errorMessages.put(3, "Not a valid lastfm username");
-			errorMessages.put(4, "Internal Server Error, try again later");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		super.setUpErrorMessages();
+		errorMessages.put(2, "You Introduced too many words");
+		errorMessages.put(3, "Not a valid lastfm username");
+		errorMessages.put(4, "Internal Server Error, try again later");
 
 	}
 

@@ -2,9 +2,8 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
+import main.APIs.Parsers.Parser;
 import main.APIs.Youtube.Search;
-import main.Exceptions.LastFMNoPlaysException;
-import main.Exceptions.LastFmException;
 import main.Exceptions.ParseException;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -13,7 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class NPYoutubeCommand extends MyCommandDbAccess {
+public class NPYoutubeCommand extends NpCommand {
 	private Search search;
 
 	public NPYoutubeCommand(DaoImplementation dao) {
@@ -21,6 +20,25 @@ public class NPYoutubeCommand extends MyCommandDbAccess {
 		this.search = new Search();
 
 	}
+
+	@Override
+	public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, Parser parser, MessageReceivedEvent e) {
+		MessageBuilder messageBuilder = new MessageBuilder();
+
+		String uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
+
+		if (uri.equals("")) {
+			System.out.println("Doing a second attempt");
+			uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
+			if (uri.equals("")) {
+				sendMessage(e, "Was not able to find artist " + nowPlayingArtist.getSongName() + " on YT");
+				return;
+			}
+		}
+		messageBuilder.setContent(uri).sendTo(e.getChannel()).queue();
+	}
+
+
 
 	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
 		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:\n";
@@ -44,40 +62,8 @@ public class NPYoutubeCommand extends MyCommandDbAccess {
 		sendMessage(e, base + message);
 	}
 
-	@Override
-	public void onCommand(MessageReceivedEvent e, String[] args) {
-		String username;
-		MessageBuilder messageBuilder = new MessageBuilder();
-
-		try {
-			username = parse(e)[0];
-		} catch (ParseException ex) {
-			errorMessage(e, 0, ex.getMessage());
-			return;
-		}
-		try {
-			NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);
-			String uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
 
 
-			if (uri.equals("")) {
-				System.out.println("Doing a second attempt");
-				uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
-				if (uri.equals("")) {
-					errorMessage(e, 1, "Youtube");
-					return;
-				}
-			}
-			messageBuilder.setContent(uri).sendTo(e.getChannel()).queue();
-		} catch (LastFMNoPlaysException e1) {
-			errorMessage(e, 3, e1.getMessage());
-
-		} catch (LastFmException ex) {
-			errorMessage(e, 2, ex.getMessage());
-		}
-
-
-	}
 
 	@Override
 	public List<String> getAliases() {

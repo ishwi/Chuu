@@ -2,9 +2,7 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
-import main.Exceptions.LastFMNoPlaysException;
-import main.Exceptions.LastFmException;
-import main.Exceptions.ParseException;
+import main.APIs.Parsers.Parser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -13,9 +11,29 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("Duplicates")
-public class NowPlayingCommand extends ConcurrentCommand {
+public class NowPlayingCommand extends NpCommand {
 	public NowPlayingCommand(DaoImplementation dao) {
 		super(dao);
+	}
+
+	@Override
+	public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, Parser parser, MessageReceivedEvent e) {
+		StringBuilder a = new StringBuilder();
+
+		String username = nowPlayingArtist.getUsername();
+		a.append("**[").append(username).append("'s Profile](").append("https://www.last.fm/user/").append(username).append(")**\n\n")
+				.append(nowPlayingArtist.isNowPlaying() ? "Current" : "Last")
+				.append(":\n")
+				.append("**").append(nowPlayingArtist.getSongName()).append("**")
+				.append(" - ").append(nowPlayingArtist.getAlbumName()).append(" | ")
+				.append(nowPlayingArtist.getArtistName());
+
+		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
+				.setTitle("Now Playing:")
+				.setDescription(a);
+
+		MessageBuilder messageBuilder = new MessageBuilder();
+		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 	}
 
 
@@ -41,60 +59,4 @@ public class NowPlayingCommand extends ConcurrentCommand {
 	}
 
 
-	@Override
-	public String[] parse(MessageReceivedEvent e) throws ParseException {
-		String[] message = getSubMessage(e.getMessage());
-		return new String[]{getLastFmUsername1input(message, e.getAuthor().getIdLong(), e)};
-
-	}
-
-	@Override
-	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:\n";
-		String message;
-		if (code == 0) {
-			userNotOnDB(e, code);
-			return;
-		}
-
-		if (code == 2) {
-			message = "User hasnt played any song recently!";
-
-		} else {
-			message = "There was a problem with Last FM Api " + cause;
-		}
-		sendMessage(e, base + message);
-	}
-
-	@Override
-	public void threadableCode(MessageReceivedEvent e) {
-		try {
-			String username = parse(e)[0];
-			NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);
-			StringBuilder a = new StringBuilder();
-
-			a.append("**[").append(username).append("'s Profile](").append("https://www.last.fm/user/").append(username).append(")**\n\n")
-					.append(nowPlayingArtist.isNowPlaying() ? "Current" : "Last")
-					.append(":\n")
-					.append("**").append(nowPlayingArtist.getSongName()).append("**")
-					.append(" - ").append(nowPlayingArtist.getAlbumName()).append(" | ")
-					.append(nowPlayingArtist.getArtistName());
-
-			EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
-					.setTitle("Now Playing:")
-					.setDescription(a);
-
-			MessageBuilder messageBuilder = new MessageBuilder();
-			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
-
-		} catch (ParseException ex) {
-			errorMessage(e, 0, ex.getMessage());
-		} catch (LastFMNoPlaysException e1) {
-			errorMessage(e, 2, e1.getMessage());
-
-		} catch (LastFmException ex) {
-			errorMessage(e, 1, ex.getMessage());
-
-		}
-	}
 }

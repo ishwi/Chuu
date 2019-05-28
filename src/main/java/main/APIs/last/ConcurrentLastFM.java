@@ -117,7 +117,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		String songName = tracltObj.getString("name");
 		String image_url = tracltObj.getJSONArray("image").getJSONObject(2).getString("#text");
 
-		return new NowPlayingArtist(artistname, mbid, nowPlayin, albumName, songName, image_url);
+		return new NowPlayingArtist(artistname, mbid, nowPlayin, albumName, songName, image_url, user);
 
 
 	}
@@ -164,7 +164,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 						catched = true;
 					}
 					count++;
-					list.add(new NowPlayingArtist(artistname, "", false, albumName, songName, null));
+					list.add(new NowPlayingArtist(artistname, "", false, albumName, songName, null, user));
 				}
 
 

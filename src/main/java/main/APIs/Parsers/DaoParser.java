@@ -35,8 +35,14 @@ public abstract class DaoParser extends Parser {
 				}
 			}
 		} catch (InstanceNotFoundException e) {
+			sendError(getErrorMessage(1));
 			return null;
 		}
 		return username;
+	}
+
+	@Override
+	public void setUpErrorMessages() {
+		errorMessages.put(1, "User not on database");
 	}
 }
