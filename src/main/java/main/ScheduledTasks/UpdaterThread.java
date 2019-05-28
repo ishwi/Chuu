@@ -5,8 +5,10 @@ import DAO.Entities.ArtistData;
 import DAO.Entities.TimestampWrapper;
 import DAO.Entities.UsersWrapper;
 import main.APIs.Discogs.DiscogsApi;
+import main.APIs.Spotify.Spotify;
+import main.APIs.Spotify.SpotifySingleton;
 import main.APIs.last.ConcurrentLastFM;
-import main.Exceptions.DiscogsServiceException;
+import main.Commands.CommandUtil;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmException;
 
@@ -22,10 +24,12 @@ public class UpdaterThread implements Runnable {
 	private boolean isIncremental;
 	private DiscogsApi discogsApi;
 	private ConcurrentLastFM lastFM;
+	private Spotify spotify;
 
 	public UpdaterThread(DaoImplementation dao) {
 		this.dao = dao;
 		this.lastFM = new ConcurrentLastFM();
+		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
 	}
 
 	public UpdaterThread(DaoImplementation dao, UsersWrapper username, boolean isIncremental) {
@@ -57,26 +61,30 @@ public class UpdaterThread implements Runnable {
 			if (isIncremental && chance <= 0.995f) {
 
 				TimestampWrapper<LinkedList<ArtistData>> artistDataLinkedList = lastFM.getWhole(usertoWork.getLastFMName(), usertoWork.getTimestamp());
-				if (discogsApi != null) {
 
 
-						for (ArtistData datum : artistDataLinkedList.getWrapped()) {
-							String prevUrl = dao.getArtistUrl(datum.getArtist());
-							if (prevUrl == null) {
-								try {
-									String newUrl = discogsApi.findArtistImage(datum.getArtist());
-									if (newUrl != null) {
-										System.out.println("Upserting buddy");
-									}
-									datum.setUrl(newUrl);
-								} catch (DiscogsServiceException e) {
-									e.printStackTrace();
-								}
-							} else {
-								datum.setUrl(prevUrl);
-							}
-						}
+				for (ArtistData datum : artistDataLinkedList.getWrapped()) {
+
+					String prevUrl = dao.getArtistUrl(datum.getArtist());
+					if (prevUrl == null) {
+						prevUrl = CommandUtil.getDiscogsUrl(discogsApi, datum.getArtist(), dao, spotify);
+//						try {
+//							String newUrl = discogsApi.findArtistImage(datum.getArtist());
+//							if (newUrl != null) {
+//								System.out.println("Upserting buddy");
+//							}
+//							datum.setUrl(newUrl);
+//						} catch (DiscogsServiceException e) {
+//							e.printStackTrace();
+//						}
+//					} else {
+//						datum.setUrl(prevUrl);
+//					}
+					}
+					datum.setUrl(prevUrl);
+
 				}
+
 
 				dao.incrementalUpdate(artistDataLinkedList, usertoWork.getLastFMName());
 
