@@ -3,11 +3,10 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.ResultWrapper;
 import DAO.Entities.UserInfo;
+import main.APIs.Parsers.TwoUsersParser;
 import main.Exceptions.LastFmException;
-import main.Exceptions.ParseException;
 import main.ImageRenderer.ImageRenderer;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
@@ -15,12 +14,15 @@ import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class TasteCommand extends ConcurrentCommand {
 	public TasteCommand(DaoImplementation dao) {
 		super(dao);
+		parser = new TwoUsersParser(dao);
 	}
 
 
@@ -45,111 +47,18 @@ public class TasteCommand extends ConcurrentCommand {
 				("!taste user1 *user2\n \tIf user2 is missing it gets replaced by Author user\n\n");
 	}
 
-	@Override
-	public String[] parse(MessageReceivedEvent e) throws ParseException {
-
-		String[] message = getSubMessage(e.getMessage());
-		if (message.length == 0)
-			throw new ParseException("Commands");
-
-		String[] userList = {"", ""};
-		if (message.length == 1) {
-			userList[1] = message[0];
-			try {
-				userList[0] = getDao().findShow(e.getAuthor().getIdLong()).getName();
-			} catch (InstanceNotFoundException ex) {
-				throw new ParseException("bd");
-			}
-		} else {
-			userList[0] = message[0];
-			userList[1] = message[1];
-		}
-
-		java.util.List<String> lastfMNames;
-		// Si userList contains @ -> user
-		try {
-			java.util.List<User> list = e.getMessage().getMentionedUsers();
-			lastfMNames = Arrays.stream(userList)
-					.map(s -> lambda(s, list))
-					.collect(Collectors.toList());
-			lastfMNames.forEach(System.out::println);
-		} catch (Exception ex) {
-			throw new ParseException(ex.getMessage());
-
-		}
-		return new String[]{lastfMNames.get(0), lastfMNames.get(1)};
-	}
-
-	@Override
-	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
-		String message;
-		switch (code) {
-			case 0:
-				message = "Need at least one argument!";
-				break;
-			case 1:
-				message = "User not on db ,register first!";
-				break;
-			case 2:
-				message = "User " + cause + " hasnt registered yet!";
-				break;
-			case 3:
-				message = "There was a problem with Last FM Api" + cause;
-				break;
-			default:
-				message = "Unknown Error happened";
-				break;
-		}
-		sendMessage(e, base + message);
-	}
-
-	private User findUsername(String name, java.util.List<User> userList) {
-		Optional<User> match = userList.stream().
-				filter(user -> {
-					String nameNoDigits = name.replaceAll("\\D+", "");
-
-					long a = Long.valueOf(nameNoDigits);
-					return (user.getIdLong() == a);
-				})
-				.findFirst();
-		return match.orElse(null);
-	}
-
-	private String lambda(String s, java.util.List<User> list) {
-		if (s.startsWith("<@")) {
-			User result = this.findUsername(s, list);
-			if (result != null) {
-				try {
-					return getDao().findShow(result.getIdLong()).getName();
-				} catch (InstanceNotFoundException e) {
-					throw new RuntimeException(result.getName());
-				}
-			}
-		}
-		return s;
-	}
 
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
 		List<String> lastfMNames;
 		MessageBuilder messageBuilder = new MessageBuilder();
-		try {
-			lastfMNames = Arrays.asList((parse(e)));
-		} catch (ParseException ex) {
-			switch (ex.getMessage()) {
-				case "Commands":
-					errorMessage(e, 0, ex.getMessage());
-					break;
-				case "db":
-					errorMessage(e, 1, ex.getMessage());
-					break;
-				default:
-					errorMessage(e, 2, ex.getMessage());
-					break;
-			}
+
+
+		String[] returned = parser.parse(e);
+		if (returned == null)
 			return;
-		}
+		lastfMNames = Arrays.asList(returned);
+
 		ResultWrapper resultWrapper;
 		try {
 			resultWrapper = getDao().getSimilarities(lastfMNames);
@@ -172,12 +81,13 @@ public class TasteCommand extends ConcurrentCommand {
 				ex.printStackTrace();
 			}
 		} catch (InstanceNotFoundException e1) {
-			errorMessage(e, 1, e1.getMessage());
-		} catch (LastFmException e1) {
-			errorMessage(e, 3, e1.getMessage());
-		}
+			parser.sendError(parser.getErrorMessage(5), e);
 
+		} catch (LastFmException e1) {
+			parser.sendError(parser.getErrorMessage(2), e);
+
+
+		}
 
 	}
 }
-

@@ -2,9 +2,9 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
+import main.APIs.Parsers.OnlyUsernameParser;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmException;
-import main.Exceptions.ParseException;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -15,19 +15,17 @@ import java.util.List;
 public class UpdateCommand extends MyCommandDbAccess {
 	public UpdateCommand(DaoImplementation dao) {
 		super(dao);
+		parser = new OnlyUsernameParser(dao);
 	}
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		String[] message;
 		MessageBuilder mes = new MessageBuilder();
-		try {
-			message = parse(e);
-		} catch (ParseException e1) {
 
-			errorMessage(e, 0, e1.getMessage());
+		message = parser.parse(e);
+		if (message == null)
 			return;
-		}
 
 
 		try {
@@ -41,10 +39,10 @@ public class UpdateCommand extends MyCommandDbAccess {
 
 
 		} catch (LastFMNoPlaysException e1) {
-			errorMessage(e, 3, e1.getMessage());
+			parser.sendError(parser.getErrorMessage(3), e);
 
 		} catch (LastFmException ex) {
-			errorMessage(e, 2, ex.getMessage());
+			parser.sendError(parser.getErrorMessage(2), e);
 		}
 
 
@@ -71,29 +69,5 @@ public class UpdateCommand extends MyCommandDbAccess {
 		return Collections.singletonList("!update *user\n\tIf user is missing defaults to user account\n\n");
 	}
 
-	@Override
-	public String[] parse(MessageReceivedEvent e) throws ParseException {
 
-		return new String[]{getLastFmUsername1input(getSubMessage(e.getMessage()), e.getAuthor().getIdLong(), e)};
-
-	}
-
-	@Override
-	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:\n";
-		String message;
-		switch (code) {
-			case 2:
-				message = "There was a problem with Last FM Api" + cause;
-				break;
-			case 3:
-				message = "User hasnt played any song recently!";
-				break;
-			default:
-				userNotOnDB(e, code);
-				return;
-
-		}
-		sendMessage(e, base + message);
-	}
 }

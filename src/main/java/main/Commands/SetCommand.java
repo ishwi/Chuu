@@ -3,7 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.LastFMData;
 import DAO.Entities.UsersWrapper;
-import main.Exceptions.ParseException;
+import main.APIs.Parsers.OneWordParser;
 import main.ScheduledTasks.UpdaterThread;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -15,6 +15,7 @@ import java.util.Optional;
 public class SetCommand extends ConcurrentCommand {
 	public SetCommand(DaoImplementation dao) {
 		super(dao);
+		parser = new OneWordParser();
 	}
 
 
@@ -22,12 +23,9 @@ public class SetCommand extends ConcurrentCommand {
 	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
 
-		try {
-			returned = parse(e);
-		} catch (ParseException e1) {
-			errorMessage(e, 0, e1.getMessage());
+		returned = parser.parse(e);
+		if (returned == null)
 			return;
-		}
 
 
 		MessageBuilder mes = new MessageBuilder();
@@ -91,21 +89,5 @@ public class SetCommand extends ConcurrentCommand {
 		return Collections.singletonList("!set lastFMUser\n\n");
 	}
 
-	@Override
-	public String[] parse(MessageReceivedEvent e) throws ParseException {
-		String[] message = getSubMessage(e.getMessage());
-		if (message.length != 1)
-			throw new ParseException("Command");
-		return message;
-	}
 
-	@Override
-	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:\n";
-		if (code == 0) {
-			sendMessage(e, base + "You need to introduce a valid LastFm name");
-		} else {
-			sendMessage(e, base + "You have already set your account");
-		}
-	}
 }

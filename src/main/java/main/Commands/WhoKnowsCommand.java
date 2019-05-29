@@ -3,14 +3,9 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.WrapperReturnNowPlaying;
-import main.APIs.Discogs.DiscogsApi;
-import main.APIs.Parsers.Parser;
 import main.APIs.Parsers.WhoKnowsParser;
-import main.APIs.Spotify.Spotify;
-import main.APIs.Spotify.SpotifySingleton;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
-import main.Exceptions.ParseException;
 import main.ImageRenderer.NPMaker;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -22,19 +17,21 @@ import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("Duplicates")
 public class WhoKnowsCommand extends ConcurrentCommand {
-	public final DiscogsApi discogsApi;
-	private final Spotify spotify;
+//	public final DiscogsApi discogsApi;
+//	private final Spotify spotify;
 
-	public WhoKnowsCommand(DaoImplementation dao, DiscogsApi discogsApi) {
+	public WhoKnowsCommand(DaoImplementation dao) {
 		super(dao);
-		this.discogsApi = discogsApi;
-		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+//		this.discogsApi = discogsApi;
+//		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+		this.parser = new WhoKnowsParser();
 	}
 
 	void whoKnowsLogic(String who, Boolean isImage, MessageReceivedEvent e) {
@@ -43,7 +40,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		WrapperReturnNowPlaying wrapperReturnNowPlaying = this.getDao().whoKnows(who, e.getGuild().getIdLong());
 
 		if (wrapperReturnNowPlaying.getRows() == 0) {
-			String repeated = null;
+			String repeated;
 			try {
 				repeated = lastFM.getCorrection(who);
 			} catch (LastFmEntityNotFoundException ex) {
@@ -69,9 +66,9 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 		try {
 
-			if (wrapperReturnNowPlaying.getUrl() == null) {
-				wrapperReturnNowPlaying.setUrl(CommandUtil.getDiscogsUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao(), spotify));
-			}
+//			if (wrapperReturnNowPlaying.getUrl() == null) {
+//				wrapperReturnNowPlaying.setUrl(CommandUtil.getDiscogsUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao(), spotify));
+//			}
 
 			if (!isImage) {
 				StringBuilder builder = new StringBuilder();
@@ -133,9 +130,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
-		Parser parser = new WhoKnowsParser(e);
-
-		returned = parser.parse();
+		returned = parser.parse(e);
 		if (returned == null)
 			return;
 
@@ -145,7 +140,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!whoknows");
+		return Arrays.asList("!whoknows", "!wk");
 	}
 
 	@Override
@@ -164,19 +159,5 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		);
 	}
 
-	@Override
-	public String[] parse(MessageReceivedEvent e) throws ParseException {
-		return new String[0];
-	}
 
-
-	@Override
-	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
-		if (code == 0) {
-			sendMessage(e, base + " You need to specify the Artist!");
-			return;
-		}
-		sendMessage(e, base + "Internal Server Error, Try Again later ");
-	}
 }

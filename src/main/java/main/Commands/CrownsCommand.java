@@ -3,8 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.UniqueData;
 import DAO.Entities.UniqueWrapper;
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import main.Exceptions.ParseException;
+import main.APIs.Parsers.OnlyUsernameParser;
 import main.OtherListeners.Reactionario;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -16,21 +15,18 @@ import java.util.Collections;
 import java.util.List;
 
 public class CrownsCommand extends ConcurrentCommand {
-	private EventWaiter wait;
-
 	public CrownsCommand(DaoImplementation dao) {
 		super(dao);
+		parser = new OnlyUsernameParser(dao);
 	}
 
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
 		String[] message;
-		try {
-			message = parse(e);
-		} catch (ParseException e1) {
-			errorMessage(e, 0, e1.getMessage());
+
+		message = parser.parse(e);
+		if (message == null)
 			return;
-		}
 
 		MessageBuilder mes = new MessageBuilder();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -69,7 +65,6 @@ public class CrownsCommand extends ConcurrentCommand {
 			quee.clearReactions().queue();
 		});
 
-		return;
 	}
 
 
@@ -92,31 +87,6 @@ public class CrownsCommand extends ConcurrentCommand {
 	public List<String> getUsageInstructions() {
 		return Collections.singletonList("**!crowns **user \n" +
 				"If user is missing defaults to user account\n\n ");
-	}
-
-	@Override
-	public String[] parse(MessageReceivedEvent e) throws ParseException {
-
-		String[] message = getSubMessage(e.getMessage());
-		return new String[]{getLastFmUsername1input(message, e.getAuthor().getIdLong(), e)};
-	}
-
-	@Override
-	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request:\n";
-		String message;
-		switch (code) {
-			case 0:
-				message = "You need to introduce an user";
-				break;
-			case 1:
-				message = "User was not found on the database, register first!";
-				break;
-			default:
-				message = "An unknown Error happened";
-
-		}
-		sendMessage(e, base + message);
 	}
 
 

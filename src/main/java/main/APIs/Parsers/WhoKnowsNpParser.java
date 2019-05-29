@@ -10,21 +10,21 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class WhoKnowsNpParser extends NpParser {
 	private ConcurrentLastFM lastFM;
 
-	public WhoKnowsNpParser(MessageReceivedEvent e, DaoImplementation dao, ConcurrentLastFM last) {
-		super(e, dao);
+	public WhoKnowsNpParser(DaoImplementation dao, ConcurrentLastFM last) {
+		super(dao);
 		this.lastFM = last;
 	}
 
 	@Override
-	public String[] parse() {
-		String[] a = super.parse();
+	public String[] parse(MessageReceivedEvent e) {
+		String[] a = super.parse(e);
 		String[] message = getSubMessage(e.getMessage());
 
 		String user = a[0];
-		boolean hasImage = false;
-		String[] optional = containsOptional("image", message);
-		if (optional.length == message.length)
-			hasImage = true;
+		boolean hasImage = true;
+		String[] optional = containsOptional("list", message);
+		if (optional.length != message.length)
+			hasImage = false;
 
 		NowPlayingArtist nowPlayingArtist;
 		try {
@@ -32,11 +32,11 @@ public class WhoKnowsNpParser extends NpParser {
 
 
 		} catch (LastFMNoPlaysException e1) {
-			sendError(getErrorMessage(3));
+			sendError(getErrorMessage(3), e);
 			return null;
 
 		} catch (LastFmException e1) {
-			sendError(getErrorMessage(2));
+			sendError(getErrorMessage(2), e);
 			return null;
 		}
 		return new String[]{nowPlayingArtist.getArtistName(), Boolean.toString(hasImage)};
