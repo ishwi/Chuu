@@ -20,11 +20,15 @@ public class NPMaker {
 	private static final int Y_MARGIN = 25;
 
 	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
-	private static final Font KOREAN_FONT = new Font("NanumGothicBold", Font.PLAIN, 32);
-	private static final Font JAPANESE_FONT = new Font("Yu Gothic Ui Bold", Font.PLAIN, 32);
+	private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 32);
+	private static final Font KOREAN_FONT = new Font("Noto Serif CJK KR Regular", Font.PLAIN, 32);
 
-	private static final Font ARTIST_FONT = new Font("NanumGothicBold", Font.PLAIN, 32);
-	private static final Font DESC_FONT = new Font("Yu Gothic UI Light", Font.PLAIN, 32);
+	private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP Regular", Font.PLAIN, 32);
+
+	private static final Font CHINESE_FONT = new Font("Noto Serif CJK TC Regular", Font.PLAIN, 32);
+
+
+	private static final Font DESC_FONT = new Font("Noto Sans Display Light", Font.PLAIN, 32);
 	private static final String FIRST_LINE = "Who knows";
 	private static Color FONT_COLOR = Color.BLACK;
 
@@ -48,7 +52,8 @@ public class NPMaker {
 		GraphicUtils.setQuality(g);
 
 		try {
-			lastFmLogo = ImageIO.read(new File("C:\\Users\\Ishwi\\Documents\\discord\\bot\\src\\main\\resources\\logo2.png"));
+
+			lastFmLogo = ImageIO.read(NPMaker.class.getResourceAsStream("/logo2.png"));//ImageIO.read(new File("C:\\Users\\Ishwi\\Documents\\discord\\bot\\src\\main\\resources\\logo2.png"));
 			guildLogo = logo;//new File("C:\\Users\\Ishwi\\Desktop\\logo.png"));
 
 
@@ -82,9 +87,20 @@ public class NPMaker {
 
 		g.drawString(FIRST_LINE, X_MAX / 2 - width / 2, y_counter);
 
-		y_counter += 12;
+		y_counter += 10;
+		Font fontToUse;
+		if (NORMAL_FONT.canDisplayUpTo(artist) == -1) {
+			fontToUse = NORMAL_FONT;
 
-		Font fontToUse = GraphicUtils.hasKorean(artist) ? KOREAN_FONT : JAPANESE_FONT;
+//		} else if (GraphicUtils.hasKorean(artist)) {
+//			fontToUse = KOREAN_FONT;
+//
+//		} else if (GraphicUtils.hasJapanese(artist)) {
+//			fontToUse = JAPANESE_FONT;
+//
+		} else
+			fontToUse = JAPANESE_FONT;
+
 		g.setFont(fontToUse);
 		metrics = g.getFontMetrics(fontToUse);
 		y_counter += metrics.getAscent() - metrics.getDescent();
@@ -93,7 +109,7 @@ public class NPMaker {
 		//GraphicUtils.do1(g,artist,GraphicUtils.getInverseBW(FONT_COLOR),FONT_COLOR,X_MAX / 2 - width / 2,y_counter);
 		g.drawString(artist, X_MAX / 2 - width / 2, y_counter);
 
-		y_counter += 8;
+		y_counter += 10;
 
 
 		g.setFont(DESC_FONT);
@@ -103,10 +119,6 @@ public class NPMaker {
 		width = metrics.stringWidth(thirdLine);
 		g.drawString(thirdLine, X_MAX / 2 - width / 2, y_counter);
 		y_counter += 16;
-
-
-
-
 
 
 		int rectWidth = X_MAX - X_MARGIN - (X_MARGIN + 320);
@@ -147,7 +159,7 @@ public class NPMaker {
 			size = 18f;
 
 
-			g.drawString("#" + (i + 1) + " " + nowPlayingArtistList.get(i).getDiscordName(), X_MARGIN + 332, y_counter + (32 - metrics.getAscent() / 2));
+			g.drawString("#" + (i + 1) + " " + nowPlayingArtistList.get(i).getDiscordName(), X_MARGIN + 332, y_counter + (30 - metrics.getAscent() / 2));
 			g.setFont(DESC_FONT.deriveFont(size));
 			String plays = String.valueOf(nowPlayingArtistList.get(i).getPlaynumber());
 

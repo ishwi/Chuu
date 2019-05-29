@@ -1,7 +1,7 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import main.APIs.Parsers.WhoKnowsNpParser;
+import main.Parsers.WhoKnowsNpParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;

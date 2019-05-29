@@ -2,9 +2,9 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.UrlCapsule;
-import main.APIs.Parsers.TopParser;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
+import main.Parsers.TopParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

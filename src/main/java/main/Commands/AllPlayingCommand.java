@@ -3,7 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import DAO.Entities.UsersWrapper;
-import main.APIs.Parsers.OptionalParser;
+import main.Parsers.OptionalParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;

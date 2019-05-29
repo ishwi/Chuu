@@ -3,9 +3,9 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.ResultWrapper;
 import DAO.Entities.UserInfo;
-import main.APIs.Parsers.TwoUsersParser;
 import main.Exceptions.LastFmException;
 import main.ImageRenderer.ImageRenderer;
+import main.Parsers.TwoUsersParser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

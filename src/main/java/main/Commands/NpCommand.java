@@ -2,11 +2,11 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
-import main.APIs.Parsers.NpParser;
-import main.APIs.Parsers.Parser;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
+import main.Parsers.NpParser;
+import main.Parsers.Parser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public abstract class NpCommand extends ConcurrentCommand {

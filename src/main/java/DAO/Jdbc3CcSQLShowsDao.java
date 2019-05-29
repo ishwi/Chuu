@@ -354,7 +354,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 	public Set<String> selectNullUrls(Connection connection, boolean doSpotifySearch) {
 		Set<String> returnList = new HashSet<>();
 
-		String queryString = doSpotifySearch ? "SELECT * FROM artist_url where url = \"\"  and  url_status = 1 limit 30" : "SELECT * FROM artist_url where url is null limit 30";
+		String queryString = doSpotifySearch ? "SELECT * FROM artist_url where url = \"\"  and  url_status = 1 or url is null limit 30" : "SELECT * FROM artist_url where url is null limit 30";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			ResultSet resultSet = preparedStatement.executeQuery();
 

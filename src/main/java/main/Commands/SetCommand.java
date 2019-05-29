@@ -3,7 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.LastFMData;
 import DAO.Entities.UsersWrapper;
-import main.APIs.Parsers.OneWordParser;
+import main.Parsers.OneWordParser;
 import main.ScheduledTasks.UpdaterThread;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

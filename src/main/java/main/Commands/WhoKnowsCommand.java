@@ -3,10 +3,14 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.WrapperReturnNowPlaying;
-import main.APIs.Parsers.WhoKnowsParser;
+import main.APIs.Discogs.DiscogsApi;
+import main.APIs.Discogs.DiscogsSingleton;
+import main.APIs.Spotify.Spotify;
+import main.APIs.Spotify.SpotifySingleton;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.ImageRenderer.NPMaker;
+import main.Parsers.WhoKnowsParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -24,13 +28,13 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("Duplicates")
 public class WhoKnowsCommand extends ConcurrentCommand {
-//	public final DiscogsApi discogsApi;
-//	private final Spotify spotify;
+	public final DiscogsApi discogsApi;
+	private final Spotify spotify;
 
 	public WhoKnowsCommand(DaoImplementation dao) {
 		super(dao);
-//		this.discogsApi = discogsApi;
-//		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+		this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
 		this.parser = new WhoKnowsParser();
 	}
 
@@ -66,9 +70,9 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 		try {
 
-//			if (wrapperReturnNowPlaying.getUrl() == null) {
-//				wrapperReturnNowPlaying.setUrl(CommandUtil.getDiscogsUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao(), spotify));
-//			}
+			if (wrapperReturnNowPlaying.getUrl() == null) {
+				wrapperReturnNowPlaying.setUrl(CommandUtil.getDiscogsUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao(), spotify));
+			}
 
 			if (!isImage) {
 				StringBuilder builder = new StringBuilder();
