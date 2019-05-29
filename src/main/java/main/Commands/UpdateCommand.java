@@ -2,9 +2,9 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
-import main.APIs.Parsers.OnlyUsernameParser;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmException;
+import main.Parsers.OnlyUsernameParser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

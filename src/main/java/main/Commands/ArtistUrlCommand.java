@@ -2,7 +2,7 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistInfo;
-import main.APIs.Parsers.ArtistUrlParser;
+import main.Parsers.ArtistUrlParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;

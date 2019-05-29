@@ -1,6 +1,6 @@
 package main.Commands;
 
-import main.APIs.Parsers.Parser;
+import main.Parsers.Parser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
@@ -53,11 +53,11 @@ public abstract class MyCommand extends ListenerAdapter {
 		return getAliases().contains(commandArgs(message)[0]);
 	}
 
-	private String[] commandArgs(Message message) {
+	String[] commandArgs(Message message) {
 		return commandArgs(message.getContentDisplay());
 	}
 
-	private String[] commandArgs(String string) {
+	String[] commandArgs(String string) {
 		return string.split(" ");
 	}
 
@@ -72,7 +72,7 @@ public abstract class MyCommand extends ListenerAdapter {
 		return sendMessage(e, new MessageBuilder().append(message).build());
 	}
 
-	private boolean respondToBots() {
+	boolean respondToBots() {
 		return false;
 	}
 

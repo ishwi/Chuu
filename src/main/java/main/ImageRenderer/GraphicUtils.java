@@ -63,38 +63,49 @@ public class GraphicUtils {
 		return color.equals(Color.BLACK) ? Color.WHITE : Color.BLACK;
 	}
 
+
 	public static boolean hasKorean(CharSequence charSequence) {
+		boolean hasKorean = false;
 		for (char c : charSequence.toString().toCharArray()) {
 			if (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HANGUL_JAMO
 					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HANGUL_COMPATIBILITY_JAMO
 					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HANGUL_SYLLABLES) {
-				return true;
+				hasKorean = true;
+				break;
 			}
 		}
-		return false;
+
+		return hasKorean;
 	}
 
-	public static boolean hasCJK(CharSequence charSequence) {
+	public static boolean hasJapanese(CharSequence charSequence) {
+		boolean hasJapanese = false;
 		for (char c : charSequence.toString().toCharArray()) {
-			if (isCharCJK(c))
-				return true;
+			if (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HIRAGANA
+					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.KATAKANA
+					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
+					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
+					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION) {
+				hasJapanese = true;
+				break;
+			}
+		}
+
+		return hasJapanese;
+	}
+
+	private boolean hasChinese(final char c) {
+		if ((Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS)) {
+			return true;
 		}
 		return false;
-	}
-
-
-	private static boolean isCharCJK(final char c) {
-		return (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
-				|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
-				|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
-				|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
-				|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS
-				|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
-				|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT
-				|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
-				|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS
-				|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HIRAGANA
-				|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.KATAKANA);
-
 	}
 }

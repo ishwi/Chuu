@@ -1,7 +1,7 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import main.APIs.Parsers.UrlParser;
+import main.Parsers.UrlParser;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
