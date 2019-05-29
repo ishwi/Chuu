@@ -47,7 +47,7 @@ class Main {
 	}
 
 
-	static void relaunchInUTF8() throws InterruptedException, UnsupportedEncodingException {
+	private static void relaunchInUTF8() throws InterruptedException, UnsupportedEncodingException {
 		System.out.println("BotLauncher: We are not running in UTF-8 mode! This is a problem!");
 		System.out.println("BotLauncher: Relaunching in UTF-8 mode using -Dfile.encoding=UTF-8");
 
@@ -73,7 +73,7 @@ class Main {
 	}
 
 
-	static void setupBot() {
+	private static void setupBot() {
 		Properties properties = readToken();
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
 
@@ -90,8 +90,8 @@ class Main {
 		AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
 		builder.addEventListeners(help.registerCommand(commandAdministrator));
 		builder.addEventListeners(help.registerCommand(new NowPlayingCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new WhoKnowsCommand(dao, DiscogsSingleton.getInstanceUsingDoubleLocking())));
-		builder.addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao, DiscogsSingleton.getInstanceUsingDoubleLocking())));
+		builder.addEventListeners(help.registerCommand(new WhoKnowsCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new ChartCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new SetCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new AllPlayingCommand(dao)));
@@ -102,7 +102,7 @@ class Main {
 		builder.addEventListeners(help.registerCommand(new UniqueCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new NPYoutubeCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new ArtistCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new AlbumSongPlaysCommand(dao)));
+		//builder.addEventListeners(help.registerCommand(new AlbumSongPlaysCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new GuildTopCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new ArtistUrlCommand(dao)));
 

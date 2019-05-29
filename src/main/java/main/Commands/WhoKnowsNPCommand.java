@@ -1,25 +1,26 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import main.APIs.Discogs.DiscogsApi;
-import main.APIs.Parsers.Parser;
 import main.APIs.Parsers.WhoKnowsNpParser;
-import main.Exceptions.ParseException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class WhoKnowsNPCommand extends WhoKnowsCommand {
 
 
-	public WhoKnowsNPCommand(DaoImplementation dao, DiscogsApi discogsApi) {
-		super(dao, discogsApi);
+	public WhoKnowsNPCommand(DaoImplementation dao) {
+		super(dao);
+		this.parser = new WhoKnowsNpParser(getDao(), this.lastFM);
+
 	}
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!whoknowsnp");
+		return Arrays.asList("!whoknowsnp", "!wknp");
+
 	}
 
 	@Override
@@ -41,21 +42,10 @@ public class WhoKnowsNPCommand extends WhoKnowsCommand {
 
 
 	@Override
-	public String[] parse(MessageReceivedEvent e) throws ParseException {
-		return null;
-	}
-
-	@Override
-	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-
-	}
-
-	@Override
 	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
-		Parser parser = new WhoKnowsNpParser(e, getDao(), this.lastFM);
 
-		returned = parser.parse();
+		returned = parser.parse(e);
 		if (returned == null)
 			return;
 		whoKnowsLogic(returned[0], Boolean.valueOf(returned[1]), e);

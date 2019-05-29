@@ -3,10 +3,8 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.UrlCapsule;
 import main.APIs.Parsers.ChartParser;
-import main.APIs.Parsers.Parser;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
-import main.Exceptions.ParseException;
 import main.ImageRenderer.CollageMaker;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -28,14 +26,15 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class ChartCommand extends ConcurrentCommand {
 
 	public ChartCommand(DaoImplementation dao) {
+
 		super(dao);
+		this.parser = new ChartParser(getDao());
 	}
 
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
-		Parser parser = new ChartParser(e, getDao());
-		returned = parser.parse();
+		returned = parser.parse(e);
 		if (returned == null)
 			return;
 
@@ -54,9 +53,9 @@ public class ChartCommand extends ConcurrentCommand {
 
 
 		} catch (LastFmEntityNotFoundException e1) {
-			parser.sendError(parser.getErrorMessage(3));
+			parser.sendError(parser.getErrorMessage(3), e);
 		} catch (LastFmException ex2) {
-			parser.sendError(parser.getErrorMessage(2));
+			parser.sendError(parser.getErrorMessage(2), e);
 		}
 
 
@@ -68,7 +67,7 @@ public class ChartCommand extends ConcurrentCommand {
 		generateImage(queue, x, y, e);
 	}
 
-	public void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e) {
+	void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e) {
 		MessageChannel cha = e.getChannel();
 
 		int size = queue.size();
@@ -112,7 +111,7 @@ public class ChartCommand extends ConcurrentCommand {
 			fos.write(img);
 			//fos.close(); There is no more need for this line since you had created the instance of "fos" inside the try. And this will automatically close the OutputStream
 		} catch (IOException ex) {
-			errorMessage(e, 100, ex.getMessage());
+			sendMessage(e, "Ish pc is bad ");
 		}
 
 
@@ -141,16 +140,6 @@ public class ChartCommand extends ConcurrentCommand {
 				"\tIf username is not specified defaults to authors account \n" +
 				"\tIf size is not specified defaults to 5x5 (As big as discord lets\n\n"
 		);
-	}
-
-	@Override
-	public String[] parse(MessageReceivedEvent e) throws ParseException {
-		return new String[0];
-	}
-
-	@Override
-	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-
 	}
 
 

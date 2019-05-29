@@ -8,8 +8,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ChartParser extends DaoParser {
-	public ChartParser(MessageReceivedEvent e, DaoImplementation dao) {
-		super(e, dao);
+	public ChartParser(DaoImplementation dao) {
+		super(dao);
 	}
 
 	private String getTimeFromChar(String timeFrame) {
@@ -25,7 +25,7 @@ public class ChartParser extends DaoParser {
 	}
 
 	@Override
-	public String[] parse() {
+	public String[] parse(MessageReceivedEvent e) {
 		String timeFrame = "w";
 		String discordName;
 		String x = "5";
@@ -42,7 +42,7 @@ public class ChartParser extends DaoParser {
 			flag = false;
 		}
 		if (message.length > 3) {
-			sendError(getErrorMessage(2));
+			sendError(getErrorMessage(2), e);
 			return null;
 		}
 
@@ -65,6 +65,7 @@ public class ChartParser extends DaoParser {
 
 		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
 		if (discordName == null) {
+
 			return null;
 		}
 

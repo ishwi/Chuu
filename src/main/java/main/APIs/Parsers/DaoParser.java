@@ -9,10 +9,10 @@ import javax.management.InstanceNotFoundException;
 import java.util.List;
 
 public abstract class DaoParser extends Parser {
-	private DaoImplementation dao;
+	public DaoImplementation dao;
 
-	public DaoParser(MessageReceivedEvent e, DaoImplementation dao) {
-		super(e);
+	DaoParser(DaoImplementation dao) {
+		super();
 		this.dao = dao;
 	}
 
@@ -35,7 +35,7 @@ public abstract class DaoParser extends Parser {
 				}
 			}
 		} catch (InstanceNotFoundException e) {
-			sendError(getErrorMessage(1));
+			sendError(getErrorMessage(1), event);
 			return null;
 		}
 		return username;
@@ -44,5 +44,7 @@ public abstract class DaoParser extends Parser {
 	@Override
 	public void setUpErrorMessages() {
 		errorMessages.put(1, "User not on database");
+		errorMessages.put(3, "User hasnt played any songs recently");
+		errorMessages.put(4, "User does not exist on last.fm");
 	}
 }

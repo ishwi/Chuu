@@ -11,17 +11,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Parser {
-	public final String errorBase;
 	public Map<Integer, String> errorMessages = new HashMap<>(10);
-	public MessageReceivedEvent e;
 
-	public Parser(MessageReceivedEvent e) {
-		this.e = e;
-		this.errorBase = "Error on " + e.getAuthor().getName() + "'s request:\n";
+	public Parser() {
 		setUpErrorMessages();
 	}
 
-	public abstract String[] parse();
+	public abstract String[] parse(MessageReceivedEvent e);
 
 	public abstract void setUpErrorMessages();
 
@@ -30,11 +26,11 @@ public abstract class Parser {
 	}
 
 
-	public String[] containsOptional(String optional, String[] subMessage) {
+	String[] containsOptional(String optional, String[] subMessage) {
 		return Arrays.stream(subMessage).filter(s -> !s.equals("--" + optional)).toArray(String[]::new);
 	}
 
-	public boolean isValidURL(String urlString) {
+	boolean isValidURL(String urlString) {
 		try {
 			URL url = new URL(urlString);
 			url.toURI();
@@ -44,7 +40,7 @@ public abstract class Parser {
 		}
 	}
 
-	public String artistMultipleWords(String[] message) {
+	String artistMultipleWords(String[] message) {
 		String artist;
 		if (message.length > 1) {
 			StringBuilder a = new StringBuilder();
@@ -66,15 +62,16 @@ public abstract class Parser {
 
 	}
 
-	public Message sendError(String message) {
-		return sendMessage(new MessageBuilder().append(errorBase).append(message).build());
+	public Message sendError(String message, MessageReceivedEvent e) {
+		String errorBase = "Error on " + e.getAuthor().getName() + "'s request:\n";
+		return sendMessage(new MessageBuilder().append(errorBase).append(message).build(), e);
 	}
 
-	public Message sendMessage(String message) {
-		return sendMessage(new MessageBuilder().append(message).build());
+	public Message sendMessage(String message, MessageReceivedEvent e) {
+		return sendMessage(new MessageBuilder().append(message).build(), e);
 	}
 
-	public Message sendMessage(Message message) {
+	public Message sendMessage(Message message, MessageReceivedEvent e) {
 		if (e.isFromType(ChannelType.PRIVATE))
 			return e.getPrivateChannel().sendMessage(message).complete();
 		else

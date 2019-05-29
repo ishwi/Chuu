@@ -3,31 +3,34 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import DAO.Entities.UsersWrapper;
-import main.Exceptions.ParseException;
+import main.APIs.Parsers.OptionalParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AllPlayingCommand extends ConcurrentCommand {
 	public AllPlayingCommand(DaoImplementation dao) {
 		super(dao);
+		this.parser = new OptionalParser("recent");
 	}
 
 
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
-		String[] message;
-		try {
-			message = parse(e);
-		} catch (ParseException e1) {
-			errorMessage(e, 1000, e1.getMessage());
+		String[] subMessage = getSubMessage(e.getMessage());
+		String[] message = parser.parse(e);
+		if (message == null)
 			return;
-		}
-		boolean showFresh = Boolean.valueOf(message[0]);
+
+		boolean showFresh = message.length != subMessage.length;
+
 		List<UsersWrapper> list = getDao().getAll(e.getGuild().getIdLong());
 		MessageBuilder messageBuilder = new MessageBuilder();
 
@@ -102,32 +105,4 @@ public class AllPlayingCommand extends ConcurrentCommand {
 				"\t--recent for last track\n\n ");
 	}
 
-	@Override
-	public String[] parse(MessageReceivedEvent e) throws ParseException {
-		String[] subMessage = getSubMessage(e.getMessage());
-		boolean showFresh = Arrays.stream(subMessage).noneMatch(s -> s.equals("--recent"));
-
-		return new String[]{Boolean.toString(showFresh)};
-	}
-
-	@Override
-	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-		String base = " An Error Happened while processing " + e.getAuthor().getName() + "'s request: ";
-		String message;
-
-		switch (code) {
-
-			case 0:
-				message = "There was a problem with Last FM Api" + cause;
-				break;
-			case 1:
-				message = "User hasnt played any song recently!" + cause;
-				break;
-			default:
-				message = "An unknown error happned";
-
-
-		}
-		sendMessage(e, base + message);
-	}
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2015-2016 Austin Keener
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,6 @@
  */
 package main.Commands;
 
-import main.Exceptions.ParseException;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -114,15 +113,6 @@ public class HelpCommand extends MyCommand {
 						+ "__Example:__ .help ann");
 	}
 
-	@Override
-	public String[] parse(MessageReceivedEvent e) throws ParseException {
-		return new String[0];
-	}
-
-	@Override
-	public void errorMessage(MessageReceivedEvent e, int code, String cause) {
-
-	}
 
 	private void sendPrivate(MessageChannel channel, String[] args) {
 		if (args.length < 2) {
