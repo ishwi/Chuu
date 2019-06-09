@@ -102,9 +102,11 @@ class Main {
 		builder.addEventListeners(help.registerCommand(new UniqueCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new NPYoutubeCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new ArtistCommand(dao)));
-		//builder.addEventListeners(help.registerCommand(new AlbumSongPlaysCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new AlbumSongPlaysCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new GuildTopCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new ArtistUrlCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new BandInfoCommand(dao)));
+
 
 
 		//EventWaiter waiter = new EventWaiter(Executors.newSingleThreadScheduledExecutor(), false);

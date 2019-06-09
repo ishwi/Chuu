@@ -24,9 +24,10 @@ public class NowPlayingCommand extends NpCommand {
 		a.append("**[").append(username).append("'s Profile](").append("https://www.last.fm/user/").append(username).append(")**\n\n")
 				.append(nowPlayingArtist.isNowPlaying() ? "Current" : "Last")
 				.append(":\n")
-				.append("**").append(nowPlayingArtist.getSongName()).append("**")
-				.append(" - ").append(nowPlayingArtist.getAlbumName()).append(" | ")
-				.append(nowPlayingArtist.getArtistName());
+				.append(nowPlayingArtist.getArtistName())
+				.append(" - ").append(nowPlayingArtist.getSongName()).append("")
+				.append(" | ").append(nowPlayingArtist.getAlbumName());
+
 
 		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
 				.setTitle("Now Playing:")

@@ -2,7 +2,6 @@ package main.APIs.last;
 
 import DAO.Entities.*;
 import main.APIs.ClientSingleton;
-import main.APIs.Discogs.DiscogsApi;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.LastFmEntityNotFoundException;
@@ -32,11 +31,11 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private final String GET_ALL = "?method=user.getrecenttracks&limit=200&user=";
 
 	private final String GET_ARTIST = "?method=user.gettopartists&user=";
-	private final String GET_TRACKS = "?method=user.getartisttracks&user=";
+	private final String GET_TRACKS = "?method=album.getinfo&username=";
 	private final String GET_CORRECTION = "?method=artist.getcorrection&artist=";
+	private final String GET_ARTIST_ALBUMS = "?method=artist.gettopalbums&artist=";
 	private final HttpClient client;
 	private final Header header;
-	private DiscogsApi discogsApi;
 
 	public ConcurrentLastFM() {
 		this.client = ClientSingleton.getInstance();
@@ -45,11 +44,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 		this.header.setValue("discordBot/ishwi6@gmail.com");
 	}
 
-	public ConcurrentLastFM(DiscogsApi discogsApi) {
-		this();
-		this.discogsApi = discogsApi;
-
-	}
 
 	private void parseHttpCode(int code) throws LastFmException {
 		if (code / 100 == 2)
@@ -355,53 +349,61 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
-	public int getPlaysAlbum_Artist(String username, boolean isAlbum, String artist, String queriedString) throws
+	public int getPlaysAlbum_Artist(String username, String artist, String queriedString) throws
 			LastFmException {
 
-		int queryCounter = 0;
 		String url;
 		try {
-			url = BASE + GET_TRACKS + username + "&artist=" + URLEncoder.encode(artist, "UTF-8") + API_KEY + ending + "&size=500";
+			url = BASE + GET_TRACKS + username + "&artist=" + URLEncoder.encode(artist, "UTF-8") + "&album=" + URLEncoder.encode(queriedString, "UTF-8") +
+					API_KEY + ending + "&autocorrect=1";
 		} catch (UnsupportedEncodingException e) {
 			throw new LastFMServiceException("500");
 		}
-		int page = 1;
-		while (true) {
-
-			String urlPage = url + "&page=" + page;
-			++page;
-
-			HttpMethodBase method = createMethod(urlPage);
-
-			System.out.println(page + " :page             size: ");
-
-			JSONObject obj = doMethod(method);
-			obj = obj.getJSONObject("artisttracks");
 
 
-			JSONArray arr = obj.getJSONArray("track");
-			int pageCounter = 0;
-			for (int i = 0; i < arr.length(); i++) {
-				JSONObject albumObj = arr.getJSONObject(i);
-				if (!albumObj.has("date"))
-					continue;
-
-				if (isAlbum) {
-					if (albumObj.getJSONObject("album").getString("#text").equalsIgnoreCase(queriedString))
-						++queryCounter;
-				} else if (albumObj.getString("name").equalsIgnoreCase(queriedString))
-					++queryCounter;
-
-				++pageCounter;
-			}
-			if (pageCounter != 50)
-				break;
+		HttpMethodBase method = createMethod(url);
 
 
+		JSONObject obj = doMethod(method);
+		if (!obj.has("album"))
+			throw new LastFmEntityNotFoundException(artist);
+		return obj.getJSONObject("album").getInt("userplaycount");
+	}
+
+	public ArtistAlbums getAlbumsFromArtist(String artist, int topAlbums) throws
+			LastFmException {
+
+		List<AlbumInfo> albumList = new ArrayList<>(topAlbums);
+		String url;
+		String artistCorrected;
+
+		try {
+			url = BASE + GET_ARTIST_ALBUMS + URLEncoder.encode(artist, "UTF-8") + API_KEY + "&autocorrect=1&limit=" + topAlbums + ending;
+		} catch (UnsupportedEncodingException e) {
+			throw new LastFMServiceException("500");
 		}
 
 
-		return queryCounter;
+		HttpMethodBase method = createMethod(url);
+
+
+		JSONObject obj = doMethod(method);
+		if (!obj.has("topalbums"))
+			throw new LastFmEntityNotFoundException(artist);
+		else {
+			obj = obj.getJSONObject("topalbums");
+			artistCorrected = obj.getJSONObject("@attr").getString("artist");
+		}
+
+		JSONArray arr = obj.getJSONArray("album");
+		for (int i = 0; i < arr.length(); i++) {
+			JSONObject tempObj = arr.getJSONObject(i);
+			JSONArray images = tempObj.getJSONArray("image");
+			String image_url = images.getJSONObject(images.length() - 1).getString("#text");
+			albumList.add(new AlbumInfo(tempObj.getString("name"), image_url));
+		}
+
+		return new ArtistAlbums(artistCorrected, albumList);
 	}
 
 }

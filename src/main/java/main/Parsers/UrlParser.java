@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class UrlParser extends OneWordParser {
 	@Override
 	public String[] parse(MessageReceivedEvent e) {
-		if (e.getMember() == null || !e.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+		if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
 			sendError(getErrorMessage(2), e);
 			return null;
 		}
