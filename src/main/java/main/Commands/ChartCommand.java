@@ -55,7 +55,7 @@ public class ChartCommand extends ConcurrentCommand {
 		} catch (LastFmEntityNotFoundException e1) {
 			parser.sendError(parser.getErrorMessage(3), e);
 		} catch (LastFmException ex2) {
-			parser.sendError(parser.getErrorMessage(2), e);
+			parser.sendError(parser.getErrorMessage(4), e);
 		}
 
 
