@@ -3,10 +3,13 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.AlbumInfo;
 import DAO.Entities.ArtistAlbums;
+import DAO.Entities.WrapperReturnNowPlaying;
 import main.Exceptions.LastFmException;
+import main.ImageRenderer.Stealing.BandRendered;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
+import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -37,7 +40,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 		try {
 			lastFmName = getDao().findShow(e.getAuthor().getIdLong()).getName();
 		} catch (InstanceNotFoundException ex) {
-			sendMessage(e, "Error Maricon");
+			sendMessage(e, "Error f");
 		}
 
 
@@ -56,13 +59,15 @@ public class BandInfoCommand extends WhoKnowsCommand {
 		for (AlbumInfo albumInfo : list) {
 			s.append(++counter).append(albumInfo.getAlbum()).append(" ").append(albumInfo.getPlays()).append("\n");
 		}
-
-		getDao().whoKnows(artist, e.getGuild().getIdLong());
-
-		sendMessage(e, s.toString());
-		return;
-
-
+//		sendMessage(e, s.toString());
+		WrapperReturnNowPlaying np = getDao().whoKnows(artist, e.getGuild().getIdLong(), 5);
+		np.getReturnNowPlayings().forEach(element ->
+				element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))
+		);
+		int plays = getDao().getArtistPlays(artist, username);
+		BufferedImage logo = CommandUtil.getLogo(getDao(), e);
+		BufferedImage returedImage = BandRendered.makeBandImage(np, ai, plays, logo, getUserString(e.getAuthor().getIdLong(), e, username));
+		sendImage(returedImage, e);
 	}
 
 	@Override

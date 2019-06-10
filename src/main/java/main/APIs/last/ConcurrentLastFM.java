@@ -349,12 +349,12 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
-	public int getPlaysAlbum_Artist(String username, String artist, String queriedString) throws
+	public int getPlaysAlbum_Artist(String username, String artist, String album) throws
 			LastFmException {
 
 		String url;
 		try {
-			url = BASE + GET_TRACKS + username + "&artist=" + URLEncoder.encode(artist, "UTF-8") + "&album=" + URLEncoder.encode(queriedString, "UTF-8") +
+			url = BASE + GET_TRACKS + username + "&artist=" + URLEncoder.encode(artist, "UTF-8") + "&album=" + URLEncoder.encode(album, "UTF-8") +
 					API_KEY + ending + "&autocorrect=1";
 		} catch (UnsupportedEncodingException e) {
 			throw new LastFMServiceException("500");

@@ -3,10 +3,15 @@ package main.Commands;
 import main.Parsers.Parser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -82,6 +87,37 @@ public abstract class MyCommand extends ListenerAdapter {
 
 		return Arrays.copyOfRange(parts, 1, parts.length);
 
+	}
+
+	public void sendImage(BufferedImage image, MessageReceivedEvent e) {
+		MessageBuilder messageBuilder = new MessageBuilder();
+		if (image == null) {
+			sendMessage(e, "Ish Pc Bad");
+			return;
+		}
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
+
+		try {
+			ImageIO.write(image, "png", b);
+			byte[] img = b.toByteArray();
+			if (img.length < 8388608)
+				messageBuilder.sendTo(e.getChannel()).addFile(img, "cat.png").queue();
+			else
+				messageBuilder.setContent("Boot to big").sendTo(e.getChannel()).queue();
+
+		} catch (IOException ex) {
+			sendMessage(e, "Ish Pc Bad");
+			ex.printStackTrace();
+			return;
+		}
+
+
+	}
+
+	public String getUserString(Long discordid, MessageReceivedEvent e, String replacement) {
+
+		Member member = e.getGuild().getMemberById(discordid);
+		return member == null ? replacement : member.getEffectiveName();
 	}
 
 

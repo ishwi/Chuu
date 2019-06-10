@@ -71,13 +71,12 @@ public class NPMaker {
 
 		g.drawImage(backGroundimage, 0, 0, X_MAX, Y_MAX, 0, 0, backGroundimage.getWidth(), backGroundimage.getHeight(), null);
 		new GaussianFilter(90).filter(canvas, canvas);
-		float[] rgb2 = new float[3];
-		int a = canvas.getRGB(0, 0);
-		new Color(a).getRGBColorComponents(rgb2);
-		Color colorB = new Color(rgb2[0], rgb2[1], rgb2[2], 0.5f).darker();
-		Color colorB1 = new Color(rgb2[0], rgb2[1], rgb2[2], 0.7f);
-		colorB1 = colorB1.darker().darker();
-		FONT_COLOR = getBetter(new Color(a));
+
+
+		Color colorB1 = GraphicUtils.getReadableColorBackgroundForFont(GraphicUtils.getFontColorBackground(canvas));
+		Color colorB = GraphicUtils.getSurfaceColor(GraphicUtils.getFontColorBackground(canvas));
+		FONT_COLOR = GraphicUtils.getBetter(GraphicUtils.getFontColorBackground(canvas));
+
 		g.setColor(FONT_COLOR);
 
 		g.setFont(DESC_FONT);
@@ -122,59 +121,59 @@ public class NPMaker {
 
 
 		int rectWidth = X_MAX - X_MARGIN - (X_MARGIN + 320);
-		g.setColor(colorB1.brighter());
-
-		g.fillRect(X_MARGIN, y_counter, rectWidth, 320);
-
-		g.setColor(colorB);
 
 		backGroundimage = Scalr.resize(backGroundimage, Scalr.Method.QUALITY, 320, Scalr.OP_ANTIALIAS);
 		int x_image_starter = X_MARGIN + (320 - backGroundimage.getWidth()) / 2;
-
 		int y_image_starter = y_counter + (320 - backGroundimage.getHeight()) / 2;
-
-
 		g.drawImage(backGroundimage, x_image_starter, y_image_starter, null);
-		//g.drawImage(backGroundimage, X_MARGIN, y_counter, X_MARGIN + 320, y_counter + 320, 0, 0, 320-backGroundimage.getWidth(), backGroundimage.getHeight(), null);
-
 		if (guildLogo != null)
 			g.drawImage(guildLogo, X_MARGIN + 320 + rectWidth - guildLogo.getWidth(), y_counter - 16 - guildLogo.getHeight(), null);
 
-		g.fillRect(X_MARGIN + 320, y_counter, rectWidth, 320);
+		doChart(g, X_MARGIN + 320, y_counter, rectWidth, 320, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo);
+		return canvas;
+	}
 
+	public static void doChart(Graphics2D g, int x, int y_counter, int widht, int height, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo) {
+		doChart(g, x, y_counter, widht, height, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, true);
+	}
+
+	public static void doChart(Graphics2D g, int x, int y_counter, int widht, int height, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, boolean doNumber) {
+
+		Font ogFont = g.getFont();
+		g.setColor(colorB1.brighter());
+		g.fillRect(x, y_counter, widht, height);
+		g.setColor(colorB);
+
+		g.fillRect(x, y_counter, widht, height);
+		FontMetrics metrics;
 		g.setFont(DESC_FONT.deriveFont(18f));
 		metrics = g.getFontMetrics(g.getFont());
 		List<ReturnNowPlaying> nowPlayingArtistList = wrapperReturnNowPlaying.getReturnNowPlayings();
 		for (int i = 0; i < nowPlayingArtistList.size() && i < 10; i++) {
 			g.setColor(colorB1);
 
-			g.fillRect(X_MARGIN + 320, y_counter, rectWidth, 28);
+			g.fillRect(x, y_counter, widht, 28);
 
-			g.setColor(getBetter(colorB1));
+			g.setColor(GraphicUtils.getBetter(colorB1));
 
 			float size = 18f;
-			while (g.getFontMetrics(g.getFont()).stringWidth(nowPlayingArtistList.get(i).getDiscordName()) > 190 && size > 14) {
+			while (g.getFontMetrics(g.getFont()).stringWidth(nowPlayingArtistList.get(i).getDiscordName()) > widht - 20 && size > 14) {
 				g.setFont(g.getFont().deriveFont(size -= 1));
 			}
 			size = 18f;
-
-
-			g.drawString("#" + (i + 1) + " " + nowPlayingArtistList.get(i).getDiscordName(), X_MARGIN + 332, y_counter + (30 - metrics.getAscent() / 2));
+			String name = nowPlayingArtistList.get(i).getDiscordName();
+			String stringWrite = doNumber ? "#" + (i + 1) + " " + name : " " + name;
+			g.drawString(stringWrite, x, y_counter + (30 - metrics.getAscent() / 2));
 			g.setFont(DESC_FONT.deriveFont(size));
 			String plays = String.valueOf(nowPlayingArtistList.get(i).getPlaynumber());
 
-			g.drawString(plays, X_MARGIN + 320 + rectWidth - (34 + metrics.stringWidth(plays)), y_counter + (30 - metrics.getAscent() / 2));
-			g.drawImage(lastFmLogo, X_MARGIN + 320 + rectWidth - 28, y_counter + 9, null);
+			g.drawString(plays, x + widht - (34 + metrics.stringWidth(plays)), y_counter + (30 - metrics.getAscent() / 2));
+			g.drawImage(lastFmLogo, x + widht - 28, y_counter + 9, null);
 			y_counter += 32;
 
 		}
-
-		return canvas;
+		g.setFont(ogFont);
 	}
 
-	private static Color getBetter(Color color) {
-		double y = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
-		return y < 128 ? Color.WHITE : Color.BLACK;
 
-	}
 }

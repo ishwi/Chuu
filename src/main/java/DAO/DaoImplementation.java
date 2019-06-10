@@ -235,8 +235,12 @@ public class DaoImplementation {
 	}
 
 	public WrapperReturnNowPlaying whoKnows(String artist, long guildId) {
+		return whoKnows(artist, guildId, 10);
+	}
+
+	public WrapperReturnNowPlaying whoKnows(String artist, long guildId, int limit) {
 		try (Connection connection = dataSource.getConnection()) {
-			return dao.knows(connection, artist, guildId);
+			return dao.knows(connection, artist, guildId, limit);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -356,7 +360,7 @@ public class DaoImplementation {
 
 	}
 
-	public InputStream findLogo(long guildId) throws InstanceNotFoundException {
+	public InputStream findLogo(long guildId) {
 		try (Connection connection = dataSource.getConnection()) {
 			return dao.findLogo(connection, guildId);
 		} catch (SQLException e) {
@@ -383,5 +387,15 @@ public class DaoImplementation {
 
 		}
 	}
+
+	public int getArtistPlays(String artist, String whom) {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.userPlays(connection, artist, whom);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+	}
+
 
 }

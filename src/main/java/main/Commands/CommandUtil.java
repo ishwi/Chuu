@@ -5,8 +5,13 @@ import DAO.Entities.ArtistInfo;
 import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Spotify.Spotify;
 import main.Exceptions.DiscogsServiceException;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Random;
 
@@ -54,5 +59,14 @@ public class CommandUtil {
 		}
 	}
 
+	public static BufferedImage getLogo(DaoImplementation dao, MessageReceivedEvent e) {
+		try (InputStream stream = dao.findLogo(e.getGuild().getIdLong())) {
+			if (stream != null)
+				return ImageIO.read(stream);
+		} catch (IOException ex) {
+			return null;
+		}
+		return null;
+	}
 
 }

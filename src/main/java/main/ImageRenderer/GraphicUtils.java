@@ -1,9 +1,18 @@
 package main.ImageRenderer;
 
+import main.ImageRenderer.Stealing.GaussianFilter;
+
+import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.GlyphVector;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
+import java.io.IOException;
 
 public class GraphicUtils {
+	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
 
 	public static void setQuality(Graphics2D g) {
 		g.setRenderingHint(
@@ -107,5 +116,62 @@ public class GraphicUtils {
 			return true;
 		}
 		return false;
+	}
+
+	public static Graphics2D initArtistBackground(BufferedImage canvas, BufferedImage artistImage) {
+
+		Graphics2D g = canvas.createGraphics();
+		GraphicUtils.setQuality(g);
+
+		g.drawImage(artistImage, 0, 0, canvas.getWidth(), canvas.getHeight(), 0, 0, artistImage.getWidth(), artistImage.getHeight(), null);
+		new GaussianFilter(90).filter(canvas, canvas);
+		return g;
+	}
+
+	public static Color getFontColorBackground(BufferedImage canvas) {
+		int a = canvas.getRGB(0, 0);
+		return new Color(a);
+	}
+
+	public static Color getBetter(Color color) {
+		double y = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
+		return y < 128 ? Color.WHITE : Color.BLACK;
+
+	}
+
+	public static Color getReadableColorBackgroundForFont(Color fontColor) {
+		float[] rgb2 = new float[3];
+		fontColor.getRGBColorComponents(rgb2);
+		Color colorB1 = new Color(rgb2[0], rgb2[1], rgb2[2], 0.7f);
+		return colorB1.darker().darker();
+	}
+
+	public static Color getSurfaceColor(Color fontColor) {
+		float[] rgb2 = new float[3];
+		fontColor.getRGBColorComponents(rgb2);
+		return new Color(rgb2[0], rgb2[1], rgb2[2], 0.5f).darker();
+	}
+
+	static BufferedImage deepCopy(BufferedImage bi) {
+		ColorModel cm = bi.getColorModel();
+		boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+		WritableRaster raster = bi.copyData(null);
+		return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+	}
+
+	public static BufferedImage getImageFromUrl(String urlImage, @Nullable BufferedImage replacement) {
+		BufferedImage backGroundimage;
+		try {
+
+
+			java.net.URL url = new java.net.URL(urlImage);
+			backGroundimage = ImageIO.read(url);
+
+		} catch (IOException e) {
+
+			backGroundimage = replacement;
+		}
+		return backGroundimage;
+
 	}
 }
