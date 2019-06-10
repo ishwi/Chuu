@@ -35,7 +35,7 @@ interface SQLShowsDao {
 
 	void addUrl(Connection con, ArtistData artistData);
 
-	WrapperReturnNowPlaying knows(Connection connection, String artist, long guildId);
+	WrapperReturnNowPlaying knows(Connection connection, String artist, long guildId, int limit);
 
 	void addGuild(Connection con, long userId, long guildId);
 
@@ -57,9 +57,11 @@ interface SQLShowsDao {
 
 	void removeLogo(Connection connection, long guildId);
 
-	InputStream findLogo(Connection connection, long guildID) throws InstanceNotFoundException;
+	InputStream findLogo(Connection connection, long guildID);
 
 	long getDiscordIdFromLastfm(Connection connection, String lastFmName, long guildId);
 
 	void upsertSpotify(Connection con, ArtistInfo artistInfo);
+
+	int userPlays(Connection con, String artist, String whom);
 }

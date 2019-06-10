@@ -13,20 +13,14 @@ import main.ImageRenderer.NPMaker;
 import main.Parsers.WhoKnowsParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.imageio.ImageIO;
-import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@SuppressWarnings("Duplicates")
+
 public class WhoKnowsCommand extends ConcurrentCommand {
 	public final DiscogsApi discogsApi;
 	private final Spotify spotify;
@@ -68,66 +62,38 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 			}
 		}
 
-		try {
 
-			if (wrapperReturnNowPlaying.getUrl() == null) {
-				wrapperReturnNowPlaying.setUrl(CommandUtil.getDiscogsUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao(), spotify));
-			}
-
-			if (!isImage) {
-				StringBuilder builder = new StringBuilder();
-				int counter = 1;
-				for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {
-					Member member = e.getGuild().getMemberById(returnNowPlaying.getDiscordId());
-
-					String userName = member == null ? returnNowPlaying.getLastFMId() : member.getEffectiveName();
-
-					builder.append(counter++)
-							.append(". ")
-							.append("[").append(userName).append("]")
-							.append("(https://www.last.fm/user/").append(returnNowPlaying.getLastFMId())
-							.append("/library/music/").append(wrapperReturnNowPlaying.getArtist().replaceAll(" ", "+").replaceAll("[)]", "%29")).append(") - ")
-							.append(returnNowPlaying.getPlaynumber()).append(" plays\n");
-				}
-
-				embedBuilder.setTitle("Who knows " + who + " in " + e.getGuild().getName() + "?").
-						setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
-						.setColor(CommandUtil.randomColor());
-				//.setFooter("Command invoked by " + event.getMember().getUser().getDiscriminator() + " · " + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toString(), );
-				messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).submit();
-				return;
-			}
-
-
-			wrapperReturnNowPlaying.setReturnNowPlayings(wrapperReturnNowPlaying.getReturnNowPlayings()
-					.stream().peek(element -> {
-						Member member = e.getGuild().getMemberById(element.getDiscordId());
-						String userName = member == null ? element.getLastFMId() : member.getEffectiveName();
-
-						element.setDiscordName(userName);
-
-					}).collect(Collectors.toList()));
-			BufferedImage logo = null;
-			try {
-				logo = ImageIO.read(getDao().findLogo(e.getGuild().getIdLong()));
-			} catch (InstanceNotFoundException ignored) {
-				System.out.println(e.getGuild().getName() + "Guild has no logo");
-			}
-			BufferedImage image = NPMaker.generateTasteImage(wrapperReturnNowPlaying, e.getGuild().getName(), logo);
-			ByteArrayOutputStream b = new ByteArrayOutputStream();
-			assert image != null;
-			ImageIO.write(image, "png", b);
-			byte[] img = b.toByteArray();
-			if (img.length < 8388608)
-				messageBuilder.sendTo(e.getChannel()).addFile(img, "cat.png").queue();
-			else
-				messageBuilder.setContent("Boot to big").sendTo(e.getChannel()).queue();
-
-
-		} catch (IOException e2) {
-			messageBuilder.setContent("Unknown error happened").sendTo(e.getChannel()).queue();
-			//messageBuilder.setContent("No nibba listens to " + who).sendTo(event.getChannel()).queue();
+		if (wrapperReturnNowPlaying.getUrl() == null) {
+			wrapperReturnNowPlaying.setUrl(CommandUtil.getDiscogsUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao(), spotify));
 		}
+
+		if (!isImage) {
+			StringBuilder builder = new StringBuilder();
+			int counter = 1;
+			for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {
+
+				String userName = getUserString(returnNowPlaying.getDiscordId(), e, returnNowPlaying.getLastFMId());
+				builder.append(counter++)
+						.append(". ")
+						.append("[").append(userName).append("]")
+						.append("(https://www.last.fm/user/").append(returnNowPlaying.getLastFMId())
+						.append("/library/music/").append(wrapperReturnNowPlaying.getArtist().replaceAll(" ", "+").replaceAll("[)]", "%29")).append(") - ")
+						.append(returnNowPlaying.getPlaynumber()).append(" plays\n");
+			}
+
+			embedBuilder.setTitle("Who knows " + who + " in " + e.getGuild().getName() + "?").
+					setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
+					.setColor(CommandUtil.randomColor());
+			//.setFooter("Command invoked by " + event.getMember().getUser().getDiscriminator() + " · " + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toString(), );
+			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).submit();
+			return;
+		}
+		wrapperReturnNowPlaying.getReturnNowPlayings().forEach(element ->
+				element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))
+		);
+		BufferedImage logo = CommandUtil.getLogo(getDao(), e);
+		BufferedImage image = NPMaker.generateTasteImage(wrapperReturnNowPlaying, e.getGuild().getName(), logo);
+		sendImage(image, e);
 	}
 
 

@@ -4,7 +4,6 @@ import DAO.Entities.*;
 import org.intellij.lang.annotations.Language;
 
 import javax.imageio.ImageIO;
-import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.*;
@@ -73,7 +72,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 	}
 
 	@Override
-	public InputStream findLogo(Connection connection, long guildID) throws InstanceNotFoundException {
+	public InputStream findLogo(Connection connection, long guildID) {
 
 		/* Create "queryString". */
 		String queryString = "SELECT logo FROM guild_logo WHERE guildId = ?";
@@ -89,7 +88,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 			if (!resultSet.next()) {
-				throw new InstanceNotFoundException("Not found ");
+				return null;
 			}
 
 			/* Get results. */
@@ -269,7 +268,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 	}
 
 	@Override
-	public WrapperReturnNowPlaying knows(Connection con, String artist, long guildId) {
+	public WrapperReturnNowPlaying knows(Connection con, String artist, long guildId, int limit) {
 
 		String queryString = "Select temp.artist_id, temp.lastFMID,temp.playNumber,b.url, c.discordID " +
 				"FROM (SELECT a.artist_id, a.lastFMID, a.playNumber " +
@@ -309,8 +308,7 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 			resultSet.beforeFirst();
 			/* Get results. */
 			int j = 0;
-			int MAX_IN_DISPLAY = 10;
-			while (resultSet.next() && (j < MAX_IN_DISPLAY && j < rows)) {
+			while (resultSet.next() && (j < limit && j < rows)) {
 				j++;
 				String lastFMId = resultSet.getString("temp.lastFMID");
 				int playNumber = resultSet.getInt("temp.playNumber");
@@ -426,6 +424,32 @@ public class Jdbc3CcSQLShowsDao extends AbstractSQLShowsDao {
 		}
 	}
 
+	@Override
+	public int userPlays(Connection con, String artist, String whom) {
+		String queryString = "Select a.playNumber " +
+				"FROM artist a JOIN lastFM b on a.lastFMID=b.lastFmId " +
+				"JOIN artist_url c on a.artist_id = c.artist_id " +
+				"where a.lastFMID = ? and a.artist_id =?";
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i++, whom);
+			preparedStatement.setString(i, artist);
+
+
+
+
+			/* Execute query. */
+			ResultSet resultSet = preparedStatement.executeQuery();
+			if (!resultSet.next())
+				return 0;
+			return resultSet.getInt("a.playNumber");
+
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 }
 

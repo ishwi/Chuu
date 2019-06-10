@@ -45,4 +45,6 @@ public class WrapperReturnNowPlaying {
 	public void setRows(int rows) {
 		this.rows = rows;
 	}
+
+
 }
