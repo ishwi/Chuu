@@ -1,7 +1,6 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import DAO.Entities.NowPlayingArtist;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Parsers.ArtistAlbumParser;
@@ -12,46 +11,38 @@ import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
-// usage !command "song" "/@user"
-//Right now only for author
+
 public class AlbumSongPlaysCommand extends ConcurrentCommand {
 	public AlbumSongPlaysCommand(DaoImplementation dao) {
 		super(dao);
-		this.parser = new ArtistAlbumParser();
+		this.parser = new ArtistAlbumParser(dao, lastFM);
 	}
 
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
 		String[] parsed;
 		parsed = parser.parse(e);
-		boolean needNp = Boolean.parseBoolean(parsed[0]);
-		String artist;
-		String album;
-		String userName = null;
+		if (parsed == null || parsed.length != 3)
+			return;
+		String artist = parsed[0];
+		String album = parsed[1];
+		String userName = parsed[2];
 
+
+		doSomethingWithAlbumArtist(artist, album, e, userName);
+
+	}
+
+	public void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, String who) {
+		int a = 0;
 		try {
-			if (needNp) {
-
-				try {
-					userName = getDao().findShow(e.getAuthor().getIdLong()).getName();
-				} catch (InstanceNotFoundException ex) {
-					sendMessage(e, "You need to introduce artist-album  or to be registered on the bot!");
-					return;
-				}
-				NowPlayingArtist np = lastFM.getNowPlayingInfo(userName);
-				artist = np.getArtistName();
-				album = np.getAlbumName();
-			} else {
-				artist = parsed[1];
-				album = parsed[2];
-			}
-
-			int a = lastFM.getPlaysAlbum_Artist(getDao().findShow(e.getAuthor().getIdLong()).getName(), artist, album);
+			a = lastFM.getPlaysAlbum_Artist(getDao().findShow(e.getAuthor().getIdLong()).getName(), artist, album).getPlays();
 			Member b = e.getGuild().getMemberById(e.getAuthor().getIdLong());
 			if (b != null)
-				userName = b.getEffectiveName();
-			sendMessage(e, "**" + userName + "** has listened " + a + " times the album **" + album + "** by **" + artist + "**!");
-		} catch (LastFmEntityNotFoundException | InstanceNotFoundException e1) {
+				who = b.getEffectiveName();
+			sendMessage(e, "**" + who + "** has listened " + a + " times the album **" + album + "** by **" + artist + "**!");
+
+		} catch (InstanceNotFoundException | LastFmEntityNotFoundException ex) {
 			parser.sendError(parser.getErrorMessage(3), e);
 		} catch (LastFmException ex) {
 			parser.sendError(parser.getErrorMessage(2), e);

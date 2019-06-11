@@ -349,9 +349,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
-	public int getPlaysAlbum_Artist(String username, String artist, String album) throws
+	public AlbumInfo getPlaysAlbum_Artist(String username, String artist, String album) throws
 			LastFmException {
-
 		String url;
 		try {
 			url = BASE + GET_TRACKS + username + "&artist=" + URLEncoder.encode(artist, "UTF-8") + "&album=" + URLEncoder.encode(album, "UTF-8") +
@@ -367,7 +366,13 @@ public class ConcurrentLastFM {//implements LastFMService {
 		JSONObject obj = doMethod(method);
 		if (!obj.has("album"))
 			throw new LastFmEntityNotFoundException(artist);
-		return obj.getJSONObject("album").getInt("userplaycount");
+		obj = obj.getJSONObject("album");
+		JSONArray images = obj.getJSONArray("image");
+		String image_url = images.getJSONObject(images.length() - 1).getString("#text");
+
+		AlbumInfo ai = new AlbumInfo(album, image_url);
+		ai.setPlays(obj.getInt("userplaycount"));
+		return ai;
 	}
 
 	public ArtistAlbums getAlbumsFromArtist(String artist, int topAlbums) throws

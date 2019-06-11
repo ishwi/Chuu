@@ -2,11 +2,15 @@ package DAO.Entities;
 
 public class AlbumInfo {
 	private final String album;
-	private final String album_url;
+	private String album_url;
 	private int plays;
 
 	public AlbumInfo(String album, String album_url) {
 		this.album = album;
+		this.album_url = album_url;
+	}
+
+	public void setAlbum_url(String album_url) {
 		this.album_url = album_url;
 	}
 

@@ -73,7 +73,8 @@ public class NPMaker {
 
 		Color colorB1 = GraphicUtils.getReadableColorBackgroundForFont(GraphicUtils.getFontColorBackground(canvas));
 		Color colorB = GraphicUtils.getSurfaceColor(GraphicUtils.getFontColorBackground(canvas));
-		FONT_COLOR = GraphicUtils.getBetter(GraphicUtils.getFontColorBackground(canvas));
+		FONT_COLOR = (GraphicUtils.getBetter(new Color(canvas.getRGB(X_MAX / 2, Y_MAX / 2))));
+
 
 		g.setColor(FONT_COLOR);
 
@@ -101,12 +102,15 @@ public class NPMaker {
 		g.setFont(fontToUse);
 		metrics = g.getFontMetrics(fontToUse);
 		y_counter += metrics.getAscent() - metrics.getDescent();
-
-		width = metrics.stringWidth(artist);
+		float size = 32;
+		while ((width = g.getFontMetrics(g.getFont()).stringWidth(artist)) > (canvas.getWidth() * 0.70) && size > 14f) {
+			g.setFont(g.getFont().deriveFont(size -= 2));
+		}
 		//GraphicUtils.do1(g,artist,GraphicUtils.getInverseBW(FONT_COLOR),FONT_COLOR,X_MAX / 2 - width / 2,y_counter);
 		g.drawString(artist, X_MAX / 2 - width / 2, y_counter);
 
-		y_counter += 10;
+
+		y_counter += metrics.getDescent();
 
 
 		g.setFont(DESC_FONT);
@@ -130,8 +134,6 @@ public class NPMaker {
 		GraphicUtils.doChart(g, X_MARGIN + 320, y_counter, rectWidth, 32, 10, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, DESC_FONT.deriveFont(18f));
 		return canvas;
 	}
-
-
 
 
 }

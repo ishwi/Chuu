@@ -107,7 +107,7 @@ class Main {
 		builder.addEventListeners(help.registerCommand(new ArtistUrlCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new BandInfoCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new BandInfoNpCommand(dao)));
-
+		builder.addEventListeners(help.registerCommand(new AlbumGuildPlays(dao)));
 
 
 		//EventWaiter waiter = new EventWaiter(Executors.newSingleThreadScheduledExecutor(), false);
