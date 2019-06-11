@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BandInfoCommand extends WhoKnowsCommand {
 
@@ -45,21 +46,21 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
 
 		final String username = lastFmName;
-		list.parallelStream().forEach(albumInfo -> {
-			try {
-				albumInfo.setPlays(lastFM.getPlaysAlbum_Artist(username, artist, albumInfo.getAlbum()));
+		list =
+				list.parallelStream().peek(albumInfo -> {
+					try {
+						albumInfo.setPlays(lastFM.getPlaysAlbum_Artist(username, artist, albumInfo.getAlbum()));
 
-			} catch (LastFmException ex) {
-				ex.printStackTrace();
-			}
-		});
-		StringBuilder s = new StringBuilder();
+					} catch (LastFmException ex) {
+						ex.printStackTrace();
+					}
+				})
+						.filter(a -> a.getPlays() > 0)
+						.collect(Collectors.toList());
+
 		int counter = 0;
 		list.sort(Comparator.comparing(AlbumInfo::getPlays).reversed());
-		for (AlbumInfo albumInfo : list) {
-			s.append(++counter).append(albumInfo.getAlbum()).append(" ").append(albumInfo.getPlays()).append("\n");
-		}
-//		sendMessage(e, s.toString());
+		ai.setAlbumList(list);
 		WrapperReturnNowPlaying np = getDao().whoKnows(artist, e.getGuild().getIdLong(), 5);
 		np.getReturnNowPlayings().forEach(element ->
 				element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))

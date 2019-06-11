@@ -106,6 +106,7 @@ class Main {
 		builder.addEventListeners(help.registerCommand(new GuildTopCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new ArtistUrlCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new BandInfoCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new BandInfoNpCommand(dao)));
 
 
 

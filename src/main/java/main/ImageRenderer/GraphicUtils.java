@@ -1,5 +1,7 @@
 package main.ImageRenderer;
 
+import DAO.Entities.ReturnNowPlaying;
+import DAO.Entities.WrapperReturnNowPlaying;
 import main.ImageRenderer.Stealing.GaussianFilter;
 
 import javax.annotation.Nullable;
@@ -10,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.util.List;
 
 public class GraphicUtils {
 	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
@@ -173,5 +176,64 @@ public class GraphicUtils {
 		}
 		return backGroundimage;
 
+	}
+
+	public static void doChart(Graphics2D g, int x, int y_counter, int widht, int height, int max_rows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, Font font) {
+		doChart(g, x, y_counter, widht, height, max_rows, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, true, font);
+	}
+
+	public static void doChart(Graphics2D g, int x, int y_counter, int widht, int row_height, int max_rows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, boolean doNumber, Font font) {
+
+		Font ogFont = g.getFont();
+		Color ogColor = g.getColor();
+		g.setColor(colorB1.brighter());
+		g.fillRect(x, y_counter, widht, row_height * max_rows);
+		g.setColor(colorB);
+
+		int row_content = (int) (row_height * 0.9);
+		int margin = (int) (row_height * 0.1);
+
+		g.fillRect(x, y_counter, widht, row_height * max_rows);
+		FontMetrics metrics;
+		g.setFont(font);
+		float initial_size = g.getFont().getSize();
+		metrics = g.getFontMetrics(g.getFont());
+		List<ReturnNowPlaying> nowPlayingArtistList = wrapperReturnNowPlaying.getReturnNowPlayings();
+		y_counter += metrics.getAscent() + metrics.getDescent();
+		for (int i = 0; i < nowPlayingArtistList.size() && i < 10; i++) {
+			g.setColor(colorB1);
+
+			g.fillRect(x, y_counter - metrics.getAscent() - metrics.getDescent(), widht, row_content);
+
+			g.setColor(GraphicUtils.getBetter(colorB1));
+
+			float size = initial_size;
+			String name = nowPlayingArtistList.get(i).getDiscordName();
+
+			int start_name = x;
+			if (doNumber) {
+				String stringnumber = "#" + (i + 1) + " ";
+				g.drawString(stringnumber, x, y_counter + (margin - metrics.getAscent() / 2));
+				start_name += g.getFontMetrics().stringWidth(stringnumber);
+			}
+			while (g.getFontMetrics(g.getFont()).stringWidth(name) > (widht * 0.55) && size > 14f) {
+				g.setFont(g.getFont().deriveFont(size -= 2));
+			}
+			g.drawString(name, start_name, y_counter + (margin - metrics.getAscent() / 2));
+
+			size = initial_size;
+			g.setFont(font.deriveFont(size));
+			String plays = String.valueOf(nowPlayingArtistList.get(i).getPlaynumber());
+			int stringWidth = metrics.stringWidth(plays);
+			int playPos = x + widht - (row_height + stringWidth);
+			int playEnd = playPos + stringWidth;
+			g.drawString(plays, x + widht - (row_height + metrics.stringWidth(plays)), y_counter + (margin - metrics.getAscent() / 2));
+			g.drawImage(lastFmLogo, playEnd + 9, (int) (y_counter - metrics.getAscent() * 0.85), null);
+			y_counter += row_height;
+
+
+		}
+		g.setFont(ogFont);
+		g.setColor(ogColor);
 	}
 }

@@ -1,6 +1,5 @@
 package main.ImageRenderer;
 
-import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.WrapperReturnNowPlaying;
 import main.ImageRenderer.Stealing.GaussianFilter;
 import org.imgscalr.Scalr;
@@ -10,7 +9,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class NPMaker {
 
@@ -129,51 +127,11 @@ public class NPMaker {
 		if (guildLogo != null)
 			g.drawImage(guildLogo, X_MARGIN + 320 + rectWidth - guildLogo.getWidth(), y_counter - 16 - guildLogo.getHeight(), null);
 
-		doChart(g, X_MARGIN + 320, y_counter, rectWidth, 320, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo);
+		GraphicUtils.doChart(g, X_MARGIN + 320, y_counter, rectWidth, 32, 10, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, DESC_FONT.deriveFont(18f));
 		return canvas;
 	}
 
-	public static void doChart(Graphics2D g, int x, int y_counter, int widht, int height, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo) {
-		doChart(g, x, y_counter, widht, height, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, true);
-	}
 
-	public static void doChart(Graphics2D g, int x, int y_counter, int widht, int height, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, boolean doNumber) {
-
-		Font ogFont = g.getFont();
-		g.setColor(colorB1.brighter());
-		g.fillRect(x, y_counter, widht, height);
-		g.setColor(colorB);
-
-		g.fillRect(x, y_counter, widht, height);
-		FontMetrics metrics;
-		g.setFont(DESC_FONT.deriveFont(18f));
-		metrics = g.getFontMetrics(g.getFont());
-		List<ReturnNowPlaying> nowPlayingArtistList = wrapperReturnNowPlaying.getReturnNowPlayings();
-		for (int i = 0; i < nowPlayingArtistList.size() && i < 10; i++) {
-			g.setColor(colorB1);
-
-			g.fillRect(x, y_counter, widht, 28);
-
-			g.setColor(GraphicUtils.getBetter(colorB1));
-
-			float size = 18f;
-			while (g.getFontMetrics(g.getFont()).stringWidth(nowPlayingArtistList.get(i).getDiscordName()) > widht - 20 && size > 14) {
-				g.setFont(g.getFont().deriveFont(size -= 1));
-			}
-			size = 18f;
-			String name = nowPlayingArtistList.get(i).getDiscordName();
-			String stringWrite = doNumber ? "#" + (i + 1) + " " + name : " " + name;
-			g.drawString(stringWrite, x, y_counter + (30 - metrics.getAscent() / 2));
-			g.setFont(DESC_FONT.deriveFont(size));
-			String plays = String.valueOf(nowPlayingArtistList.get(i).getPlaynumber());
-
-			g.drawString(plays, x + widht - (34 + metrics.stringWidth(plays)), y_counter + (30 - metrics.getAscent() / 2));
-			g.drawImage(lastFmLogo, x + widht - 28, y_counter + 9, null);
-			y_counter += 32;
-
-		}
-		g.setFont(ogFont);
-	}
 
 
 }
