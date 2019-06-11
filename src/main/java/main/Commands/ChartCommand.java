@@ -6,17 +6,9 @@ import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.ImageRenderer.CollageMaker;
 import main.Parsers.ChartParser;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -68,51 +60,25 @@ public class ChartCommand extends ConcurrentCommand {
 	}
 
 	void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e) {
-		MessageChannel cha = e.getChannel();
-
 		int size = queue.size();
 		int minx = (int) Math.ceil((double) size / x);
 		//int miny = (int) Math.ceil((double) size / y);
-
 		if (minx == 1)
 			x = size;
 		BufferedImage image = CollageMaker.generateCollageThreaded(x, minx, queue);
-		ByteArrayOutputStream b = new ByteArrayOutputStream();
-
-		try {
-			ImageIO.write(image, "png", b);
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			cha.sendMessage("ish pc bad").queue();
-			return;
-		}
-
-		byte[] img = b.toByteArray();
-
-		if (img.length < 8388608) {
-//			EmbedBuilder embed = new EmbedBuilder();
-//			embed.setImage("attachment://cat.png") // we specify this in sendFile as "cat.png"
-//					.setDescription("Most Listened Artists");
+		sendImage(image, e);
 //
-//			cha.sendFile(img, "cat.png").embed(embed.build()).queue();
-			cha.sendFile(img, "cat.png").queue();
-			image.flush();
-			return;
-		}
-		cha.sendMessage("boot to big").queue();
-
-
-		String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")
-				.withZone(ZoneOffset.UTC)
-				.format(Instant.now());
-
-		String path = "D:\\Games\\" + thisMoment + ".png";
-		try (FileOutputStream fos = new FileOutputStream(path)) {
-			fos.write(img);
-			//fos.close(); There is no more need for this line since you had created the instance of "fos" inside the try. And this will automatically close the OutputStream
-		} catch (IOException ex) {
-			sendMessage(e, "Ish pc is bad ");
-		}
+//		String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")
+//				.withZone(ZoneOffset.UTC)
+//				.format(Instant.now());
+//
+//		String path = "D:\\Games\\" + thisMoment + ".png";
+//		try (FileOutputStream fos = new FileOutputStream(path)) {
+//			fos.write(img);
+//			//fos.close(); There is no more need for this line since you had created the instance of "fos" inside the try. And this will automatically close the OutputStream
+//		} catch (IOException ex) {
+//			sendMessage(e, "Ish pc is bad ");
+//		}
 
 
 	}

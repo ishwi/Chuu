@@ -49,7 +49,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 		list =
 				list.parallelStream().peek(albumInfo -> {
 					try {
-						albumInfo.setPlays(lastFM.getPlaysAlbum_Artist(username, artist, albumInfo.getAlbum()));
+						albumInfo.setPlays(lastFM.getPlaysAlbum_Artist(username, artist, albumInfo.getAlbum()).getPlays());
 
 					} catch (LastFmException ex) {
 						ex.printStackTrace();

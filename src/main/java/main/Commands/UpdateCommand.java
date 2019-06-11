@@ -24,6 +24,7 @@ public class UpdateCommand extends MyCommandDbAccess {
 		MessageBuilder mes = new MessageBuilder();
 
 		message = parser.parse(e);
+
 		if (message == null)
 			return;
 

@@ -54,11 +54,14 @@ public abstract class Parser {
 		return artist;
 	}
 
+	public String[] getSubMessage(String string) {
+		String[] parts = string.substring(1).split("\\s+");
+		return Arrays.copyOfRange(parts, 1, parts.length);
+
+	}
 
 	public String[] getSubMessage(Message message) {
-		String[] parts = message.getContentRaw().substring(1).split("\\s+");
-
-		return Arrays.copyOfRange(parts, 1, parts.length);
+		return getSubMessage(message.getContentRaw());
 
 	}
 

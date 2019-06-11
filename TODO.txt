@@ -6,5 +6,5 @@
 #Remove on leaving all connected guilds;
 #Check guild users on login
 #Add png per guild db
-*Fix albums
+# *Fix albums
 Migrate artist table with -> artist_url| incremental id
