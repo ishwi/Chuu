@@ -4,10 +4,14 @@ import java.util.List;
 
 public class ArtistAlbums {
 	private final String artist;
-	private final List<AlbumInfo> albumList;
+	private List<AlbumInfo> albumList;
 
 	public ArtistAlbums(String artist, List<AlbumInfo> albumList) {
 		this.artist = artist;
+		this.albumList = albumList;
+	}
+
+	public void setAlbumList(List<AlbumInfo> albumList) {
 		this.albumList = albumList;
 	}
 
