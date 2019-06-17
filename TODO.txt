@@ -8,3 +8,6 @@
 #Add png per guild db
 # *Fix albums
 Migrate artist table with -> artist_url| incremental id
+Fix the logging issue
+Datasource config
+Add database creation script

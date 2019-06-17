@@ -64,7 +64,7 @@ public class UpdaterThread implements Runnable {
 				for (ArtistData datum : artistDataLinkedList.getWrapped()) {
 					String prevUrl = dao.getArtistUrl(datum.getArtist());
 					if (prevUrl == null)
-						prevUrl = CommandUtil.getDiscogsUrl(discogsApi, datum.getArtist(), dao, spotify);
+						prevUrl = CommandUtil.updateUrl(discogsApi, datum.getArtist(), dao, spotify);
 
 					datum.setUrl(prevUrl);
 				}
