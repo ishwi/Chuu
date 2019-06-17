@@ -43,7 +43,7 @@ public class UpdateCommand extends MyCommandDbAccess {
 			parser.sendError(parser.getErrorMessage(3), e);
 
 		} catch (LastFmException ex) {
-			parser.sendError(parser.getErrorMessage(2), e);
+			sendMessage(e, "Error happened while updating , sorry uwu");
 		}
 
 

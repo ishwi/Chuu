@@ -34,7 +34,7 @@ public class CrownsCommand extends ConcurrentCommand {
 		UniqueWrapper<UniqueData> uniqueDataUniqueWrapper = getDao().getCrowns(message[0], e.getGuild().getIdLong());
 		List<UniqueData> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 		if (resultWrapper.isEmpty()) {
-			sendMessage(e, "You are a puny mortal without crowns");
+			sendMessage(e, "You don't have any crown :'(");
 			return;
 		}
 		for (int i = 0; i < 10; i++) {
