@@ -64,7 +64,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 
 		if (wrapperReturnNowPlaying.getUrl() == null) {
-			wrapperReturnNowPlaying.setUrl(CommandUtil.getDiscogsUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao(), spotify));
+			wrapperReturnNowPlaying.setUrl(CommandUtil.updateUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao(), spotify));
 		}
 
 		if (!isImage) {

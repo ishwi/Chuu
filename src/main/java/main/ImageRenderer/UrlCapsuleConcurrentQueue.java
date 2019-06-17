@@ -1,10 +1,10 @@
 package main.ImageRenderer;
 
 import DAO.DaoImplementation;
-import DAO.Entities.ArtistInfo;
 import DAO.Entities.UrlCapsule;
 import main.APIs.Discogs.DiscogsApi;
-import main.Exceptions.DiscogsServiceException;
+import main.APIs.Spotify.Spotify;
+import main.Commands.CommandUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -12,15 +12,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class UrlCapsuleConcurrentQueue extends LinkedBlockingQueue<UrlCapsule> {
-	private DaoImplementation dao;
-	private DiscogsApi discogsApi;
+	private final DaoImplementation dao;
+	private final DiscogsApi discogsApi;
+	private final Spotify spotifyApi;
+	private final LinkedBlockingQueue<CompletableFuture<UrlCapsule>> wrapper;
 
-	private LinkedBlockingQueue<CompletableFuture<UrlCapsule>> wrapper;
-
-	public UrlCapsuleConcurrentQueue(DaoImplementation dao, DiscogsApi discogsApi) {
+	public UrlCapsuleConcurrentQueue(DaoImplementation dao, DiscogsApi discogsApi, Spotify spotify) {
 		super();
 		this.dao = dao;
 		this.discogsApi = discogsApi;
+		this.spotifyApi = spotify;
 		this.wrapper = new LinkedBlockingQueue<>();
 	}
 
@@ -29,23 +30,15 @@ public class UrlCapsuleConcurrentQueue extends LinkedBlockingQueue<UrlCapsule> {
 		return this.wrapper.size();
 	}
 
-	public boolean offer(@NotNull UrlCapsule name) {
+	public boolean offer(@NotNull UrlCapsule item) {
 		CompletableFuture<UrlCapsule> future = CompletableFuture.supplyAsync(() -> {
-			name.setUrl(null);
-			String url = dao.getArtistUrl(name.getArtistName());
+			item.setUrl(null);
+			String url = dao.getArtistUrl(item.getArtistName());
 			if (url == null) {
-				try {
-					url = discogsApi.findArtistImage(name.getArtistName());
-					if (url != null) {
-						System.out.println("Upserting buddy");
-						dao.upsertUrl(new ArtistInfo(url, name.getArtistName()));
-					}
-				} catch (DiscogsServiceException e) {
-					e.printStackTrace();
-				}
+				url = CommandUtil.updateUrl(discogsApi, item.getArtistName(), dao, spotifyApi);
 			}
-			name.setUrl(url);
-			return name;
+			item.setUrl(url);
+			return item;
 		}).toCompletableFuture();
 		return wrapper.offer(future);
 	}

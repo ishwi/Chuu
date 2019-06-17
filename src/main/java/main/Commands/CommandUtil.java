@@ -16,7 +16,7 @@ import java.net.URL;
 import java.util.Random;
 
 public class CommandUtil {
-	public static String getDiscogsUrl(DiscogsApi discogsApi, String artist, DaoImplementation dao, Spotify spotify) {
+	public static String updateUrl(DiscogsApi discogsApi, String artist, DaoImplementation dao, Spotify spotify) {
 		String newUrl = null;
 		try {
 			newUrl = discogsApi.findArtistImage(artist);
@@ -37,7 +37,7 @@ public class CommandUtil {
 	}
 
 //	static CompletableFuture<String> getDiscogsUrlAync(DiscogsApi discogsApi, String artist, DaoImplementation dao) {
-//		return CompletableFuture.supplyAsync(() -> getDiscogsUrl(discogsApi, artist, dao));
+//		return CompletableFuture.supplyAsync(() -> updateUrl(discogsApi, artist, dao));
 //	}
 
 
