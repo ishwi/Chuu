@@ -33,16 +33,9 @@ public class Reactionario<T> extends ListenerAdapter {
 
 	@Override
 	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
-
-		System.out.println("ASDHASIUDHAISUDHUIA");
-
 		if (event.getUser().isBot() || event.getMessageIdLong() != message.getIdLong())
 			return;
 		int start;
-		System.out.println(event.getReactionEmote().getEmoji());
-		System.out.println(event.getReactionEmote().getAsCodepoints());
-
-
 		switch (event.getReaction().getReactionEmote().getAsCodepoints()) {
 			case "U+2b05":
 				start = max(0, counter - pageSize);
@@ -53,24 +46,14 @@ public class Reactionario<T> extends ListenerAdapter {
 			default:
 				return;
 		}
-		System.out.println(start);
-		System.out.println(counter);
-
 		event.getReaction().removeReaction(event.getUser()).queue();
-
-
 		StringBuilder a = new StringBuilder();
-		for (int i = start; i < start + pageSize; i++) {
+		for (int i = start; i < start + pageSize && i < list.size(); i++) {
 			a.append(i + 1).append(list.get(i).toString());
 		}
 		counter = start;
-		System.out.println(counter);
-
 		who.setDescription(a);
 		who.setColor(CommandUtil.randomColor());
-
 		message.editMessage(who.build()).queue();
-
-
 	}
 }
