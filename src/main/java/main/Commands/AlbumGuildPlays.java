@@ -14,8 +14,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class AlbumGuildPlays extends AlbumSongPlaysCommand {
+
+
 	public AlbumGuildPlays(DaoImplementation dao) {
 		super(dao);
+		this.respondInPrivate = false;
 	}
 
 	@Override

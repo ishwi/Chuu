@@ -19,6 +19,8 @@ public class AllPlayingCommand extends ConcurrentCommand {
 	public AllPlayingCommand(DaoImplementation dao) {
 		super(dao);
 		this.parser = new OptionalParser("recent");
+		this.respondInPrivate = false;
+
 	}
 
 

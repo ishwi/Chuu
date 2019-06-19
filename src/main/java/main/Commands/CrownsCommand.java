@@ -17,6 +17,8 @@ public class CrownsCommand extends ConcurrentCommand {
 	public CrownsCommand(DaoImplementation dao) {
 		super(dao);
 		parser = new OnlyUsernameParser(dao);
+		this.respondInPrivate = false;
+
 	}
 
 	@Override

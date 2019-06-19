@@ -13,14 +13,17 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Collections;
 import java.util.List;
 
-public class UniqueCommand extends MyCommandDbAccess {
+public class UniqueCommand extends ConcurrentCommand {
 	public UniqueCommand(DaoImplementation dao) {
 		super(dao);
 		parser = new OnlyUsernameParser(dao);
+		this.respondInPrivate = false;
+
 	}
 
+
 	@Override
-	public void onCommand(MessageReceivedEvent e, String[] args) {
+	public void threadablecode(MessageReceivedEvent e) {
 		String[] message;
 		message = parser.parse(e);
 		if (message == null)

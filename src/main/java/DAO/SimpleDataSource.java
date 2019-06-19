@@ -46,6 +46,7 @@ class SimpleDataSource implements DataSource {
 		cpds.setUser(properties.getProperty(USER_PARAMETER));
 		cpds.setPassword(properties.getProperty(PASSWORD_PARAMETER));
 
+
 // the settings below are optional -- c3p0 can work with defaults
 		cpds.setMinPoolSize(5);
 		cpds.setAcquireIncrement(5);

@@ -17,6 +17,7 @@ import java.util.List;
 
 public abstract class MyCommand extends ListenerAdapter {
 	final String PREFIX = "!";
+	boolean respondInPrivate = true;
 	Parser parser;
 
 	abstract void onCommand(MessageReceivedEvent e, String[] args);
@@ -39,7 +40,10 @@ public abstract class MyCommand extends ListenerAdapter {
 			e.getChannel().sendTyping().queue();
 			System.out.println("We received a message from " +
 					e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
-
+			if (!e.getChannelType().isGuild() && !respondInPrivate) {
+				sendMessage(e, "This commmand only works in a server");
+				return;
+			}
 			measureTime(e);
 
 
