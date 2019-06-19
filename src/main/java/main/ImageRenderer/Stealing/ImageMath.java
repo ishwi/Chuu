@@ -7,7 +7,7 @@ package main.ImageRenderer.Stealing;
 /**
  * A class containing static math methods useful for image processing.
  */
-public class ImageMath {
+class ImageMath {
 
 	public final static float PI = (float) Math.PI;
 	public final static float HALF_PI = (float) Math.PI / 2.0f;
@@ -163,7 +163,7 @@ public class ImageMath {
 	 * @param x the input parameter
 	 * @return the clamped value
 	 */
-	public static float clamp(float x, float a, float b) {
+	private static float clamp(float x, float a, float b) {
 		return (x < a) ? a : (x > b) ? b : x;
 	}
 
@@ -202,7 +202,7 @@ public class ImageMath {
 	 * @param b the divisor
 	 * @return a mod b
 	 */
-	public static float mod(float a, float b) {
+	private static float mod(float a, float b) {
 		int n = (int) (a / b);
 
 		a -= n * b;
@@ -258,7 +258,7 @@ public class ImageMath {
 	 * @param b the upper interpolation range
 	 * @return the interpolated value
 	 */
-	public static int lerp(float t, int a, int b) {
+	private static int lerp(float t, int a, int b) {
 		return (int) (a + t * (b - a));
 	}
 

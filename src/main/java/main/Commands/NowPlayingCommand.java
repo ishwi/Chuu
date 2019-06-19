@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("Duplicates")
 public class NowPlayingCommand extends NpCommand {
 	public NowPlayingCommand(DaoImplementation dao) {
 		super(dao);
@@ -25,7 +24,7 @@ public class NowPlayingCommand extends NpCommand {
 				.append(nowPlayingArtist.isNowPlaying() ? "Current" : "Last")
 				.append(":\n")
 				.append(nowPlayingArtist.getArtistName())
-				.append(" - ").append(nowPlayingArtist.getSongName()).append("")
+				.append(" - ").append(nowPlayingArtist.getSongName())
 				.append(" | ").append(nowPlayingArtist.getAlbumName());
 
 
@@ -56,7 +55,7 @@ public class NowPlayingCommand extends NpCommand {
 	@Override
 	public List<String> getUsageInstructions() {
 		return Collections.singletonList("!np *username \n" +
-				"\t If useranme is not specified defaults to authors account\n\n");
+				"\t If username is not specified defaults to authors account\n\n");
 	}
 
 

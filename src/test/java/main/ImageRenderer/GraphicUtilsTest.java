@@ -1,6 +1,6 @@
 package main.ImageRenderer;
 
-public class GraphicUtilsTest {
+class GraphicUtilsTest {
 
 //	@Test
 //	public void getBetter() {

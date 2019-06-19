@@ -36,13 +36,13 @@ public class WhoKnowsNPCommand extends WhoKnowsCommand {
 	@Override
 	public List<String> getUsageInstructions() {
 		return Collections.singletonList("!whoknowsnp *LastFmUser \n" +
-				"\t If useranme is not specified defaults to authors account\n" +
+				"\t If username is not specified defaults to authors account\n" +
 				"\t --image for Image format\n\n");
 	}
 
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
 
 		returned = parser.parse(e);

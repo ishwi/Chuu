@@ -49,7 +49,7 @@ public class TasteCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 		List<String> lastfMNames;
 		MessageBuilder messageBuilder = new MessageBuilder();
 
@@ -66,8 +66,8 @@ public class TasteCommand extends ConcurrentCommand {
 			java.util.List<String> users = new ArrayList<>();
 			users.add(resultWrapper.getResultList().get(0).getUserA());
 			users.add(resultWrapper.getResultList().get(0).getUserB());
-			java.util.List<UserInfo> userInfoLiust = lastFM.getUserInfo(users);
-			BufferedImage image = ImageRenderer.generateTasteImage(resultWrapper, userInfoLiust);
+			java.util.List<UserInfo> userInfoList = lastFM.getUserInfo(users);
+			BufferedImage image = ImageRenderer.generateTasteImage(resultWrapper, userInfoList);
 
 			ByteArrayOutputStream b = new ByteArrayOutputStream();
 			try {

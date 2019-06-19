@@ -16,28 +16,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 //        BufferedImage.TYPE_INT_RGB);
 //        Graphics g = result.getGraphics();
 class ThreadQueue implements Runnable {
-	public final BlockingQueue<UrlCapsule> queue;
-	public final Graphics2D g;
-	public final int y;
-	public final int x;
+	private final BlockingQueue<UrlCapsule> queue;
+	private final Graphics2D g;
+	private final int y;
+	private final int x;
 	final int START_FONT_SIZE = 24;
-	private final AtomicInteger iters;
+	private final AtomicInteger iterations;
 	int fontSize1 = START_FONT_SIZE;
 	int fontSize2 = START_FONT_SIZE;
 
 
-	public ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iters) {
+	public ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations) {
 		this.queue = queue;
 		this.g = g;
 		this.x = x;
 		this.y = y;
-		this.iters = iters;
+		this.iterations = iterations;
 
 	}
 
 	@Override
 	public void run() {
-		while (iters.getAndDecrement() > 0) {
+		while (iterations.getAndDecrement() > 0) {
 
 			Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, 24);
 			g.setFont(artistFont);
@@ -46,23 +46,23 @@ class ThreadQueue implements Runnable {
 
 
 			try {
-				UrlCapsule encapsuler = queue.take();
+				UrlCapsule capsule = queue.take();
 				BufferedImage image;
 				URL url;
 				try {
 
-					int pos = encapsuler.getPos();
+					int pos = capsule.getPos();
 					int y = (int) Math.floor(pos / this.x);
 					int x = pos % this.x;
 
-					url = new URL(encapsuler.getUrl());
+					url = new URL(capsule.getUrl());
 					image = ImageIO.read(url);
 					if (image.getHeight() != 300 || image.getWidth() != 300) {
 
 						image = Scalr.resize(image, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, 300,
 								300, Scalr.OP_ANTIALIAS);
 					}
-					drawImage(image, encapsuler);
+					drawImage(image, capsule);
 					g.drawImage(image, x * 300, y * 300, null);
 
 					//g.drawImage(image, x * 300, y * 300, x * 300 + 300, y * 300 + 300, 0, 0, image.getWidth(), image.getHeight(), null);
@@ -72,14 +72,14 @@ class ThreadQueue implements Runnable {
 					e.printStackTrace();
 					Color temp = g.getColor();
 					g.setColor(Color.WHITE);
-					int pos = encapsuler.getPos();
+					int pos = capsule.getPos();
 
 					int y = (int) Math.floor(pos / this.x);
 					int x = pos % this.x;
 					g.fillRect(x * 300, y * 300, 300, 300);
 					g.setColor(Color.BLACK);
 
-					drawNames(encapsuler, y, x, g, 300);
+					drawNames(capsule, y, x, g, 300);
 					g.setColor(temp);
 					e.printStackTrace();
 				}
@@ -93,51 +93,51 @@ class ThreadQueue implements Runnable {
 
 	}
 
-	private void drawImage(BufferedImage image, UrlCapsule encapsuler) {
+	private void drawImage(BufferedImage image, UrlCapsule capsule) {
 		int a = image.getRGB(0, 0);
-		Color mycolor = new Color(a);
-		Graphics2D gtemp = image.createGraphics();
-		GraphicUtils.setQuality(gtemp);
-		gtemp.setColor(getBetter(mycolor));
-		drawNames(encapsuler, 0, 0, gtemp, image.getWidth());
-		gtemp.dispose();
+		Color myColor = new Color(a);
+		Graphics2D gTemp = image.createGraphics();
+		GraphicUtils.setQuality(gTemp);
+		gTemp.setColor(getBetter(myColor));
+		drawNames(capsule, 0, 0, gTemp, image.getWidth());
+		gTemp.dispose();
 	}
 
-	public void drawNames(UrlCapsule encapsuler, int y, int x, Graphics2D grap, int imageWidht) {
-		String artistName = encapsuler.getArtistName();
-		String albumName = encapsuler.getAlbumName();
+	void drawNames(UrlCapsule capsule, int y, int x, Graphics2D g, int imageWidth) {
+		String artistName = capsule.getArtistName();
+		String albumName = capsule.getAlbumName();
 		Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
 		Font albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
-		grap.setFont(artistFont);
+		g.setFont(artistFont);
 
-		int artistWidth = grap.getFontMetrics().stringWidth(artistName);
+		int artistWidth = g.getFontMetrics().stringWidth(artistName);
 
-		grap.setFont(albumFont);
+		g.setFont(albumFont);
 
-		int albumWidth = grap.getFontMetrics().stringWidth(albumName);
+		int albumWidth = g.getFontMetrics().stringWidth(albumName);
 
-		while (artistWidth > imageWidht && fontSize1-- > 14) {
+		while (artistWidth > imageWidth && fontSize1-- > 14) {
 			artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
-			grap.setFont(artistFont);
-			artistWidth = grap.getFontMetrics().stringWidth(artistName);
+			g.setFont(artistFont);
+			artistWidth = g.getFontMetrics().stringWidth(artistName);
 		}
-		grap.setFont(artistFont);
-		FontMetrics metric = grap.getFontMetrics();
-		int accu = metric.getAscent() - metric.getDescent() - metric.getLeading();
-		grap.drawString(encapsuler.getArtistName(), x * 300, y * 300 + accu);
+		g.setFont(artistFont);
+		FontMetrics metric = g.getFontMetrics();
+		int accum = metric.getAscent() - metric.getDescent() - metric.getLeading();
+		g.drawString(capsule.getArtistName(), x * 300, y * 300 + accum);
 
 
-		while (albumWidth > imageWidht && fontSize2-- > 14) {
+		while (albumWidth > imageWidth && fontSize2-- > 14) {
 			fontSize2--;
 			albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
-			grap.setFont(albumFont);
-			albumWidth = grap.getFontMetrics().stringWidth(albumName);
+			g.setFont(albumFont);
+			albumWidth = g.getFontMetrics().stringWidth(albumName);
 		}
 
 
-		metric = grap.getFontMetrics();
-		accu += metric.getAscent() - metric.getDescent() - metric.getLeading() + 1;
-		grap.drawString(encapsuler.getAlbumName(), x * 300, y * 300 + accu);
+		metric = g.getFontMetrics();
+		accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 1;
+		g.drawString(capsule.getAlbumName(), x * 300, y * 300 + accum);
 		fontSize1 = START_FONT_SIZE;
 		fontSize2 = START_FONT_SIZE;
 

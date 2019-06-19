@@ -25,7 +25,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] subMessage = getSubMessage(e.getMessage());
 		String[] message = parser.parse(e);
 		if (message == null)
@@ -71,7 +71,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
 					a.append("+ ").append("[")
 							.append(username).append("](").append("https://www.last.fm/user/").append(usersWrapper.getLastFMName())
 							.append("): ")
-							.append(nowPlayingArtist.getArtistName()).append("")
+							.append(nowPlayingArtist.getArtistName())
 							.append(" - ").append(nowPlayingArtist.getSongName())
 							.append(" | ").append(nowPlayingArtist.getAlbumName()).append("\n");//.append(" | ");
 

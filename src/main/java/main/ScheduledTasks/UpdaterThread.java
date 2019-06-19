@@ -14,6 +14,7 @@ import main.Exceptions.LastFMNoPlaysException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 public class UpdaterThread implements Runnable {
@@ -22,10 +23,10 @@ public class UpdaterThread implements Runnable {
 	private UsersWrapper username;
 	private boolean isIncremental;
 	private DiscogsApi discogsApi;
-	private ConcurrentLastFM lastFM;
-	private Spotify spotify;
+	private final ConcurrentLastFM lastFM;
+	private final Spotify spotify;
 
-	public UpdaterThread(DaoImplementation dao) {
+	private UpdaterThread(DaoImplementation dao) {
 		this.dao = dao;
 		this.lastFM = new ConcurrentLastFM();
 		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
@@ -47,19 +48,19 @@ public class UpdaterThread implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("THREAD WORKING ) + " + LocalDateTime.now().toString());
-		UsersWrapper usertoWork;
+		UsersWrapper userWork;
 		Random r = new Random();
 		float chance = r.nextFloat();
 
 		if (this.username == null) {
-			usertoWork = dao.getLessUpdated();
+			userWork = dao.getLessUpdated();
 		} else
-			usertoWork = this.username;
+			userWork = this.username;
 
 		try {
 			if (isIncremental && chance <= 0.995f) {
 
-				TimestampWrapper<LinkedList<ArtistData>> artistDataLinkedList = lastFM.getWhole(usertoWork.getLastFMName(), usertoWork.getTimestamp());
+				TimestampWrapper<LinkedList<ArtistData>> artistDataLinkedList = lastFM.getWhole(userWork.getLastFMName(), userWork.getTimestamp());
 
 				for (ArtistData datum : artistDataLinkedList.getWrapped()) {
 					String prevUrl = dao.getArtistUrl(datum.getArtist());
@@ -69,24 +70,24 @@ public class UpdaterThread implements Runnable {
 					datum.setUrl(prevUrl);
 				}
 
-				dao.incrementalUpdate(artistDataLinkedList, usertoWork.getLastFMName());
+				dao.incrementalUpdate(artistDataLinkedList, userWork.getLastFMName());
 
-				System.out.println("Updated Info Incremetally of " + usertoWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+				System.out.println("Updated Info Incrementally of " + userWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 				System.out.println(" Number of rows updated :" + artistDataLinkedList.getWrapped().size());
 			} else {
 
-				LinkedList<ArtistData> artistDataLinkedList = lastFM.getLibrary(usertoWork.getLastFMName());
-				dao.updateUserLibrary(artistDataLinkedList, usertoWork.getLastFMName());
+				List<ArtistData> artistDataLinkedList = lastFM.getLibrary(userWork.getLastFMName());
+				dao.updateUserLibrary(artistDataLinkedList, userWork.getLastFMName());
 
-				System.out.println("Updated Info Normally  of " + usertoWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+				System.out.println("Updated Info Normally  of " + userWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 				System.out.println(" Number of rows updated :" + artistDataLinkedList.size());
 			}
 		} catch (LastFMNoPlaysException e) {
-			dao.updateUserTimeStamp(usertoWork.getLastFMName());
-			System.out.println("No plays " + usertoWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+			dao.updateUserTimeStamp(userWork.getLastFMName());
+			System.out.println("No plays " + userWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 
 		} catch (Throwable e) {
-			System.out.println("Error while updating" + usertoWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+			System.out.println("Error while updating" + userWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 			e.printStackTrace();
 		}
 	}

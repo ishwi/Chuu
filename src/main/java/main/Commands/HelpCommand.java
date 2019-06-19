@@ -30,7 +30,7 @@ public class HelpCommand extends MyCommand {
 	private static final String NO_DESCRIPTION = "No description has been provided for this command. Sorry!";
 	private static final String NO_USAGE = "No usage instructions have been provided for this command. Sorry!";
 
-	private TreeMap<String, MyCommand> commands;
+	private final TreeMap<String, MyCommand> commands;
 
 	public HelpCommand() {
 

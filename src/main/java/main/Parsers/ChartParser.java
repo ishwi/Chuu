@@ -77,7 +77,7 @@ public class ChartParser extends DaoParser {
 	public void setUpErrorMessages() {
 		super.setUpErrorMessages();
 		errorMessages.put(2, "You Introduced too many words");
-		errorMessages.put(3, "Not a valid lastfm username");
+		errorMessages.put(3, "Not a valid Last.fm username");
 		errorMessages.put(4, "Internal Server Error, try again later");
 
 	}

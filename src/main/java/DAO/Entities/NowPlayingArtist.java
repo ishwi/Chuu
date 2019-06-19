@@ -1,5 +1,7 @@
 package DAO.Entities;
 
+import java.util.Objects;
+
 public class NowPlayingArtist {
 	private String artistName;
 	private String mbid;
@@ -83,11 +85,11 @@ public class NowPlayingArtist {
 		NowPlayingArtist that = (NowPlayingArtist) o;
 
 		if (nowPlaying != that.nowPlaying) return false;
-		if (artistName != null ? !artistName.equals(that.artistName) : that.artistName != null) return false;
-		if (mbid != null ? !mbid.equals(that.mbid) : that.mbid != null) return false;
-		if (albumName != null ? !albumName.equals(that.albumName) : that.albumName != null) return false;
-		if (songName != null ? !songName.equals(that.songName) : that.songName != null) return false;
-		return url != null ? url.equals(that.url) : that.url == null;
+		if (!Objects.equals(artistName, that.artistName)) return false;
+		if (!Objects.equals(mbid, that.mbid)) return false;
+		if (!Objects.equals(albumName, that.albumName)) return false;
+		if (!Objects.equals(songName, that.songName)) return false;
+		return Objects.equals(url, that.url);
 	}
 
 	@Override

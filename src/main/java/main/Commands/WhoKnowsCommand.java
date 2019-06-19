@@ -22,7 +22,7 @@ import java.util.List;
 
 
 public class WhoKnowsCommand extends ConcurrentCommand {
-	public final DiscogsApi discogsApi;
+	private final DiscogsApi discogsApi;
 	private final Spotify spotify;
 
 
@@ -81,7 +81,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 						.append("[").append(userName).append("]")
 						.append("(https://www.last.fm/user/").append(returnNowPlaying.getLastFMId())
 						.append("/library/music/").append(wrapperReturnNowPlaying.getArtist().replaceAll(" ", "+").replaceAll("[)]", "%29")).append(") - ")
-						.append(returnNowPlaying.getPlaynumber()).append(" plays\n");
+						.append(returnNowPlaying.getPlayNumber()).append(" plays\n");
 			}
 
 			embedBuilder.setTitle("Who knows " + who + " in " + e.getGuild().getName() + "?").
@@ -101,7 +101,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
 		returned = parser.parse(e);
 		if (returned == null)
@@ -118,7 +118,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 	@Override
 	public String getDescription() {
-		return "Returns List Of Users Who Know the inputed Artist";
+		return "Returns List Of Users Who Know the inputted Artist";
 	}
 
 	@Override

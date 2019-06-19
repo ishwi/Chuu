@@ -17,8 +17,8 @@ public class GaussianFilter extends ConvolveFilter {
 
 	static final long serialVersionUID = 5377089073023183684L;
 
-	protected float radius;
-	protected Kernel kernel;
+	private float radius;
+	private Kernel kernel;
 
 	/**
 	 * Construct a Gaussian filter
@@ -36,7 +36,7 @@ public class GaussianFilter extends ConvolveFilter {
 		setRadius(radius);
 	}
 
-	public static void convolveAndTranspose(Kernel kernel, int[] inPixels, int[] outPixels, int width, int height, boolean alpha, int edgeAction) {
+	private static void convolveAndTranspose(Kernel kernel, int[] inPixels, int[] outPixels, int width, int height, boolean alpha, int edgeAction) {
 		float[] matrix = kernel.getKernelData(null);
 		int cols = kernel.getWidth();
 		int cols2 = cols / 2;
@@ -83,7 +83,7 @@ public class GaussianFilter extends ConvolveFilter {
 	/**
 	 * Make a Gaussian blur kernel.
 	 */
-	public static Kernel makeKernel(float radius) {
+	private static Kernel makeKernel(float radius) {
 		int r = (int) Math.ceil(radius);
 		int rows = r * 2 + 1;
 		float[] matrix = new float[rows];
@@ -123,7 +123,7 @@ public class GaussianFilter extends ConvolveFilter {
 	 *
 	 * @param radius the radius of the blur in pixels.
 	 */
-	public void setRadius(float radius) {
+	private void setRadius(float radius) {
 		this.radius = radius;
 		kernel = makeKernel(radius);
 	}

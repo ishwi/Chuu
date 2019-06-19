@@ -20,24 +20,23 @@ public class BandRendered {
 	private static final int X_MAX = 1500;
 	private static final int Y_MAX = 1000;
 	private static final int X_MARGIN = 25;
-	private static final int Y_MARGIN = 50;
+//	private static final int Y_MARGIN = 50;
 
-	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
+	//	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
 	private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 32);
-	private static final Font KOREAN_FONT = new Font("Noto Serif CJK KR Regular", Font.PLAIN, 32);
+//	private static final Font KOREAN_FONT = new Font("Noto Serif CJK KR Regular", Font.PLAIN, 32);
 
 	private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP Regular", Font.PLAIN, 32);
 
-	private static final Font CHINESE_FONT = new Font("Noto Serif CJK TC Regular", Font.PLAIN, 32);
+//	private static final Font CHINESE_FONT = new Font("Noto Serif CJK TC Regular", Font.PLAIN, 32);
 
 
 	private static final Font DESC_FONT = new Font("Noto Sans Display Light", Font.PLAIN, 32);
-	private static final String FIRST_LINE = "Who knows";
-	private static Color FONT_COLOR = Color.BLACK;
+//	private static final String FIRST_LINE = "Who knows";
 
 	public static BufferedImage makeBandImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, ArtistAlbums ai, int plays, BufferedImage logo, String user) {
 		BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
-		BufferedImage lastFmLogo = null;
+		BufferedImage lastFmLogo;
 		String artist = wrapperReturnNowPlaying.getArtist();
 		boolean needsJapanese = false;
 		try {
@@ -51,7 +50,7 @@ public class BandRendered {
 
 		Color colorB1 = GraphicUtils.getReadableColorBackgroundForFont(GraphicUtils.getFontColorBackground(canvas));
 		Color colorB = GraphicUtils.getSurfaceColor(GraphicUtils.getFontColorBackground(canvas));
-		FONT_COLOR = GraphicUtils.getBetter(GraphicUtils.getFontColorBackground(canvas));
+		Color FONT_COLOR = GraphicUtils.getBetter(GraphicUtils.getFontColorBackground(canvas));
 
 		g.setColor(FONT_COLOR);
 
@@ -91,10 +90,10 @@ public class BandRendered {
 		g.drawString(people, (X_MARGIN + 40) + (380 / 2) - width / 2, 700 - metrics.getAscent());
 		GraphicUtils.doChart(g, X_MARGIN + 40, 700 - 20, 400, 50, 5, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, DESC_FONT.deriveFont(36f));
 
-		int inicio_albums = X_MARGIN + 400 + 195 + 40;
 		count = 0;
 		int images_drawn = 0;
 
+		int albumsStartPosition = X_MARGIN + 400 + 195 + 40;
 		for (BufferedImage albumsImage : albumsImages) {
 			count++;
 			if (albumsImage == null) {
@@ -105,22 +104,22 @@ public class BandRendered {
 			switch (albumsImages.size()) {
 				case 3: {
 					int[] pos = {20, 370, 175};
-					pos_x = inicio_albums + pos[count - 1];
+					pos_x = albumsStartPosition + pos[count - 1];
 					baseline = 105 + 400 * (images_drawn / 2);
 					break;
 				}
 				case 2: {
-					pos_x = inicio_albums + 175;
+					pos_x = albumsStartPosition + 175;
 					baseline = 105 + 400 * (images_drawn);
 					break;
 				}
 				case 1: {
-					pos_x = inicio_albums + 175;
+					pos_x = albumsStartPosition + 175;
 					baseline = 105 + 200;
 					break;
 				}
 				default: {
-					pos_x = inicio_albums + 350 * (images_drawn % 2);
+					pos_x = albumsStartPosition + 350 * (images_drawn % 2);
 					baseline = 105 + 400 * (images_drawn / 2);
 					break;
 				}
@@ -152,19 +151,19 @@ public class BandRendered {
 			images_drawn++;
 		}
 
-		int yline = 380;
+		int yBaseLine = 380;
 		if (artistImageFill != null) {
-			g.drawImage(Scalr.resize(artistImageFill, yline, Scalr.OP_ANTIALIAS), X_MARGIN + 40 + (400 - 380) / 2, 25, null);
+			g.drawImage(Scalr.resize(artistImageFill, yBaseLine, Scalr.OP_ANTIALIAS), X_MARGIN + 40 + (400 - 380) / 2, 25, null);
 		}
 		width = metrics.stringWidth(artist);
-		yline += metrics.getAscent() + metrics.getDescent() + metrics.getLeading() + 20;
-		g.drawString(artist, X_MARGIN + 40 + (380 / 2) - width / 2, yline);
+		yBaseLine += metrics.getAscent() + metrics.getDescent() + metrics.getLeading() + 20;
+		g.drawString(artist, X_MARGIN + 40 + (380 / 2) - width / 2, yBaseLine);
 
 		ReturnNowPlaying myRow = new ReturnNowPlaying(1, user, artist, plays);
 		myRow.setDiscordName(user);
 
 		WrapperReturnNowPlaying wrapper1Row = new WrapperReturnNowPlaying(Collections.singletonList(myRow), 1, artist, artist);
-		GraphicUtils.doChart(g, X_MARGIN + 40, yline + metrics.getAscent() - 20, 400, 50, 1, wrapper1Row, colorB1, colorB, lastFmLogo, false, DESC_FONT.deriveFont(36f));
+		GraphicUtils.doChart(g, X_MARGIN + 40, yBaseLine + metrics.getAscent() - 20, 400, 50, 1, wrapper1Row, colorB1, colorB, lastFmLogo, false, DESC_FONT.deriveFont(36f));
 
 		return canvas;
 	}

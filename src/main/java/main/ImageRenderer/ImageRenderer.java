@@ -95,7 +95,7 @@ public class ImageRenderer {
 			width2 = g.getFontMetrics().stringWidth(userInfoLiust.get(1).getUsername());
 			totalwidth = widht1 + width2 + 4;
 		}
-		int totalCount = userInfoLiust.stream().mapToInt(UserInfo::getPlaycount).sum();
+		int totalCount = userInfoLiust.stream().mapToInt(UserInfo::getPlayCount).sum();
 
 		//Draws Profile Images
 		for (BufferedImage image : imageList) {
@@ -105,7 +105,7 @@ public class ImageRenderer {
 			int countStringPosition;
 			int rectanglePosition;
 			UserInfo userInfo = userInfoLiust.get(x);
-			float percentage = (float) userInfo.getPlaycount() / totalCount;
+			float percentage = (float) userInfo.getPlayCount() / totalCount;
 
 			if (x == 0) {
 				drawx = image1StartPosition;
@@ -117,7 +117,7 @@ public class ImageRenderer {
 				drawx = image2StartPosition;
 				nameStringPosition = image2StartPosition - width2 - 4;
 				color = colorB.brighter();
-				countStringPosition = image2StartPosition - g.getFontMetrics().stringWidth(String.valueOf(userInfo.getPlaycount())) - 5;
+				countStringPosition = image2StartPosition - g.getFontMetrics().stringWidth(String.valueOf(userInfo.getPlayCount())) - 5;
 				rectanglePosition = (int) (image2StartPosition - percentage * rectangle_width) - 4;
 			}
 			g.setColor(color);
@@ -127,7 +127,7 @@ public class ImageRenderer {
 			g.setFont(usernameFont);
 			g.drawString(userInfo.getUsername(), nameStringPosition, 20 + PROFILE_IMAGE_SIZE / 2);
 			g.setFont(scrobbleFont);
-			g.drawString("" + userInfo.getPlaycount(), countStringPosition, rectangle_start_y + rectangle_height - 1);
+			g.drawString("" + userInfo.getPlayCount(), countStringPosition, rectangle_start_y + rectangle_height - 1);
 			x++;
 
 		}
@@ -184,7 +184,7 @@ public class ImageRenderer {
 	}
 
 	private static void a(Graphics2D g) {
-		BufferedImage bim = null;
+		BufferedImage bim;
 		try {
 
 			File dir = new File("C:\\Users\\Ishwi\\Desktop\\Wallpaper\\");

@@ -54,7 +54,7 @@ public class AlbumGuildPlays extends AlbumSongPlaysCommand {
 					np.setDiscordName(getUserString(id2, e, t.getKey().getLastFMName()));
 					return np;
 				}
-		).filter(x -> x.getPlaynumber() > 0).collect(Collectors.toList());
+		).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
 		WrapperReturnNowPlaying a = new WrapperReturnNowPlaying(list2, 0, container.getAlbum_url(), artist + " - " + album);
 
 		BufferedImage sender = NPMaker.generateTasteImage(a, e.getGuild().getName(), logo);

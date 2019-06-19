@@ -161,6 +161,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
 		/* Create "queryString". */
 		@Language("MySQL") String queryString = "DELETE FROM lastfm.lastfm WHERE" + " discordID = ?";
 
+		deleteIdLong(con, discordID, queryString);
+
+	}
+
+	private void deleteIdLong(Connection con, Long discordID, String queryString) {
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
 			/* Fill "preparedStatement". */
@@ -177,7 +182,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	@Override
@@ -288,22 +292,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 		/* Create "queryString". */
 		@Language("MySQL") String queryString = "DELETE FROM guild_logo WHERE" + " guildId = ?";
 
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setLong(i, guildId);
-
-			/* Execute query. */
-			int removedRows = preparedStatement.executeUpdate();
-
-			if (removedRows == 0) {
-				System.err.println("No rows removed");
-			}
-
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
+		deleteIdLong(connection, guildId, queryString);
 	}
 
 	@Override
@@ -336,7 +325,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 	}
 
 	@Override
-	public long getDiscordIdFromLastfm(Connection connection, String lastFmName, long guildId) {
+	public long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) {
 		@Language("MySQL") String queryString = "Select a.discordID " +
 				"from  lastfm.lastfm a" +
 				" join lastfm.user_guild  b " +

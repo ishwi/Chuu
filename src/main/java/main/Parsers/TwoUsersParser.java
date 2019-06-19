@@ -38,19 +38,19 @@ public class TwoUsersParser extends DaoParser {
 			userList[1] = message[1];
 		}
 
-		java.util.List<String> lastfMNames;
+		java.util.List<String> lastFmNames;
 		// Si userList contains @ -> user
 		try {
 			java.util.List<User> list = e.getMessage().getMentionedUsers();
-			lastfMNames = Arrays.stream(userList)
+			lastFmNames = Arrays.stream(userList)
 					.map(s -> lambda(s, list))
 					.collect(Collectors.toList());
-			lastfMNames.forEach(System.out::println);
+			lastFmNames.forEach(System.out::println);
 		} catch (Exception ex) {
 			sendError(getErrorMessage(-1), e);
 			return null;
 		}
-		return new String[]{lastfMNames.get(0), lastfMNames.get(1)};
+		return new String[]{lastFmNames.get(0), lastFmNames.get(1)};
 	}
 
 
@@ -84,9 +84,9 @@ public class TwoUsersParser extends DaoParser {
 	public void setUpErrorMessages() {
 		super.setUpErrorMessages();
 		errorMessages.put(0, "Need at least one username");
-		errorMessages.put(5, "User hasnt registered yet!");
+		errorMessages.put(5, "User is yet to be registered !");
 		errorMessages.put(2, "Internal Server Error , try again later");
-		errorMessages.put(-1, "Unknow error Happened");
+		errorMessages.put(-1, "Unknown error Happened");
 
 
 	}

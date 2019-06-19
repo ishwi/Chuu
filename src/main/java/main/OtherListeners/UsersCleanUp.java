@@ -1,6 +1,6 @@
 package main.OtherListeners;
 
-public class UsersCleanUp implements Runnable {
+class UsersCleanUp implements Runnable {
 
 
 	@Override

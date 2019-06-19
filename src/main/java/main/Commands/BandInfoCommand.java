@@ -58,7 +58,6 @@ public class BandInfoCommand extends WhoKnowsCommand {
 						.filter(a -> a.getPlays() > 0)
 						.collect(Collectors.toList());
 
-		int counter = 0;
 		list.sort(Comparator.comparing(AlbumInfo::getPlays).reversed());
 		ai.setAlbumList(list);
 		WrapperReturnNowPlaying np = getDao().whoKnows(artist, e.getGuild().getIdLong(), 5);
@@ -67,8 +66,8 @@ public class BandInfoCommand extends WhoKnowsCommand {
 		);
 		int plays = getDao().getArtistPlays(artist, username);
 		BufferedImage logo = CommandUtil.getLogo(getDao(), e);
-		BufferedImage returedImage = BandRendered.makeBandImage(np, ai, plays, logo, getUserString(e.getAuthor().getIdLong(), e, username));
-		sendImage(returedImage, e);
+		BufferedImage returnedImage = BandRendered.makeBandImage(np, ai, plays, logo, getUserString(e.getAuthor().getIdLong(), e, username));
+		sendImage(returnedImage, e);
 	}
 
 	@Override

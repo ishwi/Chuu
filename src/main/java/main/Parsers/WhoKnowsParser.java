@@ -21,7 +21,7 @@ public class WhoKnowsParser extends OptionalParser {
 		if (message.length == 0) {
 			sendError(getErrorMessage(1), e);
 			return null;
-			//No Commands Inputed
+			//No Commands Inputted
 			//throw new ParseException("Input");
 		}
 		String artist = artistMultipleWords(message);

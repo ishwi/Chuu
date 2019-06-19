@@ -22,7 +22,7 @@ public class SetCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
 
 		returned = parser.parse(e);
@@ -43,8 +43,8 @@ public class SetCommand extends ConcurrentCommand {
 			//Registered with different username
 			if (!u.get().getLastFMName().equals(lastFmID)) {
 				sendMessage(e, "Changing your username, might take a while");
-				//Remove pero solo de la guild if no guild removeUser all
-				getDao().removeUserFromOneGuildCOnsequent(userId, guildID);
+				//Remove but only from the guild if not guild removeUser all
+				getDao().removeUserFromOneGuildConsequent(userId, guildID);
 			} else {
 				sendMessage(e, e.getAuthor().getName() + " , you are good to go!");
 				return;

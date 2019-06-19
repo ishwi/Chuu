@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class NPSpotifyCommand extends NpCommand {
-	private Spotify spotify;
+	private final Spotify spotify;
 
 	public NPSpotifyCommand(DaoImplementation dao) {
 		super(dao);

@@ -3,7 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.UniqueData;
 import DAO.Entities.UniqueWrapper;
-import main.OtherListeners.Reactionario;
+import main.OtherListeners.Reactionary;
 import main.Parsers.OnlyUsernameParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -23,7 +23,7 @@ public class UniqueCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] message;
 		message = parser.parse(e);
 		if (message == null)
@@ -55,7 +55,7 @@ public class UniqueCommand extends ConcurrentCommand {
 		embedBuilder.setDescription(a).setTitle(member.getEffectiveName() + "'s Top 10 unique Artists", "https://www.last.fm/user/" + lastFMID)
 				.setThumbnail(member.getUser().getAvatarUrl()).setFooter(member.getEffectiveName() + " has " + rows + " unique artists!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
-				new Reactionario<>(resultWrapper.getUniqueData(), m, embedBuilder)
+				new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder)
 		);
 
 	}
@@ -67,7 +67,7 @@ public class UniqueCommand extends ConcurrentCommand {
 
 	@Override
 	public String getDescription() {
-		return ("Returns lists of all the unique artits you have scrobbled");
+		return ("Returns lists of all the unique artist you have scrobbled");
 	}
 
 	@Override

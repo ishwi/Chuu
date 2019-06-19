@@ -11,7 +11,7 @@ import javax.management.InstanceNotFoundException;
 import java.util.List;
 
 public class ArtistAlbumParser extends DaoParser {
-	public ConcurrentLastFM lastFM;
+	private final ConcurrentLastFM lastFM;
 
 	public ArtistAlbumParser(DaoImplementation dao, ConcurrentLastFM lastFM) {
 		super(dao);
@@ -20,7 +20,7 @@ public class ArtistAlbumParser extends DaoParser {
 
 	@Override
 	public String[] parse(MessageReceivedEvent e) {
-		String messageraw = e.getMessage().getContentRaw();
+		String messageRaw = e.getMessage().getContentRaw();
 		StringBuilder builder = new StringBuilder();
 		List<Member> members = e.getMessage().getMentionedMembers();
 		Member sample;
@@ -33,13 +33,13 @@ public class ArtistAlbumParser extends DaoParser {
 				return null;
 			}
 			sample = members.get(0);
-			messageraw = messageraw.replace(sample.getAsMention(), "");
+			messageRaw = messageRaw.replace(sample.getAsMention(), "");
 		} else
 			sample = e.getMember();
 
 
-		String[] submessage = getSubMessage(messageraw);
-		if (submessage.length == 0) {
+		String[] subMessage = getSubMessage(messageRaw);
+		if (subMessage.length == 0) {
 
 			NowPlayingArtist np;
 			try {
@@ -60,7 +60,7 @@ public class ArtistAlbumParser extends DaoParser {
 			album = np.getAlbumName();
 		} else {
 
-			for (String s : submessage) {
+			for (String s : subMessage) {
 				builder.append(s).append(" ");
 			}
 			String s = builder.toString();

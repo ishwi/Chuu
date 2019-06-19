@@ -19,7 +19,7 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] parsed;
 		parsed = parser.parse(e);
 		if (parsed == null || parsed.length != 3)
@@ -33,8 +33,8 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 
 	}
 
-	public void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, String who) {
-		int a = 0;
+	void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, String who) {
+		int a;
 		try {
 			a = lastFM.getPlaysAlbum_Artist(getDao().findLastFMData(e.getAuthor().getIdLong()).getName(), artist, album).getPlays();
 			Member b = e.getGuild().getMemberById(e.getAuthor().getIdLong());
