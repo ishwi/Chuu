@@ -45,7 +45,7 @@ public class TopCommand extends ChartCommand {
 
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public void threadablecode(MessageReceivedEvent e) {
 		String[] message;
 		MessageBuilder mes = new MessageBuilder();
 		EmbedBuilder embed = new EmbedBuilder();

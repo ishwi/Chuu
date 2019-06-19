@@ -23,7 +23,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public void threadablecode(MessageReceivedEvent e) {
 		String[] subMessage = getSubMessage(e.getMessage());
 		String[] message = parser.parse(e);
 		if (message == null)

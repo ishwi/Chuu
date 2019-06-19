@@ -32,8 +32,9 @@ public abstract class MyCommand extends ListenerAdapter {
 
 	@Override
 	public void onMessageReceived(MessageReceivedEvent e) {
-		if (e.getAuthor().isBot() && !respondToBots())
+		if (!e.getMessage().getContentRaw().startsWith(PREFIX) || (e.getAuthor().isBot() && !respondToBots()))
 			return;
+
 		if (containsCommand(e.getMessage())) {
 			e.getChannel().sendTyping().queue();
 			System.out.println("We received a message from " +
@@ -89,7 +90,7 @@ public abstract class MyCommand extends ListenerAdapter {
 
 	}
 
-	public void sendImage(BufferedImage image, MessageReceivedEvent e) {
+	void sendImage(BufferedImage image, MessageReceivedEvent e) {
 		MessageBuilder messageBuilder = new MessageBuilder();
 		if (image == null) {
 			sendMessage(e, "Ish Pc Bad");
@@ -114,7 +115,7 @@ public abstract class MyCommand extends ListenerAdapter {
 
 	}
 
-	public String getUserString(Long discordid, MessageReceivedEvent e, String replacement) {
+	String getUserString(Long discordid, MessageReceivedEvent e, String replacement) {
 
 		Member member = e.getGuild().getMemberById(discordid);
 		return member == null ? replacement : member.getEffectiveName();

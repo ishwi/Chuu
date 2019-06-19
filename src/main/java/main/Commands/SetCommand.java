@@ -20,7 +20,7 @@ public class SetCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public void threadablecode(MessageReceivedEvent e) {
 		String[] returned;
 
 		returned = parser.parse(e);

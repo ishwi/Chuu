@@ -20,7 +20,7 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public void threadablecode(MessageReceivedEvent e) {
 		String urlParsed;
 		String artist;
 
