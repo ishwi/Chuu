@@ -2,7 +2,7 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.CrownsLbEntry;
-import main.OtherListeners.Reactionario;
+import main.OtherListeners.Reactionary;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -20,7 +20,7 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 		List<CrownsLbEntry> crownList = getDao().getGuildCrownLb(e.getGuild().getIdLong());
 		crownList.forEach(cl -> cl.setDiscordName(getUserString(cl.getDiscordId(), e, cl.getLastFmId())));
 		MessageBuilder messageBuilder = new MessageBuilder();
@@ -37,11 +37,10 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 		for (int i = 0; i < 10 && i < crownList.size(); i++) {
 			a.append(i + 1).append(crownList.get(i).toString());
 		}
-		;
 		embedBuilder.setDescription(a).setTitle(e.getGuild().getName() + "'s Crowns leadearboard")
 				.setThumbnail(e.getGuild().getIconUrl()).setFooter(e.getGuild().getName() + " has " + crownList.size() + " registered users!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
-				new Reactionario<>(crownList, message, embedBuilder)
+				new Reactionary<>(crownList, message, embedBuilder)
 		);
 	}
 

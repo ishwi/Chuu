@@ -3,8 +3,8 @@ package main.Commands;
 import DAO.DaoImplementation;
 import main.APIs.Spotify.Spotify;
 
-public abstract class MyCommandDbAndSpotifyAccess extends MyCommandDbAccess {
-	public Spotify spotify;
+abstract class MyCommandDbAndSpotifyAccess extends MyCommandDbAccess {
+	private final Spotify spotify;
 
 	public MyCommandDbAndSpotifyAccess(DaoImplementation dao, Spotify spotify) {
 		super(dao);

@@ -104,7 +104,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			int i = 1;
 			preparedStatement.setString(i++, lastFmId);
-			preparedStatement.setLong(i++, guildID);
+			preparedStatement.setLong(i, guildID);
 
 			ResultSet resultSet = preparedStatement.executeQuery();
 			int j = 0;

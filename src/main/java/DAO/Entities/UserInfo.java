@@ -1,22 +1,22 @@
 package DAO.Entities;
 
 public class UserInfo {
-	private int playcount;
+	private int playCount;
 	private String image;
 	private String username;
 
-	public UserInfo(int playcount, String image, String username) {
-		this.playcount = playcount;
+	public UserInfo(int playCount, String image, String username) {
+		this.playCount = playCount;
 		this.image = image;
 		this.username = username;
 	}
 
-	public int getPlaycount() {
-		return playcount;
+	public int getPlayCount() {
+		return playCount;
 	}
 
-	public void setPlaycount(int playcount) {
-		this.playcount = playcount;
+	public void setPlayCount(int playCount) {
+		this.playCount = playCount;
 	}
 
 	public String getImage() {

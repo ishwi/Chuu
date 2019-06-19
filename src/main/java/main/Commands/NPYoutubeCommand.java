@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class NPYoutubeCommand extends NpCommand {
-	private Search search;
+	private final Search search;
 
 	public NPYoutubeCommand(DaoImplementation dao) {
 		super(dao);

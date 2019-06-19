@@ -34,15 +34,14 @@ public class CrownsLbEntry {
 
 
 	public String toString() {
-		StringBuilder a = new StringBuilder();
 		String strID = discordName;
-		a.append(". [")
-				.append(strID)
-				.append("](https://www.last.fm/user/")
-				.append(lastFmId)
-				.append(") - ").append(crowns)
-				.append(" crowns\n");
-		return a.toString();
+		String a = ". [" +
+				strID +
+				"](https://www.last.fm/user/" +
+				lastFmId +
+				") - " + crowns +
+				" crowns\n";
+		return a;
 	}
 
 }

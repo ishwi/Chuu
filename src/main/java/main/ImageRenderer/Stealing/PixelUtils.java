@@ -11,32 +11,32 @@ import java.util.Random;
  * Some more useful math functions for image processing.
  * These are becoming obsolete as we move to Java2D. Use MiscComposite instead.
  */
-public class PixelUtils {
+class PixelUtils {
 
-	public final static int REPLACE = 0;
-	public final static int NORMAL = 1;
-	public final static int MIN = 2;
-	public final static int MAX = 3;
-	public final static int ADD = 4;
-	public final static int SUBTRACT = 5;
-	public final static int DIFFERENCE = 6;
-	public final static int MULTIPLY = 7;
-	public final static int HUE = 8;
-	public final static int SATURATION = 9;
-	public final static int VALUE = 10;
-	public final static int COLOR = 11;
-	public final static int SCREEN = 12;
-	public final static int AVERAGE = 13;
-	public final static int OVERLAY = 14;
-	public final static int CLEAR = 15;
+	private final static int REPLACE = 0;
+	private final static int NORMAL = 1;
+	private final static int MIN = 2;
+	private final static int MAX = 3;
+	private final static int ADD = 4;
+	private final static int SUBTRACT = 5;
+	private final static int DIFFERENCE = 6;
+	private final static int MULTIPLY = 7;
+	private final static int HUE = 8;
+	private final static int SATURATION = 9;
+	private final static int VALUE = 10;
+	private final static int COLOR = 11;
+	private final static int SCREEN = 12;
+	private final static int AVERAGE = 13;
+	private final static int OVERLAY = 14;
+	private final static int CLEAR = 15;
 	public final static int EXCHANGE = 16;
-	public final static int DISSOLVE = 17;
-	public final static int DST_IN = 18;
-	public final static int ALPHA = 19;
-	public final static int ALPHA_TO_GRAY = 20;
+	private final static int DISSOLVE = 17;
+	private final static int DST_IN = 18;
+	private final static int ALPHA = 19;
+	private final static int ALPHA_TO_GRAY = 20;
 	private final static float[] hsb1 = new float[3];//FIXME-not thread safe
 	private final static float[] hsb2 = new float[3];//FIXME-not thread safe
-	private static Random randomGenerator = new Random();
+	private static final Random randomGenerator = new Random();
 
 	/**
 	 * Clamp a value to the range 0..255
@@ -79,7 +79,7 @@ public class PixelUtils {
 		return (rgb2 & ~channelMask) | combinePixels(rgb1 & channelMask, rgb2, op, extraAlpha);
 	}
 
-	public static int combinePixels(int rgb1, int rgb2, int op, int extraAlpha) {
+	private static int combinePixels(int rgb1, int rgb2, int op, int extraAlpha) {
 		if (op == REPLACE)
 			return rgb1;
 		int a1 = (rgb1 >> 24) & 0xff;

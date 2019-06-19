@@ -9,23 +9,22 @@ public class UniqueData {
 		this.count = count_a;
 	}
 
-	public String getArtistName() {
+	private String getArtistName() {
 		return artistName;
 	}
 
-	public int getCount() {
+	private int getCount() {
 		return count;
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder a = new StringBuilder();
-		a.append(". [")
-				.append(getArtistName())
-				.append("](https://www.last.fm/music/")
-				.append(getArtistName().replaceAll(" ", "+"))
-				.append(") - ").append(getCount())
-				.append(" plays\n");
-		return a.toString();
+		String a = ". [" +
+				getArtistName() +
+				"](https://www.last.fm/music/" +
+				getArtistName().replaceAll(" ", "+") +
+				") - " + getCount() +
+				" plays\n";
+		return a;
 	}
 }

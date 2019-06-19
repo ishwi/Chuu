@@ -10,10 +10,10 @@ public class UrlParser extends OneWordParser {
 			sendError(getErrorMessage(2), e);
 			return null;
 		}
-		String[] submessage = super.parse(e);
-		if (submessage == null)
+		String[] subMessage = super.parse(e);
+		if (subMessage == null)
 			return null;
-		String url = submessage[0];
+		String url = subMessage[0];
 		if (!isValidURL(url)) {
 			sendError(getErrorMessage(1), e);
 			return null;

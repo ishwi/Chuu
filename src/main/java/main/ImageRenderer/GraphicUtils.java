@@ -7,10 +7,7 @@ import main.ImageRenderer.Stealing.GaussianFilter;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.List;
 
@@ -40,36 +37,6 @@ public class GraphicUtils {
 		return fm.getAscent();
 	}
 
-	public static void do1(Graphics2D g2, String text, Color outlineColor, Color inline, int x, int y) {
-		g2.translate(x, y);
-		Color fillColor = inline;
-		BasicStroke outlineStroke = new BasicStroke(1.0f);
-		Color originalColor = g2.getColor();
-		Stroke originalStroke = g2.getStroke();
-		RenderingHints originalHints = g2.getRenderingHints();
-
-
-		// create a glyph vector from your text
-		GlyphVector glyphVector = g2.getFont().createGlyphVector(g2.getFontRenderContext(), text);
-		// get the shape object
-		Shape textShape = glyphVector.getOutline();
-		g2.setColor(outlineColor);
-		g2.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-
-		//g2.setStroke(outlineStroke);
-		g2.draw(textShape); // draw outline
-
-		g2.setColor(fillColor);
-		g2.fill(textShape); // fill the shape
-
-		// reset to original settings after painting
-		g2.setColor(originalColor);
-		g2.setStroke(originalStroke);
-		g2.setRenderingHints(originalHints);
-		g2.translate(-x, -y);
-
-
-	}
 
 	public static Color getInverseBW(Color color) {
 		return color.equals(Color.BLACK) ? Color.WHITE : Color.BLACK;
@@ -96,7 +63,6 @@ public class GraphicUtils {
 			if (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
 					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HIRAGANA
 					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.KATAKANA
-					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
 					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
 					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION) {
 				hasJapanese = true;
@@ -128,12 +94,12 @@ public class GraphicUtils {
 
 	}
 
-	public static Color getBetter(Color... color) {
-		double acum = 0;
+	private static Color getBetter(Color... color) {
+		double accum = 0;
 		for (Color col : color) {
-			acum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
+			accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
 		}
-		return (acum / color.length) < 128 ? Color.WHITE : Color.BLACK;
+		return (accum / color.length) < 128 ? Color.WHITE : Color.BLACK;
 
 	}
 
@@ -150,45 +116,40 @@ public class GraphicUtils {
 		return new Color(rgb2[0], rgb2[1], rgb2[2], 0.5f).darker();
 	}
 
-	static BufferedImage deepCopy(BufferedImage bi) {
-		ColorModel cm = bi.getColorModel();
-		boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-		WritableRaster raster = bi.copyData(null);
-		return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
-	}
+
 
 	public static BufferedImage getImageFromUrl(String urlImage, @Nullable BufferedImage replacement) {
-		BufferedImage backGroundimage;
+		BufferedImage backgroundImage;
 		try {
 
 
 			java.net.URL url = new java.net.URL(urlImage);
-			backGroundimage = ImageIO.read(url);
+			backgroundImage = ImageIO.read(url);
 
 		} catch (IOException e) {
 
-			backGroundimage = replacement;
+			backgroundImage = replacement;
 		}
-		return backGroundimage;
+		return backgroundImage;
 
 	}
 
-	public static void doChart(Graphics2D g, int x, int y_counter, int widht, int height, int max_rows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, Font font) {
-		doChart(g, x, y_counter, widht, height, max_rows, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, true, font);
+	public static void doChart(Graphics2D g, int x, int y_counter, int width, int height, int max_rows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, Font font) {
+		doChart(g, x, y_counter, width, height, max_rows, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, true, font);
 	}
 
-	public static void doChart(Graphics2D g, int x, int y_counter, int widht, int row_height, int max_rows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, boolean doNumber, Font font) {
+	public static void doChart(Graphics2D g, int x, int y_counter, int width, int row_height, int max_rows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, boolean doNumber, Font font) {
 
 		Font ogFont = g.getFont();
 		Color ogColor = g.getColor();
 		g.setColor(colorB1.brighter());
-		g.fillRect(x, y_counter, widht, row_height * max_rows);
+		g.fillRect(x, y_counter, width, row_height * max_rows);
 		g.setColor(colorB);
 
 		int row_content = (int) (row_height * 0.9);
 		int margin = (int) (row_height * 0.1);
 
-		g.fillRect(x, y_counter, widht, row_height * max_rows);
+		g.fillRect(x, y_counter, width, row_height * max_rows);
 		FontMetrics metrics;
 		g.setFont(font);
 		float initial_size = g.getFont().getSize();
@@ -198,7 +159,7 @@ public class GraphicUtils {
 		for (int i = 0; i < nowPlayingArtistList.size() && i < 10; i++) {
 			g.setColor(colorB1);
 
-			g.fillRect(x, y_counter - metrics.getAscent() - metrics.getDescent(), widht, row_content);
+			g.fillRect(x, y_counter - metrics.getAscent() - metrics.getDescent(), width, row_content);
 
 			g.setColor(GraphicUtils.getBetter(colorB1));
 
@@ -207,22 +168,22 @@ public class GraphicUtils {
 
 			int start_name = x;
 			if (doNumber) {
-				String stringnumber = "#" + (i + 1) + " ";
-				g.drawString(stringnumber, x, y_counter + (margin - metrics.getAscent() / 2));
-				start_name += g.getFontMetrics().stringWidth(stringnumber);
+				String strNumber = "#" + (i + 1) + " ";
+				g.drawString(strNumber, x, y_counter + (margin - metrics.getAscent() / 2));
+				start_name += g.getFontMetrics().stringWidth(strNumber);
 			}
-			while (g.getFontMetrics(g.getFont()).stringWidth(name) > (widht * 0.55) && size > 14f) {
+			while (g.getFontMetrics(g.getFont()).stringWidth(name) > (width * 0.55) && size > 14f) {
 				g.setFont(g.getFont().deriveFont(size -= 2));
 			}
 			g.drawString(name, start_name, y_counter + (margin - metrics.getAscent() / 2));
 
 			size = initial_size;
 			g.setFont(font.deriveFont(size));
-			String plays = String.valueOf(nowPlayingArtistList.get(i).getPlaynumber());
+			String plays = String.valueOf(nowPlayingArtistList.get(i).getPlayNumber());
 			int stringWidth = metrics.stringWidth(plays);
-			int playPos = x + widht - (row_height + stringWidth);
+			int playPos = x + width - (row_height + stringWidth);
 			int playEnd = playPos + stringWidth;
-			g.drawString(plays, x + widht - (row_height + metrics.stringWidth(plays)), y_counter + (margin - metrics.getAscent() / 2));
+			g.drawString(plays, x + width - (row_height + metrics.stringWidth(plays)), y_counter + (margin - metrics.getAscent() / 2));
 			g.drawImage(lastFmLogo, playEnd + 9, (int) (y_counter - metrics.getAscent() * 0.85), null);
 			y_counter += row_height;
 
@@ -233,17 +194,14 @@ public class GraphicUtils {
 	}
 
 	private static boolean hasChinese(final char c) {
-		if ((Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS)
+		return (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS)
 				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A)
 				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B)
 				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS)
 				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS)
 				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT)
 				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS)) {
-			return true;
-		}
-		return false;
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS);
 	}
 
 	public static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
@@ -258,8 +216,6 @@ public class GraphicUtils {
 		g.setColor(temp);
 	}
 
-	public static void drawFitterString(Graphics2D g, String string, int x, int y, int width) {
 
-	}
 }
 

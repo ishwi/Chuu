@@ -1,9 +1,9 @@
 package DAO.Entities;
 
-public class UpdaterWrapper<T> {
-	private int timestamp;
-	private String username;
-	private T nowPlayingArtistList;
+class UpdaterWrapper<T> {
+	private final int timestamp;
+	private final String username;
+	private final T nowPlayingArtistList;
 
 	public UpdaterWrapper(int timestamp, String username, T nowPlayingArtistList) {
 		this.timestamp = timestamp;

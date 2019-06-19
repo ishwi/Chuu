@@ -31,7 +31,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 		String urlParsed;
 
 		urlParsed = parser.parse(e)[0];
@@ -65,9 +65,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 		System.out.println("USER LEAVED");
 
 		Executors.newSingleThreadExecutor()
-				.execute(() -> {
-					getDao().removeUserFromOneGuildCOnsequent(event.getMember().getIdLong(), event.getGuild().getIdLong());
-						}
+				.execute(() -> getDao().removeUserFromOneGuildConsequent(event.getMember().getIdLong(), event.getGuild().getIdLong())
 				);
 	}
 
@@ -91,7 +89,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 				//usersToDelete.forEach(dao::removeUser);
 				usersIMightLikeToDelete.addAll(usersToDelete);
 			} else {
-				//When the bot is not presente on a guild check what users to delete;
+				//When the bot is not present on a guild check what users to delete;
 				usersIMightLikeToDelete.addAll(user);
 
 			}
@@ -122,7 +120,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 	@Override
 	public List<String> getUsageInstructions() {
 		return Collections.singletonList("!logo url" +
-				"\n\t User need to have administration permisions\n\n");
+				"\n\t User need to have administration permissions\n\n");
 	}
 
 

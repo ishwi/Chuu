@@ -42,7 +42,7 @@ public class NPMaker {
 		int width;
 		int y_counter = 0;
 		y_counter += Y_MARGIN;
-		BufferedImage backGroundimage;
+		BufferedImage backgroundImage;
 		BufferedImage lastFmLogo = null;
 		BufferedImage guildLogo = null;
 
@@ -56,18 +56,18 @@ public class NPMaker {
 
 
 			java.net.URL url = new java.net.URL(urlString);
-			backGroundimage = ImageIO.read(url);
+			backgroundImage = ImageIO.read(url);
 
 		} catch (IOException e) {
 			try {
-				backGroundimage = ImageIO.read(new File(PATH_NO_IMAGE));
+				backgroundImage = ImageIO.read(new File(PATH_NO_IMAGE));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 				return null;
 			}
 		}
 
-		g.drawImage(backGroundimage, 0, 0, X_MAX, Y_MAX, 0, 0, backGroundimage.getWidth(), backGroundimage.getHeight(), null);
+		g.drawImage(backgroundImage, 0, 0, X_MAX, Y_MAX, 0, 0, backgroundImage.getWidth(), backgroundImage.getHeight(), null);
 		new GaussianFilter(90).filter(canvas, canvas);
 
 
@@ -124,10 +124,10 @@ public class NPMaker {
 
 		int rectWidth = X_MAX - X_MARGIN - (X_MARGIN + 320);
 
-		backGroundimage = Scalr.resize(backGroundimage, Scalr.Method.QUALITY, 320, Scalr.OP_ANTIALIAS);
-		int x_image_starter = X_MARGIN + (320 - backGroundimage.getWidth()) / 2;
-		int y_image_starter = y_counter + (320 - backGroundimage.getHeight()) / 2;
-		g.drawImage(backGroundimage, x_image_starter, y_image_starter, null);
+		backgroundImage = Scalr.resize(backgroundImage, Scalr.Method.QUALITY, 320, Scalr.OP_ANTIALIAS);
+		int x_image_starter = X_MARGIN + (320 - backgroundImage.getWidth()) / 2;
+		int y_image_starter = y_counter + (320 - backgroundImage.getHeight()) / 2;
+		g.drawImage(backgroundImage, x_image_starter, y_image_starter, null);
 		if (guildLogo != null)
 			g.drawImage(guildLogo, X_MARGIN + 320 + rectWidth - guildLogo.getWidth(), y_counter - 16 - guildLogo.getHeight(), null);
 

@@ -34,12 +34,12 @@ public class BandInfoNpCommand extends BandInfoCommand {
 	@Override
 	public List<String> getUsageInstructions() {
 		return Collections.singletonList("!band *LastFmUser \n" +
-				"\t If useranme is not specified defaults to authors account\n\n");
+				"\t If username is not specified defaults to authors account\n\n");
 	}
 
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] returned;
 
 		returned = parser.parse(e);

@@ -25,7 +25,7 @@ public class DiscogsApi {
 	private final String KEY;
 	private final Header header;
 	private boolean slowness = false;
-	private HttpClient httpClient;
+	private final HttpClient httpClient;
 
 	public DiscogsApi(String secret, String key) {
 		this.KEY = key;
@@ -40,7 +40,7 @@ public class DiscogsApi {
 
 	private int doSearch(String query) throws DiscogsServiceException {
 
-		System.out.println("DOIUNG SERACH : " + query);
+		System.out.println("DOING SEARCH : " + query);
 		try {
 			query = URLEncoder.encode(query, "UTF-8");
 		} catch (UnsupportedEncodingException e) {

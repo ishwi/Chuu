@@ -12,20 +12,19 @@ public class ConcurrentLastFMTest {
 
 	@Test
 	public void getAlbumsFromArtist() throws LastFmException {
-		ConcurrentLastFM lastfm = new ConcurrentLastFM();
+		ConcurrentLastFM lastFM = new ConcurrentLastFM();
 
 		try {
-			ArtistAlbums artistAlbums = lastfm.getAlbumsFromArtist("cher", 10);
+			ArtistAlbums artistAlbums = lastFM.getAlbumsFromArtist("cher", 10);
 			assertTrue("cher".equalsIgnoreCase(artistAlbums.getArtist()));
 			assertEquals(10, artistAlbums.getAlbumList().size());
 
-			artistAlbums = lastfm.getAlbumsFromArtist("cherr", 10);
+			artistAlbums = lastFM.getAlbumsFromArtist("cherr", 10);
 			assertTrue("cher".equalsIgnoreCase(artistAlbums.getArtist()));
 			assertEquals(10, artistAlbums.getAlbumList().size());
 
 
-		} catch (LastFMServiceException ex) {
-			return;
+		} catch (LastFMServiceException ignored) {
 		}
 
 

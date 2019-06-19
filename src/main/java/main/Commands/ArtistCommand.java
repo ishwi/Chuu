@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("Duplicates")
 public class ArtistCommand extends ChartCommand {
 	private final DiscogsApi discogsApi;
 	private final Spotify spotifyApi;
@@ -49,7 +48,7 @@ public class ArtistCommand extends ChartCommand {
 	@Override
 	public List<String> getUsageInstructions() {
 		return Collections.singletonList("!artists *[w,m,t,y,a] *Username *SizeXSize \n" +
-				"\tIf timeframe is not specified defaults to Weekly \n" +
+				"\tIf time is not specified defaults to Weekly \n" +
 				"\tIf username is not specified defaults to authors account \n" +
 				"\tIf size is not specified defaults to 5x5 (As big as discord lets\n\n"
 		);

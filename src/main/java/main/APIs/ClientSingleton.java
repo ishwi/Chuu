@@ -25,22 +25,4 @@ public class ClientSingleton {
 		return instance;
 	}
 
-	public static HttpClient getInstanceUsingDoubleLocking() {
-		if (instance == null) {
-			synchronized (ClientSingleton.class) {
-				if (instance == null) {
-					instance = new HttpClient();
-					HttpClientParams params = new HttpClientParams();
-					params.setSoTimeout(4000);
-					params.setContentCharset("UTF-8");
-					instance.setParams(params);
-
-					instance.setHttpConnectionManager(new MultiThreadedHttpConnectionManager());
-
-				}
-			}
-		}
-		return instance;
-	}
-
 }

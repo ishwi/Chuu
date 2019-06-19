@@ -3,7 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.UniqueData;
 import DAO.Entities.UniqueWrapper;
-import main.OtherListeners.Reactionario;
+import main.OtherListeners.Reactionary;
 import main.Parsers.OnlyUsernameParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -22,7 +22,7 @@ public class CrownsCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 		String[] message;
 
 		message = parser.parse(e);
@@ -52,8 +52,8 @@ public class CrownsCommand extends ConcurrentCommand {
 		if (whoD != null)
 			embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
 
-		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(quee ->
-				new Reactionario<>(resultWrapper, quee, embedBuilder));
+		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+				new Reactionary<>(resultWrapper, message1, embedBuilder));
 	}
 
 

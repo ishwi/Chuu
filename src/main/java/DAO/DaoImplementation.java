@@ -36,7 +36,7 @@ public class DaoImplementation {
 
 	}
 
-	public void updateUserLibrary(LinkedList<ArtistData> list, String id) {
+	public void updateUserLibrary(List<ArtistData> list, String id) {
 		try (Connection connection = dataSource.getConnection()) {
 
 			try {
@@ -53,23 +53,13 @@ public class DaoImplementation {
 				});
 				updaterDao.setUpdatedTime(connection, id, null);
 
-
-				/* Commit. */
-				// Seguramente haya mejor solucion
-
-
 				connection.commit();
-
-				// Relacionar post con show ?
-
 			} catch (SQLException e) {
 				connection.rollback();
 				throw new RuntimeException(e);
 			} catch (RuntimeException | Error e) {
 				connection.rollback();
 				throw e;
-//			} catch (InstanceNotFoundException e) {
-//				throw new RuntimeException(e);
 			}
 
 		} catch (SQLException e) {
@@ -128,21 +118,12 @@ public class DaoImplementation {
 		try (Connection connection = dataSource.getConnection()) {
 
 			try {
-				/* Prepare connection. */
 				connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 				connection.setAutoCommit(false);
 
-				/* Do work. */
 				userGuildDao.insertUserData(connection, data);
 				userGuildDao.addGuild(connection, data.getShowID(), data.getGuildID());
-
-				/* Commit. */
-				// Seguramente haya mejor solucion
-
-
 				connection.commit();
-
-				// Relacionar post con show ?
 
 			} catch (SQLException e) {
 				connection.rollback();
@@ -150,8 +131,6 @@ public class DaoImplementation {
 			} catch (RuntimeException | Error e) {
 				connection.rollback();
 				throw e;
-//			} catch (InstanceNotFoundException e) {
-//				throw new RuntimeException(e);
 			}
 
 		} catch (SQLException e) {
@@ -184,7 +163,7 @@ public class DaoImplementation {
 		}
 	}
 
-	public void removeFromGuild(Long discordID, long guildID) {
+	private void removeFromGuild(Long discordID, long guildID) {
 
 		try (Connection connection = dataSource.getConnection()) {
 			try {
@@ -215,20 +194,14 @@ public class DaoImplementation {
 
 			try {
 
-				/* Prepare connection. */
 				connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 				connection.setAutoCommit(false);
-
-				/* Do work. */
-				// Obtenemos el show, lo validamos, y si no salta excepcion actualizamos
 
 				LastFMData shows = userGuildDao.findLastFmData(connection, discordID);
 
 				shows.setName(lastFMID);
 
-
 				userGuildDao.updateLastFmData(connection, shows);
-				/* Commit. */
 				connection.commit();
 
 			} catch (SQLException e) {
@@ -254,9 +227,9 @@ public class DaoImplementation {
 		}
 	}
 
-	public ResultWrapper getSimilarities(List<String> lastfMNames) throws InstanceNotFoundException {
+	public ResultWrapper getSimilarities(List<String> lastFmNames) throws InstanceNotFoundException {
 		try (Connection connection = dataSource.getConnection()) {
-			return queriesDao.similar(connection, lastfMNames);
+			return queriesDao.similar(connection, lastFmNames);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -411,7 +384,7 @@ public class DaoImplementation {
 	@Deprecated
 	public long getDiscordIdFromLastfm(String lasFmName, long guildId) {
 		try (Connection connection = dataSource.getConnection()) {
-			return userGuildDao.getDiscordIdFromLastfm(connection, lasFmName, guildId);
+			return userGuildDao.getDiscordIdFromLastFm(connection, lasFmName, guildId);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 
@@ -436,7 +409,7 @@ public class DaoImplementation {
 		}
 	}
 
-	public void removeUserFromOneGuildCOnsequent(long discordID, long guildID) {
+	public void removeUserFromOneGuildConsequent(long discordID, long guildID) {
 		removeFromGuild(discordID, guildID);
 		MultiValueMap<Long, Long> map = getMapGuildUsers();
 		if (!map.containsValue(discordID)) {

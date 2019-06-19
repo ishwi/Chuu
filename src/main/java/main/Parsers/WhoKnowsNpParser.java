@@ -8,7 +8,7 @@ import main.Exceptions.LastFmException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class WhoKnowsNpParser extends NpParser {
-	private ConcurrentLastFM lastFM;
+	private final ConcurrentLastFM lastFM;
 
 	public WhoKnowsNpParser(DaoImplementation dao, ConcurrentLastFM last) {
 		super(dao);
@@ -50,8 +50,5 @@ public class WhoKnowsNpParser extends NpParser {
 
 	}
 
-	@Override
-	public void setUpErrorMessages() {
-		super.setUpErrorMessages();
-	}
+
 }

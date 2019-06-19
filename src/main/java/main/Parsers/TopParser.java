@@ -10,13 +10,13 @@ public class TopParser extends DaoParser {
 
 	@Override
 	public String[] parse(MessageReceivedEvent e) {
-		String[] submessage = getSubMessage(e.getMessage());
-		String[] optional = containsOptional("artist", submessage);
-		boolean hasArtist = (submessage.length != optional.length);
+		String[] subMessage = getSubMessage(e.getMessage());
+		String[] optional = containsOptional("artist", subMessage);
+		boolean hasArtist = (subMessage.length != optional.length);
 		if (!hasArtist) {
-			submessage = optional;
+			subMessage = optional;
 		}
-		String username = getLastFmUsername1input(submessage, e.getAuthor().getIdLong(), e);
+		String username = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
 		if (username == null)
 			return null;
 		return new String[]{username, Boolean.toString(hasArtist)};

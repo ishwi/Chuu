@@ -18,11 +18,11 @@ public abstract class NpCommand extends ConcurrentCommand {
 
 	}
 
-	public abstract void doSomethingWithArtist(NowPlayingArtist artist, Parser parser, MessageReceivedEvent e);
+	protected abstract void doSomethingWithArtist(NowPlayingArtist artist, Parser parser, MessageReceivedEvent e);
 
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 
 		String[] returned = parser.parse(e);
 		if (returned == null) {

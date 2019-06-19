@@ -41,7 +41,7 @@ public abstract class MyCommand extends ListenerAdapter {
 			System.out.println("We received a message from " +
 					e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
 			if (!e.getChannelType().isGuild() && !respondInPrivate) {
-				sendMessage(e, "This commmand only works in a server");
+				sendMessage(e, "This command only works in a server");
 				return;
 			}
 			measureTime(e);
@@ -67,11 +67,11 @@ public abstract class MyCommand extends ListenerAdapter {
 		return commandArgs(message.getContentDisplay());
 	}
 
-	String[] commandArgs(String string) {
+	private String[] commandArgs(String string) {
 		return string.split(" ");
 	}
 
-	Message sendMessage(MessageReceivedEvent e, Message message) {
+	private Message sendMessage(MessageReceivedEvent e, Message message) {
 		if (e.isFromType(ChannelType.PRIVATE))
 			return e.getPrivateChannel().sendMessage(message).complete();
 		else
@@ -82,12 +82,13 @@ public abstract class MyCommand extends ListenerAdapter {
 		return sendMessage(e, new MessageBuilder().append(message).build());
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	boolean respondToBots() {
 		return false;
 	}
 
 
-	public String[] getSubMessage(Message message) {
+	String[] getSubMessage(Message message) {
 		String[] parts = message.getContentRaw().substring(1).split("\\s+");
 
 		return Arrays.copyOfRange(parts, 1, parts.length);
@@ -113,15 +114,14 @@ public abstract class MyCommand extends ListenerAdapter {
 		} catch (IOException ex) {
 			sendMessage(e, "Ish Pc Bad");
 			ex.printStackTrace();
-			return;
 		}
 
 
 	}
 
-	String getUserString(Long discordid, MessageReceivedEvent e, String replacement) {
+	String getUserString(Long discordId, MessageReceivedEvent e, String replacement) {
 
-		Member member = e.getGuild().getMemberById(discordid);
+		Member member = e.getGuild().getMemberById(discordId);
 		return member == null ? replacement : member.getEffectiveName();
 	}
 

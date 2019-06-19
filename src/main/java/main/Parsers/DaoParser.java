@@ -9,7 +9,7 @@ import javax.management.InstanceNotFoundException;
 import java.util.List;
 
 public abstract class DaoParser extends Parser {
-	public DaoImplementation dao;
+	final DaoImplementation dao;
 
 	DaoParser(DaoImplementation dao) {
 		super();
@@ -22,7 +22,7 @@ public abstract class DaoParser extends Parser {
 			if (message.length != 1) {
 				username = this.dao.findLastFMData(id).getName();
 			} else {
-				//Caso con @ y sin @
+				//case  with @ and without @
 				List<User> list = event.getMessage().getMentionedUsers();
 				username = message[0];
 				if (!list.isEmpty()) {
@@ -44,7 +44,7 @@ public abstract class DaoParser extends Parser {
 	@Override
 	public void setUpErrorMessages() {
 		errorMessages.put(1, "User not on database");
-		errorMessages.put(3, "User hasnt played any songs recently");
+		errorMessages.put(3, "User have not played any songs recently");
 		errorMessages.put(4, "User does not exist on last.fm");
 	}
 }

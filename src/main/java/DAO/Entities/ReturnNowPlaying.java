@@ -8,13 +8,13 @@ public class ReturnNowPlaying {
 	private String discordName;
 	private Color roleColor;
 	private String lastFMId;
-	private int playnumber;
+	private int playNumber;
 
-	public ReturnNowPlaying(long discordId, String lastFMId, String artist, int playnumber) {
+	public ReturnNowPlaying(long discordId, String lastFMId, String artist, int playNumber) {
 		this.discordId = discordId;
 		this.lastFMId = lastFMId;
 		this.artist = artist;
-		this.playnumber = playnumber;
+		this.playNumber = playNumber;
 	}
 
 	public long getDiscordId() {
@@ -54,12 +54,12 @@ public class ReturnNowPlaying {
 	}
 
 
-	public int getPlaynumber() {
-		return playnumber;
+	public int getPlayNumber() {
+		return playNumber;
 	}
 
-	public void setPlaynumber(int playnumber) {
-		this.playnumber = playnumber;
+	public void setPlayNumber(int playNumber) {
+		this.playNumber = playNumber;
 	}
 
 

@@ -13,18 +13,18 @@ import java.util.List;
 import static java.lang.Math.min;
 import static java.lang.StrictMath.max;
 
-public class Reactionario<T> extends ListenerAdapter {
+public class Reactionary<T> extends ListenerAdapter {
 	private final Message message;
 	private final EmbedBuilder who;
 	private final int pageSize;
-	private List<T> list;
+	private final List<T> list;
 	private int counter = 0;
 
-	public Reactionario(List<T> list, Message message, EmbedBuilder who) {
+	public Reactionary(List<T> list, Message message, EmbedBuilder who) {
 		this(list, message, 10, who);
 	}
 
-	public Reactionario(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who) {
+	private Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who) {
 		this.who = who;
 		this.list = list;
 		this.message = messageToReact;
@@ -61,7 +61,7 @@ public class Reactionario<T> extends ListenerAdapter {
 	}
 
 
-	public void initReactionary(Message message, List<T> list, JDA jda) {
+	private void initReactionary(Message message, List<T> list, JDA jda) {
 		if (list.size() < 10)
 			return;
 		message.addReaction("U+2B05").submit();

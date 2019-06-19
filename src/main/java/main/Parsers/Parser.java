@@ -11,15 +11,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Parser {
-	public Map<Integer, String> errorMessages = new HashMap<>(10);
+	final Map<Integer, String> errorMessages = new HashMap<>(10);
 
-	public Parser() {
+	Parser() {
 		setUpErrorMessages();
 	}
 
 	public abstract String[] parse(MessageReceivedEvent e);
 
-	public abstract void setUpErrorMessages();
+	protected abstract void setUpErrorMessages();
 
 	public String getErrorMessage(int code) {
 		return errorMessages.get(code);
@@ -54,13 +54,13 @@ public abstract class Parser {
 		return artist;
 	}
 
-	public String[] getSubMessage(String string) {
+	String[] getSubMessage(String string) {
 		String[] parts = string.substring(1).split("\\s+");
 		return Arrays.copyOfRange(parts, 1, parts.length);
 
 	}
 
-	public String[] getSubMessage(Message message) {
+	String[] getSubMessage(Message message) {
 		return getSubMessage(message.getContentRaw());
 
 	}
@@ -74,7 +74,7 @@ public abstract class Parser {
 		return sendMessage(new MessageBuilder().append(message).build(), e);
 	}
 
-	public Message sendMessage(Message message, MessageReceivedEvent e) {
+	private Message sendMessage(Message message, MessageReceivedEvent e) {
 		if (e.isFromType(ChannelType.PRIVATE))
 			return e.getPrivateChannel().sendMessage(message).complete();
 		else

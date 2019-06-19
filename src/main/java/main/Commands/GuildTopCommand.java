@@ -19,7 +19,7 @@ public class GuildTopCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadablecode(MessageReceivedEvent e) {
+	public void threadableCode(MessageReceivedEvent e) {
 		List<UrlCapsule> resultWrapper = getDao().getGuildTop(e.getGuild().getIdLong());
 		BufferedImage image = GuildMaker.generateCollageThreaded(5, 5, new LinkedBlockingDeque<>(resultWrapper));
 		sendImage(image, e);

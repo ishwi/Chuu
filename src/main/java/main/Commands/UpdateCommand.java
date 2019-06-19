@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 public class UpdateCommand extends MyCommandDbAccess {
@@ -34,9 +33,9 @@ public class UpdateCommand extends MyCommandDbAccess {
 				sendMessage(e, message[0] + " is not registered in this guild");
 				return;
 			}
-			LinkedList<ArtistData> list = lastFM.getLibrary(message[0]);
+			List<ArtistData> list = lastFM.getLibrary(message[0]);
 			getDao().updateUserLibrary(list, message[0]);
-			mes.setContent("Sucessfully updated " + message[0] + " info !").sendTo(e.getChannel()).queue();
+			mes.setContent("Successfully updated " + message[0] + " info !").sendTo(e.getChannel()).queue();
 
 
 		} catch (LastFMNoPlaysException e1) {

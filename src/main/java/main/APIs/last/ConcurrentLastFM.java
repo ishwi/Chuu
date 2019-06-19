@@ -93,25 +93,25 @@ public class ConcurrentLastFM {//implements LastFMService {
 		if (attrObj.getInt("total") == 0) {
 			throw new LastFMNoPlaysException(user);
 		}
-		boolean nowPlayin;
+		boolean nowPlaying;
 
 
-		JSONObject tracltObj = obj.getJSONArray("track").getJSONObject(0);
+		JSONObject trackObj = obj.getJSONArray("track").getJSONObject(0);
 
 		try {
-			nowPlayin = tracltObj.getJSONObject("@attr").getBoolean("nowplaying");
+			nowPlaying = trackObj.getJSONObject("@attr").getBoolean("nowplaying");
 		} catch (JSONException e) {
-			nowPlayin = false;
+			nowPlaying = false;
 		}
-		JSONObject artistObj = tracltObj.getJSONObject("artist");
-		String artistname = artistObj.getString("#text");
+		JSONObject artistObj = trackObj.getJSONObject("artist");
+		String artistName = artistObj.getString("#text");
 		String mbid = artistObj.getString("mbid");
 
-		String albumName = tracltObj.getJSONObject("album").getString("#text");
-		String songName = tracltObj.getString("name");
-		String image_url = tracltObj.getJSONArray("image").getJSONObject(2).getString("#text");
+		String albumName = trackObj.getJSONObject("album").getString("#text");
+		String songName = trackObj.getString("name");
+		String image_url = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
 
-		return new NowPlayingArtist(artistname, mbid, nowPlayin, albumName, songName, image_url, user);
+		return new NowPlayingArtist(artistName, mbid, nowPlaying, albumName, songName, image_url, user);
 
 
 	}
@@ -123,7 +123,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		if (timestampQuery != 0)
 			url += "&from=" + (timestampQuery + 1);
 		int timestamp = 0;
-		boolean catched = false;
+		boolean caught = false;
 		int page = 0;
 		int total = 1;
 		int count = 0;
@@ -143,22 +143,22 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 				JSONArray arr = obj.getJSONArray("track");
 				for (int i = 0; i < arr.length(); i++) {
-					JSONObject tracltObj = arr.getJSONObject(i);
-					JSONObject artistObj = tracltObj.getJSONObject("artist");
+					JSONObject trackObj = arr.getJSONObject(i);
+					JSONObject artistObj = trackObj.getJSONObject("artist");
 					//JSONArray images = artistObj.getJSONArray("image");
 					//String image_url = images.getJSONObject(images.length() - 1).getString("#text");
-					//String image_url = tracltObj.getJSONArray("image").getJSONObject(images.length() - 1).getString("#text");
+					//String image_url = trackObj.getJSONArray("image").getJSONObject(images.length() - 1).getString("#text");
 
-					String artistname = artistObj.getString("name");
+					String artistName = artistObj.getString("name");
 
-					String albumName = tracltObj.getJSONObject("album").getString("#text");
-					String songName = tracltObj.getString("name");
-					if (!catched && tracltObj.has("date")) {
-						timestamp = tracltObj.getJSONObject("date").getInt("uts");
-						catched = true;
+					String albumName = trackObj.getJSONObject("album").getString("#text");
+					String songName = trackObj.getString("name");
+					if (!caught && trackObj.has("date")) {
+						timestamp = trackObj.getJSONObject("date").getInt("uts");
+						caught = true;
 					}
 					count++;
-					list.add(new NowPlayingArtist(artistname, "", false, albumName, songName, null, user));
+					list.add(new NowPlayingArtist(artistName, "", false, albumName, songName, null, user));
 				}
 
 
@@ -195,8 +195,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 			JSONArray image = obj.getJSONArray("image");
 			JSONObject bigImage = image.getJSONObject(2);
 			String image2 = bigImage.getString("#text");
-			int playcount = obj.getInt("playcount");
-			returnList.add(new UserInfo(playcount, image2, lastFmName));
+			int playCount = obj.getInt("playcount");
+			returnList.add(new UserInfo(playCount, image2, lastFmName));
 
 		}
 
@@ -205,13 +205,13 @@ public class ConcurrentLastFM {//implements LastFMService {
 	}
 
 	//@Override
-	public LinkedList<ArtistData> getLibrary(String User) throws LastFmException {
+	public List<ArtistData> getLibrary(String User) throws LastFmException {
 		String url = BASE + GET_LIBRARY + User + API_KEY + ending;
 		int page = 1;
 		int pages = 1;
 		url += "&limit=500";
 
-		LinkedList<ArtistData> linkedlist = new LinkedList<>();
+		List<ArtistData> artistData = new ArrayList<>();
 		while (page <= pages) {
 
 			String urlPage = url + "&page=" + page;
@@ -238,14 +238,14 @@ public class ConcurrentLastFM {//implements LastFMService {
 //
 //					JSONObject bigImage = image.getJSONObject(image.length() - 1);
 
-					linkedlist.add(new ArtistData(mbid, count, null));
+					artistData.add(new ArtistData(mbid, count, null));
 				}
 			} catch (JSONException e) {
 				throw new LastFMNoPlaysException(e.getMessage());
 
 			}
 		}
-		return linkedlist;
+		return artistData;
 	}
 
 	public void getUserList(String userName, String weekly, int x, int y, boolean isAlbum, BlockingQueue<UrlCapsule> queue) throws

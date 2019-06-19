@@ -5,12 +5,12 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class OneWordParser extends Parser {
 	@Override
 	public String[] parse(MessageReceivedEvent e) {
-		String[] submessage = getSubMessage(e.getMessage());
-		if (submessage.length != 1) {
+		String[] subMessage = getSubMessage(e.getMessage());
+		if (subMessage.length != 1) {
 			sendError(getErrorMessage(0), e);
 			return null;
 		}
-		return submessage;
+		return subMessage;
 	}
 
 	@Override
