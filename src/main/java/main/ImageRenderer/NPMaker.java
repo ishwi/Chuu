@@ -73,17 +73,17 @@ public class NPMaker {
 
 		Color colorB1 = GraphicUtils.getReadableColorBackgroundForFont(GraphicUtils.getFontColorBackground(canvas));
 		Color colorB = GraphicUtils.getSurfaceColor(GraphicUtils.getFontColorBackground(canvas));
-		FONT_COLOR = (GraphicUtils.getBetter(new Color(canvas.getRGB(X_MAX / 2, Y_MAX / 2))));
+		//FONT_COLOR = (GraphicUtils.getBetter(new Color(canvas.getRGB(X_MAX / 2, Y_MAX / 2))));
 
 
-		g.setColor(FONT_COLOR);
+		//g.setColor(FONT_COLOR);
 
 		g.setFont(DESC_FONT);
 		metrics = g.getFontMetrics(DESC_FONT);
 		width = metrics.stringWidth("Who knows");
 		y_counter += metrics.getAscent() - metrics.getDescent();
 
-		g.drawString(FIRST_LINE, X_MAX / 2 - width / 2, y_counter);
+		GraphicUtils.drawStringNicely(g, FIRST_LINE, X_MAX / 2 - width / 2, y_counter, canvas);
 
 		y_counter += 10;
 		Font fontToUse;
@@ -107,7 +107,7 @@ public class NPMaker {
 			g.setFont(g.getFont().deriveFont(size -= 2));
 		}
 		//GraphicUtils.do1(g,artist,GraphicUtils.getInverseBW(FONT_COLOR),FONT_COLOR,X_MAX / 2 - width / 2,y_counter);
-		g.drawString(artist, X_MAX / 2 - width / 2, y_counter);
+		GraphicUtils.drawStringNicely(g, artist, X_MAX / 2 - width / 2, y_counter, canvas);
 
 
 		y_counter += metrics.getDescent();
@@ -118,7 +118,7 @@ public class NPMaker {
 		y_counter += metrics.getAscent() - metrics.getDescent();
 		String thirdLine = "in " + discordName;
 		width = metrics.stringWidth(thirdLine);
-		g.drawString(thirdLine, X_MAX / 2 - width / 2, y_counter);
+		GraphicUtils.drawStringNicely(g, thirdLine, X_MAX / 2 - width / 2, y_counter, canvas);
 		y_counter += 16;
 
 

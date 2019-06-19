@@ -107,20 +107,6 @@ public class GraphicUtils {
 		return hasJapanese;
 	}
 
-	private boolean hasChinese(final char c) {
-		if ((Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS)) {
-			return true;
-		}
-		return false;
-	}
-
 	public static Graphics2D initArtistBackground(BufferedImage canvas, BufferedImage artistImage) {
 
 		Graphics2D g = canvas.createGraphics();
@@ -139,6 +125,15 @@ public class GraphicUtils {
 	public static Color getBetter(Color color) {
 		double y = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
 		return y < 128 ? Color.WHITE : Color.BLACK;
+
+	}
+
+	public static Color getBetter(Color... color) {
+		double acum = 0;
+		for (Color col : color) {
+			acum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
+		}
+		return (acum / color.length) < 128 ? Color.WHITE : Color.BLACK;
 
 	}
 
@@ -236,4 +231,35 @@ public class GraphicUtils {
 		g.setFont(ogFont);
 		g.setColor(ogColor);
 	}
+
+	private static boolean hasChinese(final char c) {
+		if ((Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION)
+				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS)) {
+			return true;
+		}
+		return false;
+	}
+
+	public static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
+		Color temp = g.getColor();
+		int length = g.getFontMetrics().stringWidth(string);
+		Color col1 = new Color(bufferedImage.getRGB(x, y));
+		Color col2 = new Color(bufferedImage.getRGB(x + length / 2, y));
+		Color col3 = new Color(bufferedImage.getRGB(x + length, y));
+
+		g.setColor(getBetter(col1, col2, col3));
+		g.drawString(string, x, y);
+		g.setColor(temp);
+	}
+
+	public static void drawFitterString(Graphics2D g, String string, int x, int y, int width) {
+
+	}
 }
+
