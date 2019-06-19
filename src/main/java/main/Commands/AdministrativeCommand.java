@@ -16,7 +16,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -73,32 +72,28 @@ public class AdministrativeCommand extends ConcurrentCommand {
 	public void onStartup(JDA jda) {
 		MultiValueMap<Long, Long> map = getDao().getMapGuildUsers();
 		//
-		List<Long> usersIMightLikeToDelete = new ArrayList<>();
-		List<Long> usersNotDeleted = new ArrayList<>();
+
 
 		map.forEach((key, value) -> {
 			List<Long> usersToDelete;
+			//Users in guild key
 			List<Long> user = (List<Long>) map.getCollection(key);
 			Guild guild = jda.getGuildById(key);
 			if (guild != null) {
+				//Get all members in guild
 				List<Member> memberList = guild.getMembers();
+				//Gets all ids
 				List<Long> guildList = memberList.stream().map(x -> x.getUser().getIdLong()).collect(Collectors.toList());
+
+				//if user in app but not in guild -> mark to delete
 				usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser)).collect(Collectors.toList());
-				usersNotDeleted.addAll(user.stream().filter(guildList::contains).collect(Collectors.toList()));
+				usersToDelete.forEach(u -> getDao().removeUserFromOneGuildConsequent(u, key));
 
-				//usersToDelete.forEach(dao::removeUser);
-				usersIMightLikeToDelete.addAll(usersToDelete);
+
 			} else {
-				//When the bot is not present on a guild check what users to delete;
-				usersIMightLikeToDelete.addAll(user);
-
+				user.forEach(u -> getDao().removeUserFromOneGuildConsequent(u, key));
 			}
 		});
-		for (Long potentiallyDeletedUser : usersIMightLikeToDelete) {
-			if (!usersNotDeleted.contains(potentiallyDeletedUser))
-				getDao().removeUserCompletely(potentiallyDeletedUser);
-		}
-
 
 	}
 
