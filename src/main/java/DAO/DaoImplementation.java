@@ -397,5 +397,14 @@ public class DaoImplementation {
 		}
 	}
 
+	public List<CrownsLbEntry> getGuildCrownLb(long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			return dao.crownsLeaderboard(connection, guildId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+	}
+
 
 }

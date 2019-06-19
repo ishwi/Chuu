@@ -64,4 +64,6 @@ interface SQLShowsDao {
 	void upsertSpotify(Connection con, ArtistInfo artistInfo);
 
 	int userPlays(Connection con, String artist, String whom);
+
+	List<CrownsLbEntry> crownsLeaderboard(Connection con, long guildID);
 }
