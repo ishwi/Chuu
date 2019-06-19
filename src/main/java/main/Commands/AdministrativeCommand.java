@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -67,12 +66,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
 		Executors.newSingleThreadExecutor()
 				.execute(() -> {
-							getDao().removeFromGuild(event.getMember().getIdLong(), event.getGuild().getIdLong());
-							MultiValueMap<Long, Long> map = getDao().getMapGuildUsers();
-							Collection<Long> list = map.getCollection(event.getMember().getIdLong());
-							if (list == null || list.isEmpty()) {
-								getDao().remove(event.getMember().getIdLong());
-							}
+					getDao().removeUserFromOneGuildCOnsequent(event.getMember().getIdLong(), event.getGuild().getIdLong());
 						}
 				);
 	}
@@ -104,7 +98,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 		});
 		for (Long potentiallyDeletedUser : usersIMightLikeToDelete) {
 			if (!usersNotDeleted.contains(potentiallyDeletedUser))
-				getDao().remove(potentiallyDeletedUser);
+				getDao().removeUserCompletely(potentiallyDeletedUser);
 		}
 
 

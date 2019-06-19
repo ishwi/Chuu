@@ -20,13 +20,13 @@ public abstract class DaoParser extends Parser {
 		String username;
 		try {
 			if (message.length != 1) {
-				username = this.dao.findShow(id).getName();
+				username = this.dao.findLastFMData(id).getName();
 			} else {
 				//Caso con @ y sin @
 				List<User> list = event.getMessage().getMentionedUsers();
 				username = message[0];
 				if (!list.isEmpty()) {
-					LastFMData data = this.dao.findShow((list.get(0).getIdLong()));
+					LastFMData data = this.dao.findLastFMData((list.get(0).getIdLong()));
 					username = data.getName();
 				}
 				if (username.startsWith("@")) {
