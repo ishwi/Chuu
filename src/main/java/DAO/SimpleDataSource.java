@@ -4,9 +4,12 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 class SimpleDataSource implements DataSource {
@@ -16,21 +19,32 @@ class SimpleDataSource implements DataSource {
 			"SimpleDataSource.user";
 	private static final String PASSWORD_PARAMETER =
 			"SimpleDataSource.password";
+	private static final String DRIVER_CLASS =
+			"SimpleDataSource.driverClass";
 	private static String url;
 	private static String user;
 	private static String password;
 	private final ComboPooledDataSource cpds;
 
 	public SimpleDataSource() {
+
+		Properties properties = new Properties();
+		try (InputStream in = SimpleDataSource.class.getResourceAsStream("/" + "datasource.properties")) {
+			properties.load(in);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
 		this.cpds = new ComboPooledDataSource();
 		try {
-			cpds.setDriverClass("com.mysql.cj.jdbc.Driver"); //loads the jdbc driver
+			cpds.setDriverClass(properties.getProperty(DRIVER_CLASS)); //loads the jdbc driver
 		} catch (PropertyVetoException e) {
 			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
-		cpds.setJdbcUrl("jdbc:mysql://localhost:3306/lastfm");
-		cpds.setUser("root");
-		cpds.setPassword("root");
+		cpds.setJdbcUrl(properties.getProperty(URL_PARAMETER));
+		cpds.setUser(properties.getProperty(USER_PARAMETER));
+		cpds.setPassword(properties.getProperty(PASSWORD_PARAMETER));
 
 // the settings below are optional -- c3p0 can work with defaults
 		cpds.setMinPoolSize(5);
