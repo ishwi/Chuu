@@ -464,6 +464,33 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 	}
 
 	@Override
+	public void removeUserGuild(Connection connection, long discordId, long guildId) {
+		/* Create "queryString". */
+		@Language("MySQL") String queryString = "DELETE FROM lastfm.user_guild" + " where discordID = ? and guildId = ?";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setLong(i++, discordId);
+			preparedStatement.setLong(i, guildId);
+
+
+			/* Execute query. */
+			int removedRows = preparedStatement.executeUpdate();
+
+			if (removedRows == 0) {
+				System.err.println("No rows removed");
+			}
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+
+	@Override
 	public long getDiscordIdFromLastfm(Connection connection, String lastFmName, long guildId) {
 		@Language("MySQL") String queryString = "Select a.discordID " +
 				"from  lastfm.lastfm a" +
