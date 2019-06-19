@@ -45,7 +45,7 @@ public class ArtistAlbumParser extends DaoParser {
 			try {
 
 				assert sample != null;
-				String userName = dao.findShow(sample.getUser().getIdLong()).getName();
+				String userName = dao.findLastFMData(sample.getUser().getIdLong()).getName();
 				np = lastFM.getNowPlayingInfo(userName);
 
 			} catch (InstanceNotFoundException ex) {
@@ -81,6 +81,6 @@ public class ArtistAlbumParser extends DaoParser {
 	public void setUpErrorMessages() {
 		errorMessages.put(1, "You need to use - to separate");
 		errorMessages.put(2, "Internal Server Error, try again later");
-		errorMessages.put(3, "Didn't find  what you were looking for");
+		errorMessages.put(3, "Didn't findLastFmData  what you were looking for");
 	}
 }

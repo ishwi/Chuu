@@ -26,7 +26,7 @@ public class TwoUsersParser extends DaoParser {
 		if (message.length == 1) {
 			userList[1] = message[0];
 			try {
-				userList[0] = dao.findShow(e.getAuthor().getIdLong()).getName();
+				userList[0] = dao.findLastFMData(e.getAuthor().getIdLong()).getName();
 			} catch (InstanceNotFoundException ex) {
 				sendError(getErrorMessage(5), e);
 				return null;
@@ -71,7 +71,7 @@ public class TwoUsersParser extends DaoParser {
 			User result = this.findUsername(s, list);
 			if (result != null) {
 				try {
-					return dao.findShow(result.getIdLong()).getName();
+					return dao.findLastFMData(result.getIdLong()).getName();
 				} catch (InstanceNotFoundException e) {
 					throw new RuntimeException(result.getName());
 				}

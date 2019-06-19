@@ -36,13 +36,13 @@ public class SetCommand extends ConcurrentCommand {
 
 
 		Optional<UsersWrapper> u = (list.stream().filter(user -> user.getDiscordID() == userId).findFirst());
-		//User was already registered
+		//User was already registered in this guild
 		if (u.isPresent()) {
 			//Registered with different username
 			if (!u.get().getLastFMName().equals(lastFmID)) {
 				sendMessage(e, "Changing your username, might take a while");
 				//Remove pero solo de la guild if no guild removeUser all
-				getDao().remove(userId);
+				getDao().removeUserFromOneGuildCOnsequent(userId, guildID);
 			} else {
 				sendMessage(e, e.getAuthor().getName() + " , you are good to go!");
 				return;

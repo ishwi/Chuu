@@ -1,16 +1,20 @@
 package DAO;
 
 import DAO.Entities.*;
-import org.apache.commons.collections4.map.MultiValueMap;
 import org.intellij.lang.annotations.Language;
 
 import javax.management.InstanceNotFoundException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class AbstractSQLShowsDao implements SQLShowsDao {
+public class SQLQueriesDaoImpl implements SQLQueriesDao {
+
+
 	@Override
 	public List<CrownsLbEntry> crownsLeaderboard(Connection connection, long guildID) {
 		@Language("MySQL") String queryString = "SELECT t2.lastFMID,t3.discordID,count(t2.lastFMID) ord\n" +
@@ -215,54 +219,6 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 		return null;
 	}
 
-	@Override
-	public UsersWrapper getLessUpdated(Connection connection) {
-		@Language("MySQL") String queryString = "Select a.discordID, a.lastFmId,b.last_update FROM lastfm a LEFT JOIN updated b on a.lastFmId=b.discordID  order by  last_update asc LIMIT 1";
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-			/* Fill "preparedStatement". */
-
-			/* Execute query. */
-			ResultSet resultSet = preparedStatement.executeQuery();
-			if (resultSet.next()) {
-
-				String name = resultSet.getString("a.lastFmId");
-				long discordID = resultSet.getLong("a.discordID");
-				Timestamp timestamp = resultSet.getTimestamp("b.last_update");
-				return new UsersWrapper(discordID, name, ((int) timestamp.toInstant().getEpochSecond()));
-			}
-			/* Return show. */
-
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		return null;
-	}
-
-	@Override
-	public List<UsersWrapper> getAll(Connection connection, long guildID) {
-		String queryString = "Select a.discordID, a.lastFmId FROM lastfm a join (Select discordId from user_guild where guildId = ? ) b on a.discordID = b.discordId";
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-			/* Fill "preparedStatement". */
-
-			/* Execute query. */
-			preparedStatement.setLong(1, guildID);
-			ResultSet resultSet = preparedStatement.executeQuery();
-			List<UsersWrapper> returnList = new ArrayList<>();
-			while (resultSet.next()) {
-
-				String name = resultSet.getString("a.lastFmId");
-				long discordID = resultSet.getLong("a.discordID");
-				returnList.add(new UsersWrapper(discordID, name));
-			}
-			/* Return show. */
-			return returnList;
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-
-	}
 
 	@Override
 	public ResultWrapper similar(Connection connection, List<String> lastfMNames) throws InstanceNotFoundException {
@@ -323,204 +279,92 @@ public abstract class AbstractSQLShowsDao implements SQLShowsDao {
 
 	}
 
+
 	@Override
-	public LastFMData find(Connection connection, Long discordID) throws InstanceNotFoundException {
+	public WrapperReturnNowPlaying knows(Connection con, String artist, long guildId, int limit) {
 
-		/* Create "queryString". */
-		String queryString = "SELECT discordID, lastFmid FROM lastfm WHERE discordID = ?";
-
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+		String queryString = "Select temp.artist_id, temp.lastFMID,temp.playNumber,b.url, c.discordID " +
+				"FROM (SELECT a.artist_id, a.lastFMID, a.playNumber " +
+				"FROM lastfm.artist a  " +
+				"where artist_id = ?" +
+				"group by a.artist_id,a.lastFMID,a.playNumber " +
+				"order by playNumber desc) temp " +
+				"JOIN artist_url b ON temp.artist_id=b.artist_id " +
+				"JOIN lastfm c on c.lastFmId = temp.lastFMID " +
+				"JOIN user_guild d on c.discordID = d.discordId " +
+				"where d.guildId = ? " +
+				"ORDER BY temp.playNumber desc";
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
 			/* Fill "preparedStatement". */
 			int i = 1;
-			preparedStatement.setLong(i, discordID);
-
-
-			/* Execute query. */
-			ResultSet resultSet = preparedStatement.executeQuery();
-
-			if (!resultSet.next()) {
-				throw new InstanceNotFoundException("Not found ");
-			}
-
-			/* Get results. */
-			i = 1;
-			long resDiscordID = resultSet.getLong(i++);
-			String lastFmID = resultSet.getString(i);
-
-			/* Return show. */
-
-			return new LastFMData(lastFmID, resDiscordID);
-
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-
-	}
-
-	@Override
-	public List<Long> guildList(Connection connection, long userId) {
-		@Language("MySQL") String queryString = "Select discordId,guildId  FROM user_guild  WHERE discordID = ?";
-
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setLong(i, userId);
-
-			List<Long> returnList = new LinkedList<>();
-			/* Execute query. */
-			ResultSet resultSet = preparedStatement.executeQuery();
-
-			while (resultSet.next()) {
-
-				long guildId = resultSet.getLong("guildId");
-
-				returnList.add(guildId);
-
-			}
-			return returnList;
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-
-	}
-
-	@Override
-	public MultiValueMap<Long, Long> getWholeUser_Guild(Connection connection) {
-		@Language("MySQL") String queryString = "Select discordId,guildId  FROM user_guild ";
-
-		MultiValueMap<Long, Long> map = new MultiValueMap<>();
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-
-			ResultSet resultSet = preparedStatement.executeQuery();
-
-			while (resultSet.next()) {
-
-				long guildId = resultSet.getLong("guildId");
-				long discordId = resultSet.getLong("discordId");
-				map.put(guildId, discordId);
-
-
-			}
-
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		return map;
-	}
-
-
-	@Override
-	public void update(Connection connection, LastFMData lastFMData) {
-
-		/* Create "queryString". */
-		String queryString = "UPDATE lastfm SET lastFmId= ? WHERE discordID = ?";
-
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setString(i++, lastFMData.getName());
-
-			preparedStatement.setLong(i, lastFMData.getShowID());
-
-			/* Execute query. */
-			int updatedRows = preparedStatement.executeUpdate();
-
-			if (updatedRows == 0) {
-				throw new RuntimeException("E");
-			}
-
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-
-	}
-
-	@Override
-	public void removeUser(Connection connection, Long discordID) {
-		/* Create "queryString". */
-		@Language("MySQL") String queryString = "DELETE FROM lastfm.lastfm WHERE" + " discordID = ?";
-
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setLong(i, discordID);
-
-			/* Execute query. */
-			int removedRows = preparedStatement.executeUpdate();
-
-			if (removedRows == 0) {
-				System.err.println("No rows removed");
-			}
-
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-
-	}
-
-	@Override
-	public void removeUserGuild(Connection connection, long discordId, long guildId) {
-		/* Create "queryString". */
-		@Language("MySQL") String queryString = "DELETE FROM lastfm.user_guild" + " where discordID = ? and guildId = ?";
-
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setLong(i++, discordId);
+			preparedStatement.setString(i++, artist);
 			preparedStatement.setLong(i, guildId);
 
 
 			/* Execute query. */
-			int removedRows = preparedStatement.executeUpdate();
 
-			if (removedRows == 0) {
-				System.err.println("No rows removed");
+			ResultSet resultSet = preparedStatement.executeQuery();
+			int rows;
+			String url = "";
+			List<ReturnNowPlaying> returnList = new ArrayList<>();
+			if (!resultSet.next()) {
+				rows = 0;
+			} else {
+				resultSet.last();
+				rows = resultSet.getRow();
+				url = resultSet.getString("b.url");
+
 			}
+			/* Get generated identifier. */
+
+			resultSet.beforeFirst();
+			/* Get results. */
+			int j = 0;
+			while (resultSet.next() && (j < limit && j < rows)) {
+				j++;
+				String lastFMId = resultSet.getString("temp.lastFMID");
+				int playNumber = resultSet.getInt("temp.playNumber");
+				long discordId = resultSet.getLong("c.discordID");
+
+				returnList.add(new ReturnNowPlaying(discordId, lastFMId, artist, playNumber));
+			}
+			/* Return booking. */
+			return new WrapperReturnNowPlaying(returnList, rows, url, artist);
 
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 
 	@Override
-	public long getDiscordIdFromLastfm(Connection connection, String lastFmName, long guildId) {
-		@Language("MySQL") String queryString = "Select a.discordID " +
-				"from  lastfm.lastfm a" +
-				" join lastfm.user_guild  b " +
-				"on a.discordID = b.discordId " +
-				" where " + " a.lastFmId = ? and b.guildId = ? ";
-
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
+	public int userPlays(Connection con, String artist, String whom) {
+		String queryString = "Select a.playNumber " +
+				"FROM artist a JOIN lastFM b on a.lastFMID=b.lastFmId " +
+				"JOIN artist_url c on a.artist_id = c.artist_id " +
+				"where a.lastFMID = ? and a.artist_id =?";
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 			/* Fill "preparedStatement". */
 			int i = 1;
-			preparedStatement.setString(i++, lastFmName);
-			preparedStatement.setLong(i, guildId);
+			preparedStatement.setString(i++, whom);
+			preparedStatement.setString(i, artist);
+
+
+
 
 			/* Execute query. */
 			ResultSet resultSet = preparedStatement.executeQuery();
+			if (!resultSet.next())
+				return 0;
+			return resultSet.getInt("a.playNumber");
 
-			if (!resultSet.next()) {
-				throw new InstanceNotFoundException("Not found ");
-			}
 
-			/* Get results. */
-
-			/* Return show. */
-
-			return resultSet.getLong(1);
-
-		} catch (SQLException | InstanceNotFoundException e) {
+		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
+
 }
+
+
