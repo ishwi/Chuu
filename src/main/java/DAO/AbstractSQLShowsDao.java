@@ -10,32 +10,65 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-
-/**
- * SELECT *
- * FROM  artist a
- * where 	 lastFMID="nonparadisi"
- * and playNumber > 0
- * AND  playNumber >= all (Select max(b.playNumber)
- * from
- * (Select in_A.lastFMID,in_A.artist_id,in_A.playNumber
- * from artist in_A
- * join
- * lastfm in_B
- * on in_A.lastFMID = in_B.lastFmid
- * join
- * user_guild in_C
- * on in_b.discordID = in_C.discordId
- * <p>
- * where guildId = 476779889102684160
- * ) as b
- * where b.artist_id = a.artist_id
- * group by artist_id
- * )
- *
- * @author Miguel
- */
 public abstract class AbstractSQLShowsDao implements SQLShowsDao {
+	@Override
+	public List<CrownsLbEntry> crownsLeaderboard(Connection connection, long guildID) {
+		@Language("MySQL") String queryString = "SELECT t2.lastFMID,t3.discordID,count(t2.lastFMID) ord\n" +
+				"From\n" +
+				"(\n" +
+				"Select\n" +
+				"        a.artist_id,max(a.playNumber) plays\n" +
+				"    FROM\n" +
+				"        lastfm.artist a \n" +
+				"    JOIN\n" +
+				"        lastfm b \n" +
+				"            ON a.lastFMID = b.lastFmId \n" +
+				"    JOIN\n" +
+				"        user_guild c \n" +
+				"            ON b.discordID = c.discordId \n" +
+				"    WHERE\n" +
+				"        c.guildId = ? \n" +
+				"    GROUP BY\n" +
+				"        a.artist_id \n" +
+				"  ) t\n" +
+				"  JOIN artist t2 \n" +
+				"  \n" +
+				"  on t.plays = t2.playNumber and t.artist_id = t2.artist_id\n" +
+				"  JOIN lastfm t3  ON t2.lastFMID = t3.lastFmId \n" +
+				"    JOIN\n" +
+				"        user_guild t4 \n" +
+				"            ON t3.discordID = t4.discordId \n" +
+				"    WHERE\n" +
+				"        t4.guildId = ? \n" +
+				"  group by t2.lastFMID,t3.discordID\n" +
+				"  order by ord desc";
+
+		List<CrownsLbEntry> returnedList = new ArrayList<>();
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			int i = 1;
+			preparedStatement.setLong(i++, guildID);
+			preparedStatement.setLong(i, guildID);
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+
+			while (resultSet.next()) { //&& (j < 10 && j < rows)) {
+				String lastFMId = resultSet.getString("lastFMID");
+				long discordId = resultSet.getLong("discordID");
+				int crowns = resultSet.getInt("ord");
+				returnedList.add(new CrownsLbEntry(lastFMId, discordId, crowns));
+
+			}
+			return returnedList;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException((e));
+		}
+
+
+	}
+
 	@Override
 	public UniqueWrapper<UniqueData> getCrowns(Connection connection, String lastFmId, long guildID) {
 		List<UniqueData> returnList = new ArrayList<>();
