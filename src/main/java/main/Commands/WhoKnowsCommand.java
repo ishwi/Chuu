@@ -25,11 +25,14 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 	public final DiscogsApi discogsApi;
 	private final Spotify spotify;
 
+
 	public WhoKnowsCommand(DaoImplementation dao) {
 		super(dao);
 		this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
 		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
 		this.parser = new WhoKnowsParser();
+		this.respondInPrivate = false;
+
 	}
 
 	void whoKnowsLogic(String who, Boolean isImage, MessageReceivedEvent e) {

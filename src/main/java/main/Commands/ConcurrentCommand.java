@@ -14,7 +14,6 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess {
 		super(dao);
 	}
 
-
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		final ExecutorService executor = Executors.newCachedThreadPool();
@@ -31,7 +30,10 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess {
 			e.getChannel().sendTyping().queue();
 			System.out.println("We received a message from " +
 					e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
-
+			if (!e.getChannelType().isGuild() && !respondInPrivate) {
+				sendMessage(e, "This commmand only works in a server");
+				return;
+			}
 			onCommand(e, commandArgs(e.getMessage()));
 
 		}

@@ -15,6 +15,8 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 
 	public CrownLeaderboardCommand(DaoImplementation dao) {
 		super(dao);
+		this.respondInPrivate = false;
+
 	}
 
 	@Override

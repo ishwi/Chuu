@@ -16,6 +16,8 @@ public class SetCommand extends ConcurrentCommand {
 	public SetCommand(DaoImplementation dao) {
 		super(dao);
 		parser = new OneWordParser();
+		this.respondInPrivate = false;
+
 	}
 
 

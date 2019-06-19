@@ -14,6 +14,8 @@ public class GuildTopCommand extends ConcurrentCommand {
 
 	public GuildTopCommand(DaoImplementation dao) {
 		super(dao);
+		this.respondInPrivate = false;
+
 	}
 
 	@Override
