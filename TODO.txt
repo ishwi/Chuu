@@ -7,7 +7,10 @@
 #Check guild users on login
 #Add png per guild db
 # *Fix albums
+#Add database creation script
+
 Migrate artist table with -> artist_url| incremental id
 Fix the logging issue
-Datasource config
-Add database creation script
+If spotify/discogs token missing disable commands not crash
+Condition for doing command outside of guild
+option to embed mysql on jar
