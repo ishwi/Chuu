@@ -19,7 +19,7 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public void threadablecode(MessageReceivedEvent e) {
 		String[] parsed;
 		parsed = parser.parse(e);
 		if (parsed == null || parsed.length != 3)

@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +20,7 @@ public class CrownsCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public void threadablecode(MessageReceivedEvent e) {
 		String[] message;
 
 		message = parser.parse(e);
@@ -46,25 +45,13 @@ public class CrownsCommand extends ConcurrentCommand {
 		embedBuilder.setColor(CommandUtil.randomColor());
 		Member whoD = e.getGuild().getMemberById(uniqueDataUniqueWrapper.getDiscordId());
 		String name = whoD == null ? message[0] : whoD.getEffectiveName();
-		embedBuilder.setTitle(name + "'s crowns");
+		embedBuilder.setTitle(name + "'s crowns", "https://www.last.fm/user/" + uniqueDataUniqueWrapper.getLastFmId());
 		embedBuilder.setFooter(name + " has " + resultWrapper.size() + " crowns!!\n", null);
 		if (whoD != null)
 			embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
 
-		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(quee -> {
-			quee.addReaction("U+2B05").submit();
-			quee.addReaction("U+27A1").submit();
-			ListenerAdapter adapter = new Reactionario<>(resultWrapper, quee, embedBuilder);
-			e.getJDA().addEventListener(adapter);
-			try {
-				Thread.sleep(40000);
-			} catch (InterruptedException ex) {
-				ex.printStackTrace();
-			}
-			e.getJDA().removeEventListener(adapter);
-			quee.clearReactions().queue();
-		});
-
+		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(quee ->
+				new Reactionario<>(resultWrapper, quee, embedBuilder));
 	}
 
 

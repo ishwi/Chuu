@@ -49,7 +49,7 @@ public class TasteCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public void threadablecode(MessageReceivedEvent e) {
 		List<String> lastfMNames;
 		MessageBuilder messageBuilder = new MessageBuilder();
 

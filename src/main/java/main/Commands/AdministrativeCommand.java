@@ -31,7 +31,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public void threadablecode(MessageReceivedEvent e) {
 		String urlParsed;
 
 		urlParsed = parser.parse(e)[0];

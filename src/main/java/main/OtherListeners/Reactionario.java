@@ -2,6 +2,7 @@ package main.OtherListeners;
 
 import main.Commands.CommandUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -20,14 +21,16 @@ public class Reactionario<T> extends ListenerAdapter {
 	private int counter = 0;
 
 	public Reactionario(List<T> list, Message message, EmbedBuilder who) {
-		this(list, message, who, 10);
+		this(list, message, 10, who);
 	}
 
-	public Reactionario(List<T> list, Message messageToReact, EmbedBuilder who, int pageSize) {
+	public Reactionario(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who) {
+		this.who = who;
 		this.list = list;
 		this.message = messageToReact;
-		this.who = who;
 		this.pageSize = pageSize;
+		initReactionary(messageToReact, list, messageToReact.getJDA());
+
 	}
 
 
@@ -56,4 +59,22 @@ public class Reactionario<T> extends ListenerAdapter {
 		who.setColor(CommandUtil.randomColor());
 		message.editMessage(who.build()).queue();
 	}
+
+
+	public void initReactionary(Message message, List<T> list, JDA jda) {
+		if (list.size() < 10)
+			return;
+		message.addReaction("U+2B05").submit();
+		message.addReaction("U+27A1").submit();
+
+		jda.addEventListener(this);
+		try {
+			Thread.sleep(40000);
+		} catch (InterruptedException ex) {
+			ex.printStackTrace();
+		}
+		jda.removeEventListener(this);
+		message.clearReactions().queue();
+	}
+
 }

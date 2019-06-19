@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.Collections;
 import java.util.List;
@@ -49,24 +48,12 @@ public class UniqueCommand extends MyCommandDbAccess {
 			a.append(i + 1).append(g.toString());
 		}
 		Member member = e.getGuild().getMemberById(resultWrapper.getDiscordId());
-
+		assert (member != null);
 		embedBuilder.setDescription(a).setTitle(member.getEffectiveName() + "'s Top 10 unique Artists", "https://www.last.fm/user/" + lastFMID)
 				.setThumbnail(member.getUser().getAvatarUrl()).setFooter(member.getEffectiveName() + " has " + rows + " unique artists!\n", null);
-		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(quee -> {
-			if (rows < 10)
-				return;
-			quee.addReaction("U+2B05").submit();
-			quee.addReaction("U+27A1").submit();
-			ListenerAdapter adapter = new Reactionario<>(resultWrapper.getUniqueData(), quee, embedBuilder);
-			e.getJDA().addEventListener(adapter);
-			try {
-				Thread.sleep(40000);
-			} catch (InterruptedException ex) {
-				ex.printStackTrace();
-			}
-			e.getJDA().removeEventListener(adapter);
-			quee.clearReactions().queue();
-		});
+		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
+				new Reactionario<>(resultWrapper.getUniqueData(), m, embedBuilder)
+		);
 
 	}
 

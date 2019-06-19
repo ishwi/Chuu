@@ -37,12 +37,12 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess {
 		}
 	}
 
-	public abstract void threadableCode(MessageReceivedEvent e);
+	public abstract void threadablecode(MessageReceivedEvent e);
 
 	public void run(MessageReceivedEvent e) {
 
 		long startTime = System.currentTimeMillis();
-		threadableCode(e);
+		threadablecode(e);
 		long endTime = System.currentTimeMillis();
 		long timeElapsed = endTime - startTime;
 		System.out.println("Execution time in milliseconds " + getName() + " : " + timeElapsed);
