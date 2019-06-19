@@ -181,6 +181,31 @@ public class DaoImplementation {
 		}
 	}
 
+	public void removeFromGuild(Long discordID, long guildID) {
+
+		try (Connection connection = dataSource.getConnection()) {
+			try {
+				/* Prepare connection. */
+
+				connection.setAutoCommit(false);
+				/* Do work. */
+				dao.removeUserGuild(connection, discordID, guildID);
+				/* Commit. */
+				connection.commit();
+
+			} catch (SQLException e) {
+				connection.rollback();
+				throw new RuntimeException(e);
+			} catch (RuntimeException | Error e) {
+				connection.rollback();
+				throw e;
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+
 	public void updateShow(long discorID, String lastFMID) {
 
 		try (Connection connection = dataSource.getConnection()) {

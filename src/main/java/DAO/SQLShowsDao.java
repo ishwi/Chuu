@@ -23,6 +23,8 @@ interface SQLShowsDao {
 
 	void removeUser(Connection con, Long showID);
 
+	void removeUserGuild(Connection con, long discordId, long guildId);
+
 	void addArtist(Connection con, ArtistData artistData);
 
 	UniqueWrapper<UniqueData> getUniqueArtist(Connection connection, Long guildID, String lastFMID);
