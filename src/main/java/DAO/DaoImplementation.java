@@ -9,7 +9,6 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -440,8 +439,7 @@ public class DaoImplementation {
 	public void removeUserFromOneGuildCOnsequent(long discordID, long guildID) {
 		removeFromGuild(discordID, guildID);
 		MultiValueMap<Long, Long> map = getMapGuildUsers();
-		Collection<Long> list = map.getCollection(discordID);
-		if (list == null || list.isEmpty()) {
+		if (!map.containsValue(discordID)) {
 			removeUserCompletely(discordID);
 		}
 	}
