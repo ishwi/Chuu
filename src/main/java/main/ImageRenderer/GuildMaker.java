@@ -24,7 +24,7 @@ public class GuildMaker {
 
 		AtomicInteger max = new AtomicInteger(queue.size());
 		ExecutorService es = Executors.newCachedThreadPool();
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 2; i++)
 			es.execute((new ThreadQueueGuild(queue, g, x, y, max)));
 		es.shutdown();
 		try {

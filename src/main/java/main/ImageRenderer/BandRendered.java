@@ -1,11 +1,10 @@
-package main.ImageRenderer.Stealing;
+package main.ImageRenderer;
 
 
 import DAO.Entities.AlbumInfo;
 import DAO.Entities.ArtistAlbums;
 import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.WrapperReturnNowPlaying;
-import main.ImageRenderer.GraphicUtils;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -87,7 +86,8 @@ public class BandRendered {
 		FontMetrics metrics = g.getFontMetrics();
 		String people = "Top 5 people";
 		int width = metrics.stringWidth(people);
-		g.drawString(people, (X_MARGIN + 40) + (380 / 2) - width / 2, 700 - metrics.getAscent());
+		GraphicUtils.drawStringNicely(g, people, (X_MARGIN + 40) + (380 / 2) - width / 2, 700 - metrics.getAscent(), canvas);
+		//g.drawString(people, (X_MARGIN + 40) + (380 / 2) - width / 2, 700 - metrics.getAscent());
 		GraphicUtils.doChart(g, X_MARGIN + 40, 700 - 20, 400, 50, 5, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, DESC_FONT.deriveFont(36f));
 
 		count = 0;
@@ -136,7 +136,9 @@ public class BandRendered {
 			while ((width = g.getFontMetrics(g.getFont()).stringWidth(album)) > 300 && sizeFont > 18f) {
 				g.setFont(g.getFont().deriveFont(sizeFont -= 2));
 			}
-			g.drawString(album, pos_x + (300 / 2) - width / 2, baseline + metrics.getAscent());
+			GraphicUtils.drawStringNicely(g, album, pos_x + (300 / 2) - width / 2, baseline + metrics.getAscent(), canvas);
+
+			//;g.drawString(album, pos_x + (300 / 2) - width / 2, baseline + metrics.getAscent());
 			g.setFont(ogFont);
 
 
@@ -146,7 +148,8 @@ public class BandRendered {
 			int finish = start + width;
 			width += 25;
 
-			g.drawString(play, pos_x + (300 / 2) - width / 2, baseline + metrics.getAscent());
+			GraphicUtils.drawStringNicely(g, play, pos_x + (300 / 2) - width / 2, baseline + metrics.getAscent(), canvas);
+			//g.drawString(play, pos_x + (300 / 2) - width / 2, baseline + metrics.getAscent());
 			g.drawImage(lastFmLogo, finish, baseline + metrics.getAscent() - metrics.getDescent() - metrics.getLeading() - 8, null);
 			images_drawn++;
 		}
@@ -157,7 +160,9 @@ public class BandRendered {
 		}
 		width = metrics.stringWidth(artist);
 		yBaseLine += metrics.getAscent() + metrics.getDescent() + metrics.getLeading() + 20;
-		g.drawString(artist, X_MARGIN + 40 + (380 / 2) - width / 2, yBaseLine);
+		GraphicUtils.drawStringNicely(g, artist, X_MARGIN + 40 + (380 / 2) - width / 2, yBaseLine, canvas);
+
+//				;g.drawString(artist, X_MARGIN + 40 + (380 / 2) - width / 2, yBaseLine);
 
 		ReturnNowPlaying myRow = new ReturnNowPlaying(1, user, artist, plays);
 		myRow.setDiscordName(user);
