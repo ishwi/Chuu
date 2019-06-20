@@ -62,6 +62,7 @@ public class UpdaterThread implements Runnable {
 				TimestampWrapper<List<ArtistData>> artistDataLinkedList = lastFM.getWhole(userWork.getLastFMName(), userWork.getTimestamp());
 
 				for (ArtistData datum : artistDataLinkedList.getWrapped()) {
+
 					String prevUrl = dao.getArtistUrl(datum.getArtist());
 					if (prevUrl == null)
 						prevUrl = CommandUtil.updateUrl(discogsApi, datum.getArtist(), dao, spotify);

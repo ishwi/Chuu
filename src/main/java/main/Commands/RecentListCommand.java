@@ -10,16 +10,18 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Collections;
 import java.util.List;
 
 public class RecentListCommand extends ConcurrentCommand {
-	RecentListCommand(DaoImplementation dao) {
+	public RecentListCommand(DaoImplementation dao) {
 		super(dao);
 		this.parser = new OnlyUsernameParser(dao);
 	}
 
 	@Override
 	protected void threadableCode(MessageReceivedEvent e) {
+
 		String[] returned = parser.parse(e);
 		if (returned == null) {
 			return;
@@ -29,6 +31,7 @@ public class RecentListCommand extends ConcurrentCommand {
 		try {
 			List<NowPlayingArtist> list = lastFM.getRecent(username, limit);
 			StringBuilder a = new StringBuilder();
+			a.append("\n");
 			NowPlayingArtist header = list.get(0);
 
 
@@ -36,16 +39,16 @@ public class RecentListCommand extends ConcurrentCommand {
 			String name = getUserString(discordId, e, username);
 			int counter = 1;
 			for (NowPlayingArtist nowPlayingArtist : list) {
-				a.append("Track #").append(counter++)
-						.append(":\n")
+				a.append("**Track #").append(counter++)
+						.append(":**\n")
 						.append(nowPlayingArtist.getArtistName())
 						.append(" - ").append(nowPlayingArtist.getSongName())
 						.append(" | ").append(nowPlayingArtist.getAlbumName()).append("\n\n");
 			}
 
 			EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(CommandUtil.noImageUrl(header.getUrl()))
-					.setTitle(
-							"**[" + name + "](https://www.last.fm/user/" + username + ") Last" + limit + "tracks **")
+					.setTitle("** " + name + "'s last " + limit + " tracks **",
+							"https://www.last.fm/user/" + username)
 					.setDescription(a);
 
 			MessageBuilder messageBuilder = new MessageBuilder();
@@ -61,24 +64,25 @@ public class RecentListCommand extends ConcurrentCommand {
 		}
 
 	}
-
 	@Override
-	List<String> getAliases() {
-		return null;
+	public List<String> getAliases() {
+		return Collections.singletonList("!recent");
 	}
 
 	@Override
-	String getDescription() {
-		return null;
+	public String getDescription() {
+		return "Returns your most recent songs played";
 	}
 
 	@Override
-	String getName() {
-		return null;
+	public String getName() {
+		return "Recent";
 	}
 
 	@Override
-	List<String> getUsageInstructions() {
-		return null;
+	public List<String> getUsageInstructions() {
+		return Collections.singletonList("!recent  *username \n" +
+				"\t If username is not specified defaults to authors account\n\n");
 	}
+
 }
