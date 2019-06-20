@@ -7,8 +7,6 @@ import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Discogs.DiscogsSingleton;
 import main.APIs.Spotify.Spotify;
 import main.APIs.Spotify.SpotifySingleton;
-import main.Exceptions.LastFmEntityNotFoundException;
-import main.Exceptions.LastFmException;
 import main.ImageRenderer.NPMaker;
 import main.Parsers.WhoKnowsParser;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -42,16 +40,9 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 		if (wrapperReturnNowPlaying.getRows() == 0) {
 			String repeated;
-			try {
-				repeated = lastFM.getCorrection(who);
-			} catch (LastFmEntityNotFoundException ex) {
-				messageBuilder.setContent("No nibba listens to " + who).sendTo(e.getChannel()).queue();
-				return;
-			} catch (LastFmException ex2) {
 
-				sendMessage(e, "Internal Server Error, Try Again later ");
-				return;
-			}
+			repeated = lastFM.getCorrection(who);
+
 			if (repeated.equals(who)) {
 				messageBuilder.setContent("No nibba listens to " + who).sendTo(e.getChannel()).queue();
 				return;
@@ -63,7 +54,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 				messageBuilder.setContent("No nibba listens to " + who).sendTo(e.getChannel()).queue();
 				return;
 			}
-		}
+			}
 
 
 		if (wrapperReturnNowPlaying.getUrl() == null) {

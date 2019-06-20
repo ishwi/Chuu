@@ -15,7 +15,10 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
 
@@ -27,8 +30,9 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private final String GET_LIBRARY = "?method=library.getartists&user=";
 	private final String GET_USER = "?method=user.getinfo&user=";
 	private final String ending = "&format=json";
-	private final String GET_NOW_PLAYINH = "?method=user.getrecenttracks&limit=1&user=";
-	private final String GET_ALL = "?method=user.getrecenttracks&limit=200&user=";
+	private final String RECENT_TRACKS = "?method=user.getrecenttracks";
+	private final String GET_NOW_PLAYINH = RECENT_TRACKS + "&limit=1&user=";
+	private final String GET_ALL = RECENT_TRACKS + "&limit=200&user=";
 
 	private final String GET_ARTIST = "?method=user.gettopartists&user=";
 	private final String GET_TRACKS = "?method=album.getinfo&username=";
@@ -116,7 +120,43 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
-	public TimestampWrapper<LinkedList<ArtistData>> getWhole(String user, int timestampQuery) throws LastFmException {
+	public List<NowPlayingArtist> getRecent(String user, int limit) throws LastFmException {
+		String url = BASE + RECENT_TRACKS + "&user=" + user + "&limit=" + limit + API_KEY + ending;
+		HttpMethodBase method = createMethod(url);
+
+		JSONObject obj = doMethod(method);
+		if (!obj.has("recenttracks")) {
+			throw new LastFmEntityNotFoundException(user);
+		}
+
+		obj = obj.getJSONObject("recenttracks");
+		JSONObject attrObj = obj.getJSONObject("@attr");
+		if (attrObj.getInt("total") == 0) {
+			throw new LastFMNoPlaysException(user);
+		}
+
+
+		List<NowPlayingArtist> npList = new ArrayList<>();
+		JSONArray arr = obj.getJSONArray("track");
+		for (int i = 0; i < arr.length(); i++) {
+			JSONObject trackObj = arr.getJSONObject(i);
+			JSONObject artistObj = trackObj.getJSONObject("artist");
+			//JSONArray images = artistObj.getJSONArray("image");
+			//String image_url = images.getJSONObject(images.length() - 1).getString("#text");
+			//String image_url = trackObj.getJSONArray("image").getJSONObject(images.length() - 1).getString("#text");
+
+			String artistName = artistObj.getString("name");
+
+			String albumName = trackObj.getJSONObject("album").getString("#text");
+			String songName = trackObj.getString("name");
+
+			npList.add(new NowPlayingArtist(artistName, "", false, albumName, songName, null, user));
+		}
+		return npList;
+	}
+
+
+	public TimestampWrapper<List<ArtistData>> getWhole(String user, int timestampQuery) throws LastFmException {
 		List<NowPlayingArtist> list = new ArrayList<>();
 		String url = BASE + GET_ALL + user + API_KEY + ending + "&extended=1";
 
@@ -143,7 +183,10 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 				JSONArray arr = obj.getJSONArray("track");
 				for (int i = 0; i < arr.length(); i++) {
+
 					JSONObject trackObj = arr.getJSONObject(i);
+					if (trackObj.has("@attr"))
+						continue;
 					JSONObject artistObj = trackObj.getJSONObject("artist");
 					//JSONArray images = artistObj.getJSONArray("image");
 					//String image_url = images.getJSONObject(images.length() - 1).getString("#text");
@@ -176,8 +219,10 @@ public class ConcurrentLastFM {//implements LastFMService {
 							tempUrl = r.map(NowPlayingArtist::getUrl).orElse(null);
 							return new
 									ArtistData(entry.getKey(), entry.getValue().intValue(), tempUrl);
-						})
-						.collect(Collectors.toCollection(LinkedList::new)), timestamp);
+						}).peek(ad ->
+						ad.setArtist(getCorrection(ad.getArtist()))
+				)
+						.collect(Collectors.toCollection(ArrayList::new)), timestamp);
 
 
 	}
@@ -330,23 +375,31 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
-	public String getCorrection(String artistToCorrect) throws LastFmException {
+	public String getCorrection(String artistToCorrect) {
 		String url;
 		try {
 			url = BASE + GET_CORRECTION + URLEncoder.encode(artistToCorrect, "UTF-8") + API_KEY + ending;
 		} catch (UnsupportedEncodingException e) {
-			throw new LastFMServiceException("500");
-		}
-		HttpMethodBase method = createMethod(url);
-		JSONObject obj = doMethod(method);
-		try {
-			obj = obj.getJSONObject("corrections");
-			JSONObject artistObj = obj.getJSONObject("correction").getJSONObject("artist");
-			return artistObj.getString("name");
-		} catch (JSONException e) {
 			return artistToCorrect;
 		}
+		int count = 0;
+		while (true) {
+			try {
+				HttpMethodBase method = createMethod(url);
+				JSONObject obj = doMethod(method);
+				try {
+					obj = obj.getJSONObject("corrections");
+					JSONObject artistObj = obj.getJSONObject("correction").getJSONObject("artist");
+					return artistObj.getString("name");
+				} catch (JSONException e) {
+					return artistToCorrect;
+				}
 
+			} catch (LastFmException e) {
+				if (count++ == 4)
+					return artistToCorrect;
+			}
+		}
 	}
 
 	public AlbumInfo getPlaysAlbum_Artist(String username, String artist, String album) throws
