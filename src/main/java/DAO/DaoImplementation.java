@@ -9,7 +9,6 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -67,7 +66,7 @@ public class DaoImplementation {
 		}
 	}
 
-	public void incrementalUpdate(TimestampWrapper<LinkedList<ArtistData>> list, String id) {
+	public void incrementalUpdate(TimestampWrapper<List<ArtistData>> list, String id) {
 		try (Connection connection = dataSource.getConnection()) {
 
 			try {
@@ -381,7 +380,6 @@ public class DaoImplementation {
 		}
 	}
 
-	@Deprecated
 	public long getDiscordIdFromLastfm(String lasFmName, long guildId) {
 		try (Connection connection = dataSource.getConnection()) {
 			return userGuildDao.getDiscordIdFromLastFm(connection, lasFmName, guildId);

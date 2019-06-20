@@ -13,7 +13,6 @@ import main.Exceptions.LastFMNoPlaysException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -60,7 +59,7 @@ public class UpdaterThread implements Runnable {
 		try {
 			if (isIncremental && chance <= 0.995f) {
 
-				TimestampWrapper<LinkedList<ArtistData>> artistDataLinkedList = lastFM.getWhole(userWork.getLastFMName(), userWork.getTimestamp());
+				TimestampWrapper<List<ArtistData>> artistDataLinkedList = lastFM.getWhole(userWork.getLastFMName(), userWork.getTimestamp());
 
 				for (ArtistData datum : artistDataLinkedList.getWrapped()) {
 					String prevUrl = dao.getArtistUrl(datum.getArtist());
