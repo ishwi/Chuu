@@ -105,6 +105,7 @@ class Chuu {
 		builder.addEventListeners(help.registerCommand(new AlbumGuildPlays(dao)));
 		builder.addEventListeners(help.registerCommand(new CrownLeaderboardCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new CrownsCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new RecentListCommand(dao)));
 
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);

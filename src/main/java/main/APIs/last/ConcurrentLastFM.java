@@ -121,7 +121,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	}
 
 	public List<NowPlayingArtist> getRecent(String user, int limit) throws LastFmException {
-		String url = BASE + RECENT_TRACKS + "&user=" + user + "&limit=" + limit + API_KEY + ending;
+		String url = BASE + RECENT_TRACKS + "&user=" + user + "&limit=" + limit + API_KEY + ending + "&extended=1";
 		HttpMethodBase method = createMethod(url);
 
 		JSONObject obj = doMethod(method);
@@ -138,9 +138,12 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 		List<NowPlayingArtist> npList = new ArrayList<>();
 		JSONArray arr = obj.getJSONArray("track");
-		for (int i = 0; i < arr.length(); i++) {
+		for (int i = 0; i < arr.length() && npList.size() < limit; i++) {
 			JSONObject trackObj = arr.getJSONObject(i);
 			JSONObject artistObj = trackObj.getJSONObject("artist");
+			boolean np = false;
+			if (trackObj.has("@attr"))
+				np = true;
 			//JSONArray images = artistObj.getJSONArray("image");
 			//String image_url = images.getJSONObject(images.length() - 1).getString("#text");
 			//String image_url = trackObj.getJSONArray("image").getJSONObject(images.length() - 1).getString("#text");
@@ -149,8 +152,9 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 			String albumName = trackObj.getJSONObject("album").getString("#text");
 			String songName = trackObj.getString("name");
+			String image_url = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
 
-			npList.add(new NowPlayingArtist(artistName, "", false, albumName, songName, null, user));
+			npList.add(new NowPlayingArtist(artistName, "", np, albumName, songName, image_url, user));
 		}
 		return npList;
 	}
@@ -219,9 +223,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 							tempUrl = r.map(NowPlayingArtist::getUrl).orElse(null);
 							return new
 									ArtistData(entry.getKey(), entry.getValue().intValue(), tempUrl);
-						}).peek(ad ->
-						ad.setArtist(getCorrection(ad.getArtist()))
-				)
+						})
 						.collect(Collectors.toCollection(ArrayList::new)), timestamp);
 
 
