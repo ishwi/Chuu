@@ -33,7 +33,7 @@ public class ThreadQueueGuild extends ThreadQueue {
 		g2.setColor(colorB);
 		g2.fillRect(0, 0, 300, 75);
 		g.drawImage(image, new GaussianFilter(10), 0, 225);
-		g.setColor(Color.black);
+		g.setColor(Color.WHITE);
 
 		String artistName = capsule.getArtistName();
 		String plays = String.valueOf(capsule.getPlays());

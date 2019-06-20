@@ -5,7 +5,7 @@ import DAO.Entities.AlbumInfo;
 import DAO.Entities.ArtistAlbums;
 import DAO.Entities.WrapperReturnNowPlaying;
 import main.Exceptions.LastFmException;
-import main.ImageRenderer.Stealing.BandRendered;
+import main.ImageRenderer.BandRendered;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
@@ -26,7 +26,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 		ArtistAlbums ai;
 
 		try {
-			ai = lastFM.getAlbumsFromArtist(who, 10);
+			ai = lastFM.getAlbumsFromArtist(who, 14);
 		} catch (LastFmException ex) {
 			ex.printStackTrace();
 			return;
@@ -47,7 +47,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
 		final String username = lastFmName;
 		list =
-				list.parallelStream().peek(albumInfo -> {
+				list.stream().peek(albumInfo -> {
 					try {
 						albumInfo.setPlays(lastFM.getPlaysAlbum_Artist(username, artist, albumInfo.getAlbum()).getPlays());
 

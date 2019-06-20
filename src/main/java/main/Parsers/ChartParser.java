@@ -13,15 +13,20 @@ public class ChartParser extends DaoParser {
 	}
 
 	private String getTimeFromChar(String timeFrame) {
-		if (timeFrame.startsWith("y"))
-			return "12month";
-		if (timeFrame.startsWith("t"))
-			return "3month";
-		if (timeFrame.startsWith("m"))
-			return "1month";
-		if (timeFrame.startsWith("a"))
-			return "overall";
-		return "7day";
+		switch (timeFrame) {
+			case "y":
+				return "12month";
+			case "q":
+				return "3month";
+			case "m":
+				return "1month";
+			case "a":
+				return "overall";
+			case "s":
+				return "6month";
+			default:
+				return "7day";
+		}
 	}
 
 	@Override
@@ -55,7 +60,7 @@ public class ChartParser extends DaoParser {
 
 		}
 
-		Stream<String> secondStream = Arrays.stream(message).filter(s -> s.length() == 1 && s.matches("[ytmwao]"));
+		Stream<String> secondStream = Arrays.stream(message).filter(s -> s.length() == 1 && s.matches("[yqsmwa]"));
 		Optional<String> opt2 = secondStream.findAny();
 		if (opt2.isPresent()) {
 			timeFrame = opt2.get();
