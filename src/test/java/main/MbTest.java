@@ -1,9 +1,11 @@
 package main;
 
+import DAO.Entities.AlbumInfo;
 import DAO.MusicBrainz.MusicBrainzService;
 import DAO.MusicBrainz.MusicBrainzServiceImpl;
 import org.junit.Test;
 
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +24,20 @@ public class MbTest {
 		mbizList.add("316f9a76-a401-45f6-9a48-22e1bf84c1a4");
 		mbizList.add("3d9cc4be-98f3-4007-a7ef-16bfdfc3c177");
 //	List<String> b = a.listOfYearReleases(mbizList, Year.of(2018));
+//		List<String> c = a.listOfYearReleases(mbizList, Year.of(2017));
+
+
+	}
+
+	@Test
+	public void test2() {
+
+		MusicBrainzService a = new MusicBrainzServiceImpl();
+		List<AlbumInfo> mbizList = new ArrayList<>();
+		mbizList.add(new AlbumInfo("", "Prophets", "counterparts"));
+		mbizList.add(new AlbumInfo("", "Wildlife", "La dispute"));
+		mbizList.add(new AlbumInfo("", "Tiny Dots", "La dispute"));
+		List<AlbumInfo> b = a.findArtistByRelease(mbizList, Year.of(2016));
 //		List<String> c = a.listOfYearReleases(mbizList, Year.of(2017));
 
 

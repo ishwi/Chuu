@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class ArtistCommand extends ChartCommand {
-	private final DiscogsApi discogsApi;
-	private final Spotify spotifyApi;
+	final DiscogsApi discogsApi;
+	final Spotify spotifyApi;
 
 
 	public ArtistCommand(DaoImplementation dao) {

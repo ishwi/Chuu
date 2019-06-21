@@ -1,8 +1,6 @@
 package DAO.MusicBrainz;
 
 import DAO.Entities.AlbumInfo;
-import DAO.Entities.AlbumUserPlays;
-import DAO.Entities.ArtistData;
 import DAO.SimpleDataSource;
 
 import javax.sql.DataSource;
@@ -36,22 +34,16 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
 	}
 
 	@Override
-	public List<ArtistData> findArtistByName(String name) {
-		return null;
+	public List<AlbumInfo> findArtistByRelease(List<AlbumInfo> releaseInfo, Year year) {
+		try (Connection connection = dataSource.getConnection()) {
+			return mbizQueriesDao.getYearAlbumsByReleaseName(connection, releaseInfo, year);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
-	public boolean isReleaseFromCurrentYear(AlbumUserPlays albumUserPlays) {
-		return false;
-	}
-
-	@Override
-	public List<AlbumUserPlays> gindReleaseByMbiz(String mbiz) {
-		return null;
-	}
-
-	@Override
-	public List<AlbumUserPlays> findReleaseByName(String name) {
+	public List<AlbumInfo> findArtistByReleaseCurrentYear(List<AlbumInfo> releaseInfo) {
 		return null;
 	}
 }

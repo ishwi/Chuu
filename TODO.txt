@@ -16,3 +16,5 @@ If spotify/discogs token missing disable commands not crash
 option to embed mysql on jar
 heuristic update
 reorganize entities in a OOP way
+remove api_key from lastfm
+clear git repo previously

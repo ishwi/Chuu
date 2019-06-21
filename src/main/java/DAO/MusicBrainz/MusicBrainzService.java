@@ -1,8 +1,6 @@
 package DAO.MusicBrainz;
 
 import DAO.Entities.AlbumInfo;
-import DAO.Entities.AlbumUserPlays;
-import DAO.Entities.ArtistData;
 
 import java.time.Year;
 import java.util.List;
@@ -14,13 +12,10 @@ public interface MusicBrainzService {
 
 	List<AlbumInfo> listOfCurrentYear(List<AlbumInfo> mbiz);
 
-	List<ArtistData> findArtistByName(String name);
+	List<AlbumInfo> findArtistByRelease(List<AlbumInfo> releaseInfo, Year year);
 
-	boolean isReleaseFromCurrentYear(AlbumUserPlays albumUserPlays);
+	List<AlbumInfo> findArtistByReleaseCurrentYear(List<AlbumInfo> releaseInfo);
 
-	List<AlbumUserPlays> gindReleaseByMbiz(String mbiz);
-
-	List<AlbumUserPlays> findReleaseByName(String name);
 
 
 }
