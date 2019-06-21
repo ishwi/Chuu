@@ -1,7 +1,7 @@
 package main.ImageRenderer;
 
 
-import DAO.Entities.AlbumInfo;
+import DAO.Entities.AlbumUserPlays;
 import DAO.Entities.ArtistAlbums;
 import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.WrapperReturnNowPlaying;
@@ -57,19 +57,19 @@ public class BandRendered {
 			needsJapanese = true;
 		}
 
-		List<AlbumInfo> albumInfoList = ai.getAlbumList();
+		List<AlbumUserPlays> albumUserPlaysList = ai.getAlbumList();
 		int count = 0;
 		List<BufferedImage> albumsImages = new ArrayList<>(4);
-		for (AlbumInfo albumInfo : albumInfoList) {
+		for (AlbumUserPlays albumUserPlays : albumUserPlaysList) {
 			if (count++ == 4)
 				break;
 			try {
 
-				if (NORMAL_FONT.canDisplayUpTo(albumInfo.getAlbum()) != -1) {
+				if (NORMAL_FONT.canDisplayUpTo(albumUserPlays.getAlbum()) != -1) {
 					needsJapanese = true;
 				}
 
-				java.net.URL url = new java.net.URL(albumInfo.getAlbum_url());
+				java.net.URL url = new java.net.URL(albumUserPlays.getAlbum_url());
 				albumsImages.add(ImageIO.read(url));
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -126,10 +126,10 @@ public class BandRendered {
 			}
 			g.drawImage(albumsImage, pos_x, baseline, 300, 300, null);
 			baseline += 300;
-			AlbumInfo albumInfo = albumInfoList.get(count - 1);
-			String album = albumInfo.getAlbum();
+			AlbumUserPlays albumUserPlays = albumUserPlaysList.get(count - 1);
+			String album = albumUserPlays.getAlbum();
 
-			String play = Integer.toString(albumInfo.getPlays());
+			String play = Integer.toString(albumUserPlays.getPlays());
 
 			Font ogFont = g.getFont();
 			float sizeFont = ogFont.getSize();

@@ -20,7 +20,7 @@ public class DaoImplementation {
 
 	public DaoImplementation() {
 
-		this.dataSource = new SimpleDataSource();
+		this.dataSource = new SimpleDataSource(true);
 		this.queriesDao = new SQLQueriesDaoImpl();
 		this.userGuildDao = new UserGuildDaoImpl();
 		this.updaterDao = new UpdaterDaoImpl();

@@ -1,32 +1,46 @@
 package DAO.Entities;
 
 public class AlbumInfo {
-	private final String album;
-	private String album_url;
-	private int plays;
+	private String mbid;
+	private String name;
+	private String artist;
 
-	public AlbumInfo(String album, String album_url) {
-		this.album = album;
-		this.album_url = album_url;
+	public AlbumInfo(String name, String artist) {
+		this.name = name;
+		this.artist = artist;
 	}
 
-	public void setAlbum_url(String album_url) {
-		this.album_url = album_url;
+	public AlbumInfo(String mbid, String name, String artist) {
+		this.mbid = mbid;
+		this.name = name;
+		this.artist = artist;
 	}
 
-	public String getAlbum() {
-		return album;
+	public AlbumInfo(String mbid) {
+		this.mbid = mbid;
 	}
 
-	public String getAlbum_url() {
-		return album_url;
+	public String getArtist() {
+		return artist;
 	}
 
-	public int getPlays() {
-		return plays;
+	public void setArtist(String artist) {
+		this.artist = artist;
 	}
 
-	public void setPlays(int plays) {
-		this.plays = plays;
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getMbid() {
+		return mbid;
+	}
+
+	public void setMbid(String mbid) {
+		this.mbid = mbid;
 	}
 }

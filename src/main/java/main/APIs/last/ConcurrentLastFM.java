@@ -357,17 +357,21 @@ public class ConcurrentLastFM {//implements LastFMService {
 		String albumName = albumObj.getString("name");
 		String artistName = artistObj.getString("name");
 		JSONArray image = albumObj.getJSONArray("image");
+		String mbid = albumObj.getString("mbid");
+
 		JSONObject bigImage = image.getJSONObject(image.length() - 1);
 
 
-		return new UrlCapsule(bigImage.getString("#text"), size, albumName, artistName);
+		return new UrlCapsule(bigImage.getString("#text"), size, albumName, artistName, mbid);
 	}
 
 	private UrlCapsule parseArtist(JSONObject artistObj, int size) {
 		String artistName = artistObj.getString("name");
+		String mbid = artistObj.getString("mbid");
+
 //		JSONArray image = artistObj.getJSONArray("image");
 //		JSONObject bigImage = image.getJSONObject(image.length() - 1);
-		return new UrlCapsule(null, size, "", artistName);
+		return new UrlCapsule(null, size, "", artistName, mbid);
 	}
 
 	private HttpMethodBase createMethod(String url) {
@@ -404,7 +408,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		}
 	}
 
-	public AlbumInfo getPlaysAlbum_Artist(String username, String artist, String album) throws
+	public AlbumUserPlays getPlaysAlbum_Artist(String username, String artist, String album) throws
 			LastFmException {
 		String url;
 		try {
@@ -425,7 +429,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		JSONArray images = obj.getJSONArray("image");
 		String image_url = images.getJSONObject(images.length() - 1).getString("#text");
 
-		AlbumInfo ai = new AlbumInfo(album, image_url);
+		AlbumUserPlays ai = new AlbumUserPlays(album, image_url);
 		ai.setPlays(obj.getInt("userplaycount"));
 		return ai;
 	}
@@ -433,7 +437,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	public ArtistAlbums getAlbumsFromArtist(String artist, int topAlbums) throws
 			LastFmException {
 
-		List<AlbumInfo> albumList = new ArrayList<>(topAlbums);
+		List<AlbumUserPlays> albumList = new ArrayList<>(topAlbums);
 		String url;
 		String artistCorrected;
 
@@ -460,7 +464,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 			JSONObject tempObj = arr.getJSONObject(i);
 			JSONArray images = tempObj.getJSONArray("image");
 			String image_url = images.getJSONObject(images.length() - 1).getString("#text");
-			albumList.add(new AlbumInfo(tempObj.getString("name"), image_url));
+			albumList.add(new AlbumUserPlays(tempObj.getString("name"), image_url));
 		}
 
 		return new ArtistAlbums(artistCorrected, albumList);

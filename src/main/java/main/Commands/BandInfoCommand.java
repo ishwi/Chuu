@@ -1,7 +1,7 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import DAO.Entities.AlbumInfo;
+import DAO.Entities.AlbumUserPlays;
 import DAO.Entities.ArtistAlbums;
 import DAO.Entities.WrapperReturnNowPlaying;
 import main.Exceptions.LastFmException;
@@ -34,7 +34,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
 
 		String artist = ai.getArtist();
-		List<AlbumInfo> list = ai.getAlbumList();
+		List<AlbumUserPlays> list = ai.getAlbumList();
 		String lastFmName = null;
 
 
@@ -58,7 +58,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 						.filter(a -> a.getPlays() > 0)
 						.collect(Collectors.toList());
 
-		list.sort(Comparator.comparing(AlbumInfo::getPlays).reversed());
+		list.sort(Comparator.comparing(AlbumUserPlays::getPlays).reversed());
 		ai.setAlbumList(list);
 		WrapperReturnNowPlaying np = getDao().whoKnows(artist, e.getGuild().getIdLong(), 5);
 		np.getReturnNowPlayings().forEach(element ->

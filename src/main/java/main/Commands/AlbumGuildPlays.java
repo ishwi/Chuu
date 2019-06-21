@@ -1,7 +1,7 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import DAO.Entities.AlbumInfo;
+import DAO.Entities.AlbumUserPlays;
 import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.UsersWrapper;
 import DAO.Entities.WrapperReturnNowPlaying;
@@ -28,17 +28,17 @@ public class AlbumGuildPlays extends AlbumSongPlaysCommand {
 		//Gets list of users registered in guild
 		List<UsersWrapper> userList = getDao().getAll(id);
 		Map<UsersWrapper, Integer> userMapPlays = new LinkedHashMap<>();
-		AlbumInfo container = new AlbumInfo("", "");
+		AlbumUserPlays container = new AlbumUserPlays("", "");
 		//Gets play number for each registered artist
 		userList.forEach(u -> {
 			try {
 
 
-				AlbumInfo albumInfo = lastFM.getPlaysAlbum_Artist(u.getLastFMName(), artist, album);
+				AlbumUserPlays albumUserPlays = lastFM.getPlaysAlbum_Artist(u.getLastFMName(), artist, album);
 				//Need to get the album art url from someone
 				if (container.getAlbum_url().isEmpty())
-					container.setAlbum_url(albumInfo.getAlbum_url());
-				userMapPlays.put(u, albumInfo.getPlays());
+					container.setAlbum_url(albumUserPlays.getAlbum_url());
+				userMapPlays.put(u, albumUserPlays.getPlays());
 			} catch (LastFmException ex) {
 				ex.printStackTrace();
 			}

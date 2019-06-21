@@ -4,24 +4,22 @@ public class UrlCapsule {
 
 
 	private final String artistName;
-	private final int pos;
-	private String url;
 	private final String albumName;
+	private int pos;
+	private String url;
 	private int plays;
+	private String mbid;
 
-	public UrlCapsule(String url, int pos, String albumName, String artistName) {
+	public UrlCapsule(String url, int pos, String albumName, String artistName, String mbid) {
 		this.url = url;
 		this.pos = pos;
 		this.artistName = artistName;
 		this.albumName = albumName;
+		this.mbid = mbid;
 	}
 
 	public String getAlbumName() {
 		return albumName;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
 	}
 
 	public String getArtistName() {
@@ -40,8 +38,23 @@ public class UrlCapsule {
 		return pos;
 	}
 
+	public void setPos(int pos) {
+		this.pos = pos;
+	}
+
 	public String getUrl() {
 		return url;
 	}
 
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getMbid() {
+		return mbid;
+	}
+
+	public void setMbid(String mbid) {
+		this.mbid = mbid;
+	}
 }

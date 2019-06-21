@@ -73,7 +73,6 @@ public class AdministrativeCommand extends ConcurrentCommand {
 		MultiValueMap<Long, Long> map = getDao().getMapGuildUsers();
 		//
 
-
 		map.forEach((key, value) -> {
 			List<Long> usersToDelete;
 			//Users in guild key

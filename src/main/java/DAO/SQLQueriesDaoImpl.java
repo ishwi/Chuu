@@ -156,7 +156,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 				int plays = resultSet.getInt("orden");
 
-				UrlCapsule capsule = new UrlCapsule(url, count++, url, artist);
+				UrlCapsule capsule = new UrlCapsule(url, count++, url, artist, "");
 				capsule.setPlays(plays);
 				list.add(capsule);
 			}

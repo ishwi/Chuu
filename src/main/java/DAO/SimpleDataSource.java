@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-class SimpleDataSource implements DataSource {
+public class SimpleDataSource implements DataSource {
 	private static final String URL_PARAMETER =
 			"SimpleDataSource.url";
 	private static final String USER_PARAMETER =
@@ -26,10 +26,13 @@ class SimpleDataSource implements DataSource {
 	private static String password;
 	private final ComboPooledDataSource cpds;
 
-	public SimpleDataSource() {
+	public SimpleDataSource(boolean selector) {
 
 		Properties properties = new Properties();
-		try (InputStream in = SimpleDataSource.class.getResourceAsStream("/" + "datasource.properties")) {
+		String name = "/datasource.properties";
+		if (!selector)
+			name = "/mbiz.properties";
+		try (InputStream in = SimpleDataSource.class.getResourceAsStream(name)) {
 			properties.load(in);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
