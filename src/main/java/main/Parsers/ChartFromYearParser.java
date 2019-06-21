@@ -59,7 +59,7 @@ public class ChartFromYearParser extends ChartParser {
 		}
 
 		timeFrame = getTimeFromChar(timeFrame);
-		return new String[]{chartSize, year, discordName, timeFrame, Boolean.toString(true)};
+		return new String[]{"0", year, discordName, timeFrame, Boolean.toString(true)};
 
 	}
 

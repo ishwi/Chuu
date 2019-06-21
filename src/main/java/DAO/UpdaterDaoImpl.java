@@ -2,6 +2,7 @@ package DAO;
 
 import DAO.Entities.ArtistData;
 import DAO.Entities.ArtistInfo;
+import DAO.Entities.UpdaterStatus;
 import DAO.Entities.UsersWrapper;
 import org.intellij.lang.annotations.Language;
 
@@ -221,6 +222,50 @@ public class UpdaterDaoImpl implements UpdaterDao {
 				+ " ( artist_id,url,url_status) " + " VALUES (?, ?,0) ON DUPLICATE  KEY UPDATE url= ? , url_status = 0";
 
 		insertArtistInfo(con, artistInfo, queryString);
+	}
+
+	@Override
+	public UpdaterStatus getUpdaterStatus(Connection connection, String artist_id) {
+		String queryString = "SELECT url,correction FROM artist_url a " +
+				" where a.artist_id = ? ";
+
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			preparedStatement.setString(1, artist_id);
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+
+			/* Get generated identifier. */
+
+			if (resultSet.next()) {
+				String url = resultSet.getString("url");
+				String correction = resultSet.getString("correction");
+				return new UpdaterStatus(url, correction);
+			}
+			/* Return booking. */
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		return null;
+	}
+
+	@Override
+	public void insertCorrection(Connection connection, String artist, String correction) {
+		String queryString = "Update  lastfm.artist_url SET correction = ?" + " where artist_id = ?";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i++, correction);
+			preparedStatement.setString(i, artist);
+			/* Execute query. */
+			preparedStatement.executeUpdate();
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

@@ -2,6 +2,7 @@ package DAO;
 
 import DAO.Entities.ArtistData;
 import DAO.Entities.ArtistInfo;
+import DAO.Entities.UpdaterStatus;
 import DAO.Entities.UsersWrapper;
 
 import java.sql.Connection;
@@ -27,4 +28,7 @@ interface UpdaterDao {
 
 	void upsertSpotify(Connection con, ArtistInfo artistInfo);
 
+	UpdaterStatus getUpdaterStatus(Connection connection, String artist_id);
+
+	void insertCorrection(Connection connection, String artist, String correction);
 }
