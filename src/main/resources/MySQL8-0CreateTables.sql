@@ -49,6 +49,7 @@ CREATE TABLE `artist_url`
     `artist_id`  varchar(200) NOT NULL,
     `url`        varchar(180) DEFAULT NULL,
     `url_status` tinyint(1)   DEFAULT '1',
+    `correction` varchar(200) DEFAULT NULL,
     PRIMARY KEY (`artist_id`),
     UNIQUE KEY `artist_url_artist_id_uindex` (`artist_id`)
 ) ENGINE = InnoDB
@@ -139,4 +140,4 @@ CREATE TABLE `user_guild`
 /*!40101 SET COLLATION_CONNECTION = @OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES = @OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-19 15:12:05
+-- Dump completed on 2019-06-22  1:47:32

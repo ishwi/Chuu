@@ -22,15 +22,15 @@ import java.util.stream.Collectors;
 
 public class MusicBrainzCommand extends ArtistCommand {
 	private final MusicBrainzService mb = new MusicBrainzServiceImpl();
-
+	private final int chartSize = 100;
 	public MusicBrainzCommand(DaoImplementation dao) {
 		super(dao);
-		this.parser = new ChartFromYearParser(dao, 100);//
+		this.parser = new ChartFromYearParser(dao, chartSize);//
 
 	}
 
 	@Override
-	public void processQueue(String username, String time, int chartSize, int yearInt, MessageReceivedEvent e) throws LastFmException {
+	public void processQueue(String username, String time, int ignored, int yearInt, MessageReceivedEvent e) throws LastFmException {
 		BlockingQueue<UrlCapsule> queue = new LinkedBlockingDeque<>();
 		int x = (int) Math.sqrt(chartSize);
 		Year year = Year.of(yearInt);
@@ -79,7 +79,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 			sendMessage(e, "Dont have  any " + year.toString() + "album in your top " + chartSize + "albums");
 			return;
 		}
-		int imagesize = (int) Math.sqrt(queue.size());
+		int imagesize = (int) Math.ceil(Math.sqrt(queue.size()));
 		generateImage(queue, imagesize, imagesize, e);
 	}
 

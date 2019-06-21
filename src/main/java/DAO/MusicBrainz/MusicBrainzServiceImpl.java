@@ -22,6 +22,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
 	@Override
 	public List<AlbumInfo> listOfYearReleases(List<AlbumInfo> mbiz, Year year) {
 		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
 			return mbizQueriesDao.getYearAlbums(connection, mbiz, year);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -36,6 +37,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
 	@Override
 	public List<AlbumInfo> findArtistByRelease(List<AlbumInfo> releaseInfo, Year year) {
 		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
 			return mbizQueriesDao.getYearAlbumsByReleaseName(connection, releaseInfo, year);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
