@@ -106,6 +106,7 @@ class Chuu {
 		builder.addEventListeners(help.registerCommand(new CrownLeaderboardCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new CrownsCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new RecentListCommand(dao)));
+		builder.addEventListeners(new MusicBrainzCommand(dao));
 
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
