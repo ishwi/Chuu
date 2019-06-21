@@ -12,7 +12,7 @@ public class ChartParser extends DaoParser {
 		super(dao);
 	}
 
-	private String getTimeFromChar(String timeFrame) {
+	String getTimeFromChar(String timeFrame) {
 		switch (timeFrame) {
 			case "y":
 				return "12month";
@@ -77,6 +77,7 @@ public class ChartParser extends DaoParser {
 		timeFrame = getTimeFromChar(timeFrame);
 		return new String[]{x, y, discordName, timeFrame, Boolean.toString(flag)};
 	}
+
 
 	@Override
 	public void setUpErrorMessages() {

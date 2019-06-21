@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +25,8 @@ public class DiscogsApi {
 	private final String SECRET;
 	private final String KEY;
 	private final Header header;
-	private boolean slowness = false;
 	private final HttpClient httpClient;
+	private boolean slowness = false;
 
 	public DiscogsApi(String secret, String key) {
 		this.KEY = key;
@@ -63,6 +64,38 @@ public class DiscogsApi {
 
 		}
 		return id;
+	}
+
+	public Year getYearRelease(String album, String artist) throws DiscogsServiceException {
+		String albumenc;
+		String artistenc;
+		try {
+			albumenc = URLEncoder.encode(album, "UTF-8");
+			artistenc = URLEncoder.encode(artist, "UTF-8");
+
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+		String url = BASE_API + "database/search?&type=release&artist=" + artistenc + "&release_title=" + albumenc + "&key=" + KEY + "&secret=" + SECRET;
+		GetMethod getMethod = new GetMethod(url);
+		JSONObject obj = doMethod(httpClient, getMethod);
+		JSONArray results = obj.getJSONArray("results");
+		String expected = artist + " - " + album;
+		for (int i = 0; i < results.length(); i++) {
+			JSONObject resultObj = results.getJSONObject(i);
+
+			if (new org.apache.commons.text.similarity.LevenshteinDetailedDistance()
+					.apply(
+							expected.toLowerCase(),
+							resultObj.getString("title").toLowerCase().replaceAll("\\s\\(\\d+\\)", ""))
+					.getDistance() < expected.length() / 2) {
+				if (resultObj.has("year"))
+					return Year.of(resultObj.getInt("year"));
+			}
+		}
+		return null;
 	}
 
 	private String doArtistInfo(int id) throws DiscogsServiceException {
@@ -114,6 +147,7 @@ public class DiscogsApi {
 		return imageUrl;
 	}
 
+
 	private JSONObject doMethod(HttpClient httpClient, HttpMethod method) throws DiscogsServiceException {
 		method.addRequestHeader(header);
 		try {
@@ -133,6 +167,7 @@ public class DiscogsApi {
 			throw new DiscogsServiceException(e.getCause().toString());
 		}
 	}
+
 
 	public String findArtistImage(String artist) throws DiscogsServiceException {
 		return doArtistInfo(doSearch(artist));

@@ -8,4 +8,7 @@ import java.util.List;
 
 public interface MbizQueriesDao {
 	List<AlbumInfo> getYearAlbums(Connection con, List<AlbumInfo> mbizList, Year year);
+
+	List<AlbumInfo> getYearAlbumsByReleaseName(Connection con, List<AlbumInfo> releaseInfo, Year year);
+
 }
