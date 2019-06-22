@@ -28,7 +28,7 @@ dependencies {
 // https://mvnrepository.com/artifact/com.mchange/c3p0
     compile 'se.michaelthelin.spotify:spotify-web-api-java:2.1.2'
     compile group: 'com.mchange', name: 'c3p0', version: '0.9.5.2'
-//    compile 'ch.qos.logback:logback-classic:1.2.3'
+    compile 'ch.qos.logback:logback-classic:1.2.3'
 // https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12
 // https://mvnrepository.com/artifact/org.slf4j/slf4j-jdk14
 
