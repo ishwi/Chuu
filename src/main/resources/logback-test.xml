@@ -3,18 +3,17 @@
     <timestamp key="startTimestamp" datePattern="yyyyMMddHHmmssSSS"/>
     <appender name="File"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
+        <encoder>-->
             <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg \(%file:%line\)%n</Pattern>
-        </layout>
-
-        <file>server-${startTimestamp}.log</file>
+        </encoder>
+        <file>Chuu-${startTimestamp}.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>server-${startTimestamp}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <fileNamePattern>Chuu-${startTimestamp}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
             <maxFileSize>10MB</maxFileSize>
-            <!-- keep 7 days' worth of history -->
-            <maxHistory>7</maxHistory>
-            <totalSizeCap>20GB</totalSizeCap>
+            <!-- keep 1 day' worth of history -->
+            <maxHistory>4</maxHistory>
+            <totalSizeCap>200MB</totalSizeCap>
         </rollingPolicy>
     </appender>
     <root level="DEBUG">
