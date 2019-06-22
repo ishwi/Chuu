@@ -46,12 +46,31 @@ DROP TABLE IF EXISTS `artist_url`;
 SET character_set_client = utf8mb4;
 CREATE TABLE `artist_url`
 (
-    `artist_id`  varchar(200) NOT NULL,
-    `url`        varchar(180) DEFAULT NULL,
-    `url_status` tinyint(1)   DEFAULT '1',
-    `correction` varchar(200) DEFAULT NULL,
+    `artist_id`         varchar(200) NOT NULL,
+    `url`               varchar(180) DEFAULT NULL,
+    `url_status`        tinyint(1)   DEFAULT '1',
+    `correction_status` tinyint(1)   DEFAULT '0',
     PRIMARY KEY (`artist_id`),
     UNIQUE KEY `artist_url_artist_id_uindex` (`artist_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `corrections`
+--
+
+DROP TABLE IF EXISTS `corrections`;
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+SET character_set_client = utf8mb4;
+CREATE TABLE `corrections`
+(
+    `artist_id`  varchar(200) NOT NULL,
+    `correction` varchar(45)  NOT NULL,
+    UNIQUE KEY `artist_id_UNIQUE` (`artist_id`),
+    UNIQUE KEY `correction_UNIQUE` (`correction`),
+    CONSTRAINT `a_id_fk` FOREIGN KEY (`correction`) REFERENCES `artist_url` (`artist_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci;
@@ -140,4 +159,4 @@ CREATE TABLE `user_guild`
 /*!40101 SET COLLATION_CONNECTION = @OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES = @OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-22  1:47:32
+-- Dump completed on 2019-06-22  2:57:54

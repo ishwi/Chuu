@@ -3,7 +3,6 @@ package main.ScheduledTasks;
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
 import DAO.Entities.TimestampWrapper;
-import DAO.Entities.UpdaterStatus;
 import DAO.Entities.UsersWrapper;
 import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Spotify.Spotify;
@@ -63,21 +62,7 @@ public class UpdaterThread implements Runnable {
 				TimestampWrapper<List<ArtistData>> artistDataLinkedList = lastFM.getWhole(userWork.getLastFMName(), userWork.getTimestamp());
 
 				for (ArtistData datum : artistDataLinkedList.getWrapped()) {
-					UpdaterStatus status = dao.getUpdaterStatus(datum.getArtist());
-
-					if (status.getArtistUrl() == null)
-						status.setArtistUrl(CommandUtil.updateUrl(discogsApi, datum.getArtist(), dao, spotify));
-
-					//Never checked if it needs correction
-					if (status.getCorrection() == null) {
-						String correction = lastFM.getCorrection(datum.getArtist());
-						dao.createCorrection(datum.getArtist(), correction);
-						datum.setArtist(correction);
-					} else if (!status.getCorrection().isEmpty()) {
-						datum.setArtist(status.getCorrection());
-					}
-
-					datum.setUrl(status.getArtistUrl());
+					CommandUtil.validatesArtistInfo(dao, discogsApi, spotify, datum, lastFM);
 				}
 
 				dao.incrementalUpdate(artistDataLinkedList, userWork.getLastFMName());

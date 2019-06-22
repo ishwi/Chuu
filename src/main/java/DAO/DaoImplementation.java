@@ -443,12 +443,11 @@ public class DaoImplementation {
 	}
 
 	public void createCorrection(String artist, String correction) {
-		if (artist.equalsIgnoreCase(correction))
-			correction = "";
-
 		try (Connection connection = dataSource.getConnection()) {
-
-			updaterDao.insertCorrection(connection, artist, correction);
+			if (!artist.equalsIgnoreCase(correction)) {
+				updaterDao.insertCorrection(connection, artist, correction);
+			}
+			updaterDao.updateStatusBit(connection, artist);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 

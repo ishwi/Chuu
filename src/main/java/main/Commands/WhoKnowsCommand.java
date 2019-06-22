@@ -1,6 +1,7 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import DAO.Entities.ArtistData;
 import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.WrapperReturnNowPlaying;
 import main.APIs.Discogs.DiscogsApi;
@@ -36,30 +37,17 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 	void whoKnowsLogic(String who, Boolean isImage, MessageReceivedEvent e) {
 		MessageBuilder messageBuilder = new MessageBuilder();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
-		WrapperReturnNowPlaying wrapperReturnNowPlaying = this.getDao().whoKnows(who, e.getGuild().getIdLong());
 
+		ArtistData validable = new ArtistData(who, 0, "");
+		CommandUtil.validatesArtistInfo(getDao(), discogsApi, spotify, validable, lastFM);
+
+		WrapperReturnNowPlaying wrapperReturnNowPlaying = this.getDao().whoKnows(validable.getArtist(), e.getGuild().getIdLong());
+		//With db cache?? Extra
 		if (wrapperReturnNowPlaying.getRows() == 0) {
-			String repeated;
-
-			repeated = lastFM.getCorrection(who);
-
-			if (repeated.equals(who)) {
-				messageBuilder.setContent("No nibba listens to " + who).sendTo(e.getChannel()).queue();
-				return;
-			}
-
-			wrapperReturnNowPlaying = this.getDao().whoKnows(repeated, e.getGuild().getIdLong());
-			//With db cache?? Extra
-			if (wrapperReturnNowPlaying.getRows() == 0) {
-				messageBuilder.setContent("No nibba listens to " + who).sendTo(e.getChannel()).queue();
-				return;
-			}
-			}
-
-
-		if (wrapperReturnNowPlaying.getUrl() == null) {
-			wrapperReturnNowPlaying.setUrl(CommandUtil.updateUrl(discogsApi, wrapperReturnNowPlaying.getArtist(), getDao(), spotify));
+			messageBuilder.setContent("No nibba listens to " + who).sendTo(e.getChannel()).queue();
+			return;
 		}
+		wrapperReturnNowPlaying.setUrl(validable.getUrl());
 
 		if (!isImage) {
 			StringBuilder builder = new StringBuilder();
@@ -82,6 +70,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).submit();
 			return;
 		}
+
 		wrapperReturnNowPlaying.getReturnNowPlayings().forEach(element ->
 				element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))
 		);
