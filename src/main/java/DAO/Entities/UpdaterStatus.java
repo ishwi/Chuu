@@ -1,13 +1,15 @@
 package DAO.Entities;
 
 public class UpdaterStatus {
+	private final boolean correction_status;
 	private String artistUrl;
 	private String correction;
 
 	//Url -> null
-	public UpdaterStatus(String url, String correction) {
+	public UpdaterStatus(String url, String correction, boolean correction_status) {
 		this.correction = correction;
 		this.artistUrl = url;
+		this.correction_status = correction_status;
 	}
 
 	public String getArtistUrl() {
@@ -18,11 +20,6 @@ public class UpdaterStatus {
 		this.artistUrl = artistUrl;
 	}
 
-	public boolean isNeedsUrlUpdate() {
-		return artistUrl == null;
-	}
-
-
 	public String getCorrection() {
 		return correction;
 	}
@@ -30,4 +27,9 @@ public class UpdaterStatus {
 	public void setCorrection(String correction) {
 		this.correction = correction;
 	}
+
+	public boolean isCorrection_status() {
+		return correction_status;
+	}
+
 }

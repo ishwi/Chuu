@@ -31,4 +31,6 @@ interface UpdaterDao {
 	UpdaterStatus getUpdaterStatus(Connection connection, String artist_id);
 
 	void insertCorrection(Connection connection, String artist, String correction);
+
+	void updateStatusBit(Connection connection, String artist_id);
 }

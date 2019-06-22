@@ -1,9 +1,12 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import DAO.Entities.ArtistData;
 import DAO.Entities.ArtistInfo;
+import DAO.Entities.UpdaterStatus;
 import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Spotify.Spotify;
+import main.APIs.last.ConcurrentLastFM;
 import main.Exceptions.DiscogsServiceException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -67,6 +70,26 @@ public class CommandUtil {
 			return null;
 		}
 		return null;
+	}
+
+	public static void validatesArtistInfo(DaoImplementation dao, DiscogsApi discogsApi, Spotify spotify, ArtistData datum, ConcurrentLastFM lastFM) {
+
+		UpdaterStatus status = dao.getUpdaterStatus(datum.getArtist());
+		if (status == null)
+			return;
+
+		if (status.getArtistUrl() == null)
+			status.setArtistUrl(CommandUtil.updateUrl(discogsApi, datum.getArtist(), dao, spotify));
+
+		//Never checked if it needs correction
+		if (!status.isCorrection_status()) {
+			String correction = lastFM.getCorrection(datum.getArtist());
+			dao.createCorrection(datum.getArtist(), correction);
+			datum.setArtist(correction);
+		} else if (status.getCorrection() != null) {
+			datum.setArtist(status.getCorrection());
+		}
+		datum.setUrl(status.getArtistUrl());
 	}
 
 

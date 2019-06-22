@@ -226,7 +226,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 	@Override
 	public UpdaterStatus getUpdaterStatus(Connection connection, String artist_id) {
-		String queryString = "SELECT url,correction FROM artist_url a " +
+		String queryString = "SELECT url,correction_status,b.correction FROM artist_url a " +
+				" left join corrections b on a.artist_id = b.artist_id" +
 				" where a.artist_id = ? ";
 
 
@@ -239,8 +240,9 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 			if (resultSet.next()) {
 				String url = resultSet.getString("url");
-				String correction = resultSet.getString("correction");
-				return new UpdaterStatus(url, correction);
+				boolean status = resultSet.getBoolean("correction_status");
+				String correction = resultSet.getString("b.correction");
+				return new UpdaterStatus(url, correction, status);
 			}
 			/* Return booking. */
 
@@ -253,13 +255,33 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 	@Override
 	public void insertCorrection(Connection connection, String artist, String correction) {
-		String queryString = "Update  lastfm.artist_url SET correction = ?" + " where artist_id = ?";
+		String queryString = "INSERT INTO lastfm.corrections"
+				+ " ( artist_id,correction) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE correction= ?";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
 			/* Fill "preparedStatement". */
 			int i = 1;
+			preparedStatement.setString(i++, artist);
+
 			preparedStatement.setString(i++, correction);
-			preparedStatement.setString(i, artist);
+			preparedStatement.setString(i, correction);
+
+			/* Execute query. */
+			preparedStatement.executeUpdate();
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void updateStatusBit(Connection connection, String artist_id) {
+		@Language("MySQL") String queryString = "Update  lastfm.artist_url set correction_status = 1 where artist_id = ?";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i, artist_id);
 			/* Execute query. */
 			preparedStatement.executeUpdate();
 
