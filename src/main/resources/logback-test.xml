@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <timestamp key="startTimestamp" datePattern="yyyyMMddHHmmssSSS"/>
+    <appender name="File"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg \(%file:%line\)%n</Pattern>
+        </layout>
+
+        <file>server-${startTimestamp}.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>server-${startTimestamp}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <!-- keep 7 days' worth of history -->
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    <root level="DEBUG">
+        <appender-ref ref="File"/>
+    </root>
+</configuration>
+        <!--<configuration>-->
+
+        <!--    <appender name="FILE" class="ch.qos.logback.core.FileAppender">-->
+        <!--        <file>chuu.log</file>-->
+        <!--        <encoder>-->
+        <!--            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+        <!--        </encoder>-->
+        <!--    </appender>-->
+
+        <!--    <root level="debug">-->
+        <!--        <appender-ref ref="FILE" />-->
+        <!--    </root>-->
+        <!--</configuration>-->
+

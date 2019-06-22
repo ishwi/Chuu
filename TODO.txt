@@ -9,10 +9,10 @@
 # *Fix albums
 #Add database creation script
 #Condition for doing command outside of guild
+#Fix the logging issue
 
 Migrate artist table with -> artist_url| incremental id
-Fix the logging issue
-If spotify/discogs token missing disable commands not crash
+If spotify/discogs/ token  mbiz db missing disable commands not crash
 option to embed mysql on jar
 heuristic update
 reorganize entities in a OOP way
