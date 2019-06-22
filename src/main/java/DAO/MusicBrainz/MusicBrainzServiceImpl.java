@@ -1,6 +1,7 @@
 package DAO.MusicBrainz;
 
 import DAO.Entities.AlbumInfo;
+import DAO.Entities.Genre;
 import DAO.SimpleDataSource;
 
 import javax.sql.DataSource;
@@ -8,6 +9,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Year;
 import java.util.List;
+import java.util.Map;
 
 public class MusicBrainzServiceImpl implements MusicBrainzService {
 	private final DataSource dataSource;
@@ -47,5 +49,16 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
 	@Override
 	public List<AlbumInfo> findArtistByReleaseCurrentYear(List<AlbumInfo> releaseInfo) {
 		return null;
+	}
+
+	@Override
+	public Map<Genre, Integer> genreCount(List<AlbumInfo> releaseInfo) {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return mbizQueriesDao.genreCount(connection, releaseInfo);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 }
