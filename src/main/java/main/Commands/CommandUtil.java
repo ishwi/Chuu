@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Map;
 import java.util.Random;
 
 public class CommandUtil {
@@ -102,5 +103,44 @@ public class CommandUtil {
 		datum.setUrl(status.getArtistUrl());
 	}
 
+	public static void valiate(DaoImplementation dao, ArtistData artistData, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, Map<ArtistData, String> adder) {
+		String correction = dao.findCorrection(artistData.getArtist());
+		boolean updaterBit = false;
+		boolean corrected = false;
+		boolean addToQueue = false;
+		if (correction != null) {
+			artistData.setArtist(correction);
+			corrected = true;
+		}
+		UpdaterStatus status = dao.getUpdaterStatus(artistData.getArtist());
 
+		if (!corrected) {
+			//New artist inexistent in database or never checked before
+			if (status == null || !status.isCorrection_status()) {
+				correction = lastFM.getCorrection(artistData.getArtist());
+
+				//If its different we insert the new correction in the table
+				if (!artistData.getArtist().equalsIgnoreCase(correction)) {
+					adder.put(artistData, artistData.getArtist());
+					//dao.insertCorrection(artistData.getArtist(), correction);
+					artistData.setArtist(correction);
+				}
+				updaterBit = true;
+				//Should set a flag instead of doing this
+				//Mark the artist as corrected
+				//updaterDao.updateStatusBit(connection, correction);
+
+				//The artist was checked before so it it were to have a correction it would have hit first if. so it we reach here we can assume that it has no correction
+			}
+
+		}
+
+
+		if (status == null || status.getArtistUrl() == null)
+			artistData.setUrl(CommandUtil.updateUrl(discogsApi, artistData.getArtist(), dao, spotify));
+		else {
+			artistData.setUrl(status.getArtistUrl());
+		}
+		artistData.setUpdateBit(updaterBit);
+	}
 }

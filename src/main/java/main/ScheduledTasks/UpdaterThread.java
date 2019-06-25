@@ -13,7 +13,9 @@ import main.Exceptions.LastFMNoPlaysException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class UpdaterThread implements Runnable {
@@ -50,6 +52,7 @@ public class UpdaterThread implements Runnable {
 		UsersWrapper userWork;
 		Random r = new Random();
 		float chance = r.nextFloat();
+		Map<ArtistData, String> correctionAdder = new HashMap<>();
 
 		if (this.username == null) {
 			userWork = dao.getLessUpdated();
@@ -62,17 +65,20 @@ public class UpdaterThread implements Runnable {
 				TimestampWrapper<List<ArtistData>> artistDataLinkedList = lastFM.getWhole(userWork.getLastFMName(), userWork.getTimestamp());
 
 				for (ArtistData datum : artistDataLinkedList.getWrapped()) {
-					CommandUtil.validatesArtistInfo(dao, discogsApi, spotify, datum, lastFM);
+					String originalName = datum.getArtist();
+					CommandUtil.valiate(dao, datum, lastFM, discogsApi, spotify, correctionAdder);
+
 				}
 
 				dao.incrementalUpdate(artistDataLinkedList, userWork.getLastFMName());
-
+				//Workarround non deferrable foreign key
+				correctionAdder.forEach((artistData, s) -> dao.insertCorrection(s, artistData.getArtist()));
 				System.out.println("Updated Info Incrementally of " + userWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 				System.out.println(" Number of rows updated :" + artistDataLinkedList.getWrapped().size());
 			} else {
 
 				List<ArtistData> artistDataLinkedList = lastFM.getLibrary(userWork.getLastFMName());
-				dao.updateUserLibrary(artistDataLinkedList, userWork.getLastFMName());
+				dao.addUser(artistDataLinkedList, userWork.getLastFMName());
 
 				System.out.println("Updated Info Normally  of " + userWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 				System.out.println(" Number of rows updated :" + artistDataLinkedList.size());

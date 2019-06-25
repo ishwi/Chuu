@@ -26,6 +26,34 @@ public class SimpleDataSource implements DataSource {
 	private static String password;
 	private final ComboPooledDataSource cpds;
 
+
+	public SimpleDataSource(String file) {
+		Properties properties = new Properties();
+		try (InputStream in = SimpleDataSource.class.getResourceAsStream(file)) {
+			properties.load(in);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		this.cpds = new ComboPooledDataSource();
+		try {
+			cpds.setDriverClass(properties.getProperty(DRIVER_CLASS)); //loads the jdbc driver
+		} catch (PropertyVetoException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		cpds.setJdbcUrl(properties.getProperty(URL_PARAMETER));
+		cpds.setUser(properties.getProperty(USER_PARAMETER));
+		cpds.setPassword(properties.getProperty(PASSWORD_PARAMETER));
+
+
+// the settings below are optional -- c3p0 can work with defaults
+		cpds.setMinPoolSize(5);
+		cpds.setAcquireIncrement(5);
+		cpds.setMaxPoolSize(25);
+	}
+
+
 	public SimpleDataSource(boolean selector) {
 
 		Properties properties = new Properties();

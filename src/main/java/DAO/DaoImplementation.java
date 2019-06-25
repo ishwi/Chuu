@@ -18,6 +18,14 @@ public class DaoImplementation {
 	private final UpdaterDao updaterDao;
 	private final UserGuildDao userGuildDao;
 
+	public DaoImplementation(DataSource dataSource) {
+
+		this.dataSource = dataSource;
+		this.queriesDao = new SQLQueriesDaoImpl();
+		this.userGuildDao = new UserGuildDaoImpl();
+		this.updaterDao = new UpdaterDaoImpl();
+	}
+
 	public DaoImplementation() {
 
 		this.dataSource = new SimpleDataSource(true);
@@ -35,7 +43,7 @@ public class DaoImplementation {
 
 	}
 
-	public void updateUserLibrary(List<ArtistData> list, String id) {
+	public void addUser(List<ArtistData> list, String id) {
 		try (Connection connection = dataSource.getConnection()) {
 
 			try {
@@ -80,7 +88,7 @@ public class DaoImplementation {
 				list.getWrapped().forEach(artistData -> {
 					artistData.setDiscordID(id);
 					updaterDao.upsertArtist(connection, artistData);
-					updaterDao.upsertUrl(connection, new ArtistInfo(artistData.getUrl(), artistData.getArtist()));
+					updaterDao.upsertUrlBitMask(connection, new ArtistInfo(artistData.getUrl(), artistData.getArtist()), artistData.isUpdateBit());
 				});
 				updaterDao.setUpdatedTime(connection, id, list.getTimestamp());
 
@@ -103,7 +111,6 @@ public class DaoImplementation {
 		}
 	}
 
-
 	public void addGuildUser(long userID, long guildID) {
 		try (Connection connection = dataSource.getConnection()) {
 			userGuildDao.addGuild(connection, userID, guildID);
@@ -113,7 +120,7 @@ public class DaoImplementation {
 
 	}
 
-	public void updateUserLibrary(LastFMData data) {
+	public void addUser(LastFMData data) {
 		try (Connection connection = dataSource.getConnection()) {
 
 			try {
@@ -136,7 +143,6 @@ public class DaoImplementation {
 			throw new RuntimeException(e);
 		}
 	}
-
 
 	public void removeUserCompletely(Long discordID) {
 
@@ -320,7 +326,6 @@ public class DaoImplementation {
 		}
 	}
 
-
 	public String getArtistUrl(String url) {
 		try (Connection connection = dataSource.getConnection()) {
 			connection.setReadOnly(true);
@@ -442,6 +447,7 @@ public class DaoImplementation {
 
 	}
 
+
 	public void createCorrection(String artist, String correction) {
 		try (Connection connection = dataSource.getConnection()) {
 			if (!artist.equalsIgnoreCase(correction)) {
@@ -453,4 +459,28 @@ public class DaoImplementation {
 
 		}
 	}
+
+	public void insertCorrection(String artist, String correction) {
+		if (artist.equalsIgnoreCase(correction))
+			return;
+
+
+		try (Connection connection = dataSource.getConnection()) {
+			updaterDao.insertCorrection(connection, artist, correction);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+	}
+
+	public String findCorrection(String artist_id) {
+		try (Connection connection = dataSource.getConnection()) {
+			return updaterDao.findCorrection(connection, artist_id);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+	}
+
+
 }

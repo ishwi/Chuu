@@ -21,7 +21,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 	@Override
 	public void insertUserData(Connection con, LastFMData lastFMData) {
 		/* Create "queryString". */
-		String queryString = "INSERT INTO lastfm.lastfm"
+		String queryString = "INSERT INTO  lastfm"
 				+ " (lastFmId, discordID) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE lastFmId=" + "?";
 
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
@@ -159,7 +159,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 	@Override
 	public void removeUser(Connection con, Long discordID) {
 		/* Create "queryString". */
-		@Language("MySQL") String queryString = "DELETE FROM lastfm.lastfm WHERE" + " discordID = ?";
+		@Language("MySQL") String queryString = "DELETE FROM  lastfm WHERE" + " discordID = ?";
 
 		deleteIdLong(con, discordID, queryString);
 
@@ -187,7 +187,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 	@Override
 	public void removeUserGuild(Connection con, long discordId, long guildId) {
 		/* Create "queryString". */
-		@Language("MySQL") String queryString = "DELETE FROM lastfm.user_guild" + " where discordID = ? and guildId = ?";
+		@Language("MySQL") String queryString = "DELETE FROM  user_guild" + " where discordID = ? and guildId = ?";
 
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -236,7 +236,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 	@Override
 	public void addGuild(Connection con, long userId, long guildId) {
 		/* Create "queryString". */
-		String queryString = "INSERT IGNORE INTO lastfm.user_guild"
+		String queryString = "INSERT IGNORE INTO  user_guild"
 				+ " ( discordId,guildId) " + " VALUES (?, ?) ";
 
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
@@ -327,8 +327,8 @@ public class UserGuildDaoImpl implements UserGuildDao {
 	@Override
 	public long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) {
 		@Language("MySQL") String queryString = "Select a.discordID " +
-				"from  lastfm.lastfm a" +
-				" join lastfm.user_guild  b " +
+				"from   lastfm a" +
+				" join  user_guild  b " +
 				"on a.discordID = b.discordId " +
 				" where " + " a.lastFmId = ? and b.guildId = ? ";
 

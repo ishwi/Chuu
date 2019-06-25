@@ -22,6 +22,9 @@ interface UpdaterDao {
 
 	void upsertUrl(Connection con, ArtistInfo artistInfo);
 
+
+	void upsertUrlBitMask(Connection con, ArtistInfo artistInfo, boolean bit);
+
 	String getArtistUrl(Connection connection, String artist);
 
 	Set<String> selectNullUrls(Connection connection, boolean spotifyNull);
@@ -33,4 +36,6 @@ interface UpdaterDao {
 	void insertCorrection(Connection connection, String artist, String correction);
 
 	void updateStatusBit(Connection connection, String artist_id);
+
+	String findCorrection(Connection connection, String artist);
 }
