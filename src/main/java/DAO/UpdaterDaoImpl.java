@@ -62,7 +62,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 	@Override
 	public void addArtist(Connection con, ArtistData artistData) {
 		/* Create "queryString". */
-		String queryString = "INSERT INTO lastfm.artist"
+		String queryString = "INSERT INTO  artist"
 				+ " ( lastFMID,artist_id,playNumber) " + " VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE playNumber=" + "?";
 
 		insertArtistData(con, artistData, queryString);
@@ -96,7 +96,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 	@Override
 	public void addUrl(Connection con, ArtistData artistData) {
 		/* Create "queryString". */
-		String queryString = "INSERT IGNORE INTO lastfm.artist_url"
+		String queryString = "INSERT IGNORE INTO  artist_url"
 				+ " ( artist_id,url) " + " VALUES (?, NULL)";
 
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
@@ -123,7 +123,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 	@Override
 	public void setUpdatedTime(Connection connection, String id, Integer timestamp) {
-		String queryString = "INSERT INTO lastfm.updated"
+		String queryString = "INSERT INTO  updated"
 				+ " ( discordID,last_update) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE last_update=" + "?";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			Timestamp timestamp1;
@@ -153,7 +153,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 	@Override
 	public void upsertArtist(Connection con, ArtistData artistData) {
 		/* Create "queryString". */
-		String queryString = "INSERT INTO lastfm.artist"
+		String queryString = "INSERT INTO  artist"
 				+ " ( lastFMID,artist_id,playNumber) " + " VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE playNumber= playNumber + " + "?";
 
 		insertArtistData(con, artistData, queryString);
@@ -163,10 +163,40 @@ public class UpdaterDaoImpl implements UpdaterDao {
 	@Override
 	public void upsertUrl(Connection con, ArtistInfo artistInfo) {
 		/* Create "queryString". */
-		String queryString = "INSERT  INTO lastfm.artist_url"
+		String queryString = "INSERT  INTO  artist_url"
 				+ " ( artist_id,url) " + " VALUES (?, ?) ON DUPLICATE  KEY UPDATE url= ? ";
 
 		insertArtistInfo(con, artistInfo, queryString);
+	}
+
+	@Override
+	public void upsertUrlBitMask(Connection con, ArtistInfo artistInfo, boolean bit) {
+		/* Create "queryString". */
+		String queryString = "INSERT  INTO  artist_url"
+				+ " ( artist_id,url,correction_status) " + " VALUES (?, ?,?) ON DUPLICATE  KEY UPDATE url= ? ,correction_status = ?";
+
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i++, artistInfo.getArtistName());
+			preparedStatement.setString(i++, artistInfo.getArtistUrl());
+			preparedStatement.setBoolean(i++, bit);
+
+			preparedStatement.setString(i++, artistInfo.getArtistUrl());
+			preparedStatement.setBoolean(i, bit);
+
+
+			/* Execute query. */
+			preparedStatement.executeUpdate();
+
+			/* Get generated identifier. */
+
+			/* Return booking. */
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 
@@ -218,7 +248,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 	@Override
 	public void upsertSpotify(Connection con, ArtistInfo artistInfo) {
 		/* Create "queryString". */
-		String queryString = "INSERT  INTO lastfm.artist_url"
+		String queryString = "INSERT  INTO  artist_url"
 				+ " ( artist_id,url,url_status) " + " VALUES (?, ?,0) ON DUPLICATE  KEY UPDATE url= ? , url_status = 0";
 
 		insertArtistInfo(con, artistInfo, queryString);
@@ -227,7 +257,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 	@Override
 	public UpdaterStatus getUpdaterStatus(Connection connection, String artist_id) {
 		String queryString = "SELECT url,correction_status,b.correction FROM artist_url a " +
-				" left join corrections b on a.artist_id = b.artist_id" +
+				" left join corrections b on b.correction = a.artist_id" +
 				" where a.artist_id = ? ";
 
 
@@ -255,7 +285,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 	@Override
 	public void insertCorrection(Connection connection, String artist, String correction) {
-		String queryString = "INSERT INTO lastfm.corrections"
+		String queryString = "INSERT INTO  corrections"
 				+ " ( artist_id,correction) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE correction= ?";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -276,7 +306,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 	@Override
 	public void updateStatusBit(Connection connection, String artist_id) {
-		@Language("MySQL") String queryString = "Update  lastfm.artist_url set correction_status = 1 where artist_id = ?";
+		@Language("MySQL") String queryString = "Update   artist_url set correction_status = 1 where artist_id = ?";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
 			/* Fill "preparedStatement". */
@@ -290,4 +320,25 @@ public class UpdaterDaoImpl implements UpdaterDao {
 		}
 	}
 
+	@Override
+	public String findCorrection(Connection connection, String artist) {
+		String queryString = "SELECT  correction  FROM corrections where artist_id= ? ";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			preparedStatement.setString(1, artist);
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+
+			/* Get generated identifier. */
+
+			if (resultSet.next()) {
+				return (resultSet.getString("correction"));
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		return null;
+	}
 }

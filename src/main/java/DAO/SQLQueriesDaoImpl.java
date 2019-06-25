@@ -23,7 +23,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				"Select\n" +
 				"        a.artist_id,max(a.playNumber) plays\n" +
 				"    FROM\n" +
-				"        lastfm.artist a \n" +
+				"         artist a \n" +
 				"    JOIN\n" +
 				"        lastfm b \n" +
 				"            ON a.lastFMID = b.lastFmId \n" +
@@ -132,7 +132,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 	@Override
 	public List<UrlCapsule> getGuildTop(Connection connection, Long guildID) {
-		String queryString = "SELECT a.artist_id, sum(playNumber) as orden ,url  FROM lastfm.artist a" +
+		String queryString = "SELECT a.artist_id, sum(playNumber) as orden ,url  FROM  artist a" +
 				" JOIN lastfm b" +
 				" ON a.lastFMID = b.lastFmId" +
 				" JOIN artist_url d " +
@@ -285,7 +285,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 		String queryString = "Select temp.artist_id, temp.lastFMID,temp.playNumber,b.url, c.discordID " +
 				"FROM (SELECT a.artist_id, a.lastFMID, a.playNumber " +
-				"FROM lastfm.artist a  " +
+				"FROM  artist a  " +
 				"where artist_id = ?" +
 				"group by a.artist_id,a.lastFMID,a.playNumber " +
 				"order by playNumber desc) temp " +

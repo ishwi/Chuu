@@ -5,6 +5,7 @@ public class ArtistData {
 	private String artist;
 	private int count;
 	private String url;
+	private boolean updateBit = false;
 
 	public ArtistData(String discordID, String artist, int count) {
 		this.discordID = discordID;
@@ -18,6 +19,13 @@ public class ArtistData {
 		this.url = url;
 	}
 
+	public boolean isUpdateBit() {
+		return updateBit;
+	}
+
+	public void setUpdateBit(boolean updateBit) {
+		this.updateBit = updateBit;
+	}
 
 	public String getDiscordID() {
 		return discordID;

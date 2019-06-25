@@ -34,7 +34,7 @@ public class UpdateCommand extends MyCommandDbAccess {
 				return;
 			}
 			List<ArtistData> list = lastFM.getLibrary(message[0]);
-			getDao().updateUserLibrary(list, message[0]);
+			getDao().addUser(list, message[0]);
 			mes.setContent("Successfully updated " + message[0] + " info !").sendTo(e.getChannel()).queue();
 
 
