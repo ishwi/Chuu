@@ -74,9 +74,19 @@ public class CommandUtil {
 
 	public static void validatesArtistInfo(DaoImplementation dao, DiscogsApi discogsApi, Spotify spotify, ArtistData datum, ConcurrentLastFM lastFM) {
 
+
+		//jambi -> jambi2
 		UpdaterStatus status = dao.getUpdaterStatus(datum.getArtist());
-		if (status == null)
+		if (status == null) {
+			String correction = lastFM.getCorrection(datum.getArtist());
+			dao.createCorrection(datum.getArtist(), correction);
+
+
+			datum.setArtist(correction);
+
+			//Tempo fix could be insert precorrected artist to artist_url
 			return;
+		}
 
 		if (status.getArtistUrl() == null)
 			status.setArtistUrl(CommandUtil.updateUrl(discogsApi, datum.getArtist(), dao, spotify));
