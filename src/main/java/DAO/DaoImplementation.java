@@ -43,20 +43,19 @@ public class DaoImplementation {
 
 	}
 
-	public void addUser(List<ArtistData> list, String id) {
+	public void insertArtistDataList(List<ArtistData> list, String id) {
 		try (Connection connection = dataSource.getConnection()) {
 
 			try {
 
 				/* Prepare connection. */
-				connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 				connection.setAutoCommit(false);
 
 				/* Do work. */
 				list.forEach(artistData -> {
 					artistData.setDiscordID(id);
-					updaterDao.addArtist(connection, artistData);
 					updaterDao.addUrl(connection, artistData);
+					updaterDao.addArtist(connection, artistData);
 				});
 				updaterDao.setUpdatedTime(connection, id, null);
 
@@ -80,7 +79,6 @@ public class DaoImplementation {
 			try {
 
 				/* Prepare connection. */
-				connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 				connection.setAutoCommit(false);
 
 				/* Do work. */
@@ -120,7 +118,7 @@ public class DaoImplementation {
 
 	}
 
-	public void addUser(LastFMData data) {
+	public void insertArtistDataList(LastFMData data) {
 		try (Connection connection = dataSource.getConnection()) {
 
 			try {

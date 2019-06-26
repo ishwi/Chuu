@@ -16,11 +16,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.temporal.ChronoField;
 import java.util.*;
+
+import static org.junit.Assert.*;
 
 
 public class UpdaterThreadTest {
@@ -28,23 +32,31 @@ public class UpdaterThreadTest {
 	private DaoImplementation dao;
 	private DiscogsApi discogsApi;
 	private ConcurrentLastFM lastFM;
+	private DataSource dataSource;
 
 	@After
 	public void tearDown() throws Exception {
-		dao.removeUserCompletely((long) 1);
+		dao.removeUserCompletely(1L);
+		try (Connection connection = dataSource.getConnection()) {
+			PreparedStatement preparedStatement = connection.prepareStatement("TRUNCATE `lastfm_test`.`artist_url`");
+			preparedStatement.execute();
+			preparedStatement = connection.prepareStatement("TRUNCATE `lastfm_test`.`corrections`");
+			preparedStatement.execute();
+		}
+
 	}
 
 	@Before
 	public void setUp() throws Exception {
 
 
-		DataSource dataSource = new SimpleDataSource("/datasource.properties");
-		discogsApi = new pene();
+		dataSource = new SimpleDataSource("/datasource.properties");
+		discogsApi = new DiscogsMockup();
 		spotify = null;
 		lastFM = new ConcurrentLastFM();
 		dao = new DaoImplementation(dataSource);
-		dao.addUser(new LastFMData("manuelk", 1));
-		dao.addUser(Collections.emptyList(), "manuelk");
+		dao.insertArtistDataList(new LastFMData("manuelk", 1));
+		dao.insertArtistDataList(Collections.emptyList(), "manuelk");
 	}
 
 	@Test
@@ -58,6 +70,7 @@ public class UpdaterThreadTest {
 		a.add(new ArtistData("Raphael3", 4, null));
 
 		TimestampWrapper<List<ArtistData>> artistDataLinkedList = new TimestampWrapper<>(a, Instant.now().get(ChronoField.MILLI_OF_SECOND));
+		//Correction with current last fm implementation should return the same name so no correction gives
 		for (ArtistData datum : artistDataLinkedList.getWrapped()) {
 			CommandUtil.valiate(dao, datum, lastFM, discogsApi, spotify, correctionAdder);
 		}
@@ -68,8 +81,7 @@ public class UpdaterThreadTest {
 
 		dao.upsertUrl(new ArtistInfo("b", "manolo"));
 
-		dao.createCorrection("Raphael1", "manolo");
-		dao.createCorrection("Raphael2", "Raphael");
+
 		lastFM = new lastFMMockup();
 		a = new ArrayList<>();
 		a.add(new ArtistData("Raphael4", 1, null));
@@ -82,27 +94,28 @@ public class UpdaterThreadTest {
 		for (ArtistData datum : artistDataLinkedList.getWrapped()) {
 			CommandUtil.valiate(dao, datum, lastFM, discogsApi, spotify, correctionAdder);
 		}
-		correctionAdder.forEach((artistData, s) -> dao.insertCorrection(s, artistData.getArtist()));
-
-
 		dao.incrementalUpdate(artistDataLinkedList, "manuelk");
-
+		correctionAdder.forEach((artistData, s) -> dao.insertCorrection(s, artistData.getArtist()));
+		assertTrue(dao.getUpdaterStatus("Rapahel1").isCorrection_status());
+		assertEquals(dao.getUpdaterStatus("Rapahel1").getArtistUrl(), "a");
+		assertNull(dao.findCorrection("Raphael1"));
+		assertEquals(dao.findCorrection("Raphael4"), lastFM.getCorrection("Raphael4"));
 	}
 
 	class lastFMMockup extends ConcurrentLastFM {
 		@Override
 		public String getCorrection(String artistToCorrect) {
-			return "axdasd" + artistToCorrect + "ax" + LocalDateTime.now().toString();
+			return "axdasd" + artistToCorrect + "ax" + LocalDateTime.now().getDayOfYear();
 		}
 	}
 
-	class pene extends main.APIs.Discogs.DiscogsApi {
+	class DiscogsMockup extends main.APIs.Discogs.DiscogsApi {
 
-		public pene(String secret, String key) {
+		public DiscogsMockup(String secret, String key) {
 			super(secret, key);
 		}
 
-		public pene() {
+		public DiscogsMockup() {
 			super("a", "b");
 		}
 

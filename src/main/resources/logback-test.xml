@@ -2,19 +2,20 @@
 <configuration>
     <timestamp key="startTimestamp" datePattern="yyyyMMddHHmmssSSS"/>
     <appender name="File"
-              class="ch.qos.logback.core.rolling.RollingFileAppender">
+              class="ch.qos.logback.core.FileAppender">
+        <!--              class="ch.qos.logback.core.rolling.RollingFileAppender">-->
         <encoder>-->
             <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg \(%file:%line\)%n</Pattern>
         </encoder>
         <file>Chuu-${startTimestamp}.log</file>
 
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>Chuu-${startTimestamp}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
-            <maxFileSize>10MB</maxFileSize>
-            <!-- keep 1 day' worth of history -->
-            <maxHistory>4</maxHistory>
-            <totalSizeCap>200MB</totalSizeCap>
-        </rollingPolicy>
+        <!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+        <!--            <fileNamePattern>Chuu-${startTimestamp}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>-->
+        <!--            <maxFileSize>10MB</maxFileSize>-->
+        <!--            &lt;!&ndash; keep 1 day' worth of history &ndash;&gt;-->
+        <!--            <maxHistory>4</maxHistory>-->
+        <!--            <totalSizeCap>200MB</totalSizeCap>-->
+        <!--        </rollingPolicy>-->
     </appender>
     <root level="DEBUG">
         <appender-ref ref="File"/>

@@ -8,6 +8,7 @@ import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -254,6 +255,16 @@ public class ConcurrentLastFM {//implements LastFMService {
 	//@Override
 	public List<ArtistData> getLibrary(String User) throws LastFmException {
 		String url = BASE + GET_LIBRARY + User + API_KEY + ending;
+		return getArtistDataTopAlbums(url, false);
+	}
+
+	public List<ArtistData> getReducedLibrary(String user) throws LastFmException {
+		String url = BASE + GET_ARTIST + user + API_KEY + ending + "&period=" + "1week";
+		return getArtistDataTopAlbums(url, true);
+	}
+
+	@NotNull
+	private List<ArtistData> getArtistDataTopAlbums(String url, boolean isTopAlbums) throws LastFmException {
 		int page = 1;
 		int pages = 1;
 		url += "&limit=500";
@@ -269,7 +280,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 				// Execute the method.
 				JSONObject obj = doMethod(method);
-				obj = obj.getJSONObject("artists");
+				obj = isTopAlbums ? obj.getJSONObject("topartists") : obj.getJSONObject("artists");
+				//obj = obj.getJSONObject("artists");
 				if (page++ == 1) {
 					pages = obj.getJSONObject("@attr").getInt("totalPages");
 
@@ -294,6 +306,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		}
 		return artistData;
 	}
+
 
 	public void getUserList(String userName, String weekly, int x, int y, boolean isAlbum, BlockingQueue<UrlCapsule> queue) throws
 			LastFmException {
