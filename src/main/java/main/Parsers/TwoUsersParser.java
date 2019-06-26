@@ -6,6 +6,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -88,6 +90,13 @@ public class TwoUsersParser extends DaoParser {
 		errorMessages.put(2, "Internal Server Error , try again later");
 		errorMessages.put(-1, "Unknown error Happened");
 
+
+	}
+
+	@Override
+	public List<String> getUsage(String commandName) {
+		return Collections.singletonList(PREFIX + commandName + "* *userName* *userName***\n" +
+				"\tIf user2 is missing it gets replaced by Author user\n\n");
 
 	}
 }

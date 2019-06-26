@@ -2,6 +2,9 @@ package main.Parsers;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Collections;
+import java.util.List;
+
 public class OneWordParser extends Parser {
 	@Override
 	public String[] parse(MessageReceivedEvent e) {
@@ -17,4 +20,14 @@ public class OneWordParser extends Parser {
 	public void setUpErrorMessages() {
 		errorMessages.put(0, "You need to introduce a word!");
 	}
+
+	@Override
+	public List<String> getUsage(String commandName) {
+		throw new UnsupportedOperationException();
+	}
+
+	public List<String> getUsage(String commandName, String wordKind) {
+		return Collections.singletonList(PREFIX + commandName + "* *" + wordKind + "***\n\n");
+	}
+
 }

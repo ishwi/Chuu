@@ -85,10 +85,5 @@ public class BandInfoCommand extends WhoKnowsCommand {
 		return "Band";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!band artist\n\t --image for Image format\n\n"
-		);
-	}
 
 }

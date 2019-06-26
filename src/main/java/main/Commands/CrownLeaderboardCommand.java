@@ -3,12 +3,12 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.CrownsLbEntry;
 import main.OtherListeners.Reactionary;
+import main.Parsers.NoOpParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class CrownLeaderboardCommand extends ConcurrentCommand {
@@ -16,6 +16,7 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 	public CrownLeaderboardCommand(DaoImplementation dao) {
 		super(dao);
 		this.respondInPrivate = false;
+		this.parser = new NoOpParser();
 
 	}
 
@@ -58,11 +59,6 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 	@Override
 	public String getName() {
 		return "Crowns Leaderboard";
-	}
-
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!lb \n");
 	}
 
 

@@ -8,11 +8,12 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class Parser {
 	final Map<Integer, String> errorMessages = new HashMap<>(10);
-
+	public final String PREFIX = "**!*";
 	Parser() {
 		setUpErrorMessages();
 	}
@@ -80,4 +81,8 @@ public abstract class Parser {
 		else
 			return e.getTextChannel().sendMessage(message).complete();
 	}
+
+	public abstract List<String> getUsage(String commandName);
+
+
 }

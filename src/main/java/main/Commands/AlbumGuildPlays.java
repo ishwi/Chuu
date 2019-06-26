@@ -77,11 +77,5 @@ public class AlbumGuildPlays extends AlbumSongPlaysCommand {
 		return "Get guild Album plays";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList
-				("!wkalbum artist-album \n" +
-						"if no artist is provided default to now playing artist\n\n");
 
-	}
 }

@@ -22,21 +22,6 @@ public class TopCommand extends ChartCommand {
 
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!top");
-	}
-
-	@Override
-	public String getDescription() {
-		return ("Your all time top albums!");
-	}
-
-	@Override
-	public String getName() {
-		return "Top Albums Chart";
-	}
-
-	@Override
 	public List<String> getUsageInstructions() {
 		return Collections.singletonList
 				("!top *username\n\tIf username is not specified defaults to authors account \n\n");
@@ -53,9 +38,9 @@ public class TopCommand extends ChartCommand {
 		if (message == null)
 			return;
 
-		embed.setImage("attachment://cat.png") // we specify this in sendFile as "cat.png"
-				.setDescription(e.getAuthor().getName() + " 's most listened albums");
-		mes.setEmbed(embed.build());
+//		embed.setImage("attachment://cat.png") // we specify this in sendFile as "cat.png"
+//				.setDescription(e.getAuthor().getName() + " 's most listened albums");
+//		mes.setEmbed(embed.build());
 		try {
 			BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(25);
 			lastFM.getUserList(message[0], "overall", 5, 5, Boolean.parseBoolean(message[1]), queue);
@@ -65,5 +50,20 @@ public class TopCommand extends ChartCommand {
 		} catch (LastFmException ex) {
 			parser.sendError(parser.getErrorMessage(2), e);
 		}
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!top");
+	}
+
+	@Override
+	public String getDescription() {
+		return ("Your all time top albums!");
+	}
+
+	@Override
+	public String getName() {
+		return "Top Albums Chart";
 	}
 }

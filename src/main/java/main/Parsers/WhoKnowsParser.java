@@ -2,6 +2,9 @@ package main.Parsers;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Collections;
+import java.util.List;
+
 public class WhoKnowsParser extends OptionalParser {
 	public WhoKnowsParser() {
 		super("list");
@@ -33,5 +36,11 @@ public class WhoKnowsParser extends OptionalParser {
 	@Override
 	public void setUpErrorMessages() {
 		errorMessages.put(1, "No artist specified!");
+	}
+
+	@Override
+	public List<String> getUsage(String commandName) {
+		return Collections.singletonList(PREFIX + commandName + "***\n\t --list for list format\n\n");
+
 	}
 }

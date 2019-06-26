@@ -75,10 +75,6 @@ public class UniqueCommand extends ConcurrentCommand {
 		return "Unique List Of Artists";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!unique *user\n\tIf user is missing defaults to user account\n\n ");
-	}
 
 
 }

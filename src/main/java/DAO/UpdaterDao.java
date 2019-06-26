@@ -38,4 +38,6 @@ interface UpdaterDao {
 	void updateStatusBit(Connection connection, String artist_id);
 
 	String findCorrection(Connection connection, String artist);
+
+	void updateMetric(Connection connection, int metricId, long value);
 }

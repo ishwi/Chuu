@@ -26,27 +26,6 @@ public class TasteCommand extends ConcurrentCommand {
 	}
 
 
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!taste");
-	}
-
-	@Override
-	public String getDescription() {
-		return "Compare Your musical taste with a colleage";
-	}
-
-	@Override
-	public String getName() {
-		return "Taste";
-	}
-
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList
-				("!taste user1 *user2\n \tIf user2 is missing it gets replaced by Author user\n\n");
-	}
-
 
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
@@ -90,4 +69,20 @@ public class TasteCommand extends ConcurrentCommand {
 		}
 
 	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!taste");
+	}
+
+	@Override
+	public String getDescription() {
+		return "Compare Your musical taste with a colleage";
+	}
+
+	@Override
+	public String getName() {
+		return "Taste";
+	}
+
 }

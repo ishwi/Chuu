@@ -110,4 +110,36 @@ public class CommandUtil {
 		}
 		artistData.setUpdateBit(updaterBit);
 	}
+
+	public static void lessHeavyValidate(DaoImplementation dao, ArtistData artistData, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify) {
+		String correction = dao.findCorrection(artistData.getArtist());
+		boolean corrected = false;
+		if (correction != null) {
+			artistData.setArtist(correction);
+			corrected = true;
+		}
+		UpdaterStatus status = dao.getUpdaterStatus(artistData.getArtist());
+		if (!corrected) {
+			//New artist inexistent in database or never checked before
+			if (status == null || !status.isCorrection_status()) {
+				correction = lastFM.getCorrection(artistData.getArtist());
+
+				//If its different we insert the new correction in the table
+				if (!artistData.getArtist().equalsIgnoreCase(correction)) {
+					artistData.setArtist(correction);
+				}
+
+
+			}
+			//The artist was checked before so it it were to have a correction it would have hit first if. so it we reach here we can assume that it has no correction
+
+		}
+
+
+		if (status == null || status.getArtistUrl() == null)
+			artistData.setUrl(CommandUtil.updateUrl(discogsApi, artistData.getArtist(), dao, spotify));
+		else {
+			artistData.setUrl(status.getArtistUrl());
+		}
+	}
 }

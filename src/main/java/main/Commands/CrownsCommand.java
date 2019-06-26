@@ -72,11 +72,6 @@ public class CrownsCommand extends ConcurrentCommand {
 		return "Your own top";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("**!crowns **user \n" +
-				"If user is missing defaults to user account\n\n ");
-	}
 
 
 }

@@ -306,7 +306,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 
-
 			if (resultSet.next()) {
 				return (resultSet.getString("correction"));
 			}
@@ -316,5 +315,22 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			throw new RuntimeException(e);
 		}
 		return null;
+	}
+
+	@Override
+	public void updateMetric(Connection connection, int metricId, long value) {
+		@Language("MySQL") String queryString = "Update   metrics set value = value + ?  where id = ?";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setLong(i++, value);
+			preparedStatement.setInt(i, metricId);
+
+			preparedStatement.executeUpdate();
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

@@ -79,10 +79,5 @@ public class RecentListCommand extends ConcurrentCommand {
 		return "Recent";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!recent  *username \n" +
-				"\t If username is not specified defaults to authors account\n\n");
-	}
 
 }

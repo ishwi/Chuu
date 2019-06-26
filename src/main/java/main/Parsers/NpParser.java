@@ -3,6 +3,9 @@ package main.Parsers;
 import DAO.DaoImplementation;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Collections;
+import java.util.List;
+
 public class NpParser extends DaoParser {
 	public NpParser(DaoImplementation dao) {
 		super(dao);
@@ -23,5 +26,11 @@ public class NpParser extends DaoParser {
 		errorMessages.put(2, "Internal Server Error, try again later");
 
 
+	}
+
+	@Override
+	public List<String> getUsage(String commandName) {
+		return Collections.singletonList(PREFIX + commandName + "* *username***\n" +
+				"\t If username is not specified defaults to authors account\n\n");
 	}
 }

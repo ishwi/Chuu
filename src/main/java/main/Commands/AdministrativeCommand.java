@@ -111,11 +111,6 @@ public class AdministrativeCommand extends ConcurrentCommand {
 		return "Logo";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!logo url" +
-				"\n\t User need to have administration permissions\n\n");
-	}
 
 
 }

@@ -102,10 +102,5 @@ public class AllPlayingCommand extends ConcurrentCommand {
 		return "Playing";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!playing  \n" +
-				"\t--recent for last track\n\n ");
-	}
 
 }

@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 public class MusicBrainzCommand extends ArtistCommand {
 	private final MusicBrainzService mb = new MusicBrainzServiceImpl();
 	private final int chartSize = 100;
+
 	public MusicBrainzCommand(DaoImplementation dao) {
 		super(dao);
 		this.parser = new ChartFromYearParser(dao, chartSize);//
@@ -36,11 +37,11 @@ public class MusicBrainzCommand extends ArtistCommand {
 		Year year = Year.of(yearInt);
 		lastFM.getUserList(username, time, x, x, true, queue);
 		//List of obtained elements
-		List<AlbumInfo> albumInfos = queue.stream().map(capsule -> new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName())).collect(Collectors.toList());
-
-
 		Map<Boolean, List<AlbumInfo>> results =
-				albumInfos.stream().collect(Collectors.partitioningBy(albumInfo -> albumInfo.getMbid().isEmpty()));
+				queue.stream()
+						.map(capsule ->
+								new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()))
+						.collect(Collectors.partitioningBy(albumInfo -> albumInfo.getMbid().isEmpty()));
 
 		List<AlbumInfo> nonEmptyMbid = results.get(false);
 		List<AlbumInfo> emptyMbid = results.get(true);
@@ -61,10 +62,11 @@ public class MusicBrainzCommand extends ArtistCommand {
 				return false;
 			}
 		}).collect(Collectors.toList());
-		albumsMbizMatchingYear.addAll(mb.findArtistByRelease(nullYearList, year));
+		List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(nullYearList, year);
+		albumsMbizMatchingYear.addAll(mbFoundBYName);
 		albumsMbizMatchingYear.addAll(foundDiscogsMatchingYear);
 
-
+		//Keep the order of the original queue so the final chart is ordered by plays
 		AtomicInteger counter2 = new AtomicInteger(0);
 		queue.removeIf(urlCapsule -> {
 			for (AlbumInfo albumInfo : albumsMbizMatchingYear) {
@@ -75,12 +77,17 @@ public class MusicBrainzCommand extends ArtistCommand {
 			}
 			return true;
 		});
+
 		if (queue.isEmpty()) {
-			sendMessage(e, "Dont have  any " + year.toString() + "album in your top " + chartSize + "albums");
+			sendMessage(e, "Dont have  any " + year.toString() + " album in your top " + chartSize + " albums");
 			return;
 		}
-		int imagesize = (int) Math.ceil(Math.sqrt(queue.size()));
-		generateImage(queue, imagesize, imagesize, e);
+		int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
+		generateImage(queue, imageSize, imageSize, e);
+		getDao().updateMetric(1, foundDiscogsMatchingYear.size());
+		getDao().updateMetric(2, mbFoundBYName.size());
+		getDao().updateMetric(3, albumsMbizMatchingYear.size());
+		getDao().updateMetric(4, x * x);
 	}
 
 
@@ -99,12 +106,5 @@ public class MusicBrainzCommand extends ArtistCommand {
 		return "mbiz";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("**!mbiz *[w,m,q,s,y,a] *Username YEAR** \n" +
-				"\tIf time is not specified defaults to Yearly \n" +
-				"\tIf username is not specified defaults to authors account \n" +
-				"\tIf Year not specified it default to current year\n\n"
-		);
-	}
+
 }

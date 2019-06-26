@@ -75,11 +75,5 @@ public class GenreCommand extends ConcurrentCommand {
 		return "Genre";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("**!genre *[w,m,q,s,y,a] *Username ** \n" +
-				"\tIf time is not specified defaults to All time \n" +
-				"\tIf username is not specified defaults to authors account \n\n"
-		);
-	}
+
 }

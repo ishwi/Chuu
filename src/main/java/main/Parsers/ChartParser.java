@@ -4,6 +4,8 @@ import DAO.DaoImplementation;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -90,6 +92,15 @@ public class ChartParser extends DaoParser {
 
 	public String getErrorMessage(int code) {
 		return errorMessages.get(code);
+	}
+
+	@Override
+	public List<String> getUsage(String commandName) {
+		return Collections.singletonList(PREFIX + commandName + "* *[w,m,q,s,y,a]* *Username* *YEAR*** \n" +
+				"\tIf time is not specified defaults to Yearly \n" +
+				"\tIf username is not specified defaults to authors account \n" +
+				"\tIf Year not specified it default to current year\n\n"
+		);
 	}
 
 }
