@@ -2,29 +2,29 @@ package DAO.Entities;
 
 public class LastFMData {
 
-	private Long showID;
+	private Long discordId;
 	private String name;
 	private long guildID;
 
-	public LastFMData(String name, Long showID, long guildID) {
-		this.showID = showID;
+	public LastFMData(String name, Long discordId, long guildID) {
+		this.discordId = discordId;
 		this.name = name;
 		this.guildID = guildID;
 	}
 
 	public LastFMData(String lastFmID, long resDiscordID) {
 		this.name = lastFmID;
-		this.showID = resDiscordID;
+		this.discordId = resDiscordID;
 	}
 
 
-	public Long getShowID() {
-		return showID;
+	public Long getDiscordId() {
+		return discordId;
 	}
 
 
-	public void setShowID(Long showID) {
-		this.showID = showID;
+	public void setDiscordId(Long discordId) {
+		this.discordId = discordId;
 	}
 
 	public String getName() {

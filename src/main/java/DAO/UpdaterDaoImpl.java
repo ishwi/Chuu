@@ -51,8 +51,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 			/* Get generated identifier. */
 
-			/* Return booking. */
-
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -84,8 +82,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 				Timestamp timestamp = resultSet.getTimestamp("b.last_update");
 				return new UsersWrapper(discordID, name, ((int) timestamp.toInstant().getEpochSecond()));
 			}
-			/* Return show. */
-
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -110,10 +106,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 			/* Execute query. */
 			preparedStatement.executeUpdate();
-
-			/* Get generated identifier. */
-
-			/* Return booking. */
 
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -141,10 +133,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 			/* Execute query. */
 			preparedStatement.executeUpdate();
-
-			/* Get generated identifier. */
-
-			/* Return booking. */
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -190,10 +178,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			/* Execute query. */
 			preparedStatement.executeUpdate();
 
-			/* Get generated identifier. */
-
-			/* Return booking. */
-
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -214,7 +198,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			if (resultSet.next()) {
 				return (resultSet.getString("url"));
 			}
-			/* Return booking. */
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -237,7 +220,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			while (resultSet.next()) {
 				returnList.add(resultSet.getString("artist_id"));
 			}
-			/* Return booking. */
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -266,15 +248,12 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 
-			/* Get generated identifier. */
-
 			if (resultSet.next()) {
 				String url = resultSet.getString("url");
 				boolean status = resultSet.getBoolean("correction_status");
 				String correction = resultSet.getString("b.correction");
 				return new UpdaterStatus(url, correction, status);
 			}
-			/* Return booking. */
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -296,7 +275,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			preparedStatement.setString(i++, correction);
 			preparedStatement.setString(i, correction);
 
-			/* Execute query. */
 			preparedStatement.executeUpdate();
 
 		} catch (SQLException e) {
@@ -312,7 +290,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			/* Fill "preparedStatement". */
 			int i = 1;
 			preparedStatement.setString(i, artist_id);
-			/* Execute query. */
 			preparedStatement.executeUpdate();
 
 		} catch (SQLException e) {
@@ -329,7 +306,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 
-			/* Get generated identifier. */
 
 			if (resultSet.next()) {
 				return (resultSet.getString("correction"));

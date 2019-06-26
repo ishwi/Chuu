@@ -29,7 +29,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 			/* Fill "preparedStatement". */
 			int i = 1;
 			preparedStatement.setString(i++, lastFMData.getName());
-			preparedStatement.setLong(i++, lastFMData.getShowID());
+			preparedStatement.setLong(i++, lastFMData.getDiscordId());
 			preparedStatement.setString(i, lastFMData.getName());
 
 
@@ -38,7 +38,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
 			/* Get generated identifier. */
 
-			/* Return booking. */
 
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -46,7 +45,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 	}
 
 	@Override
-	public LastFMData findLastFmData(Connection con, Long discordID) throws InstanceNotFoundException {
+	public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
 		/* Create "queryString". */
 		String queryString = "SELECT discordID, lastFmid FROM lastfm WHERE discordID = ?";
@@ -55,7 +54,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
 			/* Fill "preparedStatement". */
 			int i = 1;
-			preparedStatement.setLong(i, discordID);
+			preparedStatement.setLong(i, discordId);
 
 
 			/* Execute query. */
@@ -70,7 +69,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 			long resDiscordID = resultSet.getLong(i++);
 			String lastFmID = resultSet.getString(i);
 
-			/* Return show. */
 
 			return new LastFMData(lastFmID, resDiscordID);
 
@@ -142,7 +140,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 			int i = 1;
 			preparedStatement.setString(i++, lastFMData.getName());
 
-			preparedStatement.setLong(i, lastFMData.getShowID());
+			preparedStatement.setLong(i, lastFMData.getDiscordId());
 
 			/* Execute query. */
 			int updatedRows = preparedStatement.executeUpdate();
@@ -157,11 +155,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
 	}
 
 	@Override
-	public void removeUser(Connection con, Long discordID) {
+	public void removeUser(Connection con, Long discordId) {
 		/* Create "queryString". */
 		@Language("MySQL") String queryString = "DELETE FROM  lastfm WHERE" + " discordID = ?";
 
-		deleteIdLong(con, discordID, queryString);
+		deleteIdLong(con, discordId, queryString);
 
 	}
 
@@ -226,7 +224,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 				long discordID = resultSet.getLong("a.discordID");
 				returnList.add(new UsersWrapper(discordID, name));
 			}
-			/* Return show. */
 			return returnList;
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -317,7 +314,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 			/* Get results. */
 			return resultSet.getBinaryStream("logo");
 
-			/* Return show. */
 
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -348,7 +344,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
 			/* Get results. */
 
-			/* Return show. */
 
 			return resultSet.getLong(1);
 

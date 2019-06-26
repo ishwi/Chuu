@@ -270,7 +270,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				returnList.add(new Results(count_a, count_b, name, userA, userB, url));
 
 			}
-			/* Return show. */
+
 			return new ResultWrapper(rows, returnList);
 
 		} catch (SQLException e) {

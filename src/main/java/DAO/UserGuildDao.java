@@ -12,17 +12,17 @@ import java.util.List;
 
 interface UserGuildDao {
 
-	void insertUserData(Connection con, LastFMData show);
+	void insertUserData(Connection con, LastFMData lastFMData);
 
-	LastFMData findLastFmData(Connection con, Long showID) throws InstanceNotFoundException;
+	LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException;
 
 	List<Long> guildList(Connection connection, long userId);
 
 	MultiValueMap<Long, Long> getWholeUser_Guild(Connection connection);
 
-	void updateLastFmData(Connection con, LastFMData show);
+	void updateLastFmData(Connection con, LastFMData lastFMData);
 
-	void removeUser(Connection con, Long showID);
+	void removeUser(Connection con, Long discordId);
 
 	void removeUserGuild(Connection con, long discordId, long guildId);
 
