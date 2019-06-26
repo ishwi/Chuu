@@ -28,7 +28,9 @@ public abstract class MyCommand extends ListenerAdapter {
 
 	abstract String getName();
 
-	abstract List<String> getUsageInstructions();
+	public List<String> getUsageInstructions() {
+		return parser.getUsage(getName());
+	}
 
 
 	@Override

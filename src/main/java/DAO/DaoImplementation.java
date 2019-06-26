@@ -480,5 +480,13 @@ public class DaoImplementation {
 		}
 	}
 
+	public void updateMetric(int metricId, long value) {
+		try (Connection connection = dataSource.getConnection()) {
+			updaterDao.updateMetric(connection, metricId, value);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+	}
 
 }

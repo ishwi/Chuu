@@ -14,6 +14,8 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess {
 		super(dao);
 	}
 
+	protected abstract void threadableCode(MessageReceivedEvent e);
+
 	@Override
 	void onCommand(MessageReceivedEvent e, String[] args) {
 		final ExecutorService executor = Executors.newCachedThreadPool();
@@ -39,7 +41,6 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess {
 		}
 	}
 
-	protected abstract void threadableCode(MessageReceivedEvent e);
 
 	private void run(MessageReceivedEvent e) {
 

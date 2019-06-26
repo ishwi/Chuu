@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -39,7 +38,8 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 
 		ArtistData validable = new ArtistData(who, 0, "");
-		CommandUtil.validatesArtistInfo(getDao(), discogsApi, spotify, validable, lastFM);
+
+		CommandUtil.lessHeavyValidate(getDao(), validable, lastFM, discogsApi, spotify);
 
 		WrapperReturnNowPlaying wrapperReturnNowPlaying = this.getDao().whoKnows(validable.getArtist(), e.getGuild().getIdLong());
 		//With db cache?? Extra
@@ -104,12 +104,6 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 	@Override
 	public String getName() {
 		return "Who Knows";
-	}
-
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!whoknows artist\n\t --image for Image format\n\n"
-		);
 	}
 
 

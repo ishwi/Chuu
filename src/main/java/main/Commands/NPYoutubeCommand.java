@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class NPYoutubeCommand extends NpCommand {
@@ -53,9 +52,5 @@ public class NPYoutubeCommand extends NpCommand {
 		return "Now Playing Youtube";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!npyoutube *username  \n \tIf not specified another user it defaults to yours");
-	}
 }
 

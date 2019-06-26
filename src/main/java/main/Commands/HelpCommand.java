@@ -59,6 +59,25 @@ public class HelpCommand extends MyCommand {
 		sendPrivate(e.getAuthor().openPrivateChannel().complete(), args);
 	}
 
+	private void sendPrivate(MessageChannel channel, String[] args) {
+		if (args.length < 2) {
+			StringBuilder s = new StringBuilder();
+			for (MyCommand c : commands.values()) {
+				String description = c.getDescription();
+				description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
+
+				s.append("**").append(c.getAliases().get(0)).append("** - ");
+				s.append(description).append("\n");
+			}
+
+			channel.sendMessage(new MessageBuilder()
+					.append("The following commands are supported by the bot\n")
+					.append(s.toString())
+					.build()).queue();
+		} else {
+			doSend(args, channel);
+		}
+	}
 	private void doSend(String[] args, MessageChannel channel) {
 		String command = args[1].charAt(0) == '!' ? args[1] : "!" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
 		for (MyCommand c : commands.values()) {
@@ -83,7 +102,7 @@ public class HelpCommand extends MyCommand {
 				return;
 			}
 		}
-		channel.sendMessage(new MessageBuilder().append("The provided command '**").append(args[1]).append("**' does not exist. Use .help to list all commands.")
+		channel.sendMessage(new MessageBuilder().append("The provided command '**").append(args[1]).append("**' does not exist. Use !help to list all commands.")
 				.build()).queue();
 	}
 
@@ -106,31 +125,13 @@ public class HelpCommand extends MyCommand {
 	@Override
 	public List<String> getUsageInstructions() {
 		return Collections.singletonList(
-				".help   **OR**  .help *<command>*\n"
-						+ ".help - returns the list of commands along with a simple description of each.\n"
-						+ ".help <command> - returns the name, description, aliases and usage information of a command.\n"
+				"!help   **OR**  !help *<command>*\n"
+						+ "!help - returns the list of commands along with a simple description of each.\n"
+						+ "!help <command> - returns the name, description, aliases and usage information of a command.\n"
 						+ "   - This can use the aliases of a command as input as well.\n"
-						+ "__Example:__ .help ann");
+						+ "__Example:__ !help ann");
 	}
 
 
-	private void sendPrivate(MessageChannel channel, String[] args) {
-		if (args.length < 2) {
-			StringBuilder s = new StringBuilder();
-			for (MyCommand c : commands.values()) {
-				String description = c.getDescription();
-				description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
 
-				s.append("**").append(c.getAliases().get(0)).append("** - ");
-				s.append(description).append("\n");
-			}
-
-			channel.sendMessage(new MessageBuilder()
-					.append("The following commands are supported by the bot\n")
-					.append(s.toString())
-					.build()).queue();
-		} else {
-			doSend(args, channel);
-		}
-	}
 }

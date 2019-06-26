@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
+import java.util.Collections;
 import java.util.List;
 
 public class ArtistAlbumParser extends DaoParser {
@@ -82,5 +83,11 @@ public class ArtistAlbumParser extends DaoParser {
 		errorMessages.put(1, "You need to use - to separate");
 		errorMessages.put(2, "Internal Server Error, try again later");
 		errorMessages.put(3, "Didn't findLastFmData  what you were looking for");
+	}
+
+	@Override
+	public List<String> getUsage(String commandName) {
+		return Collections.singletonList(PREFIX + commandName + "* *artist-album*** \n\n");
+
 	}
 }

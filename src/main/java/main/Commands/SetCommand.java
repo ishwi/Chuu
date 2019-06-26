@@ -86,10 +86,5 @@ public class SetCommand extends ConcurrentCommand {
 		return "Set";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!set lastFMUser\n\n");
-	}
-
 
 }

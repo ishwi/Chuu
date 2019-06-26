@@ -64,10 +64,5 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 		return "Get Plays Album";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList
-				("!album artist-album \n\n");
 
-	}
 }

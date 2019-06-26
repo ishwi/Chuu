@@ -4,6 +4,8 @@ import DAO.DaoImplementation;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -34,7 +36,7 @@ public class TimerFrameParser extends DaoParser {
 	public String[] parse(MessageReceivedEvent e) {
 
 		String[] message = getSubMessage(e.getMessage());
-		String timeFrame = "w";
+		String timeFrame = "y";
 		String discordName;
 
 		Stream<String> secondStream = Arrays.stream(message).filter(s -> s.length() == 1 && s.matches("[yqsmwa]"));
@@ -52,6 +54,14 @@ public class TimerFrameParser extends DaoParser {
 		}
 		timeFrame = getTimeFromChar(timeFrame);
 		return new String[]{discordName, timeFrame};
+	}
+
+	@Override
+	public List<String> getUsage(String commandName) {
+		return Collections.singletonList(PREFIX + commandName + "* *[w,m,q,s,y,a]* *Username ** \n" +
+				"\tIf time is not specified defaults to All time \n" +
+				"\tIf username is not specified defaults to authors account \n\n"
+		);
 	}
 
 }

@@ -3,6 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.UrlCapsule;
 import main.ImageRenderer.GuildMaker;
+import main.Parsers.NoOpParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
@@ -15,6 +16,7 @@ public class GuildTopCommand extends ConcurrentCommand {
 	public GuildTopCommand(DaoImplementation dao) {
 		super(dao);
 		this.respondInPrivate = false;
+		this.parser = new NoOpParser();
 
 	}
 
@@ -40,12 +42,6 @@ public class GuildTopCommand extends ConcurrentCommand {
 	public String getName() {
 		return "Guild Top Artists";
 	}
-
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!guild \n");
-	}
-
 
 }
 

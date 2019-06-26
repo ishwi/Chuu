@@ -2,6 +2,9 @@ package main.Parsers;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Collections;
+import java.util.List;
+
 public class OptionalParser extends Parser {
 	private final String optionalWord;
 
@@ -18,5 +21,11 @@ public class OptionalParser extends Parser {
 	@Override
 	public void setUpErrorMessages() {
 
+	}
+
+	@Override
+	public List<String> getUsage(String commandName) {
+		return Collections.singletonList(PREFIX + commandName + "***\n" +
+				"\t*--" + optionalWord + "*\n\n ");
 	}
 }

@@ -63,11 +63,6 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 		return "Artist Url ";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!url artist url" +
-				"\n\n");
-	}
 
 
 }

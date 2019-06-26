@@ -3,6 +3,9 @@ package main.Parsers;
 import DAO.DaoImplementation;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Collections;
+import java.util.List;
+
 public class TopParser extends DaoParser {
 	public TopParser(DaoImplementation dao) {
 		super(dao);
@@ -27,5 +30,12 @@ public class TopParser extends DaoParser {
 		super.setUpErrorMessages();
 		errorMessages.put(3, "Not a valid lastFm username!");
 		errorMessages.put(2, "Internal Server Error");
+	}
+
+	@Override
+	public List<String> getUsage(String commandName) {
+		return Collections.singletonList(PREFIX + commandName + "* *username***\n" +
+				"\tIf username is not specified defaults to authors account \n\n");
+
 	}
 }

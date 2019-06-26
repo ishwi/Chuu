@@ -2,6 +2,9 @@ package main.Parsers;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Collections;
+import java.util.List;
+
 public class ArtistUrlParser extends Parser {
 	@Override
 	public String[] parse(MessageReceivedEvent e) {
@@ -42,6 +45,12 @@ public class ArtistUrlParser extends Parser {
 		errorMessages.put(1, "You didnt specify a valid URL");
 		errorMessages.put(2, "Something happened while processing the image");
 
+
+	}
+
+	@Override
+	public List<String> getUsage(String commandName) {
+		return Collections.singletonList(PREFIX + commandName + "* *artist url***\n\n");
 
 	}
 

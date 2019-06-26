@@ -52,11 +52,5 @@ public class NowPlayingCommand extends NpCommand {
 		return "Now Playing";
 	}
 
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!np *username \n" +
-				"\t If username is not specified defaults to authors account\n\n");
-	}
-
 
 }

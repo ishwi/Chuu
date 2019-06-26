@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class NPSpotifyCommand extends NpCommand {
@@ -52,11 +51,6 @@ public class NPSpotifyCommand extends NpCommand {
 	@Override
 	public String getName() {
 		return "Now Playing Spotify";
-	}
-
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList("!npspotify *username  \n \tIf not specified another user it defaults to yours");
 	}
 
 

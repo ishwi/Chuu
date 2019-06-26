@@ -3,6 +3,9 @@ package main.Parsers;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Collections;
+import java.util.List;
+
 public class UrlParser extends OneWordParser {
 	@Override
 	public String[] parse(MessageReceivedEvent e) {
@@ -31,4 +34,9 @@ public class UrlParser extends OneWordParser {
 
 	}
 
+	@Override
+	public List<String> getUsage(String commandName) {
+		return Collections.singletonList(PREFIX + commandName + "* *url***\n" +
+				"\t User needs to have administration permissions\n\n");
+	}
 }
