@@ -126,7 +126,7 @@ public class DaoImplementation {
 				connection.setAutoCommit(false);
 
 				userGuildDao.insertUserData(connection, data);
-				userGuildDao.addGuild(connection, data.getShowID(), data.getGuildID());
+				userGuildDao.addGuild(connection, data.getDiscordId(), data.getGuildID());
 				connection.commit();
 
 			} catch (SQLException e) {
@@ -200,11 +200,11 @@ public class DaoImplementation {
 				connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 				connection.setAutoCommit(false);
 
-				LastFMData shows = userGuildDao.findLastFmData(connection, discordID);
+				LastFMData lastFmData = userGuildDao.findLastFmData(connection, discordID);
 
-				shows.setName(lastFMID);
+				lastFmData.setName(lastFMID);
 
-				userGuildDao.updateLastFmData(connection, shows);
+				userGuildDao.updateLastFmData(connection, lastFmData);
 				connection.commit();
 
 			} catch (SQLException e) {
