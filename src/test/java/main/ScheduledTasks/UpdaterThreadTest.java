@@ -9,6 +9,7 @@ import DAO.SimpleDataSource;
 import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Spotify.Spotify;
 import main.APIs.last.ConcurrentLastFM;
+import main.APIs.last.LastFMFactory;
 import main.Commands.CommandUtil;
 import main.Exceptions.DiscogsServiceException;
 import org.junit.After;
@@ -53,7 +54,7 @@ public class UpdaterThreadTest {
 		dataSource = new SimpleDataSource("/datasource.properties");
 		discogsApi = new DiscogsMockup();
 		spotify = null;
-		lastFM = new ConcurrentLastFM();
+		lastFM = LastFMFactory.getNewInstance();
 		dao = new DaoImplementation(dataSource);
 		dao.insertArtistDataList(new LastFMData("manuelk", 1));
 		dao.insertArtistDataList(Collections.emptyList(), "manuelk");
@@ -82,7 +83,7 @@ public class UpdaterThreadTest {
 		dao.upsertUrl(new ArtistInfo("b", "manolo"));
 
 
-		lastFM = new lastFMMockup();
+		lastFM = new lastFMMockup("apikey");
 		a = new ArrayList<>();
 		a.add(new ArtistData("Raphael4", 1, null));
 		a.add(new ArtistData("Raphael1", 2, null));
@@ -103,6 +104,10 @@ public class UpdaterThreadTest {
 	}
 
 	class lastFMMockup extends ConcurrentLastFM {
+		public lastFMMockup(String apikey) {
+			super(apikey);
+		}
+
 		@Override
 		public String getCorrection(String artistToCorrect) {
 			return "axdasd" + artistToCorrect + "ax" + LocalDateTime.now().getDayOfYear();
