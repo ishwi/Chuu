@@ -95,7 +95,7 @@ public class TwoUsersParser extends DaoParser {
 
 	@Override
 	public List<String> getUsage(String commandName) {
-		return Collections.singletonList(PREFIX + commandName + "* *userName* *userName***\n" +
+		return Collections.singletonList("**" + commandName + " *userName* *userName***\n" +
 				"\tIf user2 is missing it gets replaced by Author user\n\n");
 
 	}

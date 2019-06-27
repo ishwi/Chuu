@@ -34,7 +34,7 @@ public class TopParser extends DaoParser {
 
 	@Override
 	public List<String> getUsage(String commandName) {
-		return Collections.singletonList(PREFIX + commandName + "* *username***\n" +
+		return Collections.singletonList("**" + commandName + " *username***\n" +
 				"\tIf username is not specified defaults to authors account \n\n");
 
 	}

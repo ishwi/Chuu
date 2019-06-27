@@ -50,7 +50,7 @@ public class ArtistUrlParser extends Parser {
 
 	@Override
 	public List<String> getUsage(String commandName) {
-		return Collections.singletonList(PREFIX + commandName + "* *artist url***\n\n");
+		return Collections.singletonList("**" + commandName + " *artist url***\n\n");
 
 	}
 
