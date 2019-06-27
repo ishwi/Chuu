@@ -1,3 +1,5 @@
+import groovy.sql.Sql
+
 plugins {
     id 'java'
     id 'application'
@@ -21,9 +23,24 @@ repositories {
     jcenter()
 
 }
-
+task connectToDb  {
+    doLast {
+        def properties = new Properties()
+        this.getClass().getResource('/main/datasource.properties').withInputStream {
+            properties.load(it)
+        }
+        def props = [user: properties."user", password: properties."password"] as Properties
+        def url = properties."url"
+        def driver = properties."driver"
+        def sql = Sql.newInstance(url, props, driver)
+        println properties.url
+        sql.close()
+    }
+}
 
 dependencies {
+// https://mvnrepository.com/artifact/org.knowm.xchart/xchart
+    compile group: 'org.knowm.xchart', name: 'xchart', version: '3.5.4'
 
 // https://mvnrepository.com/artifact/com.mchange/c3p0
     compile 'se.michaelthelin.spotify:spotify-web-api-java:2.1.2'

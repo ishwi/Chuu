@@ -16,7 +16,7 @@ public class TopParser extends DaoParser {
 		String[] subMessage = getSubMessage(e.getMessage());
 		String[] optional = containsOptional("artist", subMessage);
 		boolean hasArtist = (subMessage.length != optional.length);
-		if (!hasArtist) {
+		if (hasArtist) {
 			subMessage = optional;
 		}
 		String username = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);

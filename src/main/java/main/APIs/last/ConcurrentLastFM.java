@@ -259,7 +259,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	}
 
 	public List<ArtistData> getReducedLibrary(String user) throws LastFmException {
-		String url = BASE + GET_ARTIST + user + API_KEY + ending + "&period=" + "1week";
+		String url = BASE + GET_ARTIST + user + API_KEY + ending + "&period=" + "7day";
 		return getArtistDataTopAlbums(url, true);
 	}
 

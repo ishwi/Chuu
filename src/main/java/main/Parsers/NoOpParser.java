@@ -13,7 +13,6 @@ public class NoOpParser extends Parser {
 
 	@Override
 	protected void setUpErrorMessages() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

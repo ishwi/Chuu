@@ -23,11 +23,9 @@ public class OneWordParser extends Parser {
 
 	@Override
 	public List<String> getUsage(String commandName) {
-		throw new UnsupportedOperationException();
+		return Collections.singletonList(PREFIX + commandName + "* *lastFmName***\n\n");
+
 	}
 
-	public List<String> getUsage(String commandName, String wordKind) {
-		return Collections.singletonList(PREFIX + commandName + "* *" + wordKind + "***\n\n");
-	}
 
 }

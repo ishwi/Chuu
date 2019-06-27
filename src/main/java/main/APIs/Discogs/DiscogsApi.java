@@ -57,13 +57,43 @@ public class DiscogsApi {
 		for (int i = 0; i < results.length(); i++) {
 			JSONObject resultObj = results.getJSONObject(i);
 
-			if (new org.apache.commons.text.similarity.LevenshteinDetailedDistance().apply(query, resultObj.getString("title")).getDistance() < query.length() / 3) {
+			if (new org.apache.commons.text.similarity.LevenshteinDetailedDistance()
+					.apply(query, resultObj.getString("title")).getDistance() < query.length() / 3) {
 				id = resultObj.getInt("id");
 				break;
 			}
 
 		}
 		return id;
+	}
+
+	private JSONObject doMethod(HttpClient httpClient, HttpMethod method) throws DiscogsServiceException {
+		method.addRequestHeader(header);
+		try {
+			if (slowness) {
+				TimeUnit.SECONDS.sleep(1);
+				System.out.println("RATE LIMITED");
+			}
+
+			int response_code = httpClient.executeMethod(method);
+			parseHttpCode(response_code);
+			slowness = Integer.parseInt(method.getResponseHeader("X-Discogs-Ratelimit-Remaining").getValue()) == 0;
+			byte[] responseBody = method.getResponseBody();
+			return new JSONObject(new String(responseBody));
+
+		} catch (IOException | InterruptedException e) {
+			method.releaseConnection();
+			throw new DiscogsServiceException(e.getCause().toString());
+		}
+	}
+
+	private void parseHttpCode(int code) throws HttpResponseException {
+		if (code / 100 == 2)
+			return;
+		if (code == 404)
+			return;
+
+		throw new HttpResponseException(code, "error on discogs service " + code);
 	}
 
 	public Year getYearRelease(String album, String artist) throws DiscogsServiceException {
@@ -86,11 +116,10 @@ public class DiscogsApi {
 		for (int i = 0; i < results.length(); i++) {
 			JSONObject resultObj = results.getJSONObject(i);
 
-			if (new org.apache.commons.text.similarity.LevenshteinDetailedDistance()
-					.apply(
-							expected.toLowerCase(),
-							resultObj.getString("title").toLowerCase().replaceAll("\\s\\(\\d+\\)", ""))
+			if (new org.apache.commons.text.similarity.LevenshteinDetailedDistance().apply(
+					expected.toLowerCase(), resultObj.getString("title").toLowerCase().replaceAll("\\s\\(\\d+\\)", ""))
 					.getDistance() < expected.length() / 2) {
+
 				if (resultObj.has("year"))
 					return Year.of(resultObj.getInt("year"));
 			}
@@ -136,7 +165,9 @@ public class DiscogsApi {
 			float height2 = obj2.getInt("height");
 			float width2 = obj2.getInt("width");
 
-			if (((height + width) / (Float.max(height, width) / Float.min(height, width))) <= ((height2 + width2) / (Float.max(height2, width2) / Float.min(height2, width2)))) {
+			if (((height + width) / (Float.max(height, width) / Float
+					.min(height, width))) <= ((height2 + width2) / (Float.max(height2, width2) / Float
+					.min(height2, width2)))) {
 				return -1;
 			} else
 				return 1;
@@ -147,38 +178,7 @@ public class DiscogsApi {
 		return imageUrl;
 	}
 
-
-	private JSONObject doMethod(HttpClient httpClient, HttpMethod method) throws DiscogsServiceException {
-		method.addRequestHeader(header);
-		try {
-			if (slowness) {
-				TimeUnit.SECONDS.sleep(1);
-				System.out.println("RATE LIMITED");
-			}
-
-			int response_code = httpClient.executeMethod(method);
-			parseHttpCode(response_code);
-			slowness = Integer.parseInt(method.getResponseHeader("X-Discogs-Ratelimit-Remaining").getValue()) == 0;
-			byte[] responseBody = method.getResponseBody();
-			return new JSONObject(new String(responseBody));
-
-		} catch (IOException | InterruptedException e) {
-			method.releaseConnection();
-			throw new DiscogsServiceException(e.getCause().toString());
-		}
-	}
-
-
 	public String findArtistImage(String artist) throws DiscogsServiceException {
 		return doArtistInfo(doSearch(artist));
-	}
-
-	private void parseHttpCode(int code) throws HttpResponseException {
-		if (code / 100 == 2)
-			return;
-		if (code == 404)
-			return;
-
-		throw new HttpResponseException(code, "error on discogs service " + code);
 	}
 }

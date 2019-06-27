@@ -60,7 +60,7 @@ public class UpdaterThread implements Runnable {
 			userWork = this.username;
 
 		try {
-			if (isIncremental && chance <= 0.80f) {
+			if (isIncremental && chance <= 0.93f) {
 				Map<ArtistData, String> correctionAdder = new HashMap<>();
 
 				TimestampWrapper<List<ArtistData>> artistDataLinkedList = lastFM.getWhole(userWork.getLastFMName(), userWork.getTimestamp());
@@ -77,12 +77,7 @@ public class UpdaterThread implements Runnable {
 				System.out.println("Updated Info Incrementally of " + userWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 				System.out.println(" Number of rows updated :" + artistDataLinkedList.getWrapped().size());
 			} else {
-				List<ArtistData> artistDataLinkedList;
-				if (isIncremental)
-					artistDataLinkedList = lastFM.getReducedLibrary(userWork.getLastFMName());
-				else
-					artistDataLinkedList = lastFM.getLibrary(userWork.getLastFMName());
-
+				List<ArtistData> artistDataLinkedList = lastFM.getLibrary(userWork.getLastFMName());
 				dao.insertArtistDataList(artistDataLinkedList, userWork.getLastFMName());
 
 				System.out.println("Updated Info Normally  of " + userWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
