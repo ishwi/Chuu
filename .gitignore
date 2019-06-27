@@ -2,4 +2,6 @@ build/
 .idea/
 .gradle/
 out/
-*.properties
+lib/
+.vscode/
+.settings/
