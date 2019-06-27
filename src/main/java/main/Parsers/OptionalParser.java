@@ -25,7 +25,7 @@ public class OptionalParser extends Parser {
 
 	@Override
 	public List<String> getUsage(String commandName) {
-		return Collections.singletonList(PREFIX + commandName + "***\n" +
+		return Collections.singletonList("**" + commandName + "**\n" +
 				"\t*--" + optionalWord + "*\n\n ");
 	}
 }

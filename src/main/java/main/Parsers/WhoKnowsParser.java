@@ -40,7 +40,7 @@ public class WhoKnowsParser extends OptionalParser {
 
 	@Override
 	public List<String> getUsage(String commandName) {
-		return Collections.singletonList(PREFIX + commandName + "***\n\t --list for list format\n\n");
+		return Collections.singletonList("**" + commandName + "**\n\t --list for list format\n\n");
 
 	}
 }

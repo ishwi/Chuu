@@ -17,6 +17,6 @@ public class NoOpParser extends Parser {
 
 	@Override
 	public List<String> getUsage(String commandName) {
-		return Collections.singletonList(PREFIX + commandName + "***\n\n");
+		return Collections.singletonList("**" + commandName + "**\n\n");
 	}
 }

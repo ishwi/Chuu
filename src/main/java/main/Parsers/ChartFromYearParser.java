@@ -73,7 +73,7 @@ public class ChartFromYearParser extends ChartParser {
 
 	@Override
 	public List<String> getUsage(String commandName) {
-		return Collections.singletonList(PREFIX + commandName + "* *[w,m,q,s,y,a]* *Username* *YEAR*** \n" +
+		return Collections.singletonList("**" + commandName + " *[w,m,q,s,y,a]* *Username* *YEAR*** \n" +
 				"\tIf time is not specified defaults to Yearly \n" +
 				"\tIf username is not specified defaults to authors account \n" +
 				"\tIf Year not specified it default to current year\n\n"

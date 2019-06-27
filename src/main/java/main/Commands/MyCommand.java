@@ -29,7 +29,7 @@ public abstract class MyCommand extends ListenerAdapter {
 	abstract String getName();
 
 	public List<String> getUsageInstructions() {
-		return parser.getUsage(getName());
+		return parser.getUsage(getAliases().get(0));
 	}
 
 

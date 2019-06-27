@@ -23,7 +23,7 @@ public class OneWordParser extends Parser {
 
 	@Override
 	public List<String> getUsage(String commandName) {
-		return Collections.singletonList(PREFIX + commandName + "* *lastFmName***\n\n");
+		return Collections.singletonList("**" + commandName + " *lastFmName***\n\n");
 
 	}
 
