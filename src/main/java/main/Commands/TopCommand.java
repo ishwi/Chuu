@@ -4,6 +4,7 @@ import DAO.DaoImplementation;
 import DAO.Entities.UrlCapsule;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
+import main.ImageRenderer.UrlCapsuleConcurrentQueue;
 import main.Parsers.TopParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -14,20 +15,12 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class TopCommand extends ChartCommand {
+public class TopCommand extends ArtistCommand {
 	public TopCommand(DaoImplementation dao) {
 		super(dao);
 		this.parser = new TopParser(dao);
-	}
-
-
-	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList
-				("!top *username\n\tIf username is not specified defaults to authors account \n\n");
 
 	}
-
 
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
@@ -41,10 +34,20 @@ public class TopCommand extends ChartCommand {
 //		embed.setImage("attachment://cat.png") // we specify this in sendFile as "cat.png"
 //				.setDescription(e.getAuthor().getName() + " 's most listened albums");
 //		mes.setEmbed(embed.build());
+		String lastfmName = message[0];
+		boolean isArtist = Boolean.parseBoolean(message[1]);
 		try {
-			BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(25);
-			lastFM.getUserList(message[0], "overall", 5, 5, Boolean.parseBoolean(message[1]), queue);
-			generateImage(queue, 5, 5, e);
+
+			if (!isArtist) {
+				BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(25);
+				lastFM.getUserList(lastfmName, "overall", 5, 5, true, queue);
+				generateImage(queue, 5, 5, e);
+
+			} else {
+				UrlCapsuleConcurrentQueue queue = new UrlCapsuleConcurrentQueue(getDao(), discogsApi, spotifyApi);
+				lastFM.getUserList(lastfmName, "overall", 5, 5, false, queue);
+				generateImage(queue, 5, 5, e);
+			}
 		} catch (LastFmEntityNotFoundException e1) {
 			parser.sendError(parser.getErrorMessage(3), e);
 		} catch (LastFmException ex) {

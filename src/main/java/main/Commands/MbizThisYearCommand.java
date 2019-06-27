@@ -59,7 +59,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!sinceyearstart");
+		return Collections.singletonList("!sincestartyear");
 	}
 
 	@Override

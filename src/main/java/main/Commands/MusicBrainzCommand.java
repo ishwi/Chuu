@@ -93,7 +93,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!mbiz");
+		return Collections.singletonList("!releaseyear");
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 
 	@Override
 	public String getName() {
-		return "mbiz";
+		return "Released in Year";
 	}
 
 

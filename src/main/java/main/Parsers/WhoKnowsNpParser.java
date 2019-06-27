@@ -7,6 +7,7 @@ import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+//TODO the parser is used twice and in once it doesnt do the optional --list so the usage cant be common to both
 public class WhoKnowsNpParser extends NpParser {
 	private final ConcurrentLastFM lastFM;
 

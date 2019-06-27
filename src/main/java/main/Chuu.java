@@ -108,6 +108,8 @@ class Chuu {
 		builder.addEventListeners(help.registerCommand(new RecentListCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new MusicBrainzCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new GenreCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new MbizThisYearCommand(dao)));
+
 
 
 
