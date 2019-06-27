@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 
 public class ConcurrentLastFM {//implements LastFMService {
-	private final String API_KEY = "&api_key=***REMOVED***";
+	private final String API_KEY;
 	private final String BASE = "http://ws.audioscrobbler.com/2.0/";
 	private final String GET_ALBUMS = "?method=user.gettopalbums&user=";
 	private final String GET_LIBRARY = "?method=library.getartists&user=";
@@ -42,7 +42,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private final HttpClient client;
 	private final Header header;
 
-	public ConcurrentLastFM() {
+	public ConcurrentLastFM(String apikey) {
+		this.API_KEY = "&api_key="+apikey;
 		this.client = ClientSingleton.getInstance();
 		this.header = new Header();
 		this.header.setName("User-Agent");

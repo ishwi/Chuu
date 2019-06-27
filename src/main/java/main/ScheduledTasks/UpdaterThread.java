@@ -8,6 +8,7 @@ import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Spotify.Spotify;
 import main.APIs.Spotify.SpotifySingleton;
 import main.APIs.last.ConcurrentLastFM;
+import main.APIs.last.LastFMFactory;
 import main.Commands.CommandUtil;
 import main.Exceptions.LastFMNoPlaysException;
 
@@ -29,7 +30,7 @@ public class UpdaterThread implements Runnable {
 
 	private UpdaterThread(DaoImplementation dao) {
 		this.dao = dao;
-		this.lastFM = new ConcurrentLastFM();
+		this.lastFM = LastFMFactory.getNewInstance();
 		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
 	}
 

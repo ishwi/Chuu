@@ -12,7 +12,7 @@ public class ConcurrentLastFMTest {
 
 	@Test
 	public void getAlbumsFromArtist() throws LastFmException {
-		ConcurrentLastFM lastFM = new ConcurrentLastFM();
+		ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
 
 		try {
 			ArtistAlbums artistAlbums = lastFM.getAlbumsFromArtist("cher", 10);
