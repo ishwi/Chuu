@@ -1,5 +1,6 @@
 import groovy.sql.Sql
 
+
 plugins {
     id 'java'
     id 'application'
@@ -21,17 +22,18 @@ targetCompatibility = 1.9
 repositories {
     mavenCentral()
     jcenter()
-
 }
 task connectToDb  {
     doLast {
+
+
         def properties = new Properties()
-        this.getClass().getResource('/main/datasource.properties').withInputStream {
+        file("src/main/resources/datasource.properties").withInputStream {
             properties.load(it)
         }
-        def props = [user: properties."user", password: properties."password"] as Properties
-        def url = properties."url"
-        def driver = properties."driver"
+        def props = [user: properties."SimpleDataSource.user", password: properties."SimpleDataSource.password"] as Properties
+        def url = properties."SimpleDataSource.url"
+        def driver = properties."SimpleDataSource.driverClass"
         def sql = Sql.newInstance(url, props, driver)
         println properties.url
         sql.close()
@@ -54,7 +56,6 @@ dependencies {
     compile 'net.dv8tion:JDA:4.ALPHA.0_86'
 
     compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
-    compile 'com.jagrosh:jda-utilities:2.1.5'
 // https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.0'
 
@@ -78,7 +79,4 @@ dependencies {
     compile group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
 
 
-//    compile 'com.google.api-client:google-api-client:1.25.0'
-//    compile 'com.google.apis:google-api-services-drive:v3-rev110-1.23.0'
-//    compile group: 'com.cloudinary', name: 'cloudinary-http44', version: '1.2.0'
 }
