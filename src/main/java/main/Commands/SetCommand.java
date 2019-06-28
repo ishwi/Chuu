@@ -64,7 +64,8 @@ public class SetCommand extends ConcurrentCommand {
 
 		//Never registered before
 		getDao().insertArtistDataList(new LastFMData(lastFmID, userId, guildID));
-		mes.setContent("**" + e.getAuthor().getName() + "** has set its last FM name \n Updating his library on the background");
+		mes.setContent("**" + e.getAuthor()
+				.getName() + "** has set its last FM name \n Updating the library on the background");
 		mes.sendTo(e.getChannel()).queue();
 
 		new Thread(new UpdaterThread(getDao(), new UsersWrapper(userId, lastFmID), false)).run();

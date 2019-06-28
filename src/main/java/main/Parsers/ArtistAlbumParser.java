@@ -50,7 +50,7 @@ public class ArtistAlbumParser extends DaoParser {
 				np = lastFM.getNowPlayingInfo(userName);
 
 			} catch (InstanceNotFoundException ex) {
-				sendError("You need to introduce artist-album  or to be registered on the bot!", e);
+				sendError(sample.getUser().getName() + " needs to be registered on the bot!", e);
 				return null;
 			} catch (LastFmException ex) {
 				sendError(this.getErrorMessage(2), e);
@@ -80,9 +80,9 @@ public class ArtistAlbumParser extends DaoParser {
 
 	@Override
 	public void setUpErrorMessages() {
-		errorMessages.put(1, "You need to use - to separate");
+		errorMessages.put(1, "You need to use - to separate artist and album!");
 		errorMessages.put(2, "Internal Server Error, try again later");
-		errorMessages.put(3, "Didn't findLastFmData  what you were looking for");
+		errorMessages.put(3, "Didn't find what you were looking for");
 	}
 
 	@Override
