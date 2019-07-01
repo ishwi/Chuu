@@ -22,14 +22,14 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 		long discordID;
 
 		@Language("MySQL") String queryString = "SELECT \n" +
-				"a.name,a.gid,b.name\n" +
+				"a.name as albumName,a.gid as mbid,b.name artistName\n" +
 				"FROM\n" +
-				"    mbiz.release a\n" +
-				"     join mbiz.artist_credit b ON a.artist_credit = b.id\n" +
+				"    musicbrainz.release a\n" +
+				"     join musicbrainz.artist_credit b ON a.artist_credit = b.id\n" +
 				"       JOIN\n" +
-				"    mbiz.release_group c ON a.release_group = c.id\n" +
+				"    musicbrainz.release_group c ON a.release_group = c.id\n" +
 				"        JOIN\n" +
-				"    mbiz.release_group_meta d ON c.id = d.id" +
+				"    musicbrainz.release_group_meta d ON c.id = d.id" +
 				" Where d.first_release_date_year = ? and " +
 				"    a.gid in (";
 		for (AlbumInfo albumInfo : albumInfos) {
@@ -42,15 +42,15 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 			preparedStatement.setInt(i++, year.get(ChronoField.YEAR));
 
 			for (AlbumInfo albumInfo : albumInfos) {
-				preparedStatement.setString(i++, albumInfo.getMbid());
+				preparedStatement.setObject(i++, java.util.UUID.fromString(albumInfo.getMbid()));
 			}
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 			while (resultSet.next()) {
 
-				String mbid = resultSet.getString("a.gid");
-				String artist = resultSet.getString("a.name");
-				String albumName = resultSet.getString("b.name");
+				String mbid = resultSet.getString("mbid");
+				String artist = resultSet.getString("artistName");
+				String albumName = resultSet.getString("albumName");
 				AlbumInfo ai = new AlbumInfo(mbid, albumName, artist);
 				returnList.add(ai);
 			}
@@ -64,16 +64,16 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 	@Override
 	public List<AlbumInfo> getYearAlbumsByReleaseName(Connection con, List<AlbumInfo> releaseInfo, Year year) {
 		@Language("MySQL") String queryString = "SELECT DISTINCT\n" +
-				"    (a.name), b.name,  d.first_release_date_year\n" +
+				"    (a.name) as artistName, b.name as dName,  d.first_release_date_year as year \n" +
 				"FROM\n" +
-				"    mbiz.artist_credit a\n" +
+				"    musicbrainz.artist_credit a\n" +
 				"        JOIN\n" +
-				"    mbiz.`release` b ON a.id = b.artist_credit\n" +
+				"    musicbrainz.release b ON a.id = b.artist_credit\n" +
 				"        JOIN\n" +
-				"    mbiz.release_group c ON b.release_group = c.id\n" +
+				"    musicbrainz.release_group c ON b.release_group = c.id\n" +
 				"        JOIN\n" +
-				"    mbiz.release_group_meta d ON c.id = d.id ";
-		String whereSentence = "";
+				"    musicbrainz.release_group_meta d ON c.id = d.id ";
+		String whereSentence;
 		StringBuilder artistWhere = new StringBuilder("where a.name in (");
 		StringBuilder albumWhere = new StringBuilder("and b.name in (");
 		for (AlbumInfo ignored : releaseInfo) {
@@ -101,8 +101,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
 			while (resultSet.next()) {
 
-				String artist = resultSet.getString("a.name");
-				String album = resultSet.getString("b.name");
+				String artist = resultSet.getString("artistName");
+				String album = resultSet.getString("albumName");
 
 				AlbumInfo ai = new AlbumInfo("", album, artist);
 				returnList.add(ai);
@@ -118,40 +118,39 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 	public Map<Genre, Integer> genreCount(Connection con, List<AlbumInfo> releaseInfo) {
 		Map<Genre, Integer> returnMap = new HashMap<>();
 		@Language("MySQL") String queryString = "SELECT \n" +
-				"       d.name, count(*) as count, max(b.name) as representative\n \n" +
-				"FROM\n" +
-				"    mbiz.release a\n" +
+				"       c.name as neim, count(*) as count\n \n" +
+				" FROM\n" +
+				" musicbrainz.release d join \n" +
+				" musicbrainz.release_group a " +
+				" on d.release_group = a.id " +
 				"        JOIN\n" +
-				"    mbiz.release_group b ON a.release_group = b.id\n" +
+				"    musicbrainz.release_group_tag b ON a.id = b.release_group\n" +
 				"        JOIN\n" +
-				"    mbiz.release_group_tag c ON b.id = c.release_group\n" +
-				"        JOIN\n" +
-				"    mbiz.tag d ON c.tag = d.id\n" +
+				"    musicbrainz.tag c ON b.tag = c.id\n" +
 				"WHERE\n" +
-				"    a.gid in (";
+				"    d.gid in (";
 
 		for (AlbumInfo ignored : releaseInfo) {
 			queryString += " ? ,";
 		}
 
 		queryString = queryString.substring(0, queryString.length() - 1) + ")";
-		queryString += "\n Group by d.name";
+		queryString += "\n Group by c.name";
 
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 			int i = 1;
 
 			for (AlbumInfo albumInfo : releaseInfo) {
-				preparedStatement.setString(i++, albumInfo.getMbid());
+				preparedStatement.setObject(i++, java.util.UUID.fromString(albumInfo.getMbid()));
 			}
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 			while (resultSet.next()) {
 
-				String mbid = resultSet.getString("d.name");
+				String mbid = resultSet.getString("neim");
 				int count = resultSet.getInt("count");
-				String representative = resultSet.getString("representative");
 
-				returnMap.put(new Genre(mbid, representative), count);
+				returnMap.put(new Genre(mbid, ""), count);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

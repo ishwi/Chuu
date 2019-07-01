@@ -125,13 +125,12 @@ class ThreadQueue implements Runnable {
 		int accum = 0;
 		if (this.writeTitles) {
 
+
 			g.setFont(artistFont);
 
 			int artistWidth = g.getFontMetrics().stringWidth(artistName);
 
-			g.setFont(albumFont);
 
-			int albumWidth = g.getFontMetrics().stringWidth(albumName);
 
 			while (artistWidth > imageWidth && fontSize1-- > 14) {
 				artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
@@ -146,19 +145,27 @@ class ThreadQueue implements Runnable {
 			else {
 				g.drawString(capsule.getArtistName(), x * 300, y * 300 + accum);
 			}
-			while (albumWidth > imageWidth && fontSize2-- > 14) {
-				fontSize2--;
-				albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
-				g.setFont(albumFont);
-				albumWidth = g.getFontMetrics().stringWidth(albumName);
-			}
 
-			metric = g.getFontMetrics();
-			accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 1;
-			if (image != null) {
-				GraphicUtils.drawStringNicely(g, capsule.getAlbumName(), x * 300, y * 300 + accum, image);
-			} else {
-				g.drawString(capsule.getAlbumName(), x * 300, y * 300 + accum);
+
+			if (!albumName.isEmpty()) {
+				g.setFont(albumFont);
+
+				int albumWidth = g.getFontMetrics().stringWidth(albumName);
+
+				while (albumWidth > imageWidth && fontSize2-- > 14) {
+					fontSize2--;
+					albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
+					g.setFont(albumFont);
+					albumWidth = g.getFontMetrics().stringWidth(albumName);
+				}
+
+				metric = g.getFontMetrics();
+				accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 1;
+				if (image != null) {
+					GraphicUtils.drawStringNicely(g, capsule.getAlbumName(), x * 300, y * 300 + accum, image);
+				} else {
+					g.drawString(capsule.getAlbumName(), x * 300, y * 300 + accum);
+				}
 			}
 		}
 		if (writePlays) {

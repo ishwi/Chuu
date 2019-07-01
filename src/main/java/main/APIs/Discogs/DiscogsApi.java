@@ -83,7 +83,7 @@ public class DiscogsApi {
 
 		} catch (IOException | InterruptedException e) {
 			method.releaseConnection();
-			throw new DiscogsServiceException(e.getCause().toString());
+			throw new DiscogsServiceException(e.toString());
 		}
 	}
 
