@@ -372,20 +372,20 @@ public class ConcurrentLastFM {//implements LastFMService {
 		String artistName = artistObj.getString("name");
 		JSONArray image = albumObj.getJSONArray("image");
 		String mbid = albumObj.getString("mbid");
-
+		int plays = albumObj.getInt("playcount");
 		JSONObject bigImage = image.getJSONObject(image.length() - 1);
 
+		return new UrlCapsule(bigImage.getString("#text"), size, albumName, artistName, mbid, plays);
 
-		return new UrlCapsule(bigImage.getString("#text"), size, albumName, artistName, mbid);
 	}
-
 	private UrlCapsule parseArtist(JSONObject artistObj, int size) {
 		String artistName = artistObj.getString("name");
 		String mbid = artistObj.getString("mbid");
+		int plays = artistObj.getInt("playcount");
 
 //		JSONArray image = artistObj.getJSONArray("image");
 //		JSONObject bigImage = image.getJSONObject(image.length() - 1);
-		return new UrlCapsule(null, size, "", artistName, mbid);
+		return new UrlCapsule(null, size, "", artistName, mbid, plays);
 	}
 
 	private HttpMethodBase createMethod(String url) {

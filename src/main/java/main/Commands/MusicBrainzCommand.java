@@ -31,7 +31,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 	}
 
 	@Override
-	public void processQueue(String username, String time, int ignored, int yearInt, MessageReceivedEvent e) throws LastFmException {
+	public void processQueue(String username, String time, int ignored, int yearInt, MessageReceivedEvent e, boolean ignored2, boolean ignored3) throws LastFmException {
 		BlockingQueue<UrlCapsule> queue = new LinkedBlockingDeque<>();
 		int x = (int) Math.sqrt(chartSize);
 		Year year = Year.of(yearInt);
@@ -83,7 +83,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 			return;
 		}
 		int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
-		generateImage(queue, imageSize, imageSize, e);
+		generateImage(queue, imageSize, imageSize, e, true, false);
 		getDao().updateMetric(1, foundDiscogsMatchingYear.size());
 		getDao().updateMetric(2, mbFoundBYName.size());
 		getDao().updateMetric(3, albumsMbizMatchingYear.size());

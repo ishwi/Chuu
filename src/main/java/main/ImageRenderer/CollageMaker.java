@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class CollageMaker {
 
-	public static BufferedImage generateCollageThreaded(int x, int y, BlockingQueue<UrlCapsule> queue) {
+	public static BufferedImage generateCollageThreaded(int x, int y, BlockingQueue<UrlCapsule> queue, boolean writeTitles, boolean writePlays) {
 
 		BufferedImage result = new BufferedImage(
 				x * 300, y * 300, //work these out
@@ -25,7 +25,7 @@ public class CollageMaker {
 		ExecutorService es = Executors.newCachedThreadPool();
 
 		for (int i = 0; i < 2; i++)
-			es.execute((new ThreadQueue(queue, g, x, y, max)));
+			es.execute((new ThreadQueue(queue, g, x, y, max, writePlays, writeTitles)));
 		es.shutdown();
 		try {
 			boolean finished = es.awaitTermination(10, TimeUnit.MINUTES);

@@ -46,7 +46,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 			timeframe = "12month";
 		}
 		try {
-			processQueue(username, timeframe, 1, Year.now().getValue(), e);
+			processQueue(username, timeframe, 1, Year.now().getValue(), e, true, false);
 
 
 		} catch (LastFmEntityNotFoundException e1) {

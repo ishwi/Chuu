@@ -24,10 +24,10 @@ public class ArtistCommand extends ChartCommand {
 	}
 
 	@Override
-	public void processQueue(String username, String time, int x, int y, MessageReceivedEvent e) throws LastFmException {
+	public void processQueue(String username, String time, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays) throws LastFmException {
 		UrlCapsuleConcurrentQueue queue = new UrlCapsuleConcurrentQueue(getDao(), discogsApi, spotifyApi);
 		lastFM.getUserList(username, time, x, y, false, queue);
-		generateImage(queue, x, y, e);
+		generateImage(queue, x, y, e, writeTitles, writePlays);
 	}
 
 	@Override

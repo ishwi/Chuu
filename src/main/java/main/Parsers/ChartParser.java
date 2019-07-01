@@ -48,6 +48,18 @@ public class ChartParser extends DaoParser {
 			message = message1;
 			flag = false;
 		}
+		boolean writeTitles = true;
+		String[] message2 = Arrays.stream(message).filter(s -> !s.equals("--notitles")).toArray(String[]::new);
+		if (message2.length != message.length) {
+			message = message2;
+			writeTitles = false;
+		}
+		boolean writePlays = false;
+		String[] message3 = Arrays.stream(message).filter(s -> !s.equals("--plays")).toArray(String[]::new);
+		if (message3.length != message.length) {
+			message = message3;
+			writePlays = true;
+		}
 		if (message.length > 3) {
 			sendError(getErrorMessage(2), e);
 			return null;
@@ -70,6 +82,7 @@ public class ChartParser extends DaoParser {
 
 		}
 
+
 		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
 		if (discordName == null) {
 
@@ -77,7 +90,7 @@ public class ChartParser extends DaoParser {
 		}
 
 		timeFrame = getTimeFromChar(timeFrame);
-		return new String[]{x, y, discordName, timeFrame, Boolean.toString(flag)};
+		return new String[]{x, y, discordName, timeFrame, Boolean.toString(flag), Boolean.toString(writeTitles), Boolean.toString(writePlays)};
 	}
 
 
