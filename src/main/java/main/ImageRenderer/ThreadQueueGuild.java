@@ -18,7 +18,7 @@ public class ThreadQueueGuild extends ThreadQueue {
 
 
 	@Override
-	public void drawNames(UrlCapsule capsule, int y, int x, Graphics2D g, int imageWidth) {
+	public void drawNames(UrlCapsule capsule, int y, int x, Graphics2D g, int imageWidth, BufferedImage image2) {
 
 
 		float[] rgb2 = new float[3];

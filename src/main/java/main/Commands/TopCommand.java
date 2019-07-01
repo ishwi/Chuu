@@ -41,12 +41,12 @@ public class TopCommand extends ArtistCommand {
 			if (!isArtist) {
 				BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(25);
 				lastFM.getUserList(lastfmName, "overall", 5, 5, true, queue);
-				generateImage(queue, 5, 5, e);
+				generateImage(queue, 5, 5, e, true, true);
 
 			} else {
 				UrlCapsuleConcurrentQueue queue = new UrlCapsuleConcurrentQueue(getDao(), discogsApi, spotifyApi);
 				lastFM.getUserList(lastfmName, "overall", 5, 5, false, queue);
-				generateImage(queue, 5, 5, e);
+				generateImage(queue, 5, 5, e, true, true);
 			}
 		} catch (LastFmEntityNotFoundException e1) {
 			parser.sendError(parser.getErrorMessage(3), e);

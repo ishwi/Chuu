@@ -10,13 +10,24 @@ public class UrlCapsule {
 	private int plays;
 	private String mbid;
 
-	public UrlCapsule(String url, int pos, String albumName, String artistName, String mbid) {
+	public UrlCapsule(String url, int pos, String albumName, String artistName, String mbid, int plays) {
+		this.url = url;
+		this.pos = pos;
+		this.artistName = artistName;
+		this.albumName = albumName;
+		this.mbid = mbid;
+		this.plays = plays;
+	}
+
+
+	public UrlCapsule(String url, int pos, String artistName, String albumName, String mbid) {
 		this.url = url;
 		this.pos = pos;
 		this.artistName = artistName;
 		this.albumName = albumName;
 		this.mbid = mbid;
 	}
+
 
 	public String getAlbumName() {
 		return albumName;

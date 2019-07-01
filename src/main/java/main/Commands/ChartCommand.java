@@ -34,13 +34,15 @@ public class ChartCommand extends ConcurrentCommand {
 		int y = Integer.parseInt(returned[1]);
 		String username = returned[2];
 		String time = returned[3];
+		boolean titleWrite = Boolean.valueOf(returned[5]);
+		boolean playsWrite = Boolean.valueOf(returned[6]);
 
 
 		if (x * y > 100) {
 			e.getChannel().sendMessage("Gonna Take a while").queue();
 		}
 		try {
-			processQueue(username, time, x, y, e);
+			processQueue(username, time, x, y, e, titleWrite, playsWrite);
 
 
 		} catch (LastFmEntityNotFoundException e1) {
@@ -52,19 +54,19 @@ public class ChartCommand extends ConcurrentCommand {
 
 	}
 
-	void processQueue(String username, String time, int x, int y, MessageReceivedEvent e) throws LastFmException {
+	void processQueue(String username, String time, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays) throws LastFmException {
 		BlockingQueue<UrlCapsule> queue = new LinkedBlockingDeque<>();
 		lastFM.getUserList(username, time, x, y, true, queue);
-		generateImage(queue, x, y, e);
+		generateImage(queue, x, y, e, writeTitles, writePlays);
 	}
 
-	void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e) {
+	void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays) {
 		int size = queue.size();
 		int minx = (int) Math.ceil((double) size / x);
 		//int miny = (int) Math.ceil((double) size / y);
 		if (minx == 1)
 			x = size;
-		BufferedImage image = CollageMaker.generateCollageThreaded(x, minx, queue);
+		BufferedImage image = CollageMaker.generateCollageThreaded(x, minx, queue, writeTitles, writePlays);
 		sendImage(image, e);
 //
 //		String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")
