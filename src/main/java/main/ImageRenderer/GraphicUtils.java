@@ -208,8 +208,9 @@ public class GraphicUtils {
 		Color temp = g.getColor();
 		int length = g.getFontMetrics().stringWidth(string);
 		Color col1 = new Color(bufferedImage.getRGB(x, y));
-		Color col2 = new Color(bufferedImage.getRGB(x + length / 2, y));
-		Color col3 = new Color(bufferedImage.getRGB(x + length, y));
+
+		Color col2 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth()-1, x+length /2), y));
+		Color col3 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth()-1, x+length ), y));
 
 		g.setColor(getBetter(col1, col2, col3));
 		g.drawString(string, x, y);
