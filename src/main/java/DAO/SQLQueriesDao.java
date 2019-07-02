@@ -6,7 +6,7 @@ import javax.management.InstanceNotFoundException;
 import java.sql.Connection;
 import java.util.List;
 
-interface SQLQueriesDao {
+public interface SQLQueriesDao {
 
 	UniqueWrapper<UniqueData> getUniqueArtist(Connection connection, Long guildID, String lastFMID);
 

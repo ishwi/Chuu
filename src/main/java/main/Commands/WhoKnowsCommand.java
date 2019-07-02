@@ -66,7 +66,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 			embedBuilder.setTitle("Who knows " + who + " in " + e.getGuild().getName() + "?").
 					setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
 					.setColor(CommandUtil.randomColor());
-			//.setFooter("Command invoked by " + event.getMember().getLastFmId().getDiscriminator() + " · " + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toString(), );
+			//.setFooter("Command invoked by " + event.getMember().getLastFmId().getDiscriminator() + "" + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toString(), );
 			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).submit();
 			return;
 		}
