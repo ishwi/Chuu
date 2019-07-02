@@ -5,3 +5,4 @@ out/
 lib/
 .vscode/
 .settings/
+*.log
