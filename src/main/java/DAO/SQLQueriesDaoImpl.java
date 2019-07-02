@@ -78,7 +78,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 		List<UniqueData> returnList = new ArrayList<>();
 		long discordID;
 
-		@Language("MySQL") String queryString = "SELECT artist_id, b.discordID , playNumber as orden" +
+		@Language("MariaDB") String queryString = "SELECT artist_id, b.discordID , playNumber as orden" +
 				" FROM  artist  a" +
 				" join lastfm b on a.lastFMID = b.lastFmId" +
 				" where  a.lastFMID = ?" +
@@ -91,9 +91,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				" join " +
 				" lastfm in_B" +
 				" on in_A.lastFMID = in_B.lastFmid" +
-				" join " +
+				" natural join " +
 				" user_guild in_C" +
-				" on in_b.discordID = in_C.discordId" +
 				" where guildId = ?" +
 				"   ) as b" +
 				" where b.artist_id = a.artist_id" +
