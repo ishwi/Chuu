@@ -22,10 +22,11 @@ class ThreadQueue implements Runnable {
 	private final int x;
 	private final AtomicInteger iterations;
 	int START_FONT_SIZE = 24;
-	int fontSize1 = START_FONT_SIZE;
-	int fontSize2 = START_FONT_SIZE;
+	private int fontSize1;
+	private int fontSize2;
 	private boolean writePlays = false;
 	private boolean writeTitles = true;
+	private int lowerLimitStringSize = 14;
 	private int imageSize = 300;
 
 	public ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations) {
@@ -48,18 +49,12 @@ class ThreadQueue implements Runnable {
 		if (makeSmaller) {
 			this.imageSize = 150;
 			START_FONT_SIZE = 12;
+			lowerLimitStringSize = 7;
 		}
+		this.fontSize1 = START_FONT_SIZE;
+		this.fontSize2 = START_FONT_SIZE;
 	}
 
-	public ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger max, boolean writePlays, boolean writeTitles) {
-		this.queue = queue;
-		this.g = g;
-		this.x = x;
-		this.y = y;
-		this.iterations = max;
-		this.writePlays = writePlays;
-		this.writeTitles = writeTitles;
-	}
 
 	@Override
 	public void run() {
@@ -68,7 +63,6 @@ class ThreadQueue implements Runnable {
 			Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, 24);
 			g.setFont(artistFont);
 			g.setColor(Color.BLACK);
-			int fontHeight = g.getFontMetrics().getHeight();
 
 			try {
 				UrlCapsule capsule = queue.take();
@@ -143,7 +137,7 @@ class ThreadQueue implements Runnable {
 
 			int artistWidth = g.getFontMetrics().stringWidth(artistName);
 
-			while (artistWidth > imageWidth && fontSize1-- > 14) {
+			while (artistWidth > imageWidth && fontSize1-- > lowerLimitStringSize) {
 				artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
 				g.setFont(artistFont);
 				artistWidth = g.getFontMetrics().stringWidth(artistName);
@@ -162,7 +156,7 @@ class ThreadQueue implements Runnable {
 
 				int albumWidth = g.getFontMetrics().stringWidth(albumName);
 
-				while (albumWidth > imageWidth && fontSize2-- > 14) {
+				while (albumWidth > imageWidth && fontSize2-- > lowerLimitStringSize) {
 					fontSize2--;
 					albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
 					g.setFont(albumFont);
@@ -184,7 +178,7 @@ class ThreadQueue implements Runnable {
 
 			int playWidth = g.getFontMetrics().stringWidth(plays);
 
-			while (playWidth > imageWidth / 3 && playFontsSize-- > 14) {
+			while (playWidth > imageWidth / 3 && playFontsSize-- > lowerLimitStringSize) {
 				playFonts = new Font("ROBOTO-REGULAR", Font.PLAIN, playFontsSize);
 				g.setFont(playFonts);
 				playWidth = g.getFontMetrics().stringWidth(plays);
