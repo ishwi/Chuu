@@ -12,7 +12,8 @@ public enum TimeFrameEnum {
 	private static final Map<String, TimeFrameEnum> ENUM_MAP;
 
 	static {
-		ENUM_MAP = Stream.of(TimeFrameEnum.values()).collect(Collectors.toMap(Enum::name, Function.identity()));
+		ENUM_MAP = Stream.of(TimeFrameEnum.values())
+				.collect(Collectors.toMap(TimeFrameEnum::getName, Function.identity()));
 	}
 
 	private String name;
