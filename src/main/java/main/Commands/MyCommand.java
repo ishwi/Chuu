@@ -22,8 +22,6 @@ public abstract class MyCommand extends ListenerAdapter {
 
 	abstract void onCommand(MessageReceivedEvent e, String[] args);
 
-	abstract List<String> getAliases();
-
 	abstract String getDescription();
 
 	abstract String getName();
@@ -32,6 +30,7 @@ public abstract class MyCommand extends ListenerAdapter {
 		return parser.getUsage(getAliases().get(0));
 	}
 
+	abstract List<String> getAliases();
 
 	@Override
 	public void onMessageReceived(MessageReceivedEvent e) {
@@ -73,22 +72,10 @@ public abstract class MyCommand extends ListenerAdapter {
 		return string.split(" ");
 	}
 
-	private Message sendMessage(MessageReceivedEvent e, Message message) {
-		if (e.isFromType(ChannelType.PRIVATE))
-			return e.getPrivateChannel().sendMessage(message).complete();
-		else
-			return e.getTextChannel().sendMessage(message).complete();
-	}
-
-	Message sendMessage(MessageReceivedEvent e, String message) {
-		return sendMessage(e, new MessageBuilder().append(message).build());
-	}
-
 	@SuppressWarnings("SameReturnValue")
 	boolean respondToBots() {
 		return false;
 	}
-
 
 	String[] getSubMessage(Message message) {
 		String[] parts = message.getContentRaw().substring(1).split("\\s+");
@@ -98,6 +85,10 @@ public abstract class MyCommand extends ListenerAdapter {
 	}
 
 	void sendImage(BufferedImage image, MessageReceivedEvent e) {
+		sendImage(image, e, false);
+	}
+
+	void sendImage(BufferedImage image, MessageReceivedEvent e, boolean makeSmaller) {
 		MessageBuilder messageBuilder = new MessageBuilder();
 		if (image == null) {
 			sendMessage(e, "Ish Pc Bad");
@@ -106,7 +97,10 @@ public abstract class MyCommand extends ListenerAdapter {
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 
 		try {
-			ImageIO.write(image, "png", b);
+			String format = "png";
+			if (makeSmaller)
+				format = "jpg";
+			ImageIO.write(image, format, b);
 			byte[] img = b.toByteArray();
 			if (img.length < 8388608)
 				messageBuilder.sendTo(e.getChannel()).addFile(img, "cat.png").queue();
@@ -119,6 +113,17 @@ public abstract class MyCommand extends ListenerAdapter {
 		}
 
 
+	}
+
+	Message sendMessage(MessageReceivedEvent e, String message) {
+		return sendMessage(e, new MessageBuilder().append(message).build());
+	}
+
+	private Message sendMessage(MessageReceivedEvent e, Message message) {
+		if (e.isFromType(ChannelType.PRIVATE))
+			return e.getPrivateChannel().sendMessage(message).complete();
+		else
+			return e.getTextChannel().sendMessage(message).complete();
 	}
 
 	String getUserString(Long discordId, MessageReceivedEvent e, String replacement) {

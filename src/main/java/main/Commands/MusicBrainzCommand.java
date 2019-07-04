@@ -5,7 +5,6 @@ import DAO.Entities.AlbumInfo;
 import DAO.Entities.UrlCapsule;
 import DAO.MusicBrainz.MusicBrainzService;
 import DAO.MusicBrainz.MusicBrainzServiceImpl;
-import main.Exceptions.DiscogsServiceException;
 import main.Exceptions.LastFmException;
 import main.Parsers.ChartFromYearParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -31,7 +30,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 	}
 
 	@Override
-	public void processQueue(String username, String time, int ignored, int yearInt, MessageReceivedEvent e, boolean ignored2, boolean ignored3) throws LastFmException {
+	public void processQueue(String username, String time, int ignored, int yearInt, MessageReceivedEvent e, boolean writeTiles, boolean writePlays) throws LastFmException {
 		BlockingQueue<UrlCapsule> queue = new LinkedBlockingDeque<>();
 		int x = (int) Math.sqrt(chartSize);
 		Year year = Year.of(yearInt);
@@ -84,7 +83,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 			return;
 		}
 		int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
-		generateImage(queue, imageSize, imageSize, e, true, false);
+		generateImage(queue, imageSize, imageSize, e, writeTiles, writePlays);
 		getDao().updateMetric(1, foundDiscogsMatchingYear.size());
 		getDao().updateMetric(2, mbFoundBYName.size());
 		getDao().updateMetric(3, albumsMbizMatchingYear.size());
@@ -104,7 +103,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 
 	@Override
 	public String getName() {
-		return "Released in Year";
+		return "Released in YEAR";
 	}
 
 

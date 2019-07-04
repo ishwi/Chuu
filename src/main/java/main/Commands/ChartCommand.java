@@ -29,14 +29,12 @@ public class ChartCommand extends ConcurrentCommand {
 		if (returned == null)
 			return;
 
-
 		int x = Integer.parseInt(returned[0]);
 		int y = Integer.parseInt(returned[1]);
 		String username = returned[2];
 		String time = returned[3];
 		boolean titleWrite = Boolean.valueOf(returned[5]);
 		boolean playsWrite = Boolean.valueOf(returned[6]);
-
 
 		if (x * y > 100) {
 			e.getChannel().sendMessage("Gonna Take a while").queue();
@@ -66,8 +64,12 @@ public class ChartCommand extends ConcurrentCommand {
 		//int miny = (int) Math.ceil((double) size / y);
 		if (minx == 1)
 			x = size;
-		BufferedImage image = CollageMaker.generateCollageThreaded(x, minx, queue, writeTitles, writePlays);
-		sendImage(image, e);
+		boolean makeSmaller = false;
+		if (x * y > 42)
+			makeSmaller = true;
+		BufferedImage image = CollageMaker
+				.generateCollageThreaded(x, minx, queue, writeTitles, writePlays, makeSmaller);
+		sendImage(image, e, makeSmaller);
 //
 //		String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")
 //				.withZone(ZoneOffset.UTC)
@@ -81,13 +83,6 @@ public class ChartCommand extends ConcurrentCommand {
 //			sendMessage(e, "Ish pc is bad ");
 //		}
 
-
-	}
-
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!chart");
 	}
 
 	@Override
@@ -98,6 +93,11 @@ public class ChartCommand extends ConcurrentCommand {
 	@Override
 	public String getName() {
 		return "Chart";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!chart");
 	}
 
 
