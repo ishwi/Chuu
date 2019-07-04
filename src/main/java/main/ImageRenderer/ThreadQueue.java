@@ -16,17 +16,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 //        BufferedImage.TYPE_INT_RGB);
 //        Graphics g = result.getGraphics();
 class ThreadQueue implements Runnable {
-	final int START_FONT_SIZE = 24;
 	private final BlockingQueue<UrlCapsule> queue;
 	private final Graphics2D g;
 	private final int y;
 	private final int x;
 	private final AtomicInteger iterations;
+	int START_FONT_SIZE = 24;
 	int fontSize1 = START_FONT_SIZE;
 	int fontSize2 = START_FONT_SIZE;
 	private boolean writePlays = false;
 	private boolean writeTitles = true;
-
+	private int imageSize = 300;
 
 	public ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations) {
 		this.queue = queue;
@@ -35,6 +35,20 @@ class ThreadQueue implements Runnable {
 		this.y = y;
 		this.iterations = iterations;
 
+	}
+
+	public ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations, boolean writePlays, boolean writeTitles, boolean makeSmaller) {
+		this.queue = queue;
+		this.g = g;
+		this.y = y;
+		this.x = x;
+		this.iterations = iterations;
+		this.writePlays = writePlays;
+		this.writeTitles = writeTitles;
+		if (makeSmaller) {
+			this.imageSize = 150;
+			START_FONT_SIZE = 12;
+		}
 	}
 
 	public ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger max, boolean writePlays, boolean writeTitles) {
@@ -68,15 +82,15 @@ class ThreadQueue implements Runnable {
 
 					url = new URL(capsule.getUrl());
 					image = ImageIO.read(url);
-					if (image.getHeight() != 300 || image.getWidth() != 300) {
+					if (image.getHeight() != imageSize || image.getWidth() != imageSize) {
 
-						image = Scalr.resize(image, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, 300,
-								300, Scalr.OP_ANTIALIAS);
+						image = Scalr.resize(image, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, imageSize,
+								imageSize, Scalr.OP_ANTIALIAS);
 					}
 					drawImage(image, capsule);
-					g.drawImage(image, x * 300, y * 300, null);
+					g.drawImage(image, x * imageSize, y * imageSize, null);
 
-					//g.drawImage(image, x * 300, y * 300, x * 300 + 300, y * 300 + 300, 0, 0, image.getWidth(), image.getHeight(), null);
+					//g.drawImage(image, x * imageSize, y * imageSize, x * imageSize + imageSize, y * imageSize + imageSize, 0, 0, image.getWidth(), image.getHeight(), null);
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -86,10 +100,10 @@ class ThreadQueue implements Runnable {
 
 					int y = (int) Math.floor(pos / this.x);
 					int x = pos % this.x;
-					g.fillRect(x * 300, y * 300, 300, 300);
+					g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
 					g.setColor(Color.BLACK);
 
-					drawNames(capsule, y, x, g, 300, null);
+					drawNames(capsule, y, x, g, imageSize, null);
 					g.setColor(temp);
 					e.printStackTrace();
 				}
@@ -125,12 +139,9 @@ class ThreadQueue implements Runnable {
 		int accum = 0;
 		if (this.writeTitles) {
 
-
 			g.setFont(artistFont);
 
 			int artistWidth = g.getFontMetrics().stringWidth(artistName);
-
-
 
 			while (artistWidth > imageWidth && fontSize1-- > 14) {
 				artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
@@ -141,11 +152,10 @@ class ThreadQueue implements Runnable {
 			FontMetrics metric = g.getFontMetrics();
 			accum = metric.getAscent() - metric.getDescent() - metric.getLeading();
 			if (image != null)
-				GraphicUtils.drawStringNicely(g, capsule.getArtistName(), x * 300, y * 300 + accum, image);
+				GraphicUtils.drawStringNicely(g, capsule.getArtistName(), x * imageSize, y * imageSize + accum, image);
 			else {
-				g.drawString(capsule.getArtistName(), x * 300, y * 300 + accum);
+				g.drawString(capsule.getArtistName(), x * imageSize, y * imageSize + accum);
 			}
-
 
 			if (!albumName.isEmpty()) {
 				g.setFont(albumFont);
@@ -162,9 +172,10 @@ class ThreadQueue implements Runnable {
 				metric = g.getFontMetrics();
 				accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 1;
 				if (image != null) {
-					GraphicUtils.drawStringNicely(g, capsule.getAlbumName(), x * 300, y * 300 + accum, image);
+					GraphicUtils
+							.drawStringNicely(g, capsule.getAlbumName(), x * imageSize, y * imageSize + accum, image);
 				} else {
-					g.drawString(capsule.getAlbumName(), x * 300, y * 300 + accum);
+					g.drawString(capsule.getAlbumName(), x * imageSize, y * imageSize + accum);
 				}
 			}
 		}
@@ -181,10 +192,10 @@ class ThreadQueue implements Runnable {
 			FontMetrics metric = g.getFontMetrics();
 			accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 1;
 			if (image != null) {
-				GraphicUtils.drawStringNicely(g, plays, x * 300, y * 300 + accum, image);
+				GraphicUtils.drawStringNicely(g, plays, x * imageSize, y * imageSize + accum, image);
 
 			} else {
-				g.drawString(plays, x * 300, y * 300 + accum);
+				g.drawString(plays, x * imageSize, y * imageSize + accum);
 			}
 		}
 		fontSize1 = START_FONT_SIZE;

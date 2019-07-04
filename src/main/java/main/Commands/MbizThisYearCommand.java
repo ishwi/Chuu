@@ -1,9 +1,10 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import DAO.Entities.TimeFrameEnum;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
-import main.Parsers.OnlyUsernameParser;
+import main.Parsers.ChartOnlyUsernameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 
 	public MbizThisYearCommand(DaoImplementation dao) {
 		super(dao);
-		this.parser = new OnlyUsernameParser(dao);
+		this.parser = new ChartOnlyUsernameParser(dao);
 	}
 
 
@@ -27,27 +28,27 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 		if (returned == null)
 			return;
 
-
 		String username = returned[0];
-
+		boolean writeTitles = Boolean.valueOf(returned[1]);
+		boolean writePlays = Boolean.valueOf(returned[2]);
 
 		LocalDateTime time = LocalDateTime.now();
-		String timeframe;
+		TimeFrameEnum timeframe;
 		int monthValue = time.getMonthValue();
-		if (monthValue == 1 && time.getDayOfMonth() < 8)
-			timeframe = "7day";
-		if (monthValue < 2) {
-			timeframe = "1month";
+		if (monthValue == 1 && time.getDayOfMonth() < 8) {
+			timeframe = TimeFrameEnum.WEEK;
+		} else if (monthValue < 2) {
+			timeframe = TimeFrameEnum.MONTH;
 		} else if (monthValue < 4) {
-			timeframe = "3month";
+			timeframe = TimeFrameEnum.QUARTER;
 		} else if (monthValue < 7)
-			timeframe = "6month";
+			timeframe = TimeFrameEnum.SEMESTER;
 		else {
-			timeframe = "12month";
+			timeframe = TimeFrameEnum.YEAR;
 		}
-		try {
-			processQueue(username, timeframe, 1, Year.now().getValue(), e, true, false);
 
+		try {
+			processQueue(username, timeframe.toString(), 1, Year.now().getValue(), e, writeTitles, writePlays);
 
 		} catch (LastFmEntityNotFoundException e1) {
 			parser.sendError(parser.getErrorMessage(3), e);
@@ -69,7 +70,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 
 	@Override
 	public String getName() {
-		return "Since Year Started";
+		return "Since YEAR Started";
 	}
 
 

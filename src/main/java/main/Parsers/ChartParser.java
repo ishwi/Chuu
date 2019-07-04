@@ -1,6 +1,7 @@
 package main.Parsers;
 
 import DAO.DaoImplementation;
+import DAO.Entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -10,30 +11,15 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ChartParser extends DaoParser {
+	private TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
+
 	public ChartParser(DaoImplementation dao) {
 		super(dao);
 	}
 
-	String getTimeFromChar(String timeFrame) {
-		switch (timeFrame) {
-			case "y":
-				return "12month";
-			case "q":
-				return "3month";
-			case "m":
-				return "1month";
-			case "a":
-				return "overall";
-			case "s":
-				return "6month";
-			default:
-				return "7day";
-		}
-	}
-
 	@Override
 	public String[] parse(MessageReceivedEvent e) {
-		String timeFrame = "w";
+		TimeFrameEnum timeFrame = defaultTFE;
 		String discordName;
 		String x = "5";
 		String y = "5";
@@ -41,25 +27,13 @@ public class ChartParser extends DaoParser {
 		String pattern = "\\d+[xX]\\d+";
 		String[] message = getSubMessage(e.getMessage());
 
+		FlagParser flagParser = new FlagParser(message);
 
-		boolean flag = true;
-		String[] message1 = Arrays.stream(message).filter(s -> !s.equals("--artist")).toArray(String[]::new);
-		if (message1.length != message.length) {
-			message = message1;
-			flag = false;
-		}
-		boolean writeTitles = true;
-		String[] message2 = Arrays.stream(message).filter(s -> !s.equals("--notitles")).toArray(String[]::new);
-		if (message2.length != message.length) {
-			message = message2;
-			writeTitles = false;
-		}
-		boolean writePlays = false;
-		String[] message3 = Arrays.stream(message).filter(s -> !s.equals("--plays")).toArray(String[]::new);
-		if (message3.length != message.length) {
-			message = message3;
-			writePlays = true;
-		}
+		boolean flag = !flagParser.contains("artist");
+		boolean writeTitles = !flagParser.contains("notitles");
+		boolean writePlays = flagParser.contains("plays");
+
+		message = flagParser.getMessage();
 		if (message.length > 3) {
 			sendError(getErrorMessage(2), e);
 			return null;
@@ -74,14 +48,9 @@ public class ChartParser extends DaoParser {
 
 		}
 
-		Stream<String> secondStream = Arrays.stream(message).filter(s -> s.length() == 1 && s.matches("[yqsmwa]"));
-		Optional<String> opt2 = secondStream.findAny();
-		if (opt2.isPresent()) {
-			timeFrame = opt2.get();
-			message = Arrays.stream(message).filter(s -> !s.equals(opt2.get())).toArray(String[]::new);
-
-		}
-
+		ChartParserAux chartParserAux = new ChartParserAux(message);
+		timeFrame = chartParserAux.parseTimeframe(timeFrame);
+		message = chartParserAux.getMessage();
 
 		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
 		if (discordName == null) {
@@ -89,10 +58,25 @@ public class ChartParser extends DaoParser {
 			return null;
 		}
 
-		timeFrame = getTimeFromChar(timeFrame);
-		return new String[]{x, y, discordName, timeFrame, Boolean.toString(flag), Boolean.toString(writeTitles), Boolean.toString(writePlays)};
+		return new String[]{x, y, discordName, timeFrame.toString(), Boolean.toString(flag), Boolean.toString(writeTitles), Boolean.toString(writePlays)};
 	}
 
+
+	public String getErrorMessage(int code) {
+		return errorMessages.get(code);
+	}
+
+	@Override
+	public List<String> getUsage(String commandName) {
+		return Collections.singletonList("**" + commandName + " *[w,m,q,s,y,a]* *sizeXsize*  *Username* ** \n" +
+				"\tIf time is not specified defaults to Yearly \n" +
+				"\tIf username is not specified defaults to authors account \n" +
+				"\tIf Size not specified it to 5x5\n" +
+				"\tcan use --artist to make an artist chart\n" +
+				"\tcan use --notitles to not display titles\n" +
+				"\tcan use --plays to display plays\n\n");
+
+	}
 
 	@Override
 	public void setUpErrorMessages() {
@@ -101,19 +85,6 @@ public class ChartParser extends DaoParser {
 		errorMessages.put(3, "Not a valid Last.fm username");
 		errorMessages.put(4, "Internal Server Error, try again later");
 
-	}
-
-	public String getErrorMessage(int code) {
-		return errorMessages.get(code);
-	}
-
-	@Override
-	public List<String> getUsage(String commandName) {
-		return Collections.singletonList("**" + commandName + " *[w,m,q,s,y,a]* *Username* *YEAR*** \n" +
-				"\tIf time is not specified defaults to Yearly \n" +
-				"\tIf username is not specified defaults to authors account \n" +
-				"\tIf Year not specified it default to current year\n\n"
-		);
 	}
 
 }

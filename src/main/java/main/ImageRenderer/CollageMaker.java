@@ -11,12 +11,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CollageMaker {
+	private static final int DEFAULT_SIZE = 300;
 
-	public static BufferedImage generateCollageThreaded(int x, int y, BlockingQueue<UrlCapsule> queue, boolean writeTitles, boolean writePlays) {
+	public static BufferedImage generateCollageThreaded(int x, int y, BlockingQueue<UrlCapsule> queue, boolean writeTitles, boolean writePlays, boolean makeSmaller) {
+		BufferedImage result;
+		int imageSize = DEFAULT_SIZE;
+		int imageType = BufferedImage.TYPE_INT_ARGB;
 
-		BufferedImage result = new BufferedImage(
-				x * 300, y * 300, //work these out
-				BufferedImage.TYPE_INT_ARGB);
+		if (makeSmaller) {
+			imageSize = 150;
+			imageType = BufferedImage.TYPE_INT_RGB;
+		}
+
+		result = new BufferedImage(x * imageSize, y * imageSize, imageType);
 
 		Graphics2D g = result.createGraphics();
 		GraphicUtils.setQuality(g);
@@ -25,7 +32,7 @@ public class CollageMaker {
 		ExecutorService es = Executors.newCachedThreadPool();
 
 		for (int i = 0; i < 2; i++)
-			es.execute((new ThreadQueue(queue, g, x, y, max, writePlays, writeTitles)));
+			es.execute((new ThreadQueue(queue, g, x, y, max, writePlays, writeTitles, makeSmaller)));
 		es.shutdown();
 		try {
 			boolean finished = es.awaitTermination(10, TimeUnit.MINUTES);
