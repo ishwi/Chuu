@@ -22,8 +22,8 @@ class ThreadQueue implements Runnable {
 	private final int x;
 	private final AtomicInteger iterations;
 	int START_FONT_SIZE = 24;
-	private int fontSize1;
-	private int fontSize2;
+	int fontSize1;
+	int fontSize2;
 	private boolean writePlays = false;
 	private boolean writeTitles = true;
 	private int lowerLimitStringSize = 14;
