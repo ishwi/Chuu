@@ -340,7 +340,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 	@Override
 	public int userPlays(Connection con, String artist, String whom) {
 		String queryString = "Select a.playNumber " +
-				"FROM artist a JOIN lastFM b on a.lastFMID=b.lastFmId " +
+				"FROM artist a JOIN lastfm b on a.lastFMID=b.lastFmId " +
 				"JOIN artist_url c on a.artist_id = c.artist_id " +
 				"where a.lastFMID = ? and a.artist_id =?";
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {

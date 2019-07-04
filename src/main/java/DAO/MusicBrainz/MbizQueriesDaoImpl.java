@@ -22,7 +22,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 		long discordID;
 
 		@Language("MySQL") String queryString = "SELECT \n" +
-				"a.name as albumName,a.gid as mbid,b.name artistName\n" +
+				"a.name as albumname,a.gid as mbid,b.name artistName\n" +
 				"FROM\n" +
 				"    musicbrainz.release a\n" +
 				"     join musicbrainz.artist_credit b ON a.artist_credit = b.id\n" +
@@ -50,7 +50,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
 				String mbid = resultSet.getString("mbid");
 				String artist = resultSet.getString("artistName");
-				String albumName = resultSet.getString("albumName");
+				String albumName = resultSet.getString("albumname");
 				AlbumInfo ai = new AlbumInfo(mbid, albumName, artist);
 				returnList.add(ai);
 			}
@@ -64,7 +64,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 	@Override
 	public List<AlbumInfo> getYearAlbumsByReleaseName(Connection con, List<AlbumInfo> releaseInfo, Year year) {
 		@Language("MySQL") String queryString = "SELECT DISTINCT\n" +
-				"    (a.name) as artistName, b.name as dName,  d.first_release_date_year as year \n" +
+				"    (a.name) as artistname, b.name as albumname,  d.first_release_date_year as year \n" +
 				"FROM\n" +
 				"    musicbrainz.artist_credit a\n" +
 				"        JOIN\n" +
@@ -101,8 +101,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
 			while (resultSet.next()) {
 
-				String artist = resultSet.getString("artistName");
-				String album = resultSet.getString("albumName");
+				String artist = resultSet.getString("artistname");
+				String album = resultSet.getString("albumname");
 
 				AlbumInfo ai = new AlbumInfo("", album, artist);
 				returnList.add(ai);
