@@ -60,7 +60,7 @@ class ThreadQueue implements Runnable {
 	public void run() {
 		while (iterations.getAndDecrement() > 0) {
 
-			Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, 24);
+			Font artistFont = new Font("FIRASANS-BOOK", Font.PLAIN, 24);
 			g.setFont(artistFont);
 			g.setColor(Color.BLACK);
 
@@ -125,11 +125,11 @@ class ThreadQueue implements Runnable {
 		String artistName = capsule.getArtistName();
 		String albumName = capsule.getAlbumName();
 		String plays = capsule.getPlays() + (capsule.getPlays() > 1 ? " plays" : "play");
-		Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
-		Font albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
+		Font artistFont = new Font("FIRASANS-BOOK", Font.PLAIN, fontSize1);
+		Font albumFont = new Font("FIRASANS-BOOK", Font.PLAIN, fontSize2);
 		int playFontsSize = START_FONT_SIZE;
 
-		Font playFonts = new Font("ROBOTO-REGULAR", Font.PLAIN, playFontsSize);
+		Font playFonts = new Font("FIRASANS-BOOK", Font.PLAIN, playFontsSize);
 		int accum = 0;
 		if (this.writeTitles) {
 
@@ -138,17 +138,20 @@ class ThreadQueue implements Runnable {
 			int artistWidth = g.getFontMetrics().stringWidth(artistName);
 
 			while (artistWidth > imageWidth && fontSize1-- > lowerLimitStringSize) {
-				artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
+				artistFont = new Font("FIRASANS-BOOK", Font.PLAIN, fontSize1);
 				g.setFont(artistFont);
 				artistWidth = g.getFontMetrics().stringWidth(artistName);
 			}
 			g.setFont(artistFont);
 			FontMetrics metric = g.getFontMetrics();
-			accum = metric.getAscent() - metric.getDescent() - metric.getLeading() + 3;
-			if (image != null)
-				GraphicUtils.drawStringNicely(g, capsule.getArtistName(), x * imageSize, y * imageSize + accum, image);
-			else {
-				g.drawString(capsule.getArtistName(), x * imageSize, y * imageSize + accum);
+			accum = metric.getAscent() - metric.getDescent() - metric.getLeading();
+			if (image != null) {
+				g.setColor(Color.BLACK);
+				g.drawString(capsule.getArtistName(), 0, accum);
+				GraphicUtils.drawStringChartly(g, capsule.getArtistName(), 0, accum, image);
+			} else {
+				g.setColor(Color.BLACK);
+				g.drawString(capsule.getArtistName(), x * 300, y * 300 + accum);
 			}
 
 			if (!albumName.isEmpty()) {
@@ -158,18 +161,20 @@ class ThreadQueue implements Runnable {
 
 				while (albumWidth > imageWidth && fontSize2-- > lowerLimitStringSize) {
 					fontSize2--;
-					albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
+					albumFont = new Font("FIRASANS-BOOK", Font.PLAIN, fontSize2);
 					g.setFont(albumFont);
 					albumWidth = g.getFontMetrics().stringWidth(albumName);
 				}
 
 				metric = g.getFontMetrics();
-				accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 4;
+				accum += metric.getAscent() - metric.getDescent() - metric.getLeading();
 				if (image != null) {
-					GraphicUtils
-							.drawStringNicely(g, capsule.getAlbumName(), x * imageSize, y * imageSize + accum, image);
+					g.setColor(Color.BLACK);
+					g.drawString(capsule.getAlbumName(), 0, accum);
+					GraphicUtils.drawStringChartly(g, capsule.getAlbumName(), 0, accum, image);
 				} else {
-					g.drawString(capsule.getAlbumName(), x * imageSize, y * imageSize + accum);
+					g.setColor(Color.BLACK);
+					g.drawString(capsule.getAlbumName(), x * 300, y * 300 + accum);
 				}
 			}
 		}
@@ -179,17 +184,18 @@ class ThreadQueue implements Runnable {
 			int playWidth = g.getFontMetrics().stringWidth(plays);
 
 			while (playWidth > imageWidth / 3 && playFontsSize-- > lowerLimitStringSize) {
-				playFonts = new Font("ROBOTO-REGULAR", Font.PLAIN, playFontsSize);
+				playFonts = new Font("FIRASANS-BOOK", Font.PLAIN, playFontsSize);
 				g.setFont(playFonts);
 				playWidth = g.getFontMetrics().stringWidth(plays);
 			}
 			FontMetrics metric = g.getFontMetrics();
-			accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 4;
+			accum += metric.getAscent() - metric.getDescent() - metric.getLeading();
 			if (image != null) {
-				GraphicUtils.drawStringNicely(g, plays, x * imageSize, y * imageSize + accum, image);
+				GraphicUtils.drawStringChartly(g, plays, 0, accum, image);
 
 			} else {
-				g.drawString(plays, x * imageSize, y * imageSize + accum);
+				g.setColor(Color.BLACK);
+				g.drawString(plays, x * 300, y * 300 + accum);
 			}
 		}
 		fontSize1 = START_FONT_SIZE;
