@@ -207,15 +207,33 @@ public class GraphicUtils {
 	public static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
 		Color temp = g.getColor();
 		int length = g.getFontMetrics().stringWidth(string);
-		Color col1 = new Color(bufferedImage.getRGB(Math.max(0,x), y));
-
-		Color col2 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth()-1, x+length /2), y));
-		Color col3 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth()-1, x+length ), y));
-
-		g.setColor(getBetter(col1, col2, col3));
+//		Color col1 = new Color(bufferedImage.getRGB(Math.max(0,x), y));
+//
+//		Color col2 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth()-1, x+length /2), y));
+//		Color col3 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth()-1, x+length ), y));
+		g.setColor(Color.WHITE);
+		//	g.setColor(getBetter(col1, col2, col3));
 		g.drawString(string, x, y);
 		g.setColor(temp);
 	}
+
+	public static void drawStringChartly(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
+		Color temp = g.getColor();
+		int length = g.getFontMetrics().stringWidth(string);
+		Color col1 = new Color(bufferedImage.getRGB(Math.max(0, x), y));
+
+		Color col2 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 1, x + length / 2), y));
+		Color col3 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 1, x + length), y));
+		g.setColor(Color.WHITE);
+		Color better = getBetter(col1, col2, col3);
+		Color notBetter = better == Color.WHITE ? Color.BLACK : Color.WHITE;
+		g.setColor(notBetter);
+		g.drawString(string, x, y);
+		g.setColor(getBetter(col1, col2, col3));
+		g.drawString(string, x + 1, y);
+		g.setColor(temp);
+	}
+
 
 
 }
