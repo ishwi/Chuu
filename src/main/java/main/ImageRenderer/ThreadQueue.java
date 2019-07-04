@@ -144,7 +144,7 @@ class ThreadQueue implements Runnable {
 			}
 			g.setFont(artistFont);
 			FontMetrics metric = g.getFontMetrics();
-			accum = metric.getAscent() - metric.getDescent() - metric.getLeading();
+			accum = metric.getAscent() - metric.getDescent() - metric.getLeading() + 3;
 			if (image != null)
 				GraphicUtils.drawStringNicely(g, capsule.getArtistName(), x * imageSize, y * imageSize + accum, image);
 			else {
@@ -164,7 +164,7 @@ class ThreadQueue implements Runnable {
 				}
 
 				metric = g.getFontMetrics();
-				accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 1;
+				accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 4;
 				if (image != null) {
 					GraphicUtils
 							.drawStringNicely(g, capsule.getAlbumName(), x * imageSize, y * imageSize + accum, image);
@@ -184,7 +184,7 @@ class ThreadQueue implements Runnable {
 				playWidth = g.getFontMetrics().stringWidth(plays);
 			}
 			FontMetrics metric = g.getFontMetrics();
-			accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 1;
+			accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 4;
 			if (image != null) {
 				GraphicUtils.drawStringNicely(g, plays, x * imageSize, y * imageSize + accum, image);
 
