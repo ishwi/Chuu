@@ -3,7 +3,12 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.AlbumUserPlays;
 import DAO.Entities.ArtistAlbums;
+import DAO.Entities.ArtistData;
 import DAO.Entities.WrapperReturnNowPlaying;
+import main.APIs.Discogs.DiscogsApi;
+import main.APIs.Discogs.DiscogsSingleton;
+import main.APIs.Spotify.Spotify;
+import main.APIs.Spotify.SpotifySingleton;
 import main.Exceptions.LastFmException;
 import main.ImageRenderer.BandRendered;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -16,17 +21,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BandInfoCommand extends WhoKnowsCommand {
+	private final DiscogsApi discogsApi;
+	private final Spotify spotify;
 
 	public BandInfoCommand(DaoImplementation dao) {
 		super(dao);
+		this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
 	}
 
 	@Override
 	void whoKnowsLogic(String who, Boolean isImage, MessageReceivedEvent e) {
 		ArtistAlbums ai;
 
+		ArtistData validable = new ArtistData(who, 0, "");
+
+		CommandUtil.lessHeavyValidate(getDao(), validable, lastFM, discogsApi, spotify);
+
 		try {
-			ai = lastFM.getAlbumsFromArtist(who, 14);
+			ai = lastFM.getAlbumsFromArtist(validable.getArtist(), 14);
 		} catch (LastFmException ex) {
 			ex.printStackTrace();
 			return;
@@ -35,13 +48,14 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
 		String artist = ai.getArtist();
 		List<AlbumUserPlays> list = ai.getAlbumList();
-		String lastFmName = null;
+		String lastFmName;
 
 
 		try {
 			lastFmName = getDao().findLastFMData(e.getAuthor().getIdLong()).getName();
 		} catch (InstanceNotFoundException ex) {
 			sendMessage(e, "Error f");
+			return;
 		}
 
 
@@ -60,7 +74,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
 		list.sort(Comparator.comparing(AlbumUserPlays::getPlays).reversed());
 		ai.setAlbumList(list);
-		WrapperReturnNowPlaying np = getDao().whoKnows(artist, e.getGuild().getIdLong(), 5);
+		WrapperReturnNowPlaying np = getDao().whoKnows(validable.getArtist(), e.getGuild().getIdLong(), 5);
 		np.getReturnNowPlayings().forEach(element ->
 				element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))
 		);

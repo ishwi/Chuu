@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,15 +37,23 @@ public class BandRendered {
 	public static BufferedImage makeBandImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, ArtistAlbums ai, int plays, BufferedImage logo, String user) {
 		BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
 		BufferedImage lastFmLogo;
+		BufferedImage artistReplacement;
+
 		String artist = wrapperReturnNowPlaying.getArtist();
 		boolean needsJapanese = false;
-		try {
-			lastFmLogo = ImageIO.read(BandRendered.class.getResourceAsStream("/logo2.png"));//ImageIO.read(new File("C:\\Users\\Ishwi\\Documents\\discord\\bot\\src\\main\\resources\\logo2.png"));
+		try (InputStream in = BandRendered.class.getResourceAsStream("/logo2.png")) {
+			lastFmLogo = ImageIO.read(in);
 			lastFmLogo = Scalr.resize(lastFmLogo, 30);
 		} catch (IOException e) {
-			return null;
+			lastFmLogo = null;
 		}
-		BufferedImage artistImageFill = GraphicUtils.getImageFromUrl(wrapperReturnNowPlaying.getUrl(), null);
+		try (InputStream in = BandRendered.class.getResourceAsStream("/noArtistImage.png")) {
+			artistReplacement = ImageIO.read(in);
+		} catch (IOException e) {
+			artistReplacement = null;
+		}
+		BufferedImage artistImageFill = GraphicUtils
+				.getImageFromUrl(wrapperReturnNowPlaying.getUrl(), artistReplacement);
 		Graphics2D g = GraphicUtils.initArtistBackground(canvas, artistImageFill);
 
 		Color colorB1 = GraphicUtils.getReadableColorBackgroundForFont(GraphicUtils.getFontColorBackground(canvas));
