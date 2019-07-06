@@ -20,30 +20,10 @@ import java.util.Map;
 import java.util.Random;
 
 public class CommandUtil {
-	public static String updateUrl(DiscogsApi discogsApi, String artist, DaoImplementation dao, Spotify spotify) {
-		String newUrl = null;
-		try {
-			newUrl = discogsApi.findArtistImage(artist);
-			if (!newUrl.isEmpty()) {
-				dao.upsertUrl(new ArtistInfo(newUrl, artist));
-			} else {
-				newUrl = spotify.getArtistUrlImage(artist);
-				dao.upsertSpotify(new ArtistInfo(newUrl, artist));
-			}
-		} catch (DiscogsServiceException ignored) {
-
-		}
-		return newUrl;
-	}
-
 	static String noImageUrl(String artist) {
-		return artist == null || artist.isEmpty() ? "https://lastfm-img2.akamaized.net/i/u/174s/4128a6eb29f94943c9d206c08e625904" : artist;
+		return artist == null || artist
+				.isEmpty() ? "https://lastfm-img2.akamaized.net/i/u/174s/4128a6eb29f94943c9d206c08e625904" : artist;
 	}
-
-//	static CompletableFuture<String> getDiscogsUrlAync(DiscogsApi discogsApi, String artist, DaoImplementation dao) {
-//		return CompletableFuture.supplyAsync(() -> updateUrl(discogsApi, artist, dao));
-//	}
-
 
 	public static Color randomColor() {
 		Random rand = new Random();
@@ -52,6 +32,10 @@ public class CommandUtil {
 		double b = rand.nextFloat() / 2f + 0.5;
 		return new Color((float) r, (float) g, (float) b);
 	}
+
+//	static CompletableFuture<String> getDiscogsUrlAync(DiscogsApi discogsApi, String artist, DaoImplementation dao) {
+//		return CompletableFuture.supplyAsync(() -> updateUrl(discogsApi, artist, dao));
+//	}
 
 	public static boolean isValidURL(String urlString) {
 		try {
@@ -102,13 +86,28 @@ public class CommandUtil {
 
 		}
 
-
 		if (status == null || status.getArtistUrl() == null)
 			artistData.setUrl(CommandUtil.updateUrl(discogsApi, artistData.getArtist(), dao, spotify));
 		else {
 			artistData.setUrl(status.getArtistUrl());
 		}
 		artistData.setUpdateBit(updaterBit);
+	}
+
+	public static String updateUrl(DiscogsApi discogsApi, String artist, DaoImplementation dao, Spotify spotify) {
+		String newUrl = null;
+		try {
+			newUrl = discogsApi.findArtistImage(artist);
+			if (!newUrl.isEmpty()) {
+				dao.upsertUrl(new ArtistInfo(newUrl, artist));
+			} else {
+				newUrl = spotify.getArtistUrlImage(artist);
+				dao.upsertSpotify(new ArtistInfo(newUrl, artist));
+			}
+		} catch (DiscogsServiceException ignored) {
+
+		}
+		return newUrl;
 	}
 
 	public static void lessHeavyValidate(DaoImplementation dao, ArtistData artistData, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify) {
@@ -135,11 +134,32 @@ public class CommandUtil {
 
 		}
 
-
 		if (status == null || status.getArtistUrl() == null)
 			artistData.setUrl(CommandUtil.updateUrl(discogsApi, artistData.getArtist(), dao, spotify));
 		else {
 			artistData.setUrl(status.getArtistUrl());
+		}
+	}
+
+	public static String onlyCorrection(DaoImplementation dao, String artist, ConcurrentLastFM lastFM) {
+		String correction = dao.findCorrection(artist);
+		if (correction != null) {
+			return correction;
+		} else {
+
+			UpdaterStatus status = dao.getUpdaterStatus(artist);
+			//New artist inexistent in database or never checked before
+			if (status == null || !status.isCorrection_status()) {
+				correction = lastFM.getCorrection(artist);
+
+				//If its different we insert the new correction in the table
+				if (artist.equalsIgnoreCase(correction)) {
+					artist = correction;
+				}
+
+
+			}
+			return artist;
 		}
 	}
 }

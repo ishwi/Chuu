@@ -35,9 +35,9 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 				sendMessage(e, "Couldn't get an Image from link supplied");
 				return;
 			}
-
-			getDao().upsertUrl(new ArtistInfo(urlParsed, artist));
-			sendMessage(e, "Image of " + artist + " updated");
+			String correction = CommandUtil.onlyCorrection(getDao(), artist, lastFM);
+			getDao().upsertUrl(new ArtistInfo(urlParsed, correction));
+			sendMessage(e, "Image of " + correction + " updated");
 
 		} catch (IOException exception) {
 			parser.sendError(parser.getErrorMessage(3), e);
@@ -45,12 +45,6 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 		}
 
 
-	}
-
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!url");
 	}
 
 	@Override
@@ -63,6 +57,10 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 		return "Artist Url ";
 	}
 
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!url");
+	}
 
 
 }
