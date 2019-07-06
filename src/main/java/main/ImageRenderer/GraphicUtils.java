@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class GraphicUtils {
-	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
+	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\noArtistImage.png";
 
 	public static int getStringAscent(Graphics page, Font f, String s) {
 		// Find the size of string s in the font of the Graphics context "page"
