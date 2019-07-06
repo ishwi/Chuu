@@ -7,7 +7,6 @@ import org.imgscalr.Scalr;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
 public class NPMaker {
@@ -17,7 +16,6 @@ public class NPMaker {
 	private static final int X_MARGIN = 80;
 	private static final int Y_MARGIN = 25;
 
-	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
 	private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 32);
 	private static final Font KOREAN_FONT = new Font("Noto Serif CJK KR Regular", Font.PLAIN, 32);
 
@@ -32,12 +30,10 @@ public class NPMaker {
 
 	public static BufferedImage generateTasteImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, String discordName, BufferedImage logo) {
 
-
 		BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
 		String artist = wrapperReturnNowPlaying.getArtist().toUpperCase();
 		String urlString = wrapperReturnNowPlaying.getUrl();
 		FontMetrics metrics;
-
 
 		int width;
 		int y_counter = 0;
@@ -51,30 +47,29 @@ public class NPMaker {
 
 		try {
 
-			lastFmLogo = ImageIO.read(NPMaker.class.getResourceAsStream("/logo2.png"));//ImageIO.read(new File("C:\\Users\\Ishwi\\Documents\\discord\\bot\\src\\main\\resources\\logo2.png"));
+			lastFmLogo = ImageIO.read(NPMaker.class
+					.getResourceAsStream("/logo2.png"));//ImageIO.read(new File("C:\\Users\\Ishwi\\Documents\\discord\\bot\\src\\main\\resources\\logo2.png"));
 			guildLogo = logo;//new File("C:\\Users\\Ishwi\\Desktop\\logo.png"));
-
 
 			java.net.URL url = new java.net.URL(urlString);
 			backgroundImage = ImageIO.read(url);
 
 		} catch (IOException e) {
 			try {
-				backgroundImage = ImageIO.read(new File(PATH_NO_IMAGE));
+				backgroundImage = ImageIO.read(NPMaker.class.getResourceAsStream("/noArtistImage.png"));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 				return null;
 			}
 		}
 
-		g.drawImage(backgroundImage, 0, 0, X_MAX, Y_MAX, 0, 0, backgroundImage.getWidth(), backgroundImage.getHeight(), null);
+		g.drawImage(backgroundImage, 0, 0, X_MAX, Y_MAX, 0, 0, backgroundImage.getWidth(), backgroundImage
+				.getHeight(), null);
 		new GaussianFilter(90).filter(canvas, canvas);
-
 
 		Color colorB1 = GraphicUtils.getReadableColorBackgroundForFont(GraphicUtils.getFontColorBackground(canvas));
 		Color colorB = GraphicUtils.getSurfaceColor(GraphicUtils.getFontColorBackground(canvas));
 		//FONT_COLOR = (GraphicUtils.getBetter(new Color(canvas.getRGB(X_MAX / 2, Y_MAX / 2))));
-
 
 		//g.setColor(FONT_COLOR);
 
@@ -109,9 +104,7 @@ public class NPMaker {
 		//GraphicUtils.do1(g,artist,GraphicUtils.getInverseBW(FONT_COLOR),FONT_COLOR,X_MAX / 2 - width / 2,y_counter);
 		GraphicUtils.drawStringNicely(g, artist, X_MAX / 2 - width / 2, y_counter, canvas);
 
-
 		y_counter += metrics.getDescent();
-
 
 		g.setFont(DESC_FONT);
 		metrics = g.getFontMetrics(DESC_FONT);
@@ -121,7 +114,6 @@ public class NPMaker {
 		GraphicUtils.drawStringNicely(g, thirdLine, X_MAX / 2 - width / 2, y_counter, canvas);
 		y_counter += 16;
 
-
 		int rectWidth = X_MAX - X_MARGIN - (X_MARGIN + 320);
 
 		backgroundImage = Scalr.resize(backgroundImage, Scalr.Method.QUALITY, 320, Scalr.OP_ANTIALIAS);
@@ -129,9 +121,12 @@ public class NPMaker {
 		int y_image_starter = y_counter + (320 - backgroundImage.getHeight()) / 2;
 		g.drawImage(backgroundImage, x_image_starter, y_image_starter, null);
 		if (guildLogo != null)
-			g.drawImage(guildLogo, X_MARGIN + 320 + rectWidth - guildLogo.getWidth(), y_counter - 16 - guildLogo.getHeight(), null);
+			g.drawImage(guildLogo, X_MARGIN + 320 + rectWidth - guildLogo.getWidth(), y_counter - 16 - guildLogo
+					.getHeight(), null);
 
-		GraphicUtils.doChart(g, X_MARGIN + 320, y_counter, rectWidth, 32, 10, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, DESC_FONT.deriveFont(18f));
+		GraphicUtils
+				.doChart(g, X_MARGIN + 320, y_counter, rectWidth, 32, 10, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, DESC_FONT
+						.deriveFont(18f));
 		return canvas;
 	}
 

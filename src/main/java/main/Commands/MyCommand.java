@@ -1,5 +1,6 @@
 package main.Commands;
 
+import jdk.jfr.StackTrace;
 import main.Parsers.Parser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;

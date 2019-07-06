@@ -11,23 +11,22 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 
 public class ImageRenderer {
-	private static final String pathNoImage = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
 	private static final int PROFILE_IMAGE_SIZE = 100;
 	private static final int x_MAX = 600;
 	private static final int y_MAX = 500;
 
 	public static BufferedImage generateTasteImage(ResultWrapper resultWrapper, List<UserInfo> userInfoLiust) {
 
-
 		BufferedImage canvas = new BufferedImage(x_MAX, y_MAX, BufferedImage.TYPE_INT_RGB);
 
 		List<BufferedImage> imageList = new ArrayList<>();
-
 
 		Graphics2D g = canvas.createGraphics();
 		GraphicUtils.setQuality(g);
@@ -42,13 +41,12 @@ public class ImageRenderer {
 				imageList.add(ImageIO.read(url));
 			} catch (IOException e) {
 				try {
-					imageList.add(ImageIO.read(new File(ImageRenderer.pathNoImage)));
+					imageList.add(ImageIO.read(NPMaker.class.getResourceAsStream("/noArtistImage.png")));
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
 			}
 		}
-
 
 		//Init Of Variables
 		Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, 21);
@@ -74,7 +72,6 @@ public class ImageRenderer {
 		Color.ORANGE.getRGBColorComponents(rgb1);
 		Color colorA = new Color(rgb1[0], rgb1[1], rgb1[2], 0.1f);
 		Color colorA1 = new Color(rgb1[0], rgb1[1], rgb1[2], 0.6f);
-
 
 		float[] rgb2 = new float[3];
 		Color.CYAN.getRGBColorComponents(rgb2);
@@ -117,7 +114,8 @@ public class ImageRenderer {
 				drawx = image2StartPosition;
 				nameStringPosition = image2StartPosition - width2 - 4;
 				color = colorB.brighter();
-				countStringPosition = image2StartPosition - g.getFontMetrics().stringWidth(String.valueOf(userInfo.getPlayCount())) - 5;
+				countStringPosition = image2StartPosition - g.getFontMetrics()
+						.stringWidth(String.valueOf(userInfo.getPlayCount())) - 5;
 				rectanglePosition = (int) (image2StartPosition - percentage * rectangle_width) - 4;
 			}
 			g.setColor(color);
@@ -132,11 +130,9 @@ public class ImageRenderer {
 
 		}
 
-
 		//Draws Common Artists
 		y = rectangle_start_y + 64 + 20;
 		String a = String.valueOf(resultWrapper.getRows());
-
 
 		g.setFont(titleFont);
 		int length = g.getFontMetrics().stringWidth(a);
@@ -146,10 +142,8 @@ public class ImageRenderer {
 
 		g.drawString("common artists", x_MAX / 2 + length / 2 + 4, y - 30);
 
-
 		//Draws Top 10
 		for (Results item : resultWrapper.getResultList()) {
-
 
 			String artistID = item.getArtistID();
 			int countA = item.getCountA();
@@ -185,34 +179,22 @@ public class ImageRenderer {
 
 	private static void a(Graphics2D g) {
 		BufferedImage bim;
-		try {
 
-			File dir = new File("C:\\Users\\Ishwi\\Desktop\\Wallpaper\\");
+		Properties properties = new Properties();
+
+		try (InputStream in = ImageRenderer.class.getResourceAsStream("/" + "all.properties")) {
+			properties.load(in);
+			String path = properties.getProperty("WALLPAPER_FOLDER");
+			File dir = new File(path);
 			File[] files = dir.listFiles();
 			Random rand = new Random();
 			assert files != null;
 			File file = files[rand.nextInt(files.length)];
 			bim = ImageIO.read(file);
 			bim = cropImage(bim);
-		} catch (Exception ex) {
-			System.err.println("error in bim " + ex);
-			return;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-
-		BufferedImage img = new BufferedImage(bim.getWidth(), bim.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2 = img.createGraphics();
-
-//		//g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .1f));
-//		g2.setComposite(AlphaComposite.DstOut);
-////		int radius = 300;
-////		float fractions[] = {0.0f, 1.0f};
-////		Color colors[] = {new Color(0, 0, 0, 255), new Color(0, 0, 0, 0)};
-////		RadialGradientPaint paint =
-////				new RadialGradientPaint(300, 250, radius, fractions, colors);
-////		g2.setPaint(paint);
-////		g2.drawImage(bim, 0, 0, null);
-//		g2.fillOval(300 - radius, 250 - radius, radius * 2, radius * 2);
-		g2.dispose();
 
 		g.drawImage(bim, new GaussianFilter(45), 0, 0);
 
