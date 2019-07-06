@@ -10,7 +10,6 @@ import main.Parsers.ChartFromYearParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Year;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -45,24 +44,27 @@ public class MusicBrainzCommand extends ArtistCommand {
 		List<AlbumInfo> nonEmptyMbid = results.get(false);
 		List<AlbumInfo> emptyMbid = results.get(true);
 
-		List<AlbumInfo> nullYearList = new ArrayList<>();
+		//List<AlbumInfo> nullYearList = new ArrayList<>();
 		List<AlbumInfo> albumsMbizMatchingYear = mb.listOfYearReleases(nonEmptyMbid, year);
+		List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(emptyMbid, year);
+		emptyMbid.removeAll(mbFoundBYName);
+
 		List<AlbumInfo> foundDiscogsMatchingYear = emptyMbid.stream().filter(albumInfo -> {
 			try {
 
 				Year tempYear = (discogsApi.getYearRelease(albumInfo.getName(), albumInfo.getArtist()));
 				if (tempYear == null) {
-					nullYearList.add(albumInfo);
+					//nullYearList.add(albumInfo);
 					return false;
 				}
 				return tempYear.equals(year);
 			} catch (Exception ex) {
-				ex.printStackTrace();
-				nullYearList.add(albumInfo);
+				//ex.printStackTrace();
+				//nullYearList.add(albumInfo);
 				return false;
 			}
 		}).collect(Collectors.toList());
-		List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(nullYearList, year);
+
 		albumsMbizMatchingYear.addAll(mbFoundBYName);
 		albumsMbizMatchingYear.addAll(foundDiscogsMatchingYear);
 
