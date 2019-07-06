@@ -33,8 +33,9 @@ public class ChartFromYearParser extends ChartParser {
 			return null;
 		}
 		ChartParserAux chartParserAux = new ChartParserAux(message);
-		timeFrame = chartParserAux.parseTimeframe(timeFrame);
 		String year = chartParserAux.parseYear();
+		timeFrame = chartParserAux.parseTimeframe(timeFrame);
+		message = chartParserAux.getMessage();
 
 		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
 		if (discordName == null) {

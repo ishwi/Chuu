@@ -14,34 +14,15 @@ import java.util.List;
 public class GraphicUtils {
 	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\818148bf682d429dc215c1705eb27b98.png";
 
-	public static void setQuality(Graphics2D g) {
-		g.setRenderingHint(
-				RenderingHints.KEY_TEXT_ANTIALIASING,
-				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
-		g.setRenderingHint(RenderingHints.KEY_RENDERING,
-				RenderingHints.VALUE_RENDER_QUALITY);
-
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
-	}
-
 	public static int getStringAscent(Graphics page, Font f, String s) {
 		// Find the size of string s in the font of the Graphics context "page"
 		FontMetrics fm = page.getFontMetrics(f);
 		return fm.getAscent();
 	}
 
-
 	public static Color getInverseBW(Color color) {
 		return color.equals(Color.BLACK) ? Color.WHITE : Color.BLACK;
 	}
-
 
 	public static boolean hasKorean(CharSequence charSequence) {
 		boolean hasKorean = false;
@@ -78,29 +59,32 @@ public class GraphicUtils {
 		Graphics2D g = canvas.createGraphics();
 		GraphicUtils.setQuality(g);
 
-		g.drawImage(artistImage, 0, 0, canvas.getWidth(), canvas.getHeight(), 0, 0, artistImage.getWidth(), artistImage.getHeight(), null);
+		g.drawImage(artistImage, 0, 0, canvas.getWidth(), canvas.getHeight(), 0, 0, artistImage.getWidth(), artistImage
+				.getHeight(), null);
 		new GaussianFilter(90).filter(canvas, canvas);
 		return g;
+	}
+
+	public static void setQuality(Graphics2D g) {
+		g.setRenderingHint(
+				RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+		g.setRenderingHint(RenderingHints.KEY_RENDERING,
+				RenderingHints.VALUE_RENDER_QUALITY);
+
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+		g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+		g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
 	}
 
 	public static Color getFontColorBackground(BufferedImage canvas) {
 		int a = canvas.getRGB(0, 0);
 		return new Color(a);
-	}
-
-	public static Color getBetter(Color color) {
-		double y = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
-		return y < 128 ? Color.WHITE : Color.BLACK;
-
-	}
-
-	private static Color getBetter(Color... color) {
-		double accum = 0;
-		for (Color col : color) {
-			accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
-		}
-		return (accum / color.length) < 128 ? Color.WHITE : Color.BLACK;
-
 	}
 
 	public static Color getReadableColorBackgroundForFont(Color fontColor) {
@@ -116,12 +100,9 @@ public class GraphicUtils {
 		return new Color(rgb2[0], rgb2[1], rgb2[2], 0.5f).darker();
 	}
 
-
-
 	public static BufferedImage getImageFromUrl(String urlImage, @Nullable BufferedImage replacement) {
 		BufferedImage backgroundImage;
 		try {
-
 
 			java.net.URL url = new java.net.URL(urlImage);
 			backgroundImage = ImageIO.read(url);
@@ -183,7 +164,8 @@ public class GraphicUtils {
 			int stringWidth = metrics.stringWidth(plays);
 			int playPos = x + width - (row_height + stringWidth);
 			int playEnd = playPos + stringWidth;
-			g.drawString(plays, x + width - (row_height + metrics.stringWidth(plays)), y_counter + (margin - metrics.getAscent() / 2));
+			g.drawString(plays, x + width - (row_height + metrics.stringWidth(plays)), y_counter + (margin - metrics
+					.getAscent() / 2));
 			g.drawImage(lastFmLogo, playEnd + 9, (int) (y_counter - metrics.getAscent() * 0.85), null);
 			y_counter += row_height;
 
@@ -191,6 +173,12 @@ public class GraphicUtils {
 		}
 		g.setFont(ogFont);
 		g.setColor(ogColor);
+	}
+
+	public static Color getBetter(Color color) {
+		double y = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
+		return y < 128 ? Color.WHITE : Color.BLACK;
+
 	}
 
 	private static boolean hasChinese(final char c) {
@@ -207,14 +195,22 @@ public class GraphicUtils {
 	public static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
 		Color temp = g.getColor();
 		int length = g.getFontMetrics().stringWidth(string);
-//		Color col1 = new Color(bufferedImage.getRGB(Math.max(0,x), y));
-//
-//		Color col2 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth()-1, x+length /2), y));
-//		Color col3 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth()-1, x+length ), y));
-		g.setColor(Color.WHITE);
-		//	g.setColor(getBetter(col1, col2, col3));
+		Color col1 = new Color(bufferedImage.getRGB(Math.max(0, x), y));
+		Color col2 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 1, x + length / 2), y));
+		Color col3 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 1, x + length), y));
+//		g.setColor(Color.WHITE);
+		g.setColor(getBetter(col1, col2, col3));
 		g.drawString(string, x, y);
 		g.setColor(temp);
+	}
+
+	private static Color getBetter(Color... color) {
+		double accum = 0;
+		for (Color col : color) {
+			accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
+		}
+		return (accum / color.length) < 128 ? Color.WHITE : Color.BLACK;
+
 	}
 
 	public static void drawStringChartly(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
@@ -233,7 +229,6 @@ public class GraphicUtils {
 		g.drawString(string, x + 1, y);
 		g.setColor(temp);
 	}
-
 
 
 }
