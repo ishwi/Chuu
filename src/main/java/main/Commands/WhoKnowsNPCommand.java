@@ -2,7 +2,6 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import main.Parsers.WhoKnowsNpParser;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,17 +13,6 @@ public class WhoKnowsNPCommand extends WhoKnowsCommand {
 		super(dao);
 		this.parser = new WhoKnowsNpParser(getDao(), this.lastFM);
 
-	}
-
-
-	@Override
-	public void threadableCode(MessageReceivedEvent e) {
-		String[] returned;
-
-		returned = parser.parse(e);
-		if (returned == null)
-			return;
-		whoKnowsLogic(returned[0], Boolean.valueOf(returned[1]), e);
 	}
 
 	@Override

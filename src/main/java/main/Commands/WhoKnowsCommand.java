@@ -33,21 +33,30 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 	}
 
-	void whoKnowsLogic(String who, Boolean isImage, MessageReceivedEvent e) {
+	@Override
+	public void threadableCode(MessageReceivedEvent e) {
+		String[] returned;
+		returned = parser.parse(e);
+		if (returned == null)
+			return;
+		ArtistData validable = new ArtistData(returned[0], 0, "");
+
+		whoKnowsLogic(validable, Boolean.valueOf(returned[1]), e);
+
+	}
+
+	void whoKnowsLogic(ArtistData who, Boolean isImage, MessageReceivedEvent e) {
 		MessageBuilder messageBuilder = new MessageBuilder();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 
-		ArtistData validable = new ArtistData(who, 0, "");
-
-		CommandUtil.lessHeavyValidate(getDao(), validable, lastFM, discogsApi, spotify);
-
-		WrapperReturnNowPlaying wrapperReturnNowPlaying = this.getDao().whoKnows(validable.getArtist(), e.getGuild().getIdLong());
+		WrapperReturnNowPlaying wrapperReturnNowPlaying = this.getDao()
+				.whoKnows(who.getArtist(), e.getGuild().getIdLong());
 		//With db cache?? Extra
 		if (wrapperReturnNowPlaying.getRows() == 0) {
 			messageBuilder.setContent("No nibba listens to " + who).sendTo(e.getChannel()).queue();
 			return;
 		}
-		wrapperReturnNowPlaying.setUrl(validable.getUrl());
+		wrapperReturnNowPlaying.setUrl(who.getUrl());
 
 		if (!isImage) {
 			StringBuilder builder = new StringBuilder();
@@ -77,18 +86,6 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		BufferedImage logo = CommandUtil.getLogo(getDao(), e);
 		BufferedImage image = NPMaker.generateTasteImage(wrapperReturnNowPlaying, e.getGuild().getName(), logo);
 		sendImage(image, e);
-	}
-
-
-	@Override
-	public void threadableCode(MessageReceivedEvent e) {
-		String[] returned;
-		returned = parser.parse(e);
-		if (returned == null)
-			return;
-
-		whoKnowsLogic(returned[0], Boolean.valueOf(returned[1]), e);
-
 	}
 
 	@Override
