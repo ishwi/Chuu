@@ -22,7 +22,7 @@ public class AlbumGuildPlays extends AlbumSongPlaysCommand {
 	}
 
 	@Override
-	public void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, String who) {
+	public void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, long who) {
 
 		long id = e.getGuild().getIdLong();
 		//Gets list of users registered in guild
