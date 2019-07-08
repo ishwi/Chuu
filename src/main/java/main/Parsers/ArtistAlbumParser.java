@@ -89,7 +89,8 @@ public class ArtistAlbumParser extends DaoParser {
 
 	@Override
 	public List<String> getUsage(String commandName) {
-		return Collections.singletonList("**" + commandName + " *artist-album*** \n\n");
+		return Collections.singletonList("**" + commandName + " *artist-album** username* " +
+				"if username its not specified \n\n");
 
 	}
 
