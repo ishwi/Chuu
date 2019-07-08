@@ -1,6 +1,7 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import DAO.Entities.LastFMData;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Parsers.ArtistAlbumParser;
@@ -26,32 +27,33 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 			return;
 		String artist = parsed[0];
 		String album = parsed[1];
-		String userName = parsed[2];
+		long whom = Long.valueOf(parsed[2]);
 
-
-		doSomethingWithAlbumArtist(artist, album, e, userName);
+		doSomethingWithAlbumArtist(artist, album, e, whom);
 
 	}
 
-	void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, String who) {
+	void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, long who) {
 		int a;
 		try {
-			a = lastFM.getPlaysAlbum_Artist(getDao().findLastFMData(e.getAuthor().getIdLong()).getName(), artist, album).getPlays();
-			Member b = e.getGuild().getMemberById(e.getAuthor().getIdLong());
-			if (b != null)
-				who = b.getEffectiveName();
-			sendMessage(e, "**" + who + "** has listened " + a + " times the album **" + album + "** by **" + artist + "**!");
+			LastFMData data = getDao().findLastFMData(who);
 
-		} catch (InstanceNotFoundException | LastFmEntityNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(3), e);
+			a = lastFM.getPlaysAlbum_Artist(data.getName(), artist, album).getPlays();
+			Member b = e.getGuild().getMemberById(e.getAuthor().getIdLong());
+			String usernameString = data.getName();
+			if (b != null)
+				usernameString = b.getEffectiveName();
+			String ending = a > 1 ? "times " : "time";
+
+			sendMessage(e, "**" + usernameString + "** has listened **" + album + "** " + a + " " + ending);
+
+		} catch (InstanceNotFoundException ex) {
+			parser.sendError(parser.getErrorMessage(5), e);
+		} catch (LastFmEntityNotFoundException ex) {
+			parser.sendError(parser.getErrorMessage(6), e);
 		} catch (LastFmException ex) {
 			parser.sendError(parser.getErrorMessage(2), e);
 		}
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!album");
 	}
 
 	@Override
@@ -62,6 +64,11 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 	@Override
 	public String getName() {
 		return "Get Plays Album";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!album");
 	}
 
 
