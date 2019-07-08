@@ -130,7 +130,7 @@ class ThreadQueue implements Runnable {
 		int playFontsSize = START_FONT_SIZE;
 
 		Font playFonts = new Font("FIRASANS-BOOK", Font.PLAIN, playFontsSize);
-		int accum = 0;
+		int accum = 3;
 		if (this.writeTitles) {
 
 			g.setFont(artistFont);
@@ -142,16 +142,16 @@ class ThreadQueue implements Runnable {
 				g.setFont(artistFont);
 				artistWidth = g.getFontMetrics().stringWidth(artistName);
 			}
-			g.setFont(artistFont);
 			FontMetrics metric = g.getFontMetrics();
-			accum = metric.getAscent() - metric.getDescent() - metric.getLeading();
+			accum = metric.getAscent() - metric.getDescent() - metric.getLeading() + 3;
+			g.setFont(artistFont);
 			if (image != null) {
 				g.setColor(Color.BLACK);
 				g.drawString(capsule.getArtistName(), 0, accum);
 				GraphicUtils.drawStringChartly(g, capsule.getArtistName(), 0, accum, image);
 			} else {
 				g.setColor(Color.BLACK);
-				g.drawString(capsule.getArtistName(), x * 300, y * 300 + accum);
+				g.drawString(capsule.getArtistName(), x * imageSize, y * imageSize + accum);
 			}
 
 			if (!albumName.isEmpty()) {
@@ -163,18 +163,19 @@ class ThreadQueue implements Runnable {
 					fontSize2--;
 					albumFont = new Font("FIRASANS-BOOK", Font.PLAIN, fontSize2);
 					g.setFont(albumFont);
+
 					albumWidth = g.getFontMetrics().stringWidth(albumName);
 				}
 
 				metric = g.getFontMetrics();
-				accum += metric.getAscent() - metric.getDescent() - metric.getLeading();
+				accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 3;
 				if (image != null) {
 					g.setColor(Color.BLACK);
 					g.drawString(capsule.getAlbumName(), 0, accum);
 					GraphicUtils.drawStringChartly(g, capsule.getAlbumName(), 0, accum, image);
 				} else {
 					g.setColor(Color.BLACK);
-					g.drawString(capsule.getAlbumName(), x * 300, y * 300 + accum);
+					g.drawString(capsule.getAlbumName(), x * imageSize, y * imageSize + accum);
 				}
 			}
 		}
@@ -189,7 +190,7 @@ class ThreadQueue implements Runnable {
 				playWidth = g.getFontMetrics().stringWidth(plays);
 			}
 			FontMetrics metric = g.getFontMetrics();
-			accum += metric.getAscent() - metric.getDescent() - metric.getLeading();
+			accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 3;
 			if (image != null) {
 				GraphicUtils.drawStringChartly(g, plays, 0, accum, image);
 
