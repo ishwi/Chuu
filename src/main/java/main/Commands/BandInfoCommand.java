@@ -31,15 +31,13 @@ public class BandInfoCommand extends WhoKnowsCommand {
 	}
 
 	@Override
-	void whoKnowsLogic(String who, Boolean isImage, MessageReceivedEvent e) {
+	void whoKnowsLogic(ArtistData who, Boolean isImage, MessageReceivedEvent e) {
 		ArtistAlbums ai;
 
-		ArtistData validable = new ArtistData(who, 0, "");
 
-		CommandUtil.lessHeavyValidate(getDao(), validable, lastFM, discogsApi, spotify);
 
 		try {
-			ai = lastFM.getAlbumsFromArtist(validable.getArtist(), 14);
+			ai = lastFM.getAlbumsFromArtist(who.getArtist(), 14);
 		} catch (LastFmException ex) {
 			ex.printStackTrace();
 			return;
@@ -74,7 +72,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
 		list.sort(Comparator.comparing(AlbumUserPlays::getPlays).reversed());
 		ai.setAlbumList(list);
-		WrapperReturnNowPlaying np = getDao().whoKnows(validable.getArtist(), e.getGuild().getIdLong(), 5);
+		WrapperReturnNowPlaying np = getDao().whoKnows(who.getArtist(), e.getGuild().getIdLong(), 5);
 		np.getReturnNowPlayings().forEach(element ->
 				element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))
 		);

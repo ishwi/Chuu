@@ -38,7 +38,6 @@ public class ArtistAlbumParser extends DaoParser {
 		} else
 			sample = e.getMember();
 
-
 		String[] subMessage = getSubMessage(messageRaw);
 		if (subMessage.length == 0) {
 
@@ -57,37 +56,47 @@ public class ArtistAlbumParser extends DaoParser {
 				return null;
 			}
 
-			artist = np.getArtistName();
-			album = np.getAlbumName();
+			return doSomethingWithNp(np, sample);
+
 		} else {
-
-			for (String s : subMessage) {
-				builder.append(s).append(" ");
-			}
-			String s = builder.toString();
-			String[] content = s.split("\\s*-\\s*");
-
-			if (content.length != 2) {
-				sendError(this.getErrorMessage(1), e);
-				return null;
-			}
-
-			artist = content[0].trim();
-			album = content[1].trim();
+			return doSomethingWithString(subMessage, sample, e);
 		}
-		return new String[]{artist, album, sample.getNickname()};
 	}
 
-	@Override
-	public void setUpErrorMessages() {
-		errorMessages.put(1, "You need to use - to separate artist and album!");
-		errorMessages.put(2, "Internal Server Error, try again later");
-		errorMessages.put(3, "Didn't find what you were looking for");
+
+	public String[] doSomethingWithNp(NowPlayingArtist np, Member sample) {
+		return new String[]{np.getArtistName(), np.getAlbumName(), String.valueOf(sample.getIdLong())};
+	}
+
+	public String[] doSomethingWithString(String[] subMessage, Member sample, MessageReceivedEvent e) {
+		StringBuilder builder = new StringBuilder();
+		for (String s : subMessage) {
+			builder.append(s).append(" ");
+		}
+		String s = builder.toString();
+		String[] content = s.split("\\s*-\\s*");
+
+		if (content.length != 2) {
+			sendError(this.getErrorMessage(1), e);
+			return null;
+		}
+
+		String artist = content[0].trim();
+		String album = content[1].trim();
+
+		return new String[]{artist, album, String.valueOf(sample.getIdLong())};
 	}
 
 	@Override
 	public List<String> getUsage(String commandName) {
 		return Collections.singletonList("**" + commandName + " *artist-album*** \n\n");
 
+	}
+
+	@Override
+	public void setUpErrorMessages() {
+		errorMessages.put(5, "You need to use - to separate artist and album!");
+		errorMessages.put(2, "Internal Server Error, try again later");
+		errorMessages.put(6, "Didn't find what you were looking for");
 	}
 }
