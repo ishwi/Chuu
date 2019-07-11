@@ -40,7 +40,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		if (returned == null)
 			return;
 		ArtistData validable = new ArtistData(returned[0], 0, "");
-
+		CommandUtil.lessHeavyValidate(getDao(),validable,lastFM,discogsApi,spotify);
 		whoKnowsLogic(validable, Boolean.valueOf(returned[1]), e);
 
 	}
@@ -51,9 +51,8 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 		WrapperReturnNowPlaying wrapperReturnNowPlaying = this.getDao()
 				.whoKnows(who.getArtist(), e.getGuild().getIdLong());
-		//With db cache?? Extra
 		if (wrapperReturnNowPlaying.getRows() == 0) {
-			messageBuilder.setContent("No nibba listens to " + who).sendTo(e.getChannel()).queue();
+			messageBuilder.setContent("No nibba listens to " + who.getArtist()).sendTo(e.getChannel()).queue();
 			return;
 		}
 		wrapperReturnNowPlaying.setUrl(who.getUrl());
@@ -72,7 +71,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 						.append(returnNowPlaying.getPlayNumber()).append(" plays\n");
 			}
 
-			embedBuilder.setTitle("Who knows " + who + " in " + e.getGuild().getName() + "?").
+			embedBuilder.setTitle("Who knows " + who.getArtist() + " in " + e.getGuild().getName() + "?").
 					setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
 					.setColor(CommandUtil.randomColor());
 			//.setFooter("Command invoked by " + event.getMember().getLastFmId().getDiscriminator() + "" + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toString(), );
