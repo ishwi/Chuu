@@ -56,12 +56,12 @@ public class AdministrativeCommand extends ConcurrentCommand {
 	@Override
 	public void onGuildMemberLeave(@Nonnull GuildMemberLeaveEvent event) {
 
-		System.out.println("USER LEAVED");
-		System.out.println("USER LEAVED");
-		System.out.println("USER LEAVED");
-		System.out.println("USER LEAVED");
-		System.out.println("USER LEAVED");
-		System.out.println("USER LEAVED");
+		System.out.println("USER LEFT");
+		System.out.println("USER LEFT");
+		System.out.println("USER LEFT");
+		System.out.println("USER LEFT");
+		System.out.println("USER LEFT");
+		System.out.println("USER LEFT");
 
 		Executors.newSingleThreadExecutor()
 				.execute(() -> getDao().removeUserFromOneGuildConsequent(event.getMember().getIdLong(), event.getGuild().getIdLong())
