@@ -27,6 +27,7 @@ public abstract class DaoParser extends Parser {
 				username = message[0];
 				if (!list.isEmpty()) {
 					LastFMData data = this.dao.findLastFMData((list.get(0).getIdLong()));
+
 					username = data.getName();
 				}
 				if (username.startsWith("@")) {

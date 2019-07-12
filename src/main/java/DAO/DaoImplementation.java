@@ -395,7 +395,7 @@ public class DaoImplementation {
 		}
 	}
 
-	public long getDiscordIdFromLastfm(String lasFmName, long guildId) {
+	public long getDiscordIdFromLastfm(String lasFmName, long guildId) throws InstanceNotFoundException {
 		try (Connection connection = dataSource.getConnection()) {
 			connection.setReadOnly(true);
 			return userGuildDao.getDiscordIdFromLastFm(connection, lasFmName, guildId);
