@@ -38,7 +38,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
 			/* Get generated identifier. */
 
-
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -68,7 +67,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 			i = 1;
 			long resDiscordID = resultSet.getLong(i++);
 			String lastFmID = resultSet.getString(i);
-
 
 			return new LastFMData(lastFmID, resDiscordID);
 
@@ -110,7 +108,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
 		MultiValueMap<Long, Long> map = new MultiValueMap<>();
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
 
 			ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -274,7 +271,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 			InputStream is2 = new ByteArrayInputStream(baos.toByteArray());
 			preparedStatement.setBlob(i++, new BufferedInputStream(is));
 
-
 			preparedStatement.setBlob(i, is2);
 			preparedStatement.executeUpdate();
 
@@ -321,7 +317,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 	}
 
 	@Override
-	public long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) {
+	public long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) throws InstanceNotFoundException {
 		@Language("MySQL") String queryString = "Select a.discordID " +
 				"from   lastfm a" +
 				" join  user_guild  b " +
@@ -344,10 +340,9 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
 			/* Get results. */
 
-
 			return resultSet.getLong(1);
 
-		} catch (SQLException | InstanceNotFoundException e) {
+		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 

@@ -52,7 +52,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		WrapperReturnNowPlaying wrapperReturnNowPlaying = this.getDao()
 				.whoKnows(who.getArtist(), e.getGuild().getIdLong());
 		if (wrapperReturnNowPlaying.getRows() == 0) {
-			messageBuilder.setContent("No nibba listens to " + who.getArtist()).sendTo(e.getChannel()).queue();
+			messageBuilder.setContent("No nibba knows " + who.getArtist()).sendTo(e.getChannel()).queue();
 			return;
 		}
 		wrapperReturnNowPlaying.setUrl(who.getUrl());

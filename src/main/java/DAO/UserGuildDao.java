@@ -36,7 +36,7 @@ interface UserGuildDao {
 
 	InputStream findLogo(Connection connection, long guildID);
 
-	long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId);
+	long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) throws InstanceNotFoundException;
 
 
 }

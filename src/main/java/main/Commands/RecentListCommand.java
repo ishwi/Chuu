@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,13 +30,14 @@ public class RecentListCommand extends ConcurrentCommand {
 		int limit = 5;
 		String username = returned[0];
 		try {
+			long discordId = getDao().getDiscordIdFromLastfm(username, e.getGuild().getIdLong());
+
 			List<NowPlayingArtist> list = lastFM.getRecent(username, limit);
 			StringBuilder a = new StringBuilder();
 			a.append("\n");
 			NowPlayingArtist header = list.get(0);
 
 
-			long discordId = getDao().getDiscordIdFromLastfm(username, e.getGuild().getIdLong());
 			String name = getUserString(discordId, e, username);
 			int counter = 1;
 			for (NowPlayingArtist nowPlayingArtist : list) {
@@ -61,6 +63,8 @@ public class RecentListCommand extends ConcurrentCommand {
 			parser.sendError(parser.getErrorMessage(4), e);
 		} catch (LastFmException ex) {
 			parser.sendError(parser.getErrorMessage(2), e);
+		} catch (InstanceNotFoundException ex) {
+			parser.sendError(parser.getErrorMessage(1), e);
 		}
 
 	}

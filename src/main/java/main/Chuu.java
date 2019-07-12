@@ -34,6 +34,35 @@ class Chuu {
 		}
 	}
 
+	private static void relaunchInUTF8() throws InterruptedException, UnsupportedEncodingException {
+		System.out.println("BotLauncher: We are not running in UTF-8 mode! This is a problem!");
+		System.out.println("BotLauncher: Relaunching in UTF-8 mode using -Dfile.encoding=UTF-8");
+
+		String[] command = new String[]{"java", "-Dfile.encoding=UTF-8", "-jar", Chuu
+				.getThisJarFile().getAbsolutePath()};
+
+		//Relaunches the bot using UTF-8 mode.
+		ProcessBuilder processBuilder = new ProcessBuilder(command);
+		processBuilder.inheritIO(); //Tells the new process to use the same command line as this one.
+		try {
+			Process process = processBuilder.start();
+			process.waitFor();  //We wait here until the actual bot stops. We do this so that we can keep using the same command line.
+			System.exit(process.exitValue());
+		} catch (IOException e) {
+			if (e.getMessage().contains("\"java\"")) {
+				System.out
+						.println("BotLauncher: There was an error relaunching the bot. We couldn't find Java to launch with.");
+				System.out.println("BotLauncher: Attempted to relaunch using the command:\n   " + String
+						.join(" ", command));
+				System.out
+						.println("BotLauncher: Make sure that you have Java properly set in your Operating System's PATH variable.");
+				System.out.println("BotLauncher: Stopping here.");
+			} else {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	private static File getThisJarFile() throws UnsupportedEncodingException {
 		//Gets the path of the currently running Jar file
 		String path = Chuu.class.getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -45,33 +74,6 @@ class Chuu {
 		}
 		return new File(decodedPath);   //We use File so that when we send the path to the ProcessBuilder, we will be using the proper System path formatting.
 	}
-
-
-	private static void relaunchInUTF8() throws InterruptedException, UnsupportedEncodingException {
-		System.out.println("BotLauncher: We are not running in UTF-8 mode! This is a problem!");
-		System.out.println("BotLauncher: Relaunching in UTF-8 mode using -Dfile.encoding=UTF-8");
-
-		String[] command = new String[]{"java", "-Dfile.encoding=UTF-8", "-jar", Chuu.getThisJarFile().getAbsolutePath()};
-
-		//Relaunches the bot using UTF-8 mode.
-		ProcessBuilder processBuilder = new ProcessBuilder(command);
-		processBuilder.inheritIO(); //Tells the new process to use the same command line as this one.
-		try {
-			Process process = processBuilder.start();
-			process.waitFor();  //We wait here until the actual bot stops. We do this so that we can keep using the same command line.
-			System.exit(process.exitValue());
-		} catch (IOException e) {
-			if (e.getMessage().contains("\"java\"")) {
-				System.out.println("BotLauncher: There was an error relaunching the bot. We couldn't find Java to launch with.");
-				System.out.println("BotLauncher: Attempted to relaunch using the command:\n   " + String.join(" ", command));
-				System.out.println("BotLauncher: Make sure that you have Java properly set in your Operating System's PATH variable.");
-				System.out.println("BotLauncher: Stopping here.");
-			} else {
-				e.printStackTrace();
-			}
-		}
-	}
-
 
 	private static void setupBot() {
 		Properties properties = readToken();
@@ -110,14 +112,14 @@ class Chuu {
 		builder.addEventListeners(help.registerCommand(new GenreCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new MbizThisYearCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new ArtistPlaysCommand(dao)));
-
-
-
+		builder.addEventListeners(help.registerCommand(new TimeSpentCommand(dao)));
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
-		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, DiscogsSingleton.getInstanceUsingDoubleLocking()), 0, 30, TimeUnit.SECONDS);
+		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, DiscogsSingleton
+				.getInstanceUsingDoubleLocking()), 0, 30, TimeUnit.SECONDS);
 		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
-		scheduledManager.scheduleAtFixedRate(new SpotifyUpdaterThread(dao, SpotifySingleton.getInstanceUsingDoubleLocking()), 0, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new SpotifyUpdaterThread(dao, SpotifySingleton
+				.getInstanceUsingDoubleLocking()), 0, 10, TimeUnit.MINUTES);
 
 		try {
 			JDA jda = builder.build().awaitReady();
