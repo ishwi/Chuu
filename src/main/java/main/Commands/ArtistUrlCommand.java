@@ -28,11 +28,12 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 		if (message == null)
 			return;
 		urlParsed = message[1];
+
 		artist = message[0];
 		try (InputStream in = new URL(urlParsed).openStream()) {
 			BufferedImage image = ImageIO.read(in);
 			if (image == null) {
-				sendMessage(e, "Couldn't get an Image from link supplied");
+				parser.sendError(parser.getErrorMessage(2), e);
 				return;
 			}
 			String correction = CommandUtil.onlyCorrection(getDao(), artist, lastFM);
@@ -40,7 +41,7 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 			sendMessage(e, "Image of " + correction + " updated");
 
 		} catch (IOException exception) {
-			parser.sendError(parser.getErrorMessage(3), e);
+			parser.sendError(parser.getErrorMessage(2), e);
 			exception.printStackTrace();
 		}
 

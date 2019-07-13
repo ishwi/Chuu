@@ -37,8 +37,8 @@ public class ThreadQueueGuild extends ThreadQueue {
 
 		String artistName = capsule.getArtistName();
 		String plays = String.valueOf(capsule.getPlays());
-		fontSize1 = 28;
-		fontSize2 = 28;
+		int fontSize1 = 28;
+		int fontSize2 = 28;
 
 		Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
 		Font albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
@@ -71,8 +71,6 @@ public class ThreadQueueGuild extends ThreadQueue {
 		metric = g.getFontMetrics();
 		accum += metric.getAscent() - metric.getDescent() - metric.getLeading() + 1;
 		g.drawString(plays + " plays", 150 - albumWidth / 2, 250 + accum);
-		fontSize1 = START_FONT_SIZE;
-		fontSize2 = START_FONT_SIZE;
 
 	}
 

@@ -21,9 +21,9 @@ class ThreadQueue implements Runnable {
 	private final int y;
 	private final int x;
 	private final AtomicInteger iterations;
+	private final Font START_FONT;
 	int START_FONT_SIZE = 24;
-	int fontSize1;
-	int fontSize2;
+
 	private boolean writePlays = false;
 	private boolean writeTitles = true;
 	private int lowerLimitStringSize = 14;
@@ -35,6 +35,7 @@ class ThreadQueue implements Runnable {
 		this.x = x;
 		this.y = y;
 		this.iterations = iterations;
+		START_FONT = new Font("FIRASANS-BOOK", Font.PLAIN, START_FONT_SIZE);
 
 	}
 
@@ -51,8 +52,7 @@ class ThreadQueue implements Runnable {
 			START_FONT_SIZE = 12;
 			lowerLimitStringSize = 7;
 		}
-		this.fontSize1 = START_FONT_SIZE;
-		this.fontSize2 = START_FONT_SIZE;
+		START_FONT = new Font("FIRASANS-BOOK", Font.PLAIN, START_FONT_SIZE);
 	}
 
 
@@ -60,19 +60,18 @@ class ThreadQueue implements Runnable {
 	public void run() {
 		while (iterations.getAndDecrement() > 0) {
 
-			Font artistFont = new Font("FIRASANS-BOOK", Font.PLAIN, 24);
-			g.setFont(artistFont);
+			g.setFont(START_FONT);
 			g.setColor(Color.BLACK);
 
 			try {
 				UrlCapsule capsule = queue.take();
 				BufferedImage image;
 				URL url;
-				try {
+				int pos = capsule.getPos();
+				int y = (int) Math.floor(pos / this.x);
+				int x = pos % this.x;
 
-					int pos = capsule.getPos();
-					int y = (int) Math.floor(pos / this.x);
-					int x = pos % this.x;
+				try {
 
 					url = new URL(capsule.getUrl());
 					image = ImageIO.read(url);
@@ -87,13 +86,10 @@ class ThreadQueue implements Runnable {
 					//g.drawImage(image, x * imageSize, y * imageSize, x * imageSize + imageSize, y * imageSize + imageSize, 0, 0, image.getWidth(), image.getHeight(), null);
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 					Color temp = g.getColor();
 					g.setColor(Color.WHITE);
-					int pos = capsule.getPos();
 
-					int y = (int) Math.floor(pos / this.x);
-					int x = pos % this.x;
 					g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
 					g.setColor(Color.BLACK);
 
@@ -125,20 +121,21 @@ class ThreadQueue implements Runnable {
 		String artistName = capsule.getArtistName();
 		String albumName = capsule.getAlbumName();
 		String plays = capsule.getPlays() + (capsule.getPlays() > 1 ? " plays" : "play");
-		Font artistFont = new Font("FIRASANS-BOOK", Font.PLAIN, fontSize1);
-		Font albumFont = new Font("FIRASANS-BOOK", Font.PLAIN, fontSize2);
-		int playFontsSize = START_FONT_SIZE;
 
-		Font playFonts = new Font("FIRASANS-BOOK", Font.PLAIN, playFontsSize);
 		int accum = 3;
 		if (this.writeTitles) {
+			Font artistFont = START_FONT;
+			int artistFontsSize = START_FONT_SIZE;
+			int albumFontsSize = START_FONT_SIZE;
+
+			Font albumFont = START_FONT;
 
 			g.setFont(artistFont);
 
 			int artistWidth = g.getFontMetrics().stringWidth(artistName);
 
-			while (artistWidth > imageWidth && fontSize1-- > lowerLimitStringSize) {
-				artistFont = new Font("FIRASANS-BOOK", Font.PLAIN, fontSize1);
+			while (artistWidth > imageWidth && artistFontsSize-- > lowerLimitStringSize) {
+				artistFont = artistFont.deriveFont((float) artistFontsSize);
 				g.setFont(artistFont);
 				artistWidth = g.getFontMetrics().stringWidth(artistName);
 			}
@@ -159,9 +156,9 @@ class ThreadQueue implements Runnable {
 
 				int albumWidth = g.getFontMetrics().stringWidth(albumName);
 
-				while (albumWidth > imageWidth && fontSize2-- > lowerLimitStringSize) {
-					fontSize2--;
-					albumFont = new Font("FIRASANS-BOOK", Font.PLAIN, fontSize2);
+				while (albumWidth > imageWidth && albumFontsSize-- > lowerLimitStringSize) {
+					albumFontsSize--;
+					albumFont = albumFont.deriveFont((float) albumFontsSize);
 					g.setFont(albumFont);
 
 					albumWidth = g.getFontMetrics().stringWidth(albumName);
@@ -180,12 +177,15 @@ class ThreadQueue implements Runnable {
 			}
 		}
 		if (writePlays) {
+			Font playFonts = START_FONT;
+			int playFontsSize = START_FONT_SIZE;
+
 			g.setFont(playFonts);
 
 			int playWidth = g.getFontMetrics().stringWidth(plays);
 
-			while (playWidth > imageWidth / 3 && playFontsSize-- > lowerLimitStringSize) {
-				playFonts = new Font("FIRASANS-BOOK", Font.PLAIN, playFontsSize);
+			while (playWidth > imageWidth / 2 && playFontsSize-- > lowerLimitStringSize) {
+				playFonts = playFonts.deriveFont((float) playFontsSize);
 				g.setFont(playFonts);
 				playWidth = g.getFontMetrics().stringWidth(plays);
 			}
@@ -199,9 +199,6 @@ class ThreadQueue implements Runnable {
 				g.drawString(plays, x * 300, y * 300 + accum);
 			}
 		}
-		fontSize1 = START_FONT_SIZE;
-		fontSize2 = START_FONT_SIZE;
-
 	}
 
 	private Color getBetter(Color color) {
