@@ -77,7 +77,7 @@ public class ArtistAlbumParser extends DaoParser {
 		String[] content = s.split("\\s*-\\s*");
 
 		if (content.length != 2) {
-			sendError(this.getErrorMessage(1), e);
+			sendError(this.getErrorMessage(5), e);
 			return null;
 		}
 

@@ -8,10 +8,11 @@ import java.util.Collections;
 import java.util.List;
 
 public class TimerFrameParser extends DaoParser {
-	private TimeFrameEnum defaultTFE = TimeFrameEnum.YEAR;
+	private final TimeFrameEnum defaultTFE;
 
-	public TimerFrameParser(DaoImplementation dao) {
+	public TimerFrameParser(DaoImplementation dao, TimeFrameEnum defaultTFE) {
 		super(dao);
+		this.defaultTFE = defaultTFE;
 	}
 
 	@Override
@@ -23,14 +24,15 @@ public class TimerFrameParser extends DaoParser {
 
 		ChartParserAux auxiliar = new ChartParserAux(message);
 		timeFrame = auxiliar.parseTimeframe(timeFrame);
-		auxiliar.getMessage();
+
+		message = auxiliar.getMessage();
 
 		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
 		if (discordName == null) {
 
 			return null;
 		}
-		return new String[]{discordName, timeFrame.toString()};
+		return new String[]{discordName, timeFrame.toApiFormat()};
 	}
 
 

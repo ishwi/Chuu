@@ -48,7 +48,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 		}
 
 		try {
-			processQueue(username, timeframe.toString(), 1, Year.now().getValue(), e, writeTitles, writePlays);
+			processQueue(username, timeframe.toApiFormat(), 1, Year.now().getValue(), e, writeTitles, writePlays);
 
 		} catch (LastFmEntityNotFoundException e1) {
 			parser.sendError(parser.getErrorMessage(3), e);

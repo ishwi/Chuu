@@ -26,13 +26,30 @@ public enum TimeFrameEnum {
 		return ENUM_MAP.get(name);
 	}
 
+	public static TimeFrameEnum fromCompletePeriod(String period) {
+		switch (period) {
+			case "12month":
+				return get("y");
+			case "3month":
+				return get("q");
+			case "1month":
+				return get("m");
+			case "overall":
+				return get("a");
+			case "6month":
+				return get("s");
+			default:
+				return get("w");
+		}
+	}
+
+
 	// getter method
 	public String getName() {
 		return this.name;
 	}
 
-	@Override
-	public String toString() {
+	public String toApiFormat() {
 		switch (name) {
 			case "y":
 				return "12month";

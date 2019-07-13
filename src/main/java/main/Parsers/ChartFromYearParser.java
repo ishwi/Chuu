@@ -47,7 +47,7 @@ public class ChartFromYearParser extends ChartParser {
 			return null;
 		}
 
-		return new String[]{"0", year, discordName, timeFrame.toString(), Boolean.toString(true), Boolean.toString(writeTitles), Boolean.toString(writePlays)};
+		return new String[]{"0", year, discordName, timeFrame.toApiFormat(), Boolean.toString(true), Boolean.toString(writeTitles), Boolean.toString(writePlays)};
 
 	}
 
