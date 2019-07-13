@@ -32,4 +32,13 @@ public class SecondsTimeFrameCount {
 	public int getMinutes() {
 		return seconds / 60;
 	}
+
+	public int getHours() {
+		return seconds / 3600;
+	}
+
+	public int getRemainingMinutes() {
+		return getMinutes() % 60;
+	}
+
 }

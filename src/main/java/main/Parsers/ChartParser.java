@@ -58,7 +58,7 @@ public class ChartParser extends DaoParser {
 			return null;
 		}
 
-		return new String[]{x, y, discordName, timeFrame.toString(), Boolean.toString(flag), Boolean.toString(writeTitles), Boolean.toString(writePlays)};
+		return new String[]{x, y, discordName, timeFrame.toApiFormat(), Boolean.toString(flag), Boolean.toString(writeTitles), Boolean.toString(writePlays)};
 	}
 
 

@@ -37,7 +37,7 @@ public class ConcurrentLastFMTest {
 		ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
 
 		try {
-			SecondsTimeFrameCount secondsTimeFrameCount = lastFM.getMinutesWastedOnMusicWeek("a8zm219xm1-09cu-");
+			SecondsTimeFrameCount secondsTimeFrameCount = lastFM.getMinutesWastedOnMusic("a8zm219xm1-09cu-", "7day");
 			int seconds = secondsTimeFrameCount.getSeconds();
 			int count = secondsTimeFrameCount.getCount();
 
@@ -52,7 +52,7 @@ public class ConcurrentLastFMTest {
 		ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
 
 		try {
-			SecondsTimeFrameCount secondsTimeFrameCount = lastFM.getMinutesWastedOnMusicWeek("lukyfan");
+			SecondsTimeFrameCount secondsTimeFrameCount = lastFM.getMinutesWastedOnMusic("lukyfan", "7day");
 			int seconds = secondsTimeFrameCount.getSeconds();
 			int count = secondsTimeFrameCount.getCount();
 

@@ -85,6 +85,88 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
+	public SecondsTimeFrameCount getMinutesWastedOnMusic(String username, String period) throws LastFmException {
+		String url = BASE + GET_TOP_TRACKS + username + API_KEY + ending + "&period=" + period + "&limit=500";
+		int SONG_AVERAGE_LENGTH_SECONDS = 200;
+		int page = 1;
+		int total = 1;
+		SecondsTimeFrameCount returned = new SecondsTimeFrameCount(TimeFrameEnum.fromCompletePeriod(period));
+		int count = 0;
+		final Integer[] zeroCount = {0};
+
+		int seconds = 0;
+		while (page <= total) {
+			HttpMethodBase method = createMethod(url + "&page=" + (page));
+			System.out.println("Iteration :(");
+			// Execute the method.
+			JSONObject obj = doMethod(method);
+			if (!obj.has("toptracks")) {
+				throw new LastFmEntityNotFoundException(username);
+			}
+
+			obj = obj.getJSONObject("toptracks");
+			if (page == 1) {
+				total = obj.getJSONObject("@attr").getInt("totalPages");
+				count = obj.getJSONObject("@attr").getInt("total");
+
+			}
+			++page;
+			JSONArray arr = obj.getJSONArray("track");
+			seconds += StreamSupport.stream(arr.spliterator(), false).mapToInt(x -> {
+				int a = ((JSONObject) x).getInt("duration");
+				if (a == 0) {
+					zeroCount[0]++;
+				}
+				return a == 0 ? SONG_AVERAGE_LENGTH_SECONDS : a;
+			}).sum();
+
+
+		}
+		returned.setCount(count);
+		returned.setSeconds(seconds);
+		System.out.println(zeroCount[0]);
+		System.out.println(count);
+		return returned;
+
+	}
+
+	private JSONObject doMethod(HttpMethod method) throws LastFmException {
+		method.addRequestHeader(this.header);
+		try {
+
+			int response_code = client.executeMethod(method);
+			parseHttpCode(response_code);
+			byte[] responseBody = method.getResponseBody();
+			return new JSONObject(new String(responseBody));
+
+		} catch (HttpException e) {
+			System.out.println("HTTP");
+			e.printStackTrace();
+			throw new LastFMServiceException("HTTP");
+		} catch (IOException e) {
+			System.out.println("IO");
+			e.printStackTrace();
+			throw new LastFMServiceException("IO");
+
+
+		} finally {
+
+			method.releaseConnection();
+		}
+
+
+	}
+
+	private void parseHttpCode(int code) throws LastFmException {
+		if (code / 100 == 2)
+			return;
+		if (code == 404)
+			throw new LastFmEntityNotFoundException("404");
+		if (code == 500)
+			throw new LastFMServiceException("500");
+
+	}
+
 	public TimestampWrapper<List<ArtistData>> getWhole(String user, int timestampQuery) throws LastFmException {
 		List<NowPlayingArtist> list = new ArrayList<>();
 		String url = BASE + GET_ALL + user + API_KEY + ending + "&extended=1";
@@ -155,43 +237,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
-	private JSONObject doMethod(HttpMethod method) throws LastFmException {
-		method.addRequestHeader(this.header);
-		try {
-
-			int response_code = client.executeMethod(method);
-			parseHttpCode(response_code);
-			byte[] responseBody = method.getResponseBody();
-			return new JSONObject(new String(responseBody));
-
-		} catch (HttpException e) {
-			System.out.println("HTTP");
-			e.printStackTrace();
-			throw new LastFMServiceException("HTTP");
-		} catch (IOException e) {
-			System.out.println("IO");
-			e.printStackTrace();
-			throw new LastFMServiceException("IO");
-
-
-		} finally {
-
-			method.releaseConnection();
-		}
-
-
-	}
-
-	private void parseHttpCode(int code) throws LastFmException {
-		if (code / 100 == 2)
-			return;
-		if (code == 404)
-			throw new LastFmEntityNotFoundException("404");
-		if (code == 500)
-			throw new LastFMServiceException("500");
-
-	}
-
 	public List<NowPlayingArtist> getRecent(String user, int limit) throws LastFmException {
 		String url = BASE + RECENT_TRACKS + "&user=" + user + "&limit=" + limit + API_KEY + ending + "&extended=1";
 		HttpMethodBase method = createMethod(url);
@@ -228,13 +273,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 			npList.add(new NowPlayingArtist(artistName, "", np, albumName, songName, image_url, user));
 		}
 		return npList;
-	}
-
-	private HttpMethodBase createMethod(String url) {
-		GetMethod method = new GetMethod(url);
-		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
-		return method;
-
 	}
 
 	//@Override
@@ -478,42 +516,10 @@ public class ConcurrentLastFM {//implements LastFMService {
 		return new ArtistAlbums(artistCorrected, albumList);
 	}
 
-	public SecondsTimeFrameCount getMinutesWastedOnMusicWeek(String username) throws LastFmException {
-		String url = BASE + GET_TOP_TRACKS + username + API_KEY + ending + "&period=7day&limit=500";
-		int SONG_AVERAGE_LENGTH_SECONDS = 200;
-		int page = 1;
-		int total = 1;
-		SecondsTimeFrameCount returned = new SecondsTimeFrameCount(TimeFrameEnum.WEEK);
-		int count = 0;
-		int seconds = 0;
-		while (page <= total) {
-			HttpMethodBase method = createMethod(url + "&page=" + (page));
-
-			// Execute the method.
-			JSONObject obj = doMethod(method);
-			if (!obj.has("toptracks")) {
-				throw new LastFmEntityNotFoundException(username);
-			}
-
-			obj = obj.getJSONObject("toptracks");
-			if (page == 1) {
-				total = obj.getJSONObject("@attr").getInt("totalPages");
-				count = obj.getJSONObject("@attr").getInt("total");
-
-			}
-			++page;
-
-			JSONArray arr = obj.getJSONArray("track");
-			seconds += StreamSupport.stream(arr.spliterator(), false).mapToInt(x -> {
-				int a = ((JSONObject) x).getInt("duration");
-				return a == 0 ? SONG_AVERAGE_LENGTH_SECONDS : a;
-			}).sum();
-
-
-		}
-		returned.setCount(count);
-		returned.setSeconds(seconds);
-		return returned;
+	private HttpMethodBase createMethod(String url) {
+		GetMethod method = new GetMethod(url);
+		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
+		return method;
 
 	}
 }

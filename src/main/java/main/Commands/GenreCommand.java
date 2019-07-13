@@ -3,6 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.AlbumInfo;
 import DAO.Entities.Genre;
+import DAO.Entities.TimeFrameEnum;
 import DAO.Entities.UrlCapsule;
 import DAO.MusicBrainz.MusicBrainzService;
 import DAO.MusicBrainz.MusicBrainzServiceImpl;
@@ -28,7 +29,7 @@ public class GenreCommand extends ConcurrentCommand {
 
 	public GenreCommand(DaoImplementation dao) {
 		super(dao);
-		this.parser = new TimerFrameParser(dao);
+		this.parser = new TimerFrameParser(dao, TimeFrameEnum.YEAR);
 		this.musicBrainz = new MusicBrainzServiceImpl();
 	}
 

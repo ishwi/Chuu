@@ -124,6 +124,7 @@ class Chuu {
 		try {
 			JDA jda = builder.build().awaitReady();
 			commandAdministrator.onStartup(jda);
+
 		} catch (LoginException | InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -132,7 +133,7 @@ class Chuu {
 	static private Properties readToken() {
 
 		Properties properties = new Properties();
-		try (InputStream in = Chuu.class.getResourceAsStream("/" + "all.properties")) {
+		try (InputStream in = Chuu.class.getResourceAsStream("/all.properties")) {
 			properties.load(in);
 			return properties;
 		} catch (IOException e) {
