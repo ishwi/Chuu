@@ -1,6 +1,5 @@
 package main.Commands;
 
-import jdk.jfr.StackTrace;
 import main.Parsers.Parser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -90,7 +89,7 @@ public abstract class MyCommand extends ListenerAdapter {
 	}
 
 	void sendImage(BufferedImage image, MessageReceivedEvent e, boolean makeSmaller) {
-		MessageBuilder messageBuilder = new MessageBuilder();
+		//MessageBuilder messageBuilder = new MessageBuilder();
 		if (image == null) {
 			sendMessage(e, "Ish Pc Bad");
 			return;
@@ -102,11 +101,14 @@ public abstract class MyCommand extends ListenerAdapter {
 			if (makeSmaller)
 				format = "jpg";
 			ImageIO.write(image, format, b);
+
 			byte[] img = b.toByteArray();
 			if (img.length < 8388608)
-				messageBuilder.sendTo(e.getChannel()).addFile(img, "cat.png").queue();
+				e.getChannel().sendFile(img, "cat." + "format").queue();
+				//messageBuilder.sendTo(e.getChannel()).addFile(img, "cat.png").queue();
 			else
-				messageBuilder.setContent("Boot to big").sendTo(e.getChannel()).queue();
+				e.getChannel().sendMessage("Boot too big").queue();
+			//messageBuilder.setContent("Boot to big").sendTo(e.getChannel()).queue();
 
 		} catch (IOException ex) {
 			sendMessage(e, "Ish Pc Bad");

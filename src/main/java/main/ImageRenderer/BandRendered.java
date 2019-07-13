@@ -31,7 +31,7 @@ public class BandRendered {
 //	private static final Font CHINESE_FONT = new Font("Noto Serif CJK TC Regular", Font.PLAIN, 32);
 
 
-	private static final Font DESC_FONT = new Font("Noto Sans Display Light", Font.PLAIN, 32);
+	private static final Font DESC_FONT = new Font("Noto Sans CJK JP Light", Font.PLAIN, 32);
 //	private static final String FIRST_LINE = "Who knows";
 
 	public static BufferedImage makeBandImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, ArtistAlbums ai, int plays, BufferedImage logo, String user) {
