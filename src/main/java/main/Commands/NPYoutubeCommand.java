@@ -23,23 +23,17 @@ public class NPYoutubeCommand extends NpCommand {
 	public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, Parser parser, MessageReceivedEvent e) {
 		MessageBuilder messageBuilder = new MessageBuilder();
 
-		String uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
+		String uri = search.doSearch(nowPlayingArtist.getArtistName() + " " + nowPlayingArtist.getSongName());
 
 		if (uri.equals("")) {
 			System.out.println("Doing a second attempt");
 			uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
 			if (uri.equals("")) {
-				sendMessage(e, "Was not able to find artist " + nowPlayingArtist.getSongName() + " on YT");
+				sendMessage(e, "Was not able to find artist " + nowPlayingArtist.getArtistName() + " on YT");
 				return;
 			}
 		}
 		messageBuilder.setContent(uri).sendTo(e.getChannel()).queue();
-	}
-
-
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("!npyoutube", "!npyt", "!yt", "!npyou");
 	}
 
 	@Override
@@ -50,6 +44,11 @@ public class NPYoutubeCommand extends NpCommand {
 	@Override
 	public String getName() {
 		return "Now Playing Youtube";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("!npyt", "!npyoutube");
 	}
 
 }
