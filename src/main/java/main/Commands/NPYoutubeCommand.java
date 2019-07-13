@@ -3,6 +3,7 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import main.APIs.Youtube.Search;
+import main.APIs.Youtube.SearchSingleton;
 import main.Parsers.Parser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -15,7 +16,7 @@ public class NPYoutubeCommand extends NpCommand {
 
 	public NPYoutubeCommand(DaoImplementation dao) {
 		super(dao);
-		this.search = new Search();
+		this.search = SearchSingleton.getInstanceUsingDoubleLocking();
 
 	}
 

@@ -32,7 +32,7 @@ public class Spotify {
 
 	public String search(String queryString, int type) {
 		initRequest();
-		SearchItemRequest request = spotifyApi.searchItem(queryString, "album,artist,track,playlist")
+		SearchItemRequest request = spotifyApi.searchItem(queryString, "")
 				.market(CountryCode.NZ).limit(1).build();
 		try {
 			SearchResult result = request.execute();

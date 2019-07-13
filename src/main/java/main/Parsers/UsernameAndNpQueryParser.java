@@ -15,7 +15,7 @@ public class UsernameAndNpQueryParser extends ArtistParser {
 
 	@Override
 	public String[] doSomethingWithNp(NowPlayingArtist np, Member sample) {
-		return new String[]{np.getArtistName() + " " + np.getAlbumName(), String.valueOf(sample.getIdLong())};
+		return new String[]{np.getArtistName() + " " + np.getSongName(), String.valueOf(sample.getIdLong())};
 	}
 
 	@Override

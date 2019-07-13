@@ -2,6 +2,7 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import main.APIs.Youtube.Search;
+import main.APIs.Youtube.SearchSingleton;
 import main.Parsers.UsernameAndNpQueryParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -13,7 +14,7 @@ public class YoutubeSearch extends ConcurrentCommand {
 
 	public YoutubeSearch(DaoImplementation dao) {
 		super(dao);
-		youtubeSearch = new Search();
+		youtubeSearch = SearchSingleton.getInstanceUsingDoubleLocking();
 		this.parser = new UsernameAndNpQueryParser(dao, lastFM);
 	}
 
