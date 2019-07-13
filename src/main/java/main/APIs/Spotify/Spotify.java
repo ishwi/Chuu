@@ -5,9 +5,7 @@ import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.model_objects.special.SearchResult;
-import com.wrapper.spotify.model_objects.specification.Artist;
-import com.wrapper.spotify.model_objects.specification.Image;
-import com.wrapper.spotify.model_objects.specification.Track;
+import com.wrapper.spotify.model_objects.specification.*;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.search.SearchItemRequest;
 
@@ -32,10 +30,62 @@ public class Spotify {
 
 	}
 
-	public String searchItems(String track, String artist, String album) {
+	public String search(String queryString, int type) {
+		initRequest();
+		SearchItemRequest request = spotifyApi.searchItem(queryString, "album,artist,track,playlist")
+				.market(CountryCode.NZ).limit(1).build();
+		try {
+			SearchResult result = request.execute();
+
+			Paging<Artist> artists = result.getArtists();
+			if (artists.getItems().length != 0) {
+				Artist a = artists.getItems()[0];
+				return "https://open.spotify.com/artist/" + a.getUri().split("spotify:artist:")[1];
+			}
+			Paging<AlbumSimplified> albums = result.getAlbums();
+			if (albums.getItems().length != 0) {
+				AlbumSimplified a = albums.getItems()[0];
+				return "https://open.spotify.com/albums/" + a.getUri().split("spotify:albums:")[1];
+			}
+			Paging<PlaylistSimplified> playlists = result.getPlaylists();
+
+			if (playlists.getItems().length != 0) {
+				PlaylistSimplified a = playlists.getItems()[0];
+				return "https://open.spotify.com/playlist/" + a.getUri().split("spotify:playlist:")[1];
+			}
+			Paging<Track> tracks = result.getTracks();
+			if (tracks.getItems().length != 0) {
+				Track a = tracks.getItems()[0];
+				return "https://open.spotify.com/track/" + a.getUri().split("spotify:track:")[1];
+			}
+		} catch (IOException | SpotifyWebApiException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	private void initRequest() {
 		if (!this.time.isAfter(LocalDateTime.now())) {
 			clientCredentials_Sync();
 		}
+	}
+
+	private void clientCredentials_Sync() {
+		try {
+			ClientCredentials clientCredentials = this.clientCredentialsRequest.execute();
+
+			// Set access token for further "spotifyApi" object usage
+			spotifyApi.setAccessToken(clientCredentials.getAccessToken());
+			this.time = LocalDateTime.now().plusSeconds(clientCredentials.getExpiresIn() - 140);
+
+			System.out.println("Expires in: " + clientCredentials.getExpiresIn());
+		} catch (IOException | SpotifyWebApiException e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+	}
+
+	public String searchItems(String track, String artist, String album) {
+		initRequest();
 		artist = artist.contains(":") ? "\"" + artist + "\"" : artist;
 		SearchItemRequest tracksRequest =
 				spotifyApi.searchItem("album:" + album + " artist:" + artist + " track:" + track, "album,artist,track").
@@ -58,9 +108,7 @@ public class Spotify {
 	}
 
 	public String getArtistUrlImage(String artist) {
-		if (!this.time.isAfter(LocalDateTime.now())) {
-			clientCredentials_Sync();
-		}
+		initRequest();
 		artist = artist.contains(":") ? "\"" + artist + "\"" : artist;
 		SearchItemRequest tracksRequest =
 				spotifyApi.searchItem(" artist:" + artist, "artist").
@@ -81,19 +129,5 @@ public class Spotify {
 			e.printStackTrace();
 		}
 		return returned;
-	}
-
-	private void clientCredentials_Sync() {
-		try {
-			ClientCredentials clientCredentials = this.clientCredentialsRequest.execute();
-
-			// Set access token for further "spotifyApi" object usage
-			spotifyApi.setAccessToken(clientCredentials.getAccessToken());
-			this.time = LocalDateTime.now().plusSeconds(clientCredentials.getExpiresIn() - 140);
-
-			System.out.println("Expires in: " + clientCredentials.getExpiresIn());
-		} catch (IOException | SpotifyWebApiException e) {
-			System.out.println("Error: " + e.getMessage());
-		}
 	}
 }

@@ -104,7 +104,7 @@ public abstract class MyCommand extends ListenerAdapter {
 
 			byte[] img = b.toByteArray();
 			if (img.length < 8388608)
-				e.getChannel().sendFile(img, "cat." + "format").queue();
+				e.getChannel().sendFile(img, "cat." + format).queue();
 				//messageBuilder.sendTo(e.getChannel()).addFile(img, "cat.png").queue();
 			else
 				e.getChannel().sendMessage("Boot too big").queue();
