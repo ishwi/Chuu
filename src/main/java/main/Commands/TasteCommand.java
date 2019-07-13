@@ -4,16 +4,13 @@ import DAO.DaoImplementation;
 import DAO.Entities.ResultWrapper;
 import DAO.Entities.UserInfo;
 import main.Exceptions.LastFmException;
-import main.ImageRenderer.ImageRenderer;
+import main.ImageRenderer.TasteRenderer;
 import main.Parsers.TwoUsersParser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.imageio.ImageIO;
 import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,19 +43,9 @@ public class TasteCommand extends ConcurrentCommand {
 			users.add(resultWrapper.getResultList().get(0).getUserA());
 			users.add(resultWrapper.getResultList().get(0).getUserB());
 			java.util.List<UserInfo> userInfoList = lastFM.getUserInfo(users);
-			BufferedImage image = ImageRenderer.generateTasteImage(resultWrapper, userInfoList);
+			BufferedImage image = TasteRenderer.generateTasteImage(resultWrapper, userInfoList);
+			sendImage(image, e);
 
-			ByteArrayOutputStream b = new ByteArrayOutputStream();
-			try {
-				ImageIO.write(image, "png", b);
-				byte[] img = b.toByteArray();
-				if (img.length < 8388608) {
-					messageBuilder.sendTo(e.getChannel()).addFile(img, "taste.png").queue();
-				}
-
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
 		} catch (InstanceNotFoundException e1) {
 			parser.sendError(parser.getErrorMessage(5), e);
 

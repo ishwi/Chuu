@@ -6,7 +6,7 @@ import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.UsersWrapper;
 import DAO.Entities.WrapperReturnNowPlaying;
 import main.Exceptions.LastFmException;
-import main.ImageRenderer.NPMaker;
+import main.ImageRenderer.WhoKnowsMaker;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
@@ -57,7 +57,7 @@ public class AlbumGuildPlays extends AlbumSongPlaysCommand {
 		).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
 		WrapperReturnNowPlaying a = new WrapperReturnNowPlaying(list2, 0, container.getAlbum_url(), artist + " - " + album);
 
-		BufferedImage sender = NPMaker.generateTasteImage(a, e.getGuild().getName(), logo);
+		BufferedImage sender = WhoKnowsMaker.generateWhoKnows(a, e.getGuild().getName(), logo);
 		sendImage(sender, e);
 
 	}

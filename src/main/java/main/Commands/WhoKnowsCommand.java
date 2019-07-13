@@ -8,7 +8,7 @@ import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Discogs.DiscogsSingleton;
 import main.APIs.Spotify.Spotify;
 import main.APIs.Spotify.SpotifySingleton;
-import main.ImageRenderer.NPMaker;
+import main.ImageRenderer.WhoKnowsMaker;
 import main.Parsers.WhoKnowsParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -83,7 +83,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 				element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))
 		);
 		BufferedImage logo = CommandUtil.getLogo(getDao(), e);
-		BufferedImage image = NPMaker.generateTasteImage(wrapperReturnNowPlaying, e.getGuild().getName(), logo);
+		BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, e.getGuild().getName(), logo);
 		sendImage(image, e);
 	}
 
