@@ -28,7 +28,7 @@ public class TimeSpentCommand extends ConcurrentCommand {
 		String username = message[0];
 		String timeframe = message[1];
 		if (!timeframe.equals("7day") && !timeframe.equals("1month") && !timeframe.equals("3month")) {
-			sendMessage(e, "Only Weekly and Monthly is supported for the moment , sorry :'(");
+			sendMessage(e, "Only [w]eek,[m]onth and [q]uarter is supported at the moment , sorry :'(");
 			return;
 		}
 		try {

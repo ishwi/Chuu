@@ -40,7 +40,7 @@ public class TimerFrameParser extends DaoParser {
 	@Override
 	public List<String> getUsage(String commandName) {
 		return Collections.singletonList("**" + commandName + " *[w,m,q,s,y,a]* *Username ** \n" +
-				"\tIf time is not specified defaults to ALL time \n" +
+				"\tIf time is not specified defaults to " + defaultTFE.toString() + "\n" +
 				"\tIf username is not specified defaults to authors account \n\n"
 		);
 	}

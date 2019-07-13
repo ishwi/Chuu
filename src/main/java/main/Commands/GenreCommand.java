@@ -55,7 +55,7 @@ public class GenreCommand extends ConcurrentCommand {
 				new PieChartBuilder()
 						.width(800)
 						.height(600)
-						.title("Top 10 Genres in last " + timeframe)
+						.title("Top 10 Genres in the last " + TimeFrameEnum.fromCompletePeriod(timeframe).toString())
 						.theme(Styler.ChartTheme.GGPlot2)
 						.build();
 		pieChart.getStyler().setLegendVisible(false);
