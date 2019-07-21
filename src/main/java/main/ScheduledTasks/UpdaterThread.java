@@ -3,7 +3,7 @@ package main.ScheduledTasks;
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
 import DAO.Entities.TimestampWrapper;
-import DAO.Entities.UsersWrapper;
+import DAO.Entities.UpdaterUserWrapper;
 import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Spotify.Spotify;
 import main.APIs.Spotify.SpotifySingleton;
@@ -24,16 +24,16 @@ public class UpdaterThread implements Runnable {
 	private final DaoImplementation dao;
 	private final ConcurrentLastFM lastFM;
 	private final Spotify spotify;
-	private UsersWrapper username;
+	private UpdaterUserWrapper username;
 	private boolean isIncremental;
 	private DiscogsApi discogsApi;
 
-	public UpdaterThread(DaoImplementation dao, UsersWrapper username, boolean isIncremental, DiscogsApi discogsApi) {
+	public UpdaterThread(DaoImplementation dao, UpdaterUserWrapper username, boolean isIncremental, DiscogsApi discogsApi) {
 		this(dao, username, isIncremental);
 		this.discogsApi = discogsApi;
 	}
 
-	public UpdaterThread(DaoImplementation dao, UsersWrapper username, boolean isIncremental) {
+	public UpdaterThread(DaoImplementation dao, UpdaterUserWrapper username, boolean isIncremental) {
 		this(dao);
 		this.username = username;
 		this.isIncremental = isIncremental;
@@ -49,7 +49,7 @@ public class UpdaterThread implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("THREAD WORKING ) + " + LocalDateTime.now().toString());
-		UsersWrapper userWork;
+		UpdaterUserWrapper userWork;
 		Random r = new Random();
 		float chance = r.nextFloat();
 
@@ -71,6 +71,7 @@ public class UpdaterThread implements Runnable {
 				}
 
 				dao.incrementalUpdate(artistDataLinkedList, userWork.getLastFMName());
+
 				//Workarround non deferrable foreign key
 				correctionAdder.forEach((correctedArtistData, originalArtistName) -> dao
 						.insertCorrection(originalArtistName, correctedArtistData.getArtist()));
@@ -86,7 +87,9 @@ public class UpdaterThread implements Runnable {
 				System.out.println(" Number of rows updated :" + artistDataLinkedList.size());
 			}
 		} catch (LastFMNoPlaysException e) {
-			dao.updateUserTimeStamp(userWork.getLastFMName());
+			//dao.updateUserControlTimestamp(userWork.getLastFMName(),userWork.getTimestampControl());
+			dao.updateUserTimeStamp(userWork.getLastFMName(), userWork.getTimestamp(), userWork
+					.getTimestampControl() + 600);
 			System.out.println("No plays " + userWork.getLastFMName() + LocalDateTime.now()
 					.format(DateTimeFormatter.ISO_DATE));
 

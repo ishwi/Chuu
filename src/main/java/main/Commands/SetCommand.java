@@ -70,7 +70,7 @@ public class SetCommand extends ConcurrentCommand {
 		//Never registered before
 		getDao().insertArtistDataList(new LastFMData(lastFmID, userId, guildID));
 		mes.setContent("**" + e.getAuthor()
-				.getName() + "** has set its last FM name \n Updating your library , wait a moment");
+				.getName() + "** has set their last FM name \n Updating your library , wait a moment");
 		mes.sendTo(e.getChannel()).queue();
 		e.getChannel().sendTyping().queue();
 		try {
@@ -84,16 +84,19 @@ public class SetCommand extends ConcurrentCommand {
 			return;
 		} catch (
 				LastFMNoPlaysException ex) {
-			getDao().updateUserTimeStamp(lastFmID);
-			System.out.println("No plays " + lastFmID + LocalDateTime.now()
-					.format(DateTimeFormatter.ISO_DATE));
+			getDao().updateUserTimeStamp(lastFmID, null, null);
+			sendMessage(e, "Finished updating " + e.getAuthor().getName() + "'s library, you are good to go!");
+			return;
 
 		} catch (Throwable ex) {
 			System.out.println("Error while updating" + lastFmID + LocalDateTime.now()
 					.format(DateTimeFormatter.ISO_DATE));
 			ex.printStackTrace();
+			getDao().updateUserTimeStamp(lastFmID, 0, null);
+			sendMessage(e, "Error  updating" + e.getAuthor()
+					.getName() + "'s  library, try to use the !update command!");
 		}
-		sendMessage(e, "Error  updating" + e.getAuthor().getName() + " library, try to use the !update command!");
+
 
 	}
 

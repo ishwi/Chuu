@@ -3,7 +3,7 @@ package DAO;
 import DAO.Entities.ArtistData;
 import DAO.Entities.ArtistInfo;
 import DAO.Entities.UpdaterStatus;
-import DAO.Entities.UsersWrapper;
+import DAO.Entities.UpdaterUserWrapper;
 import org.intellij.lang.annotations.Language;
 
 import java.sql.*;
@@ -46,8 +46,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
 	}
 
 	@Override
-	public UsersWrapper getLessUpdated(Connection connection) {
-		@Language("MySQL") String queryString = "Select a.discordID, a.lastFmId,b.last_update FROM lastfm a LEFT JOIN updated b on a.lastFmId=b.discordID  order by  last_update asc LIMIT 1";
+	public UpdaterUserWrapper getLessUpdated(Connection connection) {
+		@Language("MySQL") String queryString = "Select a.discordID, a.lastFmId,b.last_update,b.control_timestamp FROM lastfm a LEFT JOIN updated b on a.lastFmId=b.discordID  order by  control_timestamp asc LIMIT 1";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
 			/* Fill "preparedStatement". */
@@ -59,7 +59,10 @@ public class UpdaterDaoImpl implements UpdaterDao {
 				String name = resultSet.getString("a.lastFmId");
 				long discordID = resultSet.getLong("a.discordID");
 				Timestamp timestamp = resultSet.getTimestamp("b.last_update");
-				return new UsersWrapper(discordID, name, ((int) timestamp.toInstant().getEpochSecond()));
+				Timestamp controlTimestamp = resultSet.getTimestamp("b.control_timestamp");
+
+				return new UpdaterUserWrapper(discordID, name, ((int) timestamp.toInstant()
+						.getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()));
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -92,21 +95,29 @@ public class UpdaterDaoImpl implements UpdaterDao {
 	}
 
 	@Override
-	public void setUpdatedTime(Connection connection, String id, Integer timestamp) {
+	public void setUpdatedTime(Connection connection, String id, Integer timestamp, Integer timestampControl) {
 		String queryString = "INSERT INTO  updated"
-				+ " ( discordID,last_update) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE last_update=" + "?";
+				+ " ( discordID,last_update,control_timestamp) " + " VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE last_update= ?, control_timestamp = ?";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			Timestamp timestamp1;
 			if (timestamp == null) {
 				timestamp1 = Timestamp.from(Instant.now());
 			} else {
-				timestamp1 = new Timestamp(timestamp.longValue() * 1000);
+				timestamp1 = Timestamp.from(Instant.ofEpochSecond(timestamp));
+			}
+			Timestamp timestamp2;
+			if (timestampControl == null) {
+				timestamp2 = Timestamp.from(Instant.now());
+			} else {
+				timestamp2 = Timestamp.from(Instant.ofEpochSecond(timestampControl));
 			}
 			/* Fill "preparedStatement". */
 			int i = 1;
 			preparedStatement.setString(i++, id);
 			preparedStatement.setTimestamp(i++, timestamp1);
-			preparedStatement.setTimestamp(i, timestamp1);
+			preparedStatement.setTimestamp(i++, timestamp2);
+			preparedStatement.setTimestamp(i++, timestamp1);
+			preparedStatement.setTimestamp(i, timestamp2);
 
 
 			/* Execute query. */
@@ -256,6 +267,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 		}
 		return null;
 	}
+
 
 	@Override
 	public void insertCorrection(Connection connection, String artist, String correction) {

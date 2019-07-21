@@ -34,9 +34,9 @@ public class DaoImplementation {
 		this.updaterDao = new UpdaterDaoImpl();
 	}
 
-	public void updateUserTimeStamp(String lastFmName) {
+	public void updateUserTimeStamp(String lastFmName, Integer timestamp, Integer timestampControl) {
 		try (Connection connection = dataSource.getConnection()) {
-			updaterDao.setUpdatedTime(connection, lastFmName, null);
+			updaterDao.setUpdatedTime(connection, lastFmName, timestamp, timestampControl);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -57,7 +57,7 @@ public class DaoImplementation {
 					updaterDao.addUrl(connection, artistData);
 					updaterDao.addArtist(connection, artistData);
 				});
-				updaterDao.setUpdatedTime(connection, id, null);
+				updaterDao.setUpdatedTime(connection, id, null, null);
 
 				connection.commit();
 			} catch (SQLException e) {
@@ -89,7 +89,7 @@ public class DaoImplementation {
 					updaterDao.upsertUrlBitMask(connection, new ArtistInfo(artistData.getUrl(), artistData
 							.getArtist()), artistData.isUpdateBit());
 				});
-				updaterDao.setUpdatedTime(connection, id, list.getTimestamp());
+				updaterDao.setUpdatedTime(connection, id, list.getTimestamp(), list.getTimestamp());
 
 				connection.commit();
 
@@ -204,7 +204,7 @@ public class DaoImplementation {
 		}
 	}
 
-	public UsersWrapper getLessUpdated() {
+	public UpdaterUserWrapper getLessUpdated() {
 		try (Connection connection = dataSource.getConnection()) {
 			connection.setReadOnly(true);
 			return updaterDao.getLessUpdated(connection);
@@ -487,5 +487,4 @@ public class DaoImplementation {
 
 		}
 	}
-
 }

@@ -4,8 +4,6 @@ import DAO.DaoImplementation;
 import main.APIs.Discogs.DiscogsSingleton;
 import main.APIs.Spotify.SpotifySingleton;
 import main.Commands.*;
-import main.ScheduledTasks.ImageUpdaterThread;
-import main.ScheduledTasks.SpotifyUpdaterThread;
 import main.ScheduledTasks.UpdaterThread;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
@@ -118,9 +116,9 @@ class Chuu {
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
 		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, DiscogsSingleton
 				.getInstanceUsingDoubleLocking()), 0, 30, TimeUnit.SECONDS);
-		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
-		scheduledManager.scheduleAtFixedRate(new SpotifyUpdaterThread(dao, SpotifySingleton
-				.getInstanceUsingDoubleLocking()), 0, 10, TimeUnit.MINUTES);
+//		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
+//		scheduledManager.scheduleAtFixedRate(new SpotifyUpdaterThread(dao, SpotifySingleton
+//				.getInstanceUsingDoubleLocking()), 0, 10, TimeUnit.MINUTES);
 
 		try {
 			JDA jda = builder.build().awaitReady();
