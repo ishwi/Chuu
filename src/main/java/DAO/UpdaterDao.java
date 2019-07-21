@@ -3,7 +3,7 @@ package DAO;
 import DAO.Entities.ArtistData;
 import DAO.Entities.ArtistInfo;
 import DAO.Entities.UpdaterStatus;
-import DAO.Entities.UsersWrapper;
+import DAO.Entities.UpdaterUserWrapper;
 
 import java.sql.Connection;
 import java.util.Set;
@@ -12,11 +12,11 @@ interface UpdaterDao {
 	void addArtist(Connection con, ArtistData artistData);
 
 
-	UsersWrapper getLessUpdated(Connection connection);
+	UpdaterUserWrapper getLessUpdated(Connection connection);
 
 	void addUrl(Connection con, ArtistData artistData);
 
-	void setUpdatedTime(Connection connection, String id, Integer timestamp);
+	void setUpdatedTime(Connection connection, String id, Integer timestamp, Integer timestampControl);
 
 	void upsertArtist(Connection con, ArtistData artistData);
 
@@ -40,4 +40,5 @@ interface UpdaterDao {
 	String findCorrection(Connection connection, String artist);
 
 	void updateMetric(Connection connection, int metricId, long value);
+
 }
