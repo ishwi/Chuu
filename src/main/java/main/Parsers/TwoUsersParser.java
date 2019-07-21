@@ -20,7 +20,7 @@ public class TwoUsersParser extends DaoParser {
 	public String[] parse(MessageReceivedEvent e) {
 		String[] message = getSubMessage(e.getMessage());
 		if (message.length == 0) {
-			sendError(getErrorMessage(0), e);
+			sendError(getErrorMessage(5), e);
 			return null;
 		}
 
@@ -30,7 +30,7 @@ public class TwoUsersParser extends DaoParser {
 			try {
 				userList[0] = dao.findLastFMData(e.getAuthor().getIdLong()).getName();
 			} catch (InstanceNotFoundException ex) {
-				sendError(getErrorMessage(5), e);
+				sendError(getErrorMessage(1), e);
 				return null;
 
 
@@ -55,19 +55,6 @@ public class TwoUsersParser extends DaoParser {
 		return new String[]{lastFmNames.get(0), lastFmNames.get(1)};
 	}
 
-
-	private User findUsername(String name, java.util.List<User> userList) {
-		Optional<User> match = userList.stream().
-				filter(user -> {
-					String nameNoDigits = name.replaceAll("\\D+", "");
-
-					long a = Long.valueOf(nameNoDigits);
-					return (user.getIdLong() == a);
-				})
-				.findFirst();
-		return match.orElse(null);
-	}
-
 	private String lambda(String s, java.util.List<User> list) {
 		if (s.startsWith("<@")) {
 			User result = this.findUsername(s, list);
@@ -83,20 +70,30 @@ public class TwoUsersParser extends DaoParser {
 	}
 
 	@Override
-	public void setUpErrorMessages() {
-		super.setUpErrorMessages();
-		errorMessages.put(0, "Need at least one username");
-		errorMessages.put(5, "User is yet to be registered !");
-		errorMessages.put(2, "Internal Server Error , try again later");
-		errorMessages.put(-1, "Unknown error Happened");
-
-
-	}
-
-	@Override
 	public List<String> getUsage(String commandName) {
 		return Collections.singletonList("**" + commandName + " *userName* *userName***\n" +
 				"\tIf user2 is missing it gets replaced by Author user\n\n");
+
+	}
+
+	private User findUsername(String name, java.util.List<User> userList) {
+		Optional<User> match = userList.stream().
+				filter(user -> {
+					String nameNoDigits = name.replaceAll("\\D+", "");
+
+					long a = Long.valueOf(nameNoDigits);
+					return (user.getIdLong() == a);
+				})
+				.findFirst();
+		return match.orElse(null);
+	}
+
+	@Override
+	public void setUpErrorMessages() {
+		super.setUpErrorMessages();
+		errorMessages.put(5, "Need at least one username");
+		errorMessages.put(-1, "Mentioned user is not registered");
+
 
 	}
 }

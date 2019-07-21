@@ -27,9 +27,9 @@ public class UpdateCommand extends MyCommandDbAccess {
 		if (message == null)
 			return;
 
-
 		try {
-			if (getDao().getAll(e.getGuild().getIdLong()).stream().noneMatch(s -> s.getLastFMName().equals(message[0]))) {
+			if (getDao().getAll(e.getGuild().getIdLong()).stream()
+					.noneMatch(s -> s.getLastFMName().equals(message[0]))) {
 				sendMessage(e, message[0] + " is not registered in this guild");
 				return;
 			}
@@ -48,12 +48,6 @@ public class UpdateCommand extends MyCommandDbAccess {
 
 	}
 
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!update");
-	}
-
 	@Override
 	public String getDescription() {
 		return "Keeps you up to date ";
@@ -64,6 +58,10 @@ public class UpdateCommand extends MyCommandDbAccess {
 		return "Update";
 	}
 
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!update");
+	}
 
 
 }

@@ -78,6 +78,17 @@ public class NowPlayingArtist {
 	}
 
 	@Override
+	public int hashCode() {
+		int result = artistName != null ? artistName.hashCode() : 0;
+		result = 31 * result + (mbid != null ? mbid.hashCode() : 0);
+		result = 31 * result + (nowPlaying ? 1 : 0);
+		result = 31 * result + (albumName != null ? albumName.hashCode() : 0);
+		result = 31 * result + (songName != null ? songName.hashCode() : 0);
+		result = 31 * result + (url != null ? url.hashCode() : 0);
+		return result;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
@@ -90,16 +101,5 @@ public class NowPlayingArtist {
 		if (!Objects.equals(albumName, that.albumName)) return false;
 		if (!Objects.equals(songName, that.songName)) return false;
 		return Objects.equals(url, that.url);
-	}
-
-	@Override
-	public int hashCode() {
-		int result = artistName != null ? artistName.hashCode() : 0;
-		result = 31 * result + (mbid != null ? mbid.hashCode() : 0);
-		result = 31 * result + (nowPlaying ? 1 : 0);
-		result = 31 * result + (albumName != null ? albumName.hashCode() : 0);
-		result = 31 * result + (songName != null ? songName.hashCode() : 0);
-		result = 31 * result + (url != null ? url.hashCode() : 0);
-		return result;
 	}
 }

@@ -40,7 +40,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		if (returned == null)
 			return;
 		ArtistData validable = new ArtistData(returned[0], 0, "");
-		CommandUtil.lessHeavyValidate(getDao(),validable,lastFM,discogsApi,spotify);
+		CommandUtil.lessHeavyValidate(getDao(), validable, lastFM, discogsApi, spotify);
 		whoKnowsLogic(validable, Boolean.valueOf(returned[1]), e);
 
 	}
@@ -67,7 +67,9 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 						.append(". ")
 						.append("[").append(userName).append("]")
 						.append("(https://www.last.fm/user/").append(returnNowPlaying.getLastFMId())
-						.append("/library/music/").append(wrapperReturnNowPlaying.getArtist().replaceAll(" ", "+").replaceAll("[)]", "%29")).append(") - ")
+						.append("/library/music/")
+						.append(wrapperReturnNowPlaying.getArtist().replaceAll(" ", "+").replaceAll("[)]", "%29"))
+						.append(") - ")
 						.append(returnNowPlaying.getPlayNumber()).append(" plays\n");
 			}
 
@@ -88,11 +90,6 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("!whoknows", "!wk");
-	}
-
-	@Override
 	public String getDescription() {
 		return "Returns List Of Users Who Know the inputted Artist";
 	}
@@ -100,6 +97,11 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 	@Override
 	public String getName() {
 		return "Who Knows";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("!whoknows", "!wk");
 	}
 
 

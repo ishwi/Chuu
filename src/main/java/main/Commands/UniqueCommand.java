@@ -34,9 +34,9 @@ public class UniqueCommand extends ConcurrentCommand {
 
 		MessageBuilder messageBuilder = new MessageBuilder();
 
-		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(e.getGuild().getIconUrl());
+		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+				.setThumbnail(e.getGuild().getIconUrl());
 		StringBuilder a = new StringBuilder();
-
 
 		int rows = resultWrapper.getUniqueData().size();
 
@@ -52,17 +52,14 @@ public class UniqueCommand extends ConcurrentCommand {
 		}
 		Member member = e.getGuild().getMemberById(resultWrapper.getDiscordId());
 		assert (member != null);
-		embedBuilder.setDescription(a).setTitle(member.getEffectiveName() + "'s Top 10 unique Artists", "https://www.last.fm/user/" + lastFMID)
-				.setThumbnail(member.getUser().getAvatarUrl()).setFooter(member.getEffectiveName() + " has " + rows + " unique artists!\n", null);
+		embedBuilder.setDescription(a).setTitle(member
+				.getEffectiveName() + "'s Top 10 unique Artists", "https://www.last.fm/user/" + lastFMID)
+				.setThumbnail(member.getUser().getAvatarUrl())
+				.setFooter(member.getEffectiveName() + " has " + rows + " unique artists!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
 				new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder)
 		);
 
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!unique");
 	}
 
 	@Override
@@ -75,6 +72,10 @@ public class UniqueCommand extends ConcurrentCommand {
 		return "Unique List Of Artists";
 	}
 
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!unique");
+	}
 
 
 }

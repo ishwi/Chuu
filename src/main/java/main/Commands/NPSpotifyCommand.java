@@ -4,7 +4,6 @@ import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import main.APIs.Spotify.Spotify;
 import main.APIs.Spotify.SpotifySingleton;
-import main.Parsers.Parser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -22,25 +21,17 @@ public class NPSpotifyCommand extends NpCommand {
 	}
 
 	@Override
-	public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, Parser parser, MessageReceivedEvent e) {
+	public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e) {
 		MessageBuilder messageBuilder = new MessageBuilder();
-		String uri = spotify.searchItems(nowPlayingArtist.getSongName(), nowPlayingArtist.getArtistName(), nowPlayingArtist.getAlbumName());
+		String uri = spotify
+				.searchItems(nowPlayingArtist.getSongName(), nowPlayingArtist.getArtistName(), nowPlayingArtist
+						.getAlbumName());
 
 		if (uri.equals("")) {
 			sendMessage(e, "Was not able to find artist " + nowPlayingArtist.getSongName() + " on spotify");
 			return;
 		}
 		messageBuilder.setContent(uri).sendTo(e.getChannel()).queue();
-	}
-
-
-
-
-
-
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("!npspotify", "!spotify", "!nps", "!npspo");
 	}
 
 	@Override
@@ -51,6 +42,11 @@ public class NPSpotifyCommand extends NpCommand {
 	@Override
 	public String getName() {
 		return "Now Playing Spotify";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("!npspotify", "!spotify", "!nps", "!npspo");
 	}
 
 

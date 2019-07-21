@@ -37,7 +37,6 @@ public class RecentListCommand extends ConcurrentCommand {
 			a.append("\n");
 			NowPlayingArtist header = list.get(0);
 
-
 			String name = getUserString(discordId, e, username);
 			int counter = 1;
 			for (NowPlayingArtist nowPlayingArtist : list) {
@@ -48,7 +47,8 @@ public class RecentListCommand extends ConcurrentCommand {
 						.append(" | ").append(nowPlayingArtist.getAlbumName()).append("\n\n");
 			}
 
-			EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(CommandUtil.noImageUrl(header.getUrl()))
+			EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+					.setThumbnail(CommandUtil.noImageUrl(header.getUrl()))
 					.setTitle("** " + name + "'s last " + limit + " tracks **",
 							"https://www.last.fm/user/" + username)
 					.setDescription(a);
@@ -68,10 +68,6 @@ public class RecentListCommand extends ConcurrentCommand {
 		}
 
 	}
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!recent");
-	}
 
 	@Override
 	public String getDescription() {
@@ -81,6 +77,11 @@ public class RecentListCommand extends ConcurrentCommand {
 	@Override
 	public String getName() {
 		return "Recent";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!recent");
 	}
 
 

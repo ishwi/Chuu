@@ -67,35 +67,6 @@ public class DiscogsApi {
 		return id;
 	}
 
-	private JSONObject doMethod(HttpClient httpClient, HttpMethod method) throws DiscogsServiceException {
-		method.addRequestHeader(header);
-		try {
-			if (slowness) {
-				TimeUnit.SECONDS.sleep(1);
-				System.out.println("RATE LIMITED");
-			}
-
-			int response_code = httpClient.executeMethod(method);
-			parseHttpCode(response_code);
-			slowness = Integer.parseInt(method.getResponseHeader("X-Discogs-Ratelimit-Remaining").getValue()) == 0;
-			byte[] responseBody = method.getResponseBody();
-			return new JSONObject(new String(responseBody));
-
-		} catch (IOException | InterruptedException e) {
-			method.releaseConnection();
-			throw new DiscogsServiceException(e.toString());
-		}
-	}
-
-	private void parseHttpCode(int code) throws HttpResponseException {
-		if (code / 100 == 2)
-			return;
-		if (code == 404)
-			return;
-
-		throw new HttpResponseException(code, "error on discogs service " + code);
-	}
-
 	public Year getYearRelease(String album, String artist) throws DiscogsServiceException {
 		String albumenc;
 		String artistenc;
@@ -125,6 +96,35 @@ public class DiscogsApi {
 			}
 		}
 		return null;
+	}
+
+	private JSONObject doMethod(HttpClient httpClient, HttpMethod method) throws DiscogsServiceException {
+		method.addRequestHeader(header);
+		try {
+			if (slowness) {
+				TimeUnit.SECONDS.sleep(1);
+				System.out.println("RATE LIMITED");
+			}
+
+			int response_code = httpClient.executeMethod(method);
+			parseHttpCode(response_code);
+			slowness = Integer.parseInt(method.getResponseHeader("X-Discogs-Ratelimit-Remaining").getValue()) == 0;
+			byte[] responseBody = method.getResponseBody();
+			return new JSONObject(new String(responseBody));
+
+		} catch (IOException | InterruptedException e) {
+			method.releaseConnection();
+			throw new DiscogsServiceException(e.toString());
+		}
+	}
+
+	private void parseHttpCode(int code) throws HttpResponseException {
+		if (code / 100 == 2)
+			return;
+		if (code == 404)
+			return;
+
+		throw new HttpResponseException(code, "error on discogs service " + code);
 	}
 
 	private String doArtistInfo(int id) throws DiscogsServiceException {

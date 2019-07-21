@@ -2,7 +2,6 @@ package DAO;
 
 import DAO.Entities.*;
 
-import javax.management.InstanceNotFoundException;
 import java.sql.Connection;
 import java.util.List;
 
@@ -11,7 +10,7 @@ public interface SQLQueriesDao {
 	UniqueWrapper<UniqueData> getUniqueArtist(Connection connection, Long guildID, String lastFMID);
 
 
-	ResultWrapper similar(Connection connection, List<String> lastfMNames) throws InstanceNotFoundException;
+	ResultWrapper similar(Connection connection, List<String> lastfMNames);
 
 	WrapperReturnNowPlaying knows(Connection connection, String artist, long guildId, int limit);
 

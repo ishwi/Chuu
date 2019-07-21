@@ -30,6 +30,20 @@ public class Spotify {
 
 	}
 
+	private void clientCredentials_Sync() {
+		try {
+			ClientCredentials clientCredentials = this.clientCredentialsRequest.execute();
+
+			// Set access token for further "spotifyApi" object usage
+			spotifyApi.setAccessToken(clientCredentials.getAccessToken());
+			this.time = LocalDateTime.now().plusSeconds(clientCredentials.getExpiresIn() - 140);
+
+			System.out.println("Expires in: " + clientCredentials.getExpiresIn());
+		} catch (IOException | SpotifyWebApiException e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+	}
+
 	public String search(String queryString, int type) {
 		initRequest();
 		SearchItemRequest request = spotifyApi.searchItem(queryString, "")
@@ -67,20 +81,6 @@ public class Spotify {
 	private void initRequest() {
 		if (!this.time.isAfter(LocalDateTime.now())) {
 			clientCredentials_Sync();
-		}
-	}
-
-	private void clientCredentials_Sync() {
-		try {
-			ClientCredentials clientCredentials = this.clientCredentialsRequest.execute();
-
-			// Set access token for further "spotifyApi" object usage
-			spotifyApi.setAccessToken(clientCredentials.getAccessToken());
-			this.time = LocalDateTime.now().plusSeconds(clientCredentials.getExpiresIn() - 140);
-
-			System.out.println("Expires in: " + clientCredentials.getExpiresIn());
-		} catch (IOException | SpotifyWebApiException e) {
-			System.out.println("Error: " + e.getMessage());
 		}
 	}
 

@@ -19,15 +19,16 @@ public class WrapperReturnNowPlaying {
 		return url;
 	}
 
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
 	public String getArtist() {
 		return artist;
 	}
 
 	public void setArtist(String artist) {
 		this.artist = artist;
-	}
-	public void setUrl(String url) {
-		this.url = url;
 	}
 
 	public List<ReturnNowPlaying> getReturnNowPlayings() {

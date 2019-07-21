@@ -72,7 +72,9 @@ public class MusicBrainzCommand extends ArtistCommand {
 		AtomicInteger counter2 = new AtomicInteger(0);
 		queue.removeIf(urlCapsule -> {
 			for (AlbumInfo albumInfo : albumsMbizMatchingYear) {
-				if ((!albumInfo.getMbid().isEmpty() && albumInfo.getMbid().equals(urlCapsule.getMbid())) || urlCapsule.getAlbumName().equalsIgnoreCase(albumInfo.getName()) && urlCapsule.getArtistName().equalsIgnoreCase(albumInfo.getArtist())) {
+				if ((!albumInfo.getMbid().isEmpty() && albumInfo.getMbid().equals(urlCapsule.getMbid())) || urlCapsule
+						.getAlbumName().equalsIgnoreCase(albumInfo.getName()) && urlCapsule.getArtistName()
+						.equalsIgnoreCase(albumInfo.getArtist())) {
 					urlCapsule.setPos(counter2.getAndAdd(1));
 					return false;
 				}
@@ -92,12 +94,6 @@ public class MusicBrainzCommand extends ArtistCommand {
 		getDao().updateMetric(4, x * x);
 	}
 
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!releaseyear");
-	}
-
 	@Override
 	public String getDescription() {
 		return "Gets your top albums from the time frame provided and check if they were released in the provided year";
@@ -106,6 +102,11 @@ public class MusicBrainzCommand extends ArtistCommand {
 	@Override
 	public String getName() {
 		return "Released in YEAR";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!releaseyear");
 	}
 
 

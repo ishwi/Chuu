@@ -20,10 +20,9 @@ import java.awt.image.Kernel;
 public class ConvolveFilter extends AbstractBufferedImageOp {
 
 	static final long serialVersionUID = 2239251672685254626L;
-
-	public static int ZERO_EDGES = 0;
 	static final int CLAMP_EDGES = 1;
 	static final int WRAP_EDGES = 2;
+	public static int ZERO_EDGES = 0;
 	final boolean alpha = true;
 	private Kernel kernel;
 	private int edgeAction = CLAMP_EDGES;
@@ -45,6 +44,15 @@ public class ConvolveFilter extends AbstractBufferedImageOp {
 	}
 
 	/**
+	 * Construct a filter with the given 3x3 kernel.
+	 *
+	 * @param kernel an array of 9 floats containing the kernel
+	 */
+	private ConvolveFilter(Kernel kernel) {
+		this.kernel = kernel;
+	}
+
+	/**
 	 * Construct a filter with the given kernel.
 	 *
 	 * @param rows   the number of rows in the kernel
@@ -53,15 +61,6 @@ public class ConvolveFilter extends AbstractBufferedImageOp {
 	 */
 	public ConvolveFilter(int rows, int cols, float[] matrix) {
 		this(new Kernel(cols, rows, matrix));
-	}
-
-	/**
-	 * Construct a filter with the given 3x3 kernel.
-	 *
-	 * @param kernel an array of 9 floats containing the kernel
-	 */
-	private ConvolveFilter(Kernel kernel) {
-		this.kernel = kernel;
 	}
 
 	public static void convolve(Kernel kernel, int[] inPixels, int[] outPixels, int width, int height, int edgeAction) {
@@ -268,7 +267,8 @@ public class ConvolveFilter extends AbstractBufferedImageOp {
 	public BufferedImage createCompatibleDestImage(BufferedImage src, ColorModel dstCM) {
 		if (dstCM == null)
 			dstCM = src.getColorModel();
-		return new BufferedImage(dstCM, dstCM.createCompatibleWritableRaster(src.getWidth(), src.getHeight()), dstCM.isAlphaPremultiplied(), null);
+		return new BufferedImage(dstCM, dstCM.createCompatibleWritableRaster(src.getWidth(), src.getHeight()), dstCM
+				.isAlphaPremultiplied(), null);
 	}
 
 	public Rectangle2D getBounds2D(BufferedImage src) {

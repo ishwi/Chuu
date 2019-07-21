@@ -8,9 +8,17 @@ import java.util.List;
 
 public class ArtistUrlParser extends Parser {
 	@Override
+	public void setUpErrorMessages() {
+		errorMessages.put(0, "You need to specify the artist and the url !!");
+		errorMessages.put(1, "You didnt specify a valid URL");
+		errorMessages.put(2, "Couldn't get an Image from link supplied");
+
+
+	}
+
+	@Override
 	public String[] parse(MessageReceivedEvent e) {
 		String[] message = getSubMessage(e.getMessage());
-
 
 		boolean noUrl = true;
 
@@ -43,15 +51,6 @@ public class ArtistUrlParser extends Parser {
 			}
 		}
 		return new String[]{artist, url};
-	}
-
-	@Override
-	public void setUpErrorMessages() {
-		errorMessages.put(0, "You need to specify the artist and the url !!");
-		errorMessages.put(1, "You didnt specify a valid URL");
-		errorMessages.put(2, "Couldn't get an Image from link supplied");
-
-
 	}
 
 	@Override

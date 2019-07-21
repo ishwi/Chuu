@@ -7,6 +7,7 @@ import DAO.Entities.TimeFrameEnum;
 import DAO.Entities.UrlCapsule;
 import DAO.MusicBrainz.MusicBrainzService;
 import DAO.MusicBrainz.MusicBrainzServiceImpl;
+import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Parsers.TimerFrameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -47,8 +48,10 @@ public class GenreCommand extends ConcurrentCommand {
 		BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 		try {
 			lastFM.getUserList(username, timeframe, 15, 15, true, queue);
+		} catch (LastFmEntityNotFoundException ex) {
+
 		} catch (LastFmException ex) {
-			ex.printStackTrace();
+
 			return;
 		}
 		PieChart pieChart =
@@ -86,11 +89,6 @@ public class GenreCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!genre");
-	}
-
-	@Override
 	public String getDescription() {
 		return "genre list";
 	}
@@ -98,6 +96,11 @@ public class GenreCommand extends ConcurrentCommand {
 	@Override
 	public String getName() {
 		return "Genre";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!genre");
 	}
 
 

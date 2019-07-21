@@ -32,8 +32,5 @@ public class ArtistParser extends ArtistAlbumParser {
 
 	}
 
-	@Override
-	public void setUpErrorMessages() {
-		errorMessages.put(2, "Internal Server Error, try again later");
-	}
+
 }

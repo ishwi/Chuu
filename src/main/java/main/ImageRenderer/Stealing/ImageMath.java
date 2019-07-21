@@ -163,18 +163,6 @@ class ImageMath {
 	 * @param x the input parameter
 	 * @return the clamped value
 	 */
-	private static float clamp(float x, float a, float b) {
-		return (x < a) ? a : (x > b) ? b : x;
-	}
-
-	/**
-	 * Clamp a value to an interval.
-	 *
-	 * @param a the lower clamp threshold
-	 * @param b the upper clamp threshold
-	 * @param x the input parameter
-	 * @return the clamped value
-	 */
 	public static int clamp(int x, int a, int b) {
 		return (x < a) ? a : (x > b) ? b : x;
 	}
@@ -187,22 +175,6 @@ class ImageMath {
 	 * @return a mod b
 	 */
 	public static double mod(double a, double b) {
-		int n = (int) (a / b);
-
-		a -= n * b;
-		if (a < 0)
-			return a + b;
-		return a;
-	}
-
-	/**
-	 * Return a mod b. This differs from the % operator with respect to negative numbers.
-	 *
-	 * @param a the dividend
-	 * @param b the divisor
-	 * @return a mod b
-	 */
-	private static float mod(float a, float b) {
 		int n = (int) (a / b);
 
 		a -= n * b;
@@ -239,15 +211,19 @@ class ImageMath {
 	}
 
 	/**
-	 * Linear interpolation.
+	 * Return a mod b. This differs from the % operator with respect to negative numbers.
 	 *
-	 * @param t the interpolation parameter
-	 * @param a the lower interpolation range
-	 * @param b the upper interpolation range
-	 * @return the interpolated value
+	 * @param a the dividend
+	 * @param b the divisor
+	 * @return a mod b
 	 */
-	public static float lerp(float t, float a, float b) {
-		return a + t * (b - a);
+	private static float mod(float a, float b) {
+		int n = (int) (a / b);
+
+		a -= n * b;
+		if (a < 0)
+			return a + b;
+		return a;
 	}
 
 	/**
@@ -258,8 +234,8 @@ class ImageMath {
 	 * @param b the upper interpolation range
 	 * @return the interpolated value
 	 */
-	private static int lerp(float t, int a, int b) {
-		return (int) (a + t * (b - a));
+	public static float lerp(float t, float a, float b) {
+		return a + t * (b - a);
 	}
 
 	/**
@@ -284,6 +260,18 @@ class ImageMath {
 		g1 = lerp(t, g1, g2);
 		b1 = lerp(t, b1, b2);
 		return (a1 << 24) | (r1 << 16) | (g1 << 8) | b1;
+	}
+
+	/**
+	 * Linear interpolation.
+	 *
+	 * @param t the interpolation parameter
+	 * @param a the lower interpolation range
+	 * @param b the upper interpolation range
+	 * @return the interpolated value
+	 */
+	private static int lerp(float t, int a, int b) {
+		return (int) (a + t * (b - a));
 	}
 
 	/**
@@ -382,6 +370,18 @@ class ImageMath {
 		c0 = m30 * k0 + m31 * k1 + m32 * k2 + m33 * k3;
 
 		return ((c3 * x + c2) * x + c1) * x + c0;
+	}
+
+	/**
+	 * Clamp a value to an interval.
+	 *
+	 * @param a the lower clamp threshold
+	 * @param b the upper clamp threshold
+	 * @param x the input parameter
+	 * @return the clamped value
+	 */
+	private static float clamp(float x, float a, float b) {
+		return (x < a) ? a : (x > b) ? b : x;
 	}
 
 	/**

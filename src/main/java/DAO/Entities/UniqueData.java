@@ -9,14 +9,6 @@ public class UniqueData {
 		this.count = count_a;
 	}
 
-	private String getArtistName() {
-		return artistName;
-	}
-
-	private int getCount() {
-		return count;
-	}
-
 	@Override
 	public String toString() {
 		String a = ". [" +
@@ -26,5 +18,13 @@ public class UniqueData {
 				") - " + getCount() +
 				" plays\n";
 		return a;
+	}
+
+	private String getArtistName() {
+		return artistName;
+	}
+
+	private int getCount() {
+		return count;
 	}
 }

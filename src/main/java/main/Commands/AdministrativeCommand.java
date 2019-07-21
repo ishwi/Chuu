@@ -64,7 +64,8 @@ public class AdministrativeCommand extends ConcurrentCommand {
 		System.out.println("USER LEFT");
 
 		Executors.newSingleThreadExecutor()
-				.execute(() -> getDao().removeUserFromOneGuildConsequent(event.getMember().getIdLong(), event.getGuild().getIdLong())
+				.execute(() -> getDao()
+						.removeUserFromOneGuildConsequent(event.getMember().getIdLong(), event.getGuild().getIdLong())
 				);
 	}
 
@@ -82,10 +83,12 @@ public class AdministrativeCommand extends ConcurrentCommand {
 				//Get all members in guild
 				List<Member> memberList = guild.getMembers();
 				//Gets all ids
-				List<Long> guildList = memberList.stream().map(x -> x.getUser().getIdLong()).collect(Collectors.toList());
+				List<Long> guildList = memberList.stream().map(x -> x.getUser().getIdLong())
+						.collect(Collectors.toList());
 
 				//if user in app but not in guild -> mark to delete
-				usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser)).collect(Collectors.toList());
+				usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser))
+						.collect(Collectors.toList());
 				usersToDelete.forEach(u -> getDao().removeUserFromOneGuildConsequent(u, key));
 
 
@@ -94,11 +97,6 @@ public class AdministrativeCommand extends ConcurrentCommand {
 			}
 		});
 
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!logo");
 	}
 
 	@Override
@@ -111,6 +109,10 @@ public class AdministrativeCommand extends ConcurrentCommand {
 		return "Logo";
 	}
 
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!logo");
+	}
 
 
 }

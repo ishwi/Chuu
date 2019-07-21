@@ -86,10 +86,10 @@ public class DaoImplementation {
 				list.getWrapped().forEach(artistData -> {
 					artistData.setDiscordID(id);
 					updaterDao.upsertArtist(connection, artistData);
-					updaterDao.upsertUrlBitMask(connection, new ArtistInfo(artistData.getUrl(), artistData.getArtist()), artistData.isUpdateBit());
+					updaterDao.upsertUrlBitMask(connection, new ArtistInfo(artistData.getUrl(), artistData
+							.getArtist()), artistData.isUpdateBit());
 				});
 				updaterDao.setUpdatedTime(connection, id, list.getTimestamp());
-
 
 				connection.commit();
 
@@ -142,54 +142,6 @@ public class DaoImplementation {
 		}
 	}
 
-	public void removeUserCompletely(Long discordID) {
-
-		try (Connection connection = dataSource.getConnection()) {
-			try {
-				/* Prepare connection. */
-
-				connection.setAutoCommit(false);
-				/* Do work. */
-				userGuildDao.removeUser(connection, discordID);
-				/* Commit. */
-				connection.commit();
-
-			} catch (SQLException e) {
-				connection.rollback();
-				throw new RuntimeException(e);
-			} catch (RuntimeException | Error e) {
-				connection.rollback();
-				throw e;
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void removeFromGuild(Long discordID, long guildID) {
-
-		try (Connection connection = dataSource.getConnection()) {
-			try {
-				/* Prepare connection. */
-
-				connection.setAutoCommit(false);
-				/* Do work. */
-				userGuildDao.removeUserGuild(connection, discordID, guildID);
-				/* Commit. */
-				connection.commit();
-
-			} catch (SQLException e) {
-				connection.rollback();
-				throw new RuntimeException(e);
-			} catch (RuntimeException | Error e) {
-				connection.rollback();
-				throw e;
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	@Deprecated
 	public void updateLastFmData(long discordID, String lastFMID) {
 
@@ -230,7 +182,7 @@ public class DaoImplementation {
 		}
 	}
 
-	public ResultWrapper getSimilarities(List<String> lastFmNames) throws InstanceNotFoundException {
+	public ResultWrapper getSimilarities(List<String> lastFmNames) {
 		try (Connection connection = dataSource.getConnection()) {
 			connection.setReadOnly(true);
 			return queriesDao.similar(connection, lastFmNames);
@@ -385,16 +337,6 @@ public class DaoImplementation {
 
 	}
 
-	public MultiValueMap<Long, Long> getMapGuildUsers() {
-		try (Connection connection = dataSource.getConnection()) {
-			connection.setReadOnly(true);
-			return userGuildDao.getWholeUser_Guild(connection);
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-
-		}
-	}
-
 	public long getDiscordIdFromLastfm(String lasFmName, long guildId) throws InstanceNotFoundException {
 		try (Connection connection = dataSource.getConnection()) {
 			connection.setReadOnly(true);
@@ -434,6 +376,64 @@ public class DaoImplementation {
 		}
 	}
 
+	public void removeUserCompletely(Long discordID) {
+
+		try (Connection connection = dataSource.getConnection()) {
+			try {
+				/* Prepare connection. */
+
+				connection.setAutoCommit(false);
+				/* Do work. */
+				userGuildDao.removeUser(connection, discordID);
+				/* Commit. */
+				connection.commit();
+
+			} catch (SQLException e) {
+				connection.rollback();
+				throw new RuntimeException(e);
+			} catch (RuntimeException | Error e) {
+				connection.rollback();
+				throw e;
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void removeFromGuild(Long discordID, long guildID) {
+
+		try (Connection connection = dataSource.getConnection()) {
+			try {
+				/* Prepare connection. */
+
+				connection.setAutoCommit(false);
+				/* Do work. */
+				userGuildDao.removeUserGuild(connection, discordID, guildID);
+				/* Commit. */
+				connection.commit();
+
+			} catch (SQLException e) {
+				connection.rollback();
+				throw new RuntimeException(e);
+			} catch (RuntimeException | Error e) {
+				connection.rollback();
+				throw e;
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public MultiValueMap<Long, Long> getMapGuildUsers() {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return userGuildDao.getWholeUser_Guild(connection);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+	}
+
 	public UpdaterStatus getUpdaterStatus(String artist_id) {
 		try (Connection connection = dataSource.getConnection()) {
 			connection.setReadOnly(true);
@@ -461,7 +461,6 @@ public class DaoImplementation {
 	public void insertCorrection(String artist, String correction) {
 		if (artist.equalsIgnoreCase(correction))
 			return;
-
 
 		try (Connection connection = dataSource.getConnection()) {
 			updaterDao.insertCorrection(connection, artist, correction);

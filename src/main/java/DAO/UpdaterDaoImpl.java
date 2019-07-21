@@ -14,6 +14,15 @@ import java.util.Set;
 public class UpdaterDaoImpl implements UpdaterDao {
 
 
+	@Override
+	public void addArtist(Connection con, ArtistData artistData) {
+		/* Create "queryString". */
+		String queryString = "INSERT INTO  artist"
+				+ " ( lastFMID,artist_id,playNumber) " + " VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE playNumber=" + "?";
+
+		insertArtistData(con, artistData, queryString);
+	}
+
 	private void insertArtistData(Connection con, ArtistData artistData, String queryString) {
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 			/* Fill "preparedStatement". */
@@ -34,36 +43,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	private void insertArtistInfo(Connection con, ArtistInfo artistInfo, String queryString) {
-		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
-
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setString(i++, artistInfo.getArtistName());
-			preparedStatement.setString(i++, artistInfo.getArtistUrl());
-			preparedStatement.setString(i, artistInfo.getArtistUrl());
-
-
-			/* Execute query. */
-			preparedStatement.executeUpdate();
-
-			/* Get generated identifier. */
-
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-
-	@Override
-	public void addArtist(Connection con, ArtistData artistData) {
-		/* Create "queryString". */
-		String queryString = "INSERT INTO  artist"
-				+ " ( lastFMID,artist_id,playNumber) " + " VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE playNumber=" + "?";
-
-		insertArtistData(con, artistData, queryString);
 	}
 
 	@Override
@@ -87,7 +66,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 		}
 		return null;
 	}
-
 
 	@Override
 	public void addUrl(Connection con, ArtistData artistData) {
@@ -147,7 +125,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 		insertArtistData(con, artistData, queryString);
 	}
 
-
 	@Override
 	public void upsertUrl(Connection con, ArtistInfo artistInfo) {
 		/* Create "queryString". */
@@ -155,6 +132,26 @@ public class UpdaterDaoImpl implements UpdaterDao {
 				+ " ( artist_id,url) " + " VALUES (?, ?) ON DUPLICATE  KEY UPDATE url= ? ";
 
 		insertArtistInfo(con, artistInfo, queryString);
+	}
+
+	private void insertArtistInfo(Connection con, ArtistInfo artistInfo, String queryString) {
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i++, artistInfo.getArtistName());
+			preparedStatement.setString(i++, artistInfo.getArtistUrl());
+			preparedStatement.setString(i, artistInfo.getArtistUrl());
+
+
+			/* Execute query. */
+			preparedStatement.executeUpdate();
+
+			/* Get generated identifier. */
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -242,11 +239,9 @@ public class UpdaterDaoImpl implements UpdaterDao {
 				" left join corrections b on b.correction = a.artist_id" +
 				" where a.artist_id = ? ";
 
-
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			preparedStatement.setString(1, artist_id);
 			ResultSet resultSet = preparedStatement.executeQuery();
-
 
 			if (resultSet.next()) {
 				String url = resultSet.getString("url");
@@ -304,7 +299,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			preparedStatement.setString(1, artist);
 			ResultSet resultSet = preparedStatement.executeQuery();
-
 
 			if (resultSet.next()) {
 				return (resultSet.getString("correction"));

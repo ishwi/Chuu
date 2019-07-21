@@ -56,12 +56,6 @@ public class CrownsCommand extends ConcurrentCommand {
 				new Reactionary<>(resultWrapper, message1, embedBuilder));
 	}
 
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!crowns");
-	}
-
 	@Override
 	public String getDescription() {
 		return ("List of artist you are the top listener from");
@@ -72,6 +66,10 @@ public class CrownsCommand extends ConcurrentCommand {
 		return "Your own top";
 	}
 
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!crowns");
+	}
 
 
 }
