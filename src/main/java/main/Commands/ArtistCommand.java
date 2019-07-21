@@ -31,11 +31,6 @@ public class ArtistCommand extends ChartCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!artist");
-	}
-
-	@Override
 	public String getDescription() {
 		return "Returns a Chart with artist";
 	}
@@ -45,6 +40,10 @@ public class ArtistCommand extends ChartCommand {
 		return "Artists";
 	}
 
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!artist");
+	}
 
 
 }

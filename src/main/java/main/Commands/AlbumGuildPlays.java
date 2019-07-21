@@ -33,7 +33,6 @@ public class AlbumGuildPlays extends AlbumSongPlaysCommand {
 		userList.forEach(u -> {
 			try {
 
-
 				AlbumUserPlays albumUserPlays = lastFM.getPlaysAlbum_Artist(u.getLastFMName(), artist, album);
 				//Need to get the album art url from someone
 				if (container.getAlbum_url().isEmpty())
@@ -55,16 +54,12 @@ public class AlbumGuildPlays extends AlbumSongPlaysCommand {
 					return np;
 				}
 		).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
-		WrapperReturnNowPlaying a = new WrapperReturnNowPlaying(list2, 0, container.getAlbum_url(), artist + " - " + album);
+		WrapperReturnNowPlaying a = new WrapperReturnNowPlaying(list2, 0, container
+				.getAlbum_url(), artist + " - " + album);
 
 		BufferedImage sender = WhoKnowsMaker.generateWhoKnows(a, e.getGuild().getName(), logo);
 		sendImage(sender, e);
 
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!wkalbum");
 	}
 
 	@Override
@@ -75,6 +70,11 @@ public class AlbumGuildPlays extends AlbumSongPlaysCommand {
 	@Override
 	public String getName() {
 		return "Get guild Album plays";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!wkalbum");
 	}
 
 

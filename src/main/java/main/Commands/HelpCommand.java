@@ -78,6 +78,7 @@ public class HelpCommand extends MyCommand {
 			doSend(args, channel);
 		}
 	}
+
 	private void doSend(String[] args, MessageChannel channel) {
 		String command = args[1]
 				.charAt(0) == '!' ? args[1] : "!" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
@@ -112,12 +113,6 @@ public class HelpCommand extends MyCommand {
 				.build()).queue();
 	}
 
-
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("!help", "!commands");
-	}
-
 	@Override
 	public String getDescription() {
 		return "Command that helps use all other commands!";
@@ -138,6 +133,10 @@ public class HelpCommand extends MyCommand {
 						+ "__Example:__ !help ann");
 	}
 
+	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("!help", "!commands");
+	}
 
 
 }

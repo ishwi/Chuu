@@ -19,7 +19,6 @@ public class WhoKnowsNpParser extends NpParser {
 	@Override
 	public String[] parse(MessageReceivedEvent e) {
 
-
 		String[] message = getSubMessage(e.getMessage());
 
 		boolean hasImage = true;
@@ -31,7 +30,6 @@ public class WhoKnowsNpParser extends NpParser {
 		String user = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
 		if (user == null)
 			return null;
-
 
 		NowPlayingArtist nowPlayingArtist;
 		try {

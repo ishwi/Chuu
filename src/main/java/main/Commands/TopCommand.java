@@ -2,6 +2,7 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.UrlCapsule;
+import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.ImageRenderer.UrlCapsuleConcurrentQueue;
@@ -48,16 +49,13 @@ public class TopCommand extends ArtistCommand {
 				lastFM.getUserList(lastfmName, "overall", 5, 5, false, queue);
 				generateImage(queue, 5, 5, e, true, true);
 			}
-		} catch (LastFmEntityNotFoundException e1) {
+		} catch (LastFMNoPlaysException e1) {
 			parser.sendError(parser.getErrorMessage(3), e);
-		} catch (LastFmException ex) {
+		} catch (LastFmEntityNotFoundException e1) {
+			parser.sendError(parser.getErrorMessage(4), e);
+		} catch (LastFmException ex2) {
 			parser.sendError(parser.getErrorMessage(2), e);
 		}
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!top");
 	}
 
 	@Override
@@ -68,5 +66,10 @@ public class TopCommand extends ArtistCommand {
 	@Override
 	public String getName() {
 		return "Top Albums Chart";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!top");
 	}
 }

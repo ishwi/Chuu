@@ -13,14 +13,14 @@ public class OptionalParser extends Parser {
 	}
 
 	@Override
-	public String[] parse(MessageReceivedEvent e) {
-		String[] message = getSubMessage(e.getMessage());
-		return containsOptional(optionalWord, message);
+	public void setUpErrorMessages() {
+
 	}
 
 	@Override
-	public void setUpErrorMessages() {
-
+	public String[] parse(MessageReceivedEvent e) {
+		String[] message = getSubMessage(e.getMessage());
+		return containsOptional(optionalWord, message);
 	}
 
 	@Override

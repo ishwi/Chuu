@@ -6,7 +6,6 @@ import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Parsers.NpParser;
-import main.Parsers.Parser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public abstract class NpCommand extends ConcurrentCommand {
@@ -18,9 +17,6 @@ public abstract class NpCommand extends ConcurrentCommand {
 
 	}
 
-	protected abstract void doSomethingWithArtist(NowPlayingArtist artist, Parser parser, MessageReceivedEvent e);
-
-
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
 
@@ -31,7 +27,7 @@ public abstract class NpCommand extends ConcurrentCommand {
 		String username = returned[0];
 		try {
 			NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);
-			doSomethingWithArtist(nowPlayingArtist, parser, e);
+			doSomethingWithArtist(nowPlayingArtist, e);
 
 
 		} catch (
@@ -45,4 +41,6 @@ public abstract class NpCommand extends ConcurrentCommand {
 		}
 
 	}
+
+	protected abstract void doSomethingWithArtist(NowPlayingArtist artist, MessageReceivedEvent e);
 }

@@ -35,7 +35,7 @@ public class ChartParser extends DaoParser {
 
 		message = flagParser.getMessage();
 		if (message.length > 3) {
-			sendError(getErrorMessage(2), e);
+			sendError(getErrorMessage(5), e);
 			return null;
 		}
 
@@ -54,7 +54,6 @@ public class ChartParser extends DaoParser {
 
 		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
 		if (discordName == null) {
-
 			return null;
 		}
 
@@ -81,9 +80,8 @@ public class ChartParser extends DaoParser {
 	@Override
 	public void setUpErrorMessages() {
 		super.setUpErrorMessages();
-		errorMessages.put(2, "You Introduced too many words");
-		errorMessages.put(3, "Not a valid Last.fm username");
-		errorMessages.put(4, "Internal Server Error, try again later");
+
+		errorMessages.put(5, "You Introduced too many words");
 
 	}
 

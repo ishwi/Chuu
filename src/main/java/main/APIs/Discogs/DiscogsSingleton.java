@@ -12,16 +12,15 @@ public class DiscogsSingleton {
 
 	}
 
-
-	private static synchronized DiscogsApi initializeInstance() {
-		instance = new DiscogsApi(secret, clientID);
-		return instance;
-	}
-
 	public static synchronized DiscogsApi getInstance() {
 		if (instance == null) {
 			instance = initializeInstance();
 		}
+		return instance;
+	}
+
+	private static synchronized DiscogsApi initializeInstance() {
+		instance = new DiscogsApi(secret, clientID);
 		return instance;
 	}
 

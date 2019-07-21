@@ -11,16 +11,15 @@ public class SpotifySingleton {
 		clientID = clientID2;
 	}
 
-
-	private static synchronized Spotify initializeInstance() {
-		instance = new Spotify(secret, clientID);
-		return instance;
-	}
-
 	public static synchronized Spotify getInstance() {
 		if (instance == null) {
 			instance = initializeInstance();
 		}
+		return instance;
+	}
+
+	private static synchronized Spotify initializeInstance() {
+		instance = new Spotify(secret, clientID);
 		return instance;
 	}
 

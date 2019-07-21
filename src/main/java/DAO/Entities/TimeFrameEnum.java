@@ -22,10 +22,6 @@ public enum TimeFrameEnum {
 		this.name = name;
 	}
 
-	public static TimeFrameEnum get(String name) {
-		return ENUM_MAP.get(name);
-	}
-
 	public static TimeFrameEnum fromCompletePeriod(String period) {
 		switch (period) {
 			case "12month":
@@ -43,6 +39,9 @@ public enum TimeFrameEnum {
 		}
 	}
 
+	public static TimeFrameEnum get(String name) {
+		return ENUM_MAP.get(name);
+	}
 
 	// getter method
 	public String getName() {

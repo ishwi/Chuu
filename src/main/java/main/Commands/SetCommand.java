@@ -1,13 +1,16 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import DAO.Entities.ArtistData;
 import DAO.Entities.LastFMData;
 import DAO.Entities.UsersWrapper;
+import main.Exceptions.LastFMNoPlaysException;
 import main.Parsers.OneWordParser;
-import main.ScheduledTasks.UpdaterThread;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -29,13 +32,16 @@ public class SetCommand extends ConcurrentCommand {
 		if (returned == null)
 			return;
 
-
 		MessageBuilder mes = new MessageBuilder();
 		String lastFmID = returned[0];
 		long guildID = e.getGuild().getIdLong();
 		long userId = e.getAuthor().getIdLong();
 		List<UsersWrapper> list = getDao().getAll(guildID);
-
+		Optional<UsersWrapper> name = (list.stream().filter(user -> user.getLastFMName().equals(lastFmID)).findFirst());
+		if (name.isPresent()) {
+			sendMessage(e, "That username is already registered in this server sorry");
+			return;
+		}
 
 		Optional<UsersWrapper> u = (list.stream().filter(user -> user.getDiscordID() == userId).findFirst());
 		//User was already registered in this guild
@@ -61,20 +67,34 @@ public class SetCommand extends ConcurrentCommand {
 			}
 		}
 
-
 		//Never registered before
 		getDao().insertArtistDataList(new LastFMData(lastFmID, userId, guildID));
 		mes.setContent("**" + e.getAuthor()
-				.getName() + "** has set its last FM name \n Updating the library on the background");
+				.getName() + "** has set its last FM name \n Updating your library , wait a moment");
 		mes.sendTo(e.getChannel()).queue();
+		e.getChannel().sendTyping().queue();
+		try {
+			List<ArtistData> artistDataLinkedList = lastFM.getLibrary(lastFmID);
+			getDao().insertArtistDataList(artistDataLinkedList, lastFmID);
+			System.out.println("Updated Info Normally  of " + lastFmID + LocalDateTime
+					.now().format(DateTimeFormatter.ISO_DATE));
 
-		new Thread(new UpdaterThread(getDao(), new UsersWrapper(userId, lastFmID), false)).run();
-		sendMessage(e, "Finished updating " + e.getAuthor().getName() + " library, you are good to go!");
-	}
+			System.out.println(" Number of rows updated :" + artistDataLinkedList.size());
+			sendMessage(e, "Finished updating " + e.getAuthor().getName() + " library, you are good to go!");
+			return;
+		} catch (
+				LastFMNoPlaysException ex) {
+			getDao().updateUserTimeStamp(lastFmID);
+			System.out.println("No plays " + lastFmID + LocalDateTime.now()
+					.format(DateTimeFormatter.ISO_DATE));
 
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!set");
+		} catch (Throwable ex) {
+			System.out.println("Error while updating" + lastFmID + LocalDateTime.now()
+					.format(DateTimeFormatter.ISO_DATE));
+			ex.printStackTrace();
+		}
+		sendMessage(e, "Error  updating" + e.getAuthor().getName() + " library, try to use the !update command!");
+
 	}
 
 	@Override
@@ -85,6 +105,11 @@ public class SetCommand extends ConcurrentCommand {
 	@Override
 	public String getName() {
 		return "Set";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!set");
 	}
 
 

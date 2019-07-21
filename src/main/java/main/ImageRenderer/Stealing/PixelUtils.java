@@ -13,6 +13,7 @@ import java.util.Random;
  */
 class PixelUtils {
 
+	public final static int EXCHANGE = 16;
 	private final static int REPLACE = 0;
 	private final static int NORMAL = 1;
 	private final static int MIN = 2;
@@ -29,7 +30,6 @@ class PixelUtils {
 	private final static int AVERAGE = 13;
 	private final static int OVERLAY = 14;
 	private final static int CLEAR = 15;
-	public final static int EXCHANGE = 16;
 	private final static int DISSOLVE = 17;
 	private final static int DST_IN = 18;
 	private final static int ALPHA = 19;
@@ -37,6 +37,10 @@ class PixelUtils {
 	private final static float[] hsb1 = new float[3];//FIXME-not thread safe
 	private final static float[] hsb2 = new float[3];//FIXME-not thread safe
 	private static final Random randomGenerator = new Random();
+
+	public static int interpolate(int v1, int v2, float f) {
+		return clamp((int) (v1 + f * (v2 - v1)));
+	}
 
 	/**
 	 * Clamp a value to the range 0..255
@@ -47,10 +51,6 @@ class PixelUtils {
 		if (c > 255)
 			return 255;
 		return c;
-	}
-
-	public static int interpolate(int v1, int v2, float f) {
-		return clamp((int) (v1 + f * (v2 - v1)));
 	}
 
 	public static int brightness(int rgb) {
@@ -73,10 +73,6 @@ class PixelUtils {
 	// Return rgb1 painted onto rgb2
 	public static int combinePixels(int rgb1, int rgb2, int op) {
 		return combinePixels(rgb1, rgb2, op, 0xff);
-	}
-
-	public static int combinePixels(int rgb1, int rgb2, int op, int extraAlpha, int channelMask) {
-		return (rgb2 & ~channelMask) | combinePixels(rgb1 & channelMask, rgb2, op, extraAlpha);
 	}
 
 	private static int combinePixels(int rgb1, int rgb2, int op, int extraAlpha) {
@@ -204,6 +200,10 @@ class PixelUtils {
 			a1 = clamp(a1 + a3);
 		}
 		return (a1 << 24) | (r1 << 16) | (g1 << 8) | b1;
+	}
+
+	public static int combinePixels(int rgb1, int rgb2, int op, int extraAlpha, int channelMask) {
+		return (rgb2 & ~channelMask) | combinePixels(rgb1 & channelMask, rgb2, op, extraAlpha);
 	}
 
 }

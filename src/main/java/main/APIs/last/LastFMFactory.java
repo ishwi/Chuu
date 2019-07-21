@@ -14,7 +14,7 @@ public class LastFMFactory {
 		Properties properties = new Properties();
 		try (InputStream in = LastFMFactory.class.getResourceAsStream("/" + "all.properties")) {
 			properties.load(in);
-			String apikey =properties.getProperty("LASTFM_APIKEY");
+			String apikey = properties.getProperty("LASTFM_APIKEY");
 			return new ConcurrentLastFM(apikey);
 		} catch (Exception e) {
 			throw new RuntimeException(e);

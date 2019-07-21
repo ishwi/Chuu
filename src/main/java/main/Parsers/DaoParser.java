@@ -45,7 +45,8 @@ public abstract class DaoParser extends Parser {
 	@Override
 	public void setUpErrorMessages() {
 		errorMessages.put(1, "User not on database");
-		errorMessages.put(3, "User have not played any songs recently");
+		errorMessages.put(2, "Internal Server Error, try again later");
+		errorMessages.put(3, "User hasn't played anything recently");
 		errorMessages.put(4, "User does not exist on last.fm");
 	}
 }

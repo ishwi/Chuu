@@ -82,17 +82,6 @@ class MotionBlurOp extends AbstractBufferedImageOp {
 		this.centreY = (float) centre.getY();
 	}
 
-	private int log2(int n) {
-		int m = 1;
-		int log2n = 0;
-
-		while (m < n) {
-			m *= 2;
-			log2n++;
-		}
-		return log2n;
-	}
-
 	public BufferedImage filter(BufferedImage src, BufferedImage dst) {
 		if (dst == null)
 			dst = createCompatibleDestImage(src, null);
@@ -146,6 +135,17 @@ class MotionBlurOp extends AbstractBufferedImageOp {
 			rotate *= 2;
 		}
 		return dst;
+	}
+
+	private int log2(int n) {
+		int m = 1;
+		int log2n = 0;
+
+		while (m < n) {
+			m *= 2;
+			log2n++;
+		}
+		return log2n;
 	}
 
 	public String toString() {

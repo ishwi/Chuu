@@ -9,6 +9,7 @@ import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Discogs.DiscogsSingleton;
 import main.APIs.Spotify.Spotify;
 import main.APIs.Spotify.SpotifySingleton;
+import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.ImageRenderer.BandRendered;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -33,22 +34,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 	@Override
 	void whoKnowsLogic(ArtistData who, Boolean isImage, MessageReceivedEvent e) {
 		ArtistAlbums ai;
-
-
-
-		try {
-			ai = lastFM.getAlbumsFromArtist(who.getArtist(), 14);
-		} catch (LastFmException ex) {
-			ex.printStackTrace();
-			return;
-		}
-
-
-		String artist = ai.getArtist();
-		List<AlbumUserPlays> list = ai.getAlbumList();
 		String lastFmName;
-
-
 		try {
 			lastFmName = getDao().findLastFMData(e.getAuthor().getIdLong()).getName();
 		} catch (InstanceNotFoundException ex) {
@@ -56,12 +42,32 @@ public class BandInfoCommand extends WhoKnowsCommand {
 			return;
 		}
 
+		try {
+			ai = lastFM.getAlbumsFromArtist(who.getArtist(), 14);
+		} catch (LastFmEntityNotFoundException ex) {
+			//parser.sendError(parser.getErrorMessage(2), e);
+			parser.sendError(who.getArtist() + " doesn't exist on Last.fm", e);
+			return;
+		} catch (LastFmException ex) {
+			parser.sendError(parser.getErrorMessage(2), e);
+			return;
+		}
 
+		String artist = ai.getArtist();
 		final String username = lastFmName;
+		List<AlbumUserPlays> list = ai.getAlbumList();
+
+		int plays = getDao().getArtistPlays(artist, username);
+		if (plays == 0) {
+			parser.sendError("You still haven't listened  to " + artist, e);
+			return;
+		}
+
 		list =
 				list.stream().peek(albumInfo -> {
 					try {
-						albumInfo.setPlays(lastFM.getPlaysAlbum_Artist(username, artist, albumInfo.getAlbum()).getPlays());
+						albumInfo.setPlays(lastFM.getPlaysAlbum_Artist(username, artist, albumInfo.getAlbum())
+								.getPlays());
 
 					} catch (LastFmException ex) {
 						ex.printStackTrace();
@@ -76,15 +82,11 @@ public class BandInfoCommand extends WhoKnowsCommand {
 		np.getReturnNowPlayings().forEach(element ->
 				element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))
 		);
-		int plays = getDao().getArtistPlays(artist, username);
-		BufferedImage logo = CommandUtil.getLogo(getDao(), e);
-		BufferedImage returnedImage = BandRendered.makeBandImage(np, ai, plays, logo, getUserString(e.getAuthor().getIdLong(), e, username));
-		sendImage(returnedImage, e);
-	}
 
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!band");
+		BufferedImage logo = CommandUtil.getLogo(getDao(), e);
+		BufferedImage returnedImage = BandRendered
+				.makeBandImage(np, ai, plays, logo, getUserString(e.getAuthor().getIdLong(), e, username));
+		sendImage(returnedImage, e);
 	}
 
 	@Override
@@ -95,6 +97,11 @@ public class BandInfoCommand extends WhoKnowsCommand {
 	@Override
 	public String getName() {
 		return "Band";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!band");
 	}
 
 

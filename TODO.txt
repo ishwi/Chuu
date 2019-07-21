@@ -12,8 +12,8 @@
 #Fix the logging issue
 #clear git repo previously
 #remove api_key from lastfm
+##Migrate artist table with -> artist_url| incremental id
 
-Migrate artist table with -> artist_url| incremental id
 If spotify/discogs/ token  mbiz db missing disable commands not crash
 option to embed mysql on jar
 heuristic update

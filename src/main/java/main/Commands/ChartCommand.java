@@ -2,6 +2,7 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.UrlCapsule;
+import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.ImageRenderer.CollageMaker;
@@ -42,11 +43,12 @@ public class ChartCommand extends ConcurrentCommand {
 		try {
 			processQueue(username, time, x, y, e, titleWrite, playsWrite);
 
-
-		} catch (LastFmEntityNotFoundException e1) {
+		} catch (LastFMNoPlaysException e1) {
 			parser.sendError(parser.getErrorMessage(3), e);
-		} catch (LastFmException ex2) {
+		} catch (LastFmEntityNotFoundException e1) {
 			parser.sendError(parser.getErrorMessage(4), e);
+		} catch (LastFmException ex2) {
+			parser.sendError(parser.getErrorMessage(2), e);
 		}
 
 

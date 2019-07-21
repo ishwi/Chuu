@@ -28,10 +28,9 @@ public class UpdaterThread implements Runnable {
 	private boolean isIncremental;
 	private DiscogsApi discogsApi;
 
-	private UpdaterThread(DaoImplementation dao) {
-		this.dao = dao;
-		this.lastFM = LastFMFactory.getNewInstance();
-		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+	public UpdaterThread(DaoImplementation dao, UsersWrapper username, boolean isIncremental, DiscogsApi discogsApi) {
+		this(dao, username, isIncremental);
+		this.discogsApi = discogsApi;
 	}
 
 	public UpdaterThread(DaoImplementation dao, UsersWrapper username, boolean isIncremental) {
@@ -41,11 +40,11 @@ public class UpdaterThread implements Runnable {
 	}
 
 
-	public UpdaterThread(DaoImplementation dao, UsersWrapper username, boolean isIncremental, DiscogsApi discogsApi) {
-		this(dao, username, isIncremental);
-		this.discogsApi = discogsApi;
+	private UpdaterThread(DaoImplementation dao) {
+		this.dao = dao;
+		this.lastFM = LastFMFactory.getNewInstance();
+		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
 	}
-
 
 	@Override
 	public void run() {
@@ -53,7 +52,6 @@ public class UpdaterThread implements Runnable {
 		UsersWrapper userWork;
 		Random r = new Random();
 		float chance = r.nextFloat();
-
 
 		if (this.username == null) {
 			userWork = dao.getLessUpdated();
@@ -64,8 +62,8 @@ public class UpdaterThread implements Runnable {
 			if (isIncremental && chance <= 0.93f) {
 				Map<ArtistData, String> correctionAdder = new HashMap<>();
 
-				TimestampWrapper<List<ArtistData>> artistDataLinkedList = lastFM.getWhole(userWork.getLastFMName(), userWork.getTimestamp());
-
+				TimestampWrapper<List<ArtistData>> artistDataLinkedList = lastFM
+						.getWhole(userWork.getLastFMName(), userWork.getTimestamp());
 
 				//Correction with current last fm implementation should return the same name so no correction gives
 				for (ArtistData datum : artistDataLinkedList.getWrapped()) {
@@ -74,22 +72,27 @@ public class UpdaterThread implements Runnable {
 
 				dao.incrementalUpdate(artistDataLinkedList, userWork.getLastFMName());
 				//Workarround non deferrable foreign key
-				correctionAdder.forEach((correctedArtistData, originalArtistName) -> dao.insertCorrection(originalArtistName, correctedArtistData.getArtist()));
-				System.out.println("Updated Info Incrementally of " + userWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+				correctionAdder.forEach((correctedArtistData, originalArtistName) -> dao
+						.insertCorrection(originalArtistName, correctedArtistData.getArtist()));
+				System.out.println("Updated Info Incrementally of " + userWork.getLastFMName() + LocalDateTime.now()
+						.format(DateTimeFormatter.ISO_DATE));
 				System.out.println(" Number of rows updated :" + artistDataLinkedList.getWrapped().size());
 			} else {
 				List<ArtistData> artistDataLinkedList = lastFM.getLibrary(userWork.getLastFMName());
 				dao.insertArtistDataList(artistDataLinkedList, userWork.getLastFMName());
 
-				System.out.println("Updated Info Normally  of " + userWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+				System.out.println("Updated Info Normally  of " + userWork.getLastFMName() + LocalDateTime.now()
+						.format(DateTimeFormatter.ISO_DATE));
 				System.out.println(" Number of rows updated :" + artistDataLinkedList.size());
 			}
 		} catch (LastFMNoPlaysException e) {
 			dao.updateUserTimeStamp(userWork.getLastFMName());
-			System.out.println("No plays " + userWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+			System.out.println("No plays " + userWork.getLastFMName() + LocalDateTime.now()
+					.format(DateTimeFormatter.ISO_DATE));
 
 		} catch (Throwable e) {
-			System.out.println("Error while updating" + userWork.getLastFMName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+			System.out.println("Error while updating" + userWork.getLastFMName() + LocalDateTime.now()
+					.format(DateTimeFormatter.ISO_DATE));
 			e.printStackTrace();
 		}
 	}

@@ -4,7 +4,6 @@ import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import main.APIs.Youtube.Search;
 import main.APIs.Youtube.SearchSingleton;
-import main.Parsers.Parser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -21,7 +20,7 @@ public class NPYoutubeCommand extends NpCommand {
 	}
 
 	@Override
-	public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, Parser parser, MessageReceivedEvent e) {
+	public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e) {
 		MessageBuilder messageBuilder = new MessageBuilder();
 
 		String uri = search.doSearch(nowPlayingArtist.getArtistName() + " " + nowPlayingArtist.getSongName());

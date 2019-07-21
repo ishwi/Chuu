@@ -97,7 +97,6 @@ public class ArtistAlbumParser extends DaoParser {
 	@Override
 	public void setUpErrorMessages() {
 		errorMessages.put(5, "You need to use - to separate artist and album!");
-		errorMessages.put(2, "Internal Server Error, try again later");
 		errorMessages.put(6, "Didn't find what you were looking for");
 	}
 }

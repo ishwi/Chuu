@@ -27,12 +27,6 @@ public class GuildTopCommand extends ConcurrentCommand {
 		sendImage(image, e);
 	}
 
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!guild");
-	}
-
 	@Override
 	public String getDescription() {
 		return ("Chart 5x5 of guild most listened artist");
@@ -41,6 +35,11 @@ public class GuildTopCommand extends ConcurrentCommand {
 	@Override
 	public String getName() {
 		return "Guild Top Artists";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!guild");
 	}
 
 }

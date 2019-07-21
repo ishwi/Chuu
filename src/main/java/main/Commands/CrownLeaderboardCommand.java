@@ -26,9 +26,9 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 		crownList.forEach(cl -> cl.setDiscordName(getUserString(cl.getDiscordId(), e, cl.getLastFmId())));
 		MessageBuilder messageBuilder = new MessageBuilder();
 
-		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(e.getGuild().getIconUrl());
+		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+				.setThumbnail(e.getGuild().getIconUrl());
 		StringBuilder a = new StringBuilder();
-
 
 		if (crownList.size() == 0) {
 			sendMessage(e, "This guild has no registered users:(");
@@ -39,16 +39,11 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 			a.append(i + 1).append(crownList.get(i).toString());
 		}
 		embedBuilder.setDescription(a).setTitle(e.getGuild().getName() + "'s Crowns leadearboard")
-				.setThumbnail(e.getGuild().getIconUrl()).setFooter(e.getGuild().getName() + " has " + crownList.size() + " registered users!\n", null);
+				.setThumbnail(e.getGuild().getIconUrl())
+				.setFooter(e.getGuild().getName() + " has " + crownList.size() + " registered users!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
 				new Reactionary<>(crownList, message, embedBuilder)
 		);
-	}
-
-
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("!crownslb", "!lb", "!leaderboard");
 	}
 
 	@Override
@@ -59,6 +54,11 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 	@Override
 	public String getName() {
 		return "Crowns Leaderboard";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("!crownslb", "!lb", "!leaderboard");
 	}
 
 

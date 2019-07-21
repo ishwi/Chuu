@@ -81,6 +81,15 @@ public class GaussianFilter extends ConvolveFilter {
 	}
 
 	/**
+	 * Get the radius of the kernel.
+	 *
+	 * @return the radius
+	 */
+	public float getRadius() {
+		return radius;
+	}
+
+	/**
 	 * Make a Gaussian blur kernel.
 	 */
 	private static Kernel makeKernel(float radius) {
@@ -109,25 +118,6 @@ public class GaussianFilter extends ConvolveFilter {
 		return new Kernel(rows, 1, matrix);
 	}
 
-	/**
-	 * Get the radius of the kernel.
-	 *
-	 * @return the radius
-	 */
-	public float getRadius() {
-		return radius;
-	}
-
-	/**
-	 * Set the radius of the kernel, and hence the amount of blur. The bigger the radius, the longer this filter will take.
-	 *
-	 * @param radius the radius of the blur in pixels.
-	 */
-	private void setRadius(float radius) {
-		this.radius = radius;
-		kernel = makeKernel(radius);
-	}
-
 	public BufferedImage filter(BufferedImage src, BufferedImage dst) {
 		int width = src.getWidth();
 		int height = src.getHeight();
@@ -144,6 +134,16 @@ public class GaussianFilter extends ConvolveFilter {
 
 		dst.setRGB(0, 0, width, height, inPixels, 0, width);
 		return dst;
+	}
+
+	/**
+	 * Set the radius of the kernel, and hence the amount of blur. The bigger the radius, the longer this filter will take.
+	 *
+	 * @param radius the radius of the blur in pixels.
+	 */
+	private void setRadius(float radius) {
+		this.radius = radius;
+		kernel = makeKernel(radius);
 	}
 
 	public String toString() {

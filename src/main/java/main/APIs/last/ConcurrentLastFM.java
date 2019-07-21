@@ -85,6 +85,101 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
+	public void getUserList(String userName, String weekly, int x, int y, boolean isAlbum, BlockingQueue<UrlCapsule> queue) throws
+			LastFmException {
+
+		String apiMethod;
+		String leadingObject;
+		String arrayObject;
+		if (isAlbum) {
+			apiMethod = GET_ALBUMS;
+			leadingObject = "topalbums";
+			arrayObject = "album";
+		} else {
+			apiMethod = GET_ARTIST;
+			leadingObject = "topartists";
+			arrayObject = "artist";
+		}
+		String url = BASE + apiMethod + userName + API_KEY + ending + "&period=" + weekly;
+
+		int requestedSize = x * y;
+		int size = 0;
+		int page = 1;
+
+		if (requestedSize > 150)
+			url += "&limit=200";
+		int limit = requestedSize;
+		while (size < requestedSize && size < limit) {
+
+			String urlPage = url + "&page=" + page;
+			HttpMethodBase method = createMethod(urlPage);
+
+			++page;
+			System.out.println(page + " :page             size: " + size);
+
+			// Execute the method.
+			JSONObject obj = doMethod(method);
+			obj = obj.getJSONObject(leadingObject);
+//			if (page== 2)
+//				requestedSize = obj.getJSONObject("@attr").getInt("total");
+			limit = obj.getJSONObject("@attr").getInt("total");
+			if (limit == 0) {
+				throw new LastFMNoPlaysException("");
+			}
+			if (limit == size)
+				break;
+			JSONArray arr = obj.getJSONArray(arrayObject);
+			for (int i = 0; i < arr.length() && size < requestedSize; i++) {
+				JSONObject albumObj = arr.getJSONObject(i);
+				if (isAlbum)
+					queue.add(parseAlbum(albumObj, size));
+				else
+					queue.add(parseArtist(albumObj, size));
+
+				++size;
+			}
+
+		}
+		//
+	}
+
+	private JSONObject doMethod(HttpMethod method) throws LastFmException {
+		method.addRequestHeader(this.header);
+		try {
+
+			int response_code = client.executeMethod(method);
+			parseHttpCode(response_code);
+			byte[] responseBody = method.getResponseBody();
+			return new JSONObject(new String(responseBody));
+
+		} catch (HttpException e) {
+			System.out.println("HTTP");
+			e.printStackTrace();
+			throw new LastFMServiceException("HTTP");
+		} catch (IOException e) {
+			System.out.println("IO");
+			e.printStackTrace();
+			throw new LastFMServiceException("IO");
+
+
+		} finally {
+
+			method.releaseConnection();
+		}
+
+
+	}
+
+	private void parseHttpCode(int code) throws LastFmException {
+		if (code / 100 == 2)
+			return;
+		if (code == 404)
+			throw new LastFmEntityNotFoundException("404");
+		if (code == 500)
+			throw new LastFMServiceException("500");
+
+	}
+
 	public SecondsTimeFrameCount getMinutesWastedOnMusic(String username, String period) throws LastFmException {
 		String url = BASE + GET_TOP_TRACKS + username + API_KEY + ending + "&period=" + period + "&limit=500";
 		int SONG_AVERAGE_LENGTH_SECONDS = 200;
@@ -127,43 +222,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 		System.out.println(zeroCount[0]);
 		System.out.println(count);
 		return returned;
-
-	}
-
-	private JSONObject doMethod(HttpMethod method) throws LastFmException {
-		method.addRequestHeader(this.header);
-		try {
-
-			int response_code = client.executeMethod(method);
-			parseHttpCode(response_code);
-			byte[] responseBody = method.getResponseBody();
-			return new JSONObject(new String(responseBody));
-
-		} catch (HttpException e) {
-			System.out.println("HTTP");
-			e.printStackTrace();
-			throw new LastFMServiceException("HTTP");
-		} catch (IOException e) {
-			System.out.println("IO");
-			e.printStackTrace();
-			throw new LastFMServiceException("IO");
-
-
-		} finally {
-
-			method.releaseConnection();
-		}
-
-
-	}
-
-	private void parseHttpCode(int code) throws LastFmException {
-		if (code / 100 == 2)
-			return;
-		if (code == 404)
-			throw new LastFmEntityNotFoundException("404");
-		if (code == 500)
-			throw new LastFMServiceException("500");
 
 	}
 
@@ -350,60 +408,11 @@ public class ConcurrentLastFM {//implements LastFMService {
 		return getArtistDataTopAlbums(url, true);
 	}
 
-	public void getUserList(String userName, String weekly, int x, int y, boolean isAlbum, BlockingQueue<UrlCapsule> queue) throws
-			LastFmException {
+	private HttpMethodBase createMethod(String url) {
+		GetMethod method = new GetMethod(url);
+		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
+		return method;
 
-		String apiMethod;
-		String leadingObject;
-		String arrayObject;
-		if (isAlbum) {
-			apiMethod = GET_ALBUMS;
-			leadingObject = "topalbums";
-			arrayObject = "album";
-		} else {
-			apiMethod = GET_ARTIST;
-			leadingObject = "topartists";
-			arrayObject = "artist";
-		}
-		String url = BASE + apiMethod + userName + API_KEY + ending + "&period=" + weekly;
-
-		int requestedSize = x * y;
-		int size = 0;
-		int page = 1;
-
-		if (requestedSize > 150)
-			url += "&limit=200";
-		int limit = requestedSize;
-		while (size < requestedSize && size < limit) {
-
-			String urlPage = url + "&page=" + page;
-			HttpMethodBase method = createMethod(urlPage);
-
-			++page;
-			System.out.println(page + " :page             size: " + size);
-
-			// Execute the method.
-			JSONObject obj = doMethod(method);
-			obj = obj.getJSONObject(leadingObject);
-//			if (page== 2)
-//				requestedSize = obj.getJSONObject("@attr").getInt("total");
-			limit = obj.getJSONObject("@attr").getInt("total");
-
-			if (limit == size)
-				break;
-			JSONArray arr = obj.getJSONArray(arrayObject);
-			for (int i = 0; i < arr.length() && size < requestedSize; i++) {
-				JSONObject albumObj = arr.getJSONObject(i);
-				if (isAlbum)
-					queue.add(parseAlbum(albumObj, size));
-				else
-					queue.add(parseArtist(albumObj, size));
-
-				++size;
-			}
-
-		}
-		//
 	}
 
 	private UrlCapsule parseAlbum(JSONObject albumObj, int size) {
@@ -514,13 +523,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 		}
 
 		return new ArtistAlbums(artistCorrected, albumList);
-	}
-
-	private HttpMethodBase createMethod(String url) {
-		GetMethod method = new GetMethod(url);
-		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
-		return method;
-
 	}
 }
 

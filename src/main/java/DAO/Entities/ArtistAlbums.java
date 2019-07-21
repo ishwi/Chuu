@@ -15,11 +15,11 @@ public class ArtistAlbums {
 		return albumList;
 	}
 
-	public String getArtist() {
-		return artist;
-	}
-
 	public void setAlbumList(List<AlbumUserPlays> albumList) {
 		this.albumList = albumList;
+	}
+
+	public String getArtist() {
+		return artist;
 	}
 }

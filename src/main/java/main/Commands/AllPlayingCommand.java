@@ -36,10 +36,10 @@ public class AllPlayingCommand extends ConcurrentCommand {
 		List<UsersWrapper> list = getDao().getAll(e.getGuild().getIdLong());
 		MessageBuilder messageBuilder = new MessageBuilder();
 
-		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(e.getGuild().getIconUrl())
+		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+				.setThumbnail(e.getGuild().getIconUrl())
 				.setTitle("What is being played now in " + e.getGuild().getName());
 		StringBuilder a = new StringBuilder();
-
 
 		Map<UsersWrapper, Optional<NowPlayingArtist>> npList = list.parallelStream().
 				collect(Collectors.toConcurrentMap(u -> u, uw ->
@@ -51,7 +51,6 @@ public class AllPlayingCommand extends ConcurrentCommand {
 						return Optional.empty();
 					}
 				}));
-
 
 		npList.forEach((usersWrapper, optionalNowPlayingArtist) -> {
 			if (!optionalNowPlayingArtist.isPresent())
@@ -69,7 +68,8 @@ public class AllPlayingCommand extends ConcurrentCommand {
 			String username = member == null ? usersWrapper.getLastFMName() : member.getEffectiveName();
 
 					a.append("+ ").append("[")
-							.append(username).append("](").append("https://www.last.fm/user/").append(usersWrapper.getLastFMName())
+							.append(username).append("](").append("https://www.last.fm/user/")
+							.append(usersWrapper.getLastFMName())
 							.append("): ")
 							.append(nowPlayingArtist.getArtistName())
 							.append(" - ").append(nowPlayingArtist.getSongName())
@@ -86,12 +86,6 @@ public class AllPlayingCommand extends ConcurrentCommand {
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 	}
 
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!playing");
-	}
-
 	@Override
 	public String getDescription() {
 		return ("Returns lists of all people playing music rn");
@@ -100,6 +94,11 @@ public class AllPlayingCommand extends ConcurrentCommand {
 	@Override
 	public String getName() {
 		return "Playing";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!playing");
 	}
 
 

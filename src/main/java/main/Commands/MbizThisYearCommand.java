@@ -59,11 +59,6 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!sincestartyear");
-	}
-
-	@Override
 	public String getDescription() {
 		return "Gets your top albums since the year started that were released in the current year ,";
 	}
@@ -71,6 +66,11 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 	@Override
 	public String getName() {
 		return "Since YEAR Started";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!sincestartyear");
 	}
 
 

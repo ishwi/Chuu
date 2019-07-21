@@ -11,6 +11,11 @@ public class WhoKnowsParser extends OptionalParser {
 	}
 
 	@Override
+	public void setUpErrorMessages() {
+		errorMessages.put(1, "No artist specified!");
+	}
+
+	@Override
 	public String[] parse(MessageReceivedEvent e) {
 		String[] message = getSubMessage(e.getMessage());
 
@@ -31,11 +36,6 @@ public class WhoKnowsParser extends OptionalParser {
 
 		return new String[]{artist, Boolean.toString(hasImage)};
 
-	}
-
-	@Override
-	public void setUpErrorMessages() {
-		errorMessages.put(1, "No artist specified!");
 	}
 
 	@Override

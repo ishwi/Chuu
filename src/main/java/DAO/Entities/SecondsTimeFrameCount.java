@@ -29,16 +29,16 @@ public class SecondsTimeFrameCount {
 		this.seconds = seconds;
 	}
 
-	public int getMinutes() {
-		return seconds / 60;
-	}
-
 	public int getHours() {
 		return seconds / 3600;
 	}
 
 	public int getRemainingMinutes() {
 		return getMinutes() % 60;
+	}
+
+	public int getMinutes() {
+		return seconds / 60;
 	}
 
 }

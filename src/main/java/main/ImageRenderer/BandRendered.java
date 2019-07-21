@@ -86,7 +86,6 @@ public class BandRendered {
 			}
 		}
 
-
 		if (needsJapanese)
 			g.setFont(JAPANESE_FONT);
 		else
@@ -95,9 +94,12 @@ public class BandRendered {
 		FontMetrics metrics = g.getFontMetrics();
 		String people = "Top 5 people";
 		int width = metrics.stringWidth(people);
-		GraphicUtils.drawStringNicely(g, people, (X_MARGIN + 40) + (380 / 2) - width / 2, 700 - metrics.getAscent(), canvas);
+		GraphicUtils.drawStringNicely(g, people, (X_MARGIN + 40) + (380 / 2) - width / 2, 700 - metrics
+				.getAscent(), canvas);
 		//g.drawString(people, (X_MARGIN + 40) + (380 / 2) - width / 2, 700 - metrics.getAscent());
-		GraphicUtils.doChart(g, X_MARGIN + 40, 700 - 20, 400, 50, 5, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, DESC_FONT.deriveFont(36f));
+		GraphicUtils
+				.doChart(g, X_MARGIN + 40, 700 - 20, 400, 50, 5, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, DESC_FONT
+						.deriveFont(36f));
 
 		count = 0;
 		int images_drawn = 0;
@@ -145,11 +147,11 @@ public class BandRendered {
 			while ((width = g.getFontMetrics(g.getFont()).stringWidth(album)) > 300 && sizeFont > 18f) {
 				g.setFont(g.getFont().deriveFont(sizeFont -= 2));
 			}
-			GraphicUtils.drawStringNicely(g, album, pos_x + (300 / 2) - width / 2, baseline + metrics.getAscent(), canvas);
+			GraphicUtils
+					.drawStringNicely(g, album, pos_x + (300 / 2) - width / 2, baseline + metrics.getAscent(), canvas);
 
 			//;g.drawString(album, pos_x + (300 / 2) - width / 2, baseline + metrics.getAscent());
 			g.setFont(ogFont);
-
 
 			baseline += metrics.getAscent() + metrics.getDescent();
 			width = metrics.stringWidth(play);
@@ -157,15 +159,18 @@ public class BandRendered {
 			int finish = start + width;
 			width += 25;
 
-			GraphicUtils.drawStringNicely(g, play, pos_x + (300 / 2) - width / 2, baseline + metrics.getAscent(), canvas);
+			GraphicUtils
+					.drawStringNicely(g, play, pos_x + (300 / 2) - width / 2, baseline + metrics.getAscent(), canvas);
 			//g.drawString(play, pos_x + (300 / 2) - width / 2, baseline + metrics.getAscent());
-			g.drawImage(lastFmLogo, finish, baseline + metrics.getAscent() - metrics.getDescent() - metrics.getLeading() - 8, null);
+			g.drawImage(lastFmLogo, finish, baseline + metrics.getAscent() - metrics.getDescent() - metrics
+					.getLeading() - 8, null);
 			images_drawn++;
 		}
 
 		int yBaseLine = 380;
 		if (artistImageFill != null) {
-			g.drawImage(Scalr.resize(artistImageFill, yBaseLine, Scalr.OP_ANTIALIAS), X_MARGIN + 40 + (400 - 380) / 2, 25, null);
+			g.drawImage(Scalr
+					.resize(artistImageFill, yBaseLine, Scalr.OP_ANTIALIAS), X_MARGIN + 40 + (400 - 380) / 2, 25, null);
 		}
 		width = metrics.stringWidth(artist);
 		yBaseLine += metrics.getAscent() + metrics.getDescent() + metrics.getLeading() + 20;
@@ -176,8 +181,11 @@ public class BandRendered {
 		ReturnNowPlaying myRow = new ReturnNowPlaying(1, user, artist, plays);
 		myRow.setDiscordName(user);
 
-		WrapperReturnNowPlaying wrapper1Row = new WrapperReturnNowPlaying(Collections.singletonList(myRow), 1, artist, artist);
-		GraphicUtils.doChart(g, X_MARGIN + 40, yBaseLine + metrics.getAscent() - 20, 400, 50, 1, wrapper1Row, colorB1, colorB, lastFmLogo, false, DESC_FONT.deriveFont(36f));
+		WrapperReturnNowPlaying wrapper1Row = new WrapperReturnNowPlaying(Collections
+				.singletonList(myRow), 1, artist, artist);
+		GraphicUtils.doChart(g, X_MARGIN + 40, yBaseLine + metrics
+				.getAscent() - 20, 400, 50, 1, wrapper1Row, colorB1, colorB, lastFmLogo, false, DESC_FONT
+				.deriveFont(36f));
 
 		return canvas;
 	}

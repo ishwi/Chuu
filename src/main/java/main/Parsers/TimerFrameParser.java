@@ -36,7 +36,6 @@ public class TimerFrameParser extends DaoParser {
 	}
 
 
-
 	@Override
 	public List<String> getUsage(String commandName) {
 		return Collections.singletonList("**" + commandName + " *[w,m,q,s,y,a]* *Username ** \n" +

@@ -13,12 +13,6 @@ public class BandInfoNpCommand extends BandInfoCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("!bandnp", "!bnp");
-
-	}
-
-	@Override
 	public String getDescription() {
 		return "Like band but for now playing artist!";
 	}
@@ -26,6 +20,12 @@ public class BandInfoNpCommand extends BandInfoCommand {
 	@Override
 	public String getName() {
 		return "Band image ";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("!bandnp", "!bnp");
+
 	}
 }
 

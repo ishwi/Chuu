@@ -25,12 +25,6 @@ public class TopParser extends DaoParser {
 		return new String[]{username, Boolean.toString(hasArtist)};
 	}
 
-	@Override
-	public void setUpErrorMessages() {
-		super.setUpErrorMessages();
-		errorMessages.put(3, "Not a valid lastFm username!");
-		errorMessages.put(2, "Internal Server Error");
-	}
 
 	@Override
 	public List<String> getUsage(String commandName) {

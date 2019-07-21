@@ -7,12 +7,12 @@ import java.util.List;
 
 public class NoOpParser extends Parser {
 	@Override
-	public String[] parse(MessageReceivedEvent e) {
-		throw new UnsupportedOperationException();
+	protected void setUpErrorMessages() {
 	}
 
 	@Override
-	protected void setUpErrorMessages() {
+	public String[] parse(MessageReceivedEvent e) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

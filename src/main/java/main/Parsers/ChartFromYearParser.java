@@ -29,7 +29,7 @@ public class ChartFromYearParser extends ChartParser {
 		message = flagParser.getMessage();
 
 		if (message.length > 2) {
-			sendError(getErrorMessage(2), e);
+			sendError(getErrorMessage(5), e);
 			return null;
 		}
 		ChartParserAux chartParserAux = new ChartParserAux(message);
@@ -43,7 +43,7 @@ public class ChartFromYearParser extends ChartParser {
 			return null;
 		}
 		if (Year.now().compareTo(Year.of(Integer.parseInt(year))) < 0) {
-			sendError(getErrorMessage(5), e);
+			sendError(getErrorMessage(6), e);
 			return null;
 		}
 
@@ -64,6 +64,6 @@ public class ChartFromYearParser extends ChartParser {
 	@Override
 	public void setUpErrorMessages() {
 		super.setUpErrorMessages();
-		errorMessages.put(5, "YEAR must be current year or lower");
+		errorMessages.put(6, "YEAR must be current year or lower");
 	}
 }

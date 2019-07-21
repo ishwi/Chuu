@@ -16,12 +16,6 @@ public class WhoKnowsNPCommand extends WhoKnowsCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("!whoknowsnp", "!wknp");
-
-	}
-
-	@Override
 	public String getDescription() {
 		return "Returns list of users who know the artists you are playing right now!";
 	}
@@ -29,6 +23,12 @@ public class WhoKnowsNPCommand extends WhoKnowsCommand {
 	@Override
 	public String getName() {
 		return "Who Knows Now Playing";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("!whoknowsnp", "!wknp");
+
 	}
 
 }

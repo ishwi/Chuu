@@ -33,6 +33,21 @@ public class Reactionary<T> extends ListenerAdapter {
 
 	}
 
+	private void initReactionary(Message message, List<T> list, JDA jda) {
+		if (list.size() < 10)
+			return;
+		message.addReaction("U+2B05").submit();
+		message.addReaction("U+27A1").submit();
+
+		jda.addEventListener(this);
+		try {
+			Thread.sleep(40000);
+		} catch (InterruptedException ex) {
+			ex.printStackTrace();
+		}
+		jda.removeEventListener(this);
+		message.clearReactions().queue();
+	}
 
 	@Override
 	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
@@ -58,23 +73,6 @@ public class Reactionary<T> extends ListenerAdapter {
 		who.setDescription(a);
 		who.setColor(CommandUtil.randomColor());
 		message.editMessage(who.build()).queue();
-	}
-
-
-	private void initReactionary(Message message, List<T> list, JDA jda) {
-		if (list.size() < 10)
-			return;
-		message.addReaction("U+2B05").submit();
-		message.addReaction("U+27A1").submit();
-
-		jda.addEventListener(this);
-		try {
-			Thread.sleep(40000);
-		} catch (InterruptedException ex) {
-			ex.printStackTrace();
-		}
-		jda.removeEventListener(this);
-		message.clearReactions().queue();
 	}
 
 }

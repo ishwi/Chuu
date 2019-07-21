@@ -7,6 +7,11 @@ import java.util.List;
 
 public class OneWordParser extends Parser {
 	@Override
+	public void setUpErrorMessages() {
+		errorMessages.put(0, "You need to introduce a word!");
+	}
+
+	@Override
 	public String[] parse(MessageReceivedEvent e) {
 		String[] subMessage = getSubMessage(e.getMessage());
 		if (subMessage.length != 1) {
@@ -14,11 +19,6 @@ public class OneWordParser extends Parser {
 			return null;
 		}
 		return subMessage;
-	}
-
-	@Override
-	public void setUpErrorMessages() {
-		errorMessages.put(0, "You need to introduce a word!");
 	}
 
 	@Override

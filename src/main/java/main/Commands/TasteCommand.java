@@ -6,10 +6,8 @@ import DAO.Entities.UserInfo;
 import main.Exceptions.LastFmException;
 import main.ImageRenderer.TasteRenderer;
 import main.Parsers.TwoUsersParser;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,12 +21,9 @@ public class TasteCommand extends ConcurrentCommand {
 	}
 
 
-
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
 		List<String> lastfMNames;
-		MessageBuilder messageBuilder = new MessageBuilder();
-
 
 		String[] returned = parser.parse(e);
 		if (returned == null)
@@ -38,16 +33,17 @@ public class TasteCommand extends ConcurrentCommand {
 		ResultWrapper resultWrapper;
 		try {
 			resultWrapper = getDao().getSimilarities(lastfMNames);
-			System.out.println("resultWrapper = " + resultWrapper.getRows());
+			//TODO this happens both when user is not on db and no mathching so fix pls
+			if (resultWrapper.getRows() == 0) {
+				sendMessage(e, "You don't share any artist :(");
+				return;
+			}
 			java.util.List<String> users = new ArrayList<>();
 			users.add(resultWrapper.getResultList().get(0).getUserA());
 			users.add(resultWrapper.getResultList().get(0).getUserB());
 			java.util.List<UserInfo> userInfoList = lastFM.getUserInfo(users);
 			BufferedImage image = TasteRenderer.generateTasteImage(resultWrapper, userInfoList);
 			sendImage(image, e);
-
-		} catch (InstanceNotFoundException e1) {
-			parser.sendError(parser.getErrorMessage(5), e);
 
 		} catch (LastFmException e1) {
 			parser.sendError(parser.getErrorMessage(2), e);
@@ -58,11 +54,6 @@ public class TasteCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!taste");
-	}
-
-	@Override
 	public String getDescription() {
 		return "Compare Your musical taste with a colleage";
 	}
@@ -70,6 +61,11 @@ public class TasteCommand extends ConcurrentCommand {
 	@Override
 	public String getName() {
 		return "Taste";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("!taste");
 	}
 
 }

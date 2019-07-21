@@ -21,14 +21,6 @@ public class NpParser extends DaoParser {
 	}
 
 	@Override
-	public void setUpErrorMessages() {
-		super.setUpErrorMessages();
-		errorMessages.put(2, "Internal Server Error, try again later");
-
-
-	}
-
-	@Override
 	public List<String> getUsage(String commandName) {
 		return Collections.singletonList("**" + commandName + " *username***\n" +
 				"\t If username is not specified defaults to authors account\n\n");

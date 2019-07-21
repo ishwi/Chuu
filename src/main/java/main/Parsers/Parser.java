@@ -12,15 +12,16 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Parser {
-	final Map<Integer, String> errorMessages = new HashMap<>(10);
 	public final String PREFIX = "**!*";
+	final Map<Integer, String> errorMessages = new HashMap<>(10);
+
 	Parser() {
 		setUpErrorMessages();
 	}
 
-	public abstract String[] parse(MessageReceivedEvent e);
-
 	protected abstract void setUpErrorMessages();
+
+	public abstract String[] parse(MessageReceivedEvent e);
 
 	public String getErrorMessage(int code) {
 		return errorMessages.get(code);
@@ -55,14 +56,14 @@ public abstract class Parser {
 		return artist;
 	}
 
-	String[] getSubMessage(String string) {
-		String[] parts = string.substring(1).split("\\s+");
-		return Arrays.copyOfRange(parts, 1, parts.length);
+	String[] getSubMessage(Message message) {
+		return getSubMessage(message.getContentRaw());
 
 	}
 
-	String[] getSubMessage(Message message) {
-		return getSubMessage(message.getContentRaw());
+	String[] getSubMessage(String string) {
+		String[] parts = string.substring(1).split("\\s+");
+		return Arrays.copyOfRange(parts, 1, parts.length);
 
 	}
 
@@ -71,15 +72,15 @@ public abstract class Parser {
 		return sendMessage(new MessageBuilder().append(errorBase).append(message).build(), e);
 	}
 
-	public Message sendMessage(String message, MessageReceivedEvent e) {
-		return sendMessage(new MessageBuilder().append(message).build(), e);
-	}
-
 	private Message sendMessage(Message message, MessageReceivedEvent e) {
 		if (e.isFromType(ChannelType.PRIVATE))
 			return e.getPrivateChannel().sendMessage(message).complete();
 		else
 			return e.getTextChannel().sendMessage(message).complete();
+	}
+
+	public Message sendMessage(String message, MessageReceivedEvent e) {
+		return sendMessage(new MessageBuilder().append(message).build(), e);
 	}
 
 	public abstract List<String> getUsage(String commandName);
