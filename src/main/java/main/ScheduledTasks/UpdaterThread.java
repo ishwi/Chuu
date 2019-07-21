@@ -12,6 +12,7 @@ import main.APIs.last.LastFMFactory;
 import main.Commands.CommandUtil;
 import main.Exceptions.LastFMNoPlaysException;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -88,8 +89,8 @@ public class UpdaterThread implements Runnable {
 			}
 		} catch (LastFMNoPlaysException e) {
 			//dao.updateUserControlTimestamp(userWork.getLastFMName(),userWork.getTimestampControl());
-			dao.updateUserTimeStamp(userWork.getLastFMName(), userWork.getTimestamp(), userWork
-					.getTimestampControl() + 600);
+			dao.updateUserTimeStamp(userWork.getLastFMName(), userWork.getTimestamp(), (int) (Instant.now()
+					.getEpochSecond() + 600));
 			System.out.println("No plays " + userWork.getLastFMName() + LocalDateTime.now()
 					.format(DateTimeFormatter.ISO_DATE));
 
