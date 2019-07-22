@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 
 public abstract class ConcurrentCommand extends MyCommandDbAccess {
 
-	ConcurrentCommand(DaoImplementation dao) {
+	public ConcurrentCommand(DaoImplementation dao) {
 		super(dao);
 	}
 
