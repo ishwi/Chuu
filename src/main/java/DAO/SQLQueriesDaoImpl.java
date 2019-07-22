@@ -394,6 +394,25 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 		}
 	}
 
+	@Override
+	public int userArtistCount(Connection con, String whom) {
+		String queryString = "Select count(*) as numb from artist where artist.lastFMID=?";
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i, whom);
+
+			/* Execute query. */
+			ResultSet resultSet = preparedStatement.executeQuery();
+			if (!resultSet.next())
+				return 0;
+			return resultSet.getInt("numb");
+
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
 
 

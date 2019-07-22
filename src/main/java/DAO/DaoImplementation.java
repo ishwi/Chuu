@@ -498,5 +498,13 @@ public class DaoImplementation {
 		}
 	}
 
+	public int getUserArtistCount(String lastfmId) {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return queriesDao.userArtistCount(connection, lastfmId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 }
