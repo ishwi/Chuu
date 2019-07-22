@@ -85,6 +85,51 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
+	private UrlCapsule parseAlbum(JSONObject albumObj, int size) {
+		JSONObject artistObj = albumObj.getJSONObject("artist");
+		String albumName = albumObj.getString("name");
+		String artistName = artistObj.getString("name");
+		JSONArray image = albumObj.getJSONArray("image");
+		String mbid = albumObj.getString("mbid");
+		int plays = albumObj.getInt("playcount");
+		JSONObject bigImage = image.getJSONObject(image.length() - 1);
+
+		return new UrlCapsule(bigImage.getString("#text"), size, albumName, artistName, mbid, plays);
+
+	}
+
+	private UrlCapsule parseArtist(JSONObject artistObj, int size) {
+		String artistName = artistObj.getString("name");
+		String mbid = artistObj.getString("mbid");
+		int plays = artistObj.getInt("playcount");
+
+//		JSONArray image = artistObj.getJSONArray("image");
+//		JSONObject bigImage = image.getJSONObject(image.length() - 1);
+		return new UrlCapsule(null, size, "", artistName, mbid, plays);
+	}
+
+	//@Override
+	public List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFmException {
+		List<UserInfo> returnList = new ArrayList<>();
+
+		for (String lastFmName : lastFmNames) {
+			String url = BASE + GET_USER + lastFmName + API_KEY + ending;
+			HttpMethodBase method = createMethod(url);
+			JSONObject obj = doMethod(method);
+			obj = obj.getJSONObject("user");
+			JSONArray image = obj.getJSONArray("image");
+			JSONObject bigImage = image.getJSONObject(image.length() - 1);
+			String image2 = bigImage.getString("#text");
+			int unixTime = obj.getJSONObject("registered").getInt("#text");
+			int playCount = obj.getInt("playcount");
+			returnList.add(new UserInfo(playCount, image2, lastFmName, unixTime));
+
+		}
+
+		return returnList;
+
+	}
+
 	public void getUserList(String userName, String weekly, int x, int y, boolean isAlbum, BlockingQueue<UrlCapsule> queue) throws
 			LastFmException {
 
@@ -333,24 +378,10 @@ public class ConcurrentLastFM {//implements LastFMService {
 		return npList;
 	}
 
-	//@Override
-	public List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFmException {
-		List<UserInfo> returnList = new ArrayList<>();
-
-		for (String lastFmName : lastFmNames) {
-			String url = BASE + GET_USER + lastFmName + API_KEY + ending;
-			HttpMethodBase method = createMethod(url);
-			JSONObject obj = doMethod(method);
-			obj = obj.getJSONObject("user");
-			JSONArray image = obj.getJSONArray("image");
-			JSONObject bigImage = image.getJSONObject(2);
-			String image2 = bigImage.getString("#text");
-			int playCount = obj.getInt("playcount");
-			returnList.add(new UserInfo(playCount, image2, lastFmName));
-
-		}
-
-		return returnList;
+	private HttpMethodBase createMethod(String url) {
+		GetMethod method = new GetMethod(url);
+		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
+		return method;
 
 	}
 
@@ -406,36 +437,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 	public List<ArtistData> getReducedLibrary(String user) throws LastFmException {
 		String url = BASE + GET_ARTIST + user + API_KEY + ending + "&period=" + "7day";
 		return getArtistDataTopAlbums(url, true);
-	}
-
-	private HttpMethodBase createMethod(String url) {
-		GetMethod method = new GetMethod(url);
-		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
-		return method;
-
-	}
-
-	private UrlCapsule parseAlbum(JSONObject albumObj, int size) {
-		JSONObject artistObj = albumObj.getJSONObject("artist");
-		String albumName = albumObj.getString("name");
-		String artistName = artistObj.getString("name");
-		JSONArray image = albumObj.getJSONArray("image");
-		String mbid = albumObj.getString("mbid");
-		int plays = albumObj.getInt("playcount");
-		JSONObject bigImage = image.getJSONObject(image.length() - 1);
-
-		return new UrlCapsule(bigImage.getString("#text"), size, albumName, artistName, mbid, plays);
-
-	}
-
-	private UrlCapsule parseArtist(JSONObject artistObj, int size) {
-		String artistName = artistObj.getString("name");
-		String mbid = artistObj.getString("mbid");
-		int plays = artistObj.getInt("playcount");
-
-//		JSONArray image = artistObj.getJSONArray("image");
-//		JSONObject bigImage = image.getJSONObject(image.length() - 1);
-		return new UrlCapsule(null, size, "", artistName, mbid, plays);
 	}
 
 	public String getCorrection(String artistToCorrect) {
@@ -523,6 +524,13 @@ public class ConcurrentLastFM {//implements LastFMService {
 		}
 
 		return new ArtistAlbums(artistCorrected, albumList);
+	}
+
+	public int getTotalAlbumCount(String username) throws LastFmException {
+		String url = BASE + GET_ALBUMS + username + API_KEY + ending + "&period=overall&limit=1";
+		HttpMethodBase method = createMethod(url);
+		return doMethod(method).getJSONObject("topalbums").getJSONObject("@attr").getInt("total");
+
 	}
 }
 

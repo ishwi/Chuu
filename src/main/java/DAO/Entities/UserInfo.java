@@ -4,11 +4,13 @@ public class UserInfo {
 	private int playCount;
 	private String image;
 	private String username;
+	private int unixtimestamp;
 
-	public UserInfo(int playCount, String image, String username) {
+	public UserInfo(int playCount, String image, String username, int unixtimestamp) {
 		this.playCount = playCount;
 		this.image = image;
 		this.username = username;
+		this.unixtimestamp = unixtimestamp;
 	}
 
 	public int getPlayCount() {
@@ -33,5 +35,13 @@ public class UserInfo {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public int getUnixtimestamp() {
+		return unixtimestamp;
+	}
+
+	public void setUnixtimestamp(int unixtimestamp) {
+		this.unixtimestamp = unixtimestamp;
 	}
 }
