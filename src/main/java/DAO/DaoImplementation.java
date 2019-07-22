@@ -507,4 +507,13 @@ public class DaoImplementation {
 		}
 	}
 
+	public List<LbEntry> getArtistLeaderboard(long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return queriesDao.artistLeaderboard(connection, guildId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+	}
 }

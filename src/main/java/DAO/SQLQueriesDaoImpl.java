@@ -413,6 +413,40 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public List<LbEntry> artistLeaderboard(Connection con, long guildID) {
+		String queryString = "(SELECT  " +
+				"        a.lastfmID , count(*) as ord, c.discordId" +
+				"    FROM " +
+				"        artist a " +
+				"    JOIN lastfm b ON a.lastFMID = b.lastFmId " +
+				"    JOIN user_guild c ON b.discordID = c.discordId " +
+				"    WHERE " +
+				"        c.guildId = ? " +
+				" group by a.lastFMID,c.discordId " +
+				"        )";
+
+		List<LbEntry> returnedList = new ArrayList<>();
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+			int i = 1;
+			preparedStatement.setLong(i, guildID);
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) { //&& (j < 10 && j < rows)) {
+				String lastFMId = resultSet.getString("a.lastfmID");
+				long discordId = resultSet.getLong("c.discordId");
+				int crowns = resultSet.getInt("ord");
+				returnedList.add(new ArtistLbEntry(lastFMId, discordId, crowns));
+
+			}
+			return returnedList;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException((e));
+		}
+	}
 }
 
 

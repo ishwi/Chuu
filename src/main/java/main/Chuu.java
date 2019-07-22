@@ -114,6 +114,8 @@ class Chuu {
 		builder.addEventListeners(help.registerCommand(new YoutubeSearch(dao)));
 		builder.addEventListeners(help.registerCommand(new UniqueLeaderboardCommand(dao)));
 		builder.addEventListeners(help.registerCommand(new ProfileInfoCommand(dao)));
+		builder.addEventListeners(help.registerCommand(new ArtistCountLeaderboard(dao)));
+		builder.addEventListeners(help.registerCommand(new ArtistNumberCommand(dao)));
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
 		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, DiscogsSingleton
