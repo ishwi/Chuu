@@ -425,7 +425,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				"    WHERE " +
 				"        c.guildId = ? " +
 				" group by a.lastFMID,c.discordId " +
-				"        )";
+				"    order by ord desc    )";
 
 		List<LbEntry> returnedList = new ArrayList<>();
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
