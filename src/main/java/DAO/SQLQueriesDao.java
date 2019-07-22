@@ -21,5 +21,7 @@ public interface SQLQueriesDao {
 
 	int userPlays(Connection con, String artist, String whom);
 
-	List<CrownsLbEntry> crownsLeaderboard(Connection con, long guildID);
+	List<LbEntry> crownsLeaderboard(Connection con, long guildID);
+
+	List<LbEntry> uniqueLeaderboard(Connection connection, long guildId);
 }

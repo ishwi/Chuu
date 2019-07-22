@@ -357,7 +357,7 @@ public class DaoImplementation {
 		}
 	}
 
-	public List<CrownsLbEntry> getGuildCrownLb(long guildId) {
+	public List<LbEntry> getGuildCrownLb(long guildId) {
 
 		try (Connection connection = dataSource.getConnection()) {
 			connection.setReadOnly(true);
@@ -487,4 +487,16 @@ public class DaoImplementation {
 
 		}
 	}
+
+	public List<LbEntry> getUniqueLeaderboard(long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return queriesDao.uniqueLeaderboard(connection, guildId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+
+		}
+	}
+
+
 }
