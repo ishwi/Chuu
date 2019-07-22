@@ -1,8 +1,8 @@
 package DAO.Entities;
 
-public class CrownsLbEntry extends LbEntry {
+public class UniqueLbEntry extends LbEntry {
 
-	public CrownsLbEntry(String user, long discordId, int entryCount) {
+	public UniqueLbEntry(String user, long discordId, int entryCount) {
 		super(user, discordId, entryCount);
 	}
 
@@ -13,7 +13,7 @@ public class CrownsLbEntry extends LbEntry {
 				"](https://www.last.fm/user/" +
 				getLastFmId() +
 				") - " + getEntryCount() +
-				" crowns\n";
+				" unique artists\n";
 	}
 
 }

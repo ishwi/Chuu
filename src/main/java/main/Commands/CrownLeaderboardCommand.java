@@ -1,18 +1,18 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
-import DAO.Entities.CrownsLbEntry;
+import DAO.Entities.LbEntry;
 import main.OtherListeners.Reactionary;
 import main.Parsers.NoOpParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class CrownLeaderboardCommand extends ConcurrentCommand {
-
+	public String entryName = "Crowns";
 	public CrownLeaderboardCommand(DaoImplementation dao) {
 		super(dao);
 		this.respondInPrivate = false;
@@ -22,27 +22,35 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
-		List<CrownsLbEntry> crownList = getDao().getGuildCrownLb(e.getGuild().getIdLong());
-		crownList.forEach(cl -> cl.setDiscordName(getUserString(cl.getDiscordId(), e, cl.getLastFmId())));
+		printList(getList(e.getGuild().getIdLong()), e);
+
+	}
+
+	public List<LbEntry> getList(long guildId) {
+		return getDao().getGuildCrownLb(guildId);
+	}
+
+	public void printList(List<LbEntry> list, MessageReceivedEvent e) {
+		list.forEach(cl -> cl.setDiscordName(getUserString(cl.getDiscordId(), e, cl.getLastFmId())));
 		MessageBuilder messageBuilder = new MessageBuilder();
 
 		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
 				.setThumbnail(e.getGuild().getIconUrl());
 		StringBuilder a = new StringBuilder();
 
-		if (crownList.size() == 0) {
+		if (list.size() == 0) {
 			sendMessage(e, "This guild has no registered users:(");
 			return;
 		}
 
-		for (int i = 0; i < 10 && i < crownList.size(); i++) {
-			a.append(i + 1).append(crownList.get(i).toString());
+		for (int i = 0; i < 10 && i < list.size(); i++) {
+			a.append(i + 1).append(list.get(i).toString());
 		}
-		embedBuilder.setDescription(a).setTitle(e.getGuild().getName() + "'s Crowns leadearboard")
+		embedBuilder.setDescription(a).setTitle(e.getGuild().getName() + "'s " + entryName + " leadearboard")
 				.setThumbnail(e.getGuild().getIconUrl())
-				.setFooter(e.getGuild().getName() + " has " + crownList.size() + " registered users!\n", null);
+				.setFooter(e.getGuild().getName() + " has " + list.size() + " registered users!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
-				new Reactionary<>(crownList, message, embedBuilder)
+				new Reactionary<>(list, message, embedBuilder)
 		);
 	}
 
@@ -58,7 +66,7 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("!crownslb", "!lb", "!leaderboard");
+		return Collections.singletonList("!crownslb");
 	}
 
 

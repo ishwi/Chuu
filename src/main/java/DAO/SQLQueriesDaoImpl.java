@@ -298,38 +298,38 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 	}
 
 	@Override
-	public List<CrownsLbEntry> crownsLeaderboard(Connection connection, long guildID) {
-		@Language("MySQL") String queryString = "SELECT t2.lastFMID,t3.discordID,count(t2.lastFMID) ord\n" +
-				"From\n" +
-				"(\n" +
-				"Select\n" +
-				"        a.artist_id,max(a.playNumber) plays\n" +
-				"    FROM\n" +
-				"         artist a \n" +
-				"    JOIN\n" +
-				"        lastfm b \n" +
-				"            ON a.lastFMID = b.lastFmId \n" +
-				"    JOIN\n" +
-				"        user_guild c \n" +
-				"            ON b.discordID = c.discordId \n" +
-				"    WHERE\n" +
-				"        c.guildId = ? \n" +
-				"    GROUP BY\n" +
-				"        a.artist_id \n" +
-				"  ) t\n" +
-				"  JOIN artist t2 \n" +
-				"  \n" +
-				"  on t.plays = t2.playNumber and t.artist_id = t2.artist_id\n" +
-				"  JOIN lastfm t3  ON t2.lastFMID = t3.lastFmId \n" +
-				"    JOIN\n" +
-				"        user_guild t4 \n" +
-				"            ON t3.discordID = t4.discordId \n" +
-				"    WHERE\n" +
-				"        t4.guildId = ? \n" +
-				"  group by t2.lastFMID,t3.discordID\n" +
+	public List<LbEntry> crownsLeaderboard(Connection connection, long guildID) {
+		@Language("MySQL") String queryString = "SELECT t2.lastFMID,t3.discordID,count(t2.lastFMID) ord " +
+				"From " +
+				"( " +
+				"Select " +
+				"        a.artist_id,max(a.playNumber) plays " +
+				"    FROM " +
+				"         artist a  " +
+				"    JOIN " +
+				"        lastfm b  " +
+				"            ON a.lastFMID = b.lastFmId  " +
+				"    JOIN " +
+				"        user_guild c  " +
+				"            ON b.discordID = c.discordId  " +
+				"    WHERE " +
+				"        c.guildId = ?  " +
+				"    GROUP BY " +
+				"        a.artist_id  " +
+				"  ) t " +
+				"  JOIN artist t2  " +
+				"   " +
+				"  on t.plays = t2.playNumber and t.artist_id = t2.artist_id " +
+				"  JOIN lastfm t3  ON t2.lastFMID = t3.lastFmId  " +
+				"    JOIN " +
+				"        user_guild t4  " +
+				"            ON t3.discordID = t4.discordId  " +
+				"    WHERE " +
+				"        t4.guildId = ?  " +
+				"  group by t2.lastFMID,t3.discordID " +
 				"  order by ord desc";
 
-		List<CrownsLbEntry> returnedList = new ArrayList<>();
+		List<LbEntry> returnedList = new ArrayList<>();
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			int i = 1;
 			preparedStatement.setLong(i++, guildID);
@@ -352,6 +352,46 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 		}
 
 
+	}
+
+	@Override
+	public List<LbEntry> uniqueLeaderboard(Connection connection, long guildId) {
+		@Language("MySQL") String queryString = "SELECT  " +
+				"    count(temp.lastfmID) as ord,temp.lastFMID,temp.discordID " +
+				"FROM " +
+				"    (SELECT  " +
+				"        artist_id, playNumber, a.lastFMID, b.discordID " +
+				"    FROM " +
+				"        artist a " +
+				"    JOIN lastfm b ON a.lastFMID = b.lastFmId " +
+				"    JOIN user_guild c ON b.discordID = c.discordId " +
+				"    WHERE " +
+				"        c.guildId = ? " +
+				"            AND a.playNumber > 2 " +
+				"    GROUP BY a.artist_id " +
+				"    HAVING COUNT(*) = 1) temp " +
+				"group by lastFMID " +
+				"ORDER BY ord DESC";
+
+		List<LbEntry> returnedList = new ArrayList<>();
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			int i = 1;
+			preparedStatement.setLong(i, guildId);
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) { //&& (j < 10 && j < rows)) {
+				String lastFMId = resultSet.getString("temp.lastFMID");
+				long discordId = resultSet.getLong("temp.discordID");
+				int crowns = resultSet.getInt("ord");
+				returnedList.add(new UniqueLbEntry(lastFMId, discordId, crowns));
+
+			}
+			return returnedList;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException((e));
+		}
 	}
 
 }
