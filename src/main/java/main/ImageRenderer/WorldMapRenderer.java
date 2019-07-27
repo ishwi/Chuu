@@ -3,7 +3,6 @@ package main.ImageRenderer;
 import DAO.Entities.Country;
 import main.Commands.CommandUtil;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
-import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.PNGTranscoder;
@@ -92,7 +91,7 @@ public class WorldMapRenderer {
 		try {
 			s.transcode(input, output);
 			return ostream.toByteArray();
-		} catch (TranscoderException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -148,10 +147,11 @@ public class WorldMapRenderer {
 				previous = range[i + 1];
 			Element elementById = doc.getElementById(textDescArray[i]);
 			if (previous + 1 == range[i])
-				elementById.getFirstChild().setNodeValue(range[i] + CommandUtil.singlePlural(1, "Artist", "Artists"));
+				elementById.getFirstChild()
+						.setNodeValue(range[i] + CommandUtil.singlePlural(range[i], " Artist", " Artists"));
 			else
 				elementById.getFirstChild().setNodeValue((previous + 1) + "-" + (range[i]) + CommandUtil
-						.singlePlural(1, "Artist", "Artists"));
+						.singlePlural(range[i], " Artist", " Artists"));
 		}
 		Element elementById = doc.getElementById(textDescArray[6]);
 		elementById.getFirstChild().setNodeValue("# Countries: " + totalCountries);
