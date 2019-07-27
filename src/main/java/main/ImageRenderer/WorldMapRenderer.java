@@ -129,12 +129,12 @@ public class WorldMapRenderer {
 	}
 
 	private static String index(int plays, Integer[] range, String[] pallete) {
-		for (int i = 0; i < range.length; i++) {
-			if (plays >= range[i]) {
-				return pallete[range.length - 1 - i];
-			}
+		int i = range.length - 1;
+		while (plays > range[i] && i > 0) {
+			i--;
 		}
-		return pallete[0];
+		return pallete[range.length - 1 - i];
+
 	}
 
 	private static void initLegendText(Integer[] range, Document doc, int totalCountries) {
