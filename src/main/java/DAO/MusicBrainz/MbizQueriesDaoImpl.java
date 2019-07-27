@@ -1,6 +1,8 @@
 package DAO.MusicBrainz;
 
 import DAO.Entities.AlbumInfo;
+import DAO.Entities.ArtistInfo;
+import DAO.Entities.Country;
 import DAO.Entities.Genre;
 import org.intellij.lang.annotations.Language;
 
@@ -21,7 +23,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 		List<AlbumInfo> returnList = new ArrayList<>();
 		long discordID;
 
-		@Language("MySQL") String queryString = "SELECT \n" +
+		@Language("PostgreSQL") String queryString = "SELECT \n" +
 				"a.name as albumname,a.gid as mbid,b.name artistName\n" +
 				"FROM\n" +
 				"    musicbrainz.release a\n" +
@@ -63,7 +65,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
 	@Override
 	public List<AlbumInfo> getYearAlbumsByReleaseName(Connection con, List<AlbumInfo> releaseInfo, Year year) {
-		@Language("MySQL") String queryString = "SELECT DISTINCT\n" +
+		@Language("PostgreSQL") String queryString = "SELECT DISTINCT\n" +
 				"    (a.name) as artistname, b.name as albumname,  d.first_release_date_year as year \n" +
 				"FROM\n" +
 				"    musicbrainz.artist_credit a\n" +
@@ -117,7 +119,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 	@Override
 	public Map<Genre, Integer> genreCount(Connection con, List<AlbumInfo> releaseInfo) {
 		Map<Genre, Integer> returnMap = new HashMap<>();
-		@Language("MySQL") String queryString = "SELECT \n" +
+		@Language("PostgreSQL") String queryString = "SELECT \n" +
 				"       c.name as neim, count(*) as count\n \n" +
 				" FROM\n" +
 				" musicbrainz.release d join \n" +
@@ -151,6 +153,52 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 				int count = resultSet.getInt("count");
 
 				returnMap.put(new Genre(mbid, ""), count);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		return returnMap;
+
+	}
+
+	@Override
+	public Map<Country, Integer> countryCount(Connection connection, List<ArtistInfo> releaseInfo) {
+		Map<Country, Integer> returnMap = new HashMap<>();
+		@Language("PostgreSQL") String queryString = "SELECT \n" +
+				"       c.code as code, b.name as neim, count(*) as count\n \n" +
+				" FROM\n" +
+				" musicbrainz.artist a join \n" +
+				" musicbrainz.area b" +
+				" join musicbrainz.iso_3166_1 c  on b.id=c.area " +
+				" on a.area = b.id" +
+				"  WHERE b.type = 1" +
+				"	 and " +
+				"    a.gid in (";
+
+		for (ArtistInfo ignored : releaseInfo) {
+			queryString += " ? ,";
+		}
+
+		queryString = queryString.substring(0, queryString.length() - 1) + ")";
+		queryString += " \n GROUP BY  b.name,c.code";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			int i = 1;
+
+			for (ArtistInfo albumInfo : releaseInfo) {
+				preparedStatement.setObject(i++, java.util.UUID.fromString(albumInfo.getMbid()));
+			}
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			while (resultSet.next()) {
+
+				String coutryName = resultSet.getString("neim");
+				String code = resultSet.getString("code");
+
+				int frequency = resultSet.getInt("count");
+
+				returnMap.put(new Country(coutryName, code), frequency);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

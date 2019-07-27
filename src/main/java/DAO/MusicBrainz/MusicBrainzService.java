@@ -1,6 +1,8 @@
 package DAO.MusicBrainz;
 
 import DAO.Entities.AlbumInfo;
+import DAO.Entities.ArtistInfo;
+import DAO.Entities.Country;
 import DAO.Entities.Genre;
 
 import java.time.Year;
@@ -20,4 +22,5 @@ public interface MusicBrainzService {
 
 	Map<Genre, Integer> genreCount(List<AlbumInfo> releaseInfo);
 
+	Map<Country, Integer> countryCount(List<ArtistInfo> artistInfo);
 }

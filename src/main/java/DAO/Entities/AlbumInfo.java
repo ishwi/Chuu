@@ -1,32 +1,22 @@
 package DAO.Entities;
 
-public class AlbumInfo {
-	private String mbid;
+public class AlbumInfo extends EntityInfo {
 	private String name;
-	private String artist;
 
 	public AlbumInfo(String name, String artist) {
+		super(null, artist);
 		this.name = name;
-		this.artist = artist;
 	}
 
 	public AlbumInfo(String mbid, String name, String artist) {
-		this.mbid = mbid;
+		super(mbid, artist);
 		this.name = name;
-		this.artist = artist;
 	}
 
 	public AlbumInfo(String mbid) {
-		this.mbid = mbid;
+		super(mbid, null);
 	}
 
-	public String getArtist() {
-		return artist;
-	}
-
-	public void setArtist(String artist) {
-		this.artist = artist;
-	}
 
 	public String getName() {
 		return name;
@@ -36,11 +26,5 @@ public class AlbumInfo {
 		this.name = name;
 	}
 
-	public String getMbid() {
-		return mbid;
-	}
 
-	public void setMbid(String mbid) {
-		this.mbid = mbid;
-	}
 }

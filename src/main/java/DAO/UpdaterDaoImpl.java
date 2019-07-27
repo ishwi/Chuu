@@ -150,7 +150,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 			/* Fill "preparedStatement". */
 			int i = 1;
-			preparedStatement.setString(i++, artistInfo.getArtistName());
+			preparedStatement.setString(i++, artistInfo.getArtist());
 			preparedStatement.setString(i++, artistInfo.getArtistUrl());
 			preparedStatement.setString(i, artistInfo.getArtistUrl());
 
@@ -175,7 +175,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 			/* Fill "preparedStatement". */
 			int i = 1;
-			preparedStatement.setString(i++, artistInfo.getArtistName());
+			preparedStatement.setString(i++, artistInfo.getArtist());
 			preparedStatement.setString(i++, artistInfo.getArtistUrl());
 			preparedStatement.setBoolean(i++, bit);
 

@@ -31,7 +31,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
 		if (message == null)
 			return;
 
-		boolean showFresh = message.length != subMessage.length;
+		boolean showFresh = message.length == subMessage.length;
 
 		List<UsersWrapper> list = getDao().getAll(e.getGuild().getIdLong());
 		MessageBuilder messageBuilder = new MessageBuilder();
