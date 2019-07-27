@@ -1,6 +1,7 @@
 package main.ImageRenderer;
 
 import DAO.Entities.Country;
+import main.Commands.CommandUtil;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
@@ -97,17 +98,21 @@ public class WorldMapRenderer {
 		}
 	}
 
+
+	//From bigger to smaller
 	private static Integer[] initRange(int max, int length) {
 		Integer[] returnedArray = new Integer[length];
-		if (max < 8) {
-			for (int i = length - 1; i >= 0; i--) {
-				returnedArray[i] = max / length;
-				max *= 2;
+		int initValue = 1;
+		returnedArray[length - 1] = initValue;
+
+		if (max < 32) {
+			for (int i = length - 2; i >= 0; i--) {
+				returnedArray[i] = returnedArray[i + 1] * 2;
 			}
 		} else {
 
-			for (int i = 0; i < length; i++) {
-				returnedArray[i] = max;
+			for (int i = 0; i < length - 1; i++) {
+				returnedArray[i] = Math.max(2, max);
 				max /= 2;
 			}
 		}
@@ -134,9 +139,19 @@ public class WorldMapRenderer {
 	}
 
 	private static void initLegendText(Integer[] range, Document doc, int totalCountries) {
+		//Bottom to top
 		for (int i = 0; i < textDescArray.length - 1; i++) {
+			int previous;
+			if (i == textDescArray.length - 2) {
+				previous = 0;
+			} else
+				previous = range[i + 1];
 			Element elementById = doc.getElementById(textDescArray[i]);
-			elementById.getFirstChild().setNodeValue("> " + range[i] + " Artists");
+			if (previous + 1 == range[i])
+				elementById.getFirstChild().setNodeValue(range[i] + CommandUtil.singlePlural(1, "Artist", "Artists"));
+			else
+				elementById.getFirstChild().setNodeValue((previous + 1) + "-" + (range[i]) + CommandUtil
+						.singlePlural(1, "Artist", "Artists"));
 		}
 		Element elementById = doc.getElementById(textDescArray[6]);
 		elementById.getFirstChild().setNodeValue("# Countries: " + totalCountries);
