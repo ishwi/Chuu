@@ -4,7 +4,7 @@ import DAO.DaoImplementation;
 import DAO.Entities.AlbumInfo;
 import DAO.Entities.UrlCapsule;
 import DAO.MusicBrainz.MusicBrainzService;
-import DAO.MusicBrainz.MusicBrainzServiceImpl;
+import DAO.MusicBrainz.MusicBrainzServiceSingleton;
 import main.Exceptions.LastFmException;
 import main.Parsers.ChartFromYearParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class MusicBrainzCommand extends ArtistCommand {
-	private final MusicBrainzService mb = new MusicBrainzServiceImpl();
+	private final MusicBrainzService mb = MusicBrainzServiceSingleton.getInstance();
 	private final int chartSize = 100;
 
 	public MusicBrainzCommand(DaoImplementation dao) {

@@ -1,13 +1,19 @@
 package DAO.Entities;
 
-public class ArtistInfo {
+public class ArtistInfo extends EntityInfo {
 	private String artistUrl;
-	private String artistName;
+
 
 	public ArtistInfo(String artistUrl, String artistName) {
+		super(null, artistName);
 		this.artistUrl = artistUrl;
-		this.artistName = artistName;
 	}
+
+	public ArtistInfo(String artistUrl, String artistName, String mbid) {
+		super(mbid, artistName);
+		this.artistUrl = artistUrl;
+	}
+
 
 	public String getArtistUrl() {
 		return artistUrl;
@@ -17,11 +23,4 @@ public class ArtistInfo {
 		this.artistUrl = artistUrl;
 	}
 
-	public String getArtistName() {
-		return artistName;
-	}
-
-	public void setArtistName(String artistName) {
-		this.artistName = artistName;
-	}
 }

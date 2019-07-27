@@ -55,7 +55,7 @@ public class TasteCommand extends ConcurrentCommand {
 
 	@Override
 	public String getDescription() {
-		return "Compare Your musical taste with a colleage";
+		return "Compare Your musical taste with a  colleague";
 	}
 
 	@Override

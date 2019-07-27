@@ -23,7 +23,6 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
 		printList(getList(e.getGuild().getIdLong()), e);
-
 	}
 
 	public List<LbEntry> getList(long guildId) {

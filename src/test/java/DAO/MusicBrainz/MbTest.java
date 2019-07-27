@@ -25,7 +25,7 @@ public class MbTest {
 	@Test
 	public void test1() {
 
-		MusicBrainzService a = new MusicBrainzServiceImpl();
+		MusicBrainzService a = MusicBrainzServiceSingleton.getInstance();
 		List<AlbumInfo> mbizList = generateListMbiz();
 		List<AlbumInfo> b = a.listOfYearReleases(mbizList, Year.of(2018));
 		List<AlbumInfo> c = a.listOfYearReleases(mbizList, Year.of(2017));
@@ -36,7 +36,7 @@ public class MbTest {
 	@Test
 	public void test2() {
 
-		MusicBrainzService a = new MusicBrainzServiceImpl();
+		MusicBrainzService a = MusicBrainzServiceSingleton.getInstance();
 		List<AlbumInfo> mbizList = new ArrayList<>();
 		mbizList.add(new AlbumInfo("", "Prophets", "counterparts"));
 		mbizList.add(new AlbumInfo("", "Wildlife", "La dispute"));
@@ -50,7 +50,7 @@ public class MbTest {
 	@Test
 	public void test3() {
 
-		MusicBrainzService a = new MusicBrainzServiceImpl();
+		MusicBrainzService a = MusicBrainzServiceSingleton.getInstance();
 		List<AlbumInfo> mbizList = generateListMbiz();
 
 		Map<Genre, Integer> map = a.genreCount(mbizList);

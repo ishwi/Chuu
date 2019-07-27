@@ -6,7 +6,7 @@ import DAO.Entities.Genre;
 import DAO.Entities.TimeFrameEnum;
 import DAO.Entities.UrlCapsule;
 import DAO.MusicBrainz.MusicBrainzService;
-import DAO.MusicBrainz.MusicBrainzServiceImpl;
+import DAO.MusicBrainz.MusicBrainzServiceSingleton;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Parsers.TimerFrameParser;
@@ -31,7 +31,7 @@ public class GenreCommand extends ConcurrentCommand {
 	public GenreCommand(DaoImplementation dao) {
 		super(dao);
 		this.parser = new TimerFrameParser(dao, TimeFrameEnum.YEAR);
-		this.musicBrainz = new MusicBrainzServiceImpl();
+		this.musicBrainz = MusicBrainzServiceSingleton.getInstance();
 	}
 
 	@Override
@@ -49,11 +49,25 @@ public class GenreCommand extends ConcurrentCommand {
 		try {
 			lastFM.getUserList(username, timeframe, 15, 15, true, queue);
 		} catch (LastFmEntityNotFoundException ex) {
-
+			parser.sendError(parser.getErrorMessage(4), e);
+			return;
 		} catch (LastFmException ex) {
-
+			parser.sendError(parser.getErrorMessage(2), e);
 			return;
 		}
+
+		List<AlbumInfo> albumInfos = queue.stream()
+				.map(capsule -> new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()))
+				.filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
+				.collect(Collectors.toList());
+		Map<Genre, Integer> map = musicBrainz.genreCount(albumInfos);
+		if (map.isEmpty()) {
+			sendMessage(e, "Was not able to find any genre ");
+			return;
+		}
+
+
+
 		PieChart pieChart =
 				new PieChartBuilder()
 						.width(800)
@@ -68,19 +82,14 @@ public class GenreCommand extends ConcurrentCommand {
 		pieChart.getStyler().setAnnotationType(PieStyler.AnnotationType.LabelAndPercentage);
 		pieChart.getStyler().setDrawAllAnnotations(true);
 		pieChart.getStyler().setStartAngleInDegrees(90);
-		List<AlbumInfo> albumInfos = queue.stream()
-				.map(capsule -> new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()))
-				.collect(Collectors.toList());
-		List<AlbumInfo> mbizList =
-				albumInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
-						.collect(Collectors.toList());
-		Map<Genre, Integer> map = musicBrainz.genreCount(mbizList);
+
 		map.entrySet().stream().sorted(((o1, o2) -> -o1.getValue().compareTo(o2.getValue()))).sequential().limit(10)
 				.forEachOrdered(entry -> {
 					Genre genre = entry.getKey();
 					int plays = entry.getValue();
 					pieChart.addSeries(genre.getGenreName(), plays);
 				});
+
 		BufferedImage bufferedImage = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = bufferedImage.createGraphics();
 		pieChart.paint(g, 800, 600);

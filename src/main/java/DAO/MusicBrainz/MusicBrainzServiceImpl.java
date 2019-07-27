@@ -1,6 +1,8 @@
 package DAO.MusicBrainz;
 
 import DAO.Entities.AlbumInfo;
+import DAO.Entities.ArtistInfo;
+import DAO.Entities.Country;
 import DAO.Entities.Genre;
 import DAO.SimpleDataSource;
 
@@ -60,5 +62,15 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
 			throw new RuntimeException(e);
 		}
 
+	}
+
+	@Override
+	public Map<Country, Integer> countryCount(List<ArtistInfo> artistInfo) {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return mbizQueriesDao.countryCount(connection, artistInfo);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
