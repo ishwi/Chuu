@@ -158,9 +158,15 @@
         * }
         *
         */
-        .us {
-        color: blue;
-        fill: green;
+        text {
+
+        paint-order: stroke;
+        stroke: white;
+        stroke-width: 1px;
+        stroke-linecap: butt;
+        stroke-linejoin: miter;
+        font-weight: 800;
+
         }
 
 
@@ -5047,5 +5053,113 @@
  */
 -->
 
+
+    <!--
+Legend
+-->
+    <rect
+            height="80"
+            width="80"
+            y="-1459"
+            x="-52"
+            transform="scale(-1,-1)"
+            style="fill:#c0c0c0;fill-opacity:1;stroke:#000000;stroke-width:0.81832659;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+            id="rect6301"/>
+    <rect
+            height="80"
+            width="80"
+            y="-1384"
+            x="-52"
+            transform="scale(-1,-1)"
+            style="fill-opacity:1;stroke:#000000;stroke-width:0.81832659;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+            id="rect6288"/>
+    <rect
+            height="80"
+            width="80"
+            y="-1304"
+            x="-52"
+            transform="scale(-1,-1)"
+            style="fill-opacity:1;stroke:#000000;stroke-width:0.81832659;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+            id="rect6286"/>
+    <rect
+            height="80"
+            width="80"
+            y="-1224"
+            x="-52"
+            transform="scale(-1,-1)"
+            style=";fill-opacity:1;stroke:#000000;stroke-width:0.81832659;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+            id="rect6284"/>
+    <rect
+            height="80"
+            width="80"
+            y="-1144"
+            x="-52"
+            transform="scale(-1,-1)"
+            style="fill-opacity:1;stroke:#000000;stroke-width:0.81832659;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+            id="rect6282"/>
+    <rect
+            height="80"
+            width="80"
+            y="-1064"
+            x="-52"
+            transform="scale(-1,-1)"
+            style="fill-opacity:1;stroke:#000000;stroke-width:0.81832659;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+            id="rect6280"/>
+    <rect
+            height="80"
+            width="80"
+            y="-984"
+            x="-52"
+            transform="scale(-1,-1)"
+            style="fill-opacity:1;stroke:#000000;stroke-width:0.81832659;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+            id="rect6278"/>
+    <g
+            font-family="sans-serif"
+            font-size="60"
+
+            id="g2515"
+    >
+
+        <text
+                x="74"
+                y="969"
+                id="text2527">300 Artists
+        </text>
+        <text
+                x="74"
+                y="1049"
+                id="text2525">150 Artists
+        </text>
+        <text
+                x="74.4149"
+                y="1129"
+                id="text2523">75 Artists
+        </text>
+        <text
+                x="74.4149"
+                y="1209"
+                id="text2521">35 Artists
+        </text>
+        <text
+                x="74.4149"
+                y="1289"
+                id="text2519">15 Artists
+        </text>
+        <text
+                x="74.4149"
+                y="1369"
+                id="text2517">7 Artists
+        </text>
+        <text
+                x="74.4149"
+                y="1454"
+                id="text2537">No data
+        </text>
+        <text
+                x="2220"
+                y="1454"
+                id="text2539">Total Country Count : 2013
+        </text>
+    </g>
 
 </svg>

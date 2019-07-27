@@ -39,6 +39,8 @@ public class CountryCommand extends ConcurrentCommand {
 
 		String username = returned[0];
 		String timeframe = returned[1];
+		if (timeframe.equals(TimeFrameEnum.SEMESTER.toApiFormat()) || timeframe.equals(TimeFrameEnum.ALL.toApiFormat()))
+			sendMessage(e, "Going to take a while ");
 
 		BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 		try {
@@ -54,17 +56,22 @@ public class CountryCommand extends ConcurrentCommand {
 				.map(capsule -> new ArtistInfo(capsule.getUrl(), capsule.getArtistName(), capsule.getMbid()))
 				.filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
 				.collect(Collectors.toList());
-		StringBuilder sb = new StringBuilder();
+
 		Map<Country, Integer> map = musicBrainz.countryCount(artistInfos);
+
 		if (map.isEmpty()) {
 			sendMessage(e, "Was not able to find any country ");
 			return;
 		}
 
 		byte[] b = WorldMapRenderer.generateImage(map);
+		if (b == null) {
+			parser.sendError("Unknown error happened while creating the map", e);
+			return;
+		}
 
 		if (b.length < 8388608)
-			e.getChannel().sendFile(b, "cat.png").queue();
+			e.getChannel().sendFile(b, "cat.jpeg").queue();
 			//messageBuilder.sendTo(e.getChannel()).addFile(img, "cat.png").queue();
 		else
 			e.getChannel().sendMessage("Boot too big").queue();
