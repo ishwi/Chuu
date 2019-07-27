@@ -85,6 +85,71 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
+	//@Override
+	public List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFmException {
+		List<UserInfo> returnList = new ArrayList<>();
+
+		for (String lastFmName : lastFmNames) {
+			String url = BASE + GET_USER + lastFmName + API_KEY + ending;
+			HttpMethodBase method = createMethod(url);
+			JSONObject obj = doMethod(method);
+			obj = obj.getJSONObject("user");
+			JSONArray image = obj.getJSONArray("image");
+			JSONObject bigImage = image.getJSONObject(image.length() - 1);
+			String image2 = bigImage.getString("#text");
+			int unixTime = obj.getJSONObject("registered").getInt("#text");
+			int playCount = obj.getInt("playcount");
+			returnList.add(new UserInfo(playCount, image2, lastFmName, unixTime));
+
+		}
+
+		return returnList;
+
+	}
+
+	private JSONObject doMethod(HttpMethod method) throws LastFmException {
+		method.addRequestHeader(this.header);
+
+		int counter = 0;
+		while (true) {
+			try {
+
+				int response_code = client.executeMethod(method);
+				parseHttpCode(response_code);
+				byte[] responseBody = method.getResponseBody();
+				return new JSONObject(new String(responseBody));
+			} catch (HttpException e) {
+				System.out.println("HTTP");
+				e.printStackTrace();
+				//	throw new LastFMServiceException("HTTP");
+			} catch (IOException e) {
+				System.out.println("IO");
+				e.printStackTrace();
+				//	throw new LastFMServiceException("IO");
+			} catch (LastFMServiceException ex) {
+				System.out.println("500");
+				ex.printStackTrace();
+			} finally {
+				method.releaseConnection();
+			}
+			System.out.println("Reattempting request");
+			if (++counter == 3) {
+				throw new LastFMServiceException("IO");
+			}
+
+		}
+	}
+
+	private void parseHttpCode(int code) throws LastFmException {
+		if (code / 100 == 2)
+			return;
+		if (code == 404)
+			throw new LastFmEntityNotFoundException("404");
+		if (code == 500)
+			throw new LastFMServiceException("500");
+
+	}
+
 	public void getUserList(String userName, String weekly, int x, int y, boolean isAlbum, BlockingQueue<UrlCapsule> queue) throws
 			LastFmException {
 
@@ -146,72 +211,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 		//
 	}
 
-	private JSONObject doMethod(HttpMethod method) throws LastFmException {
-		method.addRequestHeader(this.header);
-		try {
-
-			int response_code = client.executeMethod(method);
-			parseHttpCode(response_code);
-			byte[] responseBody = method.getResponseBody();
-			return new JSONObject(new String(responseBody));
-
-		} catch (HttpException e) {
-			System.out.println("HTTP");
-			e.printStackTrace();
-			throw new LastFMServiceException("HTTP");
-		} catch (IOException e) {
-			System.out.println("IO");
-			e.printStackTrace();
-			throw new LastFMServiceException("IO");
-
-
-		} finally {
-
-			method.releaseConnection();
-		}
-
-
-	}
-
-	private void parseHttpCode(int code) throws LastFmException {
-		if (code / 100 == 2)
-			return;
-		if (code == 404)
-			throw new LastFmEntityNotFoundException("404");
-		if (code == 500)
-			throw new LastFMServiceException("500");
-
-	}
-
-	//@Override
-	public List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFmException {
-		List<UserInfo> returnList = new ArrayList<>();
-
-		for (String lastFmName : lastFmNames) {
-			String url = BASE + GET_USER + lastFmName + API_KEY + ending;
-			HttpMethodBase method = createMethod(url);
-			JSONObject obj = doMethod(method);
-			obj = obj.getJSONObject("user");
-			JSONArray image = obj.getJSONArray("image");
-			JSONObject bigImage = image.getJSONObject(image.length() - 1);
-			String image2 = bigImage.getString("#text");
-			int unixTime = obj.getJSONObject("registered").getInt("#text");
-			int playCount = obj.getInt("playcount");
-			returnList.add(new UserInfo(playCount, image2, lastFmName, unixTime));
-
-		}
-
-		return returnList;
-
-	}
-
-	private HttpMethodBase createMethod(String url) {
-		GetMethod method = new GetMethod(url);
-		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
-		return method;
-
-	}
-
 	private UrlCapsule parseAlbum(JSONObject albumObj, int size) {
 		JSONObject artistObj = albumObj.getJSONObject("artist");
 		String albumName = albumObj.getString("name");
@@ -233,6 +232,13 @@ public class ConcurrentLastFM {//implements LastFMService {
 //		JSONArray image = artistObj.getJSONArray("image");
 //		JSONObject bigImage = image.getJSONObject(image.length() - 1);
 		return new UrlCapsule(null, size, "", artistName, mbid, plays);
+	}
+
+	private HttpMethodBase createMethod(String url) {
+		GetMethod method = new GetMethod(url);
+		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
+		return method;
+
 	}
 
 	public SecondsTimeFrameCount getMinutesWastedOnMusic(String username, String period) throws LastFmException {
