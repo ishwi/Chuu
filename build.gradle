@@ -84,5 +84,7 @@ dependencies {
     compile group: 'org.apache.xmlgraphics', name: 'batik-transcoder', version: '1.11'
 
     compile group: 'org.apache.xmlgraphics', name: 'batik-codec', version: '1.11'
+// https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-svggen
+    compile group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.11'
 
 }
