@@ -110,17 +110,6 @@ public class WorldMapRenderer {
 			returnedArray[i + 1] = Math.max((int) Math.pow(Math.E, (Math.log(max) / 6) * ((i + 1))), i + 2);
 		}
 
-		//if (max < 32) {
-		//	for (int i = length - 2; i >= 0; i--) {
-		//		returnedArray[i] = returnedArray[i + 1] * 2;
-		//	}
-		//} else {
-		//
-		//	for (int i = 0; i < length - 1; i++) {
-		//		returnedArray[i] = Math.max(2, max);
-		//		max /= 2;
-		//	}
-		//}
 		ArrayUtils.reverse(returnedArray);
 		return returnedArray;
 	}
@@ -151,14 +140,10 @@ public class WorldMapRenderer {
 				.setNodeValue("> " + range[0] + CommandUtil.singlePlural(range[0], " Artist", " Artists"));
 
 		for (int i = 1; i < textDescArray.length - 1; i++) {
-			int previous;
-			if (i == textDescArray.length - 2) {
-				previous = 1;
-			} else
-				previous = range[i - 1];
+			int previous = range[i - 1];
 			elementById = doc.getElementById(textDescArray[i]);
 
-			if (previous == range[i])
+			if (previous - 1 == range[i])
 				elementById.getFirstChild()
 						.setNodeValue(range[i] + CommandUtil.singlePlural(range[i], " Artist", " Artists"));
 			else
