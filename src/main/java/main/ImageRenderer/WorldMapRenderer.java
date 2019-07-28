@@ -66,7 +66,8 @@ public class WorldMapRenderer {
 		Optional<Integer> max = countryFrequency.values().stream().max(Integer::compareTo);
 		if (!max.isPresent())
 			return null;
-		Integer[] range = initRange(max.get(), palette.length);
+		
+		Integer[] range = initRange(max.get(), palette.length,countryFrequency.values().toArray(new Integer[0]));
 
 		initColours(range, palette, sb);
 		initLegendText(range, doc, countryFrequency.size());
@@ -99,22 +100,38 @@ public class WorldMapRenderer {
 
 
 	//From bigger to smaller
-	private static Integer[] initRange(int max, int length) {
+	private static Integer[] initRange(int max, int length,Integer[] frequencies) {
 		Integer[] returnedArray = new Integer[length];
 		int initValue = 1;
-		returnedArray[length - 1] = initValue;
-
-		if (max < 32) {
-			for (int i = length - 2; i >= 0; i--) {
-				returnedArray[i] = returnedArray[i + 1] * 2;
-			}
-		} else {
-
-			for (int i = 0; i < length - 1; i++) {
-				returnedArray[i] = Math.max(2, max);
-				max /= 2;
-			}
+		double sum = 0;
+		double sq_sum =0;
+		int n = frequencies.length;
+		for (int i=0; i < n; ++i) {
+			double ai = frequencies[i];
+			sum += ai;
+			sq_sum += ai * ai;
 		}
+		double mean = sum /n;
+		double std = Math.sqrt(sq_sum /n - mean * mean);
+
+		returnedArray[length - 1] = initValue;
+		returnedArray[0] = max;
+		int middle = length /2;
+		for (int i=1; i<length-1; i++) {
+
+		returnedArray[i] = (int) Math.max(returnedArray[i-1]+1,mean - (i - middle )* std);
+		}
+		//if (max < 32) {
+		//	for (int i = length - 2; i >= 0; i--) {
+		//		returnedArray[i] = returnedArray[i + 1] * 2;
+		//	}
+		//} else {
+		//
+		//	for (int i = 0; i < length - 1; i++) {
+		//		returnedArray[i] = Math.max(2, max);
+		//		max /= 2;
+		//	}
+		//}
 		return returnedArray;
 	}
 
