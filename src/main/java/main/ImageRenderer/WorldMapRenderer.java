@@ -7,6 +7,7 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.batik.util.XMLResourceDescriptor;
+import org.apache.commons.lang3.ArrayUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -66,8 +67,8 @@ public class WorldMapRenderer {
 		Optional<Integer> max = countryFrequency.values().stream().max(Integer::compareTo);
 		if (!max.isPresent())
 			return null;
-		
-		Integer[] range = initRange(max.get(), palette.length,countryFrequency.values().toArray(new Integer[0]));
+
+		Integer[] range = initRange(max.get(), palette.length);
 
 		initColours(range, palette, sb);
 		initLegendText(range, doc, countryFrequency.size());
@@ -100,27 +101,15 @@ public class WorldMapRenderer {
 
 
 	//From bigger to smaller
-	private static Integer[] initRange(int max, int length,Integer[] frequencies) {
+	private static Integer[] initRange(int max, int length) {
 		Integer[] returnedArray = new Integer[length];
 		int initValue = 1;
-		double sum = 0;
-		double sq_sum =0;
-		int n = frequencies.length;
-		for (int i=0; i < n; ++i) {
-			double ai = frequencies[i];
-			sum += ai;
-			sq_sum += ai * ai;
-		}
-		double mean = sum /n;
-		double std = Math.sqrt(sq_sum /n - mean * mean);
 
-		returnedArray[length - 1] = initValue;
-		returnedArray[0] = max;
-		int middle = length /2;
-		for (int i=1; i<length-1; i++) {
-
-		returnedArray[i] = (int) Math.max(returnedArray[i-1]+1,mean - (i - middle )* std);
+		returnedArray[0] = initValue;
+		for (int i = 0; i < length - 1; i++) {
+			returnedArray[i + 1] = Math.max((int) Math.pow(Math.E, (Math.log(max) / 6) * ((i + 1))), i + 2);
 		}
+
 		//if (max < 32) {
 		//	for (int i = length - 2; i >= 0; i--) {
 		//		returnedArray[i] = returnedArray[i + 1] * 2;
@@ -132,6 +121,7 @@ public class WorldMapRenderer {
 		//		max /= 2;
 		//	}
 		//}
+		ArrayUtils.reverse(returnedArray);
 		return returnedArray;
 	}
 
@@ -156,21 +146,26 @@ public class WorldMapRenderer {
 
 	private static void initLegendText(Integer[] range, Document doc, int totalCountries) {
 		//Bottom to top
-		for (int i = 0; i < textDescArray.length - 1; i++) {
+		Element elementById = doc.getElementById(textDescArray[0]);
+		elementById.getFirstChild()
+				.setNodeValue("> " + range[0] + CommandUtil.singlePlural(range[0], " Artist", " Artists"));
+
+		for (int i = 1; i < textDescArray.length - 1; i++) {
 			int previous;
 			if (i == textDescArray.length - 2) {
-				previous = 0;
+				previous = 1;
 			} else
-				previous = range[i + 1];
-			Element elementById = doc.getElementById(textDescArray[i]);
-			if (previous + 1 == range[i])
+				previous = range[i - 1];
+			elementById = doc.getElementById(textDescArray[i]);
+
+			if (previous == range[i])
 				elementById.getFirstChild()
 						.setNodeValue(range[i] + CommandUtil.singlePlural(range[i], " Artist", " Artists"));
 			else
-				elementById.getFirstChild().setNodeValue((previous + 1) + "-" + (range[i]) + CommandUtil
+				elementById.getFirstChild().setNodeValue((range[i]) + "-" + (previous - 1) + CommandUtil
 						.singlePlural(range[i], " Artist", " Artists"));
 		}
-		Element elementById = doc.getElementById(textDescArray[6]);
+		elementById = doc.getElementById(textDescArray[6]);
 		elementById.getFirstChild().setNodeValue("# Countries: " + totalCountries);
 
 	}
