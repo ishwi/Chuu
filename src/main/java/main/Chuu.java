@@ -4,6 +4,8 @@ import DAO.DaoImplementation;
 import main.APIs.Discogs.DiscogsSingleton;
 import main.APIs.Spotify.SpotifySingleton;
 import main.Commands.*;
+import main.ScheduledTasks.ImageUpdaterThread;
+import main.ScheduledTasks.SpotifyUpdaterThread;
 import main.ScheduledTasks.UpdaterThread;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
@@ -20,8 +22,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-class Chuu {
+public class Chuu {
 
+
+	private static JDA jda;
 
 	public static void main(String[] args) throws UnsupportedEncodingException, InterruptedException {
 
@@ -75,58 +79,62 @@ class Chuu {
 
 	private static void setupBot() {
 		Properties properties = readToken();
-		JDABuilder builder = new JDABuilder(AccountType.BOT);
 		DaoImplementation dao = new DaoImplementation();
 		new SpotifySingleton(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
 		new DiscogsSingleton(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
-		builder.setToken(properties.getProperty("DISCORD_TOKEN"));
+
 		HelpCommand help = new HelpCommand();
-		builder.addEventListeners(help);
 		AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
-		builder.addEventListeners(help.registerCommand(commandAdministrator));
-		builder.addEventListeners(help.registerCommand(new NowPlayingCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new WhoKnowsCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new ChartCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new SetCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new AllPlayingCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new TasteCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new TopCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new UpdateCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new UniqueCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new NPYoutubeCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new ArtistCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new AlbumSongPlaysCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new GuildTopCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new ArtistUrlCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new BandInfoCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new BandInfoNpCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new AlbumGuildPlays(dao)));
-		builder.addEventListeners(help.registerCommand(new CrownLeaderboardCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new CrownsCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new RecentListCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new MusicBrainzCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new GenreCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new MbizThisYearCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new ArtistPlaysCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new TimeSpentCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new YoutubeSearch(dao)));
-		builder.addEventListeners(help.registerCommand(new UniqueLeaderboardCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new ProfileInfoCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new ArtistCountLeaderboard(dao)));
-		builder.addEventListeners(help.registerCommand(new ArtistNumberCommand(dao)));
-		builder.addEventListeners(help.registerCommand(new CountryCommand(dao)));
+
+		JDABuilder builder = new JDABuilder(AccountType.BOT);
+		builder.setToken(properties.getProperty("DISCORD_TOKEN"))
+				.setAutoReconnect(true)
+				.addEventListeners(help)
+				.addEventListeners(help.registerCommand(commandAdministrator))
+				.addEventListeners(help.registerCommand(new NowPlayingCommand(dao)))
+				.addEventListeners(help.registerCommand(new WhoKnowsCommand(dao)))
+				.addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao)))
+				.addEventListeners(help.registerCommand(new ChartCommand(dao)))
+				.addEventListeners(help.registerCommand(new SetCommand(dao)))
+				.addEventListeners(help.registerCommand(new AllPlayingCommand(dao)))
+				.addEventListeners(help.registerCommand(new TasteCommand(dao)))
+				.addEventListeners(help.registerCommand(new TopCommand(dao)))
+				.addEventListeners(help.registerCommand(new UpdateCommand(dao)))
+				.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao)))
+				.addEventListeners(help.registerCommand(new UniqueCommand(dao)))
+				.addEventListeners(help.registerCommand(new NPYoutubeCommand(dao)))
+				.addEventListeners(help.registerCommand(new ArtistCommand(dao)))
+				.addEventListeners(help.registerCommand(new AlbumSongPlaysCommand(dao)))
+				.addEventListeners(help.registerCommand(new GuildTopCommand(dao)))
+				.addEventListeners(help.registerCommand(new ArtistUrlCommand(dao)))
+				.addEventListeners(help.registerCommand(new BandInfoCommand(dao)))
+				.addEventListeners(help.registerCommand(new BandInfoNpCommand(dao)))
+				.addEventListeners(help.registerCommand(new AlbumGuildPlays(dao)))
+				.addEventListeners(help.registerCommand(new CrownLeaderboardCommand(dao)))
+				.addEventListeners(help.registerCommand(new CrownsCommand(dao)))
+				.addEventListeners(help.registerCommand(new RecentListCommand(dao)))
+				.addEventListeners(help.registerCommand(new MusicBrainzCommand(dao)))
+				.addEventListeners(help.registerCommand(new GenreCommand(dao)))
+				.addEventListeners(help.registerCommand(new MbizThisYearCommand(dao)))
+				.addEventListeners(help.registerCommand(new ArtistPlaysCommand(dao)))
+				.addEventListeners(help.registerCommand(new TimeSpentCommand(dao)))
+				.addEventListeners(help.registerCommand(new YoutubeSearch(dao)))
+				.addEventListeners(help.registerCommand(new UniqueLeaderboardCommand(dao)))
+				.addEventListeners(help.registerCommand(new ProfileInfoCommand(dao)))
+				.addEventListeners(help.registerCommand(new ArtistCountLeaderboard(dao)))
+				.addEventListeners(help.registerCommand(new ArtistNumberCommand(dao)))
+				.addEventListeners(help.registerCommand(new CountryCommand(dao)));
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
 		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, DiscogsSingleton
 				.getInstanceUsingDoubleLocking()), 0, 30, TimeUnit.SECONDS);
-//		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
-//		scheduledManager.scheduleAtFixedRate(new SpotifyUpdaterThread(dao, SpotifySingleton
-//				.getInstanceUsingDoubleLocking()), 0, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new SpotifyUpdaterThread(dao, SpotifySingleton
+				.getInstanceUsingDoubleLocking()), 0, 10, TimeUnit.MINUTES);
 
 		try {
-			JDA jda = builder.build().awaitReady();
+			jda = builder.build().awaitReady();
+
 			commandAdministrator.onStartup(jda);
 
 		} catch (LoginException | InterruptedException e) {
@@ -144,5 +152,10 @@ class Chuu {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public static JDA getJDA() {
+		return jda;
+	}
+
 }
 

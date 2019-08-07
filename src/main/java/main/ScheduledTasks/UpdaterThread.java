@@ -9,8 +9,10 @@ import main.APIs.Spotify.Spotify;
 import main.APIs.Spotify.SpotifySingleton;
 import main.APIs.last.ConcurrentLastFM;
 import main.APIs.last.LastFMFactory;
+import main.Chuu;
 import main.Commands.CommandUtil;
 import main.Exceptions.LastFMNoPlaysException;
+import net.dv8tion.jda.api.entities.Activity;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -74,14 +76,22 @@ public class UpdaterThread implements Runnable {
 				dao.incrementalUpdate(artistDataLinkedList, userWork.getLastFMName());
 
 				//Workarround non deferrable foreign key
-				correctionAdder.forEach((correctedArtistData, originalArtistName) -> dao
-						.insertCorrection(originalArtistName, correctedArtistData.getArtist()));
+				correctionAdder.forEach((correctedArtistData, originalArtistName) ->
+						dao.insertCorrection(originalArtistName, correctedArtistData.getArtist()));
+
 				System.out.println("Updated Info Incrementally of " + userWork.getLastFMName() + LocalDateTime.now()
 						.format(DateTimeFormatter.ISO_DATE));
 				System.out.println(" Number of rows updated :" + artistDataLinkedList.getWrapped().size());
 			} else {
+
 				List<ArtistData> artistDataLinkedList = lastFM.getLibrary(userWork.getLastFMName());
 				dao.insertArtistDataList(artistDataLinkedList, userWork.getLastFMName());
+				if (!artistDataLinkedList.isEmpty()) {
+					Chuu.getJDA().getPresence().setActivity(Activity.listening(
+							artistDataLinkedList.get(new Random().nextInt(artistDataLinkedList.size()))
+									.getArtist() + "\n **use !help ** "
+					));
+				}
 
 				System.out.println("Updated Info Normally  of " + userWork.getLastFMName() + LocalDateTime.now()
 						.format(DateTimeFormatter.ISO_DATE));
