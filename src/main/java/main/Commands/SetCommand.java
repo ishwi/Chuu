@@ -81,12 +81,10 @@ public class SetCommand extends ConcurrentCommand {
 
 			System.out.println(" Number of rows updated :" + artistDataLinkedList.size());
 			sendMessage(e, "Finished updating " + e.getAuthor().getName() + " library, you are good to go!");
-			return;
 		} catch (
 				LastFMNoPlaysException ex) {
 			getDao().updateUserTimeStamp(lastFmID, null, null);
 			sendMessage(e, "Finished updating " + e.getAuthor().getName() + "'s library, you are good to go!");
-			return;
 
 		} catch (Throwable ex) {
 			System.out.println("Error while updating" + lastFmID + LocalDateTime.now()

@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class CrownLeaderboardCommand extends ConcurrentCommand {
-	public String entryName = "Crowns";
+	String entryName = "Crowns";
 	public CrownLeaderboardCommand(DaoImplementation dao) {
 		super(dao);
 		this.respondInPrivate = false;
@@ -25,11 +25,11 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 		printList(getList(e.getGuild().getIdLong()), e);
 	}
 
-	public List<LbEntry> getList(long guildId) {
+	List<LbEntry> getList(long guildId) {
 		return getDao().getGuildCrownLb(guildId);
 	}
 
-	public void printList(List<LbEntry> list, MessageReceivedEvent e) {
+	private void printList(List<LbEntry> list, MessageReceivedEvent e) {
 		list.forEach(cl -> cl.setDiscordName(getUserString(cl.getDiscordId(), e, cl.getLastFmId())));
 		MessageBuilder messageBuilder = new MessageBuilder();
 

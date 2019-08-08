@@ -24,7 +24,7 @@ public class UniqueData {
 		return artistName;
 	}
 
-	public int getCount() {
+	private int getCount() {
 		return count;
 	}
 }

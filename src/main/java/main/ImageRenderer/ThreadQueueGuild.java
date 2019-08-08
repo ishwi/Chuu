@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ThreadQueueGuild extends ThreadQueue {
+class ThreadQueueGuild extends ThreadQueue {
 
 
 	public ThreadQueueGuild(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations) {

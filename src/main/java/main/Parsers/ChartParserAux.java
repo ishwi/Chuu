@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class ChartParserAux {
-	String[] message;
+class ChartParserAux {
+	private String[] message;
 
 	public ChartParserAux(String[] message) {
 		this.message = message;

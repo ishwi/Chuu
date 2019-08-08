@@ -43,7 +43,7 @@ public abstract class DaoParser extends Parser {
 	}
 
 	@Override
-	public void setUpErrorMessages() {
+	protected void setUpErrorMessages() {
 		errorMessages.put(1, "User not on database");
 		errorMessages.put(2, "Internal Server Error, try again later");
 		errorMessages.put(3, "User hasn't played anything recently");

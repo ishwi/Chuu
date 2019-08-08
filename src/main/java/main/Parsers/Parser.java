@@ -11,7 +11,7 @@ import java.util.*;
 public abstract class Parser {
 	public final String PREFIX = "**!*";
 	final Map<Integer, String> errorMessages = new HashMap<>(10);
-	public List<OptionalEntity> opts = new ArrayList<>();
+	final List<OptionalEntity> opts = new ArrayList<>();
 
 
 	Parser() {
@@ -19,7 +19,7 @@ public abstract class Parser {
 		setUpOptionals();
 	}
 
-	protected void setUpOptionals() {
+	void setUpOptionals() {
 		//Do nothing
 	}
 
@@ -50,14 +50,14 @@ public abstract class Parser {
 		return withFlags;
 	}
 
-	public abstract String[] parseLogic(MessageReceivedEvent e, String[] words);
+	protected abstract String[] parseLogic(MessageReceivedEvent e, String[] words);
 
 	String[] getSubMessage(Message message) {
 		return getSubMessage(message.getContentRaw());
 
 	}
 
-	String[] getSubMessage(String string) {
+	private String[] getSubMessage(String string) {
 		String[] parts = string.substring(1).split("\\s+");
 		return Arrays.copyOfRange(parts, 1, parts.length);
 

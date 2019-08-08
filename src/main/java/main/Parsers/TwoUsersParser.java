@@ -71,7 +71,7 @@ public class TwoUsersParser extends DaoParser {
 				filter(user -> {
 					String nameNoDigits = name.replaceAll("\\D+", "");
 
-					long a = Long.valueOf(nameNoDigits);
+					long a = Long.parseLong(nameNoDigits);
 					return (user.getIdLong() == a);
 				})
 				.findFirst();

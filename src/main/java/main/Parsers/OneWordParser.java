@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class OneWordParser extends Parser {
 	@Override
-	public void setUpErrorMessages() {
+	protected void setUpErrorMessages() {
 		errorMessages.put(0, "You need to introduce a word!");
 	}
 

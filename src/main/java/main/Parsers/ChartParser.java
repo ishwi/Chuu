@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ChartParser extends DaoParser {
-	private TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
+	private final TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
 
 	public ChartParser(DaoImplementation dao) {
 		super(dao);

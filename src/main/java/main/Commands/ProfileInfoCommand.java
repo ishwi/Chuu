@@ -55,7 +55,7 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 		embedBuilder.setColor(CommandUtil.randomColor());
 		embedBuilder.setThumbnail(userInfo.getImage().isEmpty() ? null : userInfo.getImage());
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-		String date = LocalDateTime.ofEpochSecond((long) userInfo.getUnixtimestamp(), 0, ZoneOffset.UTC)
+		String date = LocalDateTime.ofEpochSecond(userInfo.getUnixtimestamp(), 0, ZoneOffset.UTC)
 				.format(formatter);
 
 		StringBuilder stringBuilder = new StringBuilder();

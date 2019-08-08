@@ -5,7 +5,7 @@ import DAO.Entities.*;
 import java.sql.Connection;
 import java.util.List;
 
-public interface SQLQueriesDao {
+interface SQLQueriesDao {
 
 	UniqueWrapper<UniqueData> getUniqueArtist(Connection connection, Long guildID, String lastFMID);
 

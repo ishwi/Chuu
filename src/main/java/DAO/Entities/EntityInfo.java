@@ -5,7 +5,7 @@ public class EntityInfo {
 	private String artist;
 
 
-	public EntityInfo(String mbid, String artist) {
+	EntityInfo(String mbid, String artist) {
 		this.mbid = mbid;
 		this.artist = artist;
 	}

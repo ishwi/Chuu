@@ -10,7 +10,7 @@ public class UsersWrapper {
 		this.lastFMName = lastFMName;
 	}
 
-	public UsersWrapper(long discordID, String lastFMName, int timestamp) {
+	UsersWrapper(long discordID, String lastFMName, int timestamp) {
 		this.discordID = discordID;
 		this.lastFMName = lastFMName;
 		this.timestamp = timestamp;
