@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
@@ -27,9 +29,10 @@ public class Chuu {
 
 
 	private static JDA jda;
+	private static Logger logger;
 
 	public static void main(String[] args) throws UnsupportedEncodingException, InterruptedException {
-
+		logger = LoggerFactory.getLogger(Chuu.class);
 		if (System.getProperty("file.encoding").equals("UTF-8")) {
 			setupBot();
 		} else {
@@ -61,7 +64,7 @@ public class Chuu {
 						.println("BotLauncher: Make sure that you have Java properly set in your Operating System's PATH variable.");
 				System.out.println("BotLauncher: Stopping here.");
 			} else {
-				e.printStackTrace();
+				Chuu.getLogger().warn(e.getMessage(), e);
 			}
 		}
 	}
@@ -135,11 +138,10 @@ public class Chuu {
 
 		try {
 			jda = builder.build().awaitReady();
-
 			commandAdministrator.onStartup(jda);
 
 		} catch (LoginException | InterruptedException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 	}
 
@@ -154,12 +156,15 @@ public class Chuu {
 		}
 	}
 
+	public static Logger getLogger() {
+		return logger;
+	}
+
 	public static void updatePresence(String artist) {
 		Chuu.jda.getPresence().setActivity(Activity.listening(
 				artist + " | \n!help"
 		));
 
 	}
-
 }
 

@@ -4,6 +4,7 @@ import DAO.DaoImplementation;
 import DAO.Entities.ArtistInfo;
 import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Discogs.DiscogsSingleton;
+import main.Chuu;
 import main.Exceptions.DiscogsServiceException;
 
 import java.util.Set;
@@ -36,7 +37,7 @@ public class ImageUpdaterThread implements Runnable {
 					dao.upsertUrl(new ArtistInfo(url, artistDatum));
 				}
 			} catch (DiscogsServiceException e) {
-				e.printStackTrace();
+				Chuu.getLogger().warn(e.getMessage(), e);
 			}
 		}
 

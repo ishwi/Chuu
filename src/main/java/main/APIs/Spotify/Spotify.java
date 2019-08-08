@@ -8,6 +8,7 @@ import com.wrapper.spotify.model_objects.special.SearchResult;
 import com.wrapper.spotify.model_objects.specification.*;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.search.SearchItemRequest;
+import main.Chuu;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -73,7 +74,7 @@ public class Spotify {
 				return "https://open.spotify.com/track/" + a.getUri().split("spotify:track:")[1];
 			}
 		} catch (IOException | SpotifyWebApiException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 		return "";
 	}
@@ -102,7 +103,7 @@ public class Spotify {
 			}
 			return returned;
 		} catch (IOException | SpotifyWebApiException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 		return returned;
 	}
@@ -126,7 +127,7 @@ public class Spotify {
 					returned = images[0].getUrl();
 			}
 		} catch (IOException | SpotifyWebApiException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 		return returned;
 	}

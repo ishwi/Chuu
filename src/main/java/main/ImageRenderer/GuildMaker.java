@@ -2,6 +2,7 @@ package main.ImageRenderer;
 
 
 import DAO.Entities.UrlCapsule;
+import main.Chuu;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -30,7 +31,7 @@ public class GuildMaker {
 		try {
 			boolean finished = es.awaitTermination(10, TimeUnit.MINUTES);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 
 		g.dispose();

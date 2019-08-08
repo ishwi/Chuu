@@ -105,7 +105,7 @@ public class UpdaterThread implements Runnable {
 		} catch (Throwable e) {
 			System.out.println("Error while updating" + userWork.getLastFMName() + LocalDateTime.now()
 					.format(DateTimeFormatter.ISO_DATE));
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 	}
 }

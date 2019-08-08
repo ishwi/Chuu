@@ -1,6 +1,7 @@
 package DAO;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import main.Chuu;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
@@ -39,14 +40,14 @@ public class SimpleDataSource implements DataSource {
 		try {
 			cpds.setDriverClass(properties.getProperty(DRIVER_CLASS)); //loads the jdbc driver
 		} catch (PropertyVetoException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 		cpds.setJdbcUrl(properties.getProperty(URL_PARAMETER));
 		cpds.setUser(properties.getProperty(USER_PARAMETER));
 		cpds.setPassword(properties.getProperty(PASSWORD_PARAMETER));
 
-		cpds.setMinPoolSize(5);
+		cpds.setMinPoolSize(8);
 		cpds.setAcquireIncrement(5);
 		cpds.setMaxPoolSize(25);
 	}
@@ -68,7 +69,7 @@ public class SimpleDataSource implements DataSource {
 		try {
 			cpds.setDriverClass(properties.getProperty(DRIVER_CLASS)); //loads the jdbc driver
 		} catch (PropertyVetoException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 		cpds.setJdbcUrl(properties.getProperty(URL_PARAMETER));

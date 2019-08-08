@@ -1,6 +1,7 @@
 package main.ImageRenderer;
 
 import DAO.Entities.Country;
+import main.Chuu;
 import main.Commands.CommandUtil;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.transcoder.TranscoderInput;
@@ -52,7 +53,7 @@ public class WorldMapRenderer {
 			doc = f.createDocument("src/main/resources/BlankMap-World.svg",
 					WorldMapRenderer.class.getClassLoader().getResourceAsStream(MAP_ROUND));
 		} catch (IOException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			return null;
 		}
 
@@ -94,7 +95,7 @@ public class WorldMapRenderer {
 			s.transcode(input, output);
 			return ostream.toByteArray();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			return null;
 		}
 	}

@@ -2,6 +2,7 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.ArtistInfo;
+import main.Chuu;
 import main.Parsers.ArtistUrlParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -42,7 +43,7 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 
 		} catch (IOException exception) {
 			parser.sendError(parser.getErrorMessage(2), e);
-			exception.printStackTrace();
+			Chuu.getLogger().warn(exception.getMessage(), exception);
 		}
 
 

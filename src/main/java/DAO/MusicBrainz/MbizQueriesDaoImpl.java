@@ -4,6 +4,7 @@ import DAO.Entities.AlbumInfo;
 import DAO.Entities.ArtistInfo;
 import DAO.Entities.Country;
 import DAO.Entities.Genre;
+import main.Chuu;
 import org.intellij.lang.annotations.Language;
 
 import java.sql.Connection;
@@ -57,7 +58,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 				returnList.add(ai);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 		return returnList;
@@ -110,7 +111,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 				returnList.add(ai);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 		return returnList;
@@ -155,7 +156,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 				returnMap.put(new Genre(mbid, ""), count);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 		return returnMap;
@@ -201,7 +202,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 				returnMap.put(new Country(coutryName, code), frequency);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 		return returnMap;

@@ -4,6 +4,7 @@ import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
 import DAO.Entities.LastFMData;
 import DAO.Entities.UsersWrapper;
+import main.Chuu;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Parsers.OneWordParser;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -89,7 +90,7 @@ public class SetCommand extends ConcurrentCommand {
 		} catch (Throwable ex) {
 			System.out.println("Error while updating" + lastFmID + LocalDateTime.now()
 					.format(DateTimeFormatter.ISO_DATE));
-			ex.printStackTrace();
+			Chuu.getLogger().warn(ex.getMessage(), ex);
 			getDao().updateUserTimeStamp(lastFmID, 0, null);
 			sendMessage(e, "Error  updating" + e.getAuthor()
 					.getName() + "'s  library, try to use the !update command!");

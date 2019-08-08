@@ -4,6 +4,7 @@ import DAO.Entities.ArtistData;
 import DAO.Entities.ArtistInfo;
 import DAO.Entities.UpdaterStatus;
 import DAO.Entities.UpdaterUserWrapper;
+import main.Chuu;
 import org.intellij.lang.annotations.Language;
 
 import java.sql.*;
@@ -208,7 +209,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			}
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 		return null;
@@ -230,7 +231,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			}
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 		return returnList;
 	}
@@ -262,7 +263,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			}
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 		return null;
@@ -317,7 +318,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			}
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 		return null;

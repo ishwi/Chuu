@@ -4,6 +4,7 @@ import DAO.DaoImplementation;
 import DAO.Entities.UrlCapsule;
 import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Spotify.Spotify;
+import main.Chuu;
 import main.Commands.CommandUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +49,7 @@ public class UrlCapsuleConcurrentQueue extends LinkedBlockingQueue<UrlCapsule> {
 		try {
 			return wrapper.take().get();
 		} catch (ExecutionException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new InterruptedException();
 		}
 	}

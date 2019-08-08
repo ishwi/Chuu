@@ -1,6 +1,7 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import main.Chuu;
 import main.Parsers.UrlParser;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -46,7 +47,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 			getDao().addLogo(e.getGuild().getIdLong(), image);
 			sendMessage(e, "Logo Updated");
 		} catch (IOException exception) {
-			exception.printStackTrace();
+			Chuu.getLogger().warn(exception.getMessage(), exception);
 			sendMessage(e, "Something Happened while processing the image ");
 		}
 

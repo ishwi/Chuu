@@ -1,6 +1,7 @@
 package main.ImageRenderer;
 
 import DAO.Entities.UrlCapsule;
+import main.Chuu;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -86,7 +87,7 @@ class ThreadQueue implements Runnable {
 					//g.drawImage(image, x * imageSize, y * imageSize, x * imageSize + imageSize, y * imageSize + imageSize, 0, 0, image.getWidth(), image.getHeight(), null);
 
 				} catch (Exception e) {
-					//e.printStackTrace();
+					//Chuu.getLogger().warn(e.getMessage(), e);
 					Color temp = g.getColor();
 					g.setColor(Color.WHITE);
 
@@ -95,12 +96,12 @@ class ThreadQueue implements Runnable {
 
 					drawNames(capsule, y, x, g, imageSize, null);
 					g.setColor(temp);
-					e.printStackTrace();
+					Chuu.getLogger().warn(e.getMessage(), e);
 				}
 
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				Chuu.getLogger().warn(e.getMessage(), e);
 			}
 		}
 

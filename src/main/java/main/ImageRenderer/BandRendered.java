@@ -5,6 +5,7 @@ import DAO.Entities.AlbumUserPlays;
 import DAO.Entities.ArtistAlbums;
 import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.WrapperReturnNowPlaying;
+import main.Chuu;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -81,7 +82,7 @@ public class BandRendered {
 				java.net.URL url = new java.net.URL(albumUserPlays.getAlbum_url());
 				albumsImages.add(ImageIO.read(url));
 			} catch (IOException e) {
-				e.printStackTrace();
+				Chuu.getLogger().warn(e.getMessage(), e);
 				albumsImages.add(null);
 			}
 		}

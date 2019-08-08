@@ -1,6 +1,7 @@
 package main.APIs.Discogs;
 
 
+import main.Chuu;
 import main.Exceptions.DiscogsServiceException;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -45,7 +46,7 @@ public class DiscogsApi {
 		try {
 			query = URLEncoder.encode(query, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 		String url = BASE_API + "database/search?q=" + query + "&type=artist&key=" + KEY + "&secret=" + SECRET;
 
@@ -75,7 +76,7 @@ public class DiscogsApi {
 			artistenc = URLEncoder.encode(artist, "UTF-8");
 
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			return null;
 		}
 

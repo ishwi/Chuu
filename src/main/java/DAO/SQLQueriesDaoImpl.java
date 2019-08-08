@@ -1,6 +1,7 @@
 package DAO;
 
 import DAO.Entities.*;
+import main.Chuu;
 import org.intellij.lang.annotations.Language;
 
 import java.sql.Connection;
@@ -59,7 +60,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 		return null;
 	}
@@ -228,7 +229,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				returnList.add(new UniqueData(artist, plays));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 		return new UniqueWrapper<>(returnList.size(), discordID, lastFmId, returnList);
@@ -265,7 +266,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				list.add(capsule);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 		return list;
 	}
@@ -347,7 +348,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 			return returnedList;
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException((e));
 		}
 
@@ -389,7 +390,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 			return returnedList;
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException((e));
 		}
 	}
@@ -443,7 +444,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 			return returnedList;
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException((e));
 		}
 	}

@@ -1,6 +1,7 @@
 package main.ImageRenderer;
 
 import DAO.Entities.WrapperReturnNowPlaying;
+import main.Chuu;
 import main.ImageRenderer.Stealing.GaussianFilter;
 import org.imgscalr.Scalr;
 
@@ -58,7 +59,7 @@ public class WhoKnowsMaker {
 			try {
 				backgroundImage = ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/noArtistImage.png"));
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				Chuu.getLogger().warn(e1.getMessage(), e1);
 				return null;
 			}
 		}
