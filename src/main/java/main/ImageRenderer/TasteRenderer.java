@@ -3,6 +3,7 @@ package main.ImageRenderer;
 import DAO.Entities.ResultWrapper;
 import DAO.Entities.Results;
 import DAO.Entities.UserInfo;
+import main.Chuu;
 import main.ImageRenderer.Stealing.GaussianFilter;
 
 import javax.imageio.ImageIO;
@@ -43,7 +44,7 @@ public class TasteRenderer {
 				try {
 					imageList.add(ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/noArtistImage.png")));
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					Chuu.getLogger().warn(e1.getMessage(), e1);
 				}
 			}
 		}

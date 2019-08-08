@@ -1,5 +1,6 @@
 package main.Commands;
 
+import main.Chuu;
 import main.Parsers.Parser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -112,7 +113,7 @@ public abstract class MyCommand extends ListenerAdapter {
 
 		} catch (IOException ex) {
 			sendMessage(e, "Ish Pc Bad");
-			ex.printStackTrace();
+			Chuu.getLogger().warn(ex.getMessage(), ex);
 		}
 
 

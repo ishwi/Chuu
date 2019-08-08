@@ -59,7 +59,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 				}
 				return tempYear.equals(year);
 			} catch (Exception ex) {
-				//ex.printStackTrace();
+				//Chuu.getLogger().warn(e.getMessage(), e);
 				//nullYearList.add(albumInfo);
 				return false;
 			}

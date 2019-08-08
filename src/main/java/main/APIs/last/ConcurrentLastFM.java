@@ -2,11 +2,15 @@ package main.APIs.last;
 
 import DAO.Entities.*;
 import main.APIs.ClientSingleton;
+import main.Chuu;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
-import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -107,6 +111,16 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
+	private void parseHttpCode(int code) throws LastFmException {
+		if (code / 100 == 2)
+			return;
+		if (code == 404)
+			throw new LastFmEntityNotFoundException("404");
+		if (code == 500)
+			throw new LastFMServiceException("500");
+
+	}
+
 	private JSONObject doMethod(HttpMethod method) throws LastFmException {
 		method.addRequestHeader(this.header);
 
@@ -118,18 +132,11 @@ public class ConcurrentLastFM {//implements LastFMService {
 				parseHttpCode(response_code);
 				byte[] responseBody = method.getResponseBody();
 				return new JSONObject(new String(responseBody));
-			} catch (HttpException e) {
-				System.out.println("HTTP");
-				e.printStackTrace();
+			} catch (IOException | LastFMServiceException e) {
+				Chuu.getLogger().warn(e.getMessage(), e);
 				//	throw new LastFMServiceException("HTTP");
-			} catch (IOException e) {
-				System.out.println("IO");
-				e.printStackTrace();
-				//	throw new LastFMServiceException("IO");
-			} catch (LastFMServiceException ex) {
-				System.out.println("500");
-				ex.printStackTrace();
-			} finally {
+			}//	throw new LastFMServiceException("IO");
+			finally {
 				method.releaseConnection();
 			}
 			System.out.println("Reattempting request");
@@ -140,13 +147,10 @@ public class ConcurrentLastFM {//implements LastFMService {
 		}
 	}
 
-	private void parseHttpCode(int code) throws LastFmException {
-		if (code / 100 == 2)
-			return;
-		if (code == 404)
-			throw new LastFmEntityNotFoundException("404");
-		if (code == 500)
-			throw new LastFMServiceException("500");
+	private HttpMethodBase createMethod(String url) {
+		GetMethod method = new GetMethod(url);
+		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
+		return method;
 
 	}
 
@@ -232,13 +236,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 //		JSONArray image = artistObj.getJSONArray("image");
 //		JSONObject bigImage = image.getJSONObject(image.length() - 1);
 		return new UrlCapsule(null, size, "", artistName, mbid, plays);
-	}
-
-	private HttpMethodBase createMethod(String url) {
-		GetMethod method = new GetMethod(url);
-		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
-		return method;
-
 	}
 
 	public SecondsTimeFrameCount getMinutesWastedOnMusic(String username, String period) throws LastFmException {

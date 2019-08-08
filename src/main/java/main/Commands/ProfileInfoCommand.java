@@ -4,6 +4,7 @@ import DAO.DaoImplementation;
 import DAO.Entities.UniqueData;
 import DAO.Entities.UniqueWrapper;
 import DAO.Entities.UserInfo;
+import main.Chuu;
 import main.Exceptions.LastFmException;
 import main.Parsers.OnlyUsernameParser;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -37,7 +38,7 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 			albumCount = lastFM.getTotalAlbumCount(username);
 
 		} catch (LastFmException ex) {
-			ex.printStackTrace();
+			Chuu.getLogger().warn(ex.getMessage(), ex);
 			return;
 		}
 		UniqueWrapper<UniqueData> crowns = getDao().getCrowns(username, e.getGuild().getIdLong());

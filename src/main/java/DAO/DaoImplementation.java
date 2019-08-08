@@ -1,6 +1,7 @@
 package DAO;
 
 import DAO.Entities.*;
+import main.Chuu;
 import org.apache.commons.collections4.map.MultiValueMap;
 
 import javax.management.InstanceNotFoundException;
@@ -166,7 +167,7 @@ public class DaoImplementation {
 				connection.rollback();
 				throw e;
 			} catch (InstanceNotFoundException e) {
-				e.printStackTrace();
+				Chuu.getLogger().warn(e.getMessage(), e);
 			}
 
 		} catch (SQLException e) {

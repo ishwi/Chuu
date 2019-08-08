@@ -16,7 +16,7 @@ public class SpotifyTest {
 		try (InputStream in = SpotifyTest.class.getResourceAsStream("/" + "all.properties")) {
 			properties.load(in);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 		new SpotifySingleton(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
 		spotifyApi = SpotifySingleton.getInstanceUsingDoubleLocking();

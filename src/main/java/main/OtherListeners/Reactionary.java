@@ -1,5 +1,6 @@
 package main.OtherListeners;
 
+import main.Chuu;
 import main.Commands.CommandUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -43,7 +44,7 @@ public class Reactionary<T> extends ListenerAdapter {
 		try {
 			Thread.sleep(40000);
 		} catch (InterruptedException ex) {
-			ex.printStackTrace();
+			Chuu.getLogger().warn(ex.getMessage(), ex);
 		}
 		jda.removeEventListener(this);
 		message.clearReactions().queue();

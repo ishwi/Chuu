@@ -5,6 +5,7 @@ import DAO.Entities.AlbumUserPlays;
 import DAO.Entities.ArtistAlbums;
 import DAO.Entities.ArtistData;
 import DAO.Entities.WrapperReturnNowPlaying;
+import main.Chuu;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.ImageRenderer.BandRendered;
@@ -62,7 +63,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 								.getPlays());
 
 					} catch (LastFmException ex) {
-						ex.printStackTrace();
+						Chuu.getLogger().warn(ex.getMessage(), ex);
 					}
 				})
 						.filter(a -> a.getPlays() > 0)

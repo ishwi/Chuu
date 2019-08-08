@@ -19,14 +19,14 @@ public class DiscogsApiTest {
 		try (InputStream in = DiscogsApiTest.class.getResourceAsStream("/" + "all.properties")) {
 			properties.load(in);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 		new DiscogsSingleton(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
 		DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
 		try {
 			assertEquals(Year.of(2004), discogsApi.getYearRelease("恋人へ", "lamp"));
 		} catch (DiscogsServiceException e) {
-			e.printStackTrace();
+			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 
 	}
