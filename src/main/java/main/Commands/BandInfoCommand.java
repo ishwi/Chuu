@@ -77,7 +77,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
 		BufferedImage logo = CommandUtil.getLogo(getDao(), e);
 		BufferedImage returnedImage = BandRendered
-				.makeBandImage(np, ai, plays, logo, getUserString(e.getAuthor().getIdLong(), e, username));
+				.makeBandImage(np, ai, plays, logo, getUserString(userId, e, username));
 		sendImage(returnedImage, e);
 	}
 
