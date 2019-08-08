@@ -29,8 +29,8 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 			return;
 
 		String username = returned[0];
-		boolean writeTitles = Boolean.valueOf(returned[1]);
-		boolean writePlays = Boolean.valueOf(returned[2]);
+		boolean writeTitles = !Boolean.parseBoolean(returned[1]);
+		boolean writePlays = Boolean.parseBoolean(returned[2]);
 
 		LocalDateTime time = LocalDateTime.now();
 		TimeFrameEnum timeframe;

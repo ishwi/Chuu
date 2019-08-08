@@ -3,9 +3,6 @@ package main.Parsers;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Collections;
-import java.util.List;
-
 public class ArtistUrlParser extends Parser {
 	@Override
 	public void setUpErrorMessages() {
@@ -15,18 +12,16 @@ public class ArtistUrlParser extends Parser {
 
 
 	}
-
 	@Override
-	public String[] parse(MessageReceivedEvent e) {
-		String[] message = getSubMessage(e.getMessage());
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
 
 		boolean noUrl = true;
 
 		String artist;
 		String url = null;
-		if (message.length >= 1) {
+		if (subMessage.length >= 1) {
 			StringBuilder a = new StringBuilder();
-			for (String s : message) {
+			for (String s : subMessage) {
 				if (noUrl && isValidURL(s)) {
 					noUrl = false;
 					url = s;
@@ -54,8 +49,8 @@ public class ArtistUrlParser extends Parser {
 	}
 
 	@Override
-	public List<String> getUsage(String commandName) {
-		return Collections.singletonList("**" + commandName + " *artist url***\n\n");
+	public String getUsageLogic(String commandName) {
+		return "**" + commandName + " *artist url***\n";
 
 	}
 

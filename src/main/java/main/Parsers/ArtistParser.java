@@ -6,13 +6,17 @@ import main.APIs.last.ConcurrentLastFM;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 
 public class ArtistParser extends ArtistAlbumParser {
 
 	public ArtistParser(DaoImplementation dao, ConcurrentLastFM lastFM) {
 		super(dao, lastFM);
+	}
+
+	public ArtistParser(DaoImplementation dao, ConcurrentLastFM lastFM, OptionalEntity... strings) {
+		super(dao, lastFM);
+		opts.addAll(Arrays.asList(strings));
 	}
 
 	@Override
@@ -27,8 +31,9 @@ public class ArtistParser extends ArtistAlbumParser {
 	}
 
 	@Override
-	public List<String> getUsage(String commandName) {
-		return Collections.singletonList("**" + commandName + " *artist*** \n\n");
+	public String getUsageLogic(String commandName) {
+
+		return "**" + commandName + " *artist*** \n";
 
 	}
 

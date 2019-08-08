@@ -9,7 +9,8 @@ import main.APIs.Discogs.DiscogsSingleton;
 import main.APIs.Spotify.Spotify;
 import main.APIs.Spotify.SpotifySingleton;
 import main.ImageRenderer.WhoKnowsMaker;
-import main.Parsers.WhoKnowsParser;
+import main.Parsers.ArtistParser;
+import main.Parsers.OptionalEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -28,7 +29,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		super(dao);
 		this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
 		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
-		this.parser = new WhoKnowsParser();
+		this.parser = new ArtistParser(dao, lastFM, new OptionalEntity("--list", "display in list format"));
 		this.respondInPrivate = false;
 
 	}
@@ -41,7 +42,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 			return;
 		ArtistData validable = new ArtistData(returned[0], 0, "");
 		CommandUtil.lessHeavyValidate(getDao(), validable, lastFM, discogsApi, spotify);
-		whoKnowsLogic(validable, Boolean.valueOf(returned[1]), e);
+		whoKnowsLogic(validable, Boolean.valueOf(returned[2]), e);
 
 	}
 
@@ -101,7 +102,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("!whoknows", "!wk");
+		return Arrays.asList("!whoknows", "!wk", "!whoknowsnp", "!wknp");
 	}
 
 

@@ -4,9 +4,6 @@ import DAO.DaoImplementation;
 import DAO.Entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Collections;
-import java.util.List;
-
 public class TimerFrameParser extends DaoParser {
 	private final TimeFrameEnum defaultTFE;
 
@@ -15,8 +12,7 @@ public class TimerFrameParser extends DaoParser {
 		this.defaultTFE = defaultTFE;
 	}
 
-	@Override
-	public String[] parse(MessageReceivedEvent e) {
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
 
 		String[] message = getSubMessage(e.getMessage());
 		TimeFrameEnum timeFrame = defaultTFE;
@@ -37,11 +33,10 @@ public class TimerFrameParser extends DaoParser {
 
 
 	@Override
-	public List<String> getUsage(String commandName) {
-		return Collections.singletonList("**" + commandName + " *[w,m,q,s,y,a]* *Username ** \n" +
+	public String getUsageLogic(String commandName) {
+		return "**" + commandName + " *[w,m,q,s,y,a]* *Username ** \n" +
 				"\tIf time is not specified defaults to " + defaultTFE.toString() + "\n" +
-				"\tIf username is not specified defaults to authors account \n\n"
-		);
+				"\tIf username is not specified defaults to authors account \n";
 	}
 
 }

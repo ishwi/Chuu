@@ -2,9 +2,6 @@ package main.Parsers;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Collections;
-import java.util.List;
-
 public class OneWordParser extends Parser {
 	@Override
 	public void setUpErrorMessages() {
@@ -12,8 +9,7 @@ public class OneWordParser extends Parser {
 	}
 
 	@Override
-	public String[] parse(MessageReceivedEvent e) {
-		String[] subMessage = getSubMessage(e.getMessage());
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
 		if (subMessage.length != 1) {
 			sendError(getErrorMessage(0), e);
 			return null;
@@ -22,8 +18,8 @@ public class OneWordParser extends Parser {
 	}
 
 	@Override
-	public List<String> getUsage(String commandName) {
-		return Collections.singletonList("**" + commandName + " *lastFmName***\n\n");
+	public String getUsageLogic(String commandName) {
+		return "**" + commandName + " *lastFmName***\n";
 
 	}
 
