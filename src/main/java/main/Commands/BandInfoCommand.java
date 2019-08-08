@@ -5,14 +5,9 @@ import DAO.Entities.AlbumUserPlays;
 import DAO.Entities.ArtistAlbums;
 import DAO.Entities.ArtistData;
 import DAO.Entities.WrapperReturnNowPlaying;
-import main.APIs.Discogs.DiscogsApi;
-import main.APIs.Discogs.DiscogsSingleton;
-import main.APIs.Spotify.Spotify;
-import main.APIs.Spotify.SpotifySingleton;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.ImageRenderer.BandRendered;
-import main.Parsers.ArtistParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
@@ -23,22 +18,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BandInfoCommand extends WhoKnowsCommand {
-	private final DiscogsApi discogsApi;
-	private final Spotify spotify;
 
 	public BandInfoCommand(DaoImplementation dao) {
 		super(dao);
-		this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
-		this.parser = new ArtistParser(dao, lastFM);
 	}
 
 	@Override
-	void whoKnowsLogic(ArtistData who, Boolean isImage, MessageReceivedEvent e) {
+	void whoKnowsLogic(ArtistData who, Boolean isImage, MessageReceivedEvent e, long userId) {
 		ArtistAlbums ai;
 		String lastFmName;
 		try {
-			lastFmName = getDao().findLastFMData(e.getAuthor().getIdLong()).getName();
+			lastFmName = getDao().findLastFMData(userId).getName();
 		} catch (InstanceNotFoundException ex) {
 			sendMessage(e, "Error f");
 			return;

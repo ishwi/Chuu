@@ -42,11 +42,11 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 			return;
 		ArtistData validable = new ArtistData(returned[0], 0, "");
 		CommandUtil.lessHeavyValidate(getDao(), validable, lastFM, discogsApi, spotify);
-		whoKnowsLogic(validable, Boolean.valueOf(returned[2]), e);
+		whoKnowsLogic(validable, !Boolean.parseBoolean(returned[2]), e, Long.parseLong(returned[1]));
 
 	}
 
-	void whoKnowsLogic(ArtistData who, Boolean isImage, MessageReceivedEvent e) {
+	void whoKnowsLogic(ArtistData who, Boolean isImage, MessageReceivedEvent e, long userId) {
 		MessageBuilder messageBuilder = new MessageBuilder();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 

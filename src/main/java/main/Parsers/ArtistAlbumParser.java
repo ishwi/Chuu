@@ -53,7 +53,7 @@ public class ArtistAlbumParser extends DaoParser {
 				return null;
 			}
 
-			return doSomethingWithNp(np, sample);
+			return doSomethingWithNp(np, sample, e);
 
 		} else {
 			return doSomethingWithString(subMessage, sample, e);
@@ -61,8 +61,8 @@ public class ArtistAlbumParser extends DaoParser {
 	}
 
 
-	public String[] doSomethingWithNp(NowPlayingArtist np, Member sample) {
-		return new String[]{np.getArtistName(), np.getAlbumName(), String.valueOf(sample.getIdLong())};
+	public String[] doSomethingWithNp(NowPlayingArtist np, Member sample, MessageReceivedEvent e) {
+		return new String[]{np.getArtistName(), np.getAlbumName(), String.valueOf(e.getAuthor().getIdLong())};
 	}
 
 	public String[] doSomethingWithString(String[] subMessage, Member sample, MessageReceivedEvent e) {
