@@ -53,7 +53,7 @@ public class ChartFromYearParser extends ChartParser {
 	@Override
 	public String getUsageLogic(String commandName) {
 		return "**" + commandName + " *[w,m,q,s,y,a]* *Username* *YEAR*** \n" +
-				"\tIf time is not specified defaults to Yearly \n" +
+				"\tIf time is not specified defaults to Weekly \n" +
 				"\tIf username is not specified defaults to authors account \n" +
 				"\tIf YEAR not specified it default to current year\n";
 	}
