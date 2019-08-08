@@ -33,25 +33,20 @@ public class RecentListCommand extends ConcurrentCommand {
 			long discordId = getDao().getDiscordIdFromLastfm(username, e.getGuild().getIdLong());
 
 			List<NowPlayingArtist> list = lastFM.getRecent(username, limit);
-			StringBuilder a = new StringBuilder();
-			a.append("\n");
 			NowPlayingArtist header = list.get(0);
 
 			String name = getUserString(discordId, e, username);
 			int counter = 1;
-			for (NowPlayingArtist nowPlayingArtist : list) {
-				a.append("**Track #").append(counter++)
-						.append(":**\n")
-						.append(nowPlayingArtist.getArtistName())
-						.append(" - ").append(nowPlayingArtist.getSongName())
-						.append(" | ").append(nowPlayingArtist.getAlbumName()).append("\n\n");
-			}
-
 			EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
 					.setThumbnail(CommandUtil.noImageUrl(header.getUrl()))
 					.setTitle("** " + name + "'s last " + limit + " tracks **",
-							"https://www.last.fm/user/" + username)
-					.setDescription(a);
+							"https://www.last.fm/user/" + username);
+
+			for (NowPlayingArtist nowPlayingArtist : list) {
+				embedBuilder.addField("Track #" + counter++ + ":", "**" + nowPlayingArtist.getSongName() +
+						"**- " + nowPlayingArtist.getArtistName() + " | " + nowPlayingArtist
+						.getAlbumName() + "\n", false);
+			}
 
 			MessageBuilder messageBuilder = new MessageBuilder();
 			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
