@@ -23,7 +23,7 @@ public class ArtistPlaysCommand extends ConcurrentCommand {
 		if (returned == null)
 			return;
 		String artist = returned[0];
-		long whom = Long.valueOf(returned[1]);
+		long whom = Long.parseLong(returned[1]);
 		int a;
 		try {
 			LastFMData data = getDao().findLastFMData(whom);

@@ -11,7 +11,6 @@ import main.APIs.Spotify.Spotify;
 import main.APIs.last.ConcurrentLastFM;
 import main.APIs.last.LastFMFactory;
 import main.Commands.CommandUtil;
-import main.Exceptions.DiscogsServiceException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +47,7 @@ public class UpdaterThreadTest {
 	}
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 
 
 		dataSource = new SimpleDataSource("/datasource.properties");
@@ -103,8 +102,8 @@ public class UpdaterThreadTest {
 		assertEquals(dao.findCorrection("Raphael4"), lastFM.getCorrection("Raphael4"));
 	}
 
-	class lastFMMockup extends ConcurrentLastFM {
-		public lastFMMockup(String apikey) {
+	static class lastFMMockup extends ConcurrentLastFM {
+		lastFMMockup(String apikey) {
 			super(apikey);
 		}
 
@@ -114,23 +113,23 @@ public class UpdaterThreadTest {
 		}
 	}
 
-	class DiscogsMockup extends main.APIs.Discogs.DiscogsApi {
+	static class DiscogsMockup extends main.APIs.Discogs.DiscogsApi {
 
 		public DiscogsMockup(String secret, String key) {
 			super(secret, key);
 		}
 
-		public DiscogsMockup() {
+		DiscogsMockup() {
 			super("a", "b");
 		}
 
 		@Override
-		public Year getYearRelease(String album, String artist) throws DiscogsServiceException {
+		public Year getYearRelease(String album, String artist) {
 			return Year.now();
 		}
 
 		@Override
-		public String findArtistImage(String artist) throws DiscogsServiceException {
+		public String findArtistImage(String artist) {
 			return "a";
 		}
 	}

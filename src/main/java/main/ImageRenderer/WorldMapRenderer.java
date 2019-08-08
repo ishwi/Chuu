@@ -47,7 +47,7 @@ public class WorldMapRenderer {
 
 		String parser = XMLResourceDescriptor.getXMLParserClassName();
 		SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-		Document doc = null;
+		Document doc;
 		try {
 			doc = f.createDocument("src/main/resources/BlankMap-World.svg",
 					WorldMapRenderer.class.getClassLoader().getResourceAsStream(MAP_ROUND));

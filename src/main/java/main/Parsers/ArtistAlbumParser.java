@@ -61,11 +61,11 @@ public class ArtistAlbumParser extends DaoParser {
 	}
 
 
-	public String[] doSomethingWithNp(NowPlayingArtist np, Member sample, MessageReceivedEvent e) {
+	String[] doSomethingWithNp(NowPlayingArtist np, Member ignored, MessageReceivedEvent e) {
 		return new String[]{np.getArtistName(), np.getAlbumName(), String.valueOf(e.getAuthor().getIdLong())};
 	}
 
-	public String[] doSomethingWithString(String[] subMessage, Member sample, MessageReceivedEvent e) {
+	String[] doSomethingWithString(String[] subMessage, Member sample, MessageReceivedEvent e) {
 		StringBuilder builder = new StringBuilder();
 		for (String s : subMessage) {
 			builder.append(s).append(" ");

@@ -6,13 +6,13 @@ public abstract class LbEntry {
 	private final int entryCount;
 	private String discordName;
 
-	public LbEntry(String user, long discordId, int entryCount) {
+	LbEntry(String user, long discordId, int entryCount) {
 		this.lastFmId = user;
 		this.discordId = discordId;
 		this.entryCount = entryCount;
 	}
 
-	public String getDiscordName() {
+	String getDiscordName() {
 		return discordName;
 	}
 
@@ -24,7 +24,7 @@ public abstract class LbEntry {
 		return discordId;
 	}
 
-	public int getEntryCount() {
+	int getEntryCount() {
 		return entryCount;
 	}
 

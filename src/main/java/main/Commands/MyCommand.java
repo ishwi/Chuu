@@ -26,7 +26,7 @@ public abstract class MyCommand extends ListenerAdapter {
 
 	abstract String getName();
 
-	public String getUsageInstructions() {
+	String getUsageInstructions() {
 		return parser.getUsage(getAliases().get(0));
 	}
 

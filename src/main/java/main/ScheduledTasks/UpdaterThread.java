@@ -35,7 +35,7 @@ public class UpdaterThread implements Runnable {
 		this.discogsApi = discogsApi;
 	}
 
-	public UpdaterThread(DaoImplementation dao, UpdaterUserWrapper username, boolean isIncremental) {
+	private UpdaterThread(DaoImplementation dao, UpdaterUserWrapper username, boolean isIncremental) {
 		this(dao);
 		this.username = username;
 		this.isIncremental = isIncremental;

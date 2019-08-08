@@ -22,14 +22,14 @@ class ThreadQueue implements Runnable {
 	private final int x;
 	private final AtomicInteger iterations;
 	private final Font START_FONT;
-	int START_FONT_SIZE = 24;
+	private int START_FONT_SIZE = 24;
 
 	private boolean writePlays = false;
 	private boolean writeTitles = true;
 	private int lowerLimitStringSize = 14;
 	private int imageSize = 300;
 
-	public ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations) {
+	ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations) {
 		this.queue = queue;
 		this.g = g;
 		this.x = x;

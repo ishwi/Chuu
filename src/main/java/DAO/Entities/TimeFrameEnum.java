@@ -44,7 +44,7 @@ public enum TimeFrameEnum {
 	}
 
 	// getter method
-	public String getName() {
+	private String getName() {
 		return this.name;
 	}
 

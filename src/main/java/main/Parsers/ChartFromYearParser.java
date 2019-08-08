@@ -7,12 +7,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.time.Year;
 
 public class ChartFromYearParser extends ChartParser {
-	private final int chartSize;
-	private TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
+	private final TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
 
 	public ChartFromYearParser(DaoImplementation dao, int chartSize) {
 		super(dao);
-		this.chartSize = chartSize;
 	}
 
 	@Override

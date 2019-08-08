@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 
-public class GraphicUtils {
+class GraphicUtils {
 	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\noArtistImage.png";
 
 	public static int getStringAscent(Graphics page, Font f, String s) {

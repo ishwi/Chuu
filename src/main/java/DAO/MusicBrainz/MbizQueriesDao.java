@@ -10,7 +10,7 @@ import java.time.Year;
 import java.util.List;
 import java.util.Map;
 
-public interface MbizQueriesDao {
+interface MbizQueriesDao {
 	List<AlbumInfo> getYearAlbums(Connection con, List<AlbumInfo> mbizList, Year year);
 
 	List<AlbumInfo> getYearAlbumsByReleaseName(Connection con, List<AlbumInfo> releaseInfo, Year year);

@@ -23,7 +23,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 		List<AlbumInfo> returnList = new ArrayList<>();
 		long discordID;
 
-		@Language("PostgreSQL") String queryString = "SELECT \n" +
+		@Language("PostgreSQL") StringBuilder queryString = new StringBuilder("SELECT \n" +
 				"a.name as albumname,a.gid as mbid,b.name artistName\n" +
 				"FROM\n" +
 				"    musicbrainz.release a\n" +
@@ -33,13 +33,13 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 				"        JOIN\n" +
 				"    musicbrainz.release_group_meta d ON c.id = d.id" +
 				" Where d.first_release_date_year = ? and " +
-				"    a.gid in (";
+				"    a.gid in (");
 		for (AlbumInfo albumInfo : albumInfos) {
-			queryString += " ? ,";
+			queryString.append(" ? ,");
 		}
-		queryString = queryString.substring(0, queryString.length() - 1) + ")";
+		queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
 
-		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString.toString())) {
 			int i = 1;
 			preparedStatement.setInt(i++, year.get(ChronoField.YEAR));
 
@@ -119,7 +119,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 	@Override
 	public Map<Genre, Integer> genreCount(Connection con, List<AlbumInfo> releaseInfo) {
 		Map<Genre, Integer> returnMap = new HashMap<>();
-		@Language("PostgreSQL") String queryString = "SELECT \n" +
+		@Language("PostgreSQL") StringBuilder queryString = new StringBuilder("SELECT \n" +
 				"       c.name as neim, count(*) as count\n \n" +
 				" FROM\n" +
 				" musicbrainz.release d join \n" +
@@ -130,16 +130,16 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 				"        JOIN\n" +
 				"    musicbrainz.tag c ON b.tag = c.id\n" +
 				"WHERE\n" +
-				"    d.gid in (";
+				"    d.gid in (");
 
 		for (AlbumInfo ignored : releaseInfo) {
-			queryString += " ? ,";
+			queryString.append(" ? ,");
 		}
 
-		queryString = queryString.substring(0, queryString.length() - 1) + ")";
-		queryString += "\n Group by c.name";
+		queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
+		queryString.append("\n Group by c.name");
 
-		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString.toString())) {
 			int i = 1;
 
 			for (AlbumInfo albumInfo : releaseInfo) {
@@ -165,7 +165,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 	@Override
 	public Map<Country, Integer> countryCount(Connection connection, List<ArtistInfo> releaseInfo) {
 		Map<Country, Integer> returnMap = new HashMap<>();
-		@Language("PostgreSQL") String queryString = "SELECT \n" +
+		@Language("PostgreSQL") StringBuilder queryString = new StringBuilder("SELECT \n" +
 				"       c.code as code, b.name as neim, count(*) as count\n \n" +
 				" FROM\n" +
 				" musicbrainz.artist a join \n" +
@@ -174,16 +174,16 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 				" on a.area = b.id" +
 				"  WHERE b.type = 1" +
 				"	 and " +
-				"    a.gid in (";
+				"    a.gid in (");
 
 		for (ArtistInfo ignored : releaseInfo) {
-			queryString += " ? ,";
+			queryString.append(" ? ,");
 		}
 
-		queryString = queryString.substring(0, queryString.length() - 1) + ")";
-		queryString += " \n GROUP BY  b.name,c.code";
+		queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
+		queryString.append(" \n GROUP BY  b.name,c.code");
 
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString.toString())) {
 			int i = 1;
 
 			for (ArtistInfo albumInfo : releaseInfo) {
