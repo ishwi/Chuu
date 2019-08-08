@@ -5,9 +5,6 @@ import DAO.Entities.NowPlayingArtist;
 import main.APIs.last.ConcurrentLastFM;
 import net.dv8tion.jda.api.entities.Member;
 
-import java.util.Collections;
-import java.util.List;
-
 public class UsernameAndNpQueryParser extends ArtistParser {
 	public UsernameAndNpQueryParser(DaoImplementation dao, ConcurrentLastFM lastFM) {
 		super(dao, lastFM);
@@ -19,9 +16,9 @@ public class UsernameAndNpQueryParser extends ArtistParser {
 	}
 
 	@Override
-	public List<String> getUsage(String commandName) {
-		return Collections.singletonList("**" + commandName + " [whatever you want to search for] **\n" +
+	public String getUsageLogic(String commandName) {
+		return "**" + commandName + " [whatever you want to search for] **\n" +
 				"\tif you dont introduce a query takes your now playing song\n" +
-				"\tyou can add a username to use that user now playing song\n\n");
+				"\tyou can add a username to use that user now playing song\n";
 	}
 }

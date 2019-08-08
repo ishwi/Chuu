@@ -26,7 +26,7 @@ public class YoutubeSearch extends ConcurrentCommand {
 			return;
 		}
 		String query = returned[0];
-		long whom = Long.valueOf(returned[1]);
+		long whom = Long.parseLong(returned[1]);
 		sendMessage(e, youtubeSearch.doSearch(query));
 
 	}

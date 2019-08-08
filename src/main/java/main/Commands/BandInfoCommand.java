@@ -12,11 +12,12 @@ import main.APIs.Spotify.SpotifySingleton;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.ImageRenderer.BandRendered;
+import main.Parsers.ArtistParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 		super(dao);
 		this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
 		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+		this.parser = new ArtistParser(dao, lastFM);
 	}
 
 	@Override
@@ -101,7 +103,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!band");
+		return Arrays.asList("!band", "!bandnp", "!b");
 	}
 
 

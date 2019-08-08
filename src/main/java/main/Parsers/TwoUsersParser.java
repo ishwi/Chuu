@@ -6,8 +6,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -16,8 +14,7 @@ public class TwoUsersParser extends DaoParser {
 		super(dao);
 	}
 
-	@Override
-	public String[] parse(MessageReceivedEvent e) {
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
 		String[] message = getSubMessage(e.getMessage());
 		if (message.length == 0) {
 			sendError(getErrorMessage(5), e);
@@ -69,13 +66,6 @@ public class TwoUsersParser extends DaoParser {
 		return s;
 	}
 
-	@Override
-	public List<String> getUsage(String commandName) {
-		return Collections.singletonList("**" + commandName + " *userName* *userName***\n" +
-				"\tIf user2 is missing it gets replaced by Author user\n\n");
-
-	}
-
 	private User findUsername(String name, java.util.List<User> userList) {
 		Optional<User> match = userList.stream().
 				filter(user -> {
@@ -86,6 +76,13 @@ public class TwoUsersParser extends DaoParser {
 				})
 				.findFirst();
 		return match.orElse(null);
+	}
+
+	@Override
+	public String getUsageLogic(String commandName) {
+		return "**" + commandName + " *userName* *userName***\n" +
+				"\tIf user2 is missing it gets replaced by Author user\n";
+
 	}
 
 	@Override

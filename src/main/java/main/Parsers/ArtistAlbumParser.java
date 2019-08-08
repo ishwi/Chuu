@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 public class ArtistAlbumParser extends DaoParser {
@@ -19,14 +19,11 @@ public class ArtistAlbumParser extends DaoParser {
 		this.lastFM = lastFM;
 	}
 
+
 	@Override
-	public String[] parse(MessageReceivedEvent e) {
-		String messageRaw = e.getMessage().getContentRaw();
-		StringBuilder builder = new StringBuilder();
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
 		List<Member> members = e.getMessage().getMentionedMembers();
 		Member sample;
-		String artist;
-		String album;
 
 		if (!members.isEmpty()) {
 			if (members.size() != 1) {
@@ -34,11 +31,11 @@ public class ArtistAlbumParser extends DaoParser {
 				return null;
 			}
 			sample = members.get(0);
-			messageRaw = messageRaw.replace(sample.getAsMention(), "");
+			subMessage = Arrays.stream(subMessage).filter(s -> !s.equals(sample.getAsMention()))
+					.toArray(String[]::new);
 		} else
 			sample = e.getMember();
 
-		String[] subMessage = getSubMessage(messageRaw);
 		if (subMessage.length == 0) {
 
 			NowPlayingArtist np;
@@ -88,9 +85,9 @@ public class ArtistAlbumParser extends DaoParser {
 	}
 
 	@Override
-	public List<String> getUsage(String commandName) {
-		return Collections.singletonList("**" + commandName + " *artist-album** username* " +
-				"if username its not specified \n\n");
+	public String getUsageLogic(String commandName) {
+		return "**" + commandName + " *artist-album** username* " +
+				"\n\tif username its not specified";
 
 	}
 

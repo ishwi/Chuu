@@ -21,7 +21,6 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -86,25 +85,25 @@ public class HelpCommand extends MyCommand {
 			if (c.getAliases().contains(command)) {
 				String name = c.getName();
 				String description = c.getDescription();
-				List<String> usageInstructions = c.getUsageInstructions();
+				String usageInstructions = c.getUsageInstructions();
 				name = (name == null || name.isEmpty()) ? NO_NAME : name;
 				description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
-				usageInstructions = (usageInstructions == null || usageInstructions.isEmpty()) ? Collections
-						.singletonList(NO_USAGE) : usageInstructions;
+				usageInstructions = (usageInstructions == null || usageInstructions
+						.isEmpty()) ? NO_USAGE : usageInstructions;
 
 				//TODO: Replace with a PrivateMessage
 				channel.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n")
 						.append("**Description:** ").append(description).append("\n").append("**Alliases:** ")
 						.append(String.join(", ", c.getAliases())).append("\n")
 						.append("**Usage:** ")
-						.append(usageInstructions.get(0))
+						.append(usageInstructions)
 						.build()).queue();
-				for (int i = 1; i < usageInstructions.size(); i++) {
-					channel.sendMessage(new MessageBuilder().append("__").append(name).append(" Usage Cont. (")
-							.append(String.valueOf(i + 1)).append(")__\n")
-							.append(usageInstructions.get(i))
-							.build()).queue();
-				}
+//				for (int i = 1; i < usageInstructions.size(); i++) {
+//					channel.sendMessage(new MessageBuilder().append("__").append(name).append(" Usage Cont. (")
+//							.append(String.valueOf(i + 1)).append(")__\n")
+//							.append(usageInstructions.get(i))
+//							.build()).queue();
+//				}
 				return;
 			}
 		}
@@ -124,13 +123,13 @@ public class HelpCommand extends MyCommand {
 	}
 
 	@Override
-	public List<String> getUsageInstructions() {
-		return Collections.singletonList(
+	public String getUsageInstructions() {
+		return
 				"!help   **OR**  !help *<command>*\n"
 						+ "!help - returns the list of commands along with a simple description of each.\n"
 						+ "!help <command> - returns the name, description, aliases and usage information of a command.\n"
 						+ "   - This can use the aliases of a command as input as well.\n"
-						+ "__Example:__ !help ann");
+						+ "__Example:__ !help ann";
 	}
 
 	@Override

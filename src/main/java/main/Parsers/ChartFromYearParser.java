@@ -5,8 +5,6 @@ import DAO.Entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Year;
-import java.util.Collections;
-import java.util.List;
 
 public class ChartFromYearParser extends ChartParser {
 	private final int chartSize;
@@ -18,26 +16,27 @@ public class ChartFromYearParser extends ChartParser {
 	}
 
 	@Override
-	public String[] parse(MessageReceivedEvent e) {
+	protected void setUpOptionals() {
+		opts.add(new OptionalEntity("--notitles", "dont display titles"));
+		opts.add(new OptionalEntity("--plays", "display play count"));
+
+	}
+
+	@Override
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
 		TimeFrameEnum timeFrame = defaultTFE;
 		String discordName;
-		String[] message = getSubMessage(e.getMessage());
 
-		FlagParser flagParser = new FlagParser(message);
-		boolean writeTitles = !flagParser.contains("notitles");
-		boolean writePlays = flagParser.contains("plays");
-		message = flagParser.getMessage();
-
-		if (message.length > 2) {
+		if (subMessage.length > 2) {
 			sendError(getErrorMessage(5), e);
 			return null;
 		}
-		ChartParserAux chartParserAux = new ChartParserAux(message);
+		ChartParserAux chartParserAux = new ChartParserAux(subMessage);
 		String year = chartParserAux.parseYear();
 		timeFrame = chartParserAux.parseTimeframe(timeFrame);
-		message = chartParserAux.getMessage();
+		subMessage = chartParserAux.getMessage();
 
-		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
+		discordName = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
 		if (discordName == null) {
 
 			return null;
@@ -47,18 +46,16 @@ public class ChartFromYearParser extends ChartParser {
 			return null;
 		}
 
-		return new String[]{"0", year, discordName, timeFrame.toApiFormat(), Boolean.toString(true), Boolean.toString(writeTitles), Boolean.toString(writePlays)};
+		return new String[]{"0", year, discordName, timeFrame.toApiFormat(), Boolean.toString(true)};
 
 	}
 
 	@Override
-	public List<String> getUsage(String commandName) {
-		return Collections.singletonList("**" + commandName + " *[w,m,q,s,y,a]* *Username* *YEAR*** \n" +
+	public String getUsageLogic(String commandName) {
+		return "**" + commandName + " *[w,m,q,s,y,a]* *Username* *YEAR*** \n" +
 				"\tIf time is not specified defaults to Yearly \n" +
 				"\tIf username is not specified defaults to authors account \n" +
-				"\tIf YEAR not specified it default to current year\n" +
-				"\tcan use --notitles to not display titles\n" +
-				"\tcan use --plays to display plays\n\n");
+				"\tIf YEAR not specified it default to current year\n";
 	}
 
 	@Override

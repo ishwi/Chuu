@@ -6,27 +6,66 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class Parser {
 	public final String PREFIX = "**!*";
 	final Map<Integer, String> errorMessages = new HashMap<>(10);
+	public List<OptionalEntity> opts = new ArrayList<>();
+
 
 	Parser() {
 		setUpErrorMessages();
+		setUpOptionals();
+	}
+
+	protected void setUpOptionals() {
+		//Do nothing
 	}
 
 	protected abstract void setUpErrorMessages();
 
-	public abstract String[] parse(MessageReceivedEvent e);
+
+	public String[] parse(MessageReceivedEvent e) {
+		String[] subMessage = getSubMessage(e.getMessage());
+		List<String> subMessageBuilding = new ArrayList<>();
+		List<String> optionals = new ArrayList<>();
+
+		for (String s : subMessage) {
+			//eghh asdhi
+			OptionalEntity optionalEntity = new OptionalEntity(s, "");
+			if (opts.contains(optionalEntity)) {
+				optionals.add(optionalEntity.getValue());
+			} else {
+				subMessageBuilding.add(s);
+			}
+		}
+
+		String[] preOptionaledMessage = parseLogic(e, subMessageBuilding.toArray(new String[0]));
+		String[] withFlags = Arrays.copyOf(preOptionaledMessage, opts.size() + preOptionaledMessage.length);
+		int counter = preOptionaledMessage.length;
+		for (OptionalEntity opt : opts) {
+			withFlags[counter++] = String.valueOf(optionals.contains(opt.getValue()));
+		}
+		return withFlags;
+	}
+
+	public abstract String[] parseLogic(MessageReceivedEvent e, String[] words);
+
+	String[] getSubMessage(Message message) {
+		return getSubMessage(message.getContentRaw());
+
+	}
+
+	String[] getSubMessage(String string) {
+		String[] parts = string.substring(1).split("\\s+");
+		return Arrays.copyOfRange(parts, 1, parts.length);
+
+	}
 
 	public String getErrorMessage(int code) {
 		return errorMessages.get(code);
 	}
-
 
 	String[] containsOptional(String optional, String[] subMessage) {
 		return Arrays.stream(subMessage).filter(s -> !s.equals("--" + optional)).toArray(String[]::new);
@@ -56,17 +95,6 @@ public abstract class Parser {
 		return artist;
 	}
 
-	String[] getSubMessage(Message message) {
-		return getSubMessage(message.getContentRaw());
-
-	}
-
-	String[] getSubMessage(String string) {
-		String[] parts = string.substring(1).split("\\s+");
-		return Arrays.copyOfRange(parts, 1, parts.length);
-
-	}
-
 	public Message sendError(String message, MessageReceivedEvent e) {
 		String errorBase = "Error on " + e.getAuthor().getName() + "'s request:\n";
 		return sendMessage(new MessageBuilder().append(errorBase).append(message).build(), e);
@@ -83,7 +111,17 @@ public abstract class Parser {
 		return sendMessage(new MessageBuilder().append(message).build(), e);
 	}
 
-	public abstract List<String> getUsage(String commandName);
+	public String getUsage(String commandName) {
+		StringBuilder s = new StringBuilder();
+		for (OptionalEntity opt : opts) {
+			s.append(opt.getDefinition());
+		}
+		return getUsageLogic(commandName) + s;
+
+	}
+
+
+	abstract String getUsageLogic(String commandName);
 
 
 }

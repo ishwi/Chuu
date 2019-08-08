@@ -3,20 +3,14 @@ package main.Parsers;
 import DAO.DaoImplementation;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Collections;
-import java.util.List;
-
 public class OnlyUsernameParser extends DaoParser {
 	public OnlyUsernameParser(DaoImplementation dao) {
 		super(dao);
 	}
 
-	@Override
-	public String[] parse(MessageReceivedEvent e) {
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
 
-		String[] message = getSubMessage(e.getMessage());
-
-		String discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
+		String discordName = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
 		if (discordName == null) {
 			return null;
 		}
@@ -24,8 +18,8 @@ public class OnlyUsernameParser extends DaoParser {
 	}
 
 	@Override
-	public List<String> getUsage(String commandName) {
-		return Collections.singletonList("**" + commandName + " *username*** \n" +
-				"\t If username is not specified defaults to authors account\n\n");
+	public String getUsageLogic(String commandName) {
+		return "**" + commandName + " *username*** \n" +
+				"\t If username is not specified defaults to authors account\n";
 	}
 }

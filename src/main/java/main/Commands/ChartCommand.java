@@ -34,7 +34,7 @@ public class ChartCommand extends ConcurrentCommand {
 		int y = Integer.parseInt(returned[1]);
 		String username = returned[2];
 		String time = returned[3];
-		boolean titleWrite = Boolean.parseBoolean(returned[5]);
+		boolean titleWrite = !Boolean.parseBoolean(returned[5]);
 		boolean playsWrite = Boolean.parseBoolean(returned[6]);
 
 		if (x * y > 100) {

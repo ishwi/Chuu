@@ -3,7 +3,8 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import DAO.Entities.UsersWrapper;
-import main.Parsers.OptionalParser;
+import main.Parsers.OptionableParser;
+import main.Parsers.OptionalEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -18,7 +19,8 @@ import java.util.stream.Collectors;
 public class AllPlayingCommand extends ConcurrentCommand {
 	public AllPlayingCommand(DaoImplementation dao) {
 		super(dao);
-		this.parser = new OptionalParser("recent");
+
+		this.parser = new OptionableParser(new OptionalEntity("--recent", "show last song from ALL users"));
 		this.respondInPrivate = false;
 
 	}
@@ -26,12 +28,12 @@ public class AllPlayingCommand extends ConcurrentCommand {
 
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
-		String[] subMessage = getSubMessage(e.getMessage());
+
 		String[] message = parser.parse(e);
 		if (message == null)
 			return;
 
-		boolean showFresh = message.length == subMessage.length;
+		boolean showFresh = !Boolean.parseBoolean(message[0]);
 
 		List<UsersWrapper> list = getDao().getAll(e.getGuild().getIdLong());
 		MessageBuilder messageBuilder = new MessageBuilder();
