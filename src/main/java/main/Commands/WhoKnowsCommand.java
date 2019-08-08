@@ -42,11 +42,11 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 			return;
 		ArtistData validable = new ArtistData(returned[0], 0, "");
 		CommandUtil.lessHeavyValidate(getDao(), validable, lastFM, discogsApi, spotify);
-		whoKnowsLogic(validable, !Boolean.parseBoolean(returned[2]), e, Long.parseLong(returned[1]));
+		whoKnowsLogic(validable, Boolean.parseBoolean(returned[2]), e, Long.parseLong(returned[1]));
 
 	}
 
-	void whoKnowsLogic(ArtistData who, Boolean isImage, MessageReceivedEvent e, long userId) {
+	void whoKnowsLogic(ArtistData who, Boolean isList, MessageReceivedEvent e, long userId) {
 		MessageBuilder messageBuilder = new MessageBuilder();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 
@@ -58,7 +58,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		}
 		wrapperReturnNowPlaying.setUrl(who.getUrl());
 
-		if (!isImage) {
+		if (isList) {
 			StringBuilder builder = new StringBuilder();
 			int counter = 1;
 			for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {
@@ -79,15 +79,15 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 					.setColor(CommandUtil.randomColor());
 			//.setFooter("Command invoked by " + event.getMember().getLastFmId().getDiscriminator() + "" + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toApiFormat(), );
 			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).submit();
-			return;
-		}
+		} else {
 
-		wrapperReturnNowPlaying.getReturnNowPlayings().forEach(element ->
-				element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))
-		);
-		BufferedImage logo = CommandUtil.getLogo(getDao(), e);
-		BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, e.getGuild().getName(), logo);
-		sendImage(image, e);
+			wrapperReturnNowPlaying.getReturnNowPlayings().forEach(element ->
+					element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))
+			);
+			BufferedImage logo = CommandUtil.getLogo(getDao(), e);
+			BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, e.getGuild().getName(), logo);
+			sendImage(image, e);
+		}
 	}
 
 	@Override
