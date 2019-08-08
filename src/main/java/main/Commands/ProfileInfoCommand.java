@@ -50,17 +50,8 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 				.getArtistName() : "not crowns";
 		String UniqueRepresentative = !unique.getUniqueData().isEmpty() ? unique.getUniqueData().get(0)
 				.getArtistName() : "not unique artists";
-		EmbedBuilder embedBuilder = new EmbedBuilder();
-		String name = getUserString(unique.getDiscordId(), e, username);
-		embedBuilder.setTitle(name + "'s profile", "https://www.last.fm/user/" + username);
-		embedBuilder.setColor(CommandUtil.randomColor());
-		embedBuilder.setThumbnail(userInfo.getImage().isEmpty() ? null : userInfo.getImage());
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-		String date = LocalDateTime.ofEpochSecond(userInfo.getUnixtimestamp(), 0, ZoneOffset.UTC)
-				.format(formatter);
 
 		StringBuilder stringBuilder = new StringBuilder();
-
 		stringBuilder.append("Total Number of scrobbles: ").append(userInfo.getPlayCount()).append("\n")
 				.append("Total Number of albums: ").append(albumCount).append("\n")
 				.append("Total Number of artists: ").append(totalArtist).append("\n")
@@ -68,8 +59,19 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 				.append("\tTop Crown:").append(crownRepresentative).append("\n")
 				.append("Total Number of unique artist: ").append(totalUnique).append("\n")
 				.append("\tTop unique:").append(UniqueRepresentative).append("\n");
-		embedBuilder.setDescription(stringBuilder);
-		embedBuilder.setFooter("Account created on  " + date);
+
+		String name = getUserString(unique.getDiscordId(), e, username);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		String date = LocalDateTime.ofEpochSecond(userInfo.getUnixtimestamp(), 0, ZoneOffset.UTC)
+				.format(formatter);
+
+		EmbedBuilder embedBuilder = new EmbedBuilder()
+				.setTitle(name + "'s profile", "https://www.last.fm/user/" + username)
+				.setColor(CommandUtil.randomColor())
+				.setThumbnail(userInfo.getImage().isEmpty() ? null : userInfo.getImage())
+				.setDescription(stringBuilder)
+				.setFooter("Account created on  " + date);
+
 		MessageBuilder mes = new MessageBuilder();
 		mes.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 	}

@@ -139,6 +139,7 @@ public class Chuu {
 		try {
 			jda = builder.build().awaitReady();
 			commandAdministrator.onStartup(jda);
+			updatePresence("Chuu");
 
 		} catch (LoginException | InterruptedException e) {
 			Chuu.getLogger().warn(e.getMessage(), e);
@@ -161,9 +162,7 @@ public class Chuu {
 	}
 
 	public static void updatePresence(String artist) {
-		Chuu.jda.getPresence().setActivity(Activity.listening(
-				artist + " | \n!help"
-		));
+		Chuu.jda.getPresence().setActivity(Activity.playing(artist + " | !help for help"));
 
 	}
 }

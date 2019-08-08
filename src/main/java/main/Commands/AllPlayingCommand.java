@@ -73,8 +73,8 @@ public class AllPlayingCommand extends ConcurrentCommand {
 							.append(username).append("](").append("https://www.last.fm/user/")
 							.append(usersWrapper.getLastFMName())
 							.append("): ")
-							.append(nowPlayingArtist.getArtistName())
-							.append(" - ").append(nowPlayingArtist.getSongName())
+							.append(nowPlayingArtist.getSongName())
+							.append(" - ").append(nowPlayingArtist.getArtistName())
 							.append(" | ").append(nowPlayingArtist.getAlbumName()).append("\n");//.append(" | ");
 
 				}
