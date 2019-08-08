@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 public class NowPlayingCommand extends NpCommand {
@@ -19,18 +19,15 @@ public class NowPlayingCommand extends NpCommand {
 		StringBuilder a = new StringBuilder();
 
 		String username = nowPlayingArtist.getUsername();
-		a.append("**[").append(username).append("'s Profile](").append("https://www.last.fm/user/").append(username)
-				.append(")**\n\n")
-				.append(nowPlayingArtist.isNowPlaying() ? "Current" : "Last")
-				.append(":\n")
-				.append(nowPlayingArtist.getArtistName())
-				.append(" - ").append(nowPlayingArtist.getSongName())
+
+		a.append("**").append(nowPlayingArtist.getSongName())
+				.append("** - ").append(nowPlayingArtist.getArtistName())
 				.append(" | ").append(nowPlayingArtist.getAlbumName());
 
 		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
 				.setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
-				.setTitle("Now Playing:")
-				.setDescription(a);
+				.setTitle("Now Playing:", "https://www.last.fm/user/" + username)
+				.addField(nowPlayingArtist.isNowPlaying() ? "Current:" : "Last:", a.toString(), false);
 
 		MessageBuilder messageBuilder = new MessageBuilder();
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
@@ -48,7 +45,7 @@ public class NowPlayingCommand extends NpCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!np");
+		return Arrays.asList("!np", "!fm");
 	}
 
 
