@@ -24,7 +24,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 	}
 
 	@Override
-	void whoKnowsLogic(ArtistData who, Boolean isImage, MessageReceivedEvent e, long userId) {
+	void whoKnowsLogic(ArtistData who, Boolean isList, MessageReceivedEvent e, long userId) {
 		ArtistAlbums ai;
 		String lastFmName;
 		try {

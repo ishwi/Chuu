@@ -8,7 +8,7 @@ import java.time.Year;
 
 public class ChartFromYearParser extends ChartParser {
 	private final int chartSize;
-	private TimeFrameEnum defaultTFE = TimeFrameEnum.YEAR;
+	private TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
 
 	public ChartFromYearParser(DaoImplementation dao, int chartSize) {
 		super(dao);
