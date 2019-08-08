@@ -27,7 +27,7 @@ public class AlbumSongPlaysCommand extends ConcurrentCommand {
 			return;
 		String artist = parsed[0];
 		String album = parsed[1];
-		long whom = Long.valueOf(parsed[2]);
+		long whom = Long.parseLong(parsed[2]);
 
 		doSomethingWithAlbumArtist(artist, album, e, whom);
 

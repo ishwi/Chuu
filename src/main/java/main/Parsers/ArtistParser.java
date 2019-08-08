@@ -20,8 +20,8 @@ public class ArtistParser extends ArtistAlbumParser {
 	}
 
 	@Override
-	public String[] doSomethingWithNp(NowPlayingArtist np, Member sample) {
-		return new String[]{np.getArtistName(), String.valueOf(sample.getIdLong())};
+	public String[] doSomethingWithNp(NowPlayingArtist np, Member sample, MessageReceivedEvent e) {
+		return new String[]{np.getArtistName(), String.valueOf(e.getAuthor().getIdLong())};
 	}
 
 	@Override

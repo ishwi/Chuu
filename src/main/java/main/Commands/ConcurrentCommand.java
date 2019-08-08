@@ -1,14 +1,15 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import main.APIs.ExecutorsSingleton;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 public abstract class ConcurrentCommand extends MyCommandDbAccess {
+	private final ExecutorService executor = ExecutorsSingleton.getInstance();
 
 	public ConcurrentCommand(DaoImplementation dao) {
 		super(dao);
@@ -18,8 +19,6 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess {
 
 	@Override
 	void onCommand(MessageReceivedEvent e, String[] args) {
-		final ExecutorService executor = Executors.newCachedThreadPool();
-
 		executor.submit(() -> run(e));
 	}
 

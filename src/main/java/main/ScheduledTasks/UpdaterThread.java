@@ -12,7 +12,6 @@ import main.APIs.last.LastFMFactory;
 import main.Chuu;
 import main.Commands.CommandUtil;
 import main.Exceptions.LastFMNoPlaysException;
-import net.dv8tion.jda.api.entities.Activity;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -87,10 +86,9 @@ public class UpdaterThread implements Runnable {
 				List<ArtistData> artistDataLinkedList = lastFM.getLibrary(userWork.getLastFMName());
 				dao.insertArtistDataList(artistDataLinkedList, userWork.getLastFMName());
 				if (!artistDataLinkedList.isEmpty()) {
-					Chuu.getJDA().getPresence().setActivity(Activity.listening(
-							artistDataLinkedList.get(new Random().nextInt(artistDataLinkedList.size()))
-									.getArtist() + "\n **use !help ** "
-					));
+					Chuu.updatePresence(artistDataLinkedList.get(new Random().nextInt(artistDataLinkedList.size()))
+							.getArtist());
+
 				}
 
 				System.out.println("Updated Info Normally  of " + userWork.getLastFMName() + LocalDateTime.now()
