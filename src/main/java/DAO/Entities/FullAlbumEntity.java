@@ -9,14 +9,22 @@ public class FullAlbumEntity {
 	private final int totalPlayNumber;
 	private final String albumUrl;
 	private final List<Track> trackList = new ArrayList<>();
+
+	private final String username;
 	private String artistUrl;
 
-	public FullAlbumEntity(String artist, String album, int totalPlayNumber, String albumUrl) {
+	public FullAlbumEntity(String artist, String album, int totalPlayNumber, String albumUrl, String username) {
 		this.artist = artist;
 		this.album = album;
 		this.totalPlayNumber = totalPlayNumber;
 		this.albumUrl = albumUrl;
+		this.username = username;
 	}
+
+	public String getUsername() {
+		return username;
+	}
+
 
 	public String getArtistUrl() {
 		return artistUrl;

@@ -1,9 +1,6 @@
 package DAO.MusicBrainz;
 
-import DAO.Entities.AlbumInfo;
-import DAO.Entities.ArtistInfo;
-import DAO.Entities.Country;
-import DAO.Entities.Genre;
+import DAO.Entities.*;
 import DAO.SimpleDataSource;
 
 import javax.sql.DataSource;
@@ -69,6 +66,16 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
 		try (Connection connection = dataSource.getConnection()) {
 			connection.setReadOnly(true);
 			return mbizQueriesDao.countryCount(connection, artistInfo);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public List<Track> getAlbumTrackList(String artist, String album) {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return mbizQueriesDao.getAlbumTrackList(connection, artist, album);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}

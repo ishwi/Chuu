@@ -143,7 +143,7 @@ public class TrackDistributor {
 				.getImageFromUrl(fae.getArtistUrl(), null);
 
 		//Main Image
-		BufferedImage dist = new BufferedImage(WIDTH_CONSTANT, HEIGHT_CONSTANT + HEIGHT_TITLES + HEIGHT_BOTTOM + TILE_SIZE * trackCount, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage dist = new BufferedImage(WIDTH_CONSTANT, HEIGHT_CONSTANT + HEIGHT_BOTTOM + (TILE_SIZE - 5) * trackCount + 5 + 60, BufferedImage.TYPE_INT_ARGB);
 		//Album Image
 		BufferedImage albumImage = GraphicUtils.getImageFromUrl(fae.getAlbumUrl(), noalbumImage);
 
@@ -251,7 +251,7 @@ public class TrackDistributor {
 			g.setFont(NORMAL_FONT.deriveFont(28f));
 			str = Integer.toString(stepArr[i]);
 
-			int width = fitStringOnWidth(str, g, 28, 10, g.getFont(), 30);
+			int width = fitStringOnWidth(str, g, 28, 10, 30);
 			GraphicUtils
 					.drawStringNicely(g, str, 215 + i * (TILE_SIZE - 5) + (40 - width) / 2, startingPoint + TILE_SIZE, dist);
 
@@ -262,12 +262,12 @@ public class TrackDistributor {
 
 	}
 
-	private static int fitStringOnWidth(String string, Graphics2D g, float fontSize, float lowerLimit, Font font, int width) {
+	private static int fitStringOnWidth(String string, Graphics2D g, float fontSize, float lowerLimit, int width) {
 
 		int trackName = g.getFontMetrics().stringWidth(string);
 
 		while (trackName > width && (fontSize -= 1) > lowerLimit) {
-			font = g.getFont().deriveFont(fontSize);
+			Font font = g.getFont().deriveFont(fontSize);
 			g.setFont(font);
 			trackName = g.getFontMetrics().stringWidth(string);
 		}
