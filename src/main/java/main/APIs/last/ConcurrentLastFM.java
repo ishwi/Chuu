@@ -510,16 +510,18 @@ public class ConcurrentLastFM {//implements LastFMService {
 		JSONObject obj = initAlbumJSon(username, artist, album);
 
 		JSONArray images = obj.getJSONArray("image");
+		String correctedArtist = obj.getString("artist");
+		String correctedAlbum = obj.getString("name");
+
 		String image_url = images.getJSONObject(images.length() - 1).getString("#text");
 		int playCount = obj.getInt("userplaycount");
-
-		FullAlbumEntity fae = new FullAlbumEntity(artist, album, playCount, image_url);
+		FullAlbumEntity fae = new FullAlbumEntity(correctedArtist, correctedAlbum, playCount, image_url);
 		if (obj.has("tracks")) {
 			JSONArray arr = obj.getJSONObject("tracks").getJSONArray("track");
 			for (int i = 0; i < arr.length(); i++) {
 				JSONObject trackObj = arr.getJSONObject(i);
 				String trackName = trackObj.getString("name");
-				Track trackInfo = getTrackInfo(username, artist, trackName);
+				Track trackInfo = getTrackInfo(username, correctedArtist, trackName);
 				trackInfo.setPosition(trackObj.getJSONObject("@attr").getInt("rank"));
 				fae.addTrack(trackInfo);
 			}

@@ -7,15 +7,27 @@ public class FullAlbumEntity {
 	private final String artist;
 	private final String album;
 	private final int totalPlayNumber;
-	private final String url;
-
+	private final String albumUrl;
 	private final List<Track> trackList = new ArrayList<>();
+	private String artistUrl;
 
-	public FullAlbumEntity(String artist, String album, int totalPlayNumber, String url) {
+	public FullAlbumEntity(String artist, String album, int totalPlayNumber, String albumUrl) {
 		this.artist = artist;
 		this.album = album;
 		this.totalPlayNumber = totalPlayNumber;
-		this.url = url;
+		this.albumUrl = albumUrl;
+	}
+
+	public String getArtistUrl() {
+		return artistUrl;
+	}
+
+	public void setArtistUrl(String artistUrl) {
+		this.artistUrl = artistUrl;
+	}
+
+	public String getAlbumUrl() {
+		return albumUrl;
 	}
 
 	public void addTrack(Track track) {

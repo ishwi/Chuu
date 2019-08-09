@@ -49,7 +49,7 @@ public class WhoKnowsMaker {
 		try {
 
 			lastFmLogo = ImageIO.read(WhoKnowsMaker.class
-					.getResourceAsStream("/logo2.png"));//ImageIO.read(new File("C:\\Users\\Ishwi\\Documents\\discord\\bot\\src\\main\\resources\\logo2.png"));
+					.getResourceAsStream("/images/logo2.png"));//ImageIO.read(new File("C:\\Users\\Ishwi\\Documents\\discord\\bot\\src\\main\\resources\\logo2.png"));
 			guildLogo = logo;//new File("C:\\Users\\Ishwi\\Desktop\\logo.png"));
 
 			java.net.URL url = new java.net.URL(urlString);
@@ -57,7 +57,7 @@ public class WhoKnowsMaker {
 
 		} catch (IOException e) {
 			try {
-				backgroundImage = ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/noArtistImage.png"));
+				backgroundImage = ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png"));
 			} catch (IOException e1) {
 				Chuu.getLogger().warn(e1.getMessage(), e1);
 				return null;
