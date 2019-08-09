@@ -50,60 +50,62 @@ public class UpdaterThread implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("THREAD WORKING ) + " + LocalDateTime.now().toString());
-		UpdaterUserWrapper userWork;
-		Random r = new Random();
-		float chance = r.nextFloat();
-
-		if (this.username == null) {
-			userWork = dao.getLessUpdated();
-		} else
-			userWork = this.username;
-
 		try {
-			if (isIncremental && chance <= 0.93f) {
-				Map<ArtistData, String> correctionAdder = new HashMap<>();
+			System.out.println("THREAD WORKING ) + " + LocalDateTime.now().toString());
+			UpdaterUserWrapper userWork;
+			Random r = new Random();
+			float chance = r.nextFloat();
 
-				TimestampWrapper<List<ArtistData>> artistDataLinkedList = lastFM
-						.getWhole(userWork.getLastFMName(), userWork.getTimestamp());
+			if (this.username == null) {
+				userWork = dao.getLessUpdated();
+			} else
+				userWork = this.username;
 
-				//Correction with current last fm implementation should return the same name so no correction gives
-				for (ArtistData datum : artistDataLinkedList.getWrapped()) {
-					CommandUtil.valiate(dao, datum, lastFM, discogsApi, spotify, correctionAdder);
+			try {
+				if (isIncremental && chance <= 0.93f) {
+					Map<ArtistData, String> correctionAdder = new HashMap<>();
+
+					TimestampWrapper<List<ArtistData>> artistDataLinkedList = lastFM
+							.getWhole(userWork.getLastFMName(), userWork.getTimestamp());
+
+					//Correction with current last fm implementation should return the same name so no correction gives
+					for (ArtistData datum : artistDataLinkedList.getWrapped()) {
+						CommandUtil.valiate(dao, datum, lastFM, discogsApi, spotify, correctionAdder);
+					}
+
+					dao.incrementalUpdate(artistDataLinkedList, userWork.getLastFMName());
+
+					//Workarround non deferrable foreign key
+					correctionAdder.forEach((correctedArtistData, originalArtistName) ->
+							dao.insertCorrection(originalArtistName, correctedArtistData.getArtist()));
+
+					System.out.println("Updated Info Incrementally of " + userWork.getLastFMName() + LocalDateTime.now()
+							.format(DateTimeFormatter.ISO_DATE));
+					System.out.println(" Number of rows updated :" + artistDataLinkedList.getWrapped().size());
+				} else {
+
+					List<ArtistData> artistDataLinkedList = lastFM.getLibrary(userWork.getLastFMName());
+					dao.insertArtistDataList(artistDataLinkedList, userWork.getLastFMName());
+					if (!artistDataLinkedList.isEmpty()) {
+						Chuu.updatePresence(artistDataLinkedList.get(new Random().nextInt(artistDataLinkedList.size()))
+								.getArtist());
+
+					}
+
+					System.out.println("Updated Info Normally  of " + userWork.getLastFMName() + LocalDateTime.now()
+							.format(DateTimeFormatter.ISO_DATE));
+					System.out.println(" Number of rows updated :" + artistDataLinkedList.size());
 				}
-
-				dao.incrementalUpdate(artistDataLinkedList, userWork.getLastFMName());
-
-				//Workarround non deferrable foreign key
-				correctionAdder.forEach((correctedArtistData, originalArtistName) ->
-						dao.insertCorrection(originalArtistName, correctedArtistData.getArtist()));
-
-				System.out.println("Updated Info Incrementally of " + userWork.getLastFMName() + LocalDateTime.now()
+			} catch (LastFMNoPlaysException e) {
+				//dao.updateUserControlTimestamp(userWork.getLastFMName(),userWork.getTimestampControl());
+				dao.updateUserTimeStamp(userWork.getLastFMName(), userWork.getTimestamp(), (int) (Instant.now()
+						.getEpochSecond() + 600));
+				System.out.println("No plays " + userWork.getLastFMName() + LocalDateTime.now()
 						.format(DateTimeFormatter.ISO_DATE));
-				System.out.println(" Number of rows updated :" + artistDataLinkedList.getWrapped().size());
-			} else {
-
-				List<ArtistData> artistDataLinkedList = lastFM.getLibrary(userWork.getLastFMName());
-				dao.insertArtistDataList(artistDataLinkedList, userWork.getLastFMName());
-				if (!artistDataLinkedList.isEmpty()) {
-					Chuu.updatePresence(artistDataLinkedList.get(new Random().nextInt(artistDataLinkedList.size()))
-							.getArtist());
-
-				}
-
-				System.out.println("Updated Info Normally  of " + userWork.getLastFMName() + LocalDateTime.now()
-						.format(DateTimeFormatter.ISO_DATE));
-				System.out.println(" Number of rows updated :" + artistDataLinkedList.size());
 			}
-		} catch (LastFMNoPlaysException e) {
-			//dao.updateUserControlTimestamp(userWork.getLastFMName(),userWork.getTimestampControl());
-			dao.updateUserTimeStamp(userWork.getLastFMName(), userWork.getTimestamp(), (int) (Instant.now()
-					.getEpochSecond() + 600));
-			System.out.println("No plays " + userWork.getLastFMName() + LocalDateTime.now()
-					.format(DateTimeFormatter.ISO_DATE));
 
 		} catch (Throwable e) {
-			System.out.println("Error while updating" + userWork.getLastFMName() + LocalDateTime.now()
+			System.out.println("Error while updating" + LocalDateTime.now()
 					.format(DateTimeFormatter.ISO_DATE));
 			Chuu.getLogger().warn(e.getMessage(), e);
 		}
