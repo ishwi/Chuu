@@ -167,10 +167,10 @@ public class TrackDistributor {
 
 		Integer[] stepArr = new Integer[TILE_NUMBER];
 		stepArr[0] = 1;
-		int step = maxList / TILE_NUMBER;
+		int step = Math.max(1, maxList / TILE_NUMBER);
 
 		for (int i = 1; i < stepArr.length; i++) {
-			stepArr[i] = step * i;
+			stepArr[i] = stepArr[i - 1] + step;
 		}
 
 		int cornerIndex = 0;
@@ -222,7 +222,7 @@ public class TrackDistributor {
 				else
 					correspondingTile = tile;
 
-				if (track.getPlays() > stepArr[i]) {
+				if (track.getPlays() >= stepArr[i]) {
 					correspondingTile = GraphicUtils.copyImage(correspondingTile);
 					Graphics2D graphics = correspondingTile.createGraphics();
 					graphics.setColor(color);
