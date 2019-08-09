@@ -42,6 +42,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	private final String GET_ARTIST = "?method=user.gettopartists&user=";
 	private final String GET_TRACKS = "?method=album.getinfo&username=";
+	private final String GET_TRACK_INFO = "?method=track.getInfo&username=";
+
 	private final String GET_TOP_TRACKS = "?method=user.gettoptracks&user=";
 	private final String GET_CORRECTION = "?method=artist.getcorrection&artist=";
 	private final String GET_ARTIST_ALBUMS = "?method=artist.gettopalbums&artist=";
@@ -89,38 +91,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
-	//@Override
-	public List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFmException {
-		List<UserInfo> returnList = new ArrayList<>();
-
-		for (String lastFmName : lastFmNames) {
-			String url = BASE + GET_USER + lastFmName + API_KEY + ending;
-			HttpMethodBase method = createMethod(url);
-			JSONObject obj = doMethod(method);
-			obj = obj.getJSONObject("user");
-			JSONArray image = obj.getJSONArray("image");
-			JSONObject bigImage = image.getJSONObject(image.length() - 1);
-			String image2 = bigImage.getString("#text");
-			int unixTime = obj.getJSONObject("registered").getInt("#text");
-			int playCount = obj.getInt("playcount");
-			returnList.add(new UserInfo(playCount, image2, lastFmName, unixTime));
-
-		}
-
-		return returnList;
-
-	}
-
-	private void parseHttpCode(int code) throws LastFmException {
-		if (code / 100 == 2)
-			return;
-		if (code == 404)
-			throw new LastFmEntityNotFoundException("404");
-		if (code == 500)
-			throw new LastFMServiceException("500");
-
-	}
-
 	private JSONObject doMethod(HttpMethod method) throws LastFmException {
 		method.addRequestHeader(this.header);
 
@@ -147,10 +117,42 @@ public class ConcurrentLastFM {//implements LastFMService {
 		}
 	}
 
+	private void parseHttpCode(int code) throws LastFmException {
+		if (code / 100 == 2)
+			return;
+		if (code == 404)
+			throw new LastFmEntityNotFoundException("404");
+		if (code == 500)
+			throw new LastFMServiceException("500");
+
+	}
+
 	private HttpMethodBase createMethod(String url) {
 		GetMethod method = new GetMethod(url);
 		method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
 		return method;
+
+	}
+
+	//@Override
+	public List<UserInfo> getUserInfo(List<String> lastFmNames) throws LastFmException {
+		List<UserInfo> returnList = new ArrayList<>();
+
+		for (String lastFmName : lastFmNames) {
+			String url = BASE + GET_USER + lastFmName + API_KEY + ending;
+			HttpMethodBase method = createMethod(url);
+			JSONObject obj = doMethod(method);
+			obj = obj.getJSONObject("user");
+			JSONArray image = obj.getJSONArray("image");
+			JSONObject bigImage = image.getJSONObject(image.length() - 1);
+			String image2 = bigImage.getString("#text");
+			int unixTime = obj.getJSONObject("registered").getInt("#text");
+			int playCount = obj.getInt("playcount");
+			returnList.add(new UserInfo(playCount, image2, lastFmName, unixTime));
+
+		}
+
+		return returnList;
 
 	}
 
@@ -474,6 +476,17 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	public AlbumUserPlays getPlaysAlbum_Artist(String username, String artist, String album) throws
 			LastFmException {
+
+		JSONObject obj = initAlbumJSon(username, artist, album);
+		JSONArray images = obj.getJSONArray("image");
+		String image_url = images.getJSONObject(images.length() - 1).getString("#text");
+
+		AlbumUserPlays ai = new AlbumUserPlays(album, image_url);
+		ai.setPlays(obj.getInt("userplaycount"));
+		return ai;
+	}
+
+	private JSONObject initAlbumJSon(String username, String artist, String album) throws LastFmException {
 		String url;
 		try {
 			url = BASE + GET_TRACKS + username + "&artist=" + URLEncoder
@@ -489,12 +502,57 @@ public class ConcurrentLastFM {//implements LastFMService {
 		if (!obj.has("album"))
 			throw new LastFmEntityNotFoundException(artist);
 		obj = obj.getJSONObject("album");
+		return obj;
+	}
+
+	public FullAlbumEntity getTracksAlbum(String username, String artist, String album) throws
+			LastFmException {
+		JSONObject obj = initAlbumJSon(username, artist, album);
+
 		JSONArray images = obj.getJSONArray("image");
 		String image_url = images.getJSONObject(images.length() - 1).getString("#text");
+		int playCount = obj.getInt("userplaycount");
 
-		AlbumUserPlays ai = new AlbumUserPlays(album, image_url);
-		ai.setPlays(obj.getInt("userplaycount"));
-		return ai;
+		FullAlbumEntity fae = new FullAlbumEntity(artist, album, playCount, image_url);
+		if (obj.has("tracks")) {
+			JSONArray arr = obj.getJSONObject("tracks").getJSONArray("track");
+			for (int i = 0; i < arr.length(); i++) {
+				JSONObject trackObj = arr.getJSONObject(i);
+				String trackName = trackObj.getString("name");
+				Track trackInfo = getTrackInfo(username, artist, trackName);
+				trackInfo.setPosition(trackObj.getJSONObject("@attr").getInt("rank"));
+				fae.addTrack(trackInfo);
+			}
+
+		} else {
+			throw new LastFmEntityNotFoundException("No plays");
+		}
+
+		return fae;
+	}
+
+	private Track getTrackInfo(String username, String artist, String trackName) throws LastFmException {
+
+		String url;
+		try {
+			url = BASE + GET_TRACK_INFO + username + "&artist=" + URLEncoder
+					.encode(artist, "UTF-8") + "&track=" + URLEncoder.encode(trackName, "UTF-8") +
+					API_KEY + ending + "&autocorrect=1";
+		} catch (UnsupportedEncodingException e) {
+			throw new LastFMServiceException("500");
+		}
+		HttpMethodBase method = createMethod(url);
+
+		JSONObject obj = doMethod(method);
+		if (!obj.has("track"))
+			throw new LastFmEntityNotFoundException(artist);
+		obj = obj.getJSONObject("track");
+		int userplaycount = obj.getInt("userplaycount");
+		//	int position = obj.getJSONObject("album").getJSONObject("@attr").getInt("position");
+		boolean userloved = obj.getInt("userloved") != 0;
+		int duration = obj.getInt("duration") / 1000;
+
+		return new Track(artist, trackName, userplaycount, userloved, duration);
 	}
 
 	public ArtistAlbums getAlbumsFromArtist(String artist, int topAlbums) throws
