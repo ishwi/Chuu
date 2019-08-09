@@ -35,7 +35,7 @@ public class TrackDistributor {
 
 
 	static {
-		try (InputStream in = BandRendered.class.getResourceAsStream("/images/corner.png")) {
+		try (InputStream in = BandRendered.class.getResourceAsStream("/images/Corner.png")) {
 			corner = ImageIO.read(in);
 		} catch (IOException e) {
 			Chuu.getLogger().warn(e.getMessage(), e);
