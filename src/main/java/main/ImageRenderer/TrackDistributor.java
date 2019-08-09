@@ -163,7 +163,7 @@ public class TrackDistributor {
 		g.drawImage(Scalr.resize(albumImage, 330, 330), 22, 22, null);
 
 		int startingPoint = HEIGHT_CONSTANT;
-		BufferedImage correspondingTile = null;
+		BufferedImage correspondingTile;
 
 		Integer[] stepArr = new Integer[TILE_NUMBER];
 		stepArr[0] = 1;
@@ -180,6 +180,10 @@ public class TrackDistributor {
 		int counter = 0;
 		Random rand = new Random();
 		List<Color> palette = palettes.get(new Random().nextInt(palettes.size() - 1));
+
+		g.setColor(GraphicUtils.getBetter(new Color(dist.getRGB(150, startingPoint + 5))));
+		g.fillRect(15, startingPoint, 185, 3);
+
 		for (Track track : trackList) {
 			float fontSize = FONT_SIZE;
 
@@ -235,15 +239,38 @@ public class TrackDistributor {
 			counter++;
 			startingPoint += TILE_SIZE - 5;
 		}
+		g.setColor(GraphicUtils.getBetter(new Color(dist.getRGB(150, startingPoint + 5))));
+		g.fillRect(15, startingPoint + 4, 185, 3);
 
 		g.setFont(NORMAL_FONT.deriveFont(28f));
+		String str = "# Plays";
+		int width1 = g.getFontMetrics().stringWidth(str);
+		GraphicUtils.drawStringNicely(g, str, 108 - (width1 / 2), startingPoint + TILE_SIZE, dist);
+
 		for (int i = 0; i < TILE_NUMBER; i++) {
-			GraphicUtils.drawStringNicely(g, Integer
-					.toString(stepArr[i]), 215 + i * (TILE_SIZE - 5) + ((TILE_SIZE - 5) / 3), startingPoint + TILE_SIZE, dist);
+			g.setFont(NORMAL_FONT.deriveFont(28f));
+			str = Integer.toString(stepArr[i]);
+
+			int width = fitStringOnWidth(str, g, 28, 10, g.getFont(), 30);
+			GraphicUtils
+					.drawStringNicely(g, str, 215 + i * (TILE_SIZE - 5) + (40 - width) / 2, startingPoint + TILE_SIZE, dist);
+
 		}
 		g.dispose();
 		return dist;
 
 
+	}
+
+	private static int fitStringOnWidth(String string, Graphics2D g, float fontSize, float lowerLimit, Font font, int width) {
+
+		int trackName = g.getFontMetrics().stringWidth(string);
+
+		while (trackName > width && (fontSize -= 1) > lowerLimit) {
+			font = g.getFont().deriveFont(fontSize);
+			g.setFont(font);
+			trackName = g.getFontMetrics().stringWidth(string);
+		}
+		return trackName;
 	}
 }
