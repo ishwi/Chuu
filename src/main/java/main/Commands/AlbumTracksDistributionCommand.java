@@ -1,60 +1,70 @@
 package main.Commands;
 
 import DAO.DaoImplementation;
+import DAO.Entities.ArtistData;
 import DAO.Entities.FullAlbumEntity;
 import DAO.Entities.LastFMData;
-import DAO.Entities.Track;
+import main.APIs.Discogs.DiscogsApi;
+import main.APIs.Discogs.DiscogsSingleton;
+import main.APIs.Spotify.Spotify;
+import main.APIs.Spotify.SpotifySingleton;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
-import net.dv8tion.jda.api.entities.Member;
+import main.ImageRenderer.TrackDistributor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
+import java.awt.image.BufferedImage;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class AlbumTracksDistributionCommand extends AlbumSongPlaysCommand {
 
+	private final DiscogsApi discogsApi;
+	private final Spotify spotify;
+
 	public AlbumTracksDistributionCommand(DaoImplementation dao) {
+
 		super(dao);
+		this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
 	}
 
 	@Override
 	void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, long who) {
 
+		FullAlbumEntity fullAlbumEntity = null;
+		String artistUrl = null;
 		try {
 			LastFMData data = getDao().findLastFMData(who);
 
-			FullAlbumEntity fullAlbumEntity = lastFM.getTracksAlbum(data.getName(), artist, album);
+			ArtistData artistData = new ArtistData("", artist, 0);
+			CommandUtil.lessHeavyValidate(getDao(), artistData, lastFM, discogsApi, spotify);
+			artist = artistData.getArtist();
+			artistUrl = artistData.getUrl();
 
-			Member b = e.getGuild().getMemberById(who);
-			String usernameString = data.getName();
-			if (b != null)
-				usernameString = b.getEffectiveName();
+			fullAlbumEntity = lastFM.getTracksAlbum(data.getName(), artist, album);
 
-			StringBuilder s = new StringBuilder();
-			s.append(fullAlbumEntity.getArtist()).append(" - ").append(fullAlbumEntity.getAlbum()).append("\n")
-					.append("Total plays: ").append(fullAlbumEntity.getTotalPlayNumber()).append("\n");
-			int counter = 1;
-			List<Track> trackList = fullAlbumEntity.getTrackList();
-			trackList.sort(Comparator.comparingInt(Track::getPlays).reversed());
-			for (Track track : trackList) {
-				s.append(counter++).append(". Track #").append(track.getPosition()).append(": ").append(track.getName())
-						.append(" ")
-						.append(track.getPlays())
-						.append(" duration = ").append(track.getDuration()).append("\n");
-			}
-
-			sendMessage(e, "**" + usernameString + "**\n " + s);
 
 		} catch (InstanceNotFoundException ex) {
 			parser.sendError(parser.getErrorMessage(5), e);
+			return;
 		} catch (LastFmEntityNotFoundException ex) {
 			parser.sendError(parser.getErrorMessage(6), e);
+			return;
 		} catch (LastFmException ex) {
 			parser.sendError(parser.getErrorMessage(2), e);
+			return;
 		}
+		if (fullAlbumEntity.getTrackList().isEmpty()) {
+			sendMessage(e, "Couldn't  find a tracklist for " + fullAlbumEntity.getArtist() + " - " + fullAlbumEntity
+					.getAlbum());
+			return;
+		}
+
+		fullAlbumEntity.setArtistUrl(artistUrl);
+		BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity);
+		sendImage(bufferedImage, e);
 	}
 
 	@Override

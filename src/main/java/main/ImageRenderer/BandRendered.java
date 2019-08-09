@@ -42,13 +42,13 @@ public class BandRendered {
 
 		String artist = wrapperReturnNowPlaying.getArtist();
 		boolean needsJapanese = false;
-		try (InputStream in = BandRendered.class.getResourceAsStream("/logo2.png")) {
+		try (InputStream in = BandRendered.class.getResourceAsStream("/images/logo2.png")) {
 			lastFmLogo = ImageIO.read(in);
 			lastFmLogo = Scalr.resize(lastFmLogo, 30);
 		} catch (IOException e) {
 			lastFmLogo = null;
 		}
-		try (InputStream in = BandRendered.class.getResourceAsStream("/noArtistImage.png")) {
+		try (InputStream in = BandRendered.class.getResourceAsStream("/images/noArtistImage.png")) {
 			artistReplacement = ImageIO.read(in);
 		} catch (IOException e) {
 			artistReplacement = null;

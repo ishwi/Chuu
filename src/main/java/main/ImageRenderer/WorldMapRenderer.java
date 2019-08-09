@@ -25,7 +25,7 @@ public class WorldMapRenderer {
 
 
 	private final static String MAP_FLAT = "BlankMap-World6-Equirectangular.svg";
-	private final static String MAP_ROUND = "BlankMap-World.svg";
+	private final static String MAP_ROUND = "images/BlankMap-World.svg";
 	private final static String SVG_NAMESPACE_URI = "";
 	private final static List<String[]> palettes = initializePallete();
 	private final static String[] textDescArray = new String[]{"text2527", "text2525", "text2523", "text2521", "text2519", "text2517", "text2539"};

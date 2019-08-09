@@ -42,7 +42,7 @@ public class TasteRenderer {
 				imageList.add(ImageIO.read(url));
 			} catch (IOException e) {
 				try {
-					imageList.add(ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/noArtistImage.png")));
+					imageList.add(ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png")));
 				} catch (IOException e1) {
 					Chuu.getLogger().warn(e1.getMessage(), e1);
 				}
