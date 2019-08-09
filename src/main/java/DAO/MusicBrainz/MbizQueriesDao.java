@@ -1,9 +1,6 @@
 package DAO.MusicBrainz;
 
-import DAO.Entities.AlbumInfo;
-import DAO.Entities.ArtistInfo;
-import DAO.Entities.Country;
-import DAO.Entities.Genre;
+import DAO.Entities.*;
 
 import java.sql.Connection;
 import java.time.Year;
@@ -18,5 +15,7 @@ interface MbizQueriesDao {
 	Map<Genre, Integer> genreCount(Connection connection, List<AlbumInfo> releaseInfo);
 
 	Map<Country, Integer> countryCount(Connection connection, List<ArtistInfo> releaseInfo);
+
+	List<Track> getAlbumTrackList(Connection connection, String artist, String album);
 
 }

@@ -1,11 +1,7 @@
 package DAO.MusicBrainz;
 
-import DAO.Entities.AlbumInfo;
-import DAO.Entities.ArtistInfo;
-import DAO.Entities.Country;
-import DAO.Entities.Genre;
+import DAO.Entities.*;
 import main.Chuu;
-import org.intellij.lang.annotations.Language;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,7 +20,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 		List<AlbumInfo> returnList = new ArrayList<>();
 		long discordID;
 
-		@Language("PostgreSQL") StringBuilder queryString = new StringBuilder("SELECT \n" +
+		StringBuilder queryString = new StringBuilder("SELECT \n" +
 				"a.name as albumname,a.gid as mbid,b.name artistName\n" +
 				"FROM\n" +
 				"    musicbrainz.release a\n" +
@@ -66,7 +62,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
 	@Override
 	public List<AlbumInfo> getYearAlbumsByReleaseName(Connection con, List<AlbumInfo> releaseInfo, Year year) {
-		@Language("PostgreSQL") String queryString = "SELECT DISTINCT\n" +
+		String queryString = "SELECT DISTINCT\n" +
 				"    (a.name) as artistname, b.name as albumname,  d.first_release_date_year as year \n" +
 				"FROM\n" +
 				"    musicbrainz.artist_credit a\n" +
@@ -120,7 +116,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 	@Override
 	public Map<Genre, Integer> genreCount(Connection con, List<AlbumInfo> releaseInfo) {
 		Map<Genre, Integer> returnMap = new HashMap<>();
-		@Language("PostgreSQL") StringBuilder queryString = new StringBuilder("SELECT \n" +
+		StringBuilder queryString = new StringBuilder("SELECT \n" +
 				"       c.name as neim, count(*) as count\n \n" +
 				" FROM\n" +
 				" musicbrainz.release d join \n" +
@@ -166,7 +162,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 	@Override
 	public Map<Country, Integer> countryCount(Connection connection, List<ArtistInfo> releaseInfo) {
 		Map<Country, Integer> returnMap = new HashMap<>();
-		@Language("PostgreSQL") StringBuilder queryString = new StringBuilder("SELECT \n" +
+		StringBuilder queryString = new StringBuilder("SELECT \n" +
 				"       c.code as code, b.name as neim, count(*) as count\n \n" +
 				" FROM\n" +
 				" musicbrainz.artist a join \n" +
@@ -209,4 +205,44 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
 	}
 
+	@Override
+	public List<Track> getAlbumTrackList(Connection connection, String artist, String album) {
+		List<Track> returnList = new ArrayList<>();
+
+		String queryString = "SELECT distinct e.name , e.position\n" +
+				"FROM \n" +
+				"musicbrainz.artist_credit a\n" +
+				"JOIN\n" +
+				"musicbrainz.release b ON a.id = b.artist_credit\n" +
+				"JOIN\n" +
+				"musicbrainz.release_group c ON b.release_group = c.id\n" +
+				"join \n" +
+				"musicbrainz.medium d on b.id = d.release\n" +
+				"join musicbrainz.track e on e.medium = d.id\n" +
+				"where a.name = ? and b.name = ?\n" +
+				"order by e.position;";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			int i = 1;
+
+			preparedStatement.setString(i++, artist);
+			preparedStatement.setString(i, album);
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			while (resultSet.next()) {
+				String trackName = resultSet.getString("name");
+				int position = resultSet.getInt("position");
+
+				Track t = new Track(artist, trackName, 0, false, 0);
+				t.setPosition(position);
+				returnList.add(t);
+			}
+
+		} catch (SQLException e) {
+			Chuu.getLogger().warn(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
+		return returnList;
+	}
 }

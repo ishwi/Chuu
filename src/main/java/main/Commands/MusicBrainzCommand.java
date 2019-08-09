@@ -19,13 +19,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class MusicBrainzCommand extends ArtistCommand {
-	private final MusicBrainzService mb = MusicBrainzServiceSingleton.getInstance();
+	private final MusicBrainzService mb;
 	private final int chartSize = 100;
 
 	public MusicBrainzCommand(DaoImplementation dao) {
 		super(dao);
 		this.parser = new ChartFromYearParser(dao, chartSize);//
 
+		mb = MusicBrainzServiceSingleton.getInstance();
 	}
 
 	@Override

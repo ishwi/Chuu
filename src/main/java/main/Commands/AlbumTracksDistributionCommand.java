@@ -4,6 +4,9 @@ import DAO.DaoImplementation;
 import DAO.Entities.ArtistData;
 import DAO.Entities.FullAlbumEntity;
 import DAO.Entities.LastFMData;
+import DAO.Entities.Track;
+import DAO.MusicBrainz.MusicBrainzService;
+import DAO.MusicBrainz.MusicBrainzServiceSingleton;
 import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Discogs.DiscogsSingleton;
 import main.APIs.Spotify.Spotify;
@@ -16,10 +19,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class AlbumTracksDistributionCommand extends AlbumSongPlaysCommand {
-
+	private final MusicBrainzService mb;
 	private final DiscogsApi discogsApi;
 	private final Spotify spotify;
 
@@ -28,13 +32,14 @@ public class AlbumTracksDistributionCommand extends AlbumSongPlaysCommand {
 		super(dao);
 		this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
 		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+		mb = MusicBrainzServiceSingleton.getInstance();
 	}
 
 	@Override
 	void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, long who) {
 
-		FullAlbumEntity fullAlbumEntity = null;
-		String artistUrl = null;
+		FullAlbumEntity fullAlbumEntity;
+		String artistUrl;
 		try {
 			LastFMData data = getDao().findLastFMData(who);
 
@@ -57,9 +62,24 @@ public class AlbumTracksDistributionCommand extends AlbumSongPlaysCommand {
 			return;
 		}
 		if (fullAlbumEntity.getTrackList().isEmpty()) {
-			sendMessage(e, "Couldn't  find a tracklist for " + fullAlbumEntity.getArtist() + " - " + fullAlbumEntity
-					.getAlbum());
-			return;
+
+			mb.getAlbumTrackList(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum())
+					.stream().map(t ->
+					{
+						try {
+							return lastFM.getTrackInfo(fullAlbumEntity.getUsername(), t.getArtist(), t.getName());
+						} catch (LastFmException ex) {
+							return t;
+						}
+					}
+			).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
+
+			if (fullAlbumEntity.getTrackList().isEmpty()) {
+				sendMessage(e, "Couldn't  find a tracklist for " + fullAlbumEntity.getArtist() + " - " + fullAlbumEntity
+						.getAlbum());
+				return;
+			}
+
 		}
 
 		fullAlbumEntity.setArtistUrl(artistUrl);

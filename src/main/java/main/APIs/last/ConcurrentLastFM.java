@@ -442,10 +442,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		return artistData;
 	}
 
-	public List<ArtistData> getReducedLibrary(String user) throws LastFmException {
-		String url = BASE + GET_ARTIST + user + API_KEY + ending + "&period=" + "7day";
-		return getArtistDataTopAlbums(url, true);
-	}
+
 
 	public String getCorrection(String artistToCorrect) {
 		String url;
@@ -515,7 +512,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 		String image_url = images.getJSONObject(images.length() - 1).getString("#text");
 		int playCount = obj.getInt("userplaycount");
-		FullAlbumEntity fae = new FullAlbumEntity(correctedArtist, correctedAlbum, playCount, image_url);
+		FullAlbumEntity fae = new FullAlbumEntity(correctedArtist, correctedAlbum, playCount, image_url, username);
 		if (obj.has("tracks")) {
 			JSONArray arr = obj.getJSONObject("tracks").getJSONArray("track");
 			for (int i = 0; i < arr.length(); i++) {
@@ -533,7 +530,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		return fae;
 	}
 
-	private Track getTrackInfo(String username, String artist, String trackName) throws LastFmException {
+	public Track getTrackInfo(String username, String artist, String trackName) throws LastFmException {
 
 		String url;
 		try {
