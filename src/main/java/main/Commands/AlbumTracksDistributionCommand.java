@@ -75,11 +75,29 @@ public class AlbumTracksDistributionCommand extends AlbumSongPlaysCommand {
 			).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
 
 			if (fullAlbumEntity.getTrackList().isEmpty()) {
-				sendMessage(e, "Couldn't  find a tracklist for " + fullAlbumEntity.getArtist() + " - " + fullAlbumEntity
-						.getAlbum());
-				return;
+				//Force it to lowerCase
+				mb.getAlbumTrackListLowerCase(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum())
+						.stream().map(t ->
+						{
+							try {
+								return lastFM.getTrackInfo(fullAlbumEntity.getUsername(), t.getArtist(), t.getName());
+							} catch (LastFmException ex) {
+								return t;
+							}
+						}
+				).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
+
+				if (fullAlbumEntity.getTrackList().isEmpty()) {
+
+					sendMessage(e, "Couldn't  find a tracklist for " + fullAlbumEntity
+							.getArtist() + " - " + fullAlbumEntity
+							.getAlbum());
+					return;
+				}
+
 			}
 
+			//If is still empty well fuck it
 		}
 
 		fullAlbumEntity.setArtistUrl(artistUrl);

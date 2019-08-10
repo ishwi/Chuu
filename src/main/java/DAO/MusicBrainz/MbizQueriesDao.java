@@ -18,4 +18,5 @@ interface MbizQueriesDao {
 
 	List<Track> getAlbumTrackList(Connection connection, String artist, String album);
 
+	List<Track> getAlbumTrackListLower(Connection connection, String artist, String album);
 }

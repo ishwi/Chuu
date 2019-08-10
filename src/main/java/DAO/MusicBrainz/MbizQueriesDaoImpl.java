@@ -222,6 +222,33 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 				"where a.name = ? and b.name = ?\n" +
 				"order by e.position;";
 
+		return processTracks(connection, artist, album, returnList, queryString);
+	}
+
+	//Added these indexes in order to make it a little faster
+	//CREATE INDEX idx_release_group_name_lower ON musicbrainz.release_group ((lower(name)))
+	//CREATE INDEX idx_artist_name_lower ON musicbrainz.artist_credit ((lower(name)))
+	@Override
+	public List<Track> getAlbumTrackListLower(Connection connection, String artist, String album) {
+		List<Track> returnList = new ArrayList<>();
+
+		String queryString = "SELECT distinct lower(e.name) , e.position\n" +
+				"FROM \n" +
+				"musicbrainz.artist_credit a\n" +
+				"JOIN\n" +
+				"musicbrainz.release b ON a.id = b.artist_credit\n" +
+				"JOIN\n" +
+				"musicbrainz.release_group c ON b.release_group = c.id\n" +
+				"join \n" +
+				"musicbrainz.medium d on b.id = d.release\n" +
+				"join musicbrainz.track e on e.medium = d.id\n" +
+				"where lower(a.name) = lower(?) and lower(b.name) = lower(?)\n" +
+				"order by e.position;";
+
+		return processTracks(connection, artist, album, returnList, queryString);
+	}
+
+	private List<Track> processTracks(Connection connection, String artist, String album, List<Track> returnList, String queryString) {
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			int i = 1;
 
@@ -244,5 +271,6 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 			throw new RuntimeException(e);
 		}
 		return returnList;
+
 	}
 }
