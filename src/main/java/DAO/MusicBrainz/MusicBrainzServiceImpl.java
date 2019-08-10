@@ -80,4 +80,14 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public List<Track> getAlbumTrackListLowerCase(String artist, String album) {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return mbizQueriesDao.getAlbumTrackListLower(connection, artist, album);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

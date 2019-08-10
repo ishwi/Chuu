@@ -21,5 +21,7 @@ public interface MusicBrainzService {
 
 	List<Track> getAlbumTrackList(String artist, String album);
 
+	List<Track> getAlbumTrackListLowerCase(String artist, String album);
+
 	Map<Country, Integer> countryCount(List<ArtistInfo> artistInfo);
 }

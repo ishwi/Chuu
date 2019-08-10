@@ -71,15 +71,22 @@ public class ArtistAlbumParser extends DaoParser {
 			builder.append(s).append(" ");
 		}
 		String s = builder.toString();
-		String[] content = s.split("\\s*-\\s*");
+		String regex = "(?<!\\\\)" + ("\\s*-\\s*");
+		String[] content = s.split(regex);
 
-		if (content.length != 2) {
+		//String[] content = s.split("\\s*-\\s*");
+
+		if (content.length < 2) {
 			sendError(this.getErrorMessage(5), e);
 			return null;
 		}
+		if (content.length > 2) {
+			sendError(this.getErrorMessage(7), e);
+			return null;
+		}
 
-		String artist = content[0].trim();
-		String album = content[1].trim();
+		String artist = content[0].trim().replaceAll("\\\\-", "-");
+		String album = content[1].trim().replaceAll("\\\\-", "-");
 
 		return new String[]{artist, album, String.valueOf(sample.getIdLong())};
 	}
@@ -95,5 +102,9 @@ public class ArtistAlbumParser extends DaoParser {
 	public void setUpErrorMessages() {
 		errorMessages.put(5, "You need to use - to separate artist and album!");
 		errorMessages.put(6, "Didn't find what you were looking for");
+		errorMessages
+				.put(7, "You need to add the escape character **\"\\\\\"** in the **\"-\"** that appear on the album or artist.\n " +
+						"\tFor example: Artist - Alb**\\\\-**um  ");
+
 	}
 }
