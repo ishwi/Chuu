@@ -232,7 +232,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 	public List<Track> getAlbumTrackListLower(Connection connection, String artist, String album) {
 		List<Track> returnList = new ArrayList<>();
 
-		String queryString = "SELECT distinct lower(e.name) , e.position\n" +
+		String queryString = "SELECT distinct lower(e.name) as name , e.position\n" +
 				"FROM \n" +
 				"musicbrainz.artist_credit a\n" +
 				"JOIN\n" +
