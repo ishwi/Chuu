@@ -3,7 +3,6 @@ package DAO.MusicBrainz;
 import DAO.Entities.*;
 import DAO.SimpleDataSource;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Year;
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MusicBrainzServiceImpl implements MusicBrainzService {
-	private final DataSource dataSource;
+	private final SimpleDataSource dataSource;
 	private final MbizQueriesDao mbizQueriesDao;
 
 	public MusicBrainzServiceImpl() {

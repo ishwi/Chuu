@@ -15,7 +15,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.time.Instant;
@@ -32,7 +31,7 @@ public class UpdaterThreadTest {
 	private DaoImplementation dao;
 	private DiscogsApi discogsApi;
 	private ConcurrentLastFM lastFM;
-	private DataSource dataSource;
+	private SimpleDataSource dataSource;
 
 	@After
 	public void tearDown() throws Exception {

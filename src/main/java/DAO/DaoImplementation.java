@@ -5,7 +5,6 @@ import main.Chuu;
 import org.apache.commons.collections4.map.MultiValueMap;
 
 import javax.management.InstanceNotFoundException;
-import javax.sql.DataSource;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -14,12 +13,12 @@ import java.util.List;
 import java.util.Set;
 
 public class DaoImplementation {
-	private final DataSource dataSource;
+	private final SimpleDataSource dataSource;
 	private final SQLQueriesDao queriesDao;
 	private final UpdaterDao updaterDao;
 	private final UserGuildDao userGuildDao;
 
-	public DaoImplementation(DataSource dataSource) {
+	public DaoImplementation(SimpleDataSource dataSource) {
 
 		this.dataSource = dataSource;
 		this.queriesDao = new SQLQueriesDaoImpl();
