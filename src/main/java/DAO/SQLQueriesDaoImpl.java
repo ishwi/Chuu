@@ -447,7 +447,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				" join lastfm b\n" +
 				"ON finalMain.lastFMID = b.lastFmId \n" +
 				"JOIN user_guild c ON b.discordID = c.discordId \n" +
-				"where c.guildId = ?";
+				"where c.guildId = ?" +
+				" order by ord desc";
 
 		return getLbEntries(connection, guildId, queryString, ObscurityEntry::new, false);
 	}
