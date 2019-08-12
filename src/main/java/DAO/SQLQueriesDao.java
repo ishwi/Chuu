@@ -29,4 +29,5 @@ interface SQLQueriesDao {
 
 	List<LbEntry> artistLeaderboard(Connection con, long guildID);
 
+	List<LbEntry> obscurityLeaderboard(Connection connection, long guildId);
 }

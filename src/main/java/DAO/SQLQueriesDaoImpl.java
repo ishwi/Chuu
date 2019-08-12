@@ -3,6 +3,7 @@ package DAO;
 import DAO.Entities.*;
 import main.Chuu;
 import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -330,27 +331,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				"  group by t2.lastFMID,t3.discordID " +
 				"  order by ord desc";
 
-		List<LbEntry> returnedList = new ArrayList<>();
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-			int i = 1;
-			preparedStatement.setLong(i++, guildID);
-			preparedStatement.setLong(i, guildID);
-
-			ResultSet resultSet = preparedStatement.executeQuery();
-
-			while (resultSet.next()) { //&& (j < 10 && j < rows)) {
-				String lastFMId = resultSet.getString("lastFMID");
-				long discordId = resultSet.getLong("discordID");
-				int crowns = resultSet.getInt("ord");
-				returnedList.add(new CrownsLbEntry(lastFMId, discordId, crowns));
-
-			}
-			return returnedList;
-
-		} catch (SQLException e) {
-			Chuu.getLogger().warn(e.getMessage(), e);
-			throw new RuntimeException((e));
-		}
+		return getLbEntries(connection, guildID, queryString, CrownsLbEntry::new, true);
 
 
 	}
@@ -361,7 +342,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				"    count(temp.lastfmID) as ord,temp.lastFMID,temp.discordID " +
 				"FROM " +
 				"    (SELECT  " +
-				"        artist_id, playNumber, a.lastFMID, b.discordID " +
+				"         a.lastFMID, b.discordID " +
 				"    FROM " +
 				"        artist a " +
 				"    JOIN lastfm b ON a.lastFMID = b.lastFmId " +
@@ -374,26 +355,9 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				"group by lastFMID " +
 				"ORDER BY ord DESC";
 
-		List<LbEntry> returnedList = new ArrayList<>();
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-			int i = 1;
-			preparedStatement.setLong(i, guildId);
-
-			ResultSet resultSet = preparedStatement.executeQuery();
-			while (resultSet.next()) { //&& (j < 10 && j < rows)) {
-				String lastFMId = resultSet.getString("temp.lastFMID");
-				long discordId = resultSet.getLong("temp.discordID");
-				int crowns = resultSet.getInt("ord");
-				returnedList.add(new UniqueLbEntry(lastFMId, discordId, crowns));
-
-			}
-			return returnedList;
-
-		} catch (SQLException e) {
-			Chuu.getLogger().warn(e.getMessage(), e);
-			throw new RuntimeException((e));
-		}
+		return getLbEntries(connection, guildId, queryString, UniqueLbEntry::new, false);
 	}
+
 
 	@Override
 	public int userArtistCount(Connection con, String whom) {
@@ -428,26 +392,95 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				" group by a.lastFMID,c.discordId " +
 				"    order by ord desc    )";
 
+		return getLbEntries(con, guildID, queryString, ArtistLbEntry::new, false);
+	}
+
+	@Override
+	public List<LbEntry> obscurityLeaderboard(Connection connection, long guildId) {
+		String queryString = "\n" +
+				"Select finalMain.lastfmid, (mytotalPlays / other_plays_on_my_artists ) * (as_unique_coefficient *0.3) as ord , c.discordId\n" +
+				"from (\n" +
+				"SELECT \n" +
+				"    main.lastFMID,\n" +
+				"    (SELECT \n" +
+				"            SUM(a.playNumber)\n" +
+				"        FROM\n" +
+				"            artist a\n" +
+				"        WHERE\n" +
+				"            lastfmid = main.lastfmid) AS mytotalPlays,\n" +
+				"    (SELECT \n" +
+				"            SUM(a.playNumber)\n" +
+				"        FROM\n" +
+				"            artist a\n" +
+				"        WHERE\n" +
+				"            lastfmid != main.lastfmid\n" +
+				"                AND a.artist_id IN (SELECT \n" +
+				"                    artist_id\n" +
+				"                FROM\n" +
+				"                    artist\n" +
+				"                WHERE\n" +
+				"                    lastfmid = main.lastfmid))as  other_plays_on_my_artists,\n" +
+				"    (SELECT \n" +
+				"            COUNT(*) / (SELECT \n" +
+				"                        COUNT(*)\n" +
+				"                    FROM\n" +
+				"                        artist a\n" +
+				"                    WHERE\n" +
+				"                        lastfmid = main.lastfmid) * (SUM(playNumber))\n" +
+				"        FROM\n" +
+				"            (SELECT \n" +
+				"                artist_id, playNumber, a.lastFMID\n" +
+				"            FROM\n" +
+				"                artist a\n" +
+				"            GROUP BY a.artist_id\n" +
+				"            HAVING COUNT(*) = 1) temp\n" +
+				"        WHERE\n" +
+				"            temp.lastFMID = main.lastfmID\n" +
+				"                AND temp.playNumber > 1\n" +
+				"        ORDER BY temp.playNumber DESC) as_unique_coefficient\n" +
+				"FROM\n" +
+				"\t#full artist table, we will filter later because is somehow faster :D\n" +
+				"    artist main\n" +
+				"    \n" +
+				"GROUP BY main.lastfmid\n" +
+				") finalMain" +
+				" join lastfm b\n" +
+				"ON finalMain.lastFMID = b.lastFmId \n" +
+				"JOIN user_guild c ON b.discordID = c.discordId \n" +
+				"where c.guildId = ?";
+
+		return getLbEntries(connection, guildId, queryString, ObscurityEntry::new, false);
+	}
+
+
+	//TriFunction is not the simplest approach but i felt like using it so :D
+	@NotNull
+	private List<LbEntry> getLbEntries(Connection connection, long guildId, String queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needs_reSet) {
 		List<LbEntry> returnedList = new ArrayList<>();
-		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			int i = 1;
-			preparedStatement.setLong(i, guildID);
+			preparedStatement.setLong(i, guildId);
+			if (needs_reSet)
+				preparedStatement.setLong(++i, guildId);
 
 			ResultSet resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) { //&& (j < 10 && j < rows)) {
-				String lastFMId = resultSet.getString("a.lastfmID");
-				long discordId = resultSet.getLong("c.discordId");
+				String lastFMId = resultSet.getString("lastfmID");
+				long discordId = resultSet.getLong("discordId");
 				int crowns = resultSet.getInt("ord");
-				returnedList.add(new ArtistLbEntry(lastFMId, discordId, crowns));
+
+				returnedList.add(fun.apply(lastFMId, discordId, crowns));
+
 
 			}
 			return returnedList;
-
 		} catch (SQLException e) {
 			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException((e));
 		}
 	}
+
+
 }
 
 

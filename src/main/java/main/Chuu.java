@@ -128,7 +128,8 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new ArtistCountLeaderboard(dao)))
 				.addEventListeners(help.registerCommand(new ArtistNumberCommand(dao)))
 				.addEventListeners(help.registerCommand(new CountryCommand(dao)))
-				.addEventListeners(help.registerCommand(new AlbumTracksDistributionCommand(dao)));
+				.addEventListeners(help.registerCommand(new AlbumTracksDistributionCommand(dao)))
+				.addEventListeners(help.registerCommand(new ObscurityLeaderboardCommand(dao)));
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
 		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, DiscogsSingleton
