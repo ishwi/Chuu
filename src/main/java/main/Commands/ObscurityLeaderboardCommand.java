@@ -9,6 +9,8 @@ import java.util.List;
 public class ObscurityLeaderboardCommand extends CrownLeaderboardCommand {
 	public ObscurityLeaderboardCommand(DaoImplementation dao) {
 		super(dao);
+		this.entryName = "Obscurity points";
+
 	}
 
 	@Override
