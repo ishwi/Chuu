@@ -516,4 +516,13 @@ public class DaoImplementation {
 
 		}
 	}
+
+	public List<LbEntry> getObscurityRankings(long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return queriesDao.obscurityLeaderboard(connection, guildId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
