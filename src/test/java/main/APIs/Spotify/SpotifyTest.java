@@ -1,5 +1,6 @@
 package main.APIs.Spotify;
 
+import main.Chuu;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
