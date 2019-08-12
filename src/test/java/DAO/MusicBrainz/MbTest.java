@@ -1,7 +1,11 @@
 package DAO.MusicBrainz;
 
 import DAO.Entities.AlbumInfo;
+import DAO.Entities.FullAlbumEntity;
 import DAO.Entities.Genre;
+import main.APIs.last.ConcurrentLastFM;
+import main.APIs.last.LastFMFactory;
+import main.Exceptions.LastFmException;
 import org.junit.Test;
 
 import java.time.Year;
@@ -10,6 +14,17 @@ import java.util.List;
 import java.util.Map;
 
 public class MbTest {
+
+	@Test
+	public void test1() {
+
+		MusicBrainzService a = MusicBrainzServiceSingleton.getInstance();
+		List<AlbumInfo> mbizList = generateListMbiz();
+		List<AlbumInfo> b = a.listOfYearReleases(mbizList, Year.of(2018));
+		List<AlbumInfo> c = a.listOfYearReleases(mbizList, Year.of(2017));
+
+
+	}
 
 	private List<AlbumInfo> generateListMbiz() {
 		List<AlbumInfo> mbizList = new ArrayList<>();
@@ -22,16 +37,6 @@ public class MbTest {
 		mbizList.add(new AlbumInfo("3d9cc4be-98f3-4007-a7ef-16bfdfc3c177"));
 		return mbizList;
 	}
-	@Test
-	public void test1() {
-
-		MusicBrainzService a = MusicBrainzServiceSingleton.getInstance();
-		List<AlbumInfo> mbizList = generateListMbiz();
-		List<AlbumInfo> b = a.listOfYearReleases(mbizList, Year.of(2018));
-		List<AlbumInfo> c = a.listOfYearReleases(mbizList, Year.of(2017));
-
-
-	}
 
 	@Test
 	public void test2() {
@@ -43,7 +48,6 @@ public class MbTest {
 		mbizList.add(new AlbumInfo("", "Tiny Dots", "La dispute"));
 		List<AlbumInfo> b = a.findArtistByRelease(mbizList, Year.of(2016));
 //		List<String> c = a.listOfYearReleases(mbizList, Year.of(2017));
-
 
 	}
 
@@ -59,11 +63,24 @@ public class MbTest {
 			Genre genre = entry.getKey();
 			int plays = entry.getValue();
 			sb.append("Genre: ").append(genre.getGenreName()).append(" \n")
-					.append("Frequency: ").append(plays).append("\n").append("Representative ").append(genre.getRepresentativeArtist()).append("\n");
+					.append("Frequency: ").append(plays).append("\n").append("Representative ")
+					.append(genre.getRepresentativeArtist()).append("\n");
 		});
 		System.out.println(sb.toString());
 //		List<String> c = a.listOfYearReleases(mbizList, Year.of(2017));
 
+	}
+
+	@Test
+	public void test4() throws LastFmException {
+
+		MusicBrainzService a = MusicBrainzServiceSingleton.getInstance();
+		ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
+
+		FullAlbumEntity albumTrackListLowerCase = lastFM
+				.getTracksAlbum("ishwaracoello", "BROCKHAMPTON", "SATURATION III");
+
+		//	List<String> c = a.listOfYearReleases(mbizList, Year.of(2017));
 
 	}
 }

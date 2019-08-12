@@ -1,5 +1,6 @@
 package main.APIs.Discogs;
 
+import main.Chuu;
 import main.Exceptions.DiscogsServiceException;
 import org.junit.Test;
 
