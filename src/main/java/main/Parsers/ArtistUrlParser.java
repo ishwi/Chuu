@@ -12,6 +12,7 @@ public class ArtistUrlParser extends Parser {
 
 
 	}
+
 	@Override
 	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
 

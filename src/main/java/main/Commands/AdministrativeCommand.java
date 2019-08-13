@@ -32,26 +32,30 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
-		String urlParsed;
 
-		urlParsed = parser.parse(e)[0];
+		String[] urlParsed = parser.parse(e);
 
-		try (InputStream in = new URL(urlParsed).openStream()) {
-			BufferedImage image = ImageIO.read(in);
-			image = Scalr.resize(image, Scalr.Method.QUALITY, 75, Scalr.OP_ANTIALIAS);
-			if (image == null) {
-				sendMessage(e, "Couldn't get an Image from link supplied");
-				return;
+		if (urlParsed.length == 0) {
+			getDao().removeLogo(e.getGuild().getIdLong());
+			sendMessage(e, "Removed logo from the server  ");
+		} else {
+
+			try (InputStream in = new URL(urlParsed[0]).openStream()) {
+				BufferedImage image = ImageIO.read(in);
+				image = Scalr.resize(image, Scalr.Method.QUALITY, 75, Scalr.OP_ANTIALIAS);
+				if (image == null) {
+					sendMessage(e, "Couldn't get an Image from link supplied");
+					return;
+				}
+
+				getDao().addLogo(e.getGuild().getIdLong(), image);
+				sendMessage(e, "Logo Updated");
+			} catch (IOException exception) {
+				Chuu.getLogger().warn(exception.getMessage(), exception);
+				sendMessage(e, "Something Happened while processing the image ");
 			}
 
-			getDao().addLogo(e.getGuild().getIdLong(), image);
-			sendMessage(e, "Logo Updated");
-		} catch (IOException exception) {
-			Chuu.getLogger().warn(exception.getMessage(), exception);
-			sendMessage(e, "Something Happened while processing the image ");
 		}
-
-
 	}
 
 	@Override

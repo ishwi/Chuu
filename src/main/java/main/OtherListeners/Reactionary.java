@@ -48,6 +48,14 @@ public class Reactionary<T> extends ListenerAdapter {
 		}
 		jda.removeEventListener(this);
 		message.clearReactions().queue();
+		StringBuilder a = new StringBuilder();
+		for (int i = 0; i < pageSize && i < list.size(); i++) {
+			a.append(i + 1).append(list.get(i).toString());
+		}
+		who.setDescription(a);
+		who.setColor(CommandUtil.randomColor());
+		message.editMessage(who.build()).queue();
+
 	}
 
 	@Override

@@ -11,7 +11,7 @@ public class ObscurityEntry extends LbEntry {
 				getDiscordName() +
 				"](https://www.last.fm/user/" +
 				getLastFmId() +
-				") - " + getEntryCount() +
+				"): " + getEntryCount() +
 				" obscurity points\n";
 	}
 

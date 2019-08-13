@@ -283,7 +283,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 	@Override
 	public void removeLogo(Connection connection, long guildId) {
 		/* Create "queryString". */
-		@Language("MySQL") String queryString = "DELETE FROM guild_logo WHERE" + " guildId = ?";
+		@Language("MySQL") String queryString = "DELETE FROM guild_logo WHERE  guildId = ?";
 
 		deleteIdLong(connection, guildId, queryString);
 	}
@@ -322,7 +322,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 				"from   lastfm a" +
 				" join  user_guild  b " +
 				"on a.discordID = b.discordId " +
-				" where " + " a.lastFmId = ? and b.guildId = ? ";
+				" where  a.lastFmId = ? and b.guildId = ? ";
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 

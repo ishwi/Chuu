@@ -48,7 +48,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 	@Override
 	public UpdaterUserWrapper getLessUpdated(Connection connection) {
-		@Language("MySQL") String queryString = "Select a.discordID, a.lastFmId,b.last_update,b.control_timestamp FROM lastfm a LEFT JOIN updated b on a.lastFmId=b.discordID  order by  control_timestamp asc LIMIT 1";
+		@Language("MySQL") String queryString = "Select a.discordID, a.lastFmId,b.last_update,b.control_timestamp FROM lastfm a LEFT JOIN updated b on a.lastFmId=b.discordID  order by  control_timestamp LIMIT 1";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
 			/* Fill "preparedStatement". */
@@ -340,4 +340,22 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public void deleteAllArtists(Connection con, String id) {
+		@Language("MySQL") String queryString = "delete   from artist where lastFMID = ? ";
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i, id);
+
+			preparedStatement.executeUpdate();
+
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
+

@@ -13,6 +13,7 @@ import java.util.List;
 
 public class CrownLeaderboardCommand extends ConcurrentCommand {
 	String entryName = "Crowns";
+
 	public CrownLeaderboardCommand(DaoImplementation dao) {
 		super(dao);
 		this.respondInPrivate = false;

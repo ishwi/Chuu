@@ -48,7 +48,6 @@ public class UpdaterThreadTest {
 	@Before
 	public void setUp() {
 
-
 		dataSource = new SimpleDataSource("/datasource.properties");
 		discogsApi = new DiscogsMockup();
 		spotify = null;
@@ -68,7 +67,8 @@ public class UpdaterThreadTest {
 		a.add(new ArtistData("Raphael2", 3, null));
 		a.add(new ArtistData("Raphael3", 4, null));
 
-		TimestampWrapper<List<ArtistData>> artistDataLinkedList = new TimestampWrapper<>(a, Instant.now().get(ChronoField.MILLI_OF_SECOND));
+		TimestampWrapper<List<ArtistData>> artistDataLinkedList = new TimestampWrapper<>(a, Instant.now()
+				.get(ChronoField.MILLI_OF_SECOND));
 		//Correction with current last fm implementation should return the same name so no correction gives
 		for (ArtistData datum : artistDataLinkedList.getWrapped()) {
 			CommandUtil.valiate(dao, datum, lastFM, discogsApi, spotify, correctionAdder);
@@ -77,9 +77,7 @@ public class UpdaterThreadTest {
 		dao.incrementalUpdate(artistDataLinkedList, "manuelk");
 		correctionAdder.forEach((artistData, s) -> dao.insertCorrection(s, artistData.getArtist()));
 
-
 		dao.upsertUrl(new ArtistInfo("b", "manolo"));
-
 
 		lastFM = new lastFMMockup("apikey");
 		a = new ArrayList<>();

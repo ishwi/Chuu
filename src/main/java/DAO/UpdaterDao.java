@@ -41,4 +41,5 @@ interface UpdaterDao {
 
 	void updateMetric(Connection connection, int metricId, long value);
 
+	void deleteAllArtists(Connection con, String id);
 }
