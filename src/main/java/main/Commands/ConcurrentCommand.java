@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 public abstract class ConcurrentCommand extends MyCommandDbAccess {
 	private final ExecutorService executor = ExecutorsSingleton.getInstance();
 
+
 	ConcurrentCommand(DaoImplementation dao) {
 		super(dao);
 	}

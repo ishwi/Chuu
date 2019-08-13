@@ -36,6 +36,15 @@ public class GaussianFilter extends ConvolveFilter {
 		setRadius(radius);
 	}
 
+	/**
+	 * Get the radius of the kernel.
+	 *
+	 * @return the radius
+	 */
+	public float getRadius() {
+		return radius;
+	}
+
 	private static void convolveAndTranspose(Kernel kernel, int[] inPixels, int[] outPixels, int width, int height, boolean alpha, int edgeAction) {
 		float[] matrix = kernel.getKernelData(null);
 		int cols = kernel.getWidth();
@@ -78,15 +87,6 @@ public class GaussianFilter extends ConvolveFilter {
 				index += height;
 			}
 		}
-	}
-
-	/**
-	 * Get the radius of the kernel.
-	 *
-	 * @return the radius
-	 */
-	public float getRadius() {
-		return radius;
 	}
 
 	/**

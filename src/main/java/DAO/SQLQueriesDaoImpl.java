@@ -48,9 +48,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 			resultSet.beforeFirst();
 			/* Get results. */
 
-			int j = 0;
 			while (resultSet.next()) { //&& (j < 10 && j < rows)) {
-				j++;
 				String name = resultSet.getString("temp.artist_id");
 				int count_a = resultSet.getInt("temp.playNumber");
 
@@ -194,7 +192,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				" AND  playNumber >= all" +
 				"       (Select max(b.playNumber) " +
 				" from " +
-				"(Select in_A.lastFMID,in_A.artist_id,in_A.playNumber" +
+				"(Select in_A.artist_id,in_A.playNumber" +
 				" from artist in_A  " +
 				" join " +
 				" lastfm in_B" +
@@ -213,7 +211,6 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 			preparedStatement.setLong(i, guildID);
 
 			ResultSet resultSet = preparedStatement.executeQuery();
-			int j = 0;
 
 			if (!resultSet.next()) {
 				return new UniqueWrapper<>(0, 0, lastFmId, returnList);
@@ -238,7 +235,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 	@Override
 	public List<UrlCapsule> getGuildTop(Connection connection, Long guildID) {
-		String queryString = "SELECT a.artist_id, sum(playNumber) as orden ,url  FROM  artist a" +
+		@Language("MariaDB") String queryString = "SELECT a.artist_id, sum(playNumber) as orden ,url  FROM  artist a" +
 				" JOIN lastfm b" +
 				" ON a.lastFMID = b.lastFmId" +
 				" JOIN artist_url d " +
@@ -274,7 +271,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 	@Override
 	public int userPlays(Connection con, String artist, String whom) {
-		String queryString = "Select a.playNumber " +
+		@Language("MariaDB") String queryString = "Select a.playNumber " +
 				"FROM artist a JOIN lastfm b on a.lastFMID=b.lastFmId " +
 				"JOIN artist_url c on a.artist_id = c.artist_id " +
 				"where a.lastFMID = ? and a.artist_id =?";
@@ -301,7 +298,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 	@Override
 	public List<LbEntry> crownsLeaderboard(Connection connection, long guildID) {
-		@Language("MySQL") String queryString = "SELECT t2.lastFMID,t3.discordID,count(t2.lastFMID) ord " +
+		@Language("MariaDB") String queryString = "SELECT t2.lastFMID,t3.discordID,count(t2.lastFMID) ord " +
 				"From " +
 				"( " +
 				"Select " +
@@ -338,7 +335,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 	@Override
 	public List<LbEntry> uniqueLeaderboard(Connection connection, long guildId) {
-		@Language("MySQL") String queryString = "SELECT  " +
+		@Language("MariaDB") String queryString = "SELECT  " +
 				"    count(temp.lastfmID) as ord,temp.lastFMID,temp.discordID " +
 				"FROM " +
 				"    (SELECT  " +
@@ -381,7 +378,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 	@Override
 	public List<LbEntry> artistLeaderboard(Connection con, long guildID) {
-		String queryString = "(SELECT  " +
+		@Language("MariaDB") String queryString = "(SELECT  " +
 				"        a.lastfmID , count(*) as ord, c.discordId" +
 				"    FROM " +
 				"        artist a " +
@@ -397,11 +394,11 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 	@Override
 	public List<LbEntry> obscurityLeaderboard(Connection connection, long guildId) {
-		String queryString = "\n" +
-				"Select finalMain.lastfmid, (mytotalPlays / other_plays_on_my_artists ) * (as_unique_coefficient *0.3) as ord , c.discordId\n" +
+		@Language("MariaDB") String queryString = "\n" +
+				"Select finalMain.lastfmid, (mytotalPlays / (other_plays_on_my_artists + 1)) * (as_unique_coefficient *0.3) as ord , c.discordId\n" +
 				"from (\n" +
 				"SELECT \n" +
-				"    main.lastFMID,\n" +
+				"    main.lastFMID,\n" +                //OBtains total plays, and other users plays on your artist
 				"    (SELECT \n" +
 				"            SUM(a.playNumber)\n" +
 				"        FROM\n" +
@@ -420,7 +417,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				"                    artist\n" +
 				"                WHERE\n" +
 				"                    lastfmid = main.lastfmid))as  other_plays_on_my_artists,\n" +
-				"    (SELECT \n" +
+				"  " +
+				"  (SELECT \n" +                // Obtains uniques, percentage of uniques, and plays on uniques
 				"            COUNT(*) / (SELECT \n" +
 				"                        COUNT(*)\n" +
 				"                    FROM\n" +
@@ -433,13 +431,13 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				"            FROM\n" +
 				"                artist a\n" +
 				"            GROUP BY a.artist_id\n" +
-				"            HAVING COUNT(*) = 1) temp\n" +
+				"            HAVING COUNT(*) = 1) temp \n" +
 				"        WHERE\n" +
 				"            temp.lastFMID = main.lastfmID\n" +
 				"                AND temp.playNumber > 1\n" +
-				"        ORDER BY temp.playNumber DESC) as_unique_coefficient\n" +
+				"        ) as_unique_coefficient\n" +
 				"FROM\n" +
-				"\t#full artist table, we will filter later because is somehow faster :D\n" +
+				//"\t#full artist table, we will filter later because is somehow faster :D\n" +
 				"    artist main\n" +
 				"    \n" +
 				"GROUP BY main.lastfmid\n" +

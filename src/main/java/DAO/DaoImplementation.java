@@ -9,6 +9,8 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 
@@ -51,7 +53,10 @@ public class DaoImplementation {
 				/* Prepare connection. */
 				connection.setAutoCommit(false);
 
+				//delete everything first to have a clean start
+				updaterDao.deleteAllArtists(connection, id);
 				/* Do work. */
+
 				list.forEach(artistData -> {
 					artistData.setDiscordID(id);
 					updaterDao.addUrl(connection, artistData);
@@ -316,7 +321,6 @@ public class DaoImplementation {
 
 	}
 
-	@Deprecated
 	public void removeLogo(long guildId) {
 		try (Connection connection = dataSource.getConnection()) {
 			userGuildDao.removeLogo(connection, guildId);
@@ -372,6 +376,7 @@ public class DaoImplementation {
 		removeFromGuild(discordID, guildID);
 		MultiValueMap<Long, Long> map = getMapGuildUsers();
 		if (!map.containsValue(discordID)) {
+
 			removeUserCompletely(discordID);
 		}
 	}
@@ -387,7 +392,8 @@ public class DaoImplementation {
 				userGuildDao.removeUser(connection, discordID);
 				/* Commit. */
 				connection.commit();
-
+				Chuu.getLogger().info("Deleted User " + discordID + " :At " + LocalDateTime.now()
+						.format(DateTimeFormatter.ISO_DATE));
 			} catch (SQLException e) {
 				connection.rollback();
 				throw new RuntimeException(e);

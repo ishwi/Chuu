@@ -443,7 +443,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 	}
 
 
-
 	public String getCorrection(String artistToCorrect) {
 		String url;
 		try {

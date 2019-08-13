@@ -66,8 +66,6 @@ public class GenreCommand extends ConcurrentCommand {
 			return;
 		}
 
-
-
 		PieChart pieChart =
 				new PieChartBuilder()
 						.width(800)
