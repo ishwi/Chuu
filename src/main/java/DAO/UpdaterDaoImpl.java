@@ -48,7 +48,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 	@Override
 	public UpdaterUserWrapper getLessUpdated(Connection connection) {
-		@Language("MySQL") String queryString = "Select a.discordID, a.lastFmId,b.last_update,b.control_timestamp FROM lastfm a LEFT JOIN updated b on a.lastFmId=b.discordID  order by  control_timestamp LIMIT 1";
+		@Language("MariaDB") String queryString = "Select a.discordID, a.lastFmId,b.last_update,b.control_timestamp FROM lastfm a LEFT JOIN updated b on a.lastFmId=b.discordID  order by  control_timestamp LIMIT 1";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
 			/* Fill "preparedStatement". */
