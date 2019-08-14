@@ -62,7 +62,7 @@ public abstract class MyCommand extends ListenerAdapter {
 	}
 
 	boolean containsCommand(Message message) {
-		return getAliases().contains(commandArgs(message)[0]);
+		return getAliases().contains(commandArgs(message)[0].toLowerCase());
 	}
 
 	String[] commandArgs(Message message) {

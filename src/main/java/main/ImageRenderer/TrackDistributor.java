@@ -165,9 +165,9 @@ public class TrackDistributor {
 		int startingPoint = HEIGHT_CONSTANT;
 		BufferedImage correspondingTile;
 
-		Integer[] stepArr = new Integer[TILE_NUMBER];
-		stepArr[0] = 1;
-		int step = Math.max(1, maxList / TILE_NUMBER);
+		Float[] stepArr = new Float[TILE_NUMBER];
+		float step = Math.max(1f, (float) maxList / TILE_NUMBER);
+		stepArr[0] = step;
 
 		for (int i = 1; i < stepArr.length; i++) {
 			stepArr[i] = stepArr[i - 1] + step;
@@ -226,7 +226,7 @@ public class TrackDistributor {
 				else
 					correspondingTile = tile;
 
-				if (track.getPlays() >= stepArr[i]) {
+				if (track.getPlays() >= Math.round(stepArr[i])) {
 					correspondingTile = GraphicUtils.copyImage(correspondingTile);
 					Graphics2D graphics = correspondingTile.createGraphics();
 					graphics.setColor(color);
@@ -249,7 +249,7 @@ public class TrackDistributor {
 
 		for (int i = 0; i < TILE_NUMBER; i++) {
 			g.setFont(NORMAL_FONT.deriveFont(28f));
-			str = Integer.toString(stepArr[i]);
+			str = Integer.toString(Math.round(stepArr[i]));
 
 			int width = fitStringOnWidth(str, g, 28, 10, 30);
 			GraphicUtils

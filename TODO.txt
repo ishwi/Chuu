@@ -13,9 +13,9 @@
 #clear git repo previously
 #remove api_key from lastfm
 ##Migrate artist table with -> artist_url| incremental id
+#heuristic update
 
 If spotify/discogs/ token  mbiz db missing disable commands not crash
 option to embed mysql on jar
-heuristic update
 reorganize entities in a OOP way
 Only username Parser when username not on guild exception handling
