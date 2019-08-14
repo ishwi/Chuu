@@ -451,6 +451,58 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 		return getLbEntries(connection, guildId, queryString, ObscurityEntry::new, false);
 	}
 
+	@Override
+	public PresenceInfo getRandomArtistWithUrl(Connection connection) {
+
+		@Language("MariaDB") String queryString =
+				"SELECT \n" +
+						"    a.artist_id,\n" +
+						"    b.url,\n " +
+						"    discordID,\n" +
+						"    (SELECT \n" +
+						"            SUM(playNumber)\n" +
+						"        FROM\n" +
+						"            artist\n" +
+						"        WHERE\n" +
+						"            artist_id = a.artist_id) as summa\n" +
+						"FROM\n" +
+						"    artist a\n" +
+						"        JOIN\n" +
+						"    artist_url b ON a.artist_id = b.artist_id\n" +
+						"        NATURAL JOIN\n" +
+						"    lastfm c\n" +
+						"WHERE\n" +
+						"    b.artist_id IN (SELECT \n" +
+						"            artist_id\n" +
+						"        FROM\n" +
+						"            (SELECT \n" +
+						"                a.artist_id\n" +
+						"            FROM\n" +
+						"                artist a\n" +
+						"            JOIN artist_url b ON a.artist_id = b.artist_id\n" +
+						"                AND b.url IS NOT NULL\n" +
+						"                AND b.url != ''\n" +
+						"            ORDER BY RAND()\n" +
+						"            LIMIT 1) artist)\n" +
+						"ORDER BY RAND()\n" +
+						"LIMIT 1;";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+			if (!resultSet.next())
+				return null;
+
+			String artist_id = resultSet.getString("artist_id");
+			String url = resultSet.getString("url");
+
+			long summa = resultSet.getLong("summa");
+			long discordID = resultSet.getLong("discordID");
+			return new PresenceInfo(artist_id, url, summa, discordID);
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	//TriFunction is not the simplest approach but i felt like using it so :D
 	@NotNull
@@ -478,8 +530,6 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 			throw new RuntimeException((e));
 		}
 	}
-
-
 }
 
 

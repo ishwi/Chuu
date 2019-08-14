@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.managers.Presence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,6 +91,13 @@ public class Chuu {
 		HelpCommand help = new HelpCommand();
 		AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
 
+		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(3);
+		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, DiscogsSingleton
+				.getInstanceUsingDoubleLocking()), 0, 30, TimeUnit.SECONDS);
+		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new SpotifyUpdaterThread(dao, SpotifySingleton
+				.getInstanceUsingDoubleLocking()), 0, 10, TimeUnit.MINUTES);
+
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
 		builder.setToken(properties.getProperty("DISCORD_TOKEN"))
 				.setAutoReconnect(true)
@@ -129,14 +137,8 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new ArtistNumberCommand(dao)))
 				.addEventListeners(help.registerCommand(new CountryCommand(dao)))
 				.addEventListeners(help.registerCommand(new AlbumTracksDistributionCommand(dao)))
-				.addEventListeners(help.registerCommand(new ObscurityLeaderboardCommand(dao)));
-
-		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
-		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, DiscogsSingleton
-				.getInstanceUsingDoubleLocking()), 0, 30, TimeUnit.SECONDS);
-		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
-		scheduledManager.scheduleAtFixedRate(new SpotifyUpdaterThread(dao, SpotifySingleton
-				.getInstanceUsingDoubleLocking()), 0, 10, TimeUnit.MINUTES);
+				.addEventListeners(help.registerCommand(new ObscurityLeaderboardCommand(dao)))
+				.addEventListeners(help.registerCommand(new FeaturedCommand(dao, scheduledManager)));
 
 		try {
 			jda = builder.build().awaitReady();
@@ -165,6 +167,11 @@ public class Chuu {
 
 	public static void updatePresence(String artist) {
 		Chuu.jda.getPresence().setActivity(Activity.playing(artist + " | !help for help"));
+
+	}
+
+	public static Presence getPresence() {
+		return Chuu.jda.getPresence();
 
 	}
 }
