@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -136,5 +137,9 @@ public abstract class MyCommand extends ListenerAdapter {
 		return member == null ? replacement : member.getEffectiveName();
 	}
 
+	String getUserGlobalString(Long discordId, MessageReceivedEvent e, String replacement) {
 
+		User member = e.getJDA().getUserById((discordId));
+		return member == null ? replacement : member.getName();
+	}
 }
