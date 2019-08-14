@@ -531,4 +531,13 @@ public class DaoImplementation {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public PresenceInfo getRandomArtistWithUrl() {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return queriesDao.getRandomArtistWithUrl(connection);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

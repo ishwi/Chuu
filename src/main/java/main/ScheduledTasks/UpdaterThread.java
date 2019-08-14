@@ -86,12 +86,6 @@ public class UpdaterThread implements Runnable {
 
 					List<ArtistData> artistDataLinkedList = lastFM.getLibrary(userWork.getLastFMName());
 					dao.insertArtistDataList(artistDataLinkedList, userWork.getLastFMName());
-					if (!artistDataLinkedList.isEmpty()) {
-						Chuu.updatePresence(artistDataLinkedList.get(new Random().nextInt(artistDataLinkedList.size()))
-								.getArtist());
-
-					}
-
 					System.out.println("Updated Info Normally  of " + userWork.getLastFMName() + LocalDateTime.now()
 							.format(DateTimeFormatter.ISO_DATE));
 					System.out.println(" Number of rows updated :" + artistDataLinkedList.size());
