@@ -138,8 +138,11 @@ public abstract class MyCommand extends ListenerAdapter {
 	}
 
 	String getUserGlobalString(Long discordId, MessageReceivedEvent e, String replacement) {
-
-		User member = e.getJDA().getUserById((discordId));
-		return member == null ? replacement : member.getName();
+		try {
+			User member = e.getJDA().retrieveUserById(discordId).complete();
+			return member == null ? replacement : member.getName();
+		} catch (Exception ex) {
+			return replacement;
+		}
 	}
 }
