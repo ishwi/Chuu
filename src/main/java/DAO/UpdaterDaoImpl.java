@@ -1,9 +1,6 @@
 package DAO;
 
-import DAO.Entities.ArtistData;
-import DAO.Entities.ArtistInfo;
-import DAO.Entities.UpdaterStatus;
-import DAO.Entities.UpdaterUserWrapper;
+import DAO.Entities.*;
 import main.Chuu;
 import org.intellij.lang.annotations.Language;
 
@@ -352,6 +349,51 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 			preparedStatement.executeUpdate();
 
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public boolean insertRandomUrl(Connection con, String url, long discordId, long guildId) {
+		String queryString = "INSERT IGNORE INTO  randomLinks"
+				+ " ( discordId,url,guildId) " + " VALUES (?,  ?, ?)";
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+			int i = 1;
+			preparedStatement.setLong(i++, discordId);
+			preparedStatement.setString(i++, url);
+			preparedStatement.setLong(i, guildId);
+
+
+			/* Execute query. */
+			int rows = preparedStatement.executeUpdate();
+			return rows != 0;
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public RandomUrlEntity getRandomUrl(Connection con) {
+		String queryString = "\n" +
+				"\n" +
+				"SELECT * FROM randomlinks WHERE url IN \n" +
+				"    (SELECT url FROM (SELECT url FROM randomlinks ORDER BY RAND() LIMIT 1) random)\n" +
+				"        ";
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+			/* Execute query. */
+			ResultSet resultSet = preparedStatement.executeQuery();
+			if (!resultSet.next())
+				return null;
+
+			String url = resultSet.getString("url");
+			long discordID = resultSet.getLong("discordId");
+			long guildId = resultSet.getLong("guildId");
+			return new RandomUrlEntity(url, discordID, guildId);
 
 		} catch (SQLException e) {
 			throw new RuntimeException(e);

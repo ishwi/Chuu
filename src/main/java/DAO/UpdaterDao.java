@@ -1,9 +1,6 @@
 package DAO;
 
-import DAO.Entities.ArtistData;
-import DAO.Entities.ArtistInfo;
-import DAO.Entities.UpdaterStatus;
-import DAO.Entities.UpdaterUserWrapper;
+import DAO.Entities.*;
 
 import java.sql.Connection;
 import java.util.Set;
@@ -42,4 +39,9 @@ interface UpdaterDao {
 	void updateMetric(Connection connection, int metricId, long value);
 
 	void deleteAllArtists(Connection con, String id);
+
+	boolean insertRandomUrl(Connection con, String url, long discordId, long guildId);
+
+	RandomUrlEntity getRandomUrl(Connection con);
+
 }
