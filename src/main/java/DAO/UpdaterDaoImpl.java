@@ -357,7 +357,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 	@Override
 	public boolean insertRandomUrl(Connection con, String url, long discordId, long guildId) {
-		String queryString = "INSERT IGNORE INTO  randomLinks"
+		String queryString = "INSERT IGNORE INTO  lastfm.randomlinks"
 				+ " ( discordId,url,guildId) " + " VALUES (?,  ?, ?)";
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
