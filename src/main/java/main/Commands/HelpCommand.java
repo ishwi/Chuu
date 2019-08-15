@@ -61,7 +61,16 @@ public class HelpCommand extends MyCommand {
 	private void sendPrivate(MessageChannel channel, String[] args) {
 		if (args.length < 2) {
 			StringBuilder s = new StringBuilder();
+			boolean flagSeveralPages = false;
 			for (MyCommand c : commands.values()) {
+				if (s.length() > 1800) {
+					channel.sendMessage(new MessageBuilder()
+							.append("The following commands are supported by the bot\n")
+							.append(s.toString())
+							.build()).queue();
+					flagSeveralPages = true;
+					s = new StringBuilder();
+				}
 				String description = c.getDescription();
 				description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
 
@@ -69,8 +78,9 @@ public class HelpCommand extends MyCommand {
 				s.append(description).append("\n");
 			}
 
+			String header = (flagSeveralPages) ? "" : "The following commands are supported by the bot\n";
 			channel.sendMessage(new MessageBuilder()
-					.append("The following commands are supported by the bot\n")
+					.append(header)
 					.append(s.toString())
 					.build()).queue();
 		} else {

@@ -6,12 +6,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RandomAlbumParser extends Parser {
-	private final Pattern mediaPattern = Pattern.compile("spotify:(artist|album|track):([0-9A-Za-z]{22})");
-	private final Pattern playlistPattern = Pattern.compile("spotify:user:([^:]+):playlist:([0-9A-Za-z]{22})");
+
+	private final Pattern spotify = Pattern
+			.compile("^(https://open.spotify.com/(album|artist|track|playlist)/|spotify:(album|artist|track|playlist):)([a-zA-Z0-9]+)(.*)$");
+
 	private final Pattern youtubePattern = Pattern
-			.compile("(?:https?:\\/\\/)?(?:youtu\\.be\\/|(?:www\\.|m\\.)?youtube\\.com\\/(?:watch|v|embed)(?:\\.php)?(?:\\?.*v=|\\/))([a-zA-Z0-9\\-_]+)");
+			.compile("(?:https?://)?(?:youtu\\.be/|(?:www\\.|m\\.)?youtube\\.com/(?:watch|v|embed)(?:\\.php)?(?:\\?.*v=|/))([a-zA-Z0-9\\-_]+)");
 	private final Pattern deezerPattern = Pattern
-			.compile("/^https?:\\/\\/(?:www\\.)?deezer\\.com\\/(track|album|playlist)\\/(\\d+)$/\n");
+			.compile("^https?://(?:www\\.)?deezer\\.com/(track|album|playlist)/(\\d+)$/\n");
 
 
 	@Override
@@ -23,17 +25,21 @@ public class RandomAlbumParser extends Parser {
 		if (subMessage == null || subMessage.length == 0)
 			return new String[]{};
 		String url = subMessage[0];
-		Matcher matches = mediaPattern.matcher(url);
-		String group = "url";
-		if (matches.matches()) {
-			group = matches.group(1);
+		Matcher matches;
+		String group;
 
-		} else if (playlistPattern.matcher(url).matches()) {
-			group = "playlist";
+		if ((matches = spotify.matcher(url)).matches()) {
+			group = "spotify";
+			if (!url.startsWith("https:")) {
+				String id = matches.group(4);
+				String param = matches.group(3);
+				url = "https://open.spotify.com/" + param + "/" + id;
+			} else
+				url = url.split("\\?si=")[0];
 
-		} else if (youtubePattern.matcher(url).matches()) {
+		} else if ((matches = youtubePattern.matcher(url)).matches()) {
 			group = "yt";
-		} else if (deezerPattern.matcher(url).matches()) {
+		} else if ((matches = deezerPattern.matcher(url)).matches()) {
 			group = "deezer";
 		} else {
 			sendError(getErrorMessage(1), e);
@@ -47,8 +53,7 @@ public class RandomAlbumParser extends Parser {
 	@Override
 	public String getUsageLogic(String commandName) {
 		return "**" + commandName + " *url***\n" +
-				"\t if no url is provided you get a random link\n" +
-				"\t User needs to have administration permissions\n";
+				"\t if no link is provided you get a random link\n";
 	}
 }
 
