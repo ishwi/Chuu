@@ -540,4 +540,23 @@ public class DaoImplementation {
 			throw new RuntimeException(e);
 		}
 	}
+
+
+	public boolean addToRandomPool(RandomUrlEntity randomUrlEntity) {
+		try (Connection connection = dataSource.getConnection()) {
+			return updaterDao.insertRandomUrl(connection, randomUrlEntity.getUrl(), randomUrlEntity
+					.getDiscordId(), randomUrlEntity.getGuildId());
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public RandomUrlEntity getRandomUrl() {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return updaterDao.getRandomUrl(connection);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
