@@ -47,7 +47,7 @@ public class CrownsCommand extends ConcurrentCommand {
 		embedBuilder.setColor(CommandUtil.randomColor());
 		Member whoD = e.getGuild().getMemberById(uniqueDataUniqueWrapper.getDiscordId());
 		String name = whoD == null ? message[0] : whoD.getEffectiveName();
-		embedBuilder.setTitle(name + "'s crowns", "https://www.last.fm/user/" + uniqueDataUniqueWrapper.getLastFmId());
+		embedBuilder.setTitle(name + "'s crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
 		embedBuilder.setFooter(name + " has " + resultWrapper.size() + " crowns!!\n", null);
 		if (whoD != null)
 			embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());

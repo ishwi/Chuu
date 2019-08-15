@@ -66,10 +66,9 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 				String userName = getUserString(returnNowPlaying.getDiscordId(), e, returnNowPlaying.getLastFMId());
 				builder.append(counter++)
 						.append(". ")
-						.append("[").append(userName).append("]")
-						.append("(https://www.last.fm/user/").append(returnNowPlaying.getLastFMId())
-						.append("/library/music/")
-						.append(wrapperReturnNowPlaying.getArtist().replaceAll(" ", "+").replaceAll("[)]", "%29"))
+						.append("[").append(userName).append("](")
+						.append(CommandUtil
+								.getLastFmArtistUserUrl(returnNowPlaying.getArtist(), returnNowPlaying.getLastFMId()))
 						.append(") - ")
 						.append(returnNowPlaying.getPlayNumber()).append(" plays\n");
 			}

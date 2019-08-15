@@ -1,5 +1,7 @@
 package DAO.Entities;
 
+import main.Commands.CommandUtil;
+
 public class CrownsLbEntry extends LbEntry {
 
 	public CrownsLbEntry(String user, long discordId, int entryCount) {
@@ -10,8 +12,7 @@ public class CrownsLbEntry extends LbEntry {
 	public String toString() {
 		return ". [" +
 				getDiscordName() +
-				"](https://www.last.fm/user/" +
-				getLastFmId() +
+				"](" + CommandUtil.getLastFmUser(this.getLastFmId()) +
 				") - " + getEntryCount() +
 				" crowns\n";
 	}

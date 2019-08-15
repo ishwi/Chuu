@@ -174,6 +174,20 @@ public class CommandUtil {
 		}
 	}
 
+	public static String getLastFmArtistUrl(String artist) {
+		return "https://www.last.fm/music/" + artist.replaceAll(" ", "+").replaceAll("[)]", "%29");
+
+	}
+
+	public static String getLastFmArtistUserUrl(String artist, String username) {
+		return getLastFmUser(username) + "/library/music/" + artist.replaceAll(" ", "+")
+				.replaceAll("[)]", "%29");
+	}
+
+	public static String getLastFmUser(String username) {
+		return "https://www.last.fm/user/" + username;
+	}
+
 	public static String singlePlural(int count, String singular, String plural) {
 		return count == 1 ? singular : plural;
 	}

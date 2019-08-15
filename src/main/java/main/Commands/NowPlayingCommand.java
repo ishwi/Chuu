@@ -26,7 +26,7 @@ public class NowPlayingCommand extends NpCommand {
 
 		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
 				.setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
-				.setTitle("Now Playing:", "https://www.last.fm/user/" + username)
+				.setTitle("Now Playing:", CommandUtil.getLastFmUser(username))
 				.addField(nowPlayingArtist.isNowPlaying() ? "Current:" : "Last:", a.toString(), false);
 
 		MessageBuilder messageBuilder = new MessageBuilder();
