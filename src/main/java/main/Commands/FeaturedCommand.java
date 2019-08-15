@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,7 +27,9 @@ public class FeaturedCommand extends ConcurrentCommand {
 			PresenceInfo randomArtistWithUrl = getDao().getRandomArtistWithUrl();
 			Chuu.updatePresence(randomArtistWithUrl.getArtist());
 			this.currentPresence = randomArtistWithUrl;
-		}, 3, 30, TimeUnit.MINUTES);
+			Chuu.getLogger()
+					.info("[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE) + "]\t!Updated Presence");
+		}, 1, 30, TimeUnit.MINUTES);
 	}
 
 
@@ -35,7 +39,7 @@ public class FeaturedCommand extends ConcurrentCommand {
 		EmbedBuilder embedBuilder = new EmbedBuilder()
 				.setColor(CommandUtil.randomColor())
 				.setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
-				.setTitle("Chuu's Featured Artist:", "https://www.last.fm/music/" + currentPresence.getArtist())
+				.setTitle("Chuu's Featured Artist:", CommandUtil.getLastFmArtistUrl(currentPresence.getArtist()))
 				.addField("Artist:", currentPresence.getArtist(), false)
 				.addField("User:", userString, false)
 				.addField("Total Artist Plays:", String.valueOf(currentPresence.getSum()), false);

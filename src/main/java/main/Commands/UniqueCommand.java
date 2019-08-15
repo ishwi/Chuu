@@ -53,7 +53,7 @@ public class UniqueCommand extends ConcurrentCommand {
 		Member member = e.getGuild().getMemberById(resultWrapper.getDiscordId());
 		assert (member != null);
 		embedBuilder.setDescription(a).setTitle(member
-				.getEffectiveName() + "'s Top 10 unique Artists", "https://www.last.fm/user/" + lastFMID)
+				.getEffectiveName() + "'s Top 10 unique Artists", CommandUtil.getLastFmUser(lastFMID))
 				.setThumbnail(member.getUser().getAvatarUrl())
 				.setFooter(member.getEffectiveName() + " has " + rows + " unique artists!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->

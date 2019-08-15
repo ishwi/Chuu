@@ -40,7 +40,7 @@ public class RecentListCommand extends ConcurrentCommand {
 			EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
 					.setThumbnail(CommandUtil.noImageUrl(header.getUrl()))
 					.setTitle("** " + name + "'s last " + limit + " tracks **",
-							"https://www.last.fm/user/" + username);
+							CommandUtil.getLastFmUser(username));
 
 			for (NowPlayingArtist nowPlayingArtist : list) {
 				embedBuilder.addField("Track #" + counter++ + ":", "**" + nowPlayingArtist.getSongName() +

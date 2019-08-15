@@ -1,5 +1,7 @@
 package DAO.Entities;
 
+import main.Commands.CommandUtil;
+
 public class UniqueData {
 	private final int count;
 	private final String artistName;
@@ -13,8 +15,7 @@ public class UniqueData {
 	public String toString() {
 		String a = ". [" +
 				getArtistName() +
-				"](https://www.last.fm/music/" +
-				getArtistName().replaceAll(" ", "+") +
+				"](" + CommandUtil.getLastFmArtistUrl(artistName) +
 				") - " + getCount() +
 				" plays\n";
 		return a;

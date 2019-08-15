@@ -1,5 +1,7 @@
 package DAO.Entities;
 
+import main.Commands.CommandUtil;
+
 public class ArtistLbEntry extends LbEntry {
 	public ArtistLbEntry(String lastFMId, long discordId, int artistCount) {
 		super(lastFMId, discordId, artistCount);
@@ -9,8 +11,7 @@ public class ArtistLbEntry extends LbEntry {
 	public String toString() {
 		return ". [" +
 				getDiscordName() +
-				"](https://www.last.fm/user/" +
-				getLastFmId() +
+				"](" + CommandUtil.getLastFmUser(this.getLastFmId()) +
 				") - " + getEntryCount() +
 				" artists\n";
 	}

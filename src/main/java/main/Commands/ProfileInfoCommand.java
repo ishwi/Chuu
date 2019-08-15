@@ -66,7 +66,7 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 				.format(formatter);
 
 		EmbedBuilder embedBuilder = new EmbedBuilder()
-				.setTitle(name + "'s profile", "https://www.last.fm/user/" + username)
+				.setTitle(name + "'s profile", CommandUtil.getLastFmUser(username))
 				.setColor(CommandUtil.randomColor())
 				.setThumbnail(userInfo.getImage().isEmpty() ? null : userInfo.getImage())
 				.setDescription(stringBuilder)

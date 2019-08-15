@@ -70,8 +70,8 @@ public class AllPlayingCommand extends ConcurrentCommand {
 			String username = member == null ? usersWrapper.getLastFMName() : member.getEffectiveName();
 
 					a.append("+ ").append("[")
-							.append(username).append("](").append("https://www.last.fm/user/")
-							.append(usersWrapper.getLastFMName())
+							.append(username).append("](")
+							.append(CommandUtil.getLastFmUser(usersWrapper.getLastFMName()))
 							.append("): ")
 							.append(nowPlayingArtist.getSongName())
 							.append(" - ").append(nowPlayingArtist.getArtistName())

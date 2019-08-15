@@ -1,5 +1,7 @@
 package DAO.Entities;
 
+import main.Commands.CommandUtil;
+
 public class ObscurityEntry extends LbEntry {
 	public ObscurityEntry(String lastFMId, long discordId, int crowns) {
 		super(lastFMId, discordId, crowns);
@@ -9,8 +11,7 @@ public class ObscurityEntry extends LbEntry {
 	public String toString() {
 		return ". [" +
 				getDiscordName() +
-				"](https://www.last.fm/user/" +
-				getLastFmId() +
+				"](" + CommandUtil.getLastFmUser(this.getLastFmId()) +
 				"): " + getEntryCount() +
 				" obscurity points\n";
 	}
