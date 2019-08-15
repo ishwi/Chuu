@@ -189,7 +189,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 		}
 	}
 
-
 	@Override
 	public String getArtistUrl(Connection connection, String artist) {
 		String queryString = "SELECT url FROM artist_url where artist_id = ? ";
@@ -265,7 +264,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
 		}
 		return null;
 	}
-
 
 	@Override
 	public void insertCorrection(Connection connection, String artist, String correction) {
@@ -357,7 +355,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 	@Override
 	public boolean insertRandomUrl(Connection con, String url, long discordId, long guildId) {
-		String queryString = "INSERT IGNORE INTO  lastfm.randomlinks"
+		String queryString = "INSERT INTO  lastfm.randomlinks"
 				+ " ( discordId,url,guildId) " + " VALUES (?,  ?, ?)";
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -399,5 +397,29 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public RandomUrlEntity findRandomUrlById(Connection con, String urlQ) {
+		@Language("MariaDB") String queryString = "Select * " +
+				"FROM randomlinks  " +
+				"where url = ?";
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+			/* Fill "preparedStatement". */
+			preparedStatement.setString(1, urlQ);
+			/* Execute query. */
+			ResultSet resultSet = preparedStatement.executeQuery();
+			if (!resultSet.next())
+				return null;
+
+			String url = resultSet.getString("url");
+			long discordID = resultSet.getLong("discordId");
+			long guildId = resultSet.getLong("guildId");
+			return new RandomUrlEntity(url, discordID, guildId);
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
+
 

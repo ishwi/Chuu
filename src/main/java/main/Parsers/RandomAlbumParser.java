@@ -11,7 +11,7 @@ public class RandomAlbumParser extends Parser {
 			.compile("^(https://open.spotify.com/(album|artist|track|playlist)/|spotify:(album|artist|track|playlist):)([a-zA-Z0-9]+)(.*)$");
 
 	private final Pattern youtubePattern = Pattern
-			.compile("http(?:s?)://(?:www\\.)?youtu(?:be\\.com/watch\\?v=|\\.be/)([\\w\\-_]*)(&(amp;)?[\\w?\u200C\u200B=]*)?");
+			.compile("(?:https?://)?(?:www\\.)?youtu\\.?be(?:\\.com)?/?.*(?:watch|embed)?(?:.*v=|v/|/)([\\w-_]+)");
 	private final Pattern deezerPattern = Pattern
 			.compile("^https?://(?:www\\.)?deezer\\.com/(track|album|playlist)/(\\d+)$/\n");
 
@@ -37,10 +37,10 @@ public class RandomAlbumParser extends Parser {
 			} else
 				url = url.split("\\?si=")[0];
 
-		} else if ((matches = youtubePattern.matcher(url)).matches()) {
+		} else if ((matches = youtubePattern.matcher(url)).lookingAt()) {
 			group = "yt";
-			if (matches.group(2) != null) {
-				url = url.split(matches.group(2))[0];
+			if (matches.group(1) != null) {
+				url = "https://www.youtube.com/watch?v=" + matches.group(1);
 			}
 		} else if ((matches = deezerPattern.matcher(url)).matches()) {
 			group = "deezer";

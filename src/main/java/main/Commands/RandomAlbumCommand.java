@@ -39,10 +39,10 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 		//add url
 		if (!getDao().addToRandomPool(new RandomUrlEntity(returned[0], e.getAuthor().getIdLong(), e.getGuild()
 				.getIdLong()))) {
-			sendMessage(e, "The provied url: " + returned[0] + " was already on the pool");
+			sendMessage(e, "The provided url: " + returned[0] + " was already on the pool");
 			return;
 		}
-		sendMessage(e, "Succesfully added " + getUserString(e.getAuthor().getIdLong(), e, e.getAuthor()
+		sendMessage(e, "Successfully added " + getUserString(e.getAuthor().getIdLong(), e, e.getAuthor()
 				.getName()) + "'s link  to the pool");
 
 	}
