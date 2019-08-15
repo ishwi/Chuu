@@ -544,8 +544,13 @@ public class DaoImplementation {
 
 	public boolean addToRandomPool(RandomUrlEntity randomUrlEntity) {
 		try (Connection connection = dataSource.getConnection()) {
-			return updaterDao.insertRandomUrl(connection, randomUrlEntity.getUrl(), randomUrlEntity
-					.getDiscordId(), randomUrlEntity.getGuildId());
+			connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+			if (updaterDao.findRandomUrlById(connection, randomUrlEntity.getUrl()) == null) {
+				updaterDao.insertRandomUrl(connection, randomUrlEntity.getUrl(), randomUrlEntity
+						.getDiscordId(), randomUrlEntity.getGuildId());
+				return true;
+			}
+			return false;
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}

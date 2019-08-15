@@ -44,4 +44,5 @@ interface UpdaterDao {
 
 	RandomUrlEntity getRandomUrl(Connection con);
 
+	RandomUrlEntity findRandomUrlById(Connection con, String url);
 }
