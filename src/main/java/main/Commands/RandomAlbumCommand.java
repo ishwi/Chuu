@@ -42,7 +42,8 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 			sendMessage(e, "The provied url: " + returned[0] + " was already on the pool");
 			return;
 		}
-		sendMessage(e, "Succesfully added " + returned[0] + " to the pool");
+		sendMessage(e, "Succesfully added " + getUserString(e.getAuthor().getIdLong(), e, e.getAuthor()
+				.getName()) + "'s link  to the pool");
 
 	}
 
