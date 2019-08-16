@@ -14,11 +14,12 @@ public class RandomAlbumParser extends Parser {
 			.compile("(?:https?://)?(?:www\\.)?youtu\\.?be(?:\\.com)?/?.*(?:watch|embed)?(?:.*v=|v/|/)([\\w-_]+)");
 	private final Pattern deezerPattern = Pattern
 			.compile("^https?://(?:www\\.)?deezer\\.com/(?:\\w+/)?(track|album|playlist)/(\\d+)(?:.*)$");
-
+	private final Pattern soundCloundPattern = Pattern
+			.compile("((https://)|(http://)|(www.)|(m\\.)|(\\s))+(soundcloud.com/)+[a-zA-Z0-9\\-.]+(/)+[a-zA-Z0-9\\-.]+");
 
 	@Override
 	protected void setUpErrorMessages() {
-		errorMessages.put(1, "Invalid url, only accepts spotify uri or url, yt url or deezer's url ");
+		errorMessages.put(1, "Invalid url, only accepts spotify uri or url, yt url, deezer's url and soundcloud's url");
 	}
 
 	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
@@ -51,6 +52,8 @@ public class RandomAlbumParser extends Parser {
 			if (matches.group(1) != null && matches.group(2) != null) {
 				url = "https://www.deezer.com/" + matches.group(1) + "/" + matches.group(2);
 			}
+		} else if ((matches = soundCloundPattern.matcher(url)).matches()) {
+			group = "soundCloud";
 		} else {
 			sendError(getErrorMessage(1), e);
 			return null;
@@ -64,7 +67,7 @@ public class RandomAlbumParser extends Parser {
 	public String getUsageLogic(String commandName) {
 		return "**" + commandName + " *url***\n" +
 				"\t if no link is provided you get a random link\n" +
-				"\t the accepted links so far are: Spotify uris and urls, youtube urls and deezer urls\n";
+				"\t the accepted links so far are: Spotify's uri and url, youtube's url ,deezer's url and  soundcloud's url\n";
 	}
 }
 
