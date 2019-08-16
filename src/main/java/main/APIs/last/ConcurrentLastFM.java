@@ -247,8 +247,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 		int total = 1;
 		SecondsTimeFrameCount returned = new SecondsTimeFrameCount(TimeFrameEnum.fromCompletePeriod(period));
 		int count = 0;
-		final Integer[] zeroCount = {0};
-
 		int seconds = 0;
 		while (page <= total) {
 			HttpMethodBase method = createMethod(url + "&page=" + (page));
@@ -268,18 +266,16 @@ public class ConcurrentLastFM {//implements LastFMService {
 			++page;
 			JSONArray arr = obj.getJSONArray("track");
 			seconds += StreamSupport.stream(arr.spliterator(), false).mapToInt(x -> {
-				int a = ((JSONObject) x).getInt("duration");
-				if (a == 0) {
-					zeroCount[0]++;
-				}
-				return a == 0 ? SONG_AVERAGE_LENGTH_SECONDS : a;
+				JSONObject jsonObj = ((JSONObject) x);
+				int duration = jsonObj.getInt("duration");
+				int frequency = jsonObj.getInt("playcount");
+				return duration == 0 ? SONG_AVERAGE_LENGTH_SECONDS * frequency : duration * frequency;
 			}).sum();
 
 
 		}
 		returned.setCount(count);
 		returned.setSeconds(seconds);
-		System.out.println(zeroCount[0]);
 		System.out.println(count);
 		return returned;
 
