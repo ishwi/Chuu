@@ -251,6 +251,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		while (page <= total) {
 			HttpMethodBase method = createMethod(url + "&page=" + (page));
 			System.out.println("Iteration :(");
+
 			// Execute the method.
 			JSONObject obj = doMethod(method);
 			if (!obj.has("toptracks")) {
@@ -261,9 +262,9 @@ public class ConcurrentLastFM {//implements LastFMService {
 			if (page == 1) {
 				total = obj.getJSONObject("@attr").getInt("totalPages");
 				count = obj.getJSONObject("@attr").getInt("total");
-
 			}
 			++page;
+
 			JSONArray arr = obj.getJSONArray("track");
 			seconds += StreamSupport.stream(arr.spliterator(), false).mapToInt(x -> {
 				JSONObject jsonObj = ((JSONObject) x);

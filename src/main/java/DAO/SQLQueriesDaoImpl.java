@@ -395,18 +395,19 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 	@Override
 	public List<LbEntry> obscurityLeaderboard(Connection connection, long guildId) {
 		@Language("MariaDB") String queryString = "\n" +
-				"Select finalMain.lastfmid, (mytotalPlays / (other_plays_on_my_artists + 1)) * (as_unique_coefficient *0.3) as ord , c.discordId\n" +
+				"Select finalMain.lastfmid,  POW(((mytotalPlays / (other_plays_on_my_artists)) * (as_unique_coefficient + 1)),\n" +
+				"            0.4) as ord , c.discordId\n" +
 				"from (\n" +
 				"SELECT \n" +
 				"    main.lastFMID,\n" +                //OBtains total plays, and other users plays on your artist
 				"    (SELECT \n" +
-				"            SUM(a.playNumber)\n" +
+				"              COALESCE(SUM(a.playNumber) * (COUNT(*)), 0)\n" +
 				"        FROM\n" +
 				"            artist a\n" +
 				"        WHERE\n" +
 				"            lastfmid = main.lastfmid) AS mytotalPlays,\n" +
 				"    (SELECT \n" +
-				"            SUM(a.playNumber)\n" +
+				"             COALESCE(SUM(a.playNumber), 1)\n" +
 				"        FROM\n" +
 				"            artist a\n" +
 				"        WHERE\n" +
@@ -420,11 +421,11 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				"  " +
 				"  (SELECT \n" +                // Obtains uniques, percentage of uniques, and plays on uniques
 				"            COUNT(*) / (SELECT \n" +
-				"                        COUNT(*)\n" +
+				"                        COUNT(*) + 1\n" +
 				"                    FROM\n" +
 				"                        artist a\n" +
 				"                    WHERE\n" +
-				"                        lastfmid = main.lastfmid) * (SUM(playNumber))\n" +
+				"                        lastfmid = main.lastfmid) * (COALESCE(SUM(playNumber), 1))\n" +
 				"        FROM\n" +
 				"            (SELECT \n" +
 				"                artist_id, playNumber, a.lastFMID\n" +
