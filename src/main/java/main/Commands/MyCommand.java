@@ -71,7 +71,7 @@ public abstract class MyCommand extends ListenerAdapter {
 	}
 
 	private String[] commandArgs(String string) {
-		return string.split(" ");
+		return string.split("\\s+");
 	}
 
 	@SuppressWarnings("SameReturnValue")

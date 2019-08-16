@@ -13,7 +13,7 @@ public class RandomAlbumParser extends Parser {
 	private final Pattern youtubePattern = Pattern
 			.compile("(?:https?://)?(?:www\\.)?youtu\\.?be(?:\\.com)?/?.*(?:watch|embed)?(?:.*v=|v/|/)([\\w-_]+)");
 	private final Pattern deezerPattern = Pattern
-			.compile("^https?://(?:www\\.)?deezer\\.com/(track|album|playlist)/(\\d+)$/\n");
+			.compile("^https?://(?:www\\.)?deezer\\.com/(?:\\w+/)?(track|album|playlist)/(\\d+)(?:.*)$");
 
 
 	@Override
@@ -24,7 +24,11 @@ public class RandomAlbumParser extends Parser {
 	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
 		if (subMessage == null || subMessage.length == 0)
 			return new String[]{};
-		String url = subMessage[0];
+		else if (subMessage.length != 1) {
+			sendError("Only one word was expected", e);
+			return null;
+		}
+		String url = subMessage[0].trim();
 		Matcher matches;
 		String group;
 
@@ -44,6 +48,9 @@ public class RandomAlbumParser extends Parser {
 			}
 		} else if ((matches = deezerPattern.matcher(url)).matches()) {
 			group = "deezer";
+			if (matches.group(1) != null && matches.group(2) != null) {
+				url = "https://www.deezer.com/" + matches.group(1) + "/" + matches.group(2);
+			}
 		} else {
 			sendError(getErrorMessage(1), e);
 			return null;
@@ -56,7 +63,8 @@ public class RandomAlbumParser extends Parser {
 	@Override
 	public String getUsageLogic(String commandName) {
 		return "**" + commandName + " *url***\n" +
-				"\t if no link is provided you get a random link\n";
+				"\t if no link is provided you get a random link\n" +
+				"\t the accepted links so far are: Spotify uris and urls, youtube urls and deezer urls\n";
 	}
 }
 
