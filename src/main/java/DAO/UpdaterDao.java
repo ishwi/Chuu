@@ -40,7 +40,7 @@ interface UpdaterDao {
 
 	void deleteAllArtists(Connection con, String id);
 
-	boolean insertRandomUrl(Connection con, String url, long discordId, long guildId);
+	boolean insertRandomUrl(Connection con, String url, long discordId, Long guildId);
 
 	RandomUrlEntity getRandomUrl(Connection con);
 

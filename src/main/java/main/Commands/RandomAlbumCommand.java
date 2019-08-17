@@ -37,8 +37,9 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 			return;
 		}
 		//add url
+		Long guildId = CommandUtil.getGuildIdConsideringPrivateChannel(e);
 
-		if (!getDao().addToRandomPool(new RandomUrlEntity(returned[0], e.getAuthor().getIdLong(), 1))) {
+		if (!getDao().addToRandomPool(new RandomUrlEntity(returned[0], e.getAuthor().getIdLong(), guildId))) {
 			sendMessage(e, "The provided url: " + returned[0] + " was already on the pool");
 			return;
 		}
@@ -46,6 +47,7 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 				.getName()) + "'s link  to the pool");
 
 	}
+
 
 	@Override
 	String getDescription() {

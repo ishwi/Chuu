@@ -133,8 +133,11 @@ public abstract class MyCommand extends ListenerAdapter {
 
 	String getUserString(Long discordId, MessageReceivedEvent e, String replacement) {
 
-		Member member = e.getGuild().getMemberById(discordId);
-		return member == null ? replacement : member.getEffectiveName();
+		if (e.getChannelType().isGuild()) {
+			Member member = e.getGuild().getMemberById(discordId);
+			return member == null ? replacement : member.getEffectiveName();
+		}
+		return e.getAuthor().getName();
 	}
 
 	String getUserGlobalString(Long discordId, MessageReceivedEvent e, String replacement) {

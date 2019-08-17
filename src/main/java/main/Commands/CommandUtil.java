@@ -8,6 +8,8 @@ import main.APIs.Discogs.DiscogsApi;
 import main.APIs.Spotify.Spotify;
 import main.APIs.last.ConcurrentLastFM;
 import main.Exceptions.DiscogsServiceException;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
@@ -16,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -190,5 +193,25 @@ public class CommandUtil {
 
 	public static String singlePlural(int count, String singular, String plural) {
 		return count == 1 ? singular : plural;
+	}
+
+	public static Long getGuildIdConsideringPrivateChannel(MessageReceivedEvent e) {
+		if (e.getChannelType().isGuild())
+			return (e.getGuild().getIdLong());
+		else {
+			User user;
+			if ((user = e.getJDA().getUserById(e.getAuthor().getIdLong())) == null) {
+				return null;
+			} else {
+				List<Guild> mutualGuilds = user.getMutualGuilds();
+				if (mutualGuilds.isEmpty()) {
+					return null;
+				} else {
+
+					return mutualGuilds.get(0).getIdLong();
+
+				}
+			}
+		}
 	}
 }
