@@ -3,9 +3,9 @@ package DAO.Entities;
 public class RandomUrlEntity {
 	private final String url;
 	private final long discordId;
-	private final long guildId;
+	private final Long guildId;
 
-	public RandomUrlEntity(String url, long discordId, long guildId) {
+	public RandomUrlEntity(String url, long discordId, Long guildId) {
 		this.url = url;
 		this.discordId = discordId;
 		this.guildId = guildId;
@@ -19,7 +19,7 @@ public class RandomUrlEntity {
 		return discordId;
 	}
 
-	public long getGuildId() {
+	public Long getGuildId() {
 		return guildId;
 	}
 }
