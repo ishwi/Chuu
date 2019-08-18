@@ -34,11 +34,12 @@ public class CrownsCommand extends ConcurrentCommand {
 		StringBuilder a = new StringBuilder();
 		UniqueWrapper<UniqueData> uniqueDataUniqueWrapper = getDao().getCrowns(message[0], e.getGuild().getIdLong());
 		List<UniqueData> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
+		int rows = resultWrapper.size();
 		if (resultWrapper.isEmpty()) {
 			sendMessage(e, "You don't have any crown :'(");
 			return;
 		}
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 10 && i < rows;i++) {
 			UniqueData g = resultWrapper.get(i);
 			a.append(i + 1).append(g.toString());
 		}
