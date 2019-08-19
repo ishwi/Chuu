@@ -37,9 +37,9 @@ public class RandomAlbumParser extends Parser {
 			group = "spotify";
 			String param;
 			if (!url.startsWith("https:"))
-				param = matches.group(2);
-			else
 				param = matches.group(3);
+			else
+				param = matches.group(2);
 
 			String id = matches.group(4);
 			//Normalizes the url
