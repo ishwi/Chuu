@@ -35,12 +35,16 @@ public class RandomAlbumParser extends Parser {
 
 		if ((matches = spotify.matcher(url)).matches()) {
 			group = "spotify";
-			if (!url.startsWith("https:")) {
-				String id = matches.group(4);
-				String param = matches.group(3);
-				url = "https://open.spotify.com/" + param + "/" + id;
-			} else
-				url = url.split("\\?si=")[0];
+			String param;
+			if (!url.startsWith("https:"))
+				param = matches.group(2);
+			else
+				param = matches.group(3);
+
+			String id = matches.group(4);
+			//Normalizes the url
+			url = "https://open.spotify.com/" + param + "/" + id;
+
 
 		} else if ((matches = youtubePattern.matcher(url)).lookingAt()) {
 			group = "yt";
