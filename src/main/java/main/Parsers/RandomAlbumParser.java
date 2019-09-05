@@ -16,6 +16,8 @@ public class RandomAlbumParser extends Parser {
 			.compile("^https?://(?:www\\.)?deezer\\.com/(?:\\w+/)?(track|album|playlist)/(\\d+)(?:.*)$");
 	private final Pattern soundCloundPattern = Pattern
 			.compile("((https://)|(http://)|(www.)|(m\\.)|(\\s))+(soundcloud.com/)+[a-zA-Z0-9\\-.]+(/)+[a-zA-Z0-9\\-.]+");
+	private final Pattern bandCampPatter = Pattern
+			.compile("(http://(.*\\.bandcamp\\.com/|.*\\.bandcamp\\.com/track/.*|.*\\.bandcamp\\.com/album/.*))|(https://(.*\\.bandcamp\\.com/|.*\\.bandcamp\\.com/track/.*|.*\\.bandcamp\\.com/album/.*))");
 
 	@Override
 	protected void setUpErrorMessages() {
@@ -58,6 +60,8 @@ public class RandomAlbumParser extends Parser {
 			}
 		} else if ((matches = soundCloundPattern.matcher(url)).matches()) {
 			group = "soundCloud";
+		} else if ((matches = bandCampPatter.matcher(url)).matches()) {
+			group = "bandcamp";
 		} else {
 			sendError(getErrorMessage(1), e);
 			return null;
@@ -71,7 +75,7 @@ public class RandomAlbumParser extends Parser {
 	public String getUsageLogic(String commandName) {
 		return "**" + commandName + " *url***\n" +
 				"\t if no link is provided you get a random link\n" +
-				"\t the accepted links so far are: Spotify's uri and url, youtube's url ,deezer's url and  soundcloud's url\n";
+				"\t the accepted links so far are: Spotify's uri and url, youtube's url ,bandcamp's, deezer's url and  soundcloud's url\n";
 	}
 }
 
