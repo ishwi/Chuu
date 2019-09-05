@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class AlbumTracksDistributionCommand extends AlbumSongPlaysCommand {
+public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 	private final MusicBrainzService mb;
 	private final DiscogsApi discogsApi;
 	private final Spotify spotify;

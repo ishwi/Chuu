@@ -8,8 +8,8 @@ import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
-public class ArtistNumberCommand extends ConcurrentCommand {
-	public ArtistNumberCommand(DaoImplementation dao) {
+public class TotalArtistNumberCommand extends ConcurrentCommand {
+	public TotalArtistNumberCommand(DaoImplementation dao) {
 		super(dao);
 		this.parser = new OnlyUsernameParser(dao);
 	}

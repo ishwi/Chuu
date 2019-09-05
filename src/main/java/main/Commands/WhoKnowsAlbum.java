@@ -14,10 +14,10 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class AlbumGuildPlays extends AlbumSongPlaysCommand {
+public class WhoKnowsAlbum extends AlbumPlaysCommand {
 
 
-	public AlbumGuildPlays(DaoImplementation dao) {
+	public WhoKnowsAlbum(DaoImplementation dao) {
 		super(dao);
 		this.respondInPrivate = false;
 	}
@@ -28,21 +28,10 @@ public class AlbumGuildPlays extends AlbumSongPlaysCommand {
 		long id = e.getGuild().getIdLong();
 		//Gets list of users registered in guild
 		List<UsersWrapper> userList = getDao().getAll(id);
-		Map<UsersWrapper, Integer> userMapPlays = new LinkedHashMap<>();
-		AlbumUserPlays container = new AlbumUserPlays("", "");
-		//Gets play number for each registered artist
-		userList.forEach(u -> {
-			try {
 
-				AlbumUserPlays albumUserPlays = lastFM.getPlaysAlbum_Artist(u.getLastFMName(), artist, album);
-				//Need to get the album art url from someone
-				if (container.getAlbum_url().isEmpty())
-					container.setAlbum_url(albumUserPlays.getAlbum_url());
-				userMapPlays.put(u, albumUserPlays.getPlays());
-			} catch (LastFmException ex) {
-				Chuu.getLogger().warn(ex.getMessage(), ex);
-			}
-		});
+		//Gets play number for each registered artist
+		AlbumUserPlays urlContainter = new AlbumUserPlays("", "");
+		Map<UsersWrapper, Integer> userMapPlays = fillPlayCounter(userList, artist, album, urlContainter);
 
 		//Manipulate data in order to pass it to the image Maker
 		BufferedImage logo = CommandUtil.getLogo(getDao(), e);
@@ -55,12 +44,29 @@ public class AlbumGuildPlays extends AlbumSongPlaysCommand {
 					return np;
 				}
 		).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
-		WrapperReturnNowPlaying a = new WrapperReturnNowPlaying(list2, 0, container
+		WrapperReturnNowPlaying a = new WrapperReturnNowPlaying(list2, 0, urlContainter
 				.getAlbum_url(), artist + " - " + album);
 
 		BufferedImage sender = WhoKnowsMaker.generateWhoKnows(a, e.getGuild().getName(), logo);
 		sendImage(sender, e);
 
+	}
+
+
+	Map<UsersWrapper, Integer> fillPlayCounter(List<UsersWrapper> userList, String artist, String album, AlbumUserPlays fillWithUrl) {
+		Map<UsersWrapper, Integer> userMapPlays = new LinkedHashMap<>();
+		userList.forEach(u -> {
+			try {
+
+				AlbumUserPlays albumUserPlays = lastFM.getPlaysAlbum_Artist(u.getLastFMName(), artist, album);
+				if (fillWithUrl.getAlbum_url().isEmpty())
+					fillWithUrl.setAlbum_url(albumUserPlays.getAlbum_url());
+				userMapPlays.put(u, albumUserPlays.getPlays());
+			} catch (LastFmException ex) {
+				Chuu.getLogger().warn(ex.getMessage(), ex);
+			}
+		});
+		return userMapPlays;
 	}
 
 	@Override
