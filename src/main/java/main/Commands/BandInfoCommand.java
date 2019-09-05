@@ -94,7 +94,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("!band", "!bandnp", "!b");
+		return Arrays.asList("!artist", "!a");
 	}
 
 

@@ -113,6 +113,12 @@ public class CommandUtil {
 		return newUrl;
 	}
 
+	public static String getArtistImageUrl(DaoImplementation dao, String artist, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify) {
+		ArtistData artistData = new ArtistData(artist, 0, "");
+		CommandUtil.lessHeavyValidate(dao, artistData, lastFM, discogsApi, spotify);
+		return artistData.getUrl();
+	}
+
 	public static void lessHeavyValidate(DaoImplementation dao, ArtistData artistData, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify) {
 		String correction = dao.findCorrection(artistData.getArtist());
 		boolean corrected = false;

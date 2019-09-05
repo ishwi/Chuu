@@ -9,7 +9,7 @@ import main.Exceptions.LastFmException;
 import main.ImageRenderer.UrlCapsuleConcurrentQueue;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 public class ArtistCommand extends ChartCommand {
@@ -42,7 +42,7 @@ public class ArtistCommand extends ChartCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!artist");
+		return Arrays.asList("!artchart", "!charta", "!artistchart");
 	}
 
 

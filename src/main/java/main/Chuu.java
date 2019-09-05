@@ -116,12 +116,12 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new UniqueCommand(dao)))
 				.addEventListeners(help.registerCommand(new NPYoutubeCommand(dao)))
 				.addEventListeners(help.registerCommand(new ArtistCommand(dao)))
-				.addEventListeners(help.registerCommand(new AlbumSongPlaysCommand(dao)))
+				.addEventListeners(help.registerCommand(new AlbumPlaysCommand(dao)))
 				.addEventListeners(help.registerCommand(new GuildTopCommand(dao)))
 				.addEventListeners(help.registerCommand(new ArtistUrlCommand(dao)))
 				.addEventListeners(help.registerCommand(new BandInfoCommand(dao)))
 				//	.addEventListeners(help.registerCommand(new BandInfoNpCommand(dao)))
-				.addEventListeners(help.registerCommand(new AlbumGuildPlays(dao)))
+				.addEventListeners(help.registerCommand(new WhoKnowsAlbum(dao)))
 				.addEventListeners(help.registerCommand(new CrownLeaderboardCommand(dao)))
 				.addEventListeners(help.registerCommand(new CrownsCommand(dao)))
 				.addEventListeners(help.registerCommand(new RecentListCommand(dao)))
@@ -134,12 +134,14 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new UniqueLeaderboardCommand(dao)))
 				.addEventListeners(help.registerCommand(new ProfileInfoCommand(dao)))
 				.addEventListeners(help.registerCommand(new ArtistCountLeaderboard(dao)))
-				.addEventListeners(help.registerCommand(new ArtistNumberCommand(dao)))
+				.addEventListeners(help.registerCommand(new TotalArtistNumberCommand(dao)))
 				.addEventListeners(help.registerCommand(new CountryCommand(dao)))
 				.addEventListeners(help.registerCommand(new AlbumTracksDistributionCommand(dao)))
 				.addEventListeners(help.registerCommand(new ObscurityLeaderboardCommand(dao)))
 				.addEventListeners(help.registerCommand(new FeaturedCommand(dao, scheduledManager)))
-				.addEventListeners(help.registerCommand(new RandomAlbumCommand(dao)));
+				.addEventListeners(help.registerCommand(new RandomAlbumCommand(dao)))
+				.addEventListeners(help.registerCommand(new WhoKnowsSongCommand(dao)));
+
 
 		try {
 			jda = builder.build().awaitReady();

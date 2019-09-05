@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class AlbumSongPlaysCommand extends ConcurrentCommand {
-	public AlbumSongPlaysCommand(DaoImplementation dao) {
+public class AlbumPlaysCommand extends ConcurrentCommand {
+	public AlbumPlaysCommand(DaoImplementation dao) {
 		super(dao);
 		this.parser = new ArtistAlbumParser(dao, lastFM);
 	}
