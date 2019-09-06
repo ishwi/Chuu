@@ -160,8 +160,9 @@ public class TrackDistributor {
 		OptionalInt max = trackList.stream().map(Track::getName)
 				.mapToInt(x -> g.getFontMetrics().stringWidth(x))
 				.max();
-		int realMax = max.orElse(200);
+		int realMax = Math.min(452, max.orElse(400));
 		int extra = 45;
+
 		int minimunAmmount = realMax + extra;
 		for (Track track : trackList) {
 			float fontSize = FONT_SIZE;
@@ -177,7 +178,7 @@ public class TrackDistributor {
 			int rectWidth = (int) (minimunAmmount + (905 - minimunAmmount) * (float) track.getPlays() / maxList);
 			g.fillRect(15, startingPoint, rectWidth, 38);
 
-			GraphicUtils.drawStringNicely(g, track.getName(), 15, startingPoint +
+			GraphicUtils.drawStringNicely(g, track.getName(), 25, startingPoint +
 							(TILE_SIZE - 5 - g.getFontMetrics().getHeight()) / 2 + g.getFontMetrics().getAscent()
 					, dist);
 			g.setFont(ogFont);
