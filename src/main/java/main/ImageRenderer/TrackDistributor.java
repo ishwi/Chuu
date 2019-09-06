@@ -24,36 +24,12 @@ public class TrackDistributor {
 	private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, FONT_SIZE);
 	private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP Regular", Font.PLAIN, FONT_SIZE);
 
-	private static final BufferedImage[] corners;
-	private static final BufferedImage[] sides;
-	private static final BufferedImage tile;
-	private static final BufferedImage side;
-	private static final BufferedImage corner;
+
 	private static final BufferedImage template;
 	private static final BufferedImage noalbumImage;
-	private static final List<List<Color>> palettes;
-
+	private static final List<Color> lightPalettes;
 
 	static {
-		try (InputStream in = BandRendered.class.getResourceAsStream("/images/Corner.png")) {
-			corner = ImageIO.read(in);
-		} catch (IOException e) {
-			Chuu.getLogger().warn(e.getMessage(), e);
-			throw new RuntimeException();
-		}
-		try (InputStream in = BandRendered.class.getResourceAsStream("/images/side.png")) {
-			side = ImageIO.read(in);
-		} catch (IOException e) {
-			Chuu.getLogger().warn(e.getMessage(), e);
-			throw new RuntimeException();
-		}
-
-		try (InputStream in = BandRendered.class.getResourceAsStream("/images/tile.png")) {
-			tile = ImageIO.read(in);
-		} catch (IOException e) {
-			Chuu.getLogger().warn(e.getMessage(), e);
-			throw new RuntimeException();
-		}
 
 		try (InputStream in = BandRendered.class.getResourceAsStream("/images/noArtistImage.png")) {
 			noalbumImage = ImageIO.read(in);
@@ -67,61 +43,45 @@ public class TrackDistributor {
 			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException();
 		}
-
-		corners = new BufferedImage[]{corner, Scalr.rotate(corner, Scalr.Rotation.CW_90), Scalr.rotate(corner, Scalr.Rotation.CW_270), Scalr.rotate(corner, Scalr.Rotation.CW_180)};
-		sides = new BufferedImage[]{side, Scalr.rotate(side, Scalr.Rotation.CW_180), Scalr.rotate(side, Scalr.Rotation.CW_270), Scalr.rotate(side, Scalr.Rotation.CW_90)};
-		palettes = initPalettes();
+		lightPalettes = initLightPalettes();
 	}
 
-	private static List<List<Color>> initPalettes() {
+	private static List<Color> initLightPalettes() {
 		List<Color> colors = new ArrayList<>();
 		colors.add(Color.decode("#769fcd"));
 		colors.add(Color.decode("#b9d7ea"));
 		colors.add(Color.decode("#d6e6f2"));
 		colors.add(Color.decode("#f7fbfc"));
 
-		List<Color> colors2 = new ArrayList<>();
-		colors2.add(Color.decode("#ffcfdf"));
-		colors2.add(Color.decode("#fefdca"));
-		colors2.add(Color.decode("#e0f9b5"));
-		colors2.add(Color.decode("#a5dee5"));
+		colors.add(Color.decode("#ffcfdf"));
+		colors.add(Color.decode("#fefdca"));
+		colors.add(Color.decode("#e0f9b5"));
+		colors.add(Color.decode("#a5dee5"));
 
-		List<Color> colors3 = new ArrayList<>();
-		colors3.add(Color.decode("#e4f9f5"));
-		colors3.add(Color.decode("#30e3ca"));
-		colors3.add(Color.decode("#11999e"));
-		colors3.add(Color.decode("#40514e"));
+		colors.add(Color.decode("#e4f9f5"));
+		colors.add(Color.decode("#30e3ca"));
+		colors.add(Color.decode("#11999e"));
+		colors.add(Color.decode("#40514e"));
 
-		List<Color> colors4 = new ArrayList<>();
-		colors4.add(Color.decode("#f9ecec"));
-		colors4.add(Color.decode("#f0d9da"));
-		colors4.add(Color.decode("#c8d9eb"));
-		colors4.add(Color.decode("#ecf2f9"));
+		colors.add(Color.decode("#f9ecec"));
+		colors.add(Color.decode("#f0d9da"));
+		colors.add(Color.decode("#c8d9eb"));
+		colors.add(Color.decode("#ecf2f9"));
 
-		List<Color> colors5 = new ArrayList<>();
-		colors5.add(Color.decode("#ffe6eb"));
-		colors5.add(Color.decode("#defcfc"));
-		colors5.add(Color.decode("#cbf1f5"));
-		colors5.add(Color.decode("#a6e3e9"));
+		colors.add(Color.decode("#ffe6eb"));
+		colors.add(Color.decode("#defcfc"));
+		colors.add(Color.decode("#cbf1f5"));
+		colors.add(Color.decode("#a6e3e9"));
 
-		List<Color> colors6 = new ArrayList<>();
-		colors6.add(Color.decode("#ececec"));
-		colors6.add(Color.decode("#9fd3c7"));
-		colors6.add(Color.decode("#385170"));
-		colors6.add(Color.decode("#142d4c"));
+		colors.add(Color.decode("#ececec"));
+		colors.add(Color.decode("#9fd3c7"));
+		colors.add(Color.decode("#385170"));
+		colors.add(Color.decode("#142d4c"));
 
-		List<List<Color>> returnedList = new ArrayList<>();
-		returnedList.add(colors);
-		returnedList.add(colors2);
-		returnedList.add(colors3);
-		returnedList.add(colors4);
-		returnedList.add(colors5);
-		returnedList.add(colors6);
-
-		return returnedList;
+		return colors;
 	}
 
-	public static BufferedImage drawImage(FullAlbumEntity fae) {
+	public static BufferedImage drawImage(FullAlbumEntity fae, boolean grid) {
 		List<Track> trackList = fae.getTrackList();
 		int trackCount = trackList.size();
 
@@ -129,6 +89,9 @@ public class TrackDistributor {
 		assert max.isPresent();
 
 		int maxList = max.get().getPlays();
+		if (maxList == 0) {
+			maxList = 1;
+		}
 
 		Font font;
 		if (trackList.stream().anyMatch(x -> NORMAL_FONT.canDisplayUpTo(x.getName()) != -1) || (NORMAL_FONT
@@ -141,14 +104,16 @@ public class TrackDistributor {
 		//Background image set up
 		BufferedImage artistImageFill = GraphicUtils
 				.getImageFromUrl(fae.getArtistUrl(), null);
+		Random rand = new Random();
 
 		//Main Image
-		BufferedImage dist = new BufferedImage(WIDTH_CONSTANT, HEIGHT_CONSTANT + HEIGHT_BOTTOM + (TILE_SIZE - 5) * trackCount + 5 + 60, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage dist = new BufferedImage(WIDTH_CONSTANT, HEIGHT_CONSTANT + HEIGHT_BOTTOM + (TILE_SIZE) * trackCount + 15, BufferedImage.TYPE_INT_ARGB);
 		//Album Image
 		BufferedImage albumImage = GraphicUtils.getImageFromUrl(fae.getAlbumUrl(), noalbumImage);
 
 		//Image Artist
 		Graphics2D g = GraphicUtils.initArtistBackground(dist, artistImageFill);
+
 		g.setFont(font);
 		Font ogFont = font;
 
@@ -162,115 +127,71 @@ public class TrackDistributor {
 
 		g.drawImage(Scalr.resize(albumImage, 330, 330), 22, 22, null);
 
-		int startingPoint = HEIGHT_CONSTANT;
-		BufferedImage correspondingTile;
+		doHistContent(g, maxList, dist, trackList);
 
-		Float[] stepArr = new Float[TILE_NUMBER];
-		float step = Math.max(1f, (float) maxList / TILE_NUMBER);
-		stepArr[0] = step;
-
-		for (int i = 1; i < stepArr.length; i++) {
-			stepArr[i] = stepArr[i - 1] + step;
-		}
-
-		int cornerIndex = 0;
-		int trackListLength = trackCount - 1;
-
-		//Track position -> counter
-		int counter = 0;
-		Random rand = new Random();
-		List<Color> palette = palettes.get(new Random().nextInt(palettes.size() - 1));
-
-		g.setColor(GraphicUtils.getBetter(new Color(dist.getRGB(150, startingPoint + 5))));
-		g.fillRect(15, startingPoint, 185, 3);
-
-		for (Track track : trackList) {
-			float fontSize = FONT_SIZE;
-
-			int trackName = g.getFontMetrics().stringWidth(track.getName());
-
-			while (trackName > 200 && (fontSize -= 2) > 8f) {
-				font = g.getFont().deriveFont(fontSize);
-				g.setFont(font);
-				trackName = g.getFontMetrics().stringWidth(track.getName());
-			}
-
-			GraphicUtils.drawStringNicely(g, track.getName(), 15 + (200 / 2) - trackName / 2, startingPoint +
-							(TILE_SIZE - 5 - g.getFontMetrics().getHeight()) / 2 + g.getFontMetrics().getAscent()
-					, dist);
-			g.setFont(ogFont);
-
-			//i = row position
-			for (int i = 0; i < TILE_NUMBER; i++) {
-				//We are on a corner
-				Color color = palette.get(rand.nextInt(palette.size() - 1));
-				if ((i == 0 || i == TILE_NUMBER - 1) && (counter == 0 || counter == trackListLength)) {
-					correspondingTile = corners[cornerIndex++];
-				}
-				//identify sides
-
-				//top side
-				else if (counter == 0) {
-					correspondingTile = sides[0];
-
-				} else if (counter == trackListLength) {
-					correspondingTile = sides[1];
-
-				} else if (i == 0) {
-					correspondingTile = sides[2];
-
-				} else if (i == TILE_NUMBER - 1) {
-					correspondingTile = sides[3];
-				}
-				//inside
-				else
-					correspondingTile = tile;
-
-				if (track.getPlays() >= Math.round(stepArr[i])) {
-					correspondingTile = GraphicUtils.copyImage(correspondingTile);
-					Graphics2D graphics = correspondingTile.createGraphics();
-					graphics.setColor(color);
-					graphics.fillRect(5, 5, 35, 35);
-					graphics.dispose();
-				}
-				g.drawImage(correspondingTile, 15 + 200 + i * (TILE_SIZE - 5), startingPoint, null);
-
-			}
-			counter++;
-			startingPoint += TILE_SIZE - 5;
-		}
-		g.setColor(GraphicUtils.getBetter(new Color(dist.getRGB(150, startingPoint + 5))));
-		g.fillRect(15, startingPoint + 4, 185, 3);
-
-		g.setFont(NORMAL_FONT.deriveFont(28f));
-		String str = "# Plays";
-		int width1 = g.getFontMetrics().stringWidth(str);
-		GraphicUtils.drawStringNicely(g, str, 108 - (width1 / 2), startingPoint + TILE_SIZE, dist);
-
-		for (int i = 0; i < TILE_NUMBER; i++) {
-			g.setFont(NORMAL_FONT.deriveFont(28f));
-			str = Integer.toString(Math.round(stepArr[i]));
-
-			int width = fitStringOnWidth(str, g, 28, 10, 30);
-			GraphicUtils
-					.drawStringNicely(g, str, 215 + i * (TILE_SIZE - 5) + (40 - width) / 2, startingPoint + TILE_SIZE, dist);
-
-		}
 		g.dispose();
 		return dist;
 
 
 	}
 
-	private static int fitStringOnWidth(String string, Graphics2D g, float fontSize, float lowerLimit, int width) {
+	public static void doHistContent(Graphics2D g, int maxList, BufferedImage dist, List<Track> trackList) {
+		Font ogFont = g.getFont();
+		Font font;
+		Random rand = new Random();
 
-		int trackName = g.getFontMetrics().stringWidth(string);
+		int x_limit = dist.getWidth();
+		int y_limit = dist.getHeight() - HEIGHT_CONSTANT;
 
-		while (trackName > width && (fontSize -= 1) > lowerLimit) {
-			Font font = g.getFont().deriveFont(fontSize);
-			g.setFont(font);
-			trackName = g.getFontMetrics().stringWidth(string);
+		Color color = lightPalettes.get(new Random().nextInt(lightPalettes.size() - 1));
+
+		Color[] a = new Color[15];
+		for (int i = 0; i < 15; i++) {
+			int rgb = dist.getRGB(rand.nextInt(x_limit), rand.nextInt(y_limit) + HEIGHT_CONSTANT);
+			a[i] = (new Color(rgb));
 		}
-		return trackName;
+		Color betterCollection = GraphicUtils.getBetter(a);
+
+		if (betterCollection.equals(Color.white))
+			color = color.darker().darker();
+		g.setColor(GraphicUtils.MakeMoreTransParent(color, 0.7f));
+
+		int startingPoint = HEIGHT_CONSTANT;
+		OptionalInt max = trackList.stream().map(Track::getName)
+				.mapToInt(x -> g.getFontMetrics().stringWidth(x))
+				.max();
+		int realMax = max.orElse(200);
+		int extra = 45;
+		int minimunAmmount = realMax + extra;
+		for (Track track : trackList) {
+			float fontSize = FONT_SIZE;
+
+			int trackName = g.getFontMetrics().stringWidth(track.getName());
+
+			while (trackName > 400 && (fontSize -= 2) > 8f) {
+				font = g.getFont().deriveFont(fontSize);
+				g.setFont(font);
+				trackName = g.getFontMetrics().stringWidth(track.getName());
+			}
+
+			int rectWidth = (int) (minimunAmmount + (905 - minimunAmmount) * (float) track.getPlays() / maxList);
+			g.fillRect(15, startingPoint, rectWidth, 38);
+
+			GraphicUtils.drawStringNicely(g, track.getName(), 15, startingPoint +
+							(TILE_SIZE - 5 - g.getFontMetrics().getHeight()) / 2 + g.getFontMetrics().getAscent()
+					, dist);
+			g.setFont(ogFont);
+
+			String plays = String.valueOf(track.getPlays());
+
+			GraphicUtils.drawStringNicely(g, plays, 15 + rectWidth - g.getFontMetrics()
+							.stringWidth(plays) - 5, startingPoint +
+							(TILE_SIZE - 5 - g.getFontMetrics().getHeight()) / 2 + g.getFontMetrics().getAscent()
+					, dist);
+			startingPoint += TILE_SIZE;
+
+		}
+
 	}
+
 }

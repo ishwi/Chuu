@@ -89,6 +89,13 @@ class GraphicUtils {
 		return new Color(a);
 	}
 
+	public static Color MakeMoreTransParent(Color fontColor, float percentage) {
+		float[] rgb2 = new float[3];
+		fontColor.getRGBColorComponents(rgb2);
+		return new Color(rgb2[0], rgb2[1], rgb2[2], percentage);
+
+	}
+
 	public static Color getReadableColorBackgroundForFont(Color fontColor) {
 		float[] rgb2 = new float[3];
 		fontColor.getRGBColorComponents(rgb2);
@@ -177,11 +184,7 @@ class GraphicUtils {
 		g.setColor(ogColor);
 	}
 
-	public static Color getBetter(Color color) {
-		double y = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
-		return y < 128 ? Color.WHITE : Color.BLACK;
 
-	}
 
 	private static boolean hasChinese(final char c) {
 		return (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS)
@@ -212,7 +215,7 @@ class GraphicUtils {
 		}
 	}
 
-	private static Color getBetter(Color... color) {
+	public static Color getBetter(Color... color) {
 		double accum = 0;
 		for (Color col : color) {
 			accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();

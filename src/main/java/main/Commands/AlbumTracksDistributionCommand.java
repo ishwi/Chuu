@@ -101,7 +101,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 		}
 
 		fullAlbumEntity.setArtistUrl(artistUrl);
-		BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity);
+		BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity, false);
 		sendImage(bufferedImage, e);
 	}
 
