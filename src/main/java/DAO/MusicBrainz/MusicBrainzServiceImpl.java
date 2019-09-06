@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 public class MusicBrainzServiceImpl implements MusicBrainzService {
-	private final SimpleDataSource dataSource = null;
+	private final SimpleDataSource dataSource ;
 	private final MbizQueriesDao mbizQueriesDao;
 
 	public MusicBrainzServiceImpl() {
-		//this.dataSource = new SimpleDataSource(false);
+		this.dataSource = new SimpleDataSource(false);
 		mbizQueriesDao = new MbizQueriesDaoImpl();
 	}
 
