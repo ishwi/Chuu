@@ -32,4 +32,7 @@ interface SQLQueriesDao {
 	List<LbEntry> obscurityLeaderboard(Connection connection, long guildId);
 
 	PresenceInfo getRandomArtistWithUrl(Connection connection);
+
+
+	StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser, long guildId);
 }
