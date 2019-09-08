@@ -7,6 +7,7 @@ public class Track {
 	private final boolean isLoved;
 	private final int duration;
 	private int position;
+	private String imageUrl;
 
 	public Track(String artist, String name, int plays, boolean isLoved, int duration) {
 		this.artist = artist;
@@ -14,6 +15,15 @@ public class Track {
 		this.plays = plays;
 		this.isLoved = isLoved;
 		this.duration = duration;
+
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 	public String getArtist() {

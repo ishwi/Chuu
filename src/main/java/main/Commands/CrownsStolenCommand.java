@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,8 +43,19 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 		int rows = resultWrapper.getList().size();
 
 		if (rows == 0) {
-			//
-			sendMessage(e, "The other person is not stealing anything ");
+			try {
+				long discId1 = getDao().getDiscordIdFromLastfm(ogLastFmId, e.getGuild().getIdLong());
+				long discId2 = getDao().getDiscordIdFromLastfm(secondlastFmId, e.getGuild().getIdLong());
+				Member member = e.getGuild().getMemberById(discId1);
+				Member member2 = e.getGuild().getMemberById(discId2);
+				assert (member != null);
+				assert member2 != null;
+				sendMessage(e, member2.getEffectiveName() + " hasn't stolen anything from " + member
+						.getEffectiveName());
+
+			} catch (InstanceNotFoundException ex) {
+				sendMessage(e, "The other person is not stealing anything ");
+			}
 			return;
 		}
 		MessageBuilder messageBuilder = new MessageBuilder();
