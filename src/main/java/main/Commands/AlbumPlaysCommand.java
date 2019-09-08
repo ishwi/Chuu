@@ -39,10 +39,16 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 			LastFMData data = getDao().findLastFMData(who);
 
 			a = lastFM.getPlaysAlbum_Artist(data.getName(), artist, album).getPlays();
-			Member b = e.getGuild().getMemberById(who);
 			String usernameString = data.getName();
-			if (b != null)
-				usernameString = b.getEffectiveName();
+
+			if (e.isFromGuild()) {
+				Member b = e.getGuild().getMemberById(who);
+				if (b != null)
+					usernameString = b.getEffectiveName();
+			} else {
+				usernameString = getUserGlobalString(who, e, data.getName());
+			}
+
 			String ending = a > 1 ? "times " : "time";
 
 			sendMessage(e, "**" + usernameString + "** has listened **" + album + "** " + a + " " + ending);

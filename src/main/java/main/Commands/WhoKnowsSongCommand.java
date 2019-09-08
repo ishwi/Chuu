@@ -35,11 +35,16 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbum {
 			try {
 				Track trackInfo = lastFM.getTrackInfo(u.getLastFMName(), artist, track);
 				userMapPlays.put(u, trackInfo.getPlays());
+				if (fillWithUrl.getAlbum_url().isEmpty()) {
+					fillWithUrl.setAlbum_url(trackInfo.getImageUrl());
+				}
 			} catch (LastFmException ex) {
 				Chuu.getLogger().warn(ex.getMessage(), ex);
 			}
 		});
-		fillWithUrl.setAlbum_url(CommandUtil.getArtistImageUrl(getDao(), artist, lastFM, discogsApi, spotify));
+		if (fillWithUrl.getAlbum_url().isEmpty()) {
+			fillWithUrl.setAlbum_url(CommandUtil.getArtistImageUrl(getDao(), artist, lastFM, discogsApi, spotify));
+		}
 		return userMapPlays;
 	}
 
