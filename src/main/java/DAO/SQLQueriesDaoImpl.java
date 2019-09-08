@@ -505,6 +505,90 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 		}
 	}
 
+	@Override
+	public StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser, long guildId) {
+		List<StolenCrown> returnList = new ArrayList<>();
+		long discordID = 0L;
+		long discordID2 = 0L;
+		@Language("MariaDB") String queryString = "SELECT \n" +
+				"    inn.artist_id as artist ,inn.orden as ogPlays , inn.discordID as ogId , inn2.discordID queriedId,  inn2.orden as queriedPlays\n" +
+				"FROM\n" +
+				"    (SELECT \n" +
+				"        artist_id, b.discordID, playNumber AS orden\n" +
+				"    FROM\n" +
+				"        artist a\n" +
+				"    JOIN lastfm b ON a.lastFMID = b.lastFmId\n" +
+				"    WHERE\n" +
+				"        a.lastFMID = ?) inn\n" +
+				"        JOIN\n" +
+				"    (SELECT \n" +
+				"        artist_id, b.discordID, playNumber AS orden\n" +
+				"    FROM\n" +
+				"        artist a\n" +
+				"    JOIN lastfm b ON a.lastFMID = b.lastFmId\n" +
+				"    WHERE\n" +
+				"        b.lastFMID = ?) inn2 ON inn.artist_id = inn2.artist_id\n" +
+				"WHERE\n" +
+				"    (inn2.artist_id , inn2.orden) = (SELECT \n" +
+				"            in_A.artist_id, MAX(in_A.playnumber)\n" +
+				"        FROM\n" +
+				"            artist in_A\n" +
+				"                JOIN\n" +
+				"            lastfm in_B ON in_A.lastFMID = in_B.lastFmid\n" +
+				"                NATURAL JOIN\n" +
+				"            user_guild in_C\n" +
+				"        WHERE\n" +
+				"            guildId = ?\n" +
+				"                AND artist_id = inn2.artist_id)\n" +
+				"        AND (inn.artist_id , inn.orden) = (SELECT \n" +
+				"            in_A.artist_id, in_A.playnumber\n" +
+				"        FROM\n" +
+				"            artist in_A\n" +
+				"                JOIN\n" +
+				"            lastfm in_B ON in_A.lastFMID = in_B.lastFmid\n" +
+				"                NATURAL JOIN\n" +
+				"            user_guild in_C\n" +
+				"        WHERE\n" +
+				"            guildId = ?\n" +
+				"                AND artist_id = inn.artist_id\n" +
+				"        ORDER BY in_A.playnumber DESC\n" +
+				"        LIMIT 1 , 1)\n" +
+				"ORDER BY inn.orden DESC , inn2.orden DESC\n" +
+				"        \n";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			int i = 1;
+			preparedStatement.setString(i++, ogUser);
+			preparedStatement.setString(i++, queriedUser);
+
+			preparedStatement.setLong(i++, guildId);
+			preparedStatement.setLong(i, guildId);
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+			if (!resultSet.next()) {
+				return new StolenCrownWrapper(0, 0, returnList);
+			} else {
+				discordID = resultSet.getLong("ogId");
+				discordID2 = resultSet.getLong("queriedId");
+				resultSet.beforeFirst();
+			}
+
+			while (resultSet.next()) {
+
+				String artist = resultSet.getString("artist");
+				int plays = resultSet.getInt("ogPlays");
+				int plays2 = resultSet.getInt("queriedPlays");
+
+				returnList.add(new StolenCrown(artist, plays, plays2));
+			}
+		} catch (SQLException e) {
+			Chuu.getLogger().warn(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
+		//Ids will be 0 if returnlist is empty;
+		return new StolenCrownWrapper(discordID, discordID2, returnList);
+	}
+
 	//TriFunction is not the simplest approach but i felt like using it so :D
 	@NotNull
 	private List<LbEntry> getLbEntries(Connection connection, long guildId, String queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needs_reSet) {

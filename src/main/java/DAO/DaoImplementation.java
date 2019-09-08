@@ -564,4 +564,13 @@ public class DaoImplementation {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public StolenCrownWrapper getCrownsStolenBy(String ogUser, String queriedUser, long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return queriesDao.getCrownsStolenBy(connection, ogUser, queriedUser, guildId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

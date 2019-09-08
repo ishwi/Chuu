@@ -140,8 +140,8 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new ObscurityLeaderboardCommand(dao)))
 				.addEventListeners(help.registerCommand(new FeaturedCommand(dao, scheduledManager)))
 				.addEventListeners(help.registerCommand(new RandomAlbumCommand(dao)))
-				.addEventListeners(help.registerCommand(new WhoKnowsSongCommand(dao)));
-
+				.addEventListeners(help.registerCommand(new WhoKnowsSongCommand(dao)))
+				.addEventListeners(help.registerCommand(new CrownsStolenCommand(dao)));
 
 		try {
 			jda = builder.build().awaitReady();
