@@ -3,7 +3,7 @@ package main.Parsers;
 import DAO.DaoImplementation;
 import DAO.Entities.NowPlayingArtist;
 import main.APIs.last.ConcurrentLastFM;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class UsernameAndNpQueryParser extends ArtistParser {
@@ -12,7 +12,7 @@ public class UsernameAndNpQueryParser extends ArtistParser {
 	}
 
 	@Override
-	public String[] doSomethingWithNp(NowPlayingArtist np, Member sample, MessageReceivedEvent e) {
+	public String[] doSomethingWithNp(NowPlayingArtist np, User sample, MessageReceivedEvent e) {
 		return new String[]{np.getArtistName() + " " + np.getSongName(), String.valueOf(e.getAuthor().getIdLong())};
 	}
 

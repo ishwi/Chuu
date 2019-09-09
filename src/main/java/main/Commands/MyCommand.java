@@ -131,16 +131,23 @@ public abstract class MyCommand extends ListenerAdapter {
 			return e.getTextChannel().sendMessage(message).complete();
 	}
 
-	String getUserString(Long discordId, MessageReceivedEvent e, String replacement) {
+	public String getUserStringConsideringGuildOrNot(MessageReceivedEvent e, long who, String replacement) {
+		String firstReturn;
+		if ((firstReturn = getUserString(who, e, replacement)) == null) {
+			return getUserGlobalString(who, e, replacement);
+		} else return firstReturn;
+	}
+
+	public String getUserString(Long discordId, MessageReceivedEvent e, String replacement) {
 
 		if (e.getChannelType().isGuild()) {
 			Member member = e.getGuild().getMemberById(discordId);
 			return member == null ? replacement : member.getEffectiveName();
 		}
-		return e.getAuthor().getName();
+		return null;
 	}
 
-	String getUserGlobalString(Long discordId, MessageReceivedEvent e, String replacement) {
+	public String getUserGlobalString(Long discordId, MessageReceivedEvent e, String replacement) {
 		try {
 			User member = e.getJDA().retrieveUserById(discordId).complete();
 			return member == null ? replacement : member.getName();
