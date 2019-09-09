@@ -144,16 +144,17 @@ public class TrackDistributor {
 		int y_limit = dist.getHeight() - HEIGHT_CONSTANT;
 
 		Color color = lightPalettes.get(new Random().nextInt(lightPalettes.size() - 1));
-
+		//Get a estimate of the average colour of the background
 		Color[] a = new Color[15];
 		for (int i = 0; i < 15; i++) {
 			int rgb = dist.getRGB(rand.nextInt(x_limit), rand.nextInt(y_limit) + HEIGHT_CONSTANT);
 			a[i] = (new Color(rgb));
 		}
 		Color betterCollection = GraphicUtils.getBetter(a);
-
 		if (betterCollection.equals(Color.white))
 			color = color.darker().darker();
+
+		//I like transparency
 		g.setColor(GraphicUtils.MakeMoreTransParent(color, 0.7f));
 
 		int startingPoint = HEIGHT_CONSTANT;

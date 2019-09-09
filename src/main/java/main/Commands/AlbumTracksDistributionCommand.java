@@ -52,7 +52,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 
 
 		} catch (InstanceNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(5), e);
+			parser.sendError(parser.getErrorMessage(1), e);
 			return;
 		} catch (LastFmEntityNotFoundException ex) {
 			parser.sendError(parser.getErrorMessage(6), e);

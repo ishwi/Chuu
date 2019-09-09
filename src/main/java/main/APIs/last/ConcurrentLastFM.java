@@ -543,12 +543,18 @@ public class ConcurrentLastFM {//implements LastFMService {
 			throw new LastFmEntityNotFoundException(artist);
 		obj = obj.getJSONObject("track");
 		int userplaycount = obj.getInt("userplaycount");
-		JSONArray images = obj.getJSONObject("album").getJSONArray("image");
-		String image_url = images.getJSONObject(images.length() - 1).getString("#text");
+
 		boolean userloved = obj.getInt("userloved") != 0;
 		int duration = obj.getInt("duration") / 1000;
 		Track track = new Track(artist, trackName, userplaycount, userloved, duration);
-		track.setImageUrl(image_url);
+
+		JSONObject images;
+		if ((images = obj).has("album") && (images = images.getJSONObject("album")).has("image")) {
+			JSONArray ar = images.getJSONArray("image");
+			track.setImageUrl(
+					ar.getJSONObject(images.length() - 1).getString("#text")
+			);
+		}
 		return track;
 	}
 
