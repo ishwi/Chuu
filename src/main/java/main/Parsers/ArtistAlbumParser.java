@@ -5,6 +5,7 @@ import DAO.Entities.NowPlayingArtist;
 import main.APIs.last.ConcurrentLastFM;
 import main.Exceptions.LastFmException;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
@@ -22,31 +23,34 @@ public class ArtistAlbumParser extends DaoParser {
 
 	@Override
 	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
-		List<Member> members = e.getMessage().getMentionedMembers();
-		Member sample;
+		User sample;
 
-		if (!members.isEmpty()) {
-			if (members.size() != 1) {
-				sendError("Only one user pls", e);
-				return null;
+		if (e.isFromGuild()) {
+			List<Member> members = e.getMessage().getMentionedMembers();
+			if (!members.isEmpty()) {
+				if (members.size() != 1) {
+					sendError("Only one user pls", e);
+					return null;
+				}
+				sample = members.get(0).getUser();
+				subMessage = Arrays.stream(subMessage).filter(s -> !s.equals(sample.getAsMention()))
+						.toArray(String[]::new);
+			} else {
+				sample = e.getMember().getUser();
 			}
-			sample = members.get(0);
-			subMessage = Arrays.stream(subMessage).filter(s -> !s.equals(sample.getAsMention()))
-					.toArray(String[]::new);
 		} else
-			sample = e.getMember();
+			sample = e.getAuthor();
 
 		if (subMessage.length == 0) {
 
 			NowPlayingArtist np;
 			try {
 
-				assert sample != null;
-				String userName = dao.findLastFMData(sample.getUser().getIdLong()).getName();
+				String userName = dao.findLastFMData(sample.getIdLong()).getName();
 				np = lastFM.getNowPlayingInfo(userName);
 
 			} catch (InstanceNotFoundException ex) {
-				sendError(sample.getUser().getName() + " needs to be registered on the bot!", e);
+				sendError(sample.getName() + " needs to be registered on the bot!", e);
 				return null;
 			} catch (LastFmException ex) {
 				sendError(this.getErrorMessage(2), e);
@@ -61,11 +65,11 @@ public class ArtistAlbumParser extends DaoParser {
 	}
 
 
-	String[] doSomethingWithNp(NowPlayingArtist np, Member ignored, MessageReceivedEvent e) {
+	String[] doSomethingWithNp(NowPlayingArtist np, User ignored, MessageReceivedEvent e) {
 		return new String[]{np.getArtistName(), np.getAlbumName(), String.valueOf(e.getAuthor().getIdLong())};
 	}
 
-	String[] doSomethingWithString(String[] subMessage, Member sample, MessageReceivedEvent e) {
+	String[] doSomethingWithString(String[] subMessage, User sample, MessageReceivedEvent e) {
 		StringBuilder builder = new StringBuilder();
 		for (String s : subMessage) {
 			builder.append(s).append(" ");

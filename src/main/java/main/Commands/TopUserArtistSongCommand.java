@@ -8,7 +8,6 @@ import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
@@ -18,6 +17,7 @@ import java.util.List;
 public class TopUserArtistSongCommand extends WhoKnowsCommand {
 	public TopUserArtistSongCommand(DaoImplementation dao) {
 		super(dao);
+		respondInPrivate = true;
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public class TopUserArtistSongCommand extends WhoKnowsCommand {
 		try {
 			lastFmName = getDao().findLastFMData(userId).getName();
 		} catch (InstanceNotFoundException ex) {
-			sendMessage(e, "Error f");
+			parser.sendError(parser.getErrorMessage(1), e);
 			return;
 		}
 
@@ -40,11 +40,7 @@ public class TopUserArtistSongCommand extends WhoKnowsCommand {
 			parser.sendError(parser.getErrorMessage(2), e);
 			return;
 		}
-
-		if (ai.isEmpty()) {
-			sendMessage(e, "You havent played " + who.getArtist() + " yet");
-			return;
-		}
+		final String userString = getUserStringConsideringGuildOrNot(e, userId, lastFmName);
 		MessageBuilder mes = new MessageBuilder();
 		StringBuilder s = new StringBuilder();
 		for (int i = 0; i < 10 && i < ai.size(); i++) {
@@ -55,12 +51,10 @@ public class TopUserArtistSongCommand extends WhoKnowsCommand {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setDescription(s);
 		embedBuilder.setColor(CommandUtil.randomColor());
-		Member whoD = e.getGuild().getMemberById(userId);
-		String name = whoD == null ? lastFmName : whoD.getEffectiveName();
 
-		embedBuilder.setTitle(name + "'s top " + who.getArtist() + " tracks", CommandUtil.getLastFmUser(lastFmName));
-		if (whoD != null)
-			embedBuilder.setThumbnail(who.getUrl());
+		embedBuilder
+				.setTitle(userString + "'s top " + who.getArtist() + " tracks", CommandUtil.getLastFmUser(lastFmName));
+		embedBuilder.setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
 
 		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
 	}

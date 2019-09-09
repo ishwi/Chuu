@@ -5,7 +5,6 @@ import DAO.Entities.LastFMData;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Parsers.ArtistAlbumParser;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
@@ -41,13 +40,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 			a = lastFM.getPlaysAlbum_Artist(data.getName(), artist, album).getPlays();
 			String usernameString = data.getName();
 
-			if (e.isFromGuild()) {
-				Member b = e.getGuild().getMemberById(who);
-				if (b != null)
-					usernameString = b.getEffectiveName();
-			} else {
-				usernameString = getUserGlobalString(who, e, data.getName());
-			}
+			usernameString = getUserStringConsideringGuildOrNot(e, who, usernameString);
 
 			String ending = a > 1 ? "times " : "time";
 

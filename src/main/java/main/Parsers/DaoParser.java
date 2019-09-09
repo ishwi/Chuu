@@ -17,31 +17,23 @@ public abstract class DaoParser extends Parser {
 	}
 
 	String getLastFmUsername1input(String[] message, Long id, MessageReceivedEvent event) {
-		String username;
 		try {
-			if (message.length != 1) {
-				username = this.dao.findLastFMData(id).getName();
-			} else {
-				//case  with @ and without @
+			if (event.isFromGuild()) {
+				LastFMData data;
 				List<User> list = event.getMessage().getMentionedUsers();
-				username = message[0];
-				if (!list.isEmpty()) {
-					LastFMData data = this.dao.findLastFMData((list.get(0).getIdLong()));
+				data = list.isEmpty()
+						? this.dao.findLastFMData((id))
+						: this.dao.findLastFMData(list.get(0).getIdLong());
 
-					username = data.getName();
-				}
-				if (username.startsWith("@")) {
-					event.getChannel().sendMessage("Trolled xD").queue();
-					return null;
-				}
+				return data.getName();
+			} else {
+				return this.dao.findLastFMData((id)).getName();
 			}
 		} catch (InstanceNotFoundException e) {
 			sendError(getErrorMessage(1), event);
 			return null;
 		}
-		return username;
 	}
-
 	@Override
 	protected void setUpErrorMessages() {
 		errorMessages.put(1, "User not on database");

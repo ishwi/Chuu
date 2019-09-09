@@ -48,6 +48,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private final String GET_CORRECTION = "?method=artist.getcorrection&artist=";
 	private final String GET_ARTIST_ALBUMS = "?method=artist.gettopalbums&artist=";
 	private final String GET_USER_TOP_TRACKS = "?method=user.gettoptracks&user=";
+	private final String GET_ARTIST_INFO = "?method=artist.getinfo&artist=";
 
 	private final HttpClient client;
 	private final Header header;
@@ -604,11 +605,19 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	public List<Track> getTopArtistTracks(String username, String artist, String weekly) throws LastFmException {
 		final int SIZE_LIMIT = 10;
+
 		List<Track> trackList = new ArrayList<>();
+
+		int artistPlays = getArtistPlays(artist, username);
+		if (artistPlays == 0) {
+			return trackList;
+		}
+
 		String url;
 		int page = 1;
 		boolean cont = true;
 		int limit = 2;
+
 		try {
 			url = BASE + GET_USER_TOP_TRACKS + username + "&artist=" + URLEncoder
 					.encode(artist, "UTF-8") + API_KEY + "&limit=" + 1000 + ending;
@@ -656,6 +665,28 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 		}
 		return trackList;
+	}
+
+	public int getArtistPlays(String artist, String username) throws LastFmException {
+		String url;
+		try {
+			url = BASE + GET_ARTIST_INFO + URLEncoder
+					.encode(artist, "UTF-8") + "&username=" + username + API_KEY + "&limit=" + 1000 + ending;
+		} catch (UnsupportedEncodingException e) {
+			throw new LastFMServiceException("400");
+
+		}
+		HttpMethodBase method = createMethod(url);
+
+		// Execute the method.
+
+		JSONObject jsonObject = doMethod(method);
+
+		if (jsonObject.has("artist")) {
+			return jsonObject.getJSONObject("artist").getJSONObject("stats").getInt("userplaycount");
+		} else
+			return 0;
+
 	}
 }
 

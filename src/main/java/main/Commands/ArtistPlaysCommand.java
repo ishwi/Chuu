@@ -3,7 +3,6 @@ package main.Commands;
 import DAO.DaoImplementation;
 import DAO.Entities.LastFMData;
 import main.Parsers.ArtistParser;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
@@ -29,10 +28,7 @@ public class ArtistPlaysCommand extends ConcurrentCommand {
 			LastFMData data = getDao().findLastFMData(whom);
 
 			a = getDao().getArtistPlays(artist, data.getName());
-			Member b = e.getGuild().getMemberById(whom);
-			String usernameString = data.getName();
-			if (b != null)
-				usernameString = b.getEffectiveName();
+			String usernameString = getUserStringConsideringGuildOrNot(e, whom, data.getName());
 			String ending = a > 1 ? "times " : "time";
 			sendMessage(e, "**" + usernameString + "** has scrobbled **" + artist + " " + a + "**  " + ending);
 
