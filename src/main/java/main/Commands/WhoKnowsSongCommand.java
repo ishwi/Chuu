@@ -35,7 +35,7 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbum {
 			try {
 				Track trackInfo = lastFM.getTrackInfo(u.getLastFMName(), artist, track);
 				userMapPlays.put(u, trackInfo.getPlays());
-				if (fillWithUrl.getAlbum_url().isEmpty()) {
+				if (fillWithUrl.getAlbum_url().isEmpty() && trackInfo.getImageUrl() != null) {
 					fillWithUrl.setAlbum_url(trackInfo.getImageUrl());
 				}
 			} catch (LastFmException ex) {

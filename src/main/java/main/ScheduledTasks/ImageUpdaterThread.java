@@ -27,7 +27,7 @@ public class ImageUpdaterThread implements Runnable {
 			String url;
 			System.out.println("Working with artist " + artistDatum);
 			try {
-
+				Thread.sleep(1000);
 				url = discogsApi.findArtistImage(artistDatum);
 				if (url != null) {
 
@@ -38,7 +38,10 @@ public class ImageUpdaterThread implements Runnable {
 				}
 			} catch (DiscogsServiceException e) {
 				Chuu.getLogger().warn(e.getMessage(), e);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
+
 		}
 
 

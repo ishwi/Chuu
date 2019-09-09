@@ -28,7 +28,8 @@ public class NPSpotifyCommand extends NpCommand {
 						.getAlbumName());
 
 		if (uri.equals("")) {
-			sendMessage(e, "Was not able to find artist " + nowPlayingArtist.getSongName() + " on spotify");
+			sendMessage(e, "Was not able to find " + nowPlayingArtist.getArtistName() + " - " + nowPlayingArtist
+					.getSongName() + " on spotify");
 			return;
 		}
 		messageBuilder.setContent(uri).sendTo(e.getChannel()).queue();
