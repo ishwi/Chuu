@@ -2,10 +2,13 @@ package main.APIs.last;
 
 import DAO.Entities.ArtistAlbums;
 import DAO.Entities.SecondsTimeFrameCount;
+import DAO.Entities.Track;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFMServiceException;
 import main.Exceptions.LastFmException;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -60,5 +63,16 @@ public class ConcurrentLastFMTest {
 		}
 
 
+	}
+
+	@Test
+	public void getTopArtistTracks() {
+		ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
+
+		try {
+			List<Track> secondsTimeFrameCount = lastFM.getTopArtistTracks("lukyfan", "Northlane", "7day");
+
+		} catch (LastFmException ignored) {
+		}
 	}
 }

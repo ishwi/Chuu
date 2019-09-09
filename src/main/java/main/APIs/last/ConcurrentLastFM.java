@@ -47,6 +47,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private final String GET_TOP_TRACKS = "?method=user.gettoptracks&user=";
 	private final String GET_CORRECTION = "?method=artist.getcorrection&artist=";
 	private final String GET_ARTIST_ALBUMS = "?method=artist.gettopalbums&artist=";
+	private final String GET_USER_TOP_TRACKS = "?method=user.gettoptracks&user=";
+
 	private final HttpClient client;
 	private final Header header;
 
@@ -598,6 +600,62 @@ public class ConcurrentLastFM {//implements LastFMService {
 		HttpMethodBase method = createMethod(url);
 		return doMethod(method).getJSONObject("topalbums").getJSONObject("@attr").getInt("total");
 
+	}
+
+	public List<Track> getTopArtistTracks(String username, String artist, String weekly) throws LastFmException {
+		final int SIZE_LIMIT = 10;
+		List<Track> trackList = new ArrayList<>();
+		String url;
+		int page = 1;
+		boolean cont = true;
+		int limit = 2;
+		try {
+			url = BASE + GET_USER_TOP_TRACKS + username + "&artist=" + URLEncoder
+					.encode(artist, "UTF-8") + API_KEY + "&limit=" + 1000 + ending;
+		} catch (UnsupportedEncodingException e) {
+			throw new LastFMServiceException("400");
+		}
+
+		while (trackList.size() < SIZE_LIMIT && page < limit && cont) {
+
+			String urlPage = url + "&page=" + page;
+			HttpMethodBase method = createMethod(urlPage);
+
+			++page;
+			// Execute the method.
+			JSONObject obj = doMethod(method);
+			obj = obj.getJSONObject("toptracks");
+//			if (page== 2)
+//				requestedSize = obj.getJSONObject("@attr").getInt("total");
+			limit = obj.getJSONObject("@attr").getInt("totalPages");
+			if (limit == 0) {
+				throw new LastFMNoPlaysException("");
+			}
+
+			JSONArray arr = obj.getJSONArray("track");
+			for (int i = 0; i < arr.length(); i++) {
+				JSONObject trackObj = arr.getJSONObject(i);
+				int userplaycount = trackObj.getInt("playcount");
+				if (userplaycount < 3) {
+					cont = false;
+					break;
+				}
+
+				String artistName = trackObj.getJSONObject("artist").getString("name");
+
+				if (artistName.equalsIgnoreCase(artist)) {
+					String trackName = trackObj.getString("name");
+					int duration = trackObj.getInt("duration") / 1000;
+					Track track = new Track(artist, trackName, userplaycount, false, duration);
+					trackList.add(track);
+					if (trackList.size() == SIZE_LIMIT)
+						break;
+				}
+
+			}
+
+		}
+		return trackList;
 	}
 }
 
