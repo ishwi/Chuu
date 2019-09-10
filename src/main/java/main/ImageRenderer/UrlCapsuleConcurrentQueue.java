@@ -13,10 +13,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class UrlCapsuleConcurrentQueue extends LinkedBlockingQueue<UrlCapsule> {
-	private final DaoImplementation dao;
-	private final DiscogsApi discogsApi;
-	private final Spotify spotifyApi;
-	private final LinkedBlockingQueue<CompletableFuture<UrlCapsule>> wrapper;
+	private static final long serialVersionUID = 1L;
+	private transient final DaoImplementation dao;
+	private transient final DiscogsApi discogsApi;
+	private transient final Spotify spotifyApi;
+	private transient final LinkedBlockingQueue<CompletableFuture<UrlCapsule>> wrapper;
 
 	public UrlCapsuleConcurrentQueue(DaoImplementation dao, DiscogsApi discogsApi, Spotify spotify) {
 		super();

@@ -23,7 +23,7 @@ public class ConvolveFilter extends AbstractBufferedImageOp {
 	static final int CLAMP_EDGES = 1;
 	static final int WRAP_EDGES = 2;
 	public static int ZERO_EDGES = 0;
-	final boolean alpha = true;
+	final static boolean alpha = true;
 	private Kernel kernel;
 	private int edgeAction = CLAMP_EDGES;
 
@@ -52,20 +52,20 @@ public class ConvolveFilter extends AbstractBufferedImageOp {
 		this.kernel = kernel;
 	}
 
-	/**
-	 * Construct a filter with the given kernel.
-	 *
-	 * @param rows   the number of rows in the kernel
-	 * @param cols   the number of columns in the kernel
-	 * @param matrix an array of rows*cols floats containing the kernel
-	 */
-	public ConvolveFilter(int rows, int cols, float[] matrix) {
-		this(new Kernel(cols, rows, matrix));
-	}
+//	/**
+//	 * Construct a filter with the given kernel.
+//	 *
+//	 * @param rows   the number of rows in the kernel
+//	 * @param cols   the number of columns in the kernel
+//	 * @param matrix an array of rows*cols floats containing the kernel
+//	 */
+//	public ConvolveFilter(int rows, int cols, float[] matrix) {
+//		this(new Kernel(cols, rows, matrix));
+//	}
 
-	public static void convolve(Kernel kernel, int[] inPixels, int[] outPixels, int width, int height, int edgeAction) {
-		convolve(kernel, inPixels, outPixels, width, height, true, edgeAction);
-	}
+//	public static void convolve(Kernel kernel, int[] inPixels, int[] outPixels, int width, int height, int edgeAction) {
+//		convolve(kernel, inPixels, outPixels, width, height, true, edgeAction);
+//	}
 
 	private static void convolve(Kernel kernel, int[] inPixels, int[] outPixels, int width, int height, boolean alpha, int edgeAction) {
 		if (kernel.getHeight() == 1)
@@ -146,9 +146,8 @@ public class ConvolveFilter extends AbstractBufferedImageOp {
 			int ioffset = y * width;
 			for (int x = 0; x < width; x++) {
 				float r = 0, g = 0, b = 0, a = 0;
-				int moffset = cols2;
 				for (int col = -cols2; col <= cols2; col++) {
-					float f = matrix[moffset + col];
+					float f = matrix[cols2 + col];
 
 					if (f != 0) {
 						int ix = x + col;

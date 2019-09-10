@@ -7,8 +7,6 @@ import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.ImageRenderer.UrlCapsuleConcurrentQueue;
 import main.Parsers.TopParser;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
@@ -26,15 +24,10 @@ public class TopCommand extends ArtistCommand {
 	@Override
 	public void threadableCode(MessageReceivedEvent e) {
 		String[] message;
-		MessageBuilder mes = new MessageBuilder();
-		EmbedBuilder embed = new EmbedBuilder();
 		message = parser.parse(e);
 		if (message == null)
 			return;
 
-//		embed.setImage("attachment://cat.png") // we specify this in sendFile as "cat.png"
-//				.setDescription(e.getAuthor().getName() + " 's most listened albums");
-//		mes.setEmbed(embed.build());
 		String lastfmName = message[0];
 		boolean isArtist = Boolean.parseBoolean(message[1]);
 		try {

@@ -81,7 +81,7 @@ public class GenreCommand extends ConcurrentCommand {
 		pieChart.getStyler().setDrawAllAnnotations(true);
 		pieChart.getStyler().setStartAngleInDegrees(90);
 
-		map.entrySet().stream().sorted(((o1, o2) -> -o1.getValue().compareTo(o2.getValue()))).sequential().limit(10)
+		map.entrySet().stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).sequential().limit(10)
 				.forEachOrdered(entry -> {
 					Genre genre = entry.getKey();
 					int plays = entry.getValue();

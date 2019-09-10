@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class MusicBrainzCommand extends ArtistCommand {
 	private final MusicBrainzService mb;
-	private final int chartSize = 100;
+	private static final int chartSize = 100;
 
 	public MusicBrainzCommand(DaoImplementation dao) {
 		super(dao);
