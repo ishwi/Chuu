@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class MbizThisYearCommand extends MusicBrainzCommand {
-	private final int chartSize = 150;
 
 	public MbizThisYearCommand(DaoImplementation dao) {
 		super(dao);

@@ -14,13 +14,14 @@ public class OptionalEntity {
 	}
 
 	@Override
+	public int hashCode() {
+		return value.hashCode();
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (o == this) {
 			return true;
-		}
-		if ((o instanceof String)) {
-			return o.equals(this.getValue());
-
 		}
 		if (!(o instanceof OptionalEntity)) {
 			return false;
@@ -28,7 +29,7 @@ public class OptionalEntity {
 		return this.value.equals(((OptionalEntity) o).value);
 	}
 
-	public String getValue() {
+	String getValue() {
 		return value;
 	}
 }

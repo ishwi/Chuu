@@ -104,7 +104,6 @@ public class TrackDistributor {
 		//Background image set up
 		BufferedImage artistImageFill = GraphicUtils
 				.getImageFromUrl(fae.getArtistUrl(), null);
-		Random rand = new Random();
 
 		//Main Image
 		BufferedImage dist = new BufferedImage(WIDTH_CONSTANT, HEIGHT_CONSTANT + HEIGHT_BOTTOM + (TILE_SIZE) * trackCount + 15, BufferedImage.TYPE_INT_ARGB);
@@ -115,7 +114,6 @@ public class TrackDistributor {
 		Graphics2D g = GraphicUtils.initArtistBackground(dist, artistImageFill);
 
 		g.setFont(font);
-		Font ogFont = font;
 
 		//Upper Template Part
 		g.drawImage(template, 0, 0, null);
@@ -135,7 +133,7 @@ public class TrackDistributor {
 
 	}
 
-	public static void doHistContent(Graphics2D g, int maxList, BufferedImage dist, List<Track> trackList) {
+	private static void doHistContent(Graphics2D g, int maxList, BufferedImage dist, List<Track> trackList) {
 		Font ogFont = g.getFont();
 		Font font;
 		Random rand = new Random();

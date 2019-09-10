@@ -40,7 +40,7 @@ class ThreadQueue implements Runnable {
 
 	}
 
-	public ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations, boolean writePlays, boolean writeTitles, boolean makeSmaller) {
+	ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations, boolean writePlays, boolean writeTitles, boolean makeSmaller) {
 		this.queue = queue;
 		this.g = g;
 		this.y = y;
@@ -69,7 +69,7 @@ class ThreadQueue implements Runnable {
 				BufferedImage image;
 				URL url;
 				int pos = capsule.getPos();
-				int y = (int) Math.floor(pos / this.x);
+				int y = (pos / this.x);
 				int x = pos % this.x;
 
 				try {

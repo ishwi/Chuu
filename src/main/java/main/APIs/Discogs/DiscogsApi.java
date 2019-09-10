@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class DiscogsApi {
-	private final String BASE_API = "https://api.discogs.com/";
+	private static final String BASE_API = "https://api.discogs.com/";
 	private final String SECRET;
 	private final String KEY;
 	private final Header header;
@@ -111,7 +112,7 @@ public class DiscogsApi {
 			parseHttpCode(response_code);
 			slowness = Integer.parseInt(method.getResponseHeader("X-Discogs-Ratelimit-Remaining").getValue()) == 0;
 			byte[] responseBody = method.getResponseBody();
-			return new JSONObject(new String(responseBody));
+			return new JSONObject(new String(responseBody, StandardCharsets.UTF_8));
 
 		} catch (IOException | InterruptedException e) {
 			method.releaseConnection();
