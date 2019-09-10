@@ -555,7 +555,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		if ((images = obj).has("album") && (images = images.getJSONObject("album")).has("image")) {
 			JSONArray ar = images.getJSONArray("image");
 			track.setImageUrl(
-					ar.getJSONObject(images.length() - 1).getString("#text")
+					ar.getJSONObject(ar.length() - 1).getString("#text")
 			);
 		}
 		return track;
