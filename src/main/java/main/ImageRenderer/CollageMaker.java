@@ -36,7 +36,7 @@ public class CollageMaker {
 			es.execute((new ThreadQueue(queue, g, x, y, max, writePlays, writeTitles, makeSmaller)));
 		es.shutdown();
 		try {
-			boolean finished = es.awaitTermination(10, TimeUnit.MINUTES);
+			es.awaitTermination(10, TimeUnit.MINUTES);
 		} catch (InterruptedException e) {
 			Chuu.getLogger().warn(e.getMessage(), e);
 		}

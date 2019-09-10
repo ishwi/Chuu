@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 
 
 public abstract class ConcurrentCommand extends MyCommandDbAccess {
-	private final ExecutorService executor = ExecutorsSingleton.getInstance();
+	private final ExecutorService executor = ExecutorsSingleton.getInstanceUsingDoubleLocking();
 
 
 	ConcurrentCommand(DaoImplementation dao) {

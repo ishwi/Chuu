@@ -9,7 +9,6 @@ import java.net.URL;
 import java.util.*;
 
 public abstract class Parser {
-	public final String PREFIX = "**!*";
 	final Map<Integer, String> errorMessages = new HashMap<>(10);
 	final List<OptionalEntity> opts = new ArrayList<>();
 

@@ -11,9 +11,14 @@ public class ExecutorsSingleton {
 	private ExecutorsSingleton() {
 	}
 
-	public static synchronized ExecutorService getInstance() {
+
+	public static ExecutorService getInstanceUsingDoubleLocking() {
 		if (instance == null) {
-			instance = Executors.newCachedThreadPool();
+			synchronized (ExecutorService.class) {
+				if (instance == null) {
+					instance = Executors.newCachedThreadPool();
+				}
+			}
 		}
 		return instance;
 	}

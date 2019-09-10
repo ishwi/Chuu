@@ -29,7 +29,7 @@ public class GuildMaker {
 			es.execute((new ThreadQueueGuild(queue, g, x, y, max)));
 		es.shutdown();
 		try {
-			boolean finished = es.awaitTermination(10, TimeUnit.MINUTES);
+			es.awaitTermination(10, TimeUnit.MINUTES);
 		} catch (InterruptedException e) {
 			Chuu.getLogger().warn(e.getMessage(), e);
 		}
