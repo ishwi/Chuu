@@ -13,16 +13,20 @@ public class ClientSingleton {
 	}
 
 	public static synchronized HttpClient getInstance() {
-		if (instance == null) {
-			instance = new HttpClient();
-			HttpClientParams params = new HttpClientParams();
-			params.setSoTimeout(4000);
-			params.setContentCharset("UTF-8");
-			instance.setParams(params);
 
-			instance.setHttpConnectionManager(new MultiThreadedHttpConnectionManager());
+		if (instance == null) {
+			synchronized (main.APIs.ClientSingleton.class) {
+				if (instance == null) {
+					HttpClient httpClient = new HttpClient();
+					HttpClientParams params = new HttpClientParams();
+					params.setSoTimeout(4000);
+					params.setContentCharset("UTF-8");
+					httpClient.setParams(params);
+					httpClient.setHttpConnectionManager(new MultiThreadedHttpConnectionManager());
+					instance = httpClient;
+				}
+			}
 		}
 		return instance;
 	}
-
 }

@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class MyCommand extends ListenerAdapter {
-	final String PREFIX = "!";
+	final static String PREFIX = "!";
 	boolean respondInPrivate = true;
 	Parser parser;
 
@@ -131,7 +131,7 @@ public abstract class MyCommand extends ListenerAdapter {
 			return e.getTextChannel().sendMessage(message).complete();
 	}
 
-	public String getUserStringConsideringGuildOrNot(MessageReceivedEvent e, long who, String replacement) {
+	String getUserStringConsideringGuildOrNot(MessageReceivedEvent e, long who, String replacement) {
 		String firstReturn;
 		if ((firstReturn = getUserString(who, e, replacement)) == null) {
 			return getUserGlobalString(who, e, replacement);
@@ -147,7 +147,7 @@ public abstract class MyCommand extends ListenerAdapter {
 		return null;
 	}
 
-	public String getUserGlobalString(Long discordId, MessageReceivedEvent e, String replacement) {
+	String getUserGlobalString(Long discordId, MessageReceivedEvent e, String replacement) {
 		try {
 			User member = e.getJDA().retrieveUserById(discordId).complete();
 			return member == null ? replacement : member.getName();

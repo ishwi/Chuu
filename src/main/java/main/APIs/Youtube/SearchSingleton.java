@@ -2,7 +2,7 @@ package main.APIs.Youtube;
 
 public class SearchSingleton {
 
-	private static Search instance;
+	private static volatile Search instance;
 
 
 	public static Search getInstanceUsingDoubleLocking() {

@@ -5,6 +5,8 @@ plugins {
     id 'java'
     id 'application'
     id "com.github.johnrengelman.shadow" version "5.0.0"
+    id "com.github.spotbugs" version "2.0.0"
+
 
 }
 apply plugin: 'java'
@@ -48,7 +50,6 @@ dependencies {
 
 // https://mvnrepository.com/artifact/com.mchange/c3p0
     compile 'se.michaelthelin.spotify:spotify-web-api-java:2.1.2'
-    compile group: 'com.mchange', name: 'c3p0', version: '0.9.5.2'
     compile 'ch.qos.logback:logback-classic:1.2.3'
 // https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12
 // https://mvnrepository.com/artifact/org.slf4j/slf4j-jdk14
@@ -69,6 +70,7 @@ dependencies {
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.12'
     compile group: 'org.json', name: 'json', version: '20180130'
 
+    //For Youtube search api
     compile 'com.google.api-client:google-api-client:1.28.0'
     compile 'com.google.apis:google-api-services-youtube:v3-rev209-1.25.0'
     compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'

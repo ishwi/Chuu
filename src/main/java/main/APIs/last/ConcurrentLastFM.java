@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,40 +31,42 @@ import java.util.stream.StreamSupport;
 
 
 public class ConcurrentLastFM {//implements LastFMService {
+	private final static String BASE = "http://ws.audioscrobbler.com/2.0/";
+	private final static String GET_ALBUMS = "?method=user.gettopalbums&user=";
+	private final static String GET_LIBRARY = "?method=library.getartists&user=";
+	private final static String GET_USER = "?method=user.getinfo&user=";
+	private final static String ENDING = "&format=json";
+	private final static String RECENT_TRACKS = "?method=user.getrecenttracks";
+	private final static String GET_NOW_PLAYINH = RECENT_TRACKS + "&limit=1&user=";
+	private final static String GET_ALL = RECENT_TRACKS + "&limit=200&user=";
+	private final static String GET_ARTIST = "?method=user.gettopartists&user=";
+	private final static String GET_TRACKS = "?method=album.getinfo&username=";
+	private final static String GET_TRACK_INFO = "?method=track.getInfo&username=";
+	private final static String GET_TOP_TRACKS = "?method=user.gettoptracks&user=";
+	private final static String GET_CORRECTION = "?method=artist.getcorrection&artist=";
+	private final static String GET_ARTIST_ALBUMS = "?method=artist.gettopalbums&artist=";
+	private final static String GET_USER_TOP_TRACKS = "?method=user.gettoptracks&user=";
+	private final static String GET_ARTIST_INFO = "?method=artist.getinfo&artist=";
+	private final static Header header = initHeader();
 	private final String API_KEY;
-	private final String BASE = "http://ws.audioscrobbler.com/2.0/";
-	private final String GET_ALBUMS = "?method=user.gettopalbums&user=";
-	private final String GET_LIBRARY = "?method=library.getartists&user=";
-	private final String GET_USER = "?method=user.getinfo&user=";
-	private final String ending = "&format=json";
-	private final String RECENT_TRACKS = "?method=user.getrecenttracks";
-	private final String GET_NOW_PLAYINH = RECENT_TRACKS + "&limit=1&user=";
-	private final String GET_ALL = RECENT_TRACKS + "&limit=200&user=";
-
-	private final String GET_ARTIST = "?method=user.gettopartists&user=";
-	private final String GET_TRACKS = "?method=album.getinfo&username=";
-	private final String GET_TRACK_INFO = "?method=track.getInfo&username=";
-
-	private final String GET_TOP_TRACKS = "?method=user.gettoptracks&user=";
-	private final String GET_CORRECTION = "?method=artist.getcorrection&artist=";
-	private final String GET_ARTIST_ALBUMS = "?method=artist.gettopalbums&artist=";
-	private final String GET_USER_TOP_TRACKS = "?method=user.gettoptracks&user=";
-	private final String GET_ARTIST_INFO = "?method=artist.getinfo&artist=";
-
 	private final HttpClient client;
-	private final Header header;
 
 	public ConcurrentLastFM(String apikey) {
 		this.API_KEY = "&api_key=" + apikey;
 		this.client = ClientSingleton.getInstance();
-		this.header = new Header();
-		this.header.setName("User-Agent");
-		this.header.setValue("discordBot/ishwi6@gmail.com");
+
+	}
+
+	private static Header initHeader() {
+		Header h = new Header();
+		h.setName("User-Agent");
+		h.setValue("discordBot/ishwi6@gmail.com");
+		return h;
 	}
 
 	//@Override
 	public NowPlayingArtist getNowPlayingInfo(String user) throws LastFmException {
-		String url = BASE + GET_NOW_PLAYINH + user + API_KEY + ending;
+		String url = BASE + GET_NOW_PLAYINH + user + API_KEY + ENDING;
 		HttpMethodBase method = createMethod(url);
 
 		JSONObject obj = doMethod(method);
@@ -95,7 +98,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	}
 
 	private JSONObject doMethod(HttpMethod method) throws LastFmException {
-		method.addRequestHeader(this.header);
+		method.addRequestHeader(header);
 
 		int counter = 0;
 		while (true) {
@@ -104,7 +107,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 				int response_code = client.executeMethod(method);
 				parseHttpCode(response_code);
 				byte[] responseBody = method.getResponseBody();
-				return new JSONObject(new String(responseBody));
+				return new JSONObject(new String(responseBody, StandardCharsets.UTF_8));
+
 			} catch (IOException | LastFMServiceException e) {
 				Chuu.getLogger().warn(e.getMessage(), e);
 				//	throw new LastFMServiceException("HTTP");
@@ -142,7 +146,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		List<UserInfo> returnList = new ArrayList<>();
 
 		for (String lastFmName : lastFmNames) {
-			String url = BASE + GET_USER + lastFmName + API_KEY + ending;
+			String url = BASE + GET_USER + lastFmName + API_KEY + ENDING;
 			HttpMethodBase method = createMethod(url);
 			JSONObject obj = doMethod(method);
 			obj = obj.getJSONObject("user");
@@ -174,7 +178,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 			leadingObject = "topartists";
 			arrayObject = "artist";
 		}
-		String url = BASE + apiMethod + userName + API_KEY + ending + "&period=" + weekly;
+		String url = BASE + apiMethod + userName + API_KEY + ENDING + "&period=" + weekly;
 
 		int requestedSize = x * y;
 		int size = 0;
@@ -244,7 +248,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	}
 
 	public SecondsTimeFrameCount getMinutesWastedOnMusic(String username, String period) throws LastFmException {
-		String url = BASE + GET_TOP_TRACKS + username + API_KEY + ending + "&period=" + period + "&limit=500";
+		String url = BASE + GET_TOP_TRACKS + username + API_KEY + ENDING + "&period=" + period + "&limit=500";
 		int SONG_AVERAGE_LENGTH_SECONDS = 200;
 		int page = 1;
 		int total = 1;
@@ -287,7 +291,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	public TimestampWrapper<List<ArtistData>> getWhole(String user, int timestampQuery) throws LastFmException {
 		List<NowPlayingArtist> list = new ArrayList<>();
-		String url = BASE + GET_ALL + user + API_KEY + ending + "&extended=1";
+		String url = BASE + GET_ALL + user + API_KEY + ENDING + "&extended=1";
 
 		if (timestampQuery != 0)
 			url += "&from=" + (timestampQuery + 1);
@@ -356,7 +360,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	}
 
 	public List<NowPlayingArtist> getRecent(String user, int limit) throws LastFmException {
-		String url = BASE + RECENT_TRACKS + "&user=" + user + "&limit=" + limit + API_KEY + ending + "&extended=1";
+		String url = BASE + RECENT_TRACKS + "&user=" + user + "&limit=" + limit + API_KEY + ENDING + "&extended=1";
 		HttpMethodBase method = createMethod(url);
 
 		JSONObject obj = doMethod(method);
@@ -395,7 +399,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	//@Override
 	public List<ArtistData> getLibrary(String User) throws LastFmException {
-		String url = BASE + GET_LIBRARY + User + API_KEY + ending;
+		String url = BASE + GET_LIBRARY + User + API_KEY + ENDING;
 		return getArtistDataTopAlbums(url, false);
 	}
 
@@ -446,7 +450,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	public String getCorrection(String artistToCorrect) {
 		String url;
 		try {
-			url = BASE + GET_CORRECTION + URLEncoder.encode(artistToCorrect, "UTF-8") + API_KEY + ending;
+			url = BASE + GET_CORRECTION + URLEncoder.encode(artistToCorrect, "UTF-8") + API_KEY + ENDING;
 		} catch (UnsupportedEncodingException e) {
 			return artistToCorrect;
 		}
@@ -487,7 +491,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		try {
 			url = BASE + GET_TRACKS + username + "&artist=" + URLEncoder
 					.encode(artist, "UTF-8") + "&album=" + URLEncoder.encode(album, "UTF-8") +
-					API_KEY + ending + "&autocorrect=1";
+					API_KEY + ENDING + "&autocorrect=1";
 		} catch (UnsupportedEncodingException e) {
 			throw new LastFMServiceException("500");
 		}
@@ -535,7 +539,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		try {
 			url = BASE + GET_TRACK_INFO + username + "&artist=" + URLEncoder
 					.encode(artist, "UTF-8") + "&track=" + URLEncoder.encode(trackName, "UTF-8") +
-					API_KEY + ending + "&autocorrect=1";
+					API_KEY + ENDING + "&autocorrect=1";
 		} catch (UnsupportedEncodingException e) {
 			throw new LastFMServiceException("500");
 		}
@@ -570,7 +574,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 		try {
 			url = BASE + GET_ARTIST_ALBUMS + URLEncoder
-					.encode(artist, "UTF-8") + API_KEY + "&autocorrect=1&limit=" + topAlbums + ending;
+					.encode(artist, "UTF-8") + API_KEY + "&autocorrect=1&limit=" + topAlbums + ENDING;
 		} catch (UnsupportedEncodingException e) {
 			throw new LastFMServiceException("500");
 		}
@@ -597,7 +601,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 	}
 
 	public int getTotalAlbumCount(String username) throws LastFmException {
-		String url = BASE + GET_ALBUMS + username + API_KEY + ending + "&period=overall&limit=1";
+		String url = BASE + GET_ALBUMS + username + API_KEY + ENDING + "&period=overall&limit=1";
 		HttpMethodBase method = createMethod(url);
 		return doMethod(method).getJSONObject("topalbums").getJSONObject("@attr").getInt("total");
 
@@ -620,7 +624,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 		try {
 			url = BASE + GET_USER_TOP_TRACKS + username + "&artist=" + URLEncoder
-					.encode(artist, "UTF-8") + API_KEY + "&limit=" + 1000 + ending;
+					.encode(artist, "UTF-8") + API_KEY + "&limit=" + 1000 + ENDING;
 		} catch (UnsupportedEncodingException e) {
 			throw new LastFMServiceException("400");
 		}
@@ -667,11 +671,11 @@ public class ConcurrentLastFM {//implements LastFMService {
 		return trackList;
 	}
 
-	public int getArtistPlays(String artist, String username) throws LastFmException {
+	private int getArtistPlays(String artist, String username) throws LastFmException {
 		String url;
 		try {
 			url = BASE + GET_ARTIST_INFO + URLEncoder
-					.encode(artist, "UTF-8") + "&username=" + username + API_KEY + "&limit=" + 1000 + ending;
+					.encode(artist, "UTF-8") + "&username=" + username + API_KEY + "&limit=" + 1000 + ENDING;
 		} catch (UnsupportedEncodingException e) {
 			throw new LastFMServiceException("400");
 
