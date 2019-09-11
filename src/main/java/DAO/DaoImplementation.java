@@ -573,4 +573,31 @@ public class DaoImplementation {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public UniqueWrapper<UniqueData> getUserAlbumCrowns(String lastfmId, long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return queriesDao.getUserAlbumCrowns(connection, lastfmId, guildId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public List<LbEntry> albumCrownsLeaderboard(long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return queriesDao.albumCrownsLeaderboard(connection, guildId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void insertAlbumCrown(String artist, String album, long discordID, long guildId, int plays) {
+		try (Connection connection = dataSource.getConnection()) {
+			updaterDao.insertAlbumCrown(connection, artist, album, discordID, guildId, plays);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

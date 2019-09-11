@@ -142,7 +142,9 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new RandomAlbumCommand(dao)))
 				.addEventListeners(help.registerCommand(new WhoKnowsSongCommand(dao)))
 				.addEventListeners(help.registerCommand(new CrownsStolenCommand(dao)))
-				.addEventListeners(help.registerCommand(new TopUserArtistSongCommand(dao)));
+				.addEventListeners(help.registerCommand(new TopUserArtistSongCommand(dao)))
+				.addEventListeners(help.registerCommand(new AlbumCrownsCommand(dao)))
+				.addEventListeners(help.registerCommand(new AlbumCronwsLeaderboardCommand(dao)));
 
 		try {
 			jda = builder.build().awaitReady();

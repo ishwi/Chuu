@@ -28,6 +28,10 @@ public class WhoKnowsAlbum extends AlbumPlaysCommand {
 		long id = e.getGuild().getIdLong();
 		//Gets list of users registered in guild
 		List<UsersWrapper> userList = getDao().getAll(id);
+		if (userList.isEmpty()) {
+			sendMessage(e, "No users are registered on this server");
+			return;
+		}
 
 		//Gets play number for each registered artist
 		AlbumUserPlays urlContainter = new AlbumUserPlays("", "");
@@ -44,11 +48,20 @@ public class WhoKnowsAlbum extends AlbumPlaysCommand {
 					return np;
 				}
 		).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
+		if (list2.isEmpty()) {
+			sendMessage(e, " No nibba knows " + artist + " - " + album);
+			return;
+		}
+
+		doExtraThings(list2, id, artist, album);
+
 		WrapperReturnNowPlaying a = new WrapperReturnNowPlaying(list2, 0, urlContainter
 				.getAlbum_url(), artist + " - " + album);
 
 		BufferedImage sender = WhoKnowsMaker.generateWhoKnows(a, e.getGuild().getName(), logo);
+
 		sendImage(sender, e);
+
 
 	}
 
@@ -68,6 +81,12 @@ public class WhoKnowsAlbum extends AlbumPlaysCommand {
 		});
 		return userMapPlays;
 	}
+
+	void doExtraThings(List<ReturnNowPlaying> list2, long id, String artist, String album) {
+		ReturnNowPlaying crownUser = list2.get(0);
+		getDao().insertAlbumCrown(artist, album, crownUser.getDiscordId(), id, crownUser.getPlayNumber());
+	}
+
 
 	@Override
 	public String getDescription() {

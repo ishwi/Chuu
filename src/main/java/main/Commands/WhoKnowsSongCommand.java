@@ -2,6 +2,7 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.AlbumUserPlays;
+import DAO.Entities.ReturnNowPlaying;
 import DAO.Entities.Track;
 import DAO.Entities.UsersWrapper;
 import main.APIs.Discogs.DiscogsApi;
@@ -46,6 +47,10 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbum {
 			fillWithUrl.setAlbum_url(CommandUtil.getArtistImageUrl(getDao(), artist, lastFM, discogsApi, spotify));
 		}
 		return userMapPlays;
+	}
+
+	@Override
+	void doExtraThings(List<ReturnNowPlaying> list2, long id, String artist, String album) {
 	}
 
 	@Override
