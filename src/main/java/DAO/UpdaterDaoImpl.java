@@ -437,8 +437,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
 				"?)\n" +
 				"\n" +
 				"ON DUPLICATE KEY UPDATE\n" +
-				"  plays = VALUES(plays),\n" +
-				"  discordId =  VALUES(discordId);";
+				"  plays = ?,\n" +
+				"  discordId =  ?;";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 			/* Fill "preparedStatement". */
 			int i = 1;
@@ -446,7 +446,11 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			preparedStatement.setLong(i++, discordID);
 			preparedStatement.setString(i++, album);
 			preparedStatement.setInt(i++, plays);
-			preparedStatement.setLong(i, guildId);
+			preparedStatement.setLong(i++, guildId);
+			preparedStatement.setInt(i++, plays);
+			preparedStatement.setLong(i, discordID);
+
+
 
 			/* Execute query. */
 			preparedStatement.executeUpdate();
