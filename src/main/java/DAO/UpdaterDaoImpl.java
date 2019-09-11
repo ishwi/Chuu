@@ -420,6 +420,47 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public void insertAlbumCrown(Connection connection, String artist, String album, long discordID, long guildId, int plays) {
+		String queryString = "INSERT INTO `lastfm`.`album_crowns`\n" +
+				"(`artist_id`,\n" +
+				"`discordId`,\n" +
+				"`album`,\n" +
+				"`plays`,\n" +
+				"`guildID`)\n" +
+				"VALUES\n" +
+				"(?,\n" +
+				"?,\n" +
+				"?,\n" +
+				"?,\n" +
+				"?)\n" +
+				"\n" +
+				"ON DUPLICATE KEY UPDATE\n" +
+				"  plays = VALUES(plays),\n" +
+				"  discordId =  VALUES(discordId);";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i++, artist);
+			preparedStatement.setLong(i++, discordID);
+			preparedStatement.setString(i++, album);
+			preparedStatement.setInt(i++, plays);
+			preparedStatement.setLong(i, guildId);
+
+			/* Execute query. */
+			preparedStatement.executeUpdate();
+
+			/* Get generated identifier. */
+
+			/* Return booking. */
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+
+	}
 }
 
 

@@ -45,4 +45,7 @@ interface UpdaterDao {
 	RandomUrlEntity getRandomUrl(Connection con);
 
 	RandomUrlEntity findRandomUrlById(Connection con, String url);
+
+	void insertAlbumCrown(Connection connection, String artist, String album, long discordID, long guildId, int plays);
+
 }

@@ -35,4 +35,9 @@ interface SQLQueriesDao {
 
 
 	StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser, long guildId);
+
+	UniqueWrapper<UniqueData> getUserAlbumCrowns(Connection connection, String lastfmID, long guildId);
+
+	List<LbEntry> albumCrownsLeaderboard(Connection con, long guildID);
+
 }

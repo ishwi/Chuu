@@ -589,6 +589,65 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 		return new StolenCrownWrapper(discordID, discordID2, returnList);
 	}
 
+	@Override
+	public UniqueWrapper<UniqueData> getUserAlbumCrowns(Connection connection, String lastfmid, long guildId) {
+
+		@Language("MySQL") String queryString = "Select a.artist_id,a.album,a.plays,b.discordID from album_crowns a join lastfm b on a.discordId = b.discordID where guildId = ? and b.lastFmId = ? order by plays desc";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			int i = 1;
+			preparedStatement.setLong(i++, guildId);
+			preparedStatement.setString(i, lastfmid);
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			if (!resultSet.next()) {
+				return new UniqueWrapper<>(0, 0, lastfmid, new ArrayList<>());
+			}
+
+			List<UniqueData> returnList = new ArrayList<>();
+			resultSet.last();
+			int rows = resultSet.getRow();
+
+			long discordId = resultSet.getLong("discordID");
+
+			resultSet.beforeFirst();
+			/* Get results. */
+
+			while (resultSet.next()) { //&& (j < 10 && j < rows)) {
+				String name = resultSet.getString("artist_id");
+				String album = resultSet.getString("album");
+
+				int count_a = resultSet.getInt("plays");
+
+				returnList.add(new UniqueData(name + " - " + album, count_a));
+
+			}
+			return new UniqueWrapper<>(rows, discordId, lastfmid, returnList);
+
+
+		} catch (SQLException e) {
+			Chuu.getLogger().warn(e.getMessage(), e);
+		}
+		return null;
+	}
+
+
+	@Override
+	public List<LbEntry> albumCrownsLeaderboard(Connection con, long guildID) {
+		@Language("MariaDB") String queryString = "SELECT \n" +
+				"    a.discordId, b.lastfmid, COUNT(*) AS ord\n" +
+				"FROM\n" +
+				"    album_crowns a\n" +
+				"        JOIN\n" +
+				"    lastfm b ON a.discordId = b.discordId\n" +
+				"WHERE\n" +
+				"    guildID = ?\n" +
+				"GROUP BY a.discordID , b.lastfmid\n" +
+				"ORDER BY ord;";
+
+		return getLbEntries(con, guildID, queryString, AlbumCrownLbEntry::new, false);
+	}
+
 	//TriFunction is not the simplest approach but i felt like using it so :D
 	@NotNull
 	private List<LbEntry> getLbEntries(Connection connection, long guildId, String queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needs_reSet) {
