@@ -638,12 +638,12 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				"    a.discordId, b.lastfmid, COUNT(*) AS ord\n" +
 				"FROM\n" +
 				"    album_crowns a\n" +
-				"        JOIN\n" +
+				"      RIGHT JOIN\n" +
 				"    lastfm b ON a.discordId = b.discordId\n" +
 				"WHERE\n" +
 				"    guildID = ?\n" +
 				"GROUP BY a.discordID , b.lastfmid\n" +
-				"ORDER BY ord;";
+				"ORDER BY ord desc ;";
 
 		return getLbEntries(con, guildID, queryString, AlbumCrownLbEntry::new, false);
 	}
