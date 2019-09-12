@@ -35,7 +35,7 @@ public class Reactionary<T> extends ListenerAdapter {
 	}
 
 	private void initReactionary(Message message, List<T> list, JDA jda) {
-		if (list.size() < 10)
+		if (list.size() <= 10)
 			return;
 		message.addReaction("U+2B05").submit();
 		message.addReaction("U+27A1").submit();

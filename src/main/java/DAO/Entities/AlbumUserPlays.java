@@ -1,9 +1,10 @@
 package DAO.Entities;
 
 public class AlbumUserPlays {
-	private final String album;
+	private String album;
 	private String album_url;
 	private int plays;
+
 
 	public AlbumUserPlays(String album, String album_url) {
 		this.album = album;
@@ -12,6 +13,10 @@ public class AlbumUserPlays {
 
 	public String getAlbum() {
 		return album;
+	}
+
+	public void setAlbum(String album) {
+		this.album = album;
 	}
 
 	public String getAlbum_url() {

@@ -36,7 +36,7 @@ public class WhoKnowsAlbum extends AlbumPlaysCommand {
 		//Gets play number for each registered artist
 		AlbumUserPlays urlContainter = new AlbumUserPlays("", "");
 		Map<UsersWrapper, Integer> userMapPlays = fillPlayCounter(userList, artist, album, urlContainter);
-
+		album = urlContainter.getAlbum();
 		//Manipulate data in order to pass it to the image Maker
 		BufferedImage logo = CommandUtil.getLogo(getDao(), e);
 		List<Map.Entry<UsersWrapper, Integer>> list = new ArrayList<>(userMapPlays.entrySet());
@@ -74,6 +74,8 @@ public class WhoKnowsAlbum extends AlbumPlaysCommand {
 				AlbumUserPlays albumUserPlays = lastFM.getPlaysAlbum_Artist(u.getLastFMName(), artist, album);
 				if (fillWithUrl.getAlbum_url().isEmpty())
 					fillWithUrl.setAlbum_url(albumUserPlays.getAlbum_url());
+				if (fillWithUrl.getAlbum().isEmpty())
+					fillWithUrl.setAlbum(albumUserPlays.getAlbum());
 				userMapPlays.put(u, albumUserPlays.getPlays());
 			} catch (LastFmException ex) {
 				Chuu.getLogger().warn(ex.getMessage(), ex);
