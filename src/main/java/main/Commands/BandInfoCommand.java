@@ -71,7 +71,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
 		list.sort(Comparator.comparing(AlbumUserPlays::getPlays).reversed());
 		ai.setAlbumList(list);
-		WrapperReturnNowPlaying np = getDao().whoKnows(who.getArtist(), e.getGuild().getIdLong(), 5);
+		WrapperReturnNowPlaying np = getDao().whoKnows(artist, e.getGuild().getIdLong(), 5);
 		np.getReturnNowPlayings().forEach(element ->
 				element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))
 		);
