@@ -145,7 +145,7 @@ public class BandRendered {
 
 			Font ogFont = g.getFont();
 			float sizeFont = ogFont.getSize();
-			while ((width = g.getFontMetrics(g.getFont()).stringWidth(album)) > 300 && sizeFont > 18f) {
+			while ((width = g.getFontMetrics(g.getFont()).stringWidth(album)) > 300 && sizeFont > 8f) {
 				g.setFont(g.getFont().deriveFont(sizeFont -= 2));
 			}
 			GraphicUtils
