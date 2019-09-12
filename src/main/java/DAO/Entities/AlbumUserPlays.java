@@ -4,11 +4,19 @@ public class AlbumUserPlays {
 	private String album;
 	private String album_url;
 	private int plays;
-
+	private String artist;
 
 	public AlbumUserPlays(String album, String album_url) {
 		this.album = album;
 		this.album_url = album_url;
+	}
+
+	public String getArtist() {
+		return artist;
+	}
+
+	public void setArtist(String artist) {
+		this.artist = artist;
 	}
 
 	public String getAlbum() {

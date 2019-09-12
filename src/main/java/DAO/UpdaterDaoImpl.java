@@ -355,7 +355,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 	@Override
 	public boolean insertRandomUrl(Connection con, String url, long discordId, Long guildId) {
-		String queryString = "INSERT INTO  lastfm.randomlinks"
+		String queryString = "INSERT INTO  randomlinks"
 				+ " ( discordId,url,guildId) " + " VALUES (?,  ?, ?)";
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -423,7 +423,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 	@Override
 	public void insertAlbumCrown(Connection connection, String artist, String album, long discordID, long guildId, int plays) {
-		String queryString = "INSERT INTO `lastfm`.`album_crowns`\n" +
+		String queryString = "INSERT INTO `album_crowns`\n" +
 				"(`artist_id`,\n" +
 				"`discordId`,\n" +
 				"`album`,\n" +

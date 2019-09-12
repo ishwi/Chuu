@@ -178,8 +178,8 @@ CREATE TABLE `randomlinks`
     `url`       varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
     PRIMARY KEY (`url`),
     UNIQUE KEY `unique_url_random` (`url`),
-    KEY `discordId` (`discordId`),
-    CONSTRAINT `discordId` FOREIGN KEY (`discordId`) REFERENCES `lastfm` (`discordID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+    KEY `discordId` (`discordId`)
+    --  CONSTRAINT `discordId` FOREIGN KEY (`discordId`) REFERENCES `lastfm` (`discordID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;

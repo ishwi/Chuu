@@ -36,14 +36,17 @@ public class WhoKnowsAlbum extends AlbumPlaysCommand {
 		//Gets play number for each registered artist
 		AlbumUserPlays urlContainter = new AlbumUserPlays("", "");
 		Map<UsersWrapper, Integer> userMapPlays = fillPlayCounter(userList, artist, album, urlContainter);
-		album = urlContainter.getAlbum();
+		String corrected_album = urlContainter.getAlbum() == null || urlContainter.getAlbum()
+				.isEmpty() ? album : urlContainter.getAlbum();
+		String corrected_artist = urlContainter.getArtist() == null || urlContainter.getArtist()
+				.isEmpty() ? artist : urlContainter.getArtist();
 		//Manipulate data in order to pass it to the image Maker
 		BufferedImage logo = CommandUtil.getLogo(getDao(), e);
 		List<Map.Entry<UsersWrapper, Integer>> list = new ArrayList<>(userMapPlays.entrySet());
 		list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 		List<ReturnNowPlaying> list2 = list.stream().map(t -> {
 					long id2 = t.getKey().getDiscordID();
-					ReturnNowPlaying np = new ReturnNowPlaying(id2, t.getKey().getLastFMName(), artist, t.getValue());
+			ReturnNowPlaying np = new ReturnNowPlaying(id2, t.getKey().getLastFMName(), corrected_artist, t.getValue());
 					np.setDiscordName(getUserString(id2, e, t.getKey().getLastFMName()));
 					return np;
 				}
@@ -53,10 +56,10 @@ public class WhoKnowsAlbum extends AlbumPlaysCommand {
 			return;
 		}
 
-		doExtraThings(list2, id, artist, album);
+		doExtraThings(list2, id, corrected_artist, corrected_album);
 
 		WrapperReturnNowPlaying a = new WrapperReturnNowPlaying(list2, 0, urlContainter
-				.getAlbum_url(), artist + " - " + album);
+				.getAlbum_url(), corrected_artist + " - " + corrected_album);
 
 		BufferedImage sender = WhoKnowsMaker.generateWhoKnows(a, e.getGuild().getName(), logo);
 
@@ -76,6 +79,8 @@ public class WhoKnowsAlbum extends AlbumPlaysCommand {
 					fillWithUrl.setAlbum_url(albumUserPlays.getAlbum_url());
 				if (fillWithUrl.getAlbum().isEmpty())
 					fillWithUrl.setAlbum(albumUserPlays.getAlbum());
+				if (fillWithUrl.getArtist() == null || fillWithUrl.getArtist().isEmpty())
+					fillWithUrl.setArtist(albumUserPlays.getArtist());
 				userMapPlays.put(u, albumUserPlays.getPlays());
 			} catch (LastFmException ex) {
 				Chuu.getLogger().warn(ex.getMessage(), ex);
