@@ -24,35 +24,6 @@ class GraphicUtils {
 		return color.equals(Color.BLACK) ? Color.WHITE : Color.BLACK;
 	}
 
-	public static boolean hasKorean(CharSequence charSequence) {
-		boolean hasKorean = false;
-		for (char c : charSequence.toString().toCharArray()) {
-			if (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HANGUL_JAMO
-					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HANGUL_COMPATIBILITY_JAMO
-					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HANGUL_SYLLABLES) {
-				hasKorean = true;
-				break;
-			}
-		}
-
-		return hasKorean;
-	}
-
-	public static boolean hasJapanese(CharSequence charSequence) {
-		boolean hasJapanese = false;
-		for (char c : charSequence.toString().toCharArray()) {
-			if (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
-					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HIRAGANA
-					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.KATAKANA
-					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
-					|| Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION) {
-				hasJapanese = true;
-				break;
-			}
-		}
-
-		return hasJapanese;
-	}
 
 	public static Graphics2D initArtistBackground(BufferedImage canvas, BufferedImage artistImage) {
 
@@ -155,6 +126,7 @@ class GraphicUtils {
 
 			float size = initial_size;
 			String name = nowPlayingArtistList.get(i).getDiscordName();
+			Font tempFont = g.getFont();
 
 			int start_name = x;
 			if (doNumber) {
@@ -162,13 +134,17 @@ class GraphicUtils {
 				g.drawString(strNumber, x, y_counter + (margin - metrics.getAscent() / 2));
 				start_name += g.getFontMetrics().stringWidth(strNumber);
 			}
-			while (g.getFontMetrics(g.getFont()).stringWidth(name) > (width * 0.55) && size > 14f) {
+
+			if (g.getFont().canDisplayUpTo(name) != -1 && WhoKnowsMaker.EMOJI_FONT.canDisplayUpTo(name) == -1)
+				g.setFont(WhoKnowsMaker.EMOJI_FONT.deriveFont(size));
+
+			while (g.getFontMetrics(g.getFont()).stringWidth(name) > (width * 0.55) && size > 14f)
 				g.setFont(g.getFont().deriveFont(size -= 2));
-			}
+
 			g.drawString(name, start_name, y_counter + (margin - metrics.getAscent() / 2));
 
 			size = initial_size;
-			g.setFont(font.deriveFont(size));
+			g.setFont(tempFont.deriveFont(size));
 			String plays = String.valueOf(nowPlayingArtistList.get(i).getPlayNumber());
 			int stringWidth = metrics.stringWidth(plays);
 			int playPos = x + width - (row_height + stringWidth);
@@ -184,17 +160,13 @@ class GraphicUtils {
 		g.setColor(ogColor);
 	}
 
+	public static Color getBetter(Color... color) {
+		double accum = 0;
+		for (Color col : color) {
+			accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
+		}
+		return (accum / color.length) < 128 ? Color.WHITE : Color.BLACK;
 
-
-	private static boolean hasChinese(final char c) {
-		return (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION)
-				|| (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS);
 	}
 
 	public static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
@@ -213,15 +185,6 @@ class GraphicUtils {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static Color getBetter(Color... color) {
-		double accum = 0;
-		for (Color col : color) {
-			accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
-		}
-		return (accum / color.length) < 128 ? Color.WHITE : Color.BLACK;
-
 	}
 
 	public static void drawStringChartly(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
