@@ -30,6 +30,7 @@ public class Reactionary<T> extends ListenerAdapter {
 		this.list = list;
 		this.message = messageToReact;
 		this.pageSize = pageSize;
+
 		initReactionary(messageToReact, list, messageToReact.getJDA());
 
 	}
@@ -49,6 +50,9 @@ public class Reactionary<T> extends ListenerAdapter {
 		jda.removeEventListener(this);
 		message.clearReactions().queue();
 		StringBuilder a = new StringBuilder();
+		if (counter < pageSize)
+			return;
+
 		for (int i = 0; i < pageSize && i < list.size(); i++) {
 			a.append(i + 1).append(list.get(i).toString());
 		}

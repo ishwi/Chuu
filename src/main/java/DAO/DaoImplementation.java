@@ -203,6 +203,8 @@ public class DaoImplementation {
 	public WrapperReturnNowPlaying whoKnows(String artist, long guildId, int limit) {
 		try (Connection connection = dataSource.getConnection()) {
 			connection.setReadOnly(true);
+			if (limit < 1)
+				limit = 10;
 			return queriesDao.knows(connection, artist, guildId, limit);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
