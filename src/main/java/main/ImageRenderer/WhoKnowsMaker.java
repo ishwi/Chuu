@@ -21,6 +21,7 @@ public class WhoKnowsMaker {
 	//private static final Font KOREAN_FONT = new Font("Noto Serif CJK KR Regular", Font.PLAIN, 32);
 
 	private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP Regular", Font.PLAIN, 32);
+	public static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 32);
 
 	//private static final Font CHINESE_FONT = new Font("Noto Serif CJK TC Regular", Font.PLAIN, 32);
 
@@ -86,12 +87,6 @@ public class WhoKnowsMaker {
 		if (NORMAL_FONT.canDisplayUpTo(artist) == -1) {
 			fontToUse = NORMAL_FONT;
 
-//		} else if (GraphicUtils.hasKorean(artist)) {
-//			fontToUse = KOREAN_FONT;
-//
-//		} else if (GraphicUtils.hasJapanese(artist)) {
-//			fontToUse = JAPANESE_FONT;
-//
 		} else
 			fontToUse = JAPANESE_FONT;
 
