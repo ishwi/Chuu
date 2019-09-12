@@ -135,7 +135,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 				"JOIN lastfm c on c.lastFmId = temp.lastFMID " +
 				"JOIN user_guild d on c.discordID = d.discordId " +
 				"where d.guildId = ? " +
-				"ORDER BY temp.playNumber desc";
+				"ORDER BY temp.playNumber desc ";
+		queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
 		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
 			/* Fill "preparedStatement". */
