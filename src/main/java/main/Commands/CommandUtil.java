@@ -172,7 +172,6 @@ public class CommandUtil {
 			if (status == null || !status.isCorrection_status()) {
 				correction = lastFM.getCorrection(artist);
 
-				//If its different we insert the new correction in the table
 				if (artist.equalsIgnoreCase(correction)) {
 					artist = correction;
 				}
