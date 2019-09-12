@@ -9,6 +9,7 @@ import main.APIs.Discogs.DiscogsSingleton;
 import main.APIs.Spotify.Spotify;
 import main.APIs.Spotify.SpotifySingleton;
 import main.ImageRenderer.WhoKnowsMaker;
+import main.OtherListeners.Reactionary;
 import main.Parsers.ArtistParser;
 import main.Parsers.OptionalEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -77,7 +78,9 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 					setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
 					.setColor(CommandUtil.randomColor());
 			//.setFooter("Command invoked by " + event.getMember().getLastFmId().getDiscriminator() + "" + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toApiFormat(), );
-			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).submit();
+			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel())
+					.queue(message1 -> new Reactionary<>(wrapperReturnNowPlaying
+							.getReturnNowPlayings(), message1, embedBuilder));
 		} else {
 
 			wrapperReturnNowPlaying.getReturnNowPlayings().forEach(element ->
@@ -86,6 +89,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 			BufferedImage logo = CommandUtil.getLogo(getDao(), e);
 			BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, e.getGuild().getName(), logo);
 			sendImage(image, e);
+
 		}
 	}
 

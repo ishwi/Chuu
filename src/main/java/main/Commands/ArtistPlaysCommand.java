@@ -22,6 +22,7 @@ public class ArtistPlaysCommand extends ConcurrentCommand {
 		if (returned == null)
 			return;
 		String artist = returned[0];
+		artist = CommandUtil.onlyCorrection(getDao(), artist, lastFM);
 		long whom = Long.parseLong(returned[1]);
 		int a;
 		try {

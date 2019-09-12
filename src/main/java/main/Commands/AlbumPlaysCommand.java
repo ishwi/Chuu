@@ -2,6 +2,10 @@ package main.Commands;
 
 import DAO.DaoImplementation;
 import DAO.Entities.LastFMData;
+import main.APIs.Discogs.DiscogsApi;
+import main.APIs.Discogs.DiscogsSingleton;
+import main.APIs.Spotify.Spotify;
+import main.APIs.Spotify.SpotifySingleton;
 import main.Exceptions.LastFmEntityNotFoundException;
 import main.Exceptions.LastFmException;
 import main.Parsers.ArtistAlbumParser;
@@ -13,9 +17,14 @@ import java.util.List;
 
 
 public class AlbumPlaysCommand extends ConcurrentCommand {
+	private final DiscogsApi discogsApi;
+	private final Spotify spotify;
+
 	public AlbumPlaysCommand(DaoImplementation dao) {
 		super(dao);
 		this.parser = new ArtistAlbumParser(dao, lastFM);
+		this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
 	}
 
 	@Override
@@ -27,7 +36,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 		String artist = parsed[0];
 		String album = parsed[1];
 		long whom = Long.parseLong(parsed[2]);
-
+		artist = CommandUtil.onlyCorrection(getDao(), artist, lastFM);
 		doSomethingWithAlbumArtist(artist, album, e, whom);
 
 	}
