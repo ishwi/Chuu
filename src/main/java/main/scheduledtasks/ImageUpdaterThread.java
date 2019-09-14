@@ -3,8 +3,8 @@ package main.scheduledtasks;
 import dao.DaoImplementation;
 import dao.entities.ArtistInfo;
 import main.Chuu;
-import main.apis.Discogs.DiscogsApi;
-import main.apis.Discogs.DiscogsSingleton;
+import main.apis.discogs.DiscogsApi;
+import main.apis.discogs.DiscogsSingleton;
 import main.exceptions.DiscogsServiceException;
 
 import java.util.Set;

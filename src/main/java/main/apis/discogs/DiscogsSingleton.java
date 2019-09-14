@@ -1,4 +1,4 @@
-package main.apis.Discogs;
+package main.apis.discogs;
 
 public class DiscogsSingleton {
 
@@ -16,7 +16,7 @@ public class DiscogsSingleton {
 
 	public static DiscogsApi getInstanceUsingDoubleLocking() {
 		if (instance == null) {
-			synchronized (main.apis.Discogs.DiscogsSingleton.class) {
+			synchronized (main.apis.discogs.DiscogsSingleton.class) {
 				if (instance == null) {
 					instance = new DiscogsApi(secret, clientID);
 				}

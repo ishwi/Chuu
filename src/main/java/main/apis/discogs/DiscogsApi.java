@@ -1,4 +1,4 @@
-package main.apis.Discogs;
+package main.apis.discogs;
 
 
 import main.Chuu;

@@ -1,8 +1,8 @@
 package main.commands;
 
 import dao.DaoImplementation;
-import main.apis.Youtube.Search;
-import main.apis.Youtube.SearchSingleton;
+import main.apis.youtube.Search;
+import main.apis.youtube.SearchSingleton;
 import main.parsers.UsernameAndNpQueryParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

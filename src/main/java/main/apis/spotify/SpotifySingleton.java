@@ -1,4 +1,4 @@
-package main.apis.Spotify;
+package main.apis.spotify;
 
 public class SpotifySingleton {
 
@@ -15,7 +15,7 @@ public class SpotifySingleton {
 
 	public static Spotify getInstanceUsingDoubleLocking() {
 		if (instance == null) {
-			synchronized (main.apis.Spotify.SpotifySingleton.class) {
+			synchronized (main.apis.spotify.SpotifySingleton.class) {
 				if (instance == null) {
 					instance = new Spotify(secret, clientID);
 				}

@@ -2,8 +2,8 @@ package main.commands;
 
 import dao.DaoImplementation;
 import dao.entities.NowPlayingArtist;
-import main.apis.Youtube.Search;
-import main.apis.Youtube.SearchSingleton;
+import main.apis.youtube.Search;
+import main.apis.youtube.SearchSingleton;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

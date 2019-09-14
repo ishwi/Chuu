@@ -2,7 +2,7 @@ package main.imagerenderer;
 
 
 import dao.entities.UrlCapsule;
-import main.imagerenderer.Stealing.GaussianFilter;
+import main.imagerenderer.stealing.GaussianFilter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

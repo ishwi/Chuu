@@ -2,7 +2,7 @@ package main.scheduledtasks;
 
 import dao.DaoImplementation;
 import dao.entities.ArtistInfo;
-import main.apis.Spotify.Spotify;
+import main.apis.spotify.Spotify;
 
 import java.util.Set;
 

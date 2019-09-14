@@ -6,10 +6,10 @@ import dao.entities.ReturnNowPlaying;
 import dao.entities.Track;
 import dao.entities.UsersWrapper;
 import main.Chuu;
-import main.apis.Discogs.DiscogsApi;
-import main.apis.Discogs.DiscogsSingleton;
-import main.apis.Spotify.Spotify;
-import main.apis.Spotify.SpotifySingleton;
+import main.apis.discogs.DiscogsApi;
+import main.apis.discogs.DiscogsSingleton;
+import main.apis.spotify.Spotify;
+import main.apis.spotify.SpotifySingleton;
 import main.exceptions.LastFmException;
 import main.parsers.ArtistSongParser;
 
