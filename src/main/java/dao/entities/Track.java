@@ -53,4 +53,22 @@ public class Track {
 	public void setPosition(int position) {
 		this.position = position;
 	}
+
+	@Override
+	public int hashCode() {
+		int result = artist.hashCode();
+		result = 31 * result + name.hashCode();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Track track = (Track) o;
+
+		if (!artist.equals(track.artist)) return false;
+		return name.equals(track.name);
+	}
 }

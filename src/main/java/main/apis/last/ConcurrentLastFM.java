@@ -21,10 +21,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -289,6 +286,95 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	}
 
+
+	public Map<Track, Integer> getDurationsFromWeek(String user) throws LastFmException {
+		Map<Track, Integer> trackList = new HashMap<>();
+		String url = BASE + GET_TOP_TRACKS + user + API_KEY + ENDING + "&period=" + TimeFrameEnum.WEEK
+				.toApiFormat() + "&limit=500";
+		int SONG_AVERAGE_LENGTH_SECONDS = 200;
+		int page = 1;
+		int total = 1;
+		while (page <= total) {
+			HttpMethodBase method = createMethod(url + "&page=" + (page));
+			System.out.println("Iteration :(");
+
+			// Execute the method.
+			JSONObject obj = doMethod(method);
+			if (!obj.has("toptracks")) {
+				throw new LastFmEntityNotFoundException(user);
+			}
+
+			obj = obj.getJSONObject("toptracks");
+			if (page == 1) {
+				total = obj.getJSONObject("@attr").getInt("totalPages");
+			}
+			++page;
+
+			JSONArray arr = obj.getJSONArray("track");
+			for (int i = 0; i < arr.length(); i++) {
+				JSONObject jsonObj = (arr.getJSONObject(i));
+				String name = jsonObj.getString("name");
+				int duration = jsonObj.getInt("duration") / 1000;
+				int frequency = jsonObj.getInt("playcount");
+				duration = duration == 0 ? SONG_AVERAGE_LENGTH_SECONDS : duration;
+				String artist_name = jsonObj.getJSONObject("artist").getString("name");
+
+				trackList.put(new Track(artist_name, name, 0, false, 0), duration);
+			}
+
+		}
+		return trackList;
+
+	}
+
+	public SecondsTimeFrameCount getMinutesWastedOnMusicDaily(String username, Map<Track, Integer> trackList, int timestampQuery) throws LastFmException {
+		List<NowPlayingArtist> list = new ArrayList<>();
+		String url = BASE + GET_ALL + username + API_KEY + ENDING + "&extended=1" + "&from=" + (timestampQuery + 1);
+		SecondsTimeFrameCount returned = new SecondsTimeFrameCount(TimeFrameEnum.ALL);
+		int count = 0;
+		int seconds = 0;
+		int page = 0;
+		int total = 1;
+		while (count < total) {
+			try {
+				String urlPage = url + "&page=" + ++page;
+				HttpMethodBase method = createMethod(urlPage);
+				JSONObject obj = doMethod(method);
+				obj = obj.getJSONObject("recenttracks");
+				JSONObject attrObj = obj.getJSONObject("@attr");
+				System.out.println("Plays " + attrObj.getInt("total"));
+				total = attrObj.getInt("total");
+				if (total == 0) {
+					throw new LastFMNoPlaysException(username);
+				}
+
+				JSONArray arr = obj.getJSONArray("track");
+				for (int i = 0; i < arr.length(); i++) {
+
+					JSONObject trackObj = arr.getJSONObject(i);
+					if (trackObj.has("@attr"))
+						continue;
+					String trackName = trackObj.getString("name");
+
+					JSONObject artistObj = trackObj.getJSONObject("artist");
+
+					String artistName = artistObj.getString("name");
+					Track track = new Track(artistName, trackName, 0, false, 0);
+					Integer duration;
+					if ((duration = trackList.get(track)) != null) {
+						seconds += duration;
+						count++;
+					}
+				}
+			} catch (JSONException e) {
+				throw new LastFMNoPlaysException("a");
+			}
+		}
+		returned.setCount(count);
+		returned.setSeconds(seconds);
+		return returned;
+	}
+
 	public TimestampWrapper<List<ArtistData>> getWhole(String user, int timestampQuery) throws LastFmException {
 		List<NowPlayingArtist> list = new ArrayList<>();
 		String url = BASE + GET_ALL + user + API_KEY + ENDING + "&extended=1";
@@ -348,7 +434,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 						entry -> {
 							String artist = entry.getKey();
 							String tempUrl;
-							Optional<NowPlayingArtist> r = list.stream().filter(t -> t.getArtistName().equals(artist))
+							Optional<NowPlayingArtist> r = list.stream()
+									.filter(t -> t.getArtistName().equals(artist))
 									.findAny();
 							tempUrl = r.map(NowPlayingArtist::getUrl).orElse(null);
 							return new
@@ -445,7 +532,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 		}
 		return artistData;
 	}
-
 
 	public String getCorrection(String artistToCorrect) {
 		String url;

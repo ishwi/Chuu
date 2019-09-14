@@ -11,7 +11,7 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess {
 	private final ExecutorService executor = ExecutorsSingleton.getInstanceUsingDoubleLocking();
 
 
-	ConcurrentCommand(DaoImplementation dao) {
+	public ConcurrentCommand(DaoImplementation dao) {
 		super(dao);
 	}
 
