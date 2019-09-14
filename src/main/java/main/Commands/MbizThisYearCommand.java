@@ -21,7 +21,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) {
 		String[] returned;
 		returned = parser.parse(e);
 		if (returned == null)
@@ -69,7 +69,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!sincestartyear");
+		return Collections.singletonList("sincestartyear");
 	}
 
 

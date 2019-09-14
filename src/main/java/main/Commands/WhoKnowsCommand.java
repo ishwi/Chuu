@@ -36,15 +36,8 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
-		String[] returned;
-		returned = parser.parse(e);
-		if (returned == null)
-			return;
-		ArtistData validable = new ArtistData(returned[0], 0, "");
-		CommandUtil.lessHeavyValidate(getDao(), validable, lastFM, discogsApi, spotify);
-		whoKnowsLogic(validable, Boolean.parseBoolean(returned[2]), e, Long.parseLong(returned[1]));
-
+	public List<String> getAliases() {
+		return Arrays.asList("whoknows", "wk", "whoknowsnp", "wknp");
 	}
 
 	void whoKnowsLogic(ArtistData who, Boolean isList, MessageReceivedEvent e, long userId) {
@@ -106,8 +99,15 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("!whoknows", "!wk", "!whoknowsnp", "!wknp");
+	public void onCommand(MessageReceivedEvent e) {
+		String[] returned;
+		returned = parser.parse(e);
+		if (returned == null)
+			return;
+		ArtistData validable = new ArtistData(returned[0], 0, "");
+		CommandUtil.lessHeavyValidate(getDao(), validable, lastFM, discogsApi, spotify);
+		whoKnowsLogic(validable, Boolean.parseBoolean(returned[2]), e, Long.parseLong(returned[1]));
+
 	}
 
 

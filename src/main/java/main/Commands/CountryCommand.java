@@ -32,7 +32,22 @@ public class CountryCommand extends ConcurrentCommand {
 
 
 	@Override
-	protected void threadableCode(MessageReceivedEvent e) {
+	List<String> getAliases() {
+		return Collections.singletonList("countries");
+	}
+
+	@Override
+	String getDescription() {
+		return "Map representation of your scrobbled artists";
+	}
+
+	@Override
+	String getName() {
+		return "My Countries ";
+	}
+
+	@Override
+	protected void onCommand(MessageReceivedEvent e) {
 		String[] returned = parser.parse(e);
 		if (returned == null)
 			return;
@@ -76,20 +91,5 @@ public class CountryCommand extends ConcurrentCommand {
 		else
 			e.getChannel().sendMessage("Boot too big").queue();
 
-	}
-
-	@Override
-	String getDescription() {
-		return "Map representation of your scrobbled artists";
-	}
-
-	@Override
-	String getName() {
-		return "My Countries ";
-	}
-
-	@Override
-	List<String> getAliases() {
-		return Collections.singletonList("!countries");
 	}
 }

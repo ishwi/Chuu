@@ -15,7 +15,23 @@ public class TotalArtistNumberCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void threadableCode(MessageReceivedEvent e) {
+	public List<String> getAliases() {
+		return Collections.singletonList("scrobbled");
+	}
+
+
+	@Override
+	public String getDescription() {
+		return ("Artists count of user ");
+	}
+
+	@Override
+	public String getName() {
+		return "Artist count ";
+	}
+
+	@Override
+	protected void onCommand(MessageReceivedEvent e) {
 		String[] returned = parser.parse(e);
 		if (returned == null) {
 			return;
@@ -32,21 +48,5 @@ public class TotalArtistNumberCommand extends ConcurrentCommand {
 		int plays = getDao().getUserArtistCount(lastfm);
 		sendMessage(e, "**" + username + "** has scrobbled  **" + plays + "** " + "  different artists");
 
-	}
-
-
-	@Override
-	public String getDescription() {
-		return ("Artists count of user ");
-	}
-
-	@Override
-	public String getName() {
-		return "Artist count ";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!scrobbled");
 	}
 }

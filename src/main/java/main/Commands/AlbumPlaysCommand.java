@@ -28,17 +28,8 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
-		String[] parsed;
-		parsed = parser.parse(e);
-		if (parsed == null || parsed.length != 3)
-			return;
-		String artist = parsed[0];
-		String album = parsed[1];
-		long whom = Long.parseLong(parsed[2]);
-		artist = CommandUtil.onlyCorrection(getDao(), artist, lastFM);
-		doSomethingWithAlbumArtist(artist, album, e, whom);
-
+	public List<String> getAliases() {
+		return Collections.singletonList("album");
 	}
 
 	void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, long who) {
@@ -75,8 +66,17 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!album");
+	public void onCommand(MessageReceivedEvent e) {
+		String[] parsed;
+		parsed = parser.parse(e);
+		if (parsed == null || parsed.length != 3)
+			return;
+		String artist = parsed[0];
+		String album = parsed[1];
+		long whom = Long.parseLong(parsed[2]);
+		artist = CommandUtil.onlyCorrection(getDao(), artist, lastFM);
+		doSomethingWithAlbumArtist(artist, album, e, whom);
+
 	}
 
 

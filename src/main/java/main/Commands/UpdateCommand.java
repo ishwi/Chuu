@@ -18,7 +18,22 @@ public class UpdateCommand extends MyCommandDbAccess {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e, String[] args) {
+	public List<String> getAliases() {
+		return Collections.singletonList("update");
+	}
+
+	@Override
+	public String getDescription() {
+		return "Keeps you up to date ";
+	}
+
+	@Override
+	public String getName() {
+		return "Update";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) {
 		String[] message;
 		MessageBuilder mes = new MessageBuilder();
 
@@ -46,21 +61,6 @@ public class UpdateCommand extends MyCommandDbAccess {
 		}
 
 
-	}
-
-	@Override
-	public String getDescription() {
-		return "Keeps you up to date ";
-	}
-
-	@Override
-	public String getName() {
-		return "Update";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!update");
 	}
 
 

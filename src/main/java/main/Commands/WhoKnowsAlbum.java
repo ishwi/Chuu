@@ -107,7 +107,7 @@ public class WhoKnowsAlbum extends AlbumPlaysCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("!wkalbum", "!wka", "!whoknowsalbum");
+		return Arrays.asList("wkalbum", "wka", "whoknowsalbum");
 	}
 
 

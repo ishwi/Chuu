@@ -34,18 +34,8 @@ public class FeaturedCommand extends ConcurrentCommand {
 
 
 	@Override
-	protected void threadableCode(MessageReceivedEvent e) {
-		String userString = this.getUserGlobalString(currentPresence.getDiscordId(), e, DEFAULT_USER);
-		EmbedBuilder embedBuilder = new EmbedBuilder()
-				.setColor(CommandUtil.randomColor())
-				.setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
-				.setTitle("Chuu's Featured Artist:", CommandUtil.getLastFmArtistUrl(currentPresence.getArtist()))
-				.addField("Artist:", currentPresence.getArtist(), false)
-				.addField("User:", userString, false)
-				.addField("Total Artist Plays:", String.valueOf(currentPresence.getSum()), false);
-
-		MessageBuilder messageBuilder = new MessageBuilder();
-		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+	List<String> getAliases() {
+		return Collections.singletonList("featured");
 	}
 
 
@@ -60,7 +50,17 @@ public class FeaturedCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	List<String> getAliases() {
-		return Collections.singletonList("!featured");
+	protected void onCommand(MessageReceivedEvent e) {
+		String userString = this.getUserGlobalString(currentPresence.getDiscordId(), e, DEFAULT_USER);
+		EmbedBuilder embedBuilder = new EmbedBuilder()
+				.setColor(CommandUtil.randomColor())
+				.setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
+				.setTitle("Chuu's Featured Artist:", CommandUtil.getLastFmArtistUrl(currentPresence.getArtist()))
+				.addField("Artist:", currentPresence.getArtist(), false)
+				.addField("User:", userString, false)
+				.addField("Total Artist Plays:", String.valueOf(currentPresence.getSum()), false);
+
+		MessageBuilder messageBuilder = new MessageBuilder();
+		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 	}
 }

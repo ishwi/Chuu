@@ -22,7 +22,22 @@ public class TasteCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public List<String> getAliases() {
+		return Collections.singletonList("taste");
+	}
+
+	@Override
+	public String getDescription() {
+		return "Compare Your musical taste with a  colleague";
+	}
+
+	@Override
+	public String getName() {
+		return "Taste";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) {
 		List<String> lastfMNames;
 
 		String[] returned = parser.parse(e);
@@ -51,21 +66,6 @@ public class TasteCommand extends ConcurrentCommand {
 
 		}
 
-	}
-
-	@Override
-	public String getDescription() {
-		return "Compare Your musical taste with a  colleague";
-	}
-
-	@Override
-	public String getName() {
-		return "Taste";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!taste");
 	}
 
 }

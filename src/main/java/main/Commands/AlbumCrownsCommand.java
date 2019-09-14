@@ -21,7 +21,22 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public List<String> getAliases() {
+		return Arrays.asList("crownsalbum", "crownsal");
+	}
+
+	@Override
+	public String getDescription() {
+		return ("List of albums you are the top listener from");
+	}
+
+	@Override
+	public String getName() {
+		return "Your own album top";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) {
 		String[] message;
 
 		message = parser.parse(e);
@@ -56,21 +71,6 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
 
 		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
 				new Reactionary<>(resultWrapper, message1, embedBuilder));
-	}
-
-	@Override
-	public String getDescription() {
-		return ("List of albums you are the top listener from");
-	}
-
-	@Override
-	public String getName() {
-		return "Your own album top";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("!crownsalbum", "!crownsal");
 	}
 
 }

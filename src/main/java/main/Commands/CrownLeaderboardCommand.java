@@ -22,8 +22,8 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
-		printList(getList(e.getGuild().getIdLong()), e);
+	public List<String> getAliases() {
+		return Collections.singletonList("crownslb");
 	}
 
 	List<LbEntry> getList(long guildId) {
@@ -65,8 +65,8 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!crownslb");
+	public void onCommand(MessageReceivedEvent e) {
+		printList(getList(e.getGuild().getIdLong()), e);
 	}
 
 

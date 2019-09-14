@@ -15,6 +15,7 @@
  */
 package main.Commands;
 
+import main.Chuu;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -42,7 +43,30 @@ public class HelpCommand extends MyCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e, String[] args) {
+	public String getDescription() {
+		return "Command that helps to use all other commands!";
+	}
+
+	@Override
+	public String getUsageInstructions() {
+		return
+				"help   **OR**  help *<command>*\n"
+						+ "help - returns the list of commands along with a simple description of each.\n"
+						+ "help <command> - returns the name, description, aliases and usage information of a command.\n"
+						+ "   - This can use the aliases of a command as input as well.\n"
+						+ "__Example:__ !help ann";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("help", "commands");
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) {
+		Character prefix = Chuu.getCorrespondingPrefix(e);
+		String[] args = commandArgs(e.getMessage());
+
 		if (!e.isFromType(ChannelType.PRIVATE)) {
 			if (args.length < 2) {
 				e.getTextChannel().sendMessage(new MessageBuilder()
@@ -50,15 +74,15 @@ public class HelpCommand extends MyCommand {
 						.append(": Help information was sent as a private message.")
 						.build()).queue();
 			} else {
-				doSend(args, e.getChannel());
+				doSend(args, e.getChannel(), prefix);
 				return;
 			}
 
 		}
-		sendPrivate(e.getAuthor().openPrivateChannel().complete(), args);
+		sendPrivate(e.getAuthor().openPrivateChannel().complete(), args, prefix);
 	}
 
-	private void sendPrivate(MessageChannel channel, String[] args) {
+	private void sendPrivate(MessageChannel channel, String[] args, Character prefix) {
 		if (args.length < 2) {
 			StringBuilder s = new StringBuilder();
 			boolean flagSeveralPages = false;
@@ -74,7 +98,7 @@ public class HelpCommand extends MyCommand {
 				String description = c.getDescription();
 				description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
 
-				s.append("**").append(c.getAliases().get(0)).append("** - ");
+				s.append("**").append(prefix).append(c.getAliases().get(0)).append("** - ");
 				s.append(description).append("\n");
 			}
 
@@ -84,13 +108,13 @@ public class HelpCommand extends MyCommand {
 					.append(s.toString())
 					.build()).queue();
 		} else {
-			doSend(args, channel);
+			doSend(args, channel, prefix);
 		}
 	}
 
-	private void doSend(String[] args, MessageChannel channel) {
+	private void doSend(String[] args, MessageChannel channel, Character prefix) {
 		String command = args[1]
-				.charAt(0) == '!' ? args[1] : "!" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
+				.charAt(0) == prefix ? args[1] : "" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
 		for (MyCommand c : commands.values()) {
 			if (c.getAliases().contains(command)) {
 				String name = c.getName();
@@ -103,10 +127,11 @@ public class HelpCommand extends MyCommand {
 
 				//TODO: Replace with a PrivateMessage
 				channel.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n")
-						.append("**Description:** ").append(description).append("\n").append("**Alliases:** ")
+						.append("**Description:** ").append(description).append("\n")
+						.append("**Alliases:** ").append(prefix)
 						.append(String.join(", ", c.getAliases())).append("\n")
 						.append("**Usage:** ")
-						.append(usageInstructions)
+						.append(prefix).append(usageInstructions)
 						.build()).queue();
 //				for (int i = 1; i < usageInstructions.size(); i++) {
 //					channel.sendMessage(new MessageBuilder().append("__").append(name).append(" Usage Cont. (")
@@ -118,33 +143,13 @@ public class HelpCommand extends MyCommand {
 			}
 		}
 		channel.sendMessage(new MessageBuilder().append("The provided command '**").append(args[1])
-				.append("**' does not exist. Use !help to list all commands.")
+				.append("**' does not exist. Use ").append(prefix).append("help to list all commands.")
 				.build()).queue();
-	}
-
-	@Override
-	public String getDescription() {
-		return "Command that helps use all other commands!";
 	}
 
 	@Override
 	public String getName() {
 		return "Help Command";
-	}
-
-	@Override
-	public String getUsageInstructions() {
-		return
-				"!help   **OR**  !help *<command>*\n"
-						+ "!help - returns the list of commands along with a simple description of each.\n"
-						+ "!help <command> - returns the name, description, aliases and usage information of a command.\n"
-						+ "   - This can use the aliases of a command as input as well.\n"
-						+ "__Example:__ !help ann";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("!help", "!commands");
 	}
 
 

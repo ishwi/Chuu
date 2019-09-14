@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class DaoImplementation {
@@ -602,4 +603,20 @@ public class DaoImplementation {
 		}
 	}
 
+	public Map<Long, Character> getGuildPrefixes() {
+		try (Connection connection = dataSource.getConnection()) {
+			return updaterDao.getGuildPrefixes(connection);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void addGuildPrefix(long guildID, Character prefix) {
+		try (Connection connection = dataSource.getConnection()) {
+			updaterDao.upsertGuildPrefix(connection, guildID, prefix);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
 }

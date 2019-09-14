@@ -19,16 +19,8 @@ public class YoutubeSearch extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
-
-		String[] returned = parser.parse(e);
-		if (returned == null) {
-			return;
-		}
-		String query = returned[0];
-		//long whom = Long.parseLong(returned[1]);
-		sendMessage(e, youtubeSearch.doSearch(query));
-
+	List<String> getAliases() {
+		return Collections.singletonList("yt");
 	}
 
 	@Override
@@ -42,7 +34,15 @@ public class YoutubeSearch extends ConcurrentCommand {
 	}
 
 	@Override
-	List<String> getAliases() {
-		return Collections.singletonList("!yt");
+	public void onCommand(MessageReceivedEvent e) {
+
+		String[] returned = parser.parse(e);
+		if (returned == null) {
+			return;
+		}
+		String query = returned[0];
+		//long whom = Long.parseLong(returned[1]);
+		sendMessage(e, youtubeSearch.doSearch(query));
+
 	}
 }

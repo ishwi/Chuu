@@ -35,7 +35,22 @@ public class GenreCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void threadableCode(MessageReceivedEvent e) {
+	public List<String> getAliases() {
+		return Collections.singletonList("genre");
+	}
+
+	@Override
+	public String getDescription() {
+		return "genre list";
+	}
+
+	@Override
+	public String getName() {
+		return "Genre";
+	}
+
+	@Override
+	protected void onCommand(MessageReceivedEvent e) {
 
 		String[] returned;
 		returned = parser.parse(e);
@@ -93,21 +108,6 @@ public class GenreCommand extends ConcurrentCommand {
 		pieChart.paint(g, 800, 600);
 		sendImage(bufferedImage, e);
 
-	}
-
-	@Override
-	public String getDescription() {
-		return "genre list";
-	}
-
-	@Override
-	public String getName() {
-		return "Genre";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!genre");
 	}
 
 

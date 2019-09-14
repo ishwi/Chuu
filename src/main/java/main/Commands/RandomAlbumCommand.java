@@ -15,7 +15,23 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void threadableCode(MessageReceivedEvent e) {
+	List<String> getAliases() {
+		return Collections.singletonList("random");
+	}
+
+
+	@Override
+	String getDescription() {
+		return "Gets a random url that other users have added , or add one yourself";
+	}
+
+	@Override
+	String getName() {
+		return "Random Url";
+	}
+
+	@Override
+	protected void onCommand(MessageReceivedEvent e) {
 		String[] returned;
 
 		returned = parser.parse(e);
@@ -46,21 +62,5 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 		sendMessage(e, "Successfully added " + getUserString(e.getAuthor().getIdLong(), e, e.getAuthor()
 				.getName()) + "'s link  to the pool");
 
-	}
-
-
-	@Override
-	String getDescription() {
-		return "Gets a random url that other users have added , or add one yourself";
-	}
-
-	@Override
-	String getName() {
-		return "Random Url";
-	}
-
-	@Override
-	List<String> getAliases() {
-		return Collections.singletonList("!random");
 	}
 }

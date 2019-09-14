@@ -30,7 +30,7 @@ public class ArtistCountLeaderboard extends CrownLeaderboardCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!scrobbledlb");
+		return Collections.singletonList("scrobbledlb");
 	}
 
 }

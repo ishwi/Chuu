@@ -89,7 +89,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
 			for (AlbumInfo albumInfo : releaseInfo) {
 
-				preparedStatement.setString(i, albumInfo.getArtist());
+				preparedStatement.setString(i, albumInfo.getName());
 				preparedStatement.setString(i + releaseInfo.size(), albumInfo.getName());
 				i++;
 			}

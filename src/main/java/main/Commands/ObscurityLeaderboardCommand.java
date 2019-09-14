@@ -30,6 +30,6 @@ public class ObscurityLeaderboardCommand extends CrownLeaderboardCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("!obscuritylb", "!ob", "obs");
+		return Arrays.asList("obscuritylb", "ob", "obs");
 	}
 }

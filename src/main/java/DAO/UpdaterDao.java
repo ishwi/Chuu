@@ -3,6 +3,7 @@ package DAO;
 import DAO.Entities.*;
 
 import java.sql.Connection;
+import java.util.Map;
 import java.util.Set;
 
 interface UpdaterDao {
@@ -48,4 +49,7 @@ interface UpdaterDao {
 
 	void insertAlbumCrown(Connection connection, String artist, String album, long discordID, long guildId, int plays);
 
+	Map<Long, Character> getGuildPrefixes(Connection connection);
+
+	void upsertGuildPrefix(Connection connection, long guildID, Character prefix);
 }

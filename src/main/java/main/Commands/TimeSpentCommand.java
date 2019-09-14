@@ -19,7 +19,22 @@ public class TimeSpentCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void threadableCode(MessageReceivedEvent e) {
+	List<String> getAliases() {
+		return Collections.singletonList("minutes");
+	}
+
+	@Override
+	String getDescription() {
+		return "Minutes listened last week";
+	}
+
+	@Override
+	String getName() {
+		return "Wasted On Music";
+	}
+
+	@Override
+	protected void onCommand(MessageReceivedEvent e) {
 		String[] message;
 		message = parser.parse(e);
 		if (message == null)
@@ -52,20 +67,5 @@ public class TimeSpentCommand extends ConcurrentCommand {
 		} catch (InstanceNotFoundException ex) {
 			parser.sendError(parser.getErrorMessage(1), e);
 		}
-	}
-
-	@Override
-	String getDescription() {
-		return "Minutes listened last week";
-	}
-
-	@Override
-	String getName() {
-		return "Wasted On Music";
-	}
-
-	@Override
-	List<String> getAliases() {
-		return Collections.singletonList("!minutes");
 	}
 }
