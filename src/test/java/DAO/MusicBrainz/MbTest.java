@@ -28,13 +28,13 @@ public class MbTest {
 
 	private List<AlbumInfo> generateListMbiz() {
 		List<AlbumInfo> mbizList = new ArrayList<>();
-		mbizList.add(new AlbumInfo("6a13f9bb-ffde-4593-aa1e-97f7154019a7"));
-		mbizList.add(new AlbumInfo("2753d2b6-d36b-4879-a53e-8d474190fe28"));
-		mbizList.add(new AlbumInfo("2c5274b5-c468-4378-8347-8d270635d06d"));
-		mbizList.add(new AlbumInfo("de0f9f4c-a154-4f0c-8775-d389ba1c2a8e"));
-		mbizList.add(new AlbumInfo("1adcbb60-160d-4594-ac05-f877655d085f"));
-		mbizList.add(new AlbumInfo("316f9a76-a401-45f6-9a48-22e1bf84c1a4"));
-		mbizList.add(new AlbumInfo("3d9cc4be-98f3-4007-a7ef-16bfdfc3c177"));
+		mbizList.add(new AlbumInfo("6a13f9bb-ffde-4593-aa1e-97f7154019a7", "", ""));
+		mbizList.add(new AlbumInfo("2753d2b6-d36b-4879-a53e-8d474190fe28", "", ""));
+		mbizList.add(new AlbumInfo("2c5274b5-c468-4378-8347-8d270635d06d", "", ""));
+		mbizList.add(new AlbumInfo("de0f9f4c-a154-4f0c-8775-d389ba1c2a8e", "", ""));
+		mbizList.add(new AlbumInfo("1adcbb60-160d-4594-ac05-f877655d085f", "", ""));
+		mbizList.add(new AlbumInfo("316f9a76-a401-45f6-9a48-22e1bf84c1a4", "", ""));
+		mbizList.add(new AlbumInfo("3d9cc4be-98f3-4007-a7ef-16bfdfc3c177", "", ""));
 		return mbizList;
 	}
 

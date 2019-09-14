@@ -21,7 +21,22 @@ public class RecentListCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void threadableCode(MessageReceivedEvent e) {
+	public List<String> getAliases() {
+		return Collections.singletonList("recent");
+	}
+
+	@Override
+	public String getDescription() {
+		return "Returns your most recent songs played";
+	}
+
+	@Override
+	public String getName() {
+		return "Recent";
+	}
+
+	@Override
+	protected void onCommand(MessageReceivedEvent e) {
 
 		String[] returned = parser.parse(e);
 		if (returned == null) {
@@ -62,21 +77,6 @@ public class RecentListCommand extends ConcurrentCommand {
 			parser.sendError(parser.getErrorMessage(1), e);
 		}
 
-	}
-
-	@Override
-	public String getDescription() {
-		return "Returns your most recent songs played";
-	}
-
-	@Override
-	public String getName() {
-		return "Recent";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!recent");
 	}
 
 

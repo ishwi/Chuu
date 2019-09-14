@@ -18,7 +18,7 @@ public abstract class NpCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) {
 
 		String[] returned = parser.parse(e);
 		if (returned == null) {

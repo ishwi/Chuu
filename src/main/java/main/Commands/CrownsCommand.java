@@ -22,7 +22,22 @@ public class CrownsCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public List<String> getAliases() {
+		return Collections.singletonList("crowns");
+	}
+
+	@Override
+	public String getDescription() {
+		return ("List of artist you are the top listener from");
+	}
+
+	@Override
+	public String getName() {
+		return "Your own top";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) {
 		String[] message;
 
 		message = parser.parse(e);
@@ -55,21 +70,6 @@ public class CrownsCommand extends ConcurrentCommand {
 
 		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
 				new Reactionary<>(resultWrapper, message1, embedBuilder));
-	}
-
-	@Override
-	public String getDescription() {
-		return ("List of artist you are the top listener from");
-	}
-
-	@Override
-	public String getName() {
-		return "Your own top";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!crowns");
 	}
 
 

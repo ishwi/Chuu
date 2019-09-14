@@ -16,7 +16,22 @@ public class ArtistPlaysCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public List<String> getAliases() {
+		return Collections.singletonList("plays");
+	}
+
+	@Override
+	public String getDescription() {
+		return "Gets the amount of times an user has played an specific artist";
+	}
+
+	@Override
+	public String getName() {
+		return "Plays on a specific artist";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) {
 		String[] returned;
 		returned = parser.parse(e);
 		if (returned == null)
@@ -36,20 +51,5 @@ public class ArtistPlaysCommand extends ConcurrentCommand {
 		} catch (InstanceNotFoundException e1) {
 			parser.sendError(parser.getErrorMessage(3), e);
 		}
-	}
-
-	@Override
-	public String getDescription() {
-		return "Gets the amount of times an user has played an specific artist";
-	}
-
-	@Override
-	public String getName() {
-		return "Plays on a specific artist";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!plays");
 	}
 }

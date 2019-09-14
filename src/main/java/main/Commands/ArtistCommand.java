@@ -42,7 +42,7 @@ public class ArtistCommand extends ChartCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("!artchart", "!charta", "!artistchart");
+		return Arrays.asList("artchart", "charta", "artistchart");
 	}
 
 

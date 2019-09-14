@@ -18,15 +18,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class MyCommand extends ListenerAdapter {
-	final static String PREFIX = "!";
 	boolean respondInPrivate = true;
 	Parser parser;
 
-	abstract void onCommand(MessageReceivedEvent e, String[] args);
-
 	abstract String getDescription();
-
-	abstract String getName();
 
 	String getUsageInstructions() {
 		return parser.getUsage(getAliases().get(0));
@@ -34,32 +29,50 @@ public abstract class MyCommand extends ListenerAdapter {
 
 	abstract List<String> getAliases();
 
+	/**
+	 * @param e Because we are using the {@link main.Commands.CustomInterfacedEventManager CustomInterfacedEventManager} we know that this is the only OnMessageReceived event handled so we can skip the cheks
+	 */
 	@Override
 	public void onMessageReceived(MessageReceivedEvent e) {
-		if (!e.getMessage().getContentRaw().startsWith(PREFIX) || (e.getAuthor().isBot() && !respondToBots()))
+		//if (!e.getMessage().getContentRaw().startsWith(PREFIX) || (e.getAuthor().isBot() && !respondToBots()))
+		//	return;
+
+		//if (containsCommand(e.getMessage())) {
+		e.getChannel().sendTyping().queue();
+		System.out.println("We received a message from " +
+				e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
+		if (!e.getChannelType().isGuild() && !respondInPrivate) {
+			sendMessage(e, "This command only works in a server");
 			return;
-
-		if (containsCommand(e.getMessage())) {
-			e.getChannel().sendTyping().queue();
-			System.out.println("We received a message from " +
-					e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
-			if (!e.getChannelType().isGuild() && !respondInPrivate) {
-				sendMessage(e, "This command only works in a server");
-				return;
-			}
-			measureTime(e);
-
-
 		}
+		measureTime(e);
+
+
 	}
 
-	private void measureTime(MessageReceivedEvent e) {
+	void measureTime(MessageReceivedEvent e) {
 		long startTime = System.currentTimeMillis();
-		onCommand(e, commandArgs(e.getMessage()));
+		onCommand(e);
 		long endTime = System.currentTimeMillis();
 		long timeElapsed = endTime - startTime;
 		System.out.println("Execution time in milliseconds " + getName() + " : " + timeElapsed);
 		System.out.println();
+	}
+
+	abstract void onCommand(MessageReceivedEvent e);
+	//}
+
+	abstract String getName();
+
+	Message sendMessage(MessageReceivedEvent e, String message) {
+		return sendMessage(e, new MessageBuilder().append(message).build());
+	}
+
+	private Message sendMessage(MessageReceivedEvent e, Message message) {
+		if (e.isFromType(ChannelType.PRIVATE))
+			return e.getPrivateChannel().sendMessage(message).complete();
+		else
+			return e.getTextChannel().sendMessage(message).complete();
 	}
 
 	boolean containsCommand(Message message) {
@@ -118,17 +131,6 @@ public abstract class MyCommand extends ListenerAdapter {
 		}
 
 
-	}
-
-	Message sendMessage(MessageReceivedEvent e, String message) {
-		return sendMessage(e, new MessageBuilder().append(message).build());
-	}
-
-	private Message sendMessage(MessageReceivedEvent e, Message message) {
-		if (e.isFromType(ChannelType.PRIVATE))
-			return e.getPrivateChannel().sendMessage(message).complete();
-		else
-			return e.getTextChannel().sendMessage(message).complete();
 	}
 
 	String getUserStringConsideringGuildOrNot(MessageReceivedEvent e, long who, String replacement) {

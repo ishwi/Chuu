@@ -30,6 +30,6 @@ public class AlbumCronwsLeaderboardCommand extends CrownLeaderboardCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("!crownsalbumlb", "!crownsallb");
+		return Arrays.asList("crownsalbumlb", "crownsallb");
 	}
 }

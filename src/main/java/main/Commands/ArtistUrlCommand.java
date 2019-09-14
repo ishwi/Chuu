@@ -21,7 +21,22 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public List<String> getAliases() {
+		return Collections.singletonList("url");
+	}
+
+	@Override
+	public String getDescription() {
+		return "changes artist image that is  displayed on some bot functionalities";
+	}
+
+	@Override
+	public String getName() {
+		return "Artist Url ";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) {
 		String urlParsed;
 		String artist;
 
@@ -47,21 +62,6 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 		}
 
 
-	}
-
-	@Override
-	public String getDescription() {
-		return "changes artist image that is  displayed on some bot functionalities";
-	}
-
-	@Override
-	public String getName() {
-		return "Artist Url ";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!url");
 	}
 
 

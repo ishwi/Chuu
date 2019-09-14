@@ -45,7 +45,7 @@ public class NowPlayingCommand extends NpCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("!np", "!fm");
+		return Arrays.asList("np", "fm");
 	}
 
 

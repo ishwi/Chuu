@@ -29,7 +29,7 @@ public class UniqueLeaderboardCommand extends CrownLeaderboardCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!uniquelb");
+		return Collections.singletonList("uniquelb");
 	}
 
 }

@@ -22,7 +22,7 @@ public class TopCommand extends ArtistCommand {
 	}
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) {
 		String[] message;
 		message = parser.parse(e);
 		if (message == null)
@@ -63,6 +63,6 @@ public class TopCommand extends ArtistCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!top");
+		return Collections.singletonList("top");
 	}
 }

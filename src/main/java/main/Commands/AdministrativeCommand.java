@@ -31,31 +31,8 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
-
-		String[] urlParsed = parser.parse(e);
-
-		if (urlParsed.length == 0) {
-			getDao().removeLogo(e.getGuild().getIdLong());
-			sendMessage(e, "Removed logo from the server  ");
-		} else {
-
-			try (InputStream in = new URL(urlParsed[0]).openStream()) {
-				BufferedImage image = ImageIO.read(in);
-				image = Scalr.resize(image, Scalr.Method.QUALITY, 75, Scalr.OP_ANTIALIAS);
-				if (image == null) {
-					sendMessage(e, "Couldn't get an Image from link supplied");
-					return;
-				}
-
-				getDao().addLogo(e.getGuild().getIdLong(), image);
-				sendMessage(e, "Logo Updated");
-			} catch (IOException exception) {
-				Chuu.getLogger().warn(exception.getMessage(), exception);
-				sendMessage(e, "Something Happened while processing the image ");
-			}
-
-		}
+	public List<String> getAliases() {
+		return Collections.singletonList("logo");
 	}
 
 	@Override
@@ -115,8 +92,33 @@ public class AdministrativeCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!logo");
+	public void onCommand(MessageReceivedEvent e) {
+
+		String[] urlParsed = parser.parse(e);
+		if (urlParsed == null)
+			return;
+
+		if (urlParsed.length == 0) {
+			getDao().removeLogo(e.getGuild().getIdLong());
+			sendMessage(e, "Removed logo from the server  ");
+		} else {
+
+			try (InputStream in = new URL(urlParsed[0]).openStream()) {
+				BufferedImage image = ImageIO.read(in);
+				if (image == null) {
+					sendMessage(e, "Couldn't get an Image from link supplied");
+					return;
+				}
+				image = Scalr.resize(image, Scalr.Method.QUALITY, 75, Scalr.OP_ANTIALIAS);
+
+				getDao().addLogo(e.getGuild().getIdLong(), image);
+				sendMessage(e, "Logo Updated");
+			} catch (IOException exception) {
+				Chuu.getLogger().warn(exception.getMessage(), exception);
+				sendMessage(e, "Something Happened while processing the image ");
+			}
+
+		}
 	}
 
 

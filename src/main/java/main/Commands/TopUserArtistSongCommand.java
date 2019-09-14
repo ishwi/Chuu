@@ -73,6 +73,6 @@ public class TopUserArtistSongCommand extends WhoKnowsCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!favs");
+		return Collections.singletonList("favs");
 	}
 }

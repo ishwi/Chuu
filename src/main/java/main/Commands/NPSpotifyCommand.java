@@ -47,7 +47,7 @@ public class NPSpotifyCommand extends NpCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("!npspotify", "!spotify", "!nps", "!npspo");
+		return Arrays.asList("npspotify", "spotify", "nps", "npspo");
 	}
 
 

@@ -26,7 +26,22 @@ public class SetCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public List<String> getAliases() {
+		return Collections.singletonList("set");
+	}
+
+	@Override
+	public String getDescription() {
+		return "Adds you to the system";
+	}
+
+	@Override
+	public String getName() {
+		return "Set";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) {
 		String[] returned;
 
 		returned = parser.parse(e);
@@ -97,21 +112,6 @@ public class SetCommand extends ConcurrentCommand {
 		}
 
 
-	}
-
-	@Override
-	public String getDescription() {
-		return "Adds you to the system";
-	}
-
-	@Override
-	public String getName() {
-		return "Set";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!set");
 	}
 
 

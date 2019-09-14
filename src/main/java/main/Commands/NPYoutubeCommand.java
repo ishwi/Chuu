@@ -49,7 +49,7 @@ public class NPYoutubeCommand extends NpCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("!npyt", "!npyoutube");
+		return Arrays.asList("npyt", "npyoutube");
 	}
 
 }

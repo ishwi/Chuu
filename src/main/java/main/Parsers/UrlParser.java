@@ -3,10 +3,9 @@ package main.Parsers;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class UrlParser extends OneWordParser {
+public class UrlParser extends Parser {
 	@Override
 	public void setUpErrorMessages() {
-		super.setUpErrorMessages();
 		errorMessages.put(1, "Invalid url ");
 		errorMessages.put(2, "Insufficient Permissions, only a mod  can");
 
@@ -17,12 +16,23 @@ public class UrlParser extends OneWordParser {
 			sendError(getErrorMessage(2), e);
 			return null;
 		}
-		subMessage = super.parseLogic(e, subMessage);
-		if (subMessage == null || subMessage.length == 0)
-			return new String[]{};
-		String url = subMessage[0];
-		if (!isValidURL(url)) {
-			sendError(getErrorMessage(1), e);
+		String url;
+
+		if (subMessage == null || subMessage.length == 0) {
+			if (e.getMessage().getAttachments().isEmpty()) {
+				return new String[]{};
+			} else {
+				url = e.getMessage().getAttachments().get(0).getUrl();
+			}
+		} else if (subMessage.length == 1) {
+			url = subMessage[0];
+			if (!isValidURL(url)) {
+				sendError(getErrorMessage(1), e);
+				return null;
+			}
+
+		} else {
+			sendError("You need to give only a url or an attachment", e);
 			return null;
 		}
 		return new String[]{url};

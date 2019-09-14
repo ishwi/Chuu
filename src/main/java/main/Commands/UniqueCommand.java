@@ -23,7 +23,22 @@ public class UniqueCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public List<String> getAliases() {
+		return Collections.singletonList("unique");
+	}
+
+	@Override
+	public String getDescription() {
+		return ("Returns lists of all the unique artist you have scrobbled");
+	}
+
+	@Override
+	public String getName() {
+		return "Unique List Of Artists";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) {
 		String[] message;
 		message = parser.parse(e);
 		if (message == null)
@@ -60,21 +75,6 @@ public class UniqueCommand extends ConcurrentCommand {
 				new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder)
 		);
 
-	}
-
-	@Override
-	public String getDescription() {
-		return ("Returns lists of all the unique artist you have scrobbled");
-	}
-
-	@Override
-	public String getName() {
-		return "Unique List Of Artists";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!unique");
 	}
 
 

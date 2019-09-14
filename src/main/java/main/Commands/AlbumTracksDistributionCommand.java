@@ -117,6 +117,6 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!tracks");
+		return Collections.singletonList("tracks");
 	}
 }

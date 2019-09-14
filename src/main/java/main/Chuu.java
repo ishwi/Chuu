@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.managers.Presence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,7 +30,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Chuu {
 
-
+	public static final Character DEFAULT_PREFIX = '!';
+	private static Map<Long, Character> prefixMap;
 	private static JDA jda;
 	private static Logger logger;
 
@@ -85,11 +88,14 @@ public class Chuu {
 	private static void setupBot() {
 		Properties properties = readToken();
 		DaoImplementation dao = new DaoImplementation();
+		prefixMap = initPrefixMap(dao);
 		new SpotifySingleton(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
 		new DiscogsSingleton(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
 
+		//Needs these three references
 		HelpCommand help = new HelpCommand();
 		AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
+		PrefixCommand prefixCommand = new PrefixCommand(dao);
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(3);
 		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, DiscogsSingleton
@@ -101,6 +107,7 @@ public class Chuu {
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
 		builder.setToken(properties.getProperty("DISCORD_TOKEN"))
 				.setAutoReconnect(true)
+				.setEventManager(new CustomInterfacedEventManager())
 				.addEventListeners(help)
 				.addEventListeners(help.registerCommand(commandAdministrator))
 				.addEventListeners(help.registerCommand(new NowPlayingCommand(dao)))
@@ -144,16 +151,22 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new CrownsStolenCommand(dao)))
 				.addEventListeners(help.registerCommand(new TopUserArtistSongCommand(dao)))
 				.addEventListeners(help.registerCommand(new AlbumCrownsCommand(dao)))
-				.addEventListeners(help.registerCommand(new AlbumCronwsLeaderboardCommand(dao)));
+				.addEventListeners(help.registerCommand(new AlbumCronwsLeaderboardCommand(dao)))
+				.addEventListeners(help.registerCommand(new PrefixCommand(dao)));
 
 		try {
 			jda = builder.build().awaitReady();
 			commandAdministrator.onStartup(jda);
+			prefixCommand.onStartup(jda);
 			updatePresence("Chuu");
 
 		} catch (LoginException | InterruptedException e) {
 			Chuu.getLogger().warn(e.getMessage(), e);
 		}
+	}
+
+	private static Map<Long, Character> initPrefixMap(DaoImplementation dao) {
+		return (dao.getGuildPrefixes());
 	}
 
 	static private Properties readToken() {
@@ -180,5 +193,25 @@ public class Chuu {
 		return Chuu.jda.getPresence();
 
 	}
+
+	public static Map<Long, Character> getPrefixMap() {
+		return prefixMap;
+	}
+
+	public static void addGuildPrefix(long guildId, Character prefix) {
+		prefixMap.replace(guildId, prefix);
+	}
+
+	public static Character getCorrespondingPrefix(MessageReceivedEvent e) {
+		if (!e.isFromGuild())
+			return DEFAULT_PREFIX;
+		long id = e.getGuild().getIdLong();
+		Character character = prefixMap.get(id);
+		return character == null ? DEFAULT_PREFIX : character;
+
+
+	}
+
+
 }
 

@@ -25,7 +25,22 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void threadableCode(MessageReceivedEvent e) {
+	List<String> getAliases() {
+		return Collections.singletonList("profile");
+	}
+
+	@Override
+	String getDescription() {
+		return "Brief description of user Profile";
+	}
+
+	@Override
+	String getName() {
+		return "Profile";
+	}
+
+	@Override
+	protected void onCommand(MessageReceivedEvent e) {
 		String[] returned = parser.parse(e);
 		if (returned == null) {
 			return;
@@ -74,20 +89,5 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 
 		MessageBuilder mes = new MessageBuilder();
 		mes.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
-	}
-
-	@Override
-	String getDescription() {
-		return "Brief description of user Profile";
-	}
-
-	@Override
-	String getName() {
-		return "Profile";
-	}
-
-	@Override
-	List<String> getAliases() {
-		return Collections.singletonList("!profile");
 	}
 }

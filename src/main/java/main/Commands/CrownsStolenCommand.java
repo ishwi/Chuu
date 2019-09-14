@@ -24,7 +24,22 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public List<String> getAliases() {
+		return Collections.singletonList("stolen");
+	}
+
+	@Override
+	public String getDescription() {
+		return ("List of crowns you would have if  other user concedes their crowns");
+	}
+
+	@Override
+	public String getName() {
+		return "List Of Stolen Crowns";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) {
 		String[] message;
 		message = parser.parse(e);
 		if (message == null)
@@ -84,21 +99,6 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 				new Reactionary<>(resultWrapper.getList(), m, embedBuilder)
 		);
 
-	}
-
-	@Override
-	public String getDescription() {
-		return ("List of crowns you would have if  other user concedes their crowns");
-	}
-
-	@Override
-	public String getName() {
-		return "List Of Stolen Crowns";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!stolen");
 	}
 
 

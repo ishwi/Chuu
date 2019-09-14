@@ -6,7 +6,9 @@ import org.intellij.lang.annotations.Language;
 
 import java.sql.*;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class UpdaterDaoImpl implements UpdaterDao {
@@ -464,6 +466,50 @@ public class UpdaterDaoImpl implements UpdaterDao {
 		}
 
 
+	}
+
+	@Override
+	public Map<Long, Character> getGuildPrefixes(Connection connection) {
+		Map<Long, Character> returnedMap = new HashMap<>();
+		String queryString = "SELECT guildId, prefix FROM guild_prefixes;";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			/* Fill "preparedStatement". */
+
+
+
+
+			/* Execute query. */
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				String prefix = resultSet.getString("prefix");
+				long guildId = resultSet.getLong("guildId");
+				returnedMap.put(guildId, prefix.charAt(0));
+			}
+
+			return returnedMap;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void upsertGuildPrefix(Connection connection, long guildID, Character prefix) {
+		String queryString = "INSERT INTO  guild_prefixes"
+				+ " ( guildId,prefix) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE prefix= ?";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setLong(i++, guildID);
+			preparedStatement.setString(i++, String.valueOf(prefix));
+			preparedStatement.setString(i, String.valueOf(prefix));
+			/* Execute query. */
+			preparedStatement.executeUpdate();
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
 

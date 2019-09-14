@@ -27,7 +27,22 @@ public class AllPlayingCommand extends ConcurrentCommand {
 
 
 	@Override
-	public void threadableCode(MessageReceivedEvent e) {
+	public List<String> getAliases() {
+		return Collections.singletonList("playing");
+	}
+
+	@Override
+	public String getDescription() {
+		return ("Returns lists of all people playing music rn");
+	}
+
+	@Override
+	public String getName() {
+		return "Playing";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) {
 
 		String[] message = parser.parse(e);
 		if (message == null)
@@ -86,21 +101,6 @@ public class AllPlayingCommand extends ConcurrentCommand {
 
 		embedBuilder.setDescription(a);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
-	}
-
-	@Override
-	public String getDescription() {
-		return ("Returns lists of all people playing music rn");
-	}
-
-	@Override
-	public String getName() {
-		return "Playing";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("!playing");
 	}
 
 

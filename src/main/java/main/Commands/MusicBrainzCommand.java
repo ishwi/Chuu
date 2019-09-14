@@ -107,7 +107,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("!releaseyear");
+		return Collections.singletonList("releaseyear");
 	}
 
 
