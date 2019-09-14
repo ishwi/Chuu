@@ -22,8 +22,18 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 	}
 
 	@Override
+	public String getDescription() {
+		return ("Crowns per user ordered desc");
+	}
+
+	@Override
 	public List<String> getAliases() {
 		return Collections.singletonList("crownslb");
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) {
+		printList(getList(e.getGuild().getIdLong()), e);
 	}
 
 	List<LbEntry> getList(long guildId) {
@@ -55,18 +65,8 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public String getDescription() {
-		return ("Crowns per user ordered desc");
-	}
-
-	@Override
 	public String getName() {
 		return "Crowns Leaderboard";
-	}
-
-	@Override
-	public void onCommand(MessageReceivedEvent e) {
-		printList(getList(e.getGuild().getIdLong()), e);
 	}
 
 

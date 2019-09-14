@@ -12,20 +12,16 @@ import java.io.IOException;
 
 public class WhoKnowsMaker {
 
+	static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 32);
 	private static final int X_MAX = 800;
 	private static final int Y_MAX = 500;
 	private static final int X_MARGIN = 80;
 	private static final int Y_MARGIN = 25;
-
-	private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 32);
 	//private static final Font KOREAN_FONT = new Font("Noto Serif CJK KR Regular", Font.PLAIN, 32);
-
+	private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 32);
 	private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP Regular", Font.PLAIN, 32);
-	static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 32);
 
 	//private static final Font CHINESE_FONT = new Font("Noto Serif CJK TC Regular", Font.PLAIN, 32);
-
-
 	private static final Font DESC_FONT = new Font("Noto Sans CJK JP Light", Font.PLAIN, 32);
 	private static final String FIRST_LINE = "Who knows";
 	//private static Color FONT_COLOR = Color.BLACK;

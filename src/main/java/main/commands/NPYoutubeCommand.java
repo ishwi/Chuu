@@ -43,13 +43,13 @@ public class NPYoutubeCommand extends NpCommand {
 	}
 
 	@Override
-	public String getName() {
-		return "Now Playing Youtube";
+	public List<String> getAliases() {
+		return Arrays.asList("npyt", "npyoutube");
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("npyt", "npyoutube");
+	public String getName() {
+		return "Now Playing Youtube";
 	}
 
 }

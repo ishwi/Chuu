@@ -22,8 +22,8 @@ public class ConvolveFilter extends AbstractBufferedImageOp {
 	static final long serialVersionUID = 2239251672685254626L;
 	static final int CLAMP_EDGES = 1;
 	static final int WRAP_EDGES = 2;
-	public static int ZERO_EDGES = 0;
 	final static boolean alpha = true;
+	public static int ZERO_EDGES = 0;
 	private Kernel kernel;
 	private int edgeAction = CLAMP_EDGES;
 
@@ -66,6 +66,39 @@ public class ConvolveFilter extends AbstractBufferedImageOp {
 //	public static void convolve(Kernel kernel, int[] inPixels, int[] outPixels, int width, int height, int edgeAction) {
 //		convolve(kernel, inPixels, outPixels, width, height, true, edgeAction);
 //	}
+
+	public Kernel getKernel() {
+		return kernel;
+	}
+
+	public void setKernel(Kernel kernel) {
+		this.kernel = kernel;
+	}
+
+	public int getEdgeAction() {
+		return edgeAction;
+	}
+
+	public void setEdgeAction(int edgeAction) {
+		this.edgeAction = edgeAction;
+	}
+
+	public BufferedImage filter(BufferedImage src, BufferedImage dst) {
+		int width = src.getWidth();
+		int height = src.getHeight();
+
+		if (dst == null)
+			dst = createCompatibleDestImage(src, null);
+
+		int[] inPixels = new int[width * height];
+		int[] outPixels = new int[width * height];
+		getRGB(src, 0, 0, width, height, inPixels);
+
+		convolve(kernel, inPixels, outPixels, width, height, alpha, edgeAction);
+
+		setRGB(dst, 0, 0, width, height, outPixels);
+		return dst;
+	}
 
 	private static void convolve(Kernel kernel, int[] inPixels, int[] outPixels, int width, int height, boolean alpha, int edgeAction) {
 		if (kernel.getHeight() == 1)
@@ -228,39 +261,6 @@ public class ConvolveFilter extends AbstractBufferedImageOp {
 				outPixels[index++] = (ia << 24) | (ir << 16) | (ig << 8) | ib;
 			}
 		}
-	}
-
-	public Kernel getKernel() {
-		return kernel;
-	}
-
-	public void setKernel(Kernel kernel) {
-		this.kernel = kernel;
-	}
-
-	public int getEdgeAction() {
-		return edgeAction;
-	}
-
-	public void setEdgeAction(int edgeAction) {
-		this.edgeAction = edgeAction;
-	}
-
-	public BufferedImage filter(BufferedImage src, BufferedImage dst) {
-		int width = src.getWidth();
-		int height = src.getHeight();
-
-		if (dst == null)
-			dst = createCompatibleDestImage(src, null);
-
-		int[] inPixels = new int[width * height];
-		int[] outPixels = new int[width * height];
-		getRGB(src, 0, 0, width, height, inPixels);
-
-		convolve(kernel, inPixels, outPixels, width, height, alpha, edgeAction);
-
-		setRGB(dst, 0, 0, width, height, outPixels);
-		return dst;
 	}
 
 	public Rectangle2D getBounds2D(BufferedImage src) {

@@ -13,10 +13,14 @@ public class ArtistCountLeaderboard extends CrownLeaderboardCommand {
 	}
 
 	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("scrobbledlb");
+	}
+
+	@Override
 	public List<LbEntry> getList(long guildId) {
 		return getDao().getArtistLeaderboard(guildId);
 	}
-
 
 	@Override
 	public String getDescription() {
@@ -26,11 +30,6 @@ public class ArtistCountLeaderboard extends CrownLeaderboardCommand {
 	@Override
 	public String getName() {
 		return "Artist count Leaderboard";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("scrobbledlb");
 	}
 
 }

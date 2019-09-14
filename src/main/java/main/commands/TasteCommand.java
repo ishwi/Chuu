@@ -20,20 +20,14 @@ public class TasteCommand extends ConcurrentCommand {
 		parser = new TwoUsersParser(dao);
 	}
 
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("taste");
-	}
-
 	@Override
 	public String getDescription() {
 		return "Compare Your musical taste with a  colleague";
 	}
 
 	@Override
-	public String getName() {
-		return "Taste";
+	public List<String> getAliases() {
+		return Collections.singletonList("taste");
 	}
 
 	@Override
@@ -66,6 +60,11 @@ public class TasteCommand extends ConcurrentCommand {
 
 		}
 
+	}
+
+	@Override
+	public String getName() {
+		return "Taste";
 	}
 
 }

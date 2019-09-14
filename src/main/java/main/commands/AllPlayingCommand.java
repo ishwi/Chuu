@@ -25,20 +25,14 @@ public class AllPlayingCommand extends ConcurrentCommand {
 
 	}
 
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("playing");
-	}
-
 	@Override
 	public String getDescription() {
 		return ("Returns lists of all people playing music rn");
 	}
 
 	@Override
-	public String getName() {
-		return "Playing";
+	public List<String> getAliases() {
+		return Collections.singletonList("playing");
 	}
 
 	@Override
@@ -70,9 +64,9 @@ public class AllPlayingCommand extends ConcurrentCommand {
 				}));
 
 		npList.forEach((usersWrapper, optionalNowPlayingArtist) -> {
-			if (!optionalNowPlayingArtist.isPresent())
+					if (!optionalNowPlayingArtist.isPresent())
 						return;
-			NowPlayingArtist nowPlayingArtist = optionalNowPlayingArtist.get();
+					NowPlayingArtist nowPlayingArtist = optionalNowPlayingArtist.get();
 					if (showFresh) {
 
 						if (!nowPlayingArtist.isNowPlaying()) {
@@ -80,9 +74,9 @@ public class AllPlayingCommand extends ConcurrentCommand {
 						}
 					}
 
-			Member member = e.getGuild().getMemberById(usersWrapper.getDiscordID());
+					Member member = e.getGuild().getMemberById(usersWrapper.getDiscordID());
 
-			String username = member == null ? usersWrapper.getLastFMName() : member.getEffectiveName();
+					String username = member == null ? usersWrapper.getLastFMName() : member.getEffectiveName();
 
 					a.append("+ ").append("[")
 							.append(username).append("](")
@@ -101,6 +95,11 @@ public class AllPlayingCommand extends ConcurrentCommand {
 
 		embedBuilder.setDescription(a);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+	}
+
+	@Override
+	public String getName() {
+		return "Playing";
 	}
 
 

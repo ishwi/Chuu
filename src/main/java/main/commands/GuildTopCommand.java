@@ -21,18 +21,13 @@ public class GuildTopCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("guild");
-	}
-
-	@Override
 	public String getDescription() {
 		return ("Chart 5x5 of guild most listened artist");
 	}
 
 	@Override
-	public String getName() {
-		return "Guild Top Artists";
+	public List<String> getAliases() {
+		return Collections.singletonList("guild");
 	}
 
 	@Override
@@ -40,6 +35,11 @@ public class GuildTopCommand extends ConcurrentCommand {
 		List<UrlCapsule> resultWrapper = getDao().getGuildTop(e.getGuild().getIdLong());
 		BufferedImage image = GuildMaker.generateCollageThreaded(5, 5, new LinkedBlockingDeque<>(resultWrapper));
 		sendImage(image, e);
+	}
+
+	@Override
+	public String getName() {
+		return "Guild Top Artists";
 	}
 
 }

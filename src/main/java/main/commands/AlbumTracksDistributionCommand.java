@@ -36,6 +36,16 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 	}
 
 	@Override
+	public String getDescription() {
+		return "Plays on each track of the provided album";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("tracks");
+	}
+
+	@Override
 	void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, long who) {
 
 		FullAlbumEntity fullAlbumEntity;
@@ -106,17 +116,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 	}
 
 	@Override
-	public String getDescription() {
-		return "Plays on each track of the provided album";
-	}
-
-	@Override
 	public String getName() {
 		return "Track Distribution";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("tracks");
 	}
 }

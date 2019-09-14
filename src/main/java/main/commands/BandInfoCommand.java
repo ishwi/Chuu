@@ -25,6 +25,11 @@ public class BandInfoCommand extends WhoKnowsCommand {
 	}
 
 	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("artist", "a");
+	}
+
+	@Override
 	void whoKnowsLogic(ArtistData who, Boolean isList, MessageReceivedEvent e, long userId) {
 		ArtistAlbums ai;
 		String lastFmName;
@@ -90,11 +95,6 @@ public class BandInfoCommand extends WhoKnowsCommand {
 	@Override
 	public String getName() {
 		return "Band";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("artist", "a");
 	}
 
 

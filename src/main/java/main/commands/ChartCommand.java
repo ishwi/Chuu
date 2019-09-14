@@ -24,38 +24,13 @@ public class ChartCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("chart");
-	}
-
-	void processQueue(String username, String time, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays) throws LastFmException {
-		BlockingQueue<UrlCapsule> queue = new LinkedBlockingDeque<>();
-		lastFM.getUserList(username, time, x, y, true, queue);
-		generateImage(queue, x, y, e, writeTitles, writePlays);
-	}
-
-	void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays) {
-		int size = queue.size();
-		int minx = (int) Math.ceil((double) size / x);
-		//int miny = (int) Math.ceil((double) size / y);
-		if (minx == 1)
-			x = size;
-		boolean makeSmaller = false;
-		if (x * y > 42)
-			makeSmaller = true;
-		BufferedImage image = CollageMaker
-				.generateCollageThreaded(x, minx, queue, writeTitles, writePlays, makeSmaller);
-		sendImage(image, e, makeSmaller);
-	}
-
-	@Override
 	public String getDescription() {
 		return "Returns a Chart with albums";
 	}
 
 	@Override
-	public String getName() {
-		return "Chart";
+	public List<String> getAliases() {
+		return Collections.singletonList("chart");
 	}
 
 	@Override
@@ -87,6 +62,31 @@ public class ChartCommand extends ConcurrentCommand {
 		}
 
 
+	}
+
+	void processQueue(String username, String time, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays) throws LastFmException {
+		BlockingQueue<UrlCapsule> queue = new LinkedBlockingDeque<>();
+		lastFM.getUserList(username, time, x, y, true, queue);
+		generateImage(queue, x, y, e, writeTitles, writePlays);
+	}
+
+	void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays) {
+		int size = queue.size();
+		int minx = (int) Math.ceil((double) size / x);
+		//int miny = (int) Math.ceil((double) size / y);
+		if (minx == 1)
+			x = size;
+		boolean makeSmaller = false;
+		if (x * y > 42)
+			makeSmaller = true;
+		BufferedImage image = CollageMaker
+				.generateCollageThreaded(x, minx, queue, writeTitles, writePlays, makeSmaller);
+		sendImage(image, e, makeSmaller);
+	}
+
+	@Override
+	public String getName() {
+		return "Chart";
 	}
 
 

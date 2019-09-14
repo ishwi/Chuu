@@ -21,18 +21,13 @@ public class RecentListCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("recent");
-	}
-
-	@Override
 	public String getDescription() {
 		return "Returns your most recent songs played";
 	}
 
 	@Override
-	public String getName() {
-		return "Recent";
+	public List<String> getAliases() {
+		return Collections.singletonList("recent");
 	}
 
 	@Override
@@ -77,6 +72,11 @@ public class RecentListCommand extends ConcurrentCommand {
 			parser.sendError(parser.getErrorMessage(1), e);
 		}
 
+	}
+
+	@Override
+	public String getName() {
+		return "Recent";
 	}
 
 

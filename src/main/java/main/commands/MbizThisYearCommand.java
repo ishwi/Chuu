@@ -63,13 +63,13 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 	}
 
 	@Override
-	public String getName() {
-		return "Since YEAR Started";
+	public List<String> getAliases() {
+		return Collections.singletonList("sincestartyear");
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("sincestartyear");
+	public String getName() {
+		return "Since YEAR Started";
 	}
 
 
