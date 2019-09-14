@@ -207,7 +207,18 @@ CREATE TABLE `updated`
 --
 -- Table structure for table `user_guild`
 --
-
+DROP TABLE IF EXISTS `guild_prefixes`;
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `guild_prefixes`
+(
+    `guildId` BIGINT(20) NOT NULL DEFAULT 0,
+    `prefix`  CHAR(1)    NOT NULL DEFAULT '!' COLLATE 'utf8_unicode_ci',
+    PRIMARY KEY (`guildId`)
+)
+    COLLATE = 'utf8mb4_unicode_ci'
+    ENGINE = InnoDB
+;
 
 /*!40101 SET SQL_MODE = @OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS = @OLD_FOREIGN_KEY_CHECKS */;
