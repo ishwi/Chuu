@@ -1,4 +1,4 @@
-package main.apis.Youtube;
+package main.apis.youtube;
 
 public class SearchSingleton {
 
@@ -7,7 +7,7 @@ public class SearchSingleton {
 
 	public static Search getInstanceUsingDoubleLocking() {
 		if (instance == null) {
-			synchronized (main.apis.Youtube.Search.class) {
+			synchronized (main.apis.youtube.Search.class) {
 				if (instance == null) {
 					instance = new Search();
 				}

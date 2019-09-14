@@ -1,8 +1,8 @@
 package main;
 
 import dao.DaoImplementation;
-import main.apis.Discogs.DiscogsSingleton;
-import main.apis.Spotify.SpotifySingleton;
+import main.apis.discogs.DiscogsSingleton;
+import main.apis.spotify.SpotifySingleton;
 import main.commands.*;
 import main.scheduledtasks.ImageUpdaterThread;
 import main.scheduledtasks.SpotifyUpdaterThread;

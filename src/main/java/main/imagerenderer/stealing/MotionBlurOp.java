@@ -2,7 +2,7 @@
  ** Copyright 2005 Huxtable.com. All rights reserved.
  */
 
-package main.imagerenderer.Stealing;
+package main.imagerenderer.stealing;
 
 import java.awt.*;
 import java.awt.geom.Point2D;

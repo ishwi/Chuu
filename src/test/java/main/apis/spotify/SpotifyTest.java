@@ -1,4 +1,4 @@
-package main.apis.Spotify;
+package main.apis.spotify;
 
 import main.Chuu;
 import org.junit.BeforeClass;

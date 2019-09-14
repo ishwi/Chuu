@@ -2,10 +2,10 @@ package main.commands;
 
 import dao.DaoImplementation;
 import dao.entities.LastFMData;
-import main.apis.Discogs.DiscogsApi;
-import main.apis.Discogs.DiscogsSingleton;
-import main.apis.Spotify.Spotify;
-import main.apis.Spotify.SpotifySingleton;
+import main.apis.discogs.DiscogsApi;
+import main.apis.discogs.DiscogsSingleton;
+import main.apis.spotify.Spotify;
+import main.apis.spotify.SpotifySingleton;
 import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.ArtistAlbumParser;

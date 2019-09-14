@@ -4,7 +4,7 @@ import dao.entities.ResultWrapper;
 import dao.entities.Results;
 import dao.entities.UserInfo;
 import main.Chuu;
-import main.imagerenderer.Stealing.GaussianFilter;
+import main.imagerenderer.stealing.GaussianFilter;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

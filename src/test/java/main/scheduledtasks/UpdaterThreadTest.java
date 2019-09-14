@@ -6,8 +6,8 @@ import dao.entities.ArtistData;
 import dao.entities.ArtistInfo;
 import dao.entities.LastFMData;
 import dao.entities.TimestampWrapper;
-import main.apis.Discogs.DiscogsApi;
-import main.apis.Spotify.Spotify;
+import main.apis.discogs.DiscogsApi;
+import main.apis.spotify.Spotify;
 import main.apis.last.ConcurrentLastFM;
 import main.apis.last.LastFMFactory;
 import main.commands.CommandUtil;
@@ -110,7 +110,7 @@ public class UpdaterThreadTest {
 		}
 	}
 
-	static class DiscogsMockup extends main.apis.Discogs.DiscogsApi {
+	static class DiscogsMockup extends main.apis.discogs.DiscogsApi {
 
 		public DiscogsMockup(String secret, String key) {
 			super(secret, key);

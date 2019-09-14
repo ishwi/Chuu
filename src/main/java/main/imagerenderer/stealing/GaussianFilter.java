@@ -1,4 +1,4 @@
-package main.imagerenderer.Stealing;
+package main.imagerenderer.stealing;
 
 /*
  ** Copyright 2005 Huxtable.com. All rights reserved.

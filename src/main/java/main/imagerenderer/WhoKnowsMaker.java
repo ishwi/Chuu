@@ -2,7 +2,7 @@ package main.imagerenderer;
 
 import dao.entities.WrapperReturnNowPlaying;
 import main.Chuu;
-import main.imagerenderer.Stealing.GaussianFilter;
+import main.imagerenderer.stealing.GaussianFilter;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;

@@ -2,8 +2,8 @@ package main.commands;
 
 import dao.DaoImplementation;
 import dao.entities.NowPlayingArtist;
-import main.apis.Spotify.Spotify;
-import main.apis.Spotify.SpotifySingleton;
+import main.apis.spotify.Spotify;
+import main.apis.spotify.SpotifySingleton;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

@@ -3,8 +3,8 @@ package main.imagerenderer;
 import dao.DaoImplementation;
 import dao.entities.UrlCapsule;
 import main.Chuu;
-import main.apis.Discogs.DiscogsApi;
-import main.apis.Spotify.Spotify;
+import main.apis.discogs.DiscogsApi;
+import main.apis.spotify.Spotify;
 import main.commands.CommandUtil;
 import org.jetbrains.annotations.NotNull;
 
