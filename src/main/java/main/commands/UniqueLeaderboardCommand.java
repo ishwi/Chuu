@@ -13,23 +13,23 @@ public class UniqueLeaderboardCommand extends CrownLeaderboardCommand {
 	}
 
 	@Override
-	public List<LbEntry> getList(long guildId) {
-		return getDao().getUniqueLeaderboard(guildId);
-	}
-
-	@Override
 	public String getDescription() {
 		return ("Unique Artist leaderboard in guild ");
 	}
 
 	@Override
-	public String getName() {
-		return "Unique Leaderboard";
+	public List<String> getAliases() {
+		return Collections.singletonList("uniquelb");
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("uniquelb");
+	public List<LbEntry> getList(long guildId) {
+		return getDao().getUniqueLeaderboard(guildId);
+	}
+
+	@Override
+	public String getName() {
+		return "Unique Leaderboard";
 	}
 
 }

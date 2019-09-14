@@ -19,18 +19,13 @@ public class YoutubeSearchCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	List<String> getAliases() {
-		return Collections.singletonList("yt");
-	}
-
-	@Override
 	String getDescription() {
 		return "Searches in Youtube inputted query or now playing song";
 	}
 
 	@Override
-	String getName() {
-		return "Youtube Search";
+	List<String> getAliases() {
+		return Collections.singletonList("yt");
 	}
 
 	@Override
@@ -44,5 +39,10 @@ public class YoutubeSearchCommand extends ConcurrentCommand {
 		//long whom = Long.parseLong(returned[1]);
 		sendMessageQueue(e, youtubeSearch.doSearch(query));
 
+	}
+
+	@Override
+	String getName() {
+		return "Youtube Search";
 	}
 }

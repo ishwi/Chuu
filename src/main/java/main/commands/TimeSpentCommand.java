@@ -19,18 +19,13 @@ public class TimeSpentCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	List<String> getAliases() {
-		return Collections.singletonList("minutes");
-	}
-
-	@Override
 	String getDescription() {
 		return "Minutes listened last week";
 	}
 
 	@Override
-	String getName() {
-		return "Wasted On Music";
+	List<String> getAliases() {
+		return Collections.singletonList("minutes");
 	}
 
 	@Override
@@ -67,5 +62,10 @@ public class TimeSpentCommand extends ConcurrentCommand {
 		} catch (InstanceNotFoundException ex) {
 			parser.sendError(parser.getErrorMessage(1), e);
 		}
+	}
+
+	@Override
+	String getName() {
+		return "Wasted On Music";
 	}
 }

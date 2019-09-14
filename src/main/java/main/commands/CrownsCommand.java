@@ -22,18 +22,13 @@ public class CrownsCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("crowns");
-	}
-
-	@Override
 	public String getDescription() {
 		return ("List of artist you are the top listener from");
 	}
 
 	@Override
-	public String getName() {
-		return "Your own top";
+	public List<String> getAliases() {
+		return Collections.singletonList("crowns");
 	}
 
 	@Override
@@ -54,7 +49,7 @@ public class CrownsCommand extends ConcurrentCommand {
 			sendMessageQueue(e, "You don't have any crown :'(");
 			return;
 		}
-		for (int i = 0; i < 10 && i < rows;i++) {
+		for (int i = 0; i < 10 && i < rows; i++) {
 			UniqueData g = resultWrapper.get(i);
 			a.append(i + 1).append(g.toString());
 		}
@@ -70,6 +65,11 @@ public class CrownsCommand extends ConcurrentCommand {
 
 		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
 				new Reactionary<>(resultWrapper, message1, embedBuilder));
+	}
+
+	@Override
+	public String getName() {
+		return "Your own top";
 	}
 
 

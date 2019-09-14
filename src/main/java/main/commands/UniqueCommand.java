@@ -21,20 +21,14 @@ public class UniqueCommand extends ConcurrentCommand {
 
 	}
 
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("unique");
-	}
-
 	@Override
 	public String getDescription() {
 		return ("Returns lists of all the unique artist you have scrobbled");
 	}
 
 	@Override
-	public String getName() {
-		return "Unique List Of Artists";
+	public List<String> getAliases() {
+		return Collections.singletonList("unique");
 	}
 
 	@Override
@@ -75,6 +69,11 @@ public class UniqueCommand extends ConcurrentCommand {
 				new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder)
 		);
 
+	}
+
+	@Override
+	public String getName() {
+		return "Unique List Of Artists";
 	}
 
 

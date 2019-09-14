@@ -30,20 +30,14 @@ public class CountryCommand extends ConcurrentCommand {
 
 	}
 
-
-	@Override
-	List<String> getAliases() {
-		return Collections.singletonList("countries");
-	}
-
 	@Override
 	String getDescription() {
 		return "Map representation of your scrobbled artists";
 	}
 
 	@Override
-	String getName() {
-		return "My Countries ";
+	List<String> getAliases() {
+		return Collections.singletonList("countries");
 	}
 
 	@Override
@@ -91,5 +85,10 @@ public class CountryCommand extends ConcurrentCommand {
 		else
 			e.getChannel().sendMessage("Boot too big").queue();
 
+	}
+
+	@Override
+	String getName() {
+		return "My Countries ";
 	}
 }

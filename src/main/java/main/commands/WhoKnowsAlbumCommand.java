@@ -23,6 +23,16 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 	}
 
 	@Override
+	public String getDescription() {
+		return ("How many times the guild has heard an album!");
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("wkalbum", "wka", "whoknowsalbum");
+	}
+
+	@Override
 	public void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, long who) {
 
 		long id = e.getGuild().getIdLong();
@@ -46,7 +56,7 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 		list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 		List<ReturnNowPlaying> list2 = list.stream().map(t -> {
 					long id2 = t.getKey().getDiscordID();
-			ReturnNowPlaying np = new ReturnNowPlaying(id2, t.getKey().getLastFMName(), corrected_artist, t.getValue());
+					ReturnNowPlaying np = new ReturnNowPlaying(id2, t.getKey().getLastFMName(), corrected_artist, t.getValue());
 					np.setDiscordName(getUserString(id2, e, t.getKey().getLastFMName()));
 					return np;
 				}
@@ -67,7 +77,6 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 
 
 	}
-
 
 	Map<UsersWrapper, Integer> fillPlayCounter(List<UsersWrapper> userList, String artist, String album, AlbumUserPlays fillWithUrl) {
 		Map<UsersWrapper, Integer> userMapPlays = new LinkedHashMap<>();
@@ -94,20 +103,9 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 		getDao().insertAlbumCrown(artist, album, crownUser.getDiscordId(), id, crownUser.getPlayNumber());
 	}
 
-
-	@Override
-	public String getDescription() {
-		return ("How many times the guild has heard an album!");
-	}
-
 	@Override
 	public String getName() {
 		return "Get guild Album plays";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("wkalbum", "wka", "whoknowsalbum");
 	}
 
 

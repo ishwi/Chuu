@@ -14,22 +14,22 @@ public class AlbumCronwsLeaderboardCommand extends CrownLeaderboardCommand {
 	}
 
 	@Override
-	List<LbEntry> getList(long guildId) {
-		return getDao().albumCrownsLeaderboard(guildId);
-	}
-
-	@Override
 	public String getDescription() {
 		return ("Album Crowns per user ordered desc");
 	}
 
 	@Override
-	public String getName() {
-		return "Album Crowns Leaderboard";
+	public List<String> getAliases() {
+		return Arrays.asList("crownsalbumlb", "crownsallb");
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("crownsalbumlb", "crownsallb");
+	List<LbEntry> getList(long guildId) {
+		return getDao().albumCrownsLeaderboard(guildId);
+	}
+
+	@Override
+	public String getName() {
+		return "Album Crowns Leaderboard";
 	}
 }

@@ -32,21 +32,14 @@ public class FeaturedCommand extends ConcurrentCommand {
 		}, 1, 30, TimeUnit.MINUTES);
 	}
 
-
-	@Override
-	List<String> getAliases() {
-		return Collections.singletonList("featured");
-	}
-
-
 	@Override
 	String getDescription() {
 		return "Info About the artist that appears on the bot status";
 	}
 
 	@Override
-	String getName() {
-		return "Featured";
+	List<String> getAliases() {
+		return Collections.singletonList("featured");
 	}
 
 	@Override
@@ -62,5 +55,10 @@ public class FeaturedCommand extends ConcurrentCommand {
 
 		MessageBuilder messageBuilder = new MessageBuilder();
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+	}
+
+	@Override
+	String getName() {
+		return "Featured";
 	}
 }

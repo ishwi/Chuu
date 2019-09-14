@@ -22,20 +22,14 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 
 	}
 
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("stolen");
-	}
-
 	@Override
 	public String getDescription() {
 		return ("List of crowns you would have if  other user concedes their crowns");
 	}
 
 	@Override
-	public String getName() {
-		return "List Of Stolen Crowns";
+	public List<String> getAliases() {
+		return Collections.singletonList("stolen");
 	}
 
 	@Override
@@ -99,6 +93,11 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 				new Reactionary<>(resultWrapper.getList(), m, embedBuilder)
 		);
 
+	}
+
+	@Override
+	public String getName() {
+		return "List Of Stolen Crowns";
 	}
 
 

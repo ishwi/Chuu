@@ -21,6 +21,17 @@ public class TopUserArtistSongCommand extends WhoKnowsCommand {
 	}
 
 	@Override
+	public String getDescription() {
+		return
+				"Fav  tracks from an artist";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("favs");
+	}
+
+	@Override
 	void whoKnowsLogic(ArtistData who, Boolean isList, MessageReceivedEvent e, long userId) {
 		List<Track> ai;
 		String lastFmName;
@@ -60,19 +71,8 @@ public class TopUserArtistSongCommand extends WhoKnowsCommand {
 	}
 
 	@Override
-	public String getDescription() {
-		return
-				"Fav  tracks from an artist";
-	}
-
-	@Override
 	public String getName() {
 
 		return "Fav tracks";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("favs");
 	}
 }

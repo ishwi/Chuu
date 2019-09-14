@@ -45,48 +45,14 @@ public class GaussianFilter extends ConvolveFilter {
 		return radius;
 	}
 
-	private static void convolveAndTranspose(Kernel kernel, int[] inPixels, int[] outPixels, int width, int height, boolean alpha, int edgeAction) {
-		float[] matrix = kernel.getKernelData(null);
-		int cols = kernel.getWidth();
-		int cols2 = cols / 2;
-
-		for (int y = 0; y < height; y++) {
-			int index = y;
-			int ioffset = y * width;
-			for (int x = 0; x < width; x++) {
-				float r = 0, g = 0, b = 0, a = 0;
-				int moffset = cols2;
-				for (int col = -cols2; col <= cols2; col++) {
-					float f = matrix[moffset + col];
-
-					if (f != 0) {
-						int ix = x + col;
-						if (ix < 0) {
-							if (edgeAction == CLAMP_EDGES)
-								ix = 0;
-							else if (edgeAction == WRAP_EDGES)
-								ix = (x + width) % width;
-						} else if (ix >= width) {
-							if (edgeAction == CLAMP_EDGES)
-								ix = width - 1;
-							else if (edgeAction == WRAP_EDGES)
-								ix = (x + width) % width;
-						}
-						int rgb = inPixels[ioffset + ix];
-						a += f * ((rgb >> 24) & 0xff);
-						r += f * ((rgb >> 16) & 0xff);
-						g += f * ((rgb >> 8) & 0xff);
-						b += f * (rgb & 0xff);
-					}
-				}
-				int ia = alpha ? PixelUtils.clamp((int) (a + 0.5)) : 0xff;
-				int ir = PixelUtils.clamp((int) (r + 0.5));
-				int ig = PixelUtils.clamp((int) (g + 0.5));
-				int ib = PixelUtils.clamp((int) (b + 0.5));
-				outPixels[index] = (ia << 24) | (ir << 16) | (ig << 8) | ib;
-				index += height;
-			}
-		}
+	/**
+	 * Set the radius of the kernel, and hence the amount of blur. The bigger the radius, the longer this filter will take.
+	 *
+	 * @param radius the radius of the blur in pixels.
+	 */
+	private void setRadius(float radius) {
+		this.radius = radius;
+		kernel = makeKernel(radius);
 	}
 
 	/**
@@ -136,14 +102,48 @@ public class GaussianFilter extends ConvolveFilter {
 		return dst;
 	}
 
-	/**
-	 * Set the radius of the kernel, and hence the amount of blur. The bigger the radius, the longer this filter will take.
-	 *
-	 * @param radius the radius of the blur in pixels.
-	 */
-	private void setRadius(float radius) {
-		this.radius = radius;
-		kernel = makeKernel(radius);
+	private static void convolveAndTranspose(Kernel kernel, int[] inPixels, int[] outPixels, int width, int height, boolean alpha, int edgeAction) {
+		float[] matrix = kernel.getKernelData(null);
+		int cols = kernel.getWidth();
+		int cols2 = cols / 2;
+
+		for (int y = 0; y < height; y++) {
+			int index = y;
+			int ioffset = y * width;
+			for (int x = 0; x < width; x++) {
+				float r = 0, g = 0, b = 0, a = 0;
+				int moffset = cols2;
+				for (int col = -cols2; col <= cols2; col++) {
+					float f = matrix[moffset + col];
+
+					if (f != 0) {
+						int ix = x + col;
+						if (ix < 0) {
+							if (edgeAction == CLAMP_EDGES)
+								ix = 0;
+							else if (edgeAction == WRAP_EDGES)
+								ix = (x + width) % width;
+						} else if (ix >= width) {
+							if (edgeAction == CLAMP_EDGES)
+								ix = width - 1;
+							else if (edgeAction == WRAP_EDGES)
+								ix = (x + width) % width;
+						}
+						int rgb = inPixels[ioffset + ix];
+						a += f * ((rgb >> 24) & 0xff);
+						r += f * ((rgb >> 16) & 0xff);
+						g += f * ((rgb >> 8) & 0xff);
+						b += f * (rgb & 0xff);
+					}
+				}
+				int ia = alpha ? PixelUtils.clamp((int) (a + 0.5)) : 0xff;
+				int ir = PixelUtils.clamp((int) (r + 0.5));
+				int ig = PixelUtils.clamp((int) (g + 0.5));
+				int ib = PixelUtils.clamp((int) (b + 0.5));
+				outPixels[index] = (ia << 24) | (ir << 16) | (ig << 8) | ib;
+				index += height;
+			}
+		}
 	}
 
 	public String toString() {

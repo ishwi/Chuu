@@ -39,13 +39,13 @@ public class NowPlayingCommand extends NpCommand {
 	}
 
 	@Override
-	public String getName() {
-		return "Now Playing";
+	public List<String> getAliases() {
+		return Arrays.asList("np", "fm");
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("np", "fm");
+	public String getName() {
+		return "Now Playing";
 	}
 
 

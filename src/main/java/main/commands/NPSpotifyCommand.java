@@ -41,13 +41,13 @@ public class NPSpotifyCommand extends NpCommand {
 	}
 
 	@Override
-	public String getName() {
-		return "Now Playing Spotify";
+	public List<String> getAliases() {
+		return Arrays.asList("npspotify", "spotify", "nps", "npspo");
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("npspotify", "spotify", "nps", "npspo");
+	public String getName() {
+		return "Now Playing Spotify";
 	}
 
 

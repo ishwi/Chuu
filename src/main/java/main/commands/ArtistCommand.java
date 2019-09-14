@@ -24,6 +24,16 @@ public class ArtistCommand extends ChartCommand {
 	}
 
 	@Override
+	public String getDescription() {
+		return "Returns a Chart with artist";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("artchart", "charta", "artistchart");
+	}
+
+	@Override
 	public void processQueue(String username, String time, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays) throws LastFmException {
 		UrlCapsuleConcurrentQueue queue = new UrlCapsuleConcurrentQueue(getDao(), discogsApi, spotifyApi);
 		lastFM.getUserList(username, time, x, y, false, queue);
@@ -31,18 +41,8 @@ public class ArtistCommand extends ChartCommand {
 	}
 
 	@Override
-	public String getDescription() {
-		return "Returns a Chart with artist";
-	}
-
-	@Override
 	public String getName() {
 		return "Artists";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("artchart", "charta", "artistchart");
 	}
 
 

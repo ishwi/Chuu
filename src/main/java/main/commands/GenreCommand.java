@@ -35,18 +35,13 @@ public class GenreCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("genre");
-	}
-
-	@Override
 	public String getDescription() {
 		return "genre list";
 	}
 
 	@Override
-	public String getName() {
-		return "Genre";
+	public List<String> getAliases() {
+		return Collections.singletonList("genre");
 	}
 
 	@Override
@@ -108,6 +103,11 @@ public class GenreCommand extends ConcurrentCommand {
 		pieChart.paint(g, 800, 600);
 		sendImage(bufferedImage, e);
 
+	}
+
+	@Override
+	public String getName() {
+		return "Genre";
 	}
 
 

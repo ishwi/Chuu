@@ -21,18 +21,13 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("url");
-	}
-
-	@Override
 	public String getDescription() {
 		return "changes artist image that is  displayed on some bot functionalities";
 	}
 
 	@Override
-	public String getName() {
-		return "Artist Url ";
+	public List<String> getAliases() {
+		return Collections.singletonList("url");
 	}
 
 	@Override
@@ -62,6 +57,11 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 		}
 
 
+	}
+
+	@Override
+	public String getName() {
+		return "Artist Url ";
 	}
 
 

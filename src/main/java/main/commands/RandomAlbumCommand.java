@@ -15,19 +15,13 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	List<String> getAliases() {
-		return Collections.singletonList("random");
-	}
-
-
-	@Override
 	String getDescription() {
 		return "Gets a random url that other users have added , or add one yourself";
 	}
 
 	@Override
-	String getName() {
-		return "Random Url";
+	List<String> getAliases() {
+		return Collections.singletonList("random");
 	}
 
 	@Override
@@ -62,5 +56,10 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 		sendMessageQueue(e, "Successfully added " + getUserString(e.getAuthor().getIdLong(), e, e.getAuthor()
 				.getName()) + "'s link  to the pool");
 
+	}
+
+	@Override
+	String getName() {
+		return "Random Url";
 	}
 }

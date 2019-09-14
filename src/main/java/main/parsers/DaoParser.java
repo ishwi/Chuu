@@ -34,6 +34,7 @@ public abstract class DaoParser extends Parser {
 			return null;
 		}
 	}
+
 	@Override
 	protected void setUpErrorMessages() {
 		errorMessages.put(1, "User not on database");

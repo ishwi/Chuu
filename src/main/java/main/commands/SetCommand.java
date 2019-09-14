@@ -24,20 +24,14 @@ public class SetCommand extends ConcurrentCommand {
 
 	}
 
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("set");
-	}
-
 	@Override
 	public String getDescription() {
 		return "Adds you to the system";
 	}
 
 	@Override
-	public String getName() {
-		return "Set";
+	public List<String> getAliases() {
+		return Collections.singletonList("set");
 	}
 
 	@Override
@@ -112,6 +106,11 @@ public class SetCommand extends ConcurrentCommand {
 		}
 
 
+	}
+
+	@Override
+	public String getName() {
+		return "Set";
 	}
 
 

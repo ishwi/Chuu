@@ -16,18 +16,13 @@ public class ArtistPlaysCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("plays");
-	}
-
-	@Override
 	public String getDescription() {
 		return "Gets the amount of times an user has played an specific artist";
 	}
 
 	@Override
-	public String getName() {
-		return "Plays on a specific artist";
+	public List<String> getAliases() {
+		return Collections.singletonList("plays");
 	}
 
 	@Override
@@ -51,5 +46,10 @@ public class ArtistPlaysCommand extends ConcurrentCommand {
 		} catch (InstanceNotFoundException e1) {
 			parser.sendError(parser.getErrorMessage(3), e);
 		}
+	}
+
+	@Override
+	public String getName() {
+		return "Plays on a specific artist";
 	}
 }

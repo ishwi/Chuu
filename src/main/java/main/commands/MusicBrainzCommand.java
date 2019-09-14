@@ -19,14 +19,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class MusicBrainzCommand extends ArtistCommand {
-	private final MusicBrainzService mb;
 	private static final int chartSize = 100;
+	private final MusicBrainzService mb;
 
 	public MusicBrainzCommand(DaoImplementation dao) {
 		super(dao);
 		this.parser = new ChartFromYearParser(dao, chartSize);//
 
 		mb = MusicBrainzServiceSingleton.getInstance();
+	}
+
+	@Override
+	public String getDescription() {
+		return "Gets your top albums from the time frame provided and check if they were released in the provided year";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Collections.singletonList("releaseyear");
 	}
 
 	@Override
@@ -96,18 +106,8 @@ public class MusicBrainzCommand extends ArtistCommand {
 	}
 
 	@Override
-	public String getDescription() {
-		return "Gets your top albums from the time frame provided and check if they were released in the provided year";
-	}
-
-	@Override
 	public String getName() {
 		return "Released in YEAR";
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("releaseyear");
 	}
 
 

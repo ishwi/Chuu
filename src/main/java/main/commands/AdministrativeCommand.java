@@ -29,12 +29,6 @@ public class AdministrativeCommand extends ConcurrentCommand {
 		parser = new UrlParser();
 	}
 
-
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("logo");
-	}
-
 	@Override
 	public void onGuildMemberLeave(@Nonnull GuildMemberLeaveEvent event) {
 
@@ -50,7 +44,6 @@ public class AdministrativeCommand extends ConcurrentCommand {
 						.removeUserFromOneGuildConsequent(event.getMember().getIdLong(), event.getGuild().getIdLong())
 				);
 	}
-
 
 	public void onStartup(JDA jda) {
 		MultiValueMap<Long, Long> map = getDao().getMapGuildUsers();
@@ -87,8 +80,8 @@ public class AdministrativeCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public String getName() {
-		return "Logo";
+	public List<String> getAliases() {
+		return Collections.singletonList("logo");
 	}
 
 	@Override
@@ -119,6 +112,11 @@ public class AdministrativeCommand extends ConcurrentCommand {
 			}
 
 		}
+	}
+
+	@Override
+	public String getName() {
+		return "Logo";
 	}
 
 

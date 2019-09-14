@@ -25,18 +25,13 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	List<String> getAliases() {
-		return Collections.singletonList("profile");
-	}
-
-	@Override
 	String getDescription() {
 		return "Brief description of user Profile";
 	}
 
 	@Override
-	String getName() {
-		return "Profile";
+	List<String> getAliases() {
+		return Collections.singletonList("profile");
 	}
 
 	@Override
@@ -89,5 +84,10 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 
 		MessageBuilder mes = new MessageBuilder();
 		mes.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+	}
+
+	@Override
+	String getName() {
+		return "Profile";
 	}
 }
