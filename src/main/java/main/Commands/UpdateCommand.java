@@ -5,7 +5,6 @@ import DAO.Entities.ArtistData;
 import main.Exceptions.LastFMNoPlaysException;
 import main.Exceptions.LastFmException;
 import main.Parsers.OnlyUsernameParser;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
@@ -18,25 +17,18 @@ public class UpdateCommand extends MyCommandDbAccess {
 	}
 
 	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("update");
-	}
-
-	@Override
 	public String getDescription() {
 		return "Keeps you up to date ";
 	}
 
 	@Override
-	public String getName() {
-		return "Update";
+	public List<String> getAliases() {
+		return Collections.singletonList("update");
 	}
 
 	@Override
 	public void onCommand(MessageReceivedEvent e) {
 		String[] message;
-		MessageBuilder mes = new MessageBuilder();
-
 		message = parser.parse(e);
 
 		if (message == null)
@@ -45,22 +37,27 @@ public class UpdateCommand extends MyCommandDbAccess {
 		try {
 			if (getDao().getAll(e.getGuild().getIdLong()).stream()
 					.noneMatch(s -> s.getLastFMName().equals(message[0]))) {
-				sendMessage(e, message[0] + " is not registered in this guild");
+				sendMessageQueue(e, message[0] + " is not registered in this guild");
 				return;
 			}
 			List<ArtistData> list = lastFM.getLibrary(message[0]);
 			getDao().insertArtistDataList(list, message[0]);
-			mes.setContent("Successfully updated " + message[0] + " info !").sendTo(e.getChannel()).queue();
+			sendMessageQueue(e, "Successfully updated " + message[0] + " info !");
 
 
 		} catch (LastFMNoPlaysException e1) {
 			parser.sendError(parser.getErrorMessage(3), e);
 
 		} catch (LastFmException ex) {
-			sendMessage(e, "Error happened while updating , sorry uwu");
+			sendMessageQueue(e, "Error happened while updating , sorry uwu");
 		}
 
 
+	}
+
+	@Override
+	public String getName() {
+		return "Update";
 	}
 
 

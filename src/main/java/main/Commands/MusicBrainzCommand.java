@@ -84,7 +84,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 		});
 
 		if (queue.isEmpty()) {
-			sendMessage(e, "Dont have  any " + year.toString() + " album in your top " + chartSize + " albums");
+			sendMessageQueue(e, "Dont have  any " + year.toString() + " album in your top " + chartSize + " albums");
 			return;
 		}
 		int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));

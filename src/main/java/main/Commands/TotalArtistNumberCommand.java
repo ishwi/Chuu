@@ -46,7 +46,7 @@ public class TotalArtistNumberCommand extends ConcurrentCommand {
 			return;
 		}
 		int plays = getDao().getUserArtistCount(lastfm);
-		sendMessage(e, "**" + username + "** has scrobbled  **" + plays + "** " + "  different artists");
+		sendMessageQueue(e, "**" + username + "** has scrobbled  **" + plays + "** " + "  different artists");
 
 	}
 }

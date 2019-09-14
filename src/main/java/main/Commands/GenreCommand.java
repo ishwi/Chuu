@@ -77,7 +77,7 @@ public class GenreCommand extends ConcurrentCommand {
 				.collect(Collectors.toList());
 		Map<Genre, Integer> map = musicBrainz.genreCount(albumInfos);
 		if (map.isEmpty()) {
-			sendMessage(e, "Was not able to find any genre ");
+			sendMessageQueue(e, "Was not able to find any genre ");
 			return;
 		}
 

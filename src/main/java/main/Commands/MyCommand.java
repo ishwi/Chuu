@@ -9,12 +9,12 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class MyCommand extends ListenerAdapter {
@@ -42,7 +42,7 @@ public abstract class MyCommand extends ListenerAdapter {
 		System.out.println("We received a message from " +
 				e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
 		if (!e.getChannelType().isGuild() && !respondInPrivate) {
-			sendMessage(e, "This command only works in a server");
+			sendMessageQueue(e, "This command only works in a server");
 			return;
 		}
 		measureTime(e);
@@ -64,19 +64,26 @@ public abstract class MyCommand extends ListenerAdapter {
 
 	abstract String getName();
 
-	Message sendMessage(MessageReceivedEvent e, String message) {
+	void sendMessageQueue(MessageReceivedEvent e, String message) {
+		sendMessageQueue(e, new MessageBuilder().append(message).build());
+	}
+
+	private void sendMessageQueue(MessageReceivedEvent e, Message message) {
+		if (e.isFromType(ChannelType.PRIVATE))
+			e.getPrivateChannel().sendMessage(message).queue();
+		else
+			e.getTextChannel().sendMessage(message).queue();
+	}
+
+	MessageAction sendMessage(MessageReceivedEvent e, String message) {
 		return sendMessage(e, new MessageBuilder().append(message).build());
 	}
 
-	private Message sendMessage(MessageReceivedEvent e, Message message) {
+	private MessageAction sendMessage(MessageReceivedEvent e, Message message) {
 		if (e.isFromType(ChannelType.PRIVATE))
-			return e.getPrivateChannel().sendMessage(message).complete();
+			return e.getPrivateChannel().sendMessage(message);
 		else
-			return e.getTextChannel().sendMessage(message).complete();
-	}
-
-	boolean containsCommand(Message message) {
-		return getAliases().contains(commandArgs(message)[0].toLowerCase());
+			return e.getTextChannel().sendMessage(message);
 	}
 
 	String[] commandArgs(Message message) {
@@ -87,17 +94,6 @@ public abstract class MyCommand extends ListenerAdapter {
 		return string.split("\\s+");
 	}
 
-	@SuppressWarnings("SameReturnValue")
-	boolean respondToBots() {
-		return false;
-	}
-
-	String[] getSubMessage(Message message) {
-		String[] parts = message.getContentRaw().substring(1).split("\\s+");
-
-		return Arrays.copyOfRange(parts, 1, parts.length);
-
-	}
 
 	void sendImage(BufferedImage image, MessageReceivedEvent e) {
 		sendImage(image, e, false);
@@ -106,7 +102,7 @@ public abstract class MyCommand extends ListenerAdapter {
 	void sendImage(BufferedImage image, MessageReceivedEvent e, boolean makeSmaller) {
 		//MessageBuilder messageBuilder = new MessageBuilder();
 		if (image == null) {
-			sendMessage(e, "Ish Pc Bad");
+			sendMessageQueue(e, "Ish Pc Bad");
 			return;
 		}
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
@@ -126,7 +122,7 @@ public abstract class MyCommand extends ListenerAdapter {
 			//messageBuilder.setContent("Boot to big").sendTo(e.getChannel()).queue();
 
 		} catch (IOException ex) {
-			sendMessage(e, "Ish Pc Bad");
+			sendMessageQueue(e, "Ish Pc Bad");
 			Chuu.getLogger().warn(ex.getMessage(), ex);
 		}
 

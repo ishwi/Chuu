@@ -50,7 +50,7 @@ public class TasteCommand extends ConcurrentCommand {
 			resultWrapper = getDao().getSimilarities(lastfMNames);
 			//TODO this happens both when user is not on db and no mathching so fix pls
 			if (resultWrapper.getRows() == 0) {
-				sendMessage(e, "You don't share any artist :(");
+				sendMessageQueue(e, "You don't share any artist :(");
 				return;
 			}
 			java.util.List<String> users = new ArrayList<>();

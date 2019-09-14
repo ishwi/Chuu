@@ -39,7 +39,7 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 		StringBuilder a = new StringBuilder();
 
 		if (list.size() == 0) {
-			sendMessage(e, "This guild has no registered users:(");
+			sendMessageQueue(e, "This guild has no registered users:(");
 			return;
 		}
 

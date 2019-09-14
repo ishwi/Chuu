@@ -37,7 +37,7 @@ public class PrefixCommand extends ConcurrentCommand {
 		getDao().addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
 		Chuu.addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
 
-		sendMessage(e, newPrefix.toString() + " is the new server prefix");
+		sendMessageQueue(e, newPrefix.toString() + " is the new server prefix");
 	}
 
 	@Override

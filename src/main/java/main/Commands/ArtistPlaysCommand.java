@@ -46,7 +46,7 @@ public class ArtistPlaysCommand extends ConcurrentCommand {
 			a = getDao().getArtistPlays(artist, data.getName());
 			String usernameString = getUserStringConsideringGuildOrNot(e, whom, data.getName());
 			String ending = a > 1 ? "times " : "time";
-			sendMessage(e, "**" + usernameString + "** has scrobbled **" + artist + " " + a + "**  " + ending);
+			sendMessageQueue(e, "**" + usernameString + "** has scrobbled **" + artist + " " + a + "**  " + ending);
 
 		} catch (InstanceNotFoundException e1) {
 			parser.sendError(parser.getErrorMessage(3), e);

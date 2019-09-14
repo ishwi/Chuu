@@ -55,7 +55,7 @@ public class SetCommand extends ConcurrentCommand {
 		List<UsersWrapper> list = getDao().getAll(guildID);
 		Optional<UsersWrapper> name = (list.stream().filter(user -> user.getLastFMName().equals(lastFmID)).findFirst());
 		if (name.isPresent()) {
-			sendMessage(e, "That username is already registered in this server sorry");
+			sendMessageQueue(e, "That username is already registered in this server sorry");
 			return;
 		}
 
@@ -64,11 +64,11 @@ public class SetCommand extends ConcurrentCommand {
 		if (u.isPresent()) {
 			//Registered with different username
 			if (!u.get().getLastFMName().equals(lastFmID)) {
-				sendMessage(e, "Changing your username, might take a while");
+				sendMessageQueue(e, "Changing your username, might take a while");
 				//Remove but only from the guild if not guild removeUser all
 				getDao().removeUserFromOneGuildConsequent(userId, guildID);
 			} else {
-				sendMessage(e, e.getAuthor().getName() + " , you are good to go!");
+				sendMessageQueue(e, e.getAuthor().getName() + " , you are good to go!");
 				return;
 			}
 			//First Time on the guild
@@ -77,7 +77,7 @@ public class SetCommand extends ConcurrentCommand {
 			if (getDao().getGuildList(userId).stream().anyMatch(user -> user != guildID)) {
 				//Adds the user to the guild
 				getDao().addGuildUser(userId, guildID);
-				sendMessage(e, e.getAuthor().getName() + " , you are good to go!");
+				sendMessageQueue(e, e.getAuthor().getName() + " , you are good to go!");
 				return;
 
 			}
@@ -96,18 +96,18 @@ public class SetCommand extends ConcurrentCommand {
 					.now().format(DateTimeFormatter.ISO_DATE));
 
 			System.out.println(" Number of rows updated :" + artistDataLinkedList.size());
-			sendMessage(e, "Finished updating " + e.getAuthor().getName() + " library, you are good to go!");
+			sendMessageQueue(e, "Finished updating " + e.getAuthor().getName() + " library, you are good to go!");
 		} catch (
 				LastFMNoPlaysException ex) {
 			getDao().updateUserTimeStamp(lastFmID, null, null);
-			sendMessage(e, "Finished updating " + e.getAuthor().getName() + "'s library, you are good to go!");
+			sendMessageQueue(e, "Finished updating " + e.getAuthor().getName() + "'s library, you are good to go!");
 
 		} catch (Throwable ex) {
 			System.out.println("Error while updating" + lastFmID + LocalDateTime.now()
 					.format(DateTimeFormatter.ISO_DATE));
 			Chuu.getLogger().warn(ex.getMessage(), ex);
 			getDao().updateUserTimeStamp(lastFmID, 0, null);
-			sendMessage(e, "Error  updating" + e.getAuthor()
+			sendMessageQueue(e, "Error  updating" + e.getAuthor()
 					.getName() + "'s  library, try to use the !update command!");
 		}
 

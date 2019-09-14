@@ -29,7 +29,7 @@ public class NPYoutubeCommand extends NpCommand {
 			System.out.println("Doing a second attempt");
 			uri = search.doSearch(nowPlayingArtist.getSongName() + " " + nowPlayingArtist.getArtistName());
 			if (uri.equals("")) {
-				sendMessage(e, "Was not able to find artist " + nowPlayingArtist
+				sendMessageQueue(e, "Was not able to find artist " + nowPlayingArtist
 						.getArtistName() + " - " + nowPlayingArtist.getSongName() + " on YT");
 				return;
 			}

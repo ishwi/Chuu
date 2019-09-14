@@ -14,10 +14,10 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class WhoKnowsAlbum extends AlbumPlaysCommand {
+public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 
 
-	public WhoKnowsAlbum(DaoImplementation dao) {
+	public WhoKnowsAlbumCommand(DaoImplementation dao) {
 		super(dao);
 		this.respondInPrivate = false;
 	}
@@ -29,7 +29,7 @@ public class WhoKnowsAlbum extends AlbumPlaysCommand {
 		//Gets list of users registered in guild
 		List<UsersWrapper> userList = getDao().getAll(id);
 		if (userList.isEmpty()) {
-			sendMessage(e, "No users are registered on this server");
+			sendMessageQueue(e, "No users are registered on this server");
 			return;
 		}
 
@@ -52,7 +52,7 @@ public class WhoKnowsAlbum extends AlbumPlaysCommand {
 				}
 		).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
 		if (list2.isEmpty()) {
-			sendMessage(e, " No nibba knows " + artist + " - " + album);
+			sendMessageQueue(e, " No nibba knows " + artist + " - " + album);
 			return;
 		}
 

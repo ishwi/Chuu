@@ -54,7 +54,7 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 			}
 			String correction = CommandUtil.onlyCorrection(getDao(), artist, lastFM);
 			getDao().upsertUrl(new ArtistInfo(urlParsed, correction));
-			sendMessage(e, "Image of " + correction + " updated");
+			sendMessageQueue(e, "Image of " + correction + " updated");
 
 		} catch (IOException exception) {
 			parser.sendError(parser.getErrorMessage(2), e);

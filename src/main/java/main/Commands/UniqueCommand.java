@@ -56,7 +56,7 @@ public class UniqueCommand extends ConcurrentCommand {
 		int rows = resultWrapper.getUniqueData().size();
 
 		if (rows == 0) {
-			sendMessage(e, "You have no Unique Artists :(");
+			sendMessageQueue(e, "You have no Unique Artists :(");
 			return;
 		}
 		String lastFMID = resultWrapper.getLastFmId();

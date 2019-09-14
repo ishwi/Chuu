@@ -100,22 +100,22 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
 		if (urlParsed.length == 0) {
 			getDao().removeLogo(e.getGuild().getIdLong());
-			sendMessage(e, "Removed logo from the server  ");
+			sendMessageQueue(e, "Removed logo from the server  ");
 		} else {
 
 			try (InputStream in = new URL(urlParsed[0]).openStream()) {
 				BufferedImage image = ImageIO.read(in);
 				if (image == null) {
-					sendMessage(e, "Couldn't get an Image from link supplied");
+					sendMessageQueue(e, "Couldn't get an Image from link supplied");
 					return;
 				}
 				image = Scalr.resize(image, Scalr.Method.QUALITY, 75, Scalr.OP_ANTIALIAS);
 
 				getDao().addLogo(e.getGuild().getIdLong(), image);
-				sendMessage(e, "Logo Updated");
+				sendMessageQueue(e, "Logo Updated");
 			} catch (IOException exception) {
 				Chuu.getLogger().warn(exception.getMessage(), exception);
-				sendMessage(e, "Something Happened while processing the image ");
+				sendMessageQueue(e, "Something Happened while processing the image ");
 			}
 
 		}

@@ -95,7 +95,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
 				}
 		);
 		if (a.length() == 0) {
-			sendMessage(e, "None is listening to music at the moment UwU");
+			sendMessageQueue(e, "None is listening to music at the moment UwU");
 			return;
 		}
 

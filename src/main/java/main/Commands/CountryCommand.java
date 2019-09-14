@@ -55,7 +55,7 @@ public class CountryCommand extends ConcurrentCommand {
 		String username = returned[0];
 		String timeframe = returned[1];
 		if (timeframe.equals(TimeFrameEnum.SEMESTER.toApiFormat()) || timeframe.equals(TimeFrameEnum.ALL.toApiFormat()))
-			sendMessage(e, "Going to take a while ");
+			sendMessageQueue(e, "Going to take a while ");
 
 		BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 		try {
@@ -75,7 +75,7 @@ public class CountryCommand extends ConcurrentCommand {
 		Map<Country, Integer> map = musicBrainz.countryCount(artistInfos);
 
 		if (map.isEmpty()) {
-			sendMessage(e, "Was not able to find any country ");
+			sendMessageQueue(e, "Was not able to find any country ");
 			return;
 		}
 

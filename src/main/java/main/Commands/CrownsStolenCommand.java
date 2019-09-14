@@ -48,7 +48,7 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 		String ogLastFmId = message[0];
 		String secondlastFmId = message[1];
 		if (ogLastFmId.equals(secondlastFmId)) {
-			sendMessage(e, "Sis, dont use the same person twice");
+			sendMessageQueue(e, "Sis, dont use the same person twice");
 			return;
 		}
 
@@ -65,11 +65,11 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 				Member member2 = e.getGuild().getMemberById(discId2);
 				assert (member != null);
 				assert member2 != null;
-				sendMessage(e, member2.getEffectiveName() + " hasn't stolen anything from " + member
+				sendMessageQueue(e, member2.getEffectiveName() + " hasn't stolen anything from " + member
 						.getEffectiveName());
 
 			} catch (InstanceNotFoundException ex) {
-				sendMessage(e, "The other person is not stealing anything ");
+				sendMessageQueue(e, "The other person is not stealing anything ");
 			}
 			return;
 		}
