@@ -1,12 +1,12 @@
 package main;
 
-import DAO.DaoImplementation;
-import main.APIs.Discogs.DiscogsSingleton;
-import main.APIs.Spotify.SpotifySingleton;
-import main.Commands.*;
-import main.ScheduledTasks.ImageUpdaterThread;
-import main.ScheduledTasks.SpotifyUpdaterThread;
-import main.ScheduledTasks.UpdaterThread;
+import dao.DaoImplementation;
+import main.apis.Discogs.DiscogsSingleton;
+import main.apis.Spotify.SpotifySingleton;
+import main.commands.*;
+import main.scheduledtasks.ImageUpdaterThread;
+import main.scheduledtasks.SpotifyUpdaterThread;
+import main.scheduledtasks.UpdaterThread;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
