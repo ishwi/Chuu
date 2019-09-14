@@ -31,7 +31,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 		try {
 			lastFmName = getDao().findLastFMData(userId).getName();
 		} catch (InstanceNotFoundException ex) {
-			sendMessage(e, "Error f");
+			sendMessageQueue(e, "Error f");
 			return;
 		}
 

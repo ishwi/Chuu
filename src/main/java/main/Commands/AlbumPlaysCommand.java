@@ -44,7 +44,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 
 			String ending = a > 1 ? "times " : "time";
 
-			sendMessage(e, "**" + usernameString + "** has listened **" + album + "** " + a + " " + ending);
+			sendMessageQueue(e, "**" + usernameString + "** has listened **" + album + "** " + a + " " + ending);
 
 		} catch (InstanceNotFoundException ex) {
 			parser.sendError(parser.getErrorMessage(5), e);

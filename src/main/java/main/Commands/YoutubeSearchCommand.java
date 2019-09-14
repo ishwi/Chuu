@@ -9,10 +9,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Collections;
 import java.util.List;
 
-public class YoutubeSearch extends ConcurrentCommand {
+public class YoutubeSearchCommand extends ConcurrentCommand {
 	private final Search youtubeSearch;
 
-	public YoutubeSearch(DaoImplementation dao) {
+	public YoutubeSearchCommand(DaoImplementation dao) {
 		super(dao);
 		youtubeSearch = SearchSingleton.getInstanceUsingDoubleLocking();
 		this.parser = new UsernameAndNpQueryParser(dao, lastFM);
@@ -42,7 +42,7 @@ public class YoutubeSearch extends ConcurrentCommand {
 		}
 		String query = returned[0];
 		//long whom = Long.parseLong(returned[1]);
-		sendMessage(e, youtubeSearch.doSearch(query));
+		sendMessageQueue(e, youtubeSearch.doSearch(query));
 
 	}
 }

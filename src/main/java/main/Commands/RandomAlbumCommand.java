@@ -41,14 +41,14 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 			//get randomurl
 			RandomUrlEntity randomUrl = getDao().getRandomUrl();
 			if (randomUrl == null) {
-				sendMessage(e, "The pool of urls was empty, add one first! ");
+				sendMessageQueue(e, "The pool of urls was empty, add one first! ");
 				return;
 			}
 			String sb = e.getAuthor().getAsMention() + ", here's your random recommendation\n" +
 					"**Posted by:** " +
 					getUserGlobalString(randomUrl.getDiscordId(), e, "unknown") + "\n**Link:** " +
 					randomUrl.getUrl();
-			sendMessage(e, sb);
+			sendMessageQueue(e, sb);
 
 			return;
 		}
@@ -56,10 +56,10 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 		Long guildId = CommandUtil.getGuildIdConsideringPrivateChannel(e);
 
 		if (!getDao().addToRandomPool(new RandomUrlEntity(returned[0], e.getAuthor().getIdLong(), guildId))) {
-			sendMessage(e, "The provided url: " + returned[0] + " was already on the pool");
+			sendMessageQueue(e, "The provided url: " + returned[0] + " was already on the pool");
 			return;
 		}
-		sendMessage(e, "Successfully added " + getUserString(e.getAuthor().getIdLong(), e, e.getAuthor()
+		sendMessageQueue(e, "Successfully added " + getUserString(e.getAuthor().getIdLong(), e, e.getAuthor()
 				.getName()) + "'s link  to the pool");
 
 	}

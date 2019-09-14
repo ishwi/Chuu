@@ -43,7 +43,7 @@ public class TimeSpentCommand extends ConcurrentCommand {
 		String username = message[0];
 		String timeframe = message[1];
 		if (!timeframe.equals("7day") && !timeframe.equals("1month") && !timeframe.equals("3month")) {
-			sendMessage(e, "Only [w]eek,[m]onth and [q]uarter is supported at the moment , sorry :'(");
+			sendMessageQueue(e, "Only [w]eek,[m]onth and [q]uarter is supported at the moment , sorry :'(");
 			return;
 		}
 		try {
@@ -51,7 +51,7 @@ public class TimeSpentCommand extends ConcurrentCommand {
 			String usableString = this.getUserString(userId, e, username);
 			SecondsTimeFrameCount wastedOnMusic = lastFM.getMinutesWastedOnMusic(username, timeframe);
 
-			sendMessage(e, "**" + usableString + "** played " +
+			sendMessageQueue(e, "**" + usableString + "** played " +
 					wastedOnMusic.getMinutes() +
 					" minutes of music, " + String
 					.format("(%d:%02d ", wastedOnMusic.getHours(),

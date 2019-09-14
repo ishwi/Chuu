@@ -51,7 +51,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
 		List<UniqueData> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 		int rows = resultWrapper.size();
 		if (resultWrapper.isEmpty()) {
-			sendMessage(e, "You don't have any album crown :'(");
+			sendMessageQueue(e, "You don't have any album crown :'(");
 			return;
 		}
 		for (int i = 0; i < 10 && i < rows; i++) {
