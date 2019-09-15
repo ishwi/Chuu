@@ -3,6 +3,7 @@ package main.commands;
 import dao.DaoImplementation;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.Track;
+import main.exceptions.LastFMNoPlaysException;
 import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.OnlyUsernameParser;
@@ -40,10 +41,12 @@ public class DailyCommand extends ConcurrentCommand {
 		try {
 			Map<Track, Integer> durationsFromWeek = lastFM.getDurationsFromWeek(lastfmName);
 			SecondsTimeFrameCount minutesWastedOnMusicDaily = lastFM
-					.getMinutesWastedOnMusicDaily(lastfmName, durationsFromWeek, (int) Instant.now()
-							.minus(1, ChronoUnit.DAYS).getEpochSecond());
+					.getMinutesWastedOnMusicDaily(lastfmName, durationsFromWeek,
+							(int) Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond());
+
 			long userId = getDao().getDiscordIdFromLastfm(lastfmName, e.getGuild().getIdLong());
 			String usableString = this.getUserStringConsideringGuildOrNot(e, userId, lastfmName);
+
 			sendMessageQueue(e, "**" + usableString + "** played " +
 					minutesWastedOnMusicDaily.getMinutes() +
 					" minutes of music, " + String
@@ -51,8 +54,12 @@ public class DailyCommand extends ConcurrentCommand {
 							minutesWastedOnMusicDaily.getRemainingMinutes()) +
 					CommandUtil.singlePlural(minutesWastedOnMusicDaily.getHours(), "hour", "hours") +
 					"), listening to " + minutesWastedOnMusicDaily
-					.getCount() + " tracks in the last 24 hours");
-
+					.getCount() +
+					CommandUtil.singlePlural(minutesWastedOnMusicDaily.getCount(),
+							"track", "tracks")
+					+ " in the last 24 hours");
+		} catch (LastFMNoPlaysException ex) {
+			parser.sendError(parser.getErrorMessage(3), e);
 		} catch (LastFmEntityNotFoundException ex) {
 			parser.sendError(parser.getErrorMessage(4), e);
 		} catch (LastFmException ex) {
