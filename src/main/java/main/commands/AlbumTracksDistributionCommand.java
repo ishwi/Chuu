@@ -1,6 +1,5 @@
 package main.commands;
 
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import dao.DaoImplementation;
 import dao.entities.ArtistData;
@@ -113,18 +112,17 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 		}
 		List<Track> handler = new ArrayList<>(trackList);
 
-		Multimap<Integer, Track> index =
-				Multimaps.index(handler, Track::getPosition);
-
-		List<Track> collect = index.asMap().values().stream().map(value -> {
-			Optional<Track> max = value.stream().max(Comparator.comparingInt(Track::getPlays));
-			return max.orElse(null);
-		}).filter(Objects::nonNull).sorted(Comparator.comparingInt(Track::getPosition)).collect(Collectors.toList());
+		List<Track> collect = Multimaps.index(handler, Track::getPosition)
+				.asMap().values().stream()
+				.map(value -> {
+					Optional<Track> max = value.stream().max(Comparator.comparingInt(Track::getPlays));
+					return max.orElse(null);
+				}).filter(Objects::nonNull).sorted(Comparator.comparingInt(Track::getPosition))
+				.collect(Collectors.toList());
 		if (trackList.stream().mapToInt(Track::getPlays).sum() <= collect.stream().mapToInt(Track::getPlays).sum()) {
 			fullAlbumEntity.setTrackList(collect);
 		}
 
-		System.out.println(index);
 		fullAlbumEntity.setArtistUrl(artistUrl);
 		BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity, false);
 		sendImage(bufferedImage, e);

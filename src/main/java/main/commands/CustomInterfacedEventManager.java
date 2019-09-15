@@ -63,7 +63,7 @@ public class CustomInterfacedEventManager implements IEventManager {
 			MessageReceivedEvent mes = (MessageReceivedEvent) event;
 			Character correspondingPrefix = Chuu.getCorrespondingPrefix(mes);
 			String contentRaw = mes.getMessage().getContentRaw();
-			if (contentRaw.charAt(0) != correspondingPrefix)
+			if (contentRaw.length() <= 1 || contentRaw.charAt(0) != correspondingPrefix)
 				return;
 			String substring = contentRaw.substring(1).split("\\s+")[0];
 			MyCommand myCommand = commandListeners.get(substring);
