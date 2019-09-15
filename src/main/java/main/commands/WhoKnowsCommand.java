@@ -63,8 +63,8 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 		WrapperReturnNowPlaying wrapperReturnNowPlaying =
 				isList
-						? this.getDao().whoKnows(who.getArtist(), e.getGuild().getIdLong())
-						: this.getDao().whoKnows(who.getArtist(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
+						? this.getDao().whoKnows(who.getArtist(), e.getGuild().getIdLong(), Integer.MAX_VALUE)
+						: this.getDao().whoKnows(who.getArtist(), e.getGuild().getIdLong());
 		if (wrapperReturnNowPlaying.getRows() == 0) {
 			messageBuilder.setContent("No nibba knows " + who.getArtist()).sendTo(e.getChannel()).queue();
 			return;

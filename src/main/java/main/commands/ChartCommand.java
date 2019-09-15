@@ -77,7 +77,7 @@ public class ChartCommand extends ConcurrentCommand {
 		if (minx == 1)
 			x = size;
 		boolean makeSmaller = false;
-		if (x * y > 42)
+		if (size > 45)
 			makeSmaller = true;
 		BufferedImage image = CollageMaker
 				.generateCollageThreaded(x, minx, queue, writeTitles, writePlays, makeSmaller);
