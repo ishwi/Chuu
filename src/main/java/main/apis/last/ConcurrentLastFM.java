@@ -314,7 +314,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 			for (int i = 0; i < arr.length(); i++) {
 				JSONObject jsonObj = (arr.getJSONObject(i));
 				String name = jsonObj.getString("name");
-				int duration = jsonObj.getInt("duration") / 1000;
+				int duration = jsonObj.getInt("duration");
 				int frequency = jsonObj.getInt("playcount");
 				duration = duration == 0 ? SONG_AVERAGE_LENGTH_SECONDS : duration;
 				String artist_name = jsonObj.getJSONObject("artist").getString("name");
@@ -643,7 +643,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 		int userplaycount = obj.getInt("userplaycount");
 		String re_trackName = obj.getString("name");
 		boolean userloved = obj.getInt("userloved") != 0;
-		int duration = obj.getInt("duration") / 1000;
+		int duration = obj.getInt("duration");
 		String re_artist = obj.getJSONObject("artist").getString("name");
 
 		Track track = new Track(re_artist, re_trackName, userplaycount, userloved, duration);
@@ -751,7 +751,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 				if (artistName.equalsIgnoreCase(artist)) {
 					String trackName = trackObj.getString("name");
-					int duration = trackObj.getInt("duration") / 1000;
+					int duration = trackObj.getInt("duration");
 					Track track = new Track(artist, trackName, userplaycount, false, duration);
 					trackList.add(track);
 					if (trackList.size() == SIZE_LIMIT)
@@ -784,6 +784,50 @@ public class ConcurrentLastFM {//implements LastFMService {
 		} else
 			return 0;
 
+	}
+
+	public List<TimestampWrapper<Track>> getTracksAndTimestamps(String username, int from, int to) throws LastFmException {
+		List<TimestampWrapper<Track>> list = new ArrayList<>();
+		String url = BASE + GET_ALL + username + API_KEY + ENDING + "&extended=1" + "&from=" + (from) + "&to=" + to;
+
+		int page = 0;
+		int totalPages = 1;
+		while (page < totalPages) {
+			try {
+				String urlPage = url + "&page=" + ++page;
+				HttpMethodBase method = createMethod(urlPage);
+				JSONObject obj = doMethod(method);
+				obj = obj.getJSONObject("recenttracks");
+				JSONObject attrObj = obj.getJSONObject("@attr");
+				System.out.println("Plays " + attrObj.getInt("total"));
+				totalPages = attrObj.getInt("totalPages");
+				if (totalPages == 0) {
+					throw new LastFMNoPlaysException(username);
+				}
+
+				JSONArray arr = obj.getJSONArray("track");
+				for (int i = 0; i < arr.length(); i++) {
+
+					JSONObject trackObj = arr.getJSONObject(i);
+					if (trackObj.has("@attr"))
+						continue;
+					JSONObject date = trackObj.getJSONObject("date");
+					int timestamp = date.getInt("uts");
+
+					String trackName = trackObj.getString("name");
+
+					JSONObject artistObj = trackObj.getJSONObject("artist");
+
+					String artistName = artistObj.getString("name");
+					Track track = new Track(artistName, trackName, 0, false, 0);
+					TimestampWrapper<Track> wrapper = new TimestampWrapper<>(track, timestamp);
+					list.add(wrapper);
+				}
+			} catch (JSONException e) {
+				throw new LastFMNoPlaysException("a");
+			}
+		}
+		return list;
 	}
 }
 
