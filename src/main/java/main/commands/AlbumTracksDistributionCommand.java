@@ -1,5 +1,7 @@
 package main.commands;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import dao.DaoImplementation;
 import dao.entities.ArtistData;
 import dao.entities.FullAlbumEntity;
@@ -18,9 +20,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 	private final MusicBrainzService mb;
@@ -71,7 +72,8 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 			parser.sendError(parser.getErrorMessage(2), e);
 			return;
 		}
-		if (fullAlbumEntity.getTrackList().isEmpty()) {
+		List<Track> trackList = fullAlbumEntity.getTrackList();
+		if (trackList.isEmpty()) {
 
 			mb.getAlbumTrackList(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum())
 					.stream().map(t ->
@@ -84,7 +86,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 					}
 			).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
 
-			if (fullAlbumEntity.getTrackList().isEmpty()) {
+			if (trackList.isEmpty()) {
 				//Force it to lowerCase
 				mb.getAlbumTrackListLowerCase(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum())
 						.stream().map(t ->
@@ -97,7 +99,8 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 						}
 				).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
 
-				if (fullAlbumEntity.getTrackList().isEmpty()) {
+				if (trackList.isEmpty()) {
+					//If is still empty well fuck it
 
 					sendMessageQueue(e, "Couldn't  find a tracklist for " + fullAlbumEntity
 							.getArtist() + " - " + fullAlbumEntity
@@ -107,9 +110,21 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 
 			}
 
-			//If is still empty well fuck it
+		}
+		List<Track> handler = new ArrayList<>(trackList);
+
+		Multimap<Integer, Track> index =
+				Multimaps.index(handler, Track::getPosition);
+
+		List<Track> collect = index.asMap().values().stream().map(value -> {
+			Optional<Track> max = value.stream().max(Comparator.comparingInt(Track::getPlays));
+			return max.orElse(null);
+		}).filter(Objects::nonNull).sorted(Comparator.comparingInt(Track::getPosition)).collect(Collectors.toList());
+		if (trackList.stream().mapToInt(Track::getPlays).sum() <= collect.stream().mapToInt(Track::getPlays).sum()) {
+			fullAlbumEntity.setTrackList(collect);
 		}
 
+		System.out.println(index);
 		fullAlbumEntity.setArtistUrl(artistUrl);
 		BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity, false);
 		sendImage(bufferedImage, e);
