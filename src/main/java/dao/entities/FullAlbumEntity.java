@@ -8,9 +8,8 @@ public class FullAlbumEntity {
 	private final String album;
 	private final int totalPlayNumber;
 	private final String albumUrl;
-	private final List<Track> trackList = new ArrayList<>();
-
 	private final String username;
+	private List<Track> trackList = new ArrayList<>();
 	private String artistUrl;
 
 	public FullAlbumEntity(String artist, String album, int totalPlayNumber, String albumUrl, String username) {
@@ -24,7 +23,6 @@ public class FullAlbumEntity {
 	public String getUsername() {
 		return username;
 	}
-
 
 	public String getArtistUrl() {
 		return artistUrl;
@@ -57,4 +55,9 @@ public class FullAlbumEntity {
 	public List<Track> getTrackList() {
 		return trackList;
 	}
+
+	public void setTrackList(List<Track> trackList) {
+		this.trackList = trackList;
+	}
+
 }
