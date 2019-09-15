@@ -41,6 +41,7 @@ public class WeeklyCommand extends ConcurrentCommand {
 		return Arrays.asList("week", "weekly");
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	void onCommand(MessageReceivedEvent e) {
 		String[] parse = parser.parse(e);
@@ -84,6 +85,7 @@ public class WeeklyCommand extends ConcurrentCommand {
 			).forEach(x -> {
 				LocalDateTime time = x.getKey();
 				List<Map.Entry<Integer, Integer>> value = (List<Map.Entry<Integer, Integer>>) x.getValue();
+
 				int seconds = value.stream().mapToInt(Map.Entry::getValue).sum();
 
 				minutesWastedOnMusicDaily.setSeconds(seconds);
