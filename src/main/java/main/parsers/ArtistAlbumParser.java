@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ArtistAlbumParser extends DaoParser {
-	private final ConcurrentLastFM lastFM;
+	final ConcurrentLastFM lastFM;
 
 	public ArtistAlbumParser(DaoImplementation dao, ConcurrentLastFM lastFM) {
 		super(dao);

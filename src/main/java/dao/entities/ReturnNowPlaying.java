@@ -62,5 +62,4 @@ public class ReturnNowPlaying {
 		this.playNumber = playNumber;
 	}
 
-
 }
