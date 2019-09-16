@@ -81,7 +81,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
 
 		for (int i = 0; i < 10 && i < ai.size(); i++) {
 			Track g = ai.get(i);
-			s.append(i + 1).append(": ").append(g.getName()).append(" - ").append(g.getPlays()).append(" plays")
+			s.append(i + 1).append(". **").append(g.getName()).append("** - ").append(g.getPlays()).append(" plays")
 					.append("\n");
 		}
 		EmbedBuilder embedBuilder = new EmbedBuilder();
