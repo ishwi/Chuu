@@ -75,7 +75,6 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 			StringBuilder builder = new StringBuilder();
 			int counter = 1;
 			for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {
-
 				String userName = getUserString(returnNowPlaying.getDiscordId(), e, returnNowPlaying.getLastFMId());
 				builder.append(counter++)
 						.append(". ")
@@ -84,6 +83,8 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 								.getLastFmArtistUserUrl(returnNowPlaying.getArtist(), returnNowPlaying.getLastFMId()))
 						.append(") - ")
 						.append(returnNowPlaying.getPlayNumber()).append(" plays\n");
+				if (counter == 11)
+					break;
 			}
 
 			embedBuilder.setTitle("Who knows " + who.getArtist() + " in " + e.getGuild().getName() + "?").

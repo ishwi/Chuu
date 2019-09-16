@@ -38,16 +38,16 @@ public class DailyCommand extends ConcurrentCommand {
 		if (parse == null)
 			return;
 		String lastfmName = parse[0];
+		String usable = lastfmName;
 		try {
+			long userId = getDao().getDiscordIdFromLastfm(lastfmName, e.getGuild().getIdLong());
+			usable = this.getUserStringConsideringGuildOrNot(e, userId, lastfmName);
 			Map<Track, Integer> durationsFromWeek = lastFM.getDurationsFromWeek(lastfmName);
 			SecondsTimeFrameCount minutesWastedOnMusicDaily = lastFM
 					.getMinutesWastedOnMusicDaily(lastfmName, durationsFromWeek,
 							(int) Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond());
 
-			long userId = getDao().getDiscordIdFromLastfm(lastfmName, e.getGuild().getIdLong());
-			String usableString = this.getUserStringConsideringGuildOrNot(e, userId, lastfmName);
-
-			sendMessageQueue(e, "**" + usableString + "** played " +
+			sendMessageQueue(e, "**" + usable + "** played " +
 					minutesWastedOnMusicDaily.getMinutes() +
 					" minutes of music, " + String
 					.format("(%d:%02d ", minutesWastedOnMusicDaily.getHours(),
@@ -59,7 +59,7 @@ public class DailyCommand extends ConcurrentCommand {
 							"track", "tracks")
 					+ " in the last 24 hours");
 		} catch (LastFMNoPlaysException ex) {
-			parser.sendError(parser.getErrorMessage(3), e);
+			sendMessageQueue(e, "**" + usable + " ** played 0 mins , really,  0! mins in the last 24 hours");
 		} catch (LastFmEntityNotFoundException ex) {
 			parser.sendError(parser.getErrorMessage(4), e);
 		} catch (LastFmException ex) {

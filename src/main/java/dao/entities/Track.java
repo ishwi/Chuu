@@ -71,4 +71,10 @@ public class Track {
 		if (!artist.equals(track.artist)) return false;
 		return name.equals(track.name);
 	}
+
+	@Override
+	public String toString() {
+		return ". **" + name + "** - " + plays + " plays" +
+				"\n";
+	}
 }

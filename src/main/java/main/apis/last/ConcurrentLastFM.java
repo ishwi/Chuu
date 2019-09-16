@@ -42,7 +42,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 	private final static String GET_TOP_TRACKS = "?method=user.gettoptracks&user=";
 	private final static String GET_CORRECTION = "?method=artist.getcorrection&artist=";
 	private final static String GET_ARTIST_ALBUMS = "?method=artist.gettopalbums&artist=";
-	private final static String GET_USER_TOP_TRACKS = "?method=user.gettoptracks&user=";
 	private final static String GET_ARTIST_INFO = "?method=artist.getinfo&artist=";
 	private final static Header header = initHeader();
 	private final String API_KEY;
@@ -713,13 +712,15 @@ public class ConcurrentLastFM {//implements LastFMService {
 		String url;
 		int page = 1;
 		boolean cont = true;
+		boolean dontdoAll = true;
+
 		int limit = 2;
 
-		try {
-			url = BASE + GET_USER_TOP_TRACKS + username + "&artist=" + URLEncoder
-					.encode(artist, "UTF-8") + API_KEY + "&limit=" + 1000 + ENDING;
-		} catch (UnsupportedEncodingException e) {
-			throw new LastFMServiceException("400");
+		url = BASE + GET_TOP_TRACKS + username +
+				API_KEY + "&limit=" + 1000 + ENDING + "&period=" + weekly;
+		if (weekly.equalsIgnoreCase(TimeFrameEnum.WEEK.toApiFormat()) || weekly
+				.equalsIgnoreCase(TimeFrameEnum.MONTH.toApiFormat())) {
+			dontdoAll = false;
 		}
 
 		while (trackList.size() < SIZE_LIMIT && page < limit && cont) {
@@ -742,7 +743,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 			for (int i = 0; i < arr.length(); i++) {
 				JSONObject trackObj = arr.getJSONObject(i);
 				int userplaycount = trackObj.getInt("playcount");
-				if (userplaycount < 3) {
+				if (dontdoAll && userplaycount < 3) {
 					cont = false;
 					break;
 				}
@@ -828,6 +829,37 @@ public class ConcurrentLastFM {//implements LastFMService {
 			}
 		}
 		return list;
+	}
+
+	public List<Track> getListTopTrack(String username, String timeframe) throws LastFmException {
+
+		List<Track> trackList = new ArrayList<>();
+		String url = BASE + GET_TOP_TRACKS + username + API_KEY + ENDING + "&period=" + timeframe + "&limit=200";
+		HttpMethodBase method = createMethod(url);
+		// Execute the method.
+		JSONObject obj = doMethod(method);
+		if (!obj.has("toptracks")) {
+			throw new LastFmEntityNotFoundException(username);
+		}
+
+		obj = obj.getJSONObject("toptracks");
+		if (obj.getJSONObject("@attr").getInt("totalPages") == 0)
+			throw new LastFMNoPlaysException(username);
+
+		JSONArray arr = obj.getJSONArray("track");
+		for (int i = 0; i < arr.length(); i++) {
+			JSONObject jsonObj = (arr.getJSONObject(i));
+			String name = jsonObj.getString("name");
+			int duration = jsonObj.getInt("duration");
+			int frequency = jsonObj.getInt("playcount");
+			duration = duration == 0 ? 200 : duration;
+			String artist_name = jsonObj.getJSONObject("artist").getString("name");
+
+			trackList.add(new Track(artist_name, name, frequency, false, duration));
+		}
+
+		return trackList;
+
 	}
 }
 

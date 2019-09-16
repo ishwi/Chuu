@@ -121,7 +121,7 @@ public class WeeklyCommand extends ConcurrentCommand {
 		} catch (LastFmEntityNotFoundException ex) {
 			parser.sendError(parser.getErrorMessage(4), e);
 		} catch (LastFmException ex) {
-			parser.sendError("Internal Service Error, try again later", e);
+			parser.sendError(parser.getErrorMessage(2), e);
 		} catch (InstanceNotFoundException ex) {
 			parser.sendError(parser.getErrorMessage(1), e);
 
