@@ -23,7 +23,7 @@ public class ArtistUrlParser extends Parser {
 		if (subMessage.length >= 1) {
 			StringBuilder a = new StringBuilder();
 			for (String s : subMessage) {
-				if (noUrl && isValidURL(s)) {
+				if (noUrl && UrlParser.isValidURL(s)) {
 					noUrl = false;
 					url = s;
 					continue;

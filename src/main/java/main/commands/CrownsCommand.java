@@ -33,36 +33,38 @@ public class CrownsCommand extends ConcurrentCommand {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e) {
-		String[] message;
-
-		message = parser.parse(e);
-		if (message == null)
+		String[] returned = parser.parse(e);
+		if (returned == null)
 			return;
+		String lastFmName = returned[0];
+		//long discordID = Long.parseLong(returned[1]);
 
-		MessageBuilder mes = new MessageBuilder();
-		EmbedBuilder embedBuilder = new EmbedBuilder();
-		StringBuilder a = new StringBuilder();
-		UniqueWrapper<UniqueData> uniqueDataUniqueWrapper = getDao().getCrowns(message[0], e.getGuild().getIdLong());
+		UniqueWrapper<UniqueData> uniqueDataUniqueWrapper = getDao().getCrowns(lastFmName, e.getGuild().getIdLong());
 		List<UniqueData> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 		int rows = resultWrapper.size();
-		if (resultWrapper.isEmpty()) {
+		if (rows == 0) {
 			sendMessageQueue(e, "You don't have any crown :'(");
 			return;
 		}
+
+		StringBuilder a = new StringBuilder();
 		for (int i = 0; i < 10 && i < rows; i++) {
 			UniqueData g = resultWrapper.get(i);
 			a.append(i + 1).append(g.toString());
 		}
 
+		Member whoD = e.getGuild().getMemberById(uniqueDataUniqueWrapper.getDiscordId());
+		String name = whoD == null ? lastFmName : whoD.getEffectiveName();
+
+		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setDescription(a);
 		embedBuilder.setColor(CommandUtil.randomColor());
-		Member whoD = e.getGuild().getMemberById(uniqueDataUniqueWrapper.getDiscordId());
-		String name = whoD == null ? message[0] : whoD.getEffectiveName();
 		embedBuilder.setTitle(name + "'s crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
 		embedBuilder.setFooter(name + " has " + resultWrapper.size() + " crowns!!\n", null);
 		if (whoD != null)
 			embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
 
+		MessageBuilder mes = new MessageBuilder();
 		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
 				new Reactionary<>(resultWrapper, message1, embedBuilder));
 	}

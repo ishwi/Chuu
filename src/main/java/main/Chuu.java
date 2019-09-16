@@ -89,8 +89,9 @@ public class Chuu {
 		Properties properties = readToken();
 		DaoImplementation dao = new DaoImplementation();
 		prefixMap = initPrefixMap(dao);
-		new SpotifySingleton(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
 		new DiscogsSingleton(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
+		new SpotifySingleton(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
+
 
 		//Needs these three references
 		HelpCommand help = new HelpCommand();

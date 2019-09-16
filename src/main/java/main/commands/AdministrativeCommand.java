@@ -105,10 +105,10 @@ public class AdministrativeCommand extends ConcurrentCommand {
 				image = Scalr.resize(image, Scalr.Method.QUALITY, 75, Scalr.OP_ANTIALIAS);
 
 				getDao().addLogo(e.getGuild().getIdLong(), image);
-				sendMessageQueue(e, "Logo Updated");
+				sendMessageQueue(e, "Logo updated");
 			} catch (IOException exception) {
 				Chuu.getLogger().warn(exception.getMessage(), exception);
-				sendMessageQueue(e, "Something Happened while processing the image ");
+				sendMessageQueue(e, "Something happened while processing the image ");
 			}
 
 		}

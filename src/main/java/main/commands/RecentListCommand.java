@@ -10,11 +10,12 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
 public class RecentListCommand extends ConcurrentCommand {
+	private final int LIMIT = 5;
+
 	public RecentListCommand(DaoImplementation dao) {
 		super(dao);
 		this.parser = new OnlyUsernameParser(dao);
@@ -37,21 +38,21 @@ public class RecentListCommand extends ConcurrentCommand {
 		if (returned == null) {
 			return;
 		}
-		int limit = 5;
-		String username = returned[0];
+		String lastFmName = returned[0];
+		long discordID = Long.parseLong(returned[1]);
+		String usable = getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
 		try {
-			long discordId = getDao().getDiscordIdFromLastfm(username, e.getGuild().getIdLong());
 
-			List<NowPlayingArtist> list = lastFM.getRecent(username, limit);
+			List<NowPlayingArtist> list = lastFM.getRecent(lastFmName, LIMIT);
+			//Can't be empty because NoPLaysException
 			NowPlayingArtist header = list.get(0);
 
-			String name = getUserString(discordId, e, username);
-			int counter = 1;
 			EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
 					.setThumbnail(CommandUtil.noImageUrl(header.getUrl()))
-					.setTitle("** " + name + "'s last " + limit + " tracks **",
-							CommandUtil.getLastFmUser(username));
+					.setTitle("** " + usable + "'s last " + LIMIT + " tracks **",
+							CommandUtil.getLastFmUser(lastFmName));
 
+			int counter = 1;
 			for (NowPlayingArtist nowPlayingArtist : list) {
 				embedBuilder.addField("Track #" + counter++ + ":", "**" + nowPlayingArtist.getSongName() +
 						"**- " + nowPlayingArtist.getArtistName() + " | " + nowPlayingArtist
@@ -68,8 +69,6 @@ public class RecentListCommand extends ConcurrentCommand {
 			parser.sendError(parser.getErrorMessage(4), e);
 		} catch (LastFmException ex) {
 			parser.sendError(parser.getErrorMessage(2), e);
-		} catch (InstanceNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(1), e);
 		}
 
 	}

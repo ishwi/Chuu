@@ -32,38 +32,45 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e) {
-		String[] message;
+		String[] returned;
 
-		message = parser.parse(e);
-		if (message == null)
+		returned = parser.parse(e);
+		if (returned == null)
 			return;
+		String lastFmName = returned[0];
+		long discordID = Long.parseLong(returned[1]);
 
-		MessageBuilder mes = new MessageBuilder();
-		EmbedBuilder embedBuilder = new EmbedBuilder();
-		StringBuilder a = new StringBuilder();
+		Member whoD = e.getGuild().getMemberById(discordID);
+		String name = whoD != null ? whoD
+				.getEffectiveName() : getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
+
+
 		UniqueWrapper<UniqueData> uniqueDataUniqueWrapper = getDao()
-				.getUserAlbumCrowns(message[0], e.getGuild().getIdLong());
+				.getUserAlbumCrowns(lastFmName, e.getGuild().getIdLong());
 		List<UniqueData> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
+
 		int rows = resultWrapper.size();
-		if (resultWrapper.isEmpty()) {
-			sendMessageQueue(e, "You don't have any album crown :'(");
+		if (rows == 0) {
+			sendMessageQueue(e, name + " doesn't have any album crown :'(");
 			return;
 		}
+
+		StringBuilder a = new StringBuilder();
 		for (int i = 0; i < 10 && i < rows; i++) {
 			UniqueData g = resultWrapper.get(i);
 			a.append(i + 1).append(g.toString());
 		}
-
+		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setDescription(a);
 		embedBuilder.setColor(CommandUtil.randomColor());
-		Member whoD = e.getGuild().getMemberById(uniqueDataUniqueWrapper.getDiscordId());
-		String name = whoD == null ? message[0] : whoD.getEffectiveName();
+
 		embedBuilder
 				.setTitle(name + "'s album crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
 		embedBuilder.setFooter(name + " has " + resultWrapper.size() + " album crowns!!\n", null);
 		if (whoD != null)
 			embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
 
+		MessageBuilder mes = new MessageBuilder();
 		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
 				new Reactionary<>(resultWrapper, message1, embedBuilder));
 	}

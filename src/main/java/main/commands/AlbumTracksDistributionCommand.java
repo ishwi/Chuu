@@ -42,7 +42,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 
 	@Override
 	public List<String> getAliases() {
-		return Collections.singletonList("tracks");
+		return Arrays.asList("tracks", "tt");
 	}
 
 	@Override

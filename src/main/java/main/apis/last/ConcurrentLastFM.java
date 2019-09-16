@@ -505,7 +505,10 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 				// Execute the method.
 				JSONObject obj = doMethod(method);
-				obj = isTopAlbums ? obj.getJSONObject("topartists") : obj.getJSONObject("artists");
+				String topObject = isTopAlbums ? "topartists" : "artists";
+				if (!obj.has(topObject))
+					throw new LastFmEntityNotFoundException("a");
+				obj = obj.getJSONObject(topObject);
 				//obj = obj.getJSONObject("artists");
 				if (page++ == 1) {
 					pages = obj.getJSONObject("@attr").getInt("totalPages");

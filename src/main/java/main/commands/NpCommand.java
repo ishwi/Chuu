@@ -25,6 +25,8 @@ public abstract class NpCommand extends ConcurrentCommand {
 			return;
 		}
 		String username = returned[0];
+		//long discordId = Long.parseLong(returned[0]);
+
 		try {
 			NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);
 			doSomethingWithArtist(nowPlayingArtist, e);

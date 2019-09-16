@@ -36,7 +36,7 @@ public class GenreCommand extends ConcurrentCommand {
 
 	@Override
 	public String getDescription() {
-		return "genre list";
+		return "Genre list";
 	}
 
 	@Override
@@ -53,8 +53,10 @@ public class GenreCommand extends ConcurrentCommand {
 			return;
 
 		String username = returned[0];
-		String timeframe = returned[1];
+		long discordId = Long.parseLong(returned[1]);
 
+		String timeframe = returned[2];
+		String usableString = getUserStringConsideringGuildOrNot(e, discordId, username);
 		BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 		try {
 			lastFM.getUserList(username, timeframe, 15, 15, true, queue);
@@ -72,7 +74,7 @@ public class GenreCommand extends ConcurrentCommand {
 				.collect(Collectors.toList());
 		Map<Genre, Integer> map = musicBrainz.genreCount(albumInfos);
 		if (map.isEmpty()) {
-			sendMessageQueue(e, "Was not able to find any genre ");
+			sendMessageQueue(e, "Was not able to find any genre in  " + usableString + "'s artist");
 			return;
 		}
 
@@ -80,7 +82,8 @@ public class GenreCommand extends ConcurrentCommand {
 				new PieChartBuilder()
 						.width(800)
 						.height(600)
-						.title("Top 10 Genres in the last " + TimeFrameEnum.fromCompletePeriod(timeframe).toString())
+						.title("Top 10 Genres from " + usableString + "in the last " + TimeFrameEnum
+								.fromCompletePeriod(timeframe).toString())
 						.theme(Styler.ChartTheme.GGPlot2)
 						.build();
 		pieChart.getStyler().setLegendVisible(false);

@@ -47,7 +47,9 @@ public class CountryCommand extends ConcurrentCommand {
 			return;
 
 		String username = returned[0];
-		String timeframe = returned[1];
+		long discordId = Long.parseLong(returned[1]);
+		String timeframe = returned[2];
+
 		if (timeframe.equals(TimeFrameEnum.SEMESTER.toApiFormat()) || timeframe.equals(TimeFrameEnum.ALL.toApiFormat()))
 			sendMessageQueue(e, "Going to take a while ");
 
@@ -69,7 +71,7 @@ public class CountryCommand extends ConcurrentCommand {
 		Map<Country, Integer> map = musicBrainz.countryCount(artistInfos);
 
 		if (map.isEmpty()) {
-			sendMessageQueue(e, "Was not able to find any country ");
+			sendMessageQueue(e, "Was not able to find any country  on " + getUserStringConsideringGuildOrNot(e, discordId, username));
 			return;
 		}
 

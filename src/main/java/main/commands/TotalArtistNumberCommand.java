@@ -4,7 +4,6 @@ import dao.DaoImplementation;
 import main.parsers.OnlyUsernameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,16 +29,11 @@ public class TotalArtistNumberCommand extends ConcurrentCommand {
 		if (returned == null) {
 			return;
 		}
-		String lastfm = returned[0];
-		String username;
-		try {
-			long who = getDao().getDiscordIdFromLastfm(lastfm, e.getGuild().getIdLong());
-			username = getUserString(who, e, lastfm);
-		} catch (InstanceNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(1), e);
-			return;
-		}
-		int plays = getDao().getUserArtistCount(lastfm);
+		String lastFmName = returned[0];
+		long discordID = Long.parseLong(returned[1]);
+		String username = getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
+
+		int plays = getDao().getUserArtistCount(lastFmName);
 		sendMessageQueue(e, "**" + username + "** has scrobbled  **" + plays + "** " + "  different artists");
 
 	}

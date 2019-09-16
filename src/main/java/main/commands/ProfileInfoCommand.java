@@ -37,25 +37,26 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 	@Override
 	protected void onCommand(MessageReceivedEvent e) {
 		String[] returned = parser.parse(e);
-		if (returned == null) {
+		if (returned == null)
 			return;
-		}
-		String username = returned[0];
+		String lastFmName = returned[0];
+		//long discordID = Long.parseLong(returned[1]);
 		UserInfo userInfo;
 		int albumCount;
 		try {
-			userInfo = lastFM.getUserInfo(Collections.singletonList(username)).get(0);
-			albumCount = lastFM.getTotalAlbumCount(username);
+			userInfo = lastFM.getUserInfo(Collections.singletonList(lastFmName)).get(0);
+			albumCount = lastFM.getTotalAlbumCount(lastFmName);
 
 		} catch (LastFmException ex) {
 			Chuu.getLogger().warn(ex.getMessage(), ex);
+			sendMessage(e, "An error happened while processing the command");
 			return;
 		}
-		UniqueWrapper<UniqueData> crowns = getDao().getCrowns(username, e.getGuild().getIdLong());
-		UniqueWrapper<UniqueData> unique = getDao().getUniqueArtist(e.getGuild().getIdLong(), username);
+		UniqueWrapper<UniqueData> crowns = getDao().getCrowns(lastFmName, e.getGuild().getIdLong());
+		UniqueWrapper<UniqueData> unique = getDao().getUniqueArtist(e.getGuild().getIdLong(), lastFmName);
 		int totalUnique = unique.getRows();
 		int totalCrowns = crowns.getRows();
-		int totalArtist = getDao().getUserArtistCount(username);
+		int totalArtist = getDao().getUserArtistCount(lastFmName);
 		String crownRepresentative = !crowns.getUniqueData().isEmpty() ? crowns.getUniqueData().get(0)
 				.getArtistName() : "not crowns";
 		String UniqueRepresentative = !unique.getUniqueData().isEmpty() ? unique.getUniqueData().get(0)
@@ -70,13 +71,13 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 				.append("Total Number of unique artist: ").append(totalUnique).append("\n")
 				.append("\tTop unique:").append(UniqueRepresentative).append("\n");
 
-		String name = getUserString(unique.getDiscordId(), e, username);
+		String name = getUserString(unique.getDiscordId(), e, lastFmName);
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 		String date = LocalDateTime.ofEpochSecond(userInfo.getUnixtimestamp(), 0, ZoneOffset.UTC)
 				.format(formatter);
 
 		EmbedBuilder embedBuilder = new EmbedBuilder()
-				.setTitle(name + "'s profile", CommandUtil.getLastFmUser(username))
+				.setTitle(name + "'s profile", CommandUtil.getLastFmUser(lastFmName))
 				.setColor(CommandUtil.randomColor())
 				.setThumbnail(userInfo.getImage().isEmpty() ? null : userInfo.getImage())
 				.setDescription(stringBuilder)

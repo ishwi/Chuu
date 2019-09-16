@@ -74,7 +74,7 @@ public class Track {
 
 	@Override
 	public String toString() {
-		return ". **" + name + "** - " + plays + " plays" +
+		return ". **" + artist + " - " + name + "** - " + plays + " plays" +
 				"\n";
 	}
 }

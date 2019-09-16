@@ -1,6 +1,7 @@
 package main.parsers;
 
 import dao.DaoImplementation;
+import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -49,12 +50,12 @@ public class ChartParser extends DaoParser {
 		timeFrame = chartParserAux.parseTimeframe(timeFrame);
 		subMessage = chartParserAux.getMessage();
 
-		discordName = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
-		if (discordName == null) {
+		LastFMData data = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
+		if (data == null) {
 			return null;
 		}
 
-		return new String[]{x, y, discordName, timeFrame.toApiFormat()};
+		return new String[]{x, y, data.getName(), timeFrame.toApiFormat()};
 	}
 
 
@@ -73,7 +74,6 @@ public class ChartParser extends DaoParser {
 	@Override
 	public void setUpErrorMessages() {
 		super.setUpErrorMessages();
-
 		errorMessages.put(5, "You Introduced too many words");
 
 	}

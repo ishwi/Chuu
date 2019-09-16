@@ -5,10 +5,11 @@ import dao.entities.ArtistData;
 import dao.entities.ArtistInfo;
 import dao.entities.UpdaterStatus;
 import main.apis.discogs.DiscogsApi;
-import main.apis.spotify.Spotify;
 import main.apis.last.ConcurrentLastFM;
+import main.apis.spotify.Spotify;
 import main.exceptions.DiscogsServiceException;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -200,6 +201,7 @@ public class CommandUtil {
 		return count == 1 ? singular : plural;
 	}
 
+
 	static Long getGuildIdConsideringPrivateChannel(MessageReceivedEvent e) {
 		if (e.getChannelType().isGuild())
 			return (e.getGuild().getIdLong());
@@ -218,6 +220,26 @@ public class CommandUtil {
 				}
 			}
 		}
+	}
+
+	static void getUserInfoConsideringGuildOrNot(StringBuilder usableName, StringBuilder url, MessageReceivedEvent e, long discordID) {
+		String tempName;
+		User user;
+		if (e.isFromGuild()) {
+			Member whoD = e.getGuild().getMemberById(discordID);
+			if (whoD == null) {
+				user = e.getJDA().retrieveUserById(discordID).complete();
+				tempName = user.getName();
+			} else {
+				user = whoD.getUser();
+				tempName = whoD.getEffectiveName();
+			}
+		} else {
+			user = e.getJDA().retrieveUserById(discordID).complete();
+			tempName = user.getName();
+		}
+		usableName.append(tempName);
+		url.append(user.getAvatarUrl());
 	}
 
 }

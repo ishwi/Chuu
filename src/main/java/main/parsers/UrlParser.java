@@ -3,6 +3,8 @@ package main.parsers;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.net.URL;
+
 public class UrlParser extends Parser {
 	@Override
 	public void setUpErrorMessages() {
@@ -38,6 +40,16 @@ public class UrlParser extends Parser {
 		return new String[]{url};
 
 
+	}
+
+	static boolean isValidURL(String urlString) {
+		try {
+			URL url = new URL(urlString);
+			url.toURI();
+			return true;
+		} catch (Exception exception) {
+			return false;
+		}
 	}
 
 	@Override
