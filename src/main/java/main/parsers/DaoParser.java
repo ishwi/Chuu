@@ -16,7 +16,7 @@ public abstract class DaoParser extends Parser {
 		this.dao = dao;
 	}
 
-	String getLastFmUsername1input(String[] message, Long id, MessageReceivedEvent event) {
+	LastFMData getLastFmUsername1input(String[] message, Long id, MessageReceivedEvent event) {
 		try {
 			if (event.isFromGuild()) {
 				LastFMData data;
@@ -25,9 +25,9 @@ public abstract class DaoParser extends Parser {
 						? this.dao.findLastFMData((id))
 						: this.dao.findLastFMData(list.get(0).getIdLong());
 
-				return data.getName();
+				return data;
 			} else {
-				return this.dao.findLastFMData((id)).getName();
+				return dao.findLastFMData((id));
 			}
 		} catch (InstanceNotFoundException e) {
 			sendError(getErrorMessage(1), event);

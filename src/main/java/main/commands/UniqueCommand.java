@@ -33,38 +33,36 @@ public class UniqueCommand extends ConcurrentCommand {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e) {
-		String[] message;
-		message = parser.parse(e);
-		if (message == null)
+		String[] returned = parser.parse(e);
+		if (returned == null)
 			return;
+		String lastFmName = returned[0];
+		//long discordID = Long.parseLong(returned[1]);
+		UniqueWrapper<UniqueData> resultWrapper = getDao().getUniqueArtist(e.getGuild().getIdLong(), lastFmName);
 
-		String lastFmId = message[0];
-		UniqueWrapper<UniqueData> resultWrapper = getDao().getUniqueArtist(e.getGuild().getIdLong(), lastFmId);
-
-		MessageBuilder messageBuilder = new MessageBuilder();
-
-		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
-				.setThumbnail(e.getGuild().getIconUrl());
-		StringBuilder a = new StringBuilder();
 
 		int rows = resultWrapper.getUniqueData().size();
-
 		if (rows == 0) {
 			sendMessageQueue(e, "You have no Unique Artists :(");
 			return;
 		}
-		String lastFMID = resultWrapper.getLastFmId();
 
+		StringBuilder a = new StringBuilder();
 		for (int i = 0; i < 10 && i < rows; i++) {
 			UniqueData g = resultWrapper.getUniqueData().get(i);
 			a.append(i + 1).append(g.toString());
 		}
 		Member member = e.getGuild().getMemberById(resultWrapper.getDiscordId());
 		assert (member != null);
+
+		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+				.setThumbnail(e.getGuild().getIconUrl());
 		embedBuilder.setDescription(a).setTitle(member
-				.getEffectiveName() + "'s Top 10 unique Artists", CommandUtil.getLastFmUser(lastFMID))
+				.getEffectiveName() + "'s Top 10 unique Artists", CommandUtil.getLastFmUser(lastFmName))
 				.setThumbnail(member.getUser().getAvatarUrl())
 				.setFooter(member.getEffectiveName() + " has " + rows + " unique artists!\n", null);
+
+		MessageBuilder messageBuilder = new MessageBuilder();
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
 				new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder)
 		);

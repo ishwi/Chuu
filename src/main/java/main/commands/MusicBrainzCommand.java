@@ -99,10 +99,8 @@ public class MusicBrainzCommand extends ArtistCommand {
 		}
 		int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
 		generateImage(queue, imageSize, imageSize, e, writeTiles, writePlays);
-		getDao().updateMetric(1, foundDiscogsMatchingYear.size());
-		getDao().updateMetric(2, mbFoundBYName.size());
-		getDao().updateMetric(3, albumsMbizMatchingYear.size());
-		getDao().updateMetric(4, x * x);
+		getDao().updateMetrics(foundDiscogsMatchingYear.size(), mbFoundBYName.size(), albumsMbizMatchingYear
+				.size(), x * x);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package main.parsers;
 
 import dao.DaoImplementation;
+import dao.entities.LastFMData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class TopParser extends DaoParser {
@@ -15,10 +16,10 @@ public class TopParser extends DaoParser {
 
 	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
 
-		String username = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
+		LastFMData username = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
 		if (username == null)
 			return null;
-		return new String[]{username};
+		return new String[]{username.getName()};
 	}
 
 

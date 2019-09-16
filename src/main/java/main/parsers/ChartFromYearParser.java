@@ -1,6 +1,7 @@
 package main.parsers;
 
 import dao.DaoImplementation;
+import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -23,7 +24,7 @@ public class ChartFromYearParser extends ChartParser {
 	@Override
 	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
 		TimeFrameEnum timeFrame = defaultTFE;
-		String discordName;
+		LastFMData discordName;
 
 		if (subMessage.length > 2) {
 			sendError(getErrorMessage(5), e);
@@ -44,7 +45,7 @@ public class ChartFromYearParser extends ChartParser {
 			return null;
 		}
 
-		return new String[]{"0", year, discordName, timeFrame.toApiFormat(), Boolean.toString(true)};
+		return new String[]{"0", year, discordName.getName(), timeFrame.toApiFormat(), Boolean.toString(true)};
 
 	}
 

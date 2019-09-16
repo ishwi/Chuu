@@ -1,6 +1,7 @@
 package main.parsers;
 
 import dao.DaoImplementation;
+import dao.entities.LastFMData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class NpParser extends DaoParser {
@@ -9,10 +10,10 @@ public class NpParser extends DaoParser {
 	}
 
 	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
-		String username = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
-		if (username == null)
+		LastFMData data = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
+		if (data == null)
 			return null;
-		return new String[]{username};
+		return new String[]{data.getName(), String.valueOf(data.getDiscordId())};
 	}
 
 	@Override

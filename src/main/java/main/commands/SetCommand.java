@@ -6,6 +6,7 @@ import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
 import main.Chuu;
 import main.exceptions.LastFMNoPlaysException;
+import main.exceptions.LastFmEntityNotFoundException;
 import main.parsers.OneWordParser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -78,13 +79,15 @@ public class SetCommand extends ConcurrentCommand {
 		}
 
 		//Never registered before
-		getDao().insertArtistDataList(new LastFMData(lastFmID, userId, guildID));
-		mes.setContent("**" + e.getAuthor()
-				.getName() + "** has set their last FM name \n Updating your library , wait a moment");
-		mes.sendTo(e.getChannel()).queue();
-		e.getChannel().sendTyping().queue();
+
 		try {
 			List<ArtistData> artistDataLinkedList = lastFM.getLibrary(lastFmID);
+
+			getDao().insertArtistDataList(new LastFMData(lastFmID, userId, guildID));
+			mes.setContent("**" + e.getAuthor()
+					.getName() + "** has set their last FM name \n Updating your library , wait a moment");
+			mes.sendTo(e.getChannel()).queue();
+			e.getChannel().sendTyping().queue();
 			getDao().insertArtistDataList(artistDataLinkedList, lastFmID);
 			System.out.println("Updated Info Normally  of " + lastFmID + LocalDateTime
 					.now().format(DateTimeFormatter.ISO_DATE));
@@ -95,6 +98,9 @@ public class SetCommand extends ConcurrentCommand {
 				LastFMNoPlaysException ex) {
 			getDao().updateUserTimeStamp(lastFmID, null, null);
 			sendMessageQueue(e, "Finished updating " + e.getAuthor().getName() + "'s library, you are good to go!");
+
+		} catch (LastFmEntityNotFoundException ex) {
+			sendMessageQueue(e, "The provided username doesn't exist on last.fm, choose another one");
 
 		} catch (Throwable ex) {
 			System.out.println("Error while updating" + lastFmID + LocalDateTime.now()

@@ -48,7 +48,7 @@ public class ChartCommand extends ConcurrentCommand {
 		boolean playsWrite = Boolean.parseBoolean(returned[6]);
 
 		if (x * y > 100) {
-			e.getChannel().sendMessage("Gonna Take a while").queue();
+			e.getChannel().sendMessage("Going to take a while").queue();
 		}
 		try {
 			processQueue(username, time, x, y, e, titleWrite, playsWrite);

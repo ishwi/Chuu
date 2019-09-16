@@ -1,6 +1,7 @@
 package main.parsers;
 
 import dao.DaoImplementation;
+import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -16,19 +17,16 @@ public class TimerFrameParser extends DaoParser {
 
 		String[] message = getSubMessage(e.getMessage());
 		TimeFrameEnum timeFrame = defaultTFE;
-		String discordName;
 
 		ChartParserAux auxiliar = new ChartParserAux(message);
 		timeFrame = auxiliar.parseTimeframe(timeFrame);
-
 		message = auxiliar.getMessage();
 
-		discordName = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
-		if (discordName == null) {
-
+		LastFMData data = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
+		if (data == null) {
 			return null;
 		}
-		return new String[]{discordName, timeFrame.toApiFormat()};
+		return new String[]{data.getName(), String.valueOf(data.getDiscordId()), timeFrame.toApiFormat()};
 	}
 
 

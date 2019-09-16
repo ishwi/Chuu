@@ -11,12 +11,10 @@ import main.exceptions.LastFmException;
 import main.parsers.OnlyUsernameParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.MultiMap;
 import org.apache.commons.collections4.map.MultiValueMap;
 
-import javax.management.InstanceNotFoundException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -44,12 +42,13 @@ public class WeeklyCommand extends ConcurrentCommand {
 	@SuppressWarnings("unchecked")
 	@Override
 	void onCommand(MessageReceivedEvent e) {
-		String[] parse = parser.parse(e);
-		if (parse == null)
+		String[] returned = parser.parse(e);
+		if (returned == null)
 			return;
-		String lastfmName = parse[0];
+		String lastFmName = returned[0];
+		long discordID = Long.parseLong(returned[1]);
 		try {
-			Map<Track, Integer> durationsFromWeek = lastFM.getDurationsFromWeek(lastfmName);
+			Map<Track, Integer> durationsFromWeek = lastFM.getDurationsFromWeek(lastFmName);
 
 			Instant instant = Instant.now();
 			ZoneId zoneId = ZoneOffset.UTC;
@@ -62,7 +61,7 @@ public class WeeklyCommand extends ConcurrentCommand {
 			MultiMap<LocalDateTime, Map.Entry<Integer, Integer>> map = new MultiValueMap<>();
 
 			List<TimestampWrapper<Track>> tracksAndTimestamps = lastFM
-					.getTracksAndTimestamps(lastfmName, (int) from.getEpochSecond(), (int) to.getEpochSecond());
+					.getTracksAndTimestamps(lastFmName, (int) from.getEpochSecond(), (int) to.getEpochSecond());
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, d/M:", Locale.UK);
 			SecondsTimeFrameCount minutesWastedOnMusicDaily = new SecondsTimeFrameCount(TimeFrameEnum.WEEK);
 
@@ -102,19 +101,17 @@ public class WeeklyCommand extends ConcurrentCommand {
 						.append(" on ").append(minutesWastedOnMusicDaily.getCount())
 						.append(" tracks\n");
 			});
-			long userId = getDao().getDiscordIdFromLastfm(lastfmName, e.getGuild().getIdLong());
+			StringBuilder url = new StringBuilder();
+			StringBuilder usableName = new StringBuilder();
 
-			Member whoD = e.getGuild().getMemberById(userId);
-			String name = whoD == null ? lastfmName : whoD.getEffectiveName();
+			CommandUtil.getUserInfoConsideringGuildOrNot(usableName, url, e, discordID);
+
+			EmbedBuilder embedBuilder = new EmbedBuilder().setDescription(s)
+					.setColor(CommandUtil.randomColor())
+					.setTitle(usableName.toString() + "'s week", CommandUtil.getLastFmUser(lastFmName))
+					.setThumbnail(url.toString());
 
 			MessageBuilder mes = new MessageBuilder();
-			EmbedBuilder embedBuilder = new EmbedBuilder();
-			embedBuilder.setDescription(s);
-			embedBuilder.setColor(CommandUtil.randomColor());
-			embedBuilder.setTitle(name + "'s week", CommandUtil.getLastFmUser(lastfmName));
-			if (whoD != null)
-				embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
-
 			e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
 		} catch (LastFMNoPlaysException ex) {
 			parser.sendError(parser.getErrorMessage(3), e);
@@ -122,10 +119,6 @@ public class WeeklyCommand extends ConcurrentCommand {
 			parser.sendError(parser.getErrorMessage(4), e);
 		} catch (LastFmException ex) {
 			parser.sendError(parser.getErrorMessage(2), e);
-		} catch (InstanceNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(1), e);
-
-
 		}
 	}
 

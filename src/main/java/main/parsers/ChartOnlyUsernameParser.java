@@ -1,6 +1,7 @@
 package main.parsers;
 
 import dao.DaoImplementation;
+import dao.entities.LastFMData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ChartOnlyUsernameParser extends OnlyUsernameParser {
@@ -18,11 +19,11 @@ public class ChartOnlyUsernameParser extends OnlyUsernameParser {
 
 	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
 
-		String discordName = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
-		if (discordName == null) {
+		LastFMData data = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
+		if (data == null) {
 			return null;
 		}
-		return new String[]{discordName};
+		return new String[]{data.getName()};
 	}
 
 	@Override

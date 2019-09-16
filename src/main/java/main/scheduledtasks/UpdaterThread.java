@@ -6,12 +6,13 @@ import dao.entities.TimestampWrapper;
 import dao.entities.UpdaterUserWrapper;
 import main.Chuu;
 import main.apis.discogs.DiscogsApi;
-import main.apis.spotify.Spotify;
-import main.apis.spotify.SpotifySingleton;
 import main.apis.last.ConcurrentLastFM;
 import main.apis.last.LastFMFactory;
+import main.apis.spotify.Spotify;
+import main.apis.spotify.SpotifySingleton;
 import main.commands.CommandUtil;
 import main.exceptions.LastFMNoPlaysException;
+import main.exceptions.LastFmEntityNotFoundException;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -96,7 +97,10 @@ public class UpdaterThread implements Runnable {
 						.getEpochSecond() + 600));
 				System.out.println("No plays " + userWork.getLastFMName() + LocalDateTime.now()
 						.format(DateTimeFormatter.ISO_DATE));
+			} catch (LastFmEntityNotFoundException e) {
+				dao.removeUserCompletely(userWork.getDiscordID());
 			}
+
 
 		} catch (Throwable e) {
 			System.out.println("Error while updating" + LocalDateTime.now()
