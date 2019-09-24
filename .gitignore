@@ -6,3 +6,6 @@ lib/
 .vscode/
 .settings/
 *.log
+.classpath/
+bin/
+.project/

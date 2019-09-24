@@ -1,22 +1,5 @@
 package main;
 
-import dao.DaoImplementation;
-import main.apis.discogs.DiscogsSingleton;
-import main.apis.spotify.SpotifySingleton;
-import main.commands.*;
-import main.scheduledtasks.ImageUpdaterThread;
-import main.scheduledtasks.SpotifyUpdaterThread;
-import main.scheduledtasks.UpdaterThread;
-import net.dv8tion.jda.api.AccountType;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.managers.Presence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,12 +11,120 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.security.auth.login.LoginException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import dao.DaoImplementation;
+import main.apis.discogs.DiscogsSingleton;
+import main.apis.spotify.SpotifySingleton;
+import main.commands.AdministrativeCommand;
+import main.commands.AlbumCronwsLeaderboardCommand;
+import main.commands.AlbumCrownsCommand;
+import main.commands.AlbumPlaysCommand;
+import main.commands.AlbumTracksDistributionCommand;
+import main.commands.AllPlayingCommand;
+import main.commands.ArtistCommand;
+import main.commands.ArtistCountLeaderboard;
+import main.commands.ArtistPlaysCommand;
+import main.commands.ArtistUrlCommand;
+import main.commands.BandInfoCommand;
+import main.commands.ChartCommand;
+import main.commands.CountryCommand;
+import main.commands.CrownLeaderboardCommand;
+import main.commands.CrownsCommand;
+import main.commands.CrownsStolenCommand;
+import main.commands.CustomInterfacedEventManager;
+import main.commands.DailyCommand;
+import main.commands.FavesFromArtistCommand;
+import main.commands.FeaturedCommand;
+import main.commands.GenreCommand;
+import main.commands.GuildTopCommand;
+import main.commands.HelpCommand;
+import main.commands.MbizThisYearCommand;
+import main.commands.MusicBrainzCommand;
+import main.commands.NPSpotifyCommand;
+import main.commands.NPYoutubeCommand;
+import main.commands.NowPlayingCommand;
+import main.commands.ObscurityLeaderboardCommand;
+import main.commands.PrefixCommand;
+import main.commands.ProfileInfoCommand;
+import main.commands.RandomAlbumCommand;
+import main.commands.RecentListCommand;
+import main.commands.SetCommand;
+import main.commands.TasteCommand;
+import main.commands.TimeSpentCommand;
+import main.commands.TopCommand;
+import main.commands.TotalArtistNumberCommand;
+import main.commands.UniqueCommand;
+import main.commands.UniqueLeaderboardCommand;
+import main.commands.UpdateCommand;
+import main.commands.UserTopTrackCommand;
+import main.commands.WeeklyCommand;
+import main.commands.WhoKnowsAlbumCommand;
+import main.commands.WhoKnowsCommand;
+import main.commands.WhoKnowsSongCommand;
+import main.commands.YoutubeSearchCommand;
+import main.scheduledtasks.ImageUpdaterThread;
+import main.scheduledtasks.SpotifyUpdaterThread;
+import main.scheduledtasks.UpdaterThread;
+import net.dv8tion.jda.api.AccountType;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.managers.Presence;
+
 public class Chuu {
 
 	public static final Character DEFAULT_PREFIX = '!';
 	private static Map<Long, Character> prefixMap;
 	private static JDA jda;
 	private static Logger logger;
+
+	public static void addGuildPrefix(long guildId, Character prefix) {
+		prefixMap.replace(guildId, prefix);
+	}
+
+	public static Character getCorrespondingPrefix(MessageReceivedEvent e) {
+		if (!e.isFromGuild())
+			return DEFAULT_PREFIX;
+		long id = e.getGuild().getIdLong();
+		Character character = prefixMap.get(id);
+		return character == null ? DEFAULT_PREFIX : character;
+
+	}
+
+	public static Logger getLogger() {
+		return logger;
+	}
+
+	public static Map<Long, Character> getPrefixMap() {
+		return prefixMap;
+	}
+
+	public static Presence getPresence() {
+		return Chuu.jda.getPresence();
+
+	}
+
+	private static File getThisJarFile() throws UnsupportedEncodingException {
+		// Gets the path of the currently running Jar file
+		String path = Chuu.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+		String decodedPath = URLDecoder.decode(path, "UTF-8");
+
+		// This is code especially written for running and testing this program in an
+		// IDE that doesn't compile to .jar when running.
+		if (!decodedPath.endsWith(".jar"))
+			return new File("Chuu.jar");
+		return new File(decodedPath); // We use File so that when we send the path to the ProcessBuilder, we will be
+										// using the proper System path formatting.
+	}
+
+	private static Map<Long, Character> initPrefixMap(DaoImplementation dao) {
+		return (dao.getGuildPrefixes());
+	}
 
 	public static void main(String[] args) throws UnsupportedEncodingException, InterruptedException {
 		logger = LoggerFactory.getLogger(Chuu.class);
@@ -44,45 +135,45 @@ public class Chuu {
 		}
 	}
 
+	static private Properties readToken() {
+
+		Properties properties = new Properties();
+		try (InputStream in = Chuu.class.getResourceAsStream("/all.properties")) {
+			properties.load(in);
+			return properties;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private static void relaunchInUTF8() throws InterruptedException, UnsupportedEncodingException {
 		System.out.println("BotLauncher: We are not running in UTF-8 mode! This is a problem!");
 		System.out.println("BotLauncher: Relaunching in UTF-8 mode using -Dfile.encoding=UTF-8");
 
-		String[] command = new String[]{"java", "-Dfile.encoding=UTF-8", "-jar", Chuu
-				.getThisJarFile().getAbsolutePath()};
+		String[] command = new String[] { "java", "-Dfile.encoding=UTF-8", "-jar",
+				Chuu.getThisJarFile().getAbsolutePath() };
 
-		//Relaunches the bot using UTF-8 mode.
+		// Relaunches the bot using UTF-8 mode.
 		ProcessBuilder processBuilder = new ProcessBuilder(command);
-		processBuilder.inheritIO(); //Tells the new process to use the same command line as this one.
+		processBuilder.inheritIO(); // Tells the new process to use the same command line as this one.
 		try {
 			Process process = processBuilder.start();
-			process.waitFor();  //We wait here until the actual bot stops. We do this so that we can keep using the same command line.
+			process.waitFor(); // We wait here until the actual bot stops. We do this so that we can keep using
+								// the same command line.
 			System.exit(process.exitValue());
 		} catch (IOException e) {
 			if (e.getMessage().contains("\"java\"")) {
-				System.out
-						.println("BotLauncher: There was an error relaunching the bot. We couldn't find Java to launch with.");
-				System.out.println("BotLauncher: Attempted to relaunch using the command:\n   " + String
-						.join(" ", command));
-				System.out
-						.println("BotLauncher: Make sure that you have Java properly set in your Operating System's PATH variable.");
+				System.out.println(
+						"BotLauncher: There was an error relaunching the bot. We couldn't find Java to launch with.");
+				System.out.println(
+						"BotLauncher: Attempted to relaunch using the command:\n   " + String.join(" ", command));
+				System.out.println(
+						"BotLauncher: Make sure that you have Java properly set in your Operating System's PATH variable.");
 				System.out.println("BotLauncher: Stopping here.");
 			} else {
 				Chuu.getLogger().warn(e.getMessage(), e);
 			}
 		}
-	}
-
-	private static File getThisJarFile() throws UnsupportedEncodingException {
-		//Gets the path of the currently running Jar file
-		String path = Chuu.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-		String decodedPath = URLDecoder.decode(path, "UTF-8");
-
-		//This is code especially written for running and testing this program in an IDE that doesn't compile to .jar when running.
-		if (!decodedPath.endsWith(".jar")) {
-			return new File("Chuu.jar");
-		}
-		return new File(decodedPath);   //We use File so that when we send the path to the ProcessBuilder, we will be using the proper System path formatting.
 	}
 
 	private static void setupBot() {
@@ -92,28 +183,27 @@ public class Chuu {
 		new DiscogsSingleton(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
 		new SpotifySingleton(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
 
-
-		//Needs these three references
+		// Needs these three references
 		HelpCommand help = new HelpCommand();
 		AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
 		PrefixCommand prefixCommand = new PrefixCommand(dao);
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(3);
-		scheduledManager.scheduleAtFixedRate(new UpdaterThread(dao, null, true, DiscogsSingleton
-				.getInstanceUsingDoubleLocking()), 0, 30, TimeUnit.SECONDS);
+		scheduledManager.scheduleAtFixedRate(
+				new UpdaterThread(dao, null, true, DiscogsSingleton.getInstanceUsingDoubleLocking()), 0, 60,
+				TimeUnit.SECONDS);
 		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
-		scheduledManager.scheduleAtFixedRate(new SpotifyUpdaterThread(dao, SpotifySingleton
-				.getInstanceUsingDoubleLocking()), 0, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(
+				new SpotifyUpdaterThread(dao, SpotifySingleton.getInstanceUsingDoubleLocking()), 0, 10,
+				TimeUnit.MINUTES);
 
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
-		builder.setToken(properties.getProperty("DISCORD_TOKEN"))
-				.setAutoReconnect(true)
-				.setEventManager(new CustomInterfacedEventManager())
-				.addEventListeners(help)
+		builder.setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
+				.setEventManager(new CustomInterfacedEventManager()).addEventListeners(help)
 				.addEventListeners(help.registerCommand(commandAdministrator))
 				.addEventListeners(help.registerCommand(new NowPlayingCommand(dao)))
 				.addEventListeners(help.registerCommand(new WhoKnowsCommand(dao)))
-				//	.addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao)))
+				// .addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao)))
 				.addEventListeners(help.registerCommand(new ChartCommand(dao)))
 				.addEventListeners(help.registerCommand(new SetCommand(dao)))
 				.addEventListeners(help.registerCommand(new AllPlayingCommand(dao)))
@@ -128,7 +218,7 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new GuildTopCommand(dao)))
 				.addEventListeners(help.registerCommand(new ArtistUrlCommand(dao)))
 				.addEventListeners(help.registerCommand(new BandInfoCommand(dao)))
-				//	.addEventListeners(help.registerCommand(new BandInfoNpCommand(dao)))
+				// .addEventListeners(help.registerCommand(new BandInfoNpCommand(dao)))
 				.addEventListeners(help.registerCommand(new WhoKnowsAlbumCommand(dao)))
 				.addEventListeners(help.registerCommand(new CrownLeaderboardCommand(dao)))
 				.addEventListeners(help.registerCommand(new CrownsCommand(dao)))
@@ -169,53 +259,9 @@ public class Chuu {
 		}
 	}
 
-	private static Map<Long, Character> initPrefixMap(DaoImplementation dao) {
-		return (dao.getGuildPrefixes());
-	}
-
-	static private Properties readToken() {
-
-		Properties properties = new Properties();
-		try (InputStream in = Chuu.class.getResourceAsStream("/all.properties")) {
-			properties.load(in);
-			return properties;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public static Logger getLogger() {
-		return logger;
-	}
-
 	public static void updatePresence(String artist) {
 		Chuu.jda.getPresence().setActivity(Activity.playing(artist + " | !help for help"));
 
 	}
 
-	public static Presence getPresence() {
-		return Chuu.jda.getPresence();
-
-	}
-
-	public static Map<Long, Character> getPrefixMap() {
-		return prefixMap;
-	}
-
-	public static void addGuildPrefix(long guildId, Character prefix) {
-		prefixMap.replace(guildId, prefix);
-	}
-
-	public static Character getCorrespondingPrefix(MessageReceivedEvent e) {
-		if (!e.isFromGuild())
-			return DEFAULT_PREFIX;
-		long id = e.getGuild().getIdLong();
-		Character character = prefixMap.get(id);
-		return character == null ? DEFAULT_PREFIX : character;
-
-
-	}
-
-
 }
-

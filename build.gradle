@@ -18,8 +18,8 @@ group 'ish'
 version '1.0'
 apply plugin: 'java'
 
-sourceCompatibility = 1.9
-targetCompatibility = 1.9
+sourceCompatibility = 12
+targetCompatibility = 12
 
 repositories {
     mavenCentral()
