@@ -3,20 +3,13 @@ package main.imagerenderer;
 import dao.entities.ResultWrapper;
 import dao.entities.Results;
 import dao.entities.UserInfo;
-import main.Chuu;
-import main.imagerenderer.stealing.GaussianFilter;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.RescaleOp;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
-import java.util.Random;
 
 public class TasteRenderer {
 	private static final int PROFILE_IMAGE_SIZE = 100;
@@ -32,20 +25,15 @@ public class TasteRenderer {
 		Graphics2D g = canvas.createGraphics();
 		GraphicUtils.setQuality(g);
 
-		a(g);
+		GraphicUtils.initRandomImageBlurredBackground(g, x_MAX, y_MAX);
 
 		//Gets Profile Images
 		for (UserInfo userInfo : userInfoLiust) {
-			BufferedImage image = null;
 			try {
 				java.net.URL url = new java.net.URL(userInfo.getImage());
 				imageList.add(ImageIO.read(url));
 			} catch (IOException e) {
-				try {
-					imageList.add(ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png")));
-				} catch (IOException e1) {
-					Chuu.getLogger().warn(e1.getMessage(), e1);
-				}
+				imageList.add(GraphicUtils.noArtistImage);
 			}
 		}
 
@@ -178,41 +166,5 @@ public class TasteRenderer {
 		return canvas;
 	}
 
-	private static void a(Graphics2D g) {
-		BufferedImage bim;
 
-		Properties properties = new Properties();
-
-		try (InputStream in = TasteRenderer.class.getResourceAsStream("/" + "all.properties")) {
-			properties.load(in);
-			String path = properties.getProperty("WALLPAPER_FOLDER");
-			File dir = new File(path);
-			File[] files = dir.listFiles();
-			Random rand = new Random();
-			assert files != null;
-			File file = files[rand.nextInt(files.length)];
-			bim = ImageIO.read(file);
-			bim = cropImage(bim);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-		g.drawImage(bim, new GaussianFilter(45), 0, 0);
-
-
-	}
-
-
-	private static BufferedImage cropImage(BufferedImage src) {
-		int height = src.getTileHeight();
-		int width = src.getTileWidth();
-		int limity = height - y_MAX;
-		int limitx = width - x_MAX;
-		Random rand = new Random();
-		int x = rand.nextInt(limitx);
-		int y = rand.nextInt(limity);
-		RescaleOp op = new RescaleOp(.8f, 0, null);
-		return op.filter(src.getSubimage(x, y, x_MAX, y_MAX), null);
-
-	}
 }

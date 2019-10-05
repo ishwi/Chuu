@@ -37,7 +37,9 @@ public class YoutubeSearchCommand extends ConcurrentCommand {
 		}
 		String query = returned[0];
 		//long whom = Long.parseLong(returned[1]);
-		sendMessageQueue(e, youtubeSearch.doSearch(query));
+		String s = youtubeSearch.doSearch(query);
+		s = s == null || s.isBlank() ? "Coudn't find \"" + query + " \"on youtube" : s;
+		sendMessageQueue(e, s);
 
 	}
 

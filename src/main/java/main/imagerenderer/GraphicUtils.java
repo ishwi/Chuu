@@ -3,16 +3,31 @@ package main.imagerenderer;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
 import main.imagerenderer.stealing.GaussianFilter;
+import org.imgscalr.Scalr;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Properties;
+import java.util.Random;
 
 class GraphicUtils {
-	private static final String PATH_NO_IMAGE = "C:\\Users\\Ishwi\\Pictures\\New folder\\noArtistImage.png";
+
+
+	public static final BufferedImage noArtistImage;
+
+	static {
+		try {
+			noArtistImage = ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png"));
+		} catch (IOException e) {
+			throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
+		}
+	}
 
 	public static int getStringAscent(Graphics page, Font f, String s) {
 		// Find the size of string s in the font of the Graphics context "page"
@@ -211,5 +226,65 @@ class GraphicUtils {
 		g.dispose();
 		return b;
 	}
+
+	public static void initRandomImageBlurredBackground(final Graphics2D g, final int SIZE_X, final int SIZE_Y) {
+		BufferedImage bim;
+
+		Properties properties = new Properties();
+
+		try (InputStream in = TasteRenderer.class.getResourceAsStream("/" + "all.properties")) {
+			properties.load(in);
+			String path = properties.getProperty("WALLPAPER_FOLDER");
+			File dir = new File(path);
+			File[] files = dir.listFiles();
+			Random rand = new Random();
+			assert files != null;
+			File file = files[rand.nextInt(files.length)];
+			bim = ImageIO.read(file);
+			bim = cropImage(bim, SIZE_X, SIZE_Y);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		g.drawImage(bim, new GaussianFilter(90), 0, 0);
+
+
+	}
+
+	private static BufferedImage cropImage(final BufferedImage src, final int SOURCE_X, final int SOURCE_Y) {
+		Random rand = new Random();
+
+		int height = src.getTileHeight();
+		int width = src.getTileWidth();
+		int limity = height - SOURCE_Y;
+		int limitx = width - SOURCE_X;
+		if (limity <= 0 || limitx <= 0) {
+			return Scalr.resize(src, SOURCE_X, SOURCE_Y);
+		}
+
+		int y = rand.nextInt(limity);
+		int x = rand.nextInt(limitx);
+		return (src.getSubimage(x, y, SOURCE_X, SOURCE_Y));
+
+
+	}
+
+	/**
+	 * @param stringed    String to fit
+	 * @param g           Graphics2D instance
+	 * @param maxWidth    Max Width allowed
+	 * @param minFontSize Min font Size allowd
+	 * @return the width of the string on the current font
+	 */
+	public static int fitString(String stringed, Graphics2D g, int maxWidth, float minFontSize) {
+		Font ogFont = g.getFont();
+		float sizeFont = ogFont.getSize();
+		int width;
+		while ((width = g.getFontMetrics(g.getFont()).stringWidth(stringed)) > maxWidth && sizeFont > minFontSize) {
+			g.setFont(g.getFont().deriveFont(sizeFont -= 2));
+		}
+		return width;
+	}
+
 }
 

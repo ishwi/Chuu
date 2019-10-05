@@ -1,14 +1,5 @@
 package main.commands;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import dao.DaoImplementation;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ReturnNowPlaying;
@@ -19,6 +10,10 @@ import main.exceptions.LastFmException;
 import main.imagerenderer.WhoKnowsMaker;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.awt.image.BufferedImage;
+import java.util.*;
+import java.util.stream.Collectors;
+
 public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 
 	public WhoKnowsAlbumCommand(DaoImplementation dao) {
@@ -26,9 +21,14 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 		respondInPrivate = false;
 	}
 
-	void doExtraThings(List<ReturnNowPlaying> list2, long id, String artist, String album) {
-		ReturnNowPlaying crownUser = list2.get(0);
-		getDao().insertAlbumCrown(artist, album, crownUser.getDiscordId(), id, crownUser.getPlayNumber());
+	@Override
+	public String getDescription() {
+		return ("How many times the guild has heard an album!");
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("wkalbum", "wka", "whoknowsalbum");
 	}
 
 	@Override
@@ -44,7 +44,8 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 
 		// Gets play number for each registered artist
 		AlbumUserPlays urlContainter = new AlbumUserPlays("", "");
-		List<Long> usersThatKnow = getDao().whoKnows(artist, id, Integer.MAX_VALUE).getReturnNowPlayings().stream().map(x -> x.getDiscordId())
+		List<Long> usersThatKnow = getDao().whoKnows(artist, id, Integer.MAX_VALUE).getReturnNowPlayings().stream()
+				.map(ReturnNowPlaying::getDiscordId)
 				.collect(Collectors.toList());
 
 		userList = userList.stream().filter(x -> usersThatKnow.contains(x.getDiscordID())).collect(Collectors.toList());
@@ -80,8 +81,13 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 
 	}
 
+	void doExtraThings(List<ReturnNowPlaying> list2, long id, String artist, String album) {
+		ReturnNowPlaying crownUser = list2.get(0);
+		getDao().insertAlbumCrown(artist, album, crownUser.getDiscordId(), id, crownUser.getPlayNumber());
+	}
+
 	Map<UsersWrapper, Integer> fillPlayCounter(List<UsersWrapper> userList, String artist, String album,
-			AlbumUserPlays fillWithUrl) {
+	                                           AlbumUserPlays fillWithUrl) {
 		Map<UsersWrapper, Integer> userMapPlays = new LinkedHashMap<>();
 		userList.forEach(u -> {
 			try {
@@ -102,16 +108,6 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 			}
 		});
 		return userMapPlays;
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("wkalbum", "wka", "whoknowsalbum");
-	}
-
-	@Override
-	public String getDescription() {
-		return ("How many times the guild has heard an album!");
 	}
 
 	@Override
