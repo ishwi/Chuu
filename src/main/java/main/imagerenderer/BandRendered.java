@@ -48,11 +48,8 @@ public class BandRendered {
 		} catch (IOException e) {
 			lastFmLogo = null;
 		}
-		try (InputStream in = BandRendered.class.getResourceAsStream("/images/noArtistImage.png")) {
-			artistReplacement = ImageIO.read(in);
-		} catch (IOException e) {
-			artistReplacement = null;
-		}
+		artistReplacement = GraphicUtils.noArtistImage;
+
 		BufferedImage artistImageFill = GraphicUtils
 				.getImageFromUrl(wrapperReturnNowPlaying.getUrl(), artistReplacement);
 		Graphics2D g = GraphicUtils.initArtistBackground(canvas, artistImageFill);

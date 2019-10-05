@@ -31,12 +31,8 @@ public class TrackDistributor {
 
 	static {
 
-		try (InputStream in = BandRendered.class.getResourceAsStream("/images/noArtistImage.png")) {
-			noalbumImage = ImageIO.read(in);
-		} catch (IOException e) {
-			Chuu.getLogger().warn(e.getMessage(), e);
-			throw new RuntimeException();
-		}
+		noalbumImage = GraphicUtils.noArtistImage;
+
 		try (InputStream in = BandRendered.class.getResourceAsStream("/images/template.png")) {
 			template = ImageIO.read(in);
 		} catch (IOException e) {
