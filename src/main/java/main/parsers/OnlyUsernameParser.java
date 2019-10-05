@@ -4,9 +4,16 @@ import dao.DaoImplementation;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Arrays;
+
 public class OnlyUsernameParser extends DaoParser {
 	public OnlyUsernameParser(DaoImplementation dao) {
 		super(dao);
+	}
+
+	public OnlyUsernameParser(DaoImplementation dao, OptionalEntity... strings) {
+		super(dao);
+		opts.addAll(Arrays.asList(strings));
 	}
 
 	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {

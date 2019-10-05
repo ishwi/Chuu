@@ -1,12 +1,19 @@
 package main.commands;
 
 import dao.DaoImplementation;
+import dao.entities.ProfileEntity;
 import dao.entities.UniqueData;
 import dao.entities.UniqueWrapper;
 import dao.entities.UserInfo;
 import main.Chuu;
+import main.apis.discogs.DiscogsApi;
+import main.apis.discogs.DiscogsSingleton;
+import main.apis.spotify.Spotify;
+import main.apis.spotify.SpotifySingleton;
 import main.exceptions.LastFmException;
+import main.imagerenderer.ProfileMaker;
 import main.parsers.OnlyUsernameParser;
+import main.parsers.OptionalEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -18,9 +25,14 @@ import java.util.Collections;
 import java.util.List;
 
 public class ProfileInfoCommand extends ConcurrentCommand {
+	private final Spotify spotify;
+	private final DiscogsApi discogsApi;
+
 	public ProfileInfoCommand(DaoImplementation dao) {
 		super(dao);
-		this.parser = new OnlyUsernameParser(dao);
+		this.parser = new OnlyUsernameParser(dao, new OptionalEntity("--image", "display in list format"));
+		this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
 		this.respondInPrivate = false;
 	}
 
@@ -41,6 +53,7 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 			return;
 		String lastFmName = returned[0];
 		//long discordID = Long.parseLong(returned[1]);
+		boolean isList = !Boolean.parseBoolean(returned[2]);
 		UserInfo userInfo;
 		int albumCount;
 		try {
@@ -58,37 +71,58 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 		int totalCrowns = crowns.getRows();
 		int totalArtist = getDao().getUserArtistCount(lastFmName);
 		String crownRepresentative = !crowns.getUniqueData().isEmpty() ? crowns.getUniqueData().get(0)
-				.getArtistName() : "not crowns";
+				.getArtistName() : "no crowns";
 		String UniqueRepresentative = !unique.getUniqueData().isEmpty() ? unique.getUniqueData().get(0)
-				.getArtistName() : "not unique artists";
-
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("Total Number of scrobbles: ").append(userInfo.getPlayCount()).append("\n")
-				.append("Total Number of albums: ").append(albumCount).append("\n")
-				.append("Total Number of artists: ").append(totalArtist).append("\n")
-				.append("Total Number of crowns: ").append(totalCrowns).append("\n")
-				.append("\tTop Crown:").append(crownRepresentative).append("\n")
-				.append("Total Number of unique artist: ").append(totalUnique).append("\n")
-				.append("\tTop unique:").append(UniqueRepresentative).append("\n");
-
-		String name = getUserString(unique.getDiscordId(), e, lastFmName);
+				.getArtistName() : "no unique artists";
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 		String date = LocalDateTime.ofEpochSecond(userInfo.getUnixtimestamp(), 0, ZoneOffset.UTC)
 				.format(formatter);
+		if (isList) {
 
-		EmbedBuilder embedBuilder = new EmbedBuilder()
-				.setTitle(name + "'s profile", CommandUtil.getLastFmUser(lastFmName))
-				.setColor(CommandUtil.randomColor())
-				.setThumbnail(userInfo.getImage().isEmpty() ? null : userInfo.getImage())
-				.setDescription(stringBuilder)
-				.setFooter("Account created on  " + date);
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("Total Number of scrobbles: ").append(userInfo.getPlayCount()).append("\n")
+					.append("Total Number of albums: ").append(albumCount).append("\n")
+					.append("Total Number of artists: ").append(totalArtist).append("\n")
+					.append("Total Number of crowns: ").append(totalCrowns).append("\n")
+					.append("\tTop Crown:").append(crownRepresentative).append("\n")
+					.append("Total Number of unique artist: ").append(totalUnique).append("\n")
+					.append("\tTop unique:").append(UniqueRepresentative).append("\n");
 
-		MessageBuilder mes = new MessageBuilder();
-		mes.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+			String name = getUserString(unique.getDiscordId(), e, lastFmName);
+
+			EmbedBuilder embedBuilder = new EmbedBuilder()
+					.setTitle(name + "'s profile", CommandUtil.getLastFmUser(lastFmName))
+					.setColor(CommandUtil.randomColor())
+					.setThumbnail(userInfo.getImage().isEmpty() ? null : userInfo.getImage())
+					.setDescription(stringBuilder)
+					.setFooter("Account created on  " + date);
+
+			MessageBuilder mes = new MessageBuilder();
+			mes.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+
+		} else {
+
+			String crownImage = !crowns.getUniqueData().isEmpty() ?
+					CommandUtil
+							.getArtistImageUrl(getDao(), crownRepresentative, lastFM, discogsApi, spotify)
+					: null;
+
+			String uniqueImage = !unique.getUniqueData().isEmpty() ? CommandUtil
+					.getArtistImageUrl(getDao(), UniqueRepresentative, lastFM, discogsApi, spotify) : null;
+
+			ProfileEntity entity = new ProfileEntity(lastFmName, "", crownRepresentative, UniqueRepresentative, uniqueImage, crownImage, userInfo
+					.getImage(), "", userInfo
+					.getPlayCount(), albumCount, totalArtist, totalCrowns, totalUnique, 0, date);
+			sendImage(ProfileMaker.makeProfile(entity), e);
+		}
 	}
 
 	@Override
 	String getName() {
 		return "Profile";
+	}
+
+	private void generateImage() {
+
 	}
 }
