@@ -39,8 +39,8 @@ class ThreadQueueGuild extends ThreadQueue {
 		int fontSize1 = 28;
 		int fontSize2 = 28;
 
-		Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
-		Font albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
+		Font artistFont = new Font("Roboto", Font.PLAIN, fontSize1);
+		Font albumFont = new Font("Roboto", Font.PLAIN, fontSize2);
 		g.setFont(artistFont);
 
 		int artistWidth = g.getFontMetrics().stringWidth(artistName);
@@ -49,13 +49,13 @@ class ThreadQueueGuild extends ThreadQueue {
 		int albumWidth = g.getFontMetrics().stringWidth(plays + " plays");
 
 		while (artistWidth > imageWidth && fontSize1-- > 16) {
-			artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize1);
+			artistFont = new Font("Roboto", Font.PLAIN, fontSize1);
 			g.setFont(artistFont);
 			artistWidth = g.getFontMetrics().stringWidth(artistName);
 		}
 		while (albumWidth > imageWidth && fontSize2-- > 16) {
 			fontSize2--;
-			albumFont = new Font("ROBOTO-REGULAR", Font.PLAIN, fontSize2);
+			albumFont = new Font("Roboto", Font.PLAIN, fontSize2);
 			g.setFont(albumFont);
 			albumWidth = g.getFontMetrics().stringWidth(plays + " plays");
 		}

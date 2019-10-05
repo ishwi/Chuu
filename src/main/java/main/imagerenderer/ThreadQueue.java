@@ -36,7 +36,7 @@ class ThreadQueue implements Runnable {
 		this.x = x;
 		this.y = y;
 		this.iterations = iterations;
-		START_FONT = new Font("FIRASANS-BOOK", Font.PLAIN, START_FONT_SIZE);
+		START_FONT = new Font("Fira Sans Book", Font.PLAIN, START_FONT_SIZE);
 
 	}
 
@@ -53,7 +53,7 @@ class ThreadQueue implements Runnable {
 			START_FONT_SIZE = 12;
 			lowerLimitStringSize = 7;
 		}
-		START_FONT = new Font("FIRASANS-BOOK", Font.PLAIN, START_FONT_SIZE);
+		START_FONT = new Font("Fira Sans Book", Font.PLAIN, START_FONT_SIZE);
 	}
 
 

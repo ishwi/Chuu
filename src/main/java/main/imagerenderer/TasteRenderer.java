@@ -50,13 +50,13 @@ public class TasteRenderer {
 		}
 
 		//Init Of Variables
-		Font artistFont = new Font("ROBOTO-REGULAR", Font.PLAIN, 21);
-		Font numberFont = new Font("HEEBO-LIGHT", Font.PLAIN, 21);
-		Font titleFont = new Font("HEEBO-LIGHT", Font.PLAIN, 23);
-		Font scrobbleFont = new Font("HEEBO-LIGHT", Font.BOLD, 17);
+		Font artistFont = new Font("Roboto", Font.PLAIN, 21);
+		Font numberFont = new Font("Heebo-Light", Font.PLAIN, 21);
+		Font titleFont = new Font("Heebo-Light", Font.PLAIN, 23);
+		Font scrobbleFont = new Font("Heebo-Light", Font.BOLD, 17);
 		int startFont = 26;
-		Font usernameFont = (new Font("ROBOTO-MEDIUM", Font.PLAIN, startFont));
-		Font subtitle = new Font("ROBOTOCONDENSED-BOLD", Font.ITALIC, 12);
+		Font usernameFont = (new Font("Roboto Medium", Font.PLAIN, startFont));
+		Font subtitle = new Font("Roboto Condensed Bold Italic", Font.ITALIC, 12);
 
 		int x = 0;
 		int y = 20;
@@ -87,7 +87,7 @@ public class TasteRenderer {
 
 		while (totalwidth >= disponibleSize) {
 			startFont -= 2;
-			usernameFont = new Font("ROBOTO-MEDIUM", Font.PLAIN, startFont);
+			usernameFont = new Font("Roboto Medium", Font.PLAIN, startFont);
 			g.setFont(usernameFont);
 			widht1 = g.getFontMetrics().stringWidth(userInfoLiust.get(0).getUsername());
 			width2 = g.getFontMetrics().stringWidth(userInfoLiust.get(1).getUsername());
