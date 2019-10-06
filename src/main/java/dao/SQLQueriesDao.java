@@ -40,4 +40,5 @@ interface SQLQueriesDao {
 
 	List<LbEntry> albumCrownsLeaderboard(Connection con, long guildID);
 
+	ObscuritySummary getUserObscuritPoints(Connection connection, String lastfmid);
 }

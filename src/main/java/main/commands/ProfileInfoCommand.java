@@ -1,10 +1,7 @@
 package main.commands;
 
 import dao.DaoImplementation;
-import dao.entities.ProfileEntity;
-import dao.entities.UniqueData;
-import dao.entities.UniqueWrapper;
-import dao.entities.UserInfo;
+import dao.entities.*;
 import main.Chuu;
 import main.apis.discogs.DiscogsApi;
 import main.apis.discogs.DiscogsSingleton;
@@ -67,6 +64,8 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 		}
 		UniqueWrapper<UniqueData> crowns = getDao().getCrowns(lastFmName, e.getGuild().getIdLong());
 		UniqueWrapper<UniqueData> unique = getDao().getUniqueArtist(e.getGuild().getIdLong(), lastFmName);
+		ObscuritySummary summary = getDao().getObscuritySummary(lastFmName);
+
 		int totalUnique = unique.getRows();
 		int totalCrowns = crowns.getRows();
 		int totalArtist = getDao().getUserArtistCount(lastFmName);
@@ -112,7 +111,7 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 
 			ProfileEntity entity = new ProfileEntity(lastFmName, "", crownRepresentative, UniqueRepresentative, uniqueImage, crownImage, userInfo
 					.getImage(), "", userInfo
-					.getPlayCount(), albumCount, totalArtist, totalCrowns, totalUnique, 0, date);
+					.getPlayCount(), albumCount, totalArtist, totalCrowns, totalUnique, summary.getTotal(), date);
 			sendImage(ProfileMaker.makeProfile(entity), e);
 		}
 	}

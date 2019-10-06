@@ -620,6 +620,14 @@ public class DaoImplementation {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public ObscuritySummary getObscuritySummary(String lastfmid) {
+		try (Connection connection = dataSource.getConnection()) {
+			return queriesDao.getUserObscuritPoints(connection, lastfmid);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 
 	}
 }
