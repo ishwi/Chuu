@@ -72,17 +72,15 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 		wrapperReturnNowPlaying.setUrl(who.getUrl());
 
 		if (isList) {
+			wrapperReturnNowPlaying.getReturnNowPlayings()
+					.forEach(x -> x.setDiscordName(getUserString(x.getDiscordId(), e, x.getLastFMId())));
+
 			StringBuilder builder = new StringBuilder();
 			int counter = 1;
 			for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {
-				String userName = getUserString(returnNowPlaying.getDiscordId(), e, returnNowPlaying.getLastFMId());
 				builder.append(counter++)
-						.append(". ")
-						.append("[").append(userName).append("](")
-						.append(CommandUtil
-								.getLastFmArtistUserUrl(returnNowPlaying.getArtist(), returnNowPlaying.getLastFMId()))
-						.append(") - ")
-						.append(returnNowPlaying.getPlayNumber()).append(" plays\n");
+						.append(returnNowPlaying.toString());
+
 				if (counter == 11)
 					break;
 			}
