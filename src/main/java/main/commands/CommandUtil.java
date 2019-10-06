@@ -188,7 +188,12 @@ public class CommandUtil {
 
 	}
 
-	static String getLastFmArtistUserUrl(String artist, String username) {
+	public static String getLastFmTagUrl(String tag) {
+		return "https://www.last.fm/tag/" + tag.replaceAll(" ", "+").replaceAll("[)]", "%29");
+
+	}
+
+	public static String getLastFmArtistUserUrl(String artist, String username) {
 		return getLastFmUser(username) + "/library/music/" + artist.replaceAll(" ", "+")
 				.replaceAll("[)]", "%29");
 	}

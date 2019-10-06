@@ -1,71 +1,9 @@
 package main;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.security.auth.login.LoginException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dao.DaoImplementation;
 import main.apis.discogs.DiscogsSingleton;
 import main.apis.spotify.SpotifySingleton;
-import main.commands.AdministrativeCommand;
-import main.commands.AlbumCronwsLeaderboardCommand;
-import main.commands.AlbumCrownsCommand;
-import main.commands.AlbumPlaysCommand;
-import main.commands.AlbumTracksDistributionCommand;
-import main.commands.AllPlayingCommand;
-import main.commands.ArtistCommand;
-import main.commands.ArtistCountLeaderboard;
-import main.commands.ArtistPlaysCommand;
-import main.commands.ArtistUrlCommand;
-import main.commands.BandInfoCommand;
-import main.commands.ChartCommand;
-import main.commands.CountryCommand;
-import main.commands.CrownLeaderboardCommand;
-import main.commands.CrownsCommand;
-import main.commands.CrownsStolenCommand;
-import main.commands.CustomInterfacedEventManager;
-import main.commands.DailyCommand;
-import main.commands.FavesFromArtistCommand;
-import main.commands.FeaturedCommand;
-import main.commands.GenreCommand;
-import main.commands.GuildTopCommand;
-import main.commands.HelpCommand;
-import main.commands.MbizThisYearCommand;
-import main.commands.MusicBrainzCommand;
-import main.commands.NPSpotifyCommand;
-import main.commands.NPYoutubeCommand;
-import main.commands.NowPlayingCommand;
-import main.commands.ObscurityLeaderboardCommand;
-import main.commands.PrefixCommand;
-import main.commands.ProfileInfoCommand;
-import main.commands.RandomAlbumCommand;
-import main.commands.RecentListCommand;
-import main.commands.SetCommand;
-import main.commands.TasteCommand;
-import main.commands.TimeSpentCommand;
-import main.commands.TopCommand;
-import main.commands.TotalArtistNumberCommand;
-import main.commands.UniqueCommand;
-import main.commands.UniqueLeaderboardCommand;
-import main.commands.UpdateCommand;
-import main.commands.UserTopTrackCommand;
-import main.commands.WeeklyCommand;
-import main.commands.WhoKnowsAlbumCommand;
-import main.commands.WhoKnowsCommand;
-import main.commands.WhoKnowsSongCommand;
-import main.commands.YoutubeSearchCommand;
+import main.commands.*;
 import main.scheduledtasks.ImageUpdaterThread;
 import main.scheduledtasks.SpotifyUpdaterThread;
 import main.scheduledtasks.UpdaterThread;
@@ -75,6 +13,21 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.managers.Presence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.security.auth.login.LoginException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Chuu {
 
@@ -96,10 +49,6 @@ public class Chuu {
 
 	}
 
-	public static Logger getLogger() {
-		return logger;
-	}
-
 	public static Map<Long, Character> getPrefixMap() {
 		return prefixMap;
 	}
@@ -107,23 +56,6 @@ public class Chuu {
 	public static Presence getPresence() {
 		return Chuu.jda.getPresence();
 
-	}
-
-	private static File getThisJarFile() throws UnsupportedEncodingException {
-		// Gets the path of the currently running Jar file
-		String path = Chuu.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-		String decodedPath = URLDecoder.decode(path, "UTF-8");
-
-		// This is code especially written for running and testing this program in an
-		// IDE that doesn't compile to .jar when running.
-		if (!decodedPath.endsWith(".jar"))
-			return new File("Chuu.jar");
-		return new File(decodedPath); // We use File so that when we send the path to the ProcessBuilder, we will be
-										// using the proper System path formatting.
-	}
-
-	private static Map<Long, Character> initPrefixMap(DaoImplementation dao) {
-		return (dao.getGuildPrefixes());
 	}
 
 	public static void main(String[] args) throws UnsupportedEncodingException, InterruptedException {
@@ -135,23 +67,12 @@ public class Chuu {
 		}
 	}
 
-	static private Properties readToken() {
-
-		Properties properties = new Properties();
-		try (InputStream in = Chuu.class.getResourceAsStream("/all.properties")) {
-			properties.load(in);
-			return properties;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	private static void relaunchInUTF8() throws InterruptedException, UnsupportedEncodingException {
 		System.out.println("BotLauncher: We are not running in UTF-8 mode! This is a problem!");
 		System.out.println("BotLauncher: Relaunching in UTF-8 mode using -Dfile.encoding=UTF-8");
 
-		String[] command = new String[] { "java", "-Dfile.encoding=UTF-8", "-jar",
-				Chuu.getThisJarFile().getAbsolutePath() };
+		String[] command = new String[]{"java", "-Dfile.encoding=UTF-8", "-jar",
+				Chuu.getThisJarFile().getAbsolutePath()};
 
 		// Relaunches the bot using UTF-8 mode.
 		ProcessBuilder processBuilder = new ProcessBuilder(command);
@@ -159,7 +80,7 @@ public class Chuu {
 		try {
 			Process process = processBuilder.start();
 			process.waitFor(); // We wait here until the actual bot stops. We do this so that we can keep using
-								// the same command line.
+			// the same command line.
 			System.exit(process.exitValue());
 		} catch (IOException e) {
 			if (e.getMessage().contains("\"java\"")) {
@@ -174,6 +95,23 @@ public class Chuu {
 				Chuu.getLogger().warn(e.getMessage(), e);
 			}
 		}
+	}
+
+	private static File getThisJarFile() throws UnsupportedEncodingException {
+		// Gets the path of the currently running Jar file
+		String path = Chuu.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+		String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+
+		// This is code especially written for running and testing this program in an
+		// IDE that doesn't compile to .jar when running.
+		if (!decodedPath.endsWith(".jar"))
+			return new File("Chuu.jar");
+		return new File(decodedPath); // We use File so that when we send the path to the ProcessBuilder, we will be
+		// using the proper System path formatting.
+	}
+
+	public static Logger getLogger() {
+		return logger;
 	}
 
 	private static void setupBot() {
@@ -246,7 +184,8 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new PrefixCommand(dao)))
 				.addEventListeners(help.registerCommand(new DailyCommand(dao)))
 				.addEventListeners(help.registerCommand(new WeeklyCommand(dao)))
-				.addEventListeners(help.registerCommand(new UserTopTrackCommand(dao)));
+				.addEventListeners(help.registerCommand(new UserTopTrackCommand(dao)))
+				.addEventListeners(help.registerCommand(new SummaryArtistCommand(dao)));
 
 		try {
 			jda = builder.build().awaitReady();
@@ -256,6 +195,21 @@ public class Chuu {
 
 		} catch (LoginException | InterruptedException e) {
 			Chuu.getLogger().warn(e.getMessage(), e);
+		}
+	}
+
+	private static Map<Long, Character> initPrefixMap(DaoImplementation dao) {
+		return (dao.getGuildPrefixes());
+	}
+
+	static private Properties readToken() {
+
+		Properties properties = new Properties();
+		try (InputStream in = Chuu.class.getResourceAsStream("/all.properties")) {
+			properties.load(in);
+			return properties;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

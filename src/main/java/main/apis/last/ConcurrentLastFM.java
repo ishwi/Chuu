@@ -18,7 +18,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -537,11 +536,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	public String getCorrection(String artistToCorrect) {
 		String url;
-		try {
-			url = BASE + GET_CORRECTION + URLEncoder.encode(artistToCorrect, "UTF-8") + API_KEY + ENDING;
-		} catch (UnsupportedEncodingException e) {
-			return artistToCorrect;
-		}
+		url = BASE + GET_CORRECTION + URLEncoder.encode(artistToCorrect, StandardCharsets.UTF_8) + API_KEY + ENDING;
 		int count = 0;
 		while (true) {
 			try {
@@ -581,13 +576,9 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	private JSONObject initAlbumJSon(String username, String artist, String album) throws LastFmException {
 		String url;
-		try {
-			url = BASE + GET_TRACKS + username + "&artist=" + URLEncoder
-					.encode(artist, "UTF-8") + "&album=" + URLEncoder.encode(album, "UTF-8") +
-					API_KEY + ENDING + "&autocorrect=1";
-		} catch (UnsupportedEncodingException e) {
-			throw new LastFMServiceException("500");
-		}
+		url = BASE + GET_TRACKS + username + "&artist=" + URLEncoder
+				.encode(artist, StandardCharsets.UTF_8) + "&album=" + URLEncoder.encode(album, StandardCharsets.UTF_8) +
+				API_KEY + ENDING + "&autocorrect=1";
 
 		HttpMethodBase method = createMethod(url);
 
@@ -629,13 +620,10 @@ public class ConcurrentLastFM {//implements LastFMService {
 	public Track getTrackInfo(String username, String artist, String trackName) throws LastFmException {
 
 		String url;
-		try {
-			url = BASE + GET_TRACK_INFO + username + "&artist=" + URLEncoder
-					.encode(artist, "UTF-8") + "&track=" + URLEncoder.encode(trackName, "UTF-8") +
-					API_KEY + ENDING + "&autocorrect=1";
-		} catch (UnsupportedEncodingException e) {
-			throw new LastFMServiceException("500");
-		}
+		url = BASE + GET_TRACK_INFO + username + "&artist=" + URLEncoder
+				.encode(artist, StandardCharsets.UTF_8) + "&track=" + URLEncoder
+				.encode(trackName, StandardCharsets.UTF_8) +
+				API_KEY + ENDING + "&autocorrect=1";
 		HttpMethodBase method = createMethod(url);
 
 		JSONObject obj = doMethod(method);
@@ -667,12 +655,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 		String url;
 		String artistCorrected;
 
-		try {
-			url = BASE + GET_ARTIST_ALBUMS + URLEncoder
-					.encode(artist, "UTF-8") + API_KEY + "&autocorrect=1&limit=" + topAlbums + ENDING;
-		} catch (UnsupportedEncodingException e) {
-			throw new LastFMServiceException("500");
-		}
+		url = BASE + GET_ARTIST_ALBUMS + URLEncoder
+				.encode(artist, StandardCharsets.UTF_8) + API_KEY + "&autocorrect=1&limit=" + topAlbums + ENDING;
 
 		HttpMethodBase method = createMethod(url);
 
@@ -770,13 +754,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 	private int getArtistPlays(String artist, String username) throws LastFmException {
 		String url;
-		try {
-			url = BASE + GET_ARTIST_INFO + URLEncoder
-					.encode(artist, "UTF-8") + "&username=" + username + API_KEY + "&limit=" + 1000 + ENDING;
-		} catch (UnsupportedEncodingException e) {
-			throw new LastFMServiceException("400");
-
-		}
+		url = BASE + GET_ARTIST_INFO + URLEncoder
+				.encode(artist, StandardCharsets.UTF_8) + "&username=" + username + API_KEY + "&limit=" + 1000 + ENDING;
 		HttpMethodBase method = createMethod(url);
 
 		// Execute the method.
@@ -789,6 +768,37 @@ public class ConcurrentLastFM {//implements LastFMService {
 			return 0;
 
 	}
+
+	public ArtistSummary getArtistSummary(String artist, String username) throws LastFmException {
+		String url;
+		url = BASE + GET_ARTIST_INFO + URLEncoder
+				.encode(artist, StandardCharsets.UTF_8) + "&username=" + username + API_KEY + "&limit=" + 1000 + ENDING;
+		HttpMethodBase method = createMethod(url);
+		// Execute the method.
+		JSONObject jsonObject = doMethod(method);
+		if (jsonObject.has("artist")) {
+			JSONObject globalJson = jsonObject.getJSONObject("artist");
+			JSONObject statObject = globalJson.getJSONObject("stats");
+			int userPlayCount = statObject.getInt("userplaycount");
+			int listeners = statObject.getInt("listeners");
+			int playcount = statObject.getInt("playcount");
+
+			JSONArray artistArray = globalJson.getJSONObject("similar").getJSONArray("artist");
+			JSONArray tagsArray = globalJson.getJSONObject("tags").getJSONArray("tag");
+			List<String> similars = StreamSupport.stream(artistArray.spliterator(), false).map(JSONObject.class::cast)
+					.map(x -> x.getString("name")).collect(Collectors.toList());
+			List<String> tags = StreamSupport.stream(tagsArray.spliterator(), false).map(JSONObject.class::cast)
+					.map(x -> x.getString("name")).collect(Collectors.toList());
+
+			String summary = globalJson.getJSONObject("bio").getString("summary");
+			int i = summary.indexOf("<a");
+			summary = summary.substring(0, i);
+
+			return new ArtistSummary(userPlayCount, listeners, playcount, similars, tags, summary);
+		} else
+			return null;
+	}
+
 
 	public List<TimestampWrapper<Track>> getTracksAndTimestamps(String username, int from, int to) throws LastFmException {
 		List<TimestampWrapper<Track>> list = new ArrayList<>();

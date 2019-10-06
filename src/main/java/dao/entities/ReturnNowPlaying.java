@@ -1,5 +1,7 @@
 package dao.entities;
 
+import main.commands.CommandUtil;
+
 import java.awt.*;
 
 public class ReturnNowPlaying {
@@ -62,4 +64,13 @@ public class ReturnNowPlaying {
 		this.playNumber = playNumber;
 	}
 
+	@Override
+	public String toString() {
+		return ". " +
+				"[" + discordName + "](" +
+				CommandUtil
+						.getLastFmArtistUserUrl(artist, lastFMId) +
+				") - " +
+				playNumber + " plays\n";
+	}
 }
