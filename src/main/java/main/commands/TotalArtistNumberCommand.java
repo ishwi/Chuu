@@ -1,9 +1,11 @@
 package main.commands;
 
 import dao.DaoImplementation;
+import main.exceptions.LastFmException;
 import main.parsers.OnlyUsernameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +26,7 @@ public class TotalArtistNumberCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void onCommand(MessageReceivedEvent e) {
+	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned = parser.parse(e);
 		if (returned == null) {
 			return;

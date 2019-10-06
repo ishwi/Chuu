@@ -2,12 +2,11 @@ package main.commands;
 
 import dao.DaoImplementation;
 import dao.entities.ArtistData;
-import main.exceptions.LastFMNoPlaysException;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.OnlyUsernameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class UpdateCommand extends MyCommandDbAccess {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned;
 		returned = parser.parse(e);
 
@@ -38,7 +37,6 @@ public class UpdateCommand extends MyCommandDbAccess {
 		long discordID = Long.parseLong(returned[1]);
 		String userString = getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
 
-		try {
 			if (e.isFromGuild()) {
 				if (getDao().getAll(e.getGuild().getIdLong()).stream()
 						.noneMatch(s -> s.getLastFMName().equals(lastFmName))) {
@@ -55,14 +53,6 @@ public class UpdateCommand extends MyCommandDbAccess {
 			sendMessageQueue(e, "Successfully updated " + userString + " info !");
 
 
-		} catch (LastFMNoPlaysException e1) {
-			parser.sendError(parser.getErrorMessage(3), e);
-		} catch (LastFmEntityNotFoundException e1) {
-			parser.sendError(parser.getErrorMessage(4), e);
-
-		} catch (LastFmException ex) {
-			sendMessageQueue(e, "Error happened while updating " + userString + "'s account  , sorry uwu");
-		}
 
 
 	}

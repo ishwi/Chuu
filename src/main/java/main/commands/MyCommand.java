@@ -1,6 +1,9 @@
 package main.commands;
 
 import main.Chuu;
+import main.exceptions.LastFMNoPlaysException;
+import main.exceptions.LastFmEntityNotFoundException;
+import main.exceptions.LastFmException;
 import main.parsers.Parser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -12,6 +15,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.imageio.ImageIO;
+import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -52,28 +56,32 @@ public abstract class MyCommand extends ListenerAdapter {
 
 	void measureTime(MessageReceivedEvent e) {
 		long startTime = System.currentTimeMillis();
-		onCommand(e);
+		handleCommand(e);
 		long endTime = System.currentTimeMillis();
 		long timeElapsed = endTime - startTime;
 		System.out.println("Execution time in milliseconds " + getName() + " : " + timeElapsed);
 		System.out.println();
 	}
 
-	abstract void onCommand(MessageReceivedEvent e);
+	abstract String getName();
 	//}
 
-	abstract String getName();
+	void handleCommand(MessageReceivedEvent e) {
+		try {
+			onCommand(e);
+		} catch (LastFMNoPlaysException ex) {
+			sendMessage(e, "No Plays");
+		} catch (LastFmEntityNotFoundException ex) {
+			sendMessage(e, "Doesnt Exist");
+		} catch (LastFmException ex) {
+			sendMessage(e, "Generic Error");
+		} catch (InstanceNotFoundException ex) {
+			sendMessage(e, "Doesnt Exist User");
+		}
 
-	void sendMessageQueue(MessageReceivedEvent e, String message) {
-		sendMessageQueue(e, new MessageBuilder().append(message).build());
 	}
 
-	private void sendMessageQueue(MessageReceivedEvent e, Message message) {
-		if (e.isFromType(ChannelType.PRIVATE))
-			e.getPrivateChannel().sendMessage(message).queue();
-		else
-			e.getTextChannel().sendMessage(message).queue();
-	}
+	abstract void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException;
 
 	MessageAction sendMessage(MessageReceivedEvent e, String message) {
 		return sendMessage(e, new MessageBuilder().append(message).build());
@@ -86,6 +94,17 @@ public abstract class MyCommand extends ListenerAdapter {
 			return e.getTextChannel().sendMessage(message);
 	}
 
+	void sendMessageQueue(MessageReceivedEvent e, String message) {
+		sendMessageQueue(e, new MessageBuilder().append(message).build());
+	}
+
+	private void sendMessageQueue(MessageReceivedEvent e, Message message) {
+		if (e.isFromType(ChannelType.PRIVATE))
+			e.getPrivateChannel().sendMessage(message).queue();
+		else
+			e.getTextChannel().sendMessage(message).queue();
+	}
+
 	String[] commandArgs(Message message) {
 		return commandArgs(message.getContentDisplay());
 	}
@@ -93,7 +112,6 @@ public abstract class MyCommand extends ListenerAdapter {
 	private String[] commandArgs(String string) {
 		return string.split("\\s+");
 	}
-
 
 	void sendImage(BufferedImage image, MessageReceivedEvent e) {
 		sendImage(image, e, false);

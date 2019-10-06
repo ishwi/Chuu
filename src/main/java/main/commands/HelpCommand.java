@@ -16,11 +16,13 @@
 package main.commands;
 
 import main.Chuu;
+import main.exceptions.LastFmException;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
@@ -63,7 +65,7 @@ public class HelpCommand extends MyCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		Character prefix = Chuu.getCorrespondingPrefix(e);
 		String[] args = commandArgs(e.getMessage());
 

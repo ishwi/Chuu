@@ -19,8 +19,9 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess {
 	@Override
 	void measureTime(MessageReceivedEvent e) {
 		executor.submit(() -> {
-					long startTime = System.currentTimeMillis();
-					onCommand(e);
+			long startTime = 0;
+			startTime = System.currentTimeMillis();
+			handleCommand(e);
 					long endTime = System.currentTimeMillis();
 					long timeElapsed = endTime - startTime;
 					System.out.println("Execution time in milliseconds " + getName() + " : " + timeElapsed);

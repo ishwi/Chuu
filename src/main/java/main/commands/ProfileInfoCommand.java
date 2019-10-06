@@ -2,7 +2,6 @@ package main.commands;
 
 import dao.DaoImplementation;
 import dao.entities.*;
-import main.Chuu;
 import main.apis.discogs.DiscogsApi;
 import main.apis.discogs.DiscogsSingleton;
 import main.apis.spotify.Spotify;
@@ -15,6 +14,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -44,7 +44,7 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void onCommand(MessageReceivedEvent e) {
+	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned = parser.parse(e);
 		if (returned == null)
 			return;
@@ -53,15 +53,10 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 		boolean isList = !Boolean.parseBoolean(returned[2]);
 		UserInfo userInfo;
 		int albumCount;
-		try {
-			userInfo = lastFM.getUserInfo(Collections.singletonList(lastFmName)).get(0);
+
+		userInfo = lastFM.getUserInfo(Collections.singletonList(lastFmName)).get(0);
 			albumCount = lastFM.getTotalAlbumCount(lastFmName);
 
-		} catch (LastFmException ex) {
-			Chuu.getLogger().warn(ex.getMessage(), ex);
-			sendMessage(e, "An error happened while processing the command");
-			return;
-		}
 		UniqueWrapper<UniqueData> crowns = getDao().getCrowns(lastFmName, e.getGuild().getIdLong());
 		UniqueWrapper<UniqueData> unique = getDao().getUniqueArtist(e.getGuild().getIdLong(), lastFmName);
 		ObscuritySummary summary = getDao().getObscuritySummary(lastFmName);

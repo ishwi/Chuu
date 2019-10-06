@@ -8,6 +8,7 @@ import main.imagerenderer.TasteRenderer;
 import main.parsers.TwoUsersParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ public class TasteCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		List<String> lastfMNames;
 
 		String[] returned = parser.parse(e);
@@ -40,7 +41,6 @@ public class TasteCommand extends ConcurrentCommand {
 		lastfMNames = Arrays.asList(returned);
 
 		ResultWrapper resultWrapper;
-		try {
 			resultWrapper = getDao().getSimilarities(lastfMNames);
 			//TODO this happens both when user is not on db and no mathching so fix pls
 			if (resultWrapper.getRows() == 0) {
@@ -54,11 +54,7 @@ public class TasteCommand extends ConcurrentCommand {
 			BufferedImage image = TasteRenderer.generateTasteImage(resultWrapper, userInfoList);
 			sendImage(image, e);
 
-		} catch (LastFmException e1) {
-			parser.sendError(parser.getErrorMessage(2), e);
 
-
-		}
 
 	}
 

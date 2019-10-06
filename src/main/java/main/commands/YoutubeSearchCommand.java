@@ -3,9 +3,11 @@ package main.commands;
 import dao.DaoImplementation;
 import main.apis.youtube.Search;
 import main.apis.youtube.SearchSingleton;
+import main.exceptions.LastFmException;
 import main.parsers.UsernameAndNpQueryParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +31,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
 		String[] returned = parser.parse(e);
 		if (returned == null) {

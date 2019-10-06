@@ -5,8 +5,6 @@ import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
 import dao.entities.TimestampWrapper;
 import dao.entities.Track;
-import main.exceptions.LastFMNoPlaysException;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.OnlyUsernameParser;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -15,6 +13,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.MultiMap;
 import org.apache.commons.collections4.map.MultiValueMap;
 
+import javax.management.InstanceNotFoundException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -41,14 +40,14 @@ public class WeeklyCommand extends ConcurrentCommand {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	void onCommand(MessageReceivedEvent e) {
+	void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned = parser.parse(e);
 		if (returned == null)
 			return;
 		String lastFmName = returned[0];
 		long discordID = Long.parseLong(returned[1]);
-		try {
-			Map<Track, Integer> durationsFromWeek = lastFM.getDurationsFromWeek(lastFmName);
+
+		Map<Track, Integer> durationsFromWeek = lastFM.getDurationsFromWeek(lastFmName);
 
 			Instant instant = Instant.now();
 			ZoneId zoneId = ZoneOffset.UTC;
@@ -113,13 +112,7 @@ public class WeeklyCommand extends ConcurrentCommand {
 
 			MessageBuilder mes = new MessageBuilder();
 			e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
-		} catch (LastFMNoPlaysException ex) {
-			parser.sendError(parser.getErrorMessage(3), e);
-		} catch (LastFmEntityNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(4), e);
-		} catch (LastFmException ex) {
-			parser.sendError(parser.getErrorMessage(2), e);
-		}
+
 	}
 
 

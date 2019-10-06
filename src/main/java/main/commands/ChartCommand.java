@@ -2,13 +2,12 @@ package main.commands;
 
 import dao.DaoImplementation;
 import dao.entities.UrlCapsule;
-import main.exceptions.LastFMNoPlaysException;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.imagerenderer.CollageMaker;
 import main.parsers.ChartParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +33,7 @@ public class ChartCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned;
 		returned = parser.parse(e);
 		if (returned == null)
@@ -50,16 +49,8 @@ public class ChartCommand extends ConcurrentCommand {
 		if (x * y > 100) {
 			e.getChannel().sendMessage("Going to take a while").queue();
 		}
-		try {
-			processQueue(username, time, x, y, e, titleWrite, playsWrite);
 
-		} catch (LastFMNoPlaysException e1) {
-			parser.sendError(parser.getErrorMessage(3), e);
-		} catch (LastFmEntityNotFoundException e1) {
-			parser.sendError(parser.getErrorMessage(4), e);
-		} catch (LastFmException ex2) {
-			parser.sendError(parser.getErrorMessage(2), e);
-		}
+		processQueue(username, time, x, y, e, titleWrite, playsWrite);
 
 
 	}

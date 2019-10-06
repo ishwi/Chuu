@@ -2,14 +2,13 @@ package main.commands;
 
 import dao.DaoImplementation;
 import dao.entities.NowPlayingArtist;
-import main.exceptions.LastFMNoPlaysException;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.OnlyUsernameParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class RecentListCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void onCommand(MessageReceivedEvent e) {
+	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
 		String[] returned = parser.parse(e);
 		if (returned == null) {
@@ -41,9 +40,8 @@ public class RecentListCommand extends ConcurrentCommand {
 		String lastFmName = returned[0];
 		long discordID = Long.parseLong(returned[1]);
 		String usable = getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
-		try {
 
-			List<NowPlayingArtist> list = lastFM.getRecent(lastFmName, LIMIT);
+		List<NowPlayingArtist> list = lastFM.getRecent(lastFmName, LIMIT);
 			//Can't be empty because NoPLaysException
 			NowPlayingArtist header = list.get(0);
 
@@ -63,13 +61,6 @@ public class RecentListCommand extends ConcurrentCommand {
 			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 
 
-		} catch (LastFMNoPlaysException e1) {
-			parser.sendError(parser.getErrorMessage(3), e);
-		} catch (LastFmEntityNotFoundException e2) {
-			parser.sendError(parser.getErrorMessage(4), e);
-		} catch (LastFmException ex) {
-			parser.sendError(parser.getErrorMessage(2), e);
-		}
 
 	}
 

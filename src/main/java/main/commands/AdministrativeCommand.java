@@ -2,6 +2,7 @@ package main.commands;
 
 import dao.DaoImplementation;
 import main.Chuu;
+import main.exceptions.LastFmException;
 import main.parsers.UrlParser;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -13,6 +14,7 @@ import org.imgscalr.Scalr;
 
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
+import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,7 +87,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
 		String[] urlParsed = parser.parse(e);
 		if (urlParsed == null)

@@ -2,11 +2,11 @@ package main.commands;
 
 import dao.DaoImplementation;
 import dao.entities.NowPlayingArtist;
-import main.exceptions.LastFMNoPlaysException;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.NpParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import javax.management.InstanceNotFoundException;
 
 public abstract class NpCommand extends ConcurrentCommand {
 
@@ -18,7 +18,7 @@ public abstract class NpCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
 		String[] returned = parser.parse(e);
 		if (returned == null) {
@@ -27,20 +27,9 @@ public abstract class NpCommand extends ConcurrentCommand {
 		String username = returned[0];
 		//long discordId = Long.parseLong(returned[0]);
 
-		try {
-			NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);
+		NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(username);
 			doSomethingWithArtist(nowPlayingArtist, e);
 
-
-		} catch (
-				LastFMNoPlaysException e1) {
-			parser.sendError(parser.getErrorMessage(3), e);
-		} catch (LastFmEntityNotFoundException e2) {
-			parser.sendError(parser.getErrorMessage(4), e);
-		} catch (
-				LastFmException ex) {
-			parser.sendError(parser.getErrorMessage(2), e);
-		}
 
 	}
 
