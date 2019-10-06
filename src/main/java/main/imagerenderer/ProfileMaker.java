@@ -45,18 +45,18 @@ public class ProfileMaker {
 
 			//CrownImage
 			imageToDraw = GraphicUtils.getImageFromUrl(entity.getCrownUrl(), GraphicUtils.noArtistImage);
-			int baseline = 120;
+			int baseline = 115;
 			makeDrawingStringProcess("Top Crown", g, image, ogFont, IMAGE_START - 25, 350, baseline);
 			g.drawImage(Scalr.resize(imageToDraw, ARTIST_IMAGES_SIZE), IMAGE_START, 175, null);
-			baseline += 350;
+			baseline += 355;
 			makeDrawingStringProcess(entity
 					.getCrownArtist(), g, image, ogFont, IMAGE_START - 25, 350, baseline);
-			baseline += 105;
+			baseline += 95;
 
 			//UniqueImage
 			imageToDraw = GraphicUtils.getImageFromUrl(entity.getUniqueUrl(), GraphicUtils.noArtistImage);
 			makeDrawingStringProcess("Top Unique", g, image, ogFont, IMAGE_START - 25, 350, baseline);
-			baseline += 50;
+			baseline += 55;
 			g.drawImage(Scalr
 					.resize(imageToDraw, ARTIST_IMAGES_SIZE), IMAGE_START, baseline, null);
 			baseline += 300;
@@ -73,7 +73,8 @@ public class ProfileMaker {
 			g.setFont(fonttoUse.deriveFont(64f));
 
 			GraphicUtils.drawStringNicely(g, entity
-					.getUsername(), (X_SIZE - AVATAR_SIZE) / 2 - 350 + AVATAR_SIZE + 20, 50 + (AVATAR_SIZE) / 2, image);
+					.getUsername(), (X_SIZE - AVATAR_SIZE) / 2 - 350 + AVATAR_SIZE + 20, 50 + ((AVATAR_SIZE + g
+					.getFontMetrics().getAscent()) / 2), image);
 
 			String s;
 			int width;
@@ -112,7 +113,7 @@ public class ProfileMaker {
 			baseline += increment;
 
 			GraphicUtils.drawStringNicely(g, "Obscurity Score", 25, baseline, image);
-			s = String.valueOf(0);
+			s = String.valueOf(entity.getObscurityScore());
 			width = g.getFontMetrics(g.getFont()).stringWidth(s);
 			GraphicUtils.drawStringNicely(g, s, 1300 - width, baseline, image);
 

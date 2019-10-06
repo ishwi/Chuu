@@ -675,6 +675,65 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 			throw new RuntimeException((e));
 		}
 	}
+
+	@Override
+	public ObscuritySummary getUserObscuritPoints(Connection connection, String lastfmid) {
+		@Language("MariaDB") String queryString = "\tSelect  b, other_plays_on_my_artists, unique_coefficient,\n" +
+				"\tPOW(((b/ (other_plays_on_my_artists)) * (unique_coefficient + 1)),0.4) as total\n" +
+				"\t\tfrom (\n" +
+				"\n" +
+				"\tSELECT (Select sum(a.playnumber) * count(*) from \n" +
+				"\tartist a \n" +
+				"\twhere lastfmid = main.lastfmid) as b ,  \n" +
+				"\t\t   (SELECT COALESCE(Sum(a.playnumber), 1) \n" +
+				"\t\t\tFROM   artist a \n" +
+				" WHERE  lastfmid != main.lastfmid \n" +
+				"   AND a.artist_id IN (SELECT artist_id \n" +
+				"   FROM   artist \n" +
+				"   WHERE  lastfmid = main.lastfmid)) AS \n" +
+				"   other_plays_on_my_artists, \n" +
+				"   (SELECT Count(*) / (SELECT Count(*) + 1 \n" +
+				"   FROM   artist a \n" +
+				"\t\t\t\t\t\t\t   WHERE  lastfmid = main.lastfmid) * ( \n" +
+				"\t\t\t\t   COALESCE(Sum(playnumber \n" +
+				"\t\t\t\t\t\t\t), 1) ) \n" +
+				"\t\t\tFROM   (SELECT artist_id, \n" +
+				"\t\t\t\t\t\t   playnumber, \n" +
+				"\t\t\t\t\t\t   a.lastfmid \n" +
+				"\t\t\t\t\tFROM   artist a \n" +
+				"\t\t\t\t\tGROUP  BY a.artist_id \n" +
+				"\t\t\t\t\tHAVING Count(*) = 1) temp \n" +
+				"\t\t\tWHERE  temp.lastfmid = main.lastfmid \n" +
+				"\t\t\t\t   AND temp.playnumber > 1) \n" +
+				"\t\t   as unique_coefficient                      \n" +
+				"\tFROM   artist main \n" +
+				"\tgroup by lastFMID\n" +
+				"\thaving lastFMID =  ?\n" +
+				"\t) outer_main\n";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			int i = 1;
+			preparedStatement.setString(i, lastfmid);
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			if (!resultSet.next()) {
+				return null;
+
+			}
+
+			int totalPlays = resultSet.getInt("b");
+			int other_plays_on_my_artists = resultSet.getInt("other_plays_on_my_artists");
+			int unique_coefficient = resultSet.getInt("unique_coefficient");
+			int total = resultSet.getInt("total");
+
+			return new ObscuritySummary(totalPlays, other_plays_on_my_artists, unique_coefficient, total);
+
+
+		} catch (SQLException e) {
+			Chuu.getLogger().warn(e.getMessage(), e);
+		}
+		return null;
+	}
 }
+
 
 
