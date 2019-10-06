@@ -2,11 +2,13 @@ package main.commands;
 
 import dao.DaoImplementation;
 import main.Chuu;
+import main.exceptions.LastFmException;
 import main.parsers.PrefixParser;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,7 @@ public class PrefixCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void onCommand(MessageReceivedEvent e) {
+	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] parsed = parser.parse(e);
 		if (parsed == null)
 			return;

@@ -2,12 +2,14 @@ package main.commands;
 
 import dao.DaoImplementation;
 import dao.entities.LbEntry;
+import main.exceptions.LastFmException;
 import main.otherlisteners.Reactionary;
 import main.parsers.NoOpParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		printList(getList(e.getGuild().getIdLong()), e);
 	}
 

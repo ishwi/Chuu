@@ -7,7 +7,6 @@ import main.apis.discogs.DiscogsApi;
 import main.apis.discogs.DiscogsSingleton;
 import main.apis.spotify.Spotify;
 import main.apis.spotify.SpotifySingleton;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.ArtistParser;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -42,7 +41,7 @@ public class SummaryArtistCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	void onCommand(MessageReceivedEvent e) {
+	void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned;
 		returned = parser.parse(e);
 		if (returned == null)
@@ -52,25 +51,12 @@ public class SummaryArtistCommand extends ConcurrentCommand {
 		long whom = Long.parseLong(returned[1]);
 		ArtistSummary summary;
 		LastFMData data;
-		try {
-			data = getDao().findLastFMData(whom);
-			summary = lastFM.getArtistSummary(artist, data.getName());
-			if (summary == null) {
-				parser.sendError(artist + " doesn't exist on Last.fm", e);
-				return;
-			}
-		} catch (InstanceNotFoundException e1) {
-			parser.sendError(parser.getErrorMessage(3), e);
-			return;
-		} catch (LastFmEntityNotFoundException ex) {
-			//parser.sendError(parser.getErrorMessage(2), e);
+		data = getDao().findLastFMData(whom);
+		summary = lastFM.getArtistSummary(artist, data.getName());
+		if (summary == null) {
 			parser.sendError(artist + " doesn't exist on Last.fm", e);
 			return;
-		} catch (LastFmException ex) {
-			parser.sendError(parser.getErrorMessage(2), e);
-			return;
 		}
-
 		String username = getUserStringConsideringGuildOrNot(e, whom, data.getName());
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		String tagsField = summary.getTags().stream()

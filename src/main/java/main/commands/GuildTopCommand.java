@@ -2,10 +2,12 @@ package main.commands;
 
 import dao.DaoImplementation;
 import dao.entities.UrlCapsule;
+import main.exceptions.LastFmException;
 import main.imagerenderer.GuildMaker;
 import main.parsers.NoOpParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +33,7 @@ public class GuildTopCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		List<UrlCapsule> resultWrapper = getDao().getGuildTop(e.getGuild().getIdLong());
 		BufferedImage image = GuildMaker.generateCollageThreaded(5, 5, new LinkedBlockingDeque<>(resultWrapper));
 		sendImage(image, e);

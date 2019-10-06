@@ -4,11 +4,11 @@ import dao.DaoImplementation;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.Track;
 import main.exceptions.LastFMNoPlaysException;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.OnlyUsernameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -32,7 +32,12 @@ public class DailyCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	void onCommand(MessageReceivedEvent e) {
+	String getName() {
+		return "Daily";
+	}
+
+	@Override
+	void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned = parser.parse(e);
 		if (returned == null)
 			return;
@@ -59,15 +64,6 @@ public class DailyCommand extends ConcurrentCommand {
 
 		} catch (LastFMNoPlaysException ex) {
 			sendMessageQueue(e, "**" + usable + " ** played 0 mins, really,  0! mins in the last 24 hours");
-		} catch (LastFmEntityNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(4), e);
-		} catch (LastFmException ex) {
-			parser.sendError("Internal Service Error, try again later", e);
 		}
-	}
-
-	@Override
-	String getName() {
-		return "Daily";
 	}
 }

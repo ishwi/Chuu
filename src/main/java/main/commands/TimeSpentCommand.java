@@ -3,12 +3,11 @@ package main.commands;
 import dao.DaoImplementation;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
-import main.exceptions.LastFMNoPlaysException;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.TimerFrameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +28,7 @@ public class TimeSpentCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void onCommand(MessageReceivedEvent e) {
+	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] message;
 		message = parser.parse(e);
 		if (message == null)
@@ -42,8 +41,8 @@ public class TimeSpentCommand extends ConcurrentCommand {
 			sendMessageQueue(e, "Only [w]eek,[m]onth and [q]uarter are supported at the moment , sorry :'(");
 			return;
 		}
-		try {
-			SecondsTimeFrameCount wastedOnMusic = lastFM.getMinutesWastedOnMusic(username, timeframe);
+
+		SecondsTimeFrameCount wastedOnMusic = lastFM.getMinutesWastedOnMusic(username, timeframe);
 
 			sendMessageQueue(e, "**" + usableString + "** played " +
 					wastedOnMusic.getMinutes() +
@@ -54,14 +53,7 @@ public class TimeSpentCommand extends ConcurrentCommand {
 					"), listening to " + wastedOnMusic.getCount() + " different tracks in the last " +
 					wastedOnMusic.getTimeFrame().toString()
 							.toLowerCase());
-		} catch (LastFMNoPlaysException ex) {
-			parser.sendError(parser.getErrorMessage(3), e);
 
-		} catch (LastFmEntityNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(4), e);
-		} catch (LastFmException ex) {
-			parser.sendError(parser.getErrorMessage(2), e);
-		}
 	}
 
 	@Override

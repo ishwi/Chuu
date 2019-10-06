@@ -7,12 +7,12 @@ import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.imagerenderer.WorldMapRenderer;
 import main.parsers.TimerFrameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,12 @@ public class CountryCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void onCommand(MessageReceivedEvent e) {
+	String getName() {
+		return "My Countries ";
+	}
+
+	@Override
+	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned = parser.parse(e);
 		if (returned == null)
 			return;
@@ -54,15 +59,8 @@ public class CountryCommand extends ConcurrentCommand {
 			sendMessageQueue(e, "Going to take a while ");
 
 		BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
-		try {
-			lastFM.getUserList(username, timeframe, 100, 100, false, queue);
-		} catch (LastFmEntityNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(4), e);
-			return;
-		} catch (LastFmException ex) {
-			parser.sendError(parser.getErrorMessage(2), e);
-			return;
-		}
+		lastFM.getUserList(username, timeframe, 100, 100, false, queue);
+
 		List<ArtistInfo> artistInfos = queue.stream()
 				.map(capsule -> new ArtistInfo(capsule.getUrl(), capsule.getArtistName(), capsule.getMbid()))
 				.filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
@@ -87,10 +85,5 @@ public class CountryCommand extends ConcurrentCommand {
 		else
 			e.getChannel().sendMessage("Boot too big").queue();
 
-	}
-
-	@Override
-	String getName() {
-		return "My Countries ";
 	}
 }

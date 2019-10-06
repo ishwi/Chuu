@@ -3,10 +3,12 @@ package main.commands;
 import dao.DaoImplementation;
 import dao.entities.PresenceInfo;
 import main.Chuu;
+import main.exceptions.LastFmException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -43,7 +45,7 @@ public class FeaturedCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void onCommand(MessageReceivedEvent e) {
+	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String userString = this.getUserGlobalString(currentPresence.getDiscordId(), e, DEFAULT_USER);
 		EmbedBuilder embedBuilder = new EmbedBuilder()
 				.setColor(CommandUtil.randomColor())

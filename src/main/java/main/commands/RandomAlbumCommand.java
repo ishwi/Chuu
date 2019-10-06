@@ -2,9 +2,11 @@ package main.commands;
 
 import dao.DaoImplementation;
 import dao.entities.RandomUrlEntity;
+import main.exceptions.LastFmException;
 import main.parsers.RandomAlbumParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void onCommand(MessageReceivedEvent e) {
+	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned;
 
 		returned = parser.parse(e);

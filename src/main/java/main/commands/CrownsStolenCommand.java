@@ -3,6 +3,7 @@ package main.commands;
 import dao.DaoImplementation;
 import dao.entities.StolenCrown;
 import dao.entities.StolenCrownWrapper;
+import main.exceptions.LastFmException;
 import main.otherlisteners.Reactionary;
 import main.parsers.TwoUsersParser;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -33,7 +34,12 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public String getName() {
+		return "List Of Stolen Crowns";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] message;
 		message = parser.parse(e);
 		if (message == null)
@@ -52,19 +58,16 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 		int rows = resultWrapper.getList().size();
 
 		if (rows == 0) {
-			try {
-				long discId1 = getDao().getDiscordIdFromLastfm(ogLastFmId, e.getGuild().getIdLong());
-				long discId2 = getDao().getDiscordIdFromLastfm(secondlastFmId, e.getGuild().getIdLong());
-				Member member = e.getGuild().getMemberById(discId1);
-				Member member2 = e.getGuild().getMemberById(discId2);
-				assert (member != null);
-				assert member2 != null;
-				sendMessageQueue(e, member2.getEffectiveName() + " hasn't stolen anything from " + member
-						.getEffectiveName());
 
-			} catch (InstanceNotFoundException ex) {
-				sendMessageQueue(e, "The other person is not stealing anything ");
-			}
+			long discId1 = getDao().getDiscordIdFromLastfm(ogLastFmId, e.getGuild().getIdLong());
+			long discId2 = getDao().getDiscordIdFromLastfm(secondlastFmId, e.getGuild().getIdLong());
+			Member member = e.getGuild().getMemberById(discId1);
+			Member member2 = e.getGuild().getMemberById(discId2);
+			assert (member != null);
+			assert member2 != null;
+			sendMessageQueue(e, member2.getEffectiveName() + " hasn't stolen anything from " + member
+					.getEffectiveName());
+
 			return;
 		}
 		MessageBuilder messageBuilder = new MessageBuilder();
@@ -93,11 +96,6 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 				new Reactionary<>(resultWrapper.getList(), m, embedBuilder)
 		);
 
-	}
-
-	@Override
-	public String getName() {
-		return "List Of Stolen Crowns";
 	}
 
 

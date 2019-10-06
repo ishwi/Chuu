@@ -8,6 +8,7 @@ import main.apis.discogs.DiscogsApi;
 import main.apis.discogs.DiscogsSingleton;
 import main.apis.spotify.Spotify;
 import main.apis.spotify.SpotifySingleton;
+import main.exceptions.LastFmException;
 import main.imagerenderer.WhoKnowsMaker;
 import main.otherlisteners.Reactionary;
 import main.parsers.ArtistParser;
@@ -16,6 +17,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +48,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned;
 		returned = parser.parse(e);
 		if (returned == null)

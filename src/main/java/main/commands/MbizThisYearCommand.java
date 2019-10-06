@@ -2,11 +2,11 @@ package main.commands;
 
 import dao.DaoImplementation;
 import dao.entities.TimeFrameEnum;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.ChartOnlyUsernameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.Collections;
@@ -21,7 +21,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned;
 		returned = parser.parse(e);
 		if (returned == null)
@@ -46,14 +46,8 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 			timeframe = TimeFrameEnum.YEAR;
 		}
 
-		try {
-			processQueue(username, timeframe.toApiFormat(), 1, Year.now().getValue(), e, writeTitles, writePlays);
+		processQueue(username, timeframe.toApiFormat(), 1, Year.now().getValue(), e, writeTitles, writePlays);
 
-		} catch (LastFmEntityNotFoundException e1) {
-			parser.sendError(parser.getErrorMessage(3), e);
-		} catch (LastFmException ex2) {
-			parser.sendError(parser.getErrorMessage(4), e);
-		}
 
 	}
 

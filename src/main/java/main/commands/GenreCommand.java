@@ -7,7 +7,6 @@ import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.TimerFrameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -16,6 +15,7 @@ import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.style.PieStyler;
 import org.knowm.xchart.style.Styler;
 
+import javax.management.InstanceNotFoundException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
@@ -45,7 +45,12 @@ public class GenreCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	protected void onCommand(MessageReceivedEvent e) {
+	public String getName() {
+		return "Genre";
+	}
+
+	@Override
+	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
 		String[] returned;
 		returned = parser.parse(e);
@@ -58,15 +63,7 @@ public class GenreCommand extends ConcurrentCommand {
 		String timeframe = returned[2];
 		String usableString = getUserStringConsideringGuildOrNot(e, discordId, username);
 		BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
-		try {
-			lastFM.getUserList(username, timeframe, 15, 15, true, queue);
-		} catch (LastFmEntityNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(4), e);
-			return;
-		} catch (LastFmException ex) {
-			parser.sendError(parser.getErrorMessage(2), e);
-			return;
-		}
+		lastFM.getUserList(username, timeframe, 15, 15, true, queue);
 
 		List<AlbumInfo> albumInfos = queue.stream()
 				.map(capsule -> new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()))
@@ -106,11 +103,6 @@ public class GenreCommand extends ConcurrentCommand {
 		pieChart.paint(g, 800, 600);
 		sendImage(bufferedImage, e);
 
-	}
-
-	@Override
-	public String getName() {
-		return "Genre";
 	}
 
 

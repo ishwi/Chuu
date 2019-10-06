@@ -8,7 +8,6 @@ import main.apis.discogs.DiscogsApi;
 import main.apis.discogs.DiscogsSingleton;
 import main.apis.spotify.Spotify;
 import main.apis.spotify.SpotifySingleton;
-import main.exceptions.LastFMNoPlaysException;
 import main.exceptions.LastFmException;
 import main.parsers.ArtistTimeFrameParser;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -43,7 +42,13 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public String getName() {
+
+		return "Fav tracks";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned;
 		returned = parser.parse(e);
 		if (returned == null)
@@ -54,22 +59,10 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
 		CommandUtil.lessHeavyValidate(getDao(), who, lastFM, discogsApi, spotify);
 		List<Track> ai;
 		String lastFmName;
-		try {
-			lastFmName = getDao().findLastFMData(userId).getName();
-		} catch (InstanceNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(1), e);
-			return;
-		}
+		lastFmName = getDao().findLastFMData(userId).getName();
 
-		try {
-			ai = lastFM.getTopArtistTracks(lastFmName, who.getArtist(), timeframew);
-		} catch (LastFMNoPlaysException ex) {
-			parser.sendError("No plays at all bro", e);
-			return;
-		} catch (LastFmException ex) {
-			parser.sendError(parser.getErrorMessage(2), e);
-			return;
-		}
+		ai = lastFM.getTopArtistTracks(lastFmName, who.getArtist(), timeframew);
+
 		final String userString = getUserStringConsideringGuildOrNot(e, userId, lastFmName);
 		if (ai.isEmpty()) {
 			sendMessageQueue(e, " No faves on provided time!");
@@ -94,11 +87,5 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
 		embedBuilder.setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
 
 		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
-	}
-
-	@Override
-	public String getName() {
-
-		return "Fav tracks";
 	}
 }

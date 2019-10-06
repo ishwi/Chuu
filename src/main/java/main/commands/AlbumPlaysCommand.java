@@ -6,7 +6,6 @@ import main.apis.discogs.DiscogsApi;
 import main.apis.discogs.DiscogsSingleton;
 import main.apis.spotify.Spotify;
 import main.apis.spotify.SpotifySingleton;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.ArtistAlbumParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -38,7 +37,12 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public String getName() {
+		return "Get Plays Album";
+	}
+
+	@Override
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] parsed;
 		parsed = parser.parse(e);
 		if (parsed == null || parsed.length != 3)
@@ -51,32 +55,20 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 
 	}
 
-	void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, long who) {
-		int a;
-		try {
-			LastFMData data = getDao().findLastFMData(who);
+	void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, long who) throws InstanceNotFoundException, LastFmException {
 
-			a = lastFM.getPlaysAlbum_Artist(data.getName(), artist, album).getPlays();
-			String usernameString = data.getName();
+		LastFMData data = getDao().findLastFMData(who);
 
-			usernameString = getUserStringConsideringGuildOrNot(e, who, usernameString);
+		int a = lastFM.getPlaysAlbum_Artist(data.getName(), artist, album).getPlays();
+		String usernameString = data.getName();
 
-			String ending = a > 1 ? "times " : "time";
+		usernameString = getUserStringConsideringGuildOrNot(e, who, usernameString);
 
-			sendMessageQueue(e, "**" + usernameString + "** has listened **" + album + "** " + a + " " + ending);
+		String ending = a > 1 ? "times " : "time";
 
-		} catch (InstanceNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(5), e);
-		} catch (LastFmEntityNotFoundException ex) {
-			parser.sendError(parser.getErrorMessage(6), e);
-		} catch (LastFmException ex) {
-			parser.sendError(parser.getErrorMessage(2), e);
-		}
-	}
+		sendMessageQueue(e, "**" + usernameString + "** has listened **" + album + "** " + a + " " + ending);
 
-	@Override
-	public String getName() {
-		return "Get Plays Album";
+
 	}
 
 

@@ -7,10 +7,12 @@ import dao.entities.UsersWrapper;
 import main.Chuu;
 import main.exceptions.LastFMNoPlaysException;
 import main.exceptions.LastFmEntityNotFoundException;
+import main.exceptions.LastFmException;
 import main.parsers.OneWordParser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -36,7 +38,7 @@ public class SetCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned;
 
 		returned = parser.parse(e);

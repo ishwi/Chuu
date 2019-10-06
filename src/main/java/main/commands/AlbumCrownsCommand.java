@@ -3,6 +3,7 @@ package main.commands;
 import dao.DaoImplementation;
 import dao.entities.UniqueData;
 import dao.entities.UniqueWrapper;
+import main.exceptions.LastFmException;
 import main.otherlisteners.Reactionary;
 import main.parsers.OnlyUsernameParser;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -10,6 +11,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) {
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned;
 
 		returned = parser.parse(e);
