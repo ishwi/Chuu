@@ -37,6 +37,7 @@ public class HelpCommand extends MyCommand {
 	public HelpCommand() {
 
 		commands = new TreeMap<>();
+		commands.put(this.getAliases().get(0), this);
 	}
 
 	public MyCommand registerCommand(MyCommand command) {
@@ -56,7 +57,7 @@ public class HelpCommand extends MyCommand {
 						+ "help - returns the list of commands along with a simple description of each.\n"
 						+ "help <command> - returns the name, description, aliases and usage information of a command.\n"
 						+ "   - This can use the aliases of a command as input as well.\n"
-						+ "__Example:__ !help ann";
+						+ "Example: !help chart";
 	}
 
 	@Override
@@ -84,7 +85,7 @@ public class HelpCommand extends MyCommand {
 		sendPrivate(e.getAuthor().openPrivateChannel().complete(), args, prefix);
 	}
 
-	private void sendPrivate(MessageChannel channel, String[] args, Character prefix) {
+	public void sendPrivate(MessageChannel channel, String[] args, Character prefix) {
 		if (args.length < 2) {
 			StringBuilder s = new StringBuilder();
 			boolean flagSeveralPages = false;
@@ -93,7 +94,7 @@ public class HelpCommand extends MyCommand {
 					channel.sendMessage(new MessageBuilder()
 							.append("The following commands are supported by the bot\n")
 							.append(s.toString())
-							.build()).queue();
+							.build()).complete();
 					flagSeveralPages = true;
 					s = new StringBuilder();
 				}
@@ -108,13 +109,13 @@ public class HelpCommand extends MyCommand {
 			channel.sendMessage(new MessageBuilder()
 					.append(header)
 					.append(s.toString())
-					.build()).queue();
+					.build()).complete();
 		} else {
 			doSend(args, channel, prefix);
 		}
 	}
 
-	private void doSend(String[] args, MessageChannel channel, Character prefix) {
+	public void doSend(String[] args, MessageChannel channel, Character prefix) {
 		String command = args[1]
 				.charAt(0) == prefix ? args[1] : "" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
 		for (MyCommand c : commands.values()) {
@@ -130,7 +131,7 @@ public class HelpCommand extends MyCommand {
 				//TODO: Replace with a PrivateMessage
 				channel.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n")
 						.append("**Description:** ").append(description).append("\n")
-						.append("**Alliases:** ").append(prefix)
+						.append("**Alliases:** ")
 						.append(String.join(", ", c.getAliases())).append("\n")
 						.append("**Usage:** ")
 						.append(prefix).append(usageInstructions)
