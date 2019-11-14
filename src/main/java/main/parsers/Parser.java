@@ -40,6 +40,8 @@ public abstract class Parser {
 		}
 
 		String[] preOptionaledMessage = parseLogic(e, subMessageBuilding.toArray(new String[0]));
+		if (preOptionaledMessage == null)
+			return null;
 		String[] withFlags = Arrays.copyOf(preOptionaledMessage, opts.size() + preOptionaledMessage.length);
 		int counter = preOptionaledMessage.length;
 		for (OptionalEntity opt : opts) {

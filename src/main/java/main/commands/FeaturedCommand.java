@@ -4,6 +4,7 @@ import dao.DaoImplementation;
 import dao.entities.PresenceInfo;
 import main.Chuu;
 import main.exceptions.LastFmException;
+import main.parsers.NoOpParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -24,6 +25,7 @@ public class FeaturedCommand extends ConcurrentCommand {
 
 	public FeaturedCommand(DaoImplementation dao, ScheduledExecutorService scheduledManager) {
 		super(dao);
+		this.parser = new NoOpParser();
 		currentPresence = new PresenceInfo(DEFAULT_ARTIST, DEFAULT_URL, Long.MAX_VALUE, 1);
 		scheduledManager.scheduleAtFixedRate(() -> {
 			PresenceInfo randomArtistWithUrl = getDao().getRandomArtistWithUrl();
