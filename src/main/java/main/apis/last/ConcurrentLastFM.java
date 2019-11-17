@@ -782,7 +782,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 			int userPlayCount = statObject.getInt("userplaycount");
 			int listeners = statObject.getInt("listeners");
 			int playcount = statObject.getInt("playcount");
-
+			String artistName = globalJson.getString("name");
 			JSONArray artistArray = globalJson.getJSONObject("similar").getJSONArray("artist");
 			JSONArray tagsArray = globalJson.getJSONObject("tags").getJSONArray("tag");
 			List<String> similars = StreamSupport.stream(artistArray.spliterator(), false).map(JSONObject.class::cast)
@@ -794,9 +794,9 @@ public class ConcurrentLastFM {//implements LastFMService {
 			int i = summary.indexOf("<a");
 			summary = summary.substring(0, i);
 
-			return new ArtistSummary(userPlayCount, listeners, playcount, similars, tags, summary);
-		} else
-			return null;
+			return new ArtistSummary(userPlayCount, listeners, playcount, similars, tags, summary, artistName);
+		}
+		throw new LastFmEntityNotFoundException(artist);
 	}
 
 

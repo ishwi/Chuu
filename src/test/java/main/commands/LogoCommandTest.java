@@ -1,6 +1,7 @@
 package main.commands;
 
 import main.commands.parsers.NullReturnParsersTest;
+import main.commands.utils.CommandTest;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import org.junit.Assert;
@@ -8,7 +9,7 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static main.commands.TestResources.channelWorker;
+import static main.commands.utils.TestResources.channelWorker;
 import static org.awaitility.Awaitility.await;
 
 public class LogoCommandTest extends CommandTest {

@@ -511,6 +511,26 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public void deleteAlbumCrown(Connection connection, String artist, String album, long discordID, long guildId) {
+		@Language("MySQL") String queryString = "delete   from album_crowns where  artist_id = ? and discordId = ? and album = ?  and guildId = ? ";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			int i = 1;
+			preparedStatement.setString(i++, artist);
+			preparedStatement.setLong(i++, discordID);
+			preparedStatement.setString(i++, album);
+			preparedStatement.setLong(i, guildId);
+
+			preparedStatement.executeUpdate();
+
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
 
 

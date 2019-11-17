@@ -1,27 +1,12 @@
 package main.commands;
 
 import main.commands.parsers.NullReturnParsersTest;
+import main.commands.utils.CommandTest;
+import main.commands.utils.EmbedUtils;
+import main.commands.utils.TestResources;
 import org.junit.Test;
 
-import java.util.regex.Pattern;
-
 public class AlbumCrownsCommandTest extends CommandTest {
-	public Pattern descriptionArtistRegex = Pattern.compile(
-			"(\\d+)" + //Indexed list *captured
-					"\\. \\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //Markdown link
-					"(?=(?: -|:))(?: -|:) " + //anything until a ":" or a " -"
-					"(\\d+) " + //count of the description *captured
-					"(play(?:s)?|crown(?:s)?|obscurity points|artist(?:s)?|unique artist(?:s)?)"); //ending
-	public Pattern stolenRegex = Pattern.compile(
-			"(\\d+)" + //Indexed list *captured
-					"\\. \\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //Markdown link
-					"(?= : )(?: : )" + //anything until a ":"
-					"(\\d+)" + //your plays
-					"(?: -> )(?:\\d+)"); //Separator and other user plays
-	public Pattern descriptionArtistAlbumRegex = Pattern.compile(
-			"(\\d+)\\. " + //digit
-					"\\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //markdown url
-					"(?= - ) - (\\d+) play(?:s)?"); /// remaining
 
 
 	@Override
@@ -36,48 +21,88 @@ public class AlbumCrownsCommandTest extends CommandTest {
 		NullReturnParsersTest.onlyUsernameParser("!crowns");
 		NullReturnParsersTest.onlyUsernameParser("!crownsal");
 		NullReturnParsersTest.onlyUsernameParser("!unique");
+		NullReturnParsersTest.twoUsersParser("!stolen");
 
 	}
 
 
 	@Test
 	public void crowns() {
-		TestUtils.testEmbeded("!crowns", descriptionArtistRegex, false);
+
+		String regex = "${header}'s crown(s)?";
+
+		EmbedUtils.testLeaderboardEmbed("!crowns", EmbedUtils.descriptionArtistRegex, regex, false);
+
+		EmbedUtils.testLeaderboardEmbed("!crowns " + TestResources.ogJDA.getSelfUser()
+				.getAsMention(), EmbedUtils.descriptionArtistRegex, regex, false);
 	}
 
 	@Test
 	public void stolenCrowns() {
-		TestUtils.testEmbeded("!stolen " + TestResources.ogJDA.getSelfUser().getAsMention(), stolenRegex, false, true);
+
+		String titleRegex = ".*?(?=Top 10 crowns Stolen by )Top 10 crowns Stolen by .*";
+		TestResources.insertCommonArtistWithPlays(Integer.MAX_VALUE);
+		EmbedUtils.testLeaderboardEmbed("!stolen " + TestResources.ogJDA.getSelfUser()
+				.getAsMention(), EmbedUtils.stolenRegex, titleRegex, false, true);
+		TestResources.insertCommonArtistWithPlays(1);
+		EmbedUtils.testLeaderboardEmbed("!stolen " + TestResources.ogJDA.getSelfUser()
+				.getAsMention(), EmbedUtils.stolenRegex, titleRegex, false, true);
+
+		EmbedUtils.testLeaderboardEmbed("!stolen " + TestResources.testerJDA.getSelfUser()
+				.getAsMention(), EmbedUtils.stolenRegex, titleRegex, false, false);
+
 	}
 
 
 	@Test
 	public void crownsAlbum() {
-		TestUtils.testEmbeded("!crownsal", descriptionArtistAlbumRegex, false);
+		//Empty
+		String regex = "${header}'s album crown(:?s)?";
+		String regexLB = "${header}'s Album Crowns leadearboard";
+		EmbedUtils.testLeaderboardEmbed("!crownsal " + TestResources.ogJDA.getSelfUser()
+				.getAsMention(), EmbedUtils.descriptionArtistAlbumRegex, regex, false, true);
+		EmbedUtils.testLeaderboardEmbed("!crownsalbumlb", EmbedUtils.descriptionArtistRegex, regexLB, true);
+
+		TestResources.dao
+				.insertAlbumCrown(TestResources.commonArtist, "Test Album That shoudnt Exists", TestResources.testerJDA
+						.getSelfUser().getIdLong(), TestResources.channelWorker.getGuild().getIdLong(), 199);
+		//With something
+		EmbedUtils.testLeaderboardEmbed("!crownsal", EmbedUtils.descriptionArtistAlbumRegex, regex, false);
+		EmbedUtils.testLeaderboardEmbed("!crownsalbumlb", EmbedUtils.descriptionArtistRegex, regexLB, true);
+
+		//Revert
+		TestResources.dao
+				.deleteAlbumCrown(TestResources.commonArtist, "Test Album That shoudnt Exists", TestResources.testerJDA
+						.getSelfUser().getIdLong(), TestResources.channelWorker.getGuild().getIdLong());
 	}
 
 	@Test
 	public void uniques() {
-		TestUtils.testEmbeded("!unique", descriptionArtistRegex, false);
+		String regex = "${header}'s Top 10 unique Artists";
+		EmbedUtils.testLeaderboardEmbed("!unique", EmbedUtils.descriptionArtistRegex, regex, false);
+		EmbedUtils.testLeaderboardEmbed("!unique " + TestResources.ogJDA.getSelfUser()
+				.getAsMention(), EmbedUtils.descriptionArtistRegex, regex, false, true);
+
 	}
 
 	@Test
 	public void obscurityLb() {
-		TestUtils.testEmbeded("!obscuritylb", descriptionArtistRegex, true);
+		EmbedUtils
+				.testLeaderboardEmbed("!obscuritylb", EmbedUtils.descriptionArtistRegex, "${header}'s Obscurity points leadearboard", true);
 	}
 
-	@Test
-	public void crownsalbumLB() {
-		TestUtils.testEmbeded("!crownsalbumlb", descriptionArtistRegex, true);
-	}
 
 	@Test
 	public void scrobbledLb() {
-		TestUtils.testEmbeded("!scrobbledlb", descriptionArtistRegex, true);
+		EmbedUtils
+				.testLeaderboardEmbed("!scrobbledlb", EmbedUtils.descriptionArtistRegex, "${header}'s artist leadearboard", true);
 	}
 
 	@Test
 	public void uniqueLb() {
-		TestUtils.testEmbeded("!uniquelb", descriptionArtistRegex, true);
+		EmbedUtils
+				.testLeaderboardEmbed("!uniquelb", EmbedUtils.descriptionArtistRegex, "${header}'s Unique Artists leadearboard", true);
 	}
+
+
 }

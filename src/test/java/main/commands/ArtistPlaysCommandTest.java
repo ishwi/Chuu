@@ -1,6 +1,7 @@
 package main.commands;
 
 import main.commands.parsers.NullReturnParsersTest;
+import main.commands.utils.CommandTest;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import org.junit.Assert;
@@ -9,7 +10,7 @@ import org.junit.Test;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static main.commands.TestResources.channelWorker;
+import static main.commands.utils.TestResources.channelWorker;
 import static org.awaitility.Awaitility.await;
 
 public class ArtistPlaysCommandTest extends CommandTest {
@@ -23,6 +24,7 @@ public class ArtistPlaysCommandTest extends CommandTest {
 	}
 
 	@Test
+	@Override
 	public void nullParserReturned() {
 		NullReturnParsersTest.artistParser(COMMAND_ALIAS);
 	}

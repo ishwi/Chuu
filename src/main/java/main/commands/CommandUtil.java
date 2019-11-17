@@ -244,7 +244,12 @@ public class CommandUtil {
 			tempName = user.getName();
 		}
 		usableName.append(tempName);
-		url.append(user.getAvatarUrl());
+		url.append(user.getAvatarUrl() != null ? user.getAvatarUrl() : "");
+	}
+
+	public static String getUserArtistTrackUrl(String artist, String track) {
+		return getLastFmArtistUrl(artist) + "/_/" + track.replaceAll(" ", "+")
+				.replaceAll("[)]", "%29");
 	}
 
 }

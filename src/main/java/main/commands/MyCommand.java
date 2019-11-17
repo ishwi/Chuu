@@ -70,13 +70,13 @@ public abstract class MyCommand extends ListenerAdapter {
 		try {
 			onCommand(e);
 		} catch (LastFMNoPlaysException ex) {
-			sendMessage(e, "No Plays");
+			sendMessage(e, "No Plays").queue();
 		} catch (LastFmEntityNotFoundException ex) {
-			sendMessage(e, "Doesnt Exist");
+			sendMessage(e, "Doesnt Exist").queue();
 		} catch (LastFmException ex) {
-			sendMessage(e, "Generic Error");
+			sendMessage(e, "Generic Error").queue();
 		} catch (InstanceNotFoundException ex) {
-			sendMessage(e, "Doesnt Exist User");
+			sendMessage(e, "Doesnt Exist User").queue();
 		}
 
 	}

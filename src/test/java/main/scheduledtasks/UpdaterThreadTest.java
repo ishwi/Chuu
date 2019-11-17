@@ -7,9 +7,9 @@ import dao.entities.ArtistInfo;
 import dao.entities.LastFMData;
 import dao.entities.TimestampWrapper;
 import main.apis.discogs.DiscogsApi;
-import main.apis.spotify.Spotify;
 import main.apis.last.ConcurrentLastFM;
 import main.apis.last.LastFMFactory;
+import main.apis.spotify.Spotify;
 import main.commands.CommandUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -68,7 +68,7 @@ public class UpdaterThreadTest {
 		a.add(new ArtistData("Raphael3", 4, null));
 
 		TimestampWrapper<List<ArtistData>> artistDataLinkedList = new TimestampWrapper<>(a, Instant.now()
-				.get(ChronoField.MILLI_OF_SECOND));
+				.get(ChronoField.MILLI_OF_SECOND) * 1000);
 		//Correction with current last fm implementation should return the same name so no correction gives
 		for (ArtistData datum : artistDataLinkedList.getWrapped()) {
 			CommandUtil.valiate(dao, datum, lastFM, discogsApi, spotify, correctionAdder);

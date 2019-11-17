@@ -64,7 +64,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 
 		usernameString = getUserStringConsideringGuildOrNot(e, who, usernameString);
 
-		String ending = a > 1 ? "times " : "time";
+		String ending = a == 1 ? "time " : "times";
 
 		sendMessageQueue(e, "**" + usernameString + "** has listened **" + album + "** " + a + " " + ending);
 

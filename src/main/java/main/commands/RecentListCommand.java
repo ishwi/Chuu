@@ -53,7 +53,7 @@ public class RecentListCommand extends ConcurrentCommand {
 			int counter = 1;
 			for (NowPlayingArtist nowPlayingArtist : list) {
 				embedBuilder.addField("Track #" + counter++ + ":", "**" + nowPlayingArtist.getSongName() +
-						"**- " + nowPlayingArtist.getArtistName() + " | " + nowPlayingArtist
+						"** - " + nowPlayingArtist.getArtistName() + " | " + nowPlayingArtist
 						.getAlbumName() + "\n", false);
 			}
 

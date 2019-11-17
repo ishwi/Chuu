@@ -34,8 +34,14 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 	}
 
 	@Override
+	public String getName() {
+		return "Crowns Leaderboard";
+	}
+
+	@Override
 	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-		printList(getList(e.getGuild().getIdLong()), e);
+		List<LbEntry> list = getList(e.getGuild().getIdLong());
+		printList(list, e);
 	}
 
 	List<LbEntry> getList(long guildId) {
@@ -50,7 +56,7 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 				.setThumbnail(e.getGuild().getIconUrl());
 		StringBuilder a = new StringBuilder();
 
-		if (list.size() == 0) {
+		if (list.isEmpty()) {
 			sendMessageQueue(e, "This guild has no registered users:(");
 			return;
 		}
@@ -64,11 +70,6 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
 				new Reactionary<>(list, message, embedBuilder)
 		);
-	}
-
-	@Override
-	public String getName() {
-		return "Crowns Leaderboard";
 	}
 
 

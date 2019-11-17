@@ -1,5 +1,7 @@
 package dao.entities;
 
+import java.util.Objects;
+
 public class UsersWrapper {
 	private long discordID;
 	private String lastFMName;
@@ -38,5 +40,25 @@ public class UsersWrapper {
 
 	public void setLastFMName(String lastFMName) {
 		this.lastFMName = lastFMName;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = (int) (discordID ^ (discordID >>> 32));
+		result = 31 * result + (lastFMName != null ? lastFMName.hashCode() : 0);
+		result = 31 * result + timestamp;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		UsersWrapper that = (UsersWrapper) o;
+
+		if (discordID != that.discordID) return false;
+		if (timestamp != that.timestamp) return false;
+		return Objects.equals(lastFMName, that.lastFMName);
 	}
 }

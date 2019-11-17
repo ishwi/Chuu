@@ -1,4 +1,4 @@
-package main.commands;
+package main.commands.utils;
 
 import org.junit.ClassRule;
 

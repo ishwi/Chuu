@@ -8,7 +8,7 @@ import main.parsers.UsernameAndNpQueryParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.management.InstanceNotFoundException;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 public class YoutubeSearchCommand extends ConcurrentCommand {
@@ -27,7 +27,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand {
 
 	@Override
 	List<String> getAliases() {
-		return Collections.singletonList("yt");
+		return Arrays.asList("yt", "!npyt", "youtube", "you");
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand {
 		String query = returned[0];
 		//long whom = Long.parseLong(returned[1]);
 		String s = youtubeSearch.doSearch(query);
-		s = s == null || s.isBlank() ? "Coudn't find \"" + query + " \"on youtube" : s;
+		s = s == null || s.isBlank() ? "Coudn't find \"" + query + "\" on youtube" : s;
 		sendMessageQueue(e, s);
 
 	}

@@ -1,6 +1,6 @@
 package main.commands.parsers;
 
-import main.commands.TestResources;
+import main.commands.utils.TestResources;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import org.junit.Assert;
@@ -8,7 +8,7 @@ import org.junit.ClassRule;
 
 import java.util.concurrent.TimeUnit;
 
-import static main.commands.TestResources.*;
+import static main.commands.utils.TestResources.*;
 import static org.awaitility.Awaitility.await;
 
 public class NullReturnParsersTest {
@@ -140,6 +140,22 @@ public class NullReturnParsersTest {
 
 	public static void artistParser(String command) {
 		artistAlbumParser(command);
+	}
+
+	public static void scoreOnAlbumError(String command) {
+
+		long id = channelWorker.sendMessage(command + " RED VELVET - Perfect Velvet - The 2nd Album ").complete()
+				.getIdLong();
+		await().atMost(45, TimeUnit.SECONDS).until(() ->
+		{
+			MessageHistory complete = channelWorker.getHistoryAfter(id, 20).complete();
+			return complete.getRetrievedHistory().size() == 1;
+		});
+		Message message = channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
+		assertEqualsErrorMessage("You need to add the escape character \"\\\\\" in the \"-\" that appear on the album or artist.\n" +
+				" \tFor example: Artist - Alb\\\\-um", message);
+
+
 	}
 
 

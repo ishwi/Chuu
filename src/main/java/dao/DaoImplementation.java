@@ -35,6 +35,7 @@ public class DaoImplementation {
 		this.queriesDao = new SQLQueriesDaoImpl();
 		this.userGuildDao = new UserGuildDaoImpl();
 		this.updaterDao = new UpdaterDaoImpl();
+
 	}
 
 	public void updateUserTimeStamp(String lastFmName, Integer timestamp, Integer timestampControl) {
@@ -601,6 +602,14 @@ public class DaoImplementation {
 	public void insertAlbumCrown(String artist, String album, long discordID, long guildId, int plays) {
 		try (Connection connection = dataSource.getConnection()) {
 			updaterDao.insertAlbumCrown(connection, artist, album, discordID, guildId, plays);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void deleteAlbumCrown(String artist, String album, long discordID, long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			updaterDao.deleteAlbumCrown(connection, artist, album, discordID, guildId);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}

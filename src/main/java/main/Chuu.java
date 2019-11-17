@@ -146,7 +146,6 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new UpdateCommand(dao)))
 				.addEventListeners(help.registerCommand(new NPSpotifyCommand(dao)))
 				.addEventListeners(help.registerCommand(new UniqueCommand(dao)))
-				.addEventListeners(help.registerCommand(new NPYoutubeCommand(dao)))
 				.addEventListeners(help.registerCommand(new ArtistCommand(dao)))
 				.addEventListeners(help.registerCommand(new AlbumPlaysCommand(dao)))
 				.addEventListeners(help.registerCommand(new GuildTopCommand(dao)))
