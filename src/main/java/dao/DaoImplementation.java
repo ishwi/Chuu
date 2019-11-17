@@ -639,4 +639,12 @@ public class DaoImplementation {
 		}
 
 	}
+
+	public void truncateRandomPool() {
+		try (Connection connection = dataSource.getConnection()) {
+			updaterDao.truncateRandomPool(connection);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

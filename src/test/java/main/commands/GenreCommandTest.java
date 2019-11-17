@@ -2,13 +2,13 @@ package main.commands;
 
 import main.commands.parsers.NullReturnParsersTest;
 import main.commands.utils.CommandTest;
-import main.commands.utils.EmbedUtils;
+import main.commands.utils.ImageUtils;
 import org.junit.Test;
 
-public class TopTracksParser extends CommandTest {
+public class GenreCommandTest extends CommandTest {
 	@Override
 	public String giveCommandName() {
-		return "!tt";
+		return "!genre";
 	}
 
 	@Test
@@ -18,10 +18,8 @@ public class TopTracksParser extends CommandTest {
 	}
 
 	@Test
-	public void normalExample() {
+	public void normalUsage() {
+		ImageUtils.testImage(COMMAND_ALIAS + " s", false, 600, 800, 40, ".png");
 
-		EmbedUtils
-				.testLeaderboardEmbed(COMMAND_ALIAS, EmbedUtils.descriptionArtistAlbumRegex, "${header}'s top  tracks in .*?", false, false, null
-				);
 	}
 }

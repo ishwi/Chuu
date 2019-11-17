@@ -91,7 +91,7 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 				.getEffectiveName() + "'s Top 10 crowns Stolen by " + member2.getEffectiveName(), CommandUtil
 				.getLastFmUser(ogLastFmId))
 				.setThumbnail(member.getUser().getAvatarUrl())
-				.setFooter(member2.getEffectiveName() + " has stolen " + rows + " crowns  !\n", null);
+				.setFooter(member2.getEffectiveName() + " has stolen " + rows + " crowns!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
 				new Reactionary<>(resultWrapper.getList(), m, embedBuilder)
 		);

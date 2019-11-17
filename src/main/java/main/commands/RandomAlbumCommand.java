@@ -37,7 +37,7 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 			//get randomurl
 			RandomUrlEntity randomUrl = getDao().getRandomUrl();
 			if (randomUrl == null) {
-				sendMessageQueue(e, "The pool of urls was empty, add one first! ");
+				sendMessageQueue(e, "The pool of urls was empty, add one first!");
 				return;
 			}
 			String sb = e.getAuthor().getAsMention() + ", here's your random recommendation\n" +
@@ -56,7 +56,7 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 			return;
 		}
 		sendMessageQueue(e, "Successfully added " + getUserString(e.getAuthor().getIdLong(), e, e.getAuthor()
-				.getName()) + "'s link  to the pool");
+				.getName()) + "'s link to the pool");
 
 	}
 

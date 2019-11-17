@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.MessageHistory;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static main.commands.utils.TestResources.channelWorker;
 import static org.awaitility.Awaitility.await;
@@ -39,7 +40,8 @@ public class WhoKnowsTest extends CommandTest {
 		String commonArtist = TestResources.commonArtist;
 		String artistUrl = TestResources.dao.getArtistUrl(commonArtist);
 		EmbedUtils
-				.testLeaderboardEmbed(COMMAND_ALIAS + " " + TestResources.commonArtist + " --list", EmbedUtils.descriptionArtistRegex, "Who knows (.*?)(?= in ${header}\\?) in ${header}\\?", true, false, artistUrl);
+				.testLeaderboardEmbed(COMMAND_ALIAS + " " + TestResources.commonArtist + " --list", EmbedUtils.descriptionArtistRegex, "Who knows (.*?)(?= in ${header}\\?) in ${header}\\?", true, false, artistUrl,
+						Pattern.compile("No one knows (.*)"));
 	}
 
 	@Test

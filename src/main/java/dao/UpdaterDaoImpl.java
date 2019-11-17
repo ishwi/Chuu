@@ -531,6 +531,20 @@ public class UpdaterDaoImpl implements UpdaterDao {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public void truncateRandomPool(Connection connection) {
+		@Language("MySQL") String queryString = "truncate randomlinks; ";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			/* Fill "preparedStatement". */
+			preparedStatement.executeUpdate();
+
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
 
 
