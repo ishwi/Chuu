@@ -36,7 +36,7 @@ public class TotalArtistNumberCommand extends ConcurrentCommand {
 		String username = getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
 
 		int plays = getDao().getUserArtistCount(lastFmName);
-		sendMessageQueue(e, "**" + username + "** has scrobbled  **" + plays + "** " + "  different artists");
+		sendMessageQueue(e, "**" + username + "** has scrobbled **" + plays + "** different artists");
 
 	}
 

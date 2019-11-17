@@ -3,8 +3,8 @@ package main.apis.last;
 import dao.entities.ArtistAlbums;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.Track;
-import main.exceptions.LastFMNoPlaysException;
 import main.exceptions.LastFMServiceException;
+import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class ConcurrentLastFMTest {
 
 	}
 
-	@Test(expected = LastFMNoPlaysException.class)
+	@Test(expected = LastFmEntityNotFoundException.class)
 	public void EntityNotFound() throws LastFmException {
 		ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
 

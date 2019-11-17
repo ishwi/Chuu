@@ -6,7 +6,6 @@ import dao.entities.ArtistAlbums;
 import dao.entities.ArtistData;
 import dao.entities.WrapperReturnNowPlaying;
 import main.Chuu;
-import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
 import main.imagerenderer.BandRendered;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -25,31 +24,22 @@ public class BandInfoCommand extends WhoKnowsCommand {
 	}
 
 	@Override
+	public String getDescription() {
+		return "Band info";
+	}
+
+	@Override
 	public List<String> getAliases() {
 		return Arrays.asList("artist", "a");
 	}
 
 	@Override
-	void whoKnowsLogic(ArtistData who, Boolean isList, MessageReceivedEvent e, long userId) {
+	void whoKnowsLogic(ArtistData who, Boolean isList, MessageReceivedEvent e, long userId) throws InstanceNotFoundException, LastFmException {
 		ArtistAlbums ai;
 		String lastFmName;
-		try {
-			lastFmName = getDao().findLastFMData(userId).getName();
-		} catch (InstanceNotFoundException ex) {
-			sendMessageQueue(e, "Error f");
-			return;
-		}
+		lastFmName = getDao().findLastFMData(userId).getName();
 
-		try {
-			ai = lastFM.getAlbumsFromArtist(who.getArtist(), 14);
-		} catch (LastFmEntityNotFoundException ex) {
-			//parser.sendError(parser.getErrorMessage(2), e);
-			parser.sendError(who.getArtist() + " doesn't exist on Last.fm", e);
-			return;
-		} catch (LastFmException ex) {
-			parser.sendError(parser.getErrorMessage(2), e);
-			return;
-		}
+		ai = lastFM.getAlbumsFromArtist(who.getArtist(), 14);
 
 		String artist = ai.getArtist();
 		final String username = lastFmName;
@@ -57,7 +47,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
 		int plays = getDao().getArtistPlays(artist, username);
 		if (plays == 0) {
-			parser.sendError("You still haven't listened  to " + artist, e);
+			parser.sendError("You still haven't listened to " + artist, e);
 			return;
 		}
 
@@ -85,11 +75,6 @@ public class BandInfoCommand extends WhoKnowsCommand {
 		BufferedImage returnedImage = BandRendered
 				.makeBandImage(np, ai, plays, logo, getUserString(userId, e, username));
 		sendImage(returnedImage, e);
-	}
-
-	@Override
-	public String getDescription() {
-		return "Band info";
 	}
 
 	@Override

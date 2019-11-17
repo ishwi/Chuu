@@ -52,4 +52,6 @@ interface UpdaterDao {
 	Map<Long, Character> getGuildPrefixes(Connection connection);
 
 	void upsertGuildPrefix(Connection connection, long guildID, Character prefix);
+
+	void deleteAlbumCrown(Connection connection, String artist, String album, long discordID, long guildId);
 }

@@ -1,5 +1,7 @@
 package dao.entities;
 
+import java.util.Objects;
+
 public class ArtistData {
 	private String discordID;
 	private String artist;
@@ -58,5 +60,29 @@ public class ArtistData {
 	public void setUrl(String url) {
 
 		this.url = url;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = discordID != null ? discordID.hashCode() : 0;
+		result = 31 * result + (artist != null ? artist.hashCode() : 0);
+		result = 31 * result + count;
+		result = 31 * result + (url != null ? url.hashCode() : 0);
+		result = 31 * result + (updateBit ? 1 : 0);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		ArtistData that = (ArtistData) o;
+
+		if (count != that.count) return false;
+		if (updateBit != that.updateBit) return false;
+		if (!Objects.equals(discordID, that.discordID)) return false;
+		if (!Objects.equals(artist, that.artist)) return false;
+		return Objects.equals(url, that.url);
 	}
 }

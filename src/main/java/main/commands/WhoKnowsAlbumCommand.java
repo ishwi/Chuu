@@ -32,6 +32,11 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 	}
 
 	@Override
+	public String getName() {
+		return "Get guild Album plays";
+	}
+
+	@Override
 	public void doSomethingWithAlbumArtist(String artist, String album, MessageReceivedEvent e, long who) {
 
 		long id = e.getGuild().getIdLong();
@@ -108,11 +113,6 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 			}
 		});
 		return userMapPlays;
-	}
-
-	@Override
-	public String getName() {
-		return "Get guild Album plays";
 	}
 
 }

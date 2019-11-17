@@ -59,7 +59,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
 	}
 
-	void whoKnowsLogic(ArtistData who, Boolean isList, MessageReceivedEvent e, long userId) {
+	void whoKnowsLogic(ArtistData who, Boolean isList, MessageReceivedEvent e, long userId) throws InstanceNotFoundException, LastFmException {
 		MessageBuilder messageBuilder = new MessageBuilder();
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 

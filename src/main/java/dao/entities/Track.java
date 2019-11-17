@@ -1,5 +1,7 @@
 package dao.entities;
 
+import main.commands.CommandUtil;
+
 public class Track {
 	private final String artist;
 	private final String name;
@@ -74,7 +76,13 @@ public class Track {
 
 	@Override
 	public String toString() {
-		return ". **" + artist + " - " + name + "** - " + plays + " plays" +
+
+		return ". " +
+				"[" +
+				artist + " - " + name +
+				"](" + CommandUtil.getUserArtistTrackUrl(artist, name) +
+				")" +
+				" - " + plays + " plays" +
 				"\n";
 	}
 }

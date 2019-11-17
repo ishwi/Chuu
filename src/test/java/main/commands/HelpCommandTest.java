@@ -1,5 +1,6 @@
 package main.commands;
 
+import main.commands.utils.CommandTest;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import org.junit.Assert;
@@ -13,8 +14,8 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static main.commands.TestResources.channelWorker;
-import static main.commands.TestResources.ogJDA;
+import static main.commands.utils.TestResources.channelWorker;
+import static main.commands.utils.TestResources.ogJDA;
 import static org.awaitility.Awaitility.await;
 
 public class HelpCommandTest extends CommandTest {

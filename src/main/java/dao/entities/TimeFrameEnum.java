@@ -16,7 +16,7 @@ public enum TimeFrameEnum {
 				.collect(Collectors.toMap(TimeFrameEnum::getName, Function.identity()));
 	}
 
-	private String name;
+	private final String name;
 
 	TimeFrameEnum(String name) {
 		this.name = name;
