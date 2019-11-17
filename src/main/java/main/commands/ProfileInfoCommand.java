@@ -74,13 +74,13 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 		if (isList) {
 
 			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("Total Number of scrobbles: ").append(userInfo.getPlayCount()).append("\n")
-					.append("Total Number of albums: ").append(albumCount).append("\n")
-					.append("Total Number of artists: ").append(totalArtist).append("\n")
-					.append("Total Number of crowns: ").append(totalCrowns).append("\n")
-					.append("\tTop Crown:").append(crownRepresentative).append("\n")
-					.append("Total Number of unique artist: ").append(totalUnique).append("\n")
-					.append("\tTop unique:").append(UniqueRepresentative).append("\n");
+			stringBuilder.append("Total number of scrobbles: ").append(userInfo.getPlayCount()).append("\n")
+					.append("Total number of albums: ").append(albumCount).append("\n")
+					.append("Total number of artists: ").append(totalArtist).append("\n")
+					.append("Total number of crowns: ").append(totalCrowns).append("\n")
+					.append("Top crown:").append(crownRepresentative).append("\n")
+					.append("Total number of unique artist: ").append(totalUnique).append("\n")
+					.append("Top unique:").append(UniqueRepresentative).append("\n");
 
 			String name = getUserString(unique.getDiscordId(), e, lastFmName);
 
@@ -89,7 +89,7 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 					.setColor(CommandUtil.randomColor())
 					.setThumbnail(userInfo.getImage().isEmpty() ? null : userInfo.getImage())
 					.setDescription(stringBuilder)
-					.setFooter("Account created on  " + date);
+					.setFooter("Account created on " + date);
 
 			MessageBuilder mes = new MessageBuilder();
 			mes.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();

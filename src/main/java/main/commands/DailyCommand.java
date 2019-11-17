@@ -55,7 +55,7 @@ public class DailyCommand extends ConcurrentCommand {
 					" minutes of music, " + String
 					.format("(%d:%02d ", minutesWastedOnMusicDaily.getHours(),
 							minutesWastedOnMusicDaily.getRemainingMinutes()) +
-					CommandUtil.singlePlural(minutesWastedOnMusicDaily.getHours(), "hour", "hours") +
+					"hours" +
 					"), listening to " + minutesWastedOnMusicDaily
 					.getCount() +
 					CommandUtil.singlePlural(minutesWastedOnMusicDaily.getCount(),
@@ -63,7 +63,7 @@ public class DailyCommand extends ConcurrentCommand {
 					+ " in the last 24 hours");
 
 		} catch (LastFMNoPlaysException ex) {
-			sendMessageQueue(e, "**" + usable + " ** played 0 mins, really,  0! mins in the last 24 hours");
+			sendMessageQueue(e, "**" + usable + "** played 0 mins, really, 0! mins in the last 24 hours");
 		}
 	}
 }

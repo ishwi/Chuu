@@ -41,9 +41,6 @@ public class AllPlayingCommand extends ConcurrentCommand {
 	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
 		String[] message = parser.parse(e);
-		if (message == null)
-			return;
-
 		boolean showFresh = !Boolean.parseBoolean(message[0]);
 
 		List<UsersWrapper> list = getDao().getAll(e.getGuild().getIdLong());

@@ -55,7 +55,6 @@ public class Chuu {
 	}
 
 	public static void main(String[] args) throws UnsupportedEncodingException, InterruptedException {
-		logger = LoggerFactory.getLogger(Chuu.class);
 		if (System.getProperty("file.encoding").equals("UTF-8")) {
 			setupBot();
 		} else {
@@ -111,6 +110,7 @@ public class Chuu {
 	}
 
 	public static void setupBot() {
+		logger = LoggerFactory.getLogger(Chuu.class);
 		Properties properties = readToken();
 		DaoImplementation dao = new DaoImplementation();
 		prefixMap = initPrefixMap(dao);

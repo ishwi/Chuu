@@ -24,6 +24,6 @@ public class WeeklyCommandTest extends CommandTest {
 
 		Pattern pattern = Pattern
 				.compile("(Mon|Tues|Wed(nes)?|Thur(s)?|Fri|Sat(ur)?|Sun)(day)?, \\d{2}/\\d{2}: \\d+ minutes, \\(\\d+:\\d+h\\) on \\d+ track(:?s)?");
-		EmbedUtils.testLeaderboardEmbed(COMMAND_ALIAS, pattern, "${header}'s week", false, false);
+		EmbedUtils.testEmbed(COMMAND_ALIAS, pattern, null, "${header}'s week", false, false, null, null);
 	}
 }

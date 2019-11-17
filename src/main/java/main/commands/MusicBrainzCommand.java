@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class MusicBrainzCommand extends ArtistCommand {
-	private static final int chartSize = 100;
+	public static final int chartSize = 100;
 	private final MusicBrainzService mb;
 
 	public MusicBrainzCommand(DaoImplementation dao) {
@@ -94,7 +94,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 		});
 
 		if (queue.isEmpty()) {
-			sendMessageQueue(e, "Dont have  any " + year.toString() + " album in your top " + chartSize + " albums");
+			sendMessageQueue(e, "Dont have any " + year.toString() + " album in your top " + chartSize + " albums");
 			return;
 		}
 		int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));

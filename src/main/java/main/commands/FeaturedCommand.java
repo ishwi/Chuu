@@ -18,8 +18,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class FeaturedCommand extends ConcurrentCommand {
-	private static final String DEFAULT_USER = "Chuu";
 	public static final String DEFAULT_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/180902_%EC%8A%A4%EC%B9%B4%EC%9D%B4%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C_%EC%9D%B4%EB%8B%AC%EC%9D%98_%EC%86%8C%EB%85%80_yyxy.jpg/800px-180902_%EC%8A%A4%EC%B9%B4%EC%9D%B4%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C_%EC%9D%B4%EB%8B%AC%EC%9D%98_%EC%86%8C%EB%85%80_yyxy.jpg";
+	private static final String DEFAULT_USER = "Chuu";
 	private static final String DEFAULT_ARTIST = "LOOΠΔ";
 	private PresenceInfo currentPresence;
 
@@ -47,22 +47,23 @@ public class FeaturedCommand extends ConcurrentCommand {
 	}
 
 	@Override
+	String getName() {
+		return "Featured";
+	}
+
+	@Override
 	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String userString = this.getUserGlobalString(currentPresence.getDiscordId(), e, DEFAULT_USER);
 		EmbedBuilder embedBuilder = new EmbedBuilder()
 				.setColor(CommandUtil.randomColor())
 				.setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
-				.setTitle("Chuu's Featured Artist:", CommandUtil.getLastFmArtistUrl(currentPresence.getArtist()))
+				.setTitle(Chuu.getPresence().getJDA().getSelfUser().getName() + "'s Featured Artist:", CommandUtil
+						.getLastFmArtistUrl(currentPresence.getArtist()))
 				.addField("Artist:", currentPresence.getArtist(), false)
 				.addField("User:", userString, false)
 				.addField("Total Artist Plays:", String.valueOf(currentPresence.getSum()), false);
 
 		MessageBuilder messageBuilder = new MessageBuilder();
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
-	}
-
-	@Override
-	String getName() {
-		return "Featured";
 	}
 }

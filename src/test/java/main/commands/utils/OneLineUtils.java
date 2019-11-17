@@ -18,6 +18,11 @@ public class OneLineUtils {
 	}
 
 	public static void testCommands(String command, Pattern regex, Predicate<Matcher> function) {
+		testCommands(command, regex, function, 45);
+	}
+
+
+	public static void testCommands(String command, Pattern regex, Predicate<Matcher> function, int timeout) {
 		long id = channelWorker.sendMessage(command).complete().getIdLong();
 		await().atMost(45, TimeUnit.SECONDS).until(() ->
 		{

@@ -1,20 +1,16 @@
 package main.commands.utils;
 
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.MessageHistory;
 import org.junit.Assert;
+import org.junit.Before;
 
-import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static main.commands.utils.TestResources.channelWorker;
-import static main.commands.utils.TestResources.testerJDA;
-import static org.awaitility.Awaitility.await;
+import static main.commands.utils.TestResources.*;
 
 public class EmbedUtils {
 	public static Pattern descriptionArtistRegex = Pattern.compile(
@@ -22,7 +18,13 @@ public class EmbedUtils {
 					"\\. \\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //Markdown link
 					"(?=(?: -|:))(?: -|:) " + //anything until a ":" or a " -"
 					"(\\d+) " + //count of the description *captured
-					"(play(?:s)?|(?:album )?crown(?:s)?|obscurity points|artist(?:s)?|unique artist(?:s)?)"); //ending
+					"(play(?:s)?|(?:album )?crown(?:s)?|obscurity points|artist(?:s)?|unique artist(?:s)?)");
+	//ending
+	public static Pattern descriptionArtistRegexNoMarkDownLink = Pattern.compile(
+			"(\\d+)" + //Indexed list *captured
+					"\\. (?:.*) [-:] " + // aristName
+					"(\\d+) " + //count of the description *captured
+					"(play(?:s)?|(?:album )?crown(?:s)?|obscurity points|artist(?:s)?|unique artist(?:s)?)");
 	public static Pattern stolenRegex = Pattern.compile(
 			"(\\d+)" + //Indexed list *captured
 					"\\. \\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //Markdown link
@@ -33,12 +35,25 @@ public class EmbedUtils {
 			"(\\d+)\\. " + //digit
 					"\\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //markdown url
 					"(?= - ) - (\\d+) play(?:s)?"); /// remaining
+	public static String serverThumbnail;
+	public static String testerJDAThumbnail;
+	public static String ogJDAThumbnail;
+	public Function<String, String> getArtistThumbnail = (artistName) ->
+			TestResources.dao.getArtistUrl(artistName);
 
-	public static void testLeaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard) {
-		testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, false, false, null);
+	public static void testLeaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, String artistThumbnail, Pattern NoEmbededPattern) {
+		testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, false, artistThumbnail, NoEmbededPattern);
 	}
 
-	private static void testLeaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, boolean hasPing, boolean hasArtistThumbnail, String artistThumbnail) {
+	public static void testLeaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, boolean hasPing, String artistThumbnail, Pattern NoEmbededPattern) {
+
+		Predicate<Matcher> matcherBooleanFunction = (Matcher matcher) ->
+				Long.parseLong(matcher.group(1)) >= 0 && Long.parseLong(matcher.group(2)) >= 0;
+
+		testEmbed(command, descriptionRegex, matcherBooleanFunction, titleRegex, isLeaderboard, hasPing, artistThumbnail, NoEmbededPattern);
+	}
+
+	public static void testEmbed(String command, Pattern descriptionRegex, Predicate<Matcher> matcherDescription, String titleRegex, boolean isLeaderboard, boolean hasPing, String artistThumbnail, Pattern NoEmbededPattern) {
 		String header;
 		Optional<Member> first;
 		if (hasPing) {
@@ -52,92 +67,46 @@ public class EmbedUtils {
 
 		if (isLeaderboard) {
 			header = first.get().getGuild().getName();
-		} else {
 
+		} else {
 			header = first.get().getEffectiveName();
-
 		}
-
+		if (artistThumbnail == null) {
+			artistThumbnail = isLeaderboard ? serverThumbnail : first.get().getUser().getAvatarUrl();
+		}
 		Pattern footerRegex = Pattern
-				.compile(header + " has (?:(\\d+) ((?:album )?crown(s)?!|registered user(s)?|unique artist(s)?|)|stolen (\\d+) crown(?:s)? {2})!");
+				.compile("(" + header + " has (?:(\\d+) ((?:album )?crown(s)?!|registered user(s)?|unique artist(s)?|)|stolen (\\d+) crown(?:s)? {2})|(.*) has stolen \\d+ crowns)!");
 
-		long id = channelWorker.sendMessage(command).complete().getIdLong();
-		await().atMost(45, TimeUnit.SECONDS).until(() ->
-		{
-			MessageHistory complete = channelWorker.getHistoryAfter(id, 20).complete();
-			return complete.getRetrievedHistory().size() == 1;
+		Pattern titlePattern = Pattern.compile(titleRegex.replaceAll("\\$\\{header}", header));
 
-		});
-		Message message = channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
+		GenericEmbedMatcher
+				.GeneralFunction(command, footerRegex, null, titlePattern, null, descriptionRegex, matcherDescription,
+						NoEmbededPattern, null, 45, true, artistThumbnail, null);
 
-		if (!message.getEmbeds().isEmpty()) {
 
-			MessageEmbed messageEmbed = message.getEmbeds().get(0);
-			MessageEmbed.Footer footer = messageEmbed.getFooter();
-			if (footer != null) {
-				Matcher matcher = footerRegex.matcher(footer.getText());
-				Assert.assertTrue(matcher.matches());
-				String footerTotalPlays = matcher.group(1);
-			}
-			String title = messageEmbed.getTitle().replaceAll("\\*", "");
-			Pattern titlePattern = Pattern.compile(titleRegex.replaceAll("\\$\\{header}", header));
-			Matcher matcherTitle = titlePattern.matcher(title);
-			Assert.assertTrue(matcherTitle.matches());
-
-			String description = messageEmbed.getDescription();
-			assert description != null;
-			description = description.replaceAll("\\*", "");
-			String[] split = description.split("\n");
-			long max = Long.MAX_VALUE;
-			int count = 1;
-			for (String s : split) {
-
-				Matcher matcherLine = descriptionRegex.matcher(s);
-				Assert.assertTrue(matcherLine.matches());
-				try {
-					long local = Long.parseLong(matcherLine.group(2));
-					long index = Long.parseLong(matcherLine.group(1));
-					Assert.assertTrue(local <= max);
-					Assert.assertEquals(index, count++);
-
-					max = local;
-				} catch (NumberFormatException ignored) {
-					//This is not a leaderboard
-					//TODO Cleaner way to avoid this
-				}
-			}
-
-			if (messageEmbed.getThumbnail() != null) {
-				if (hasArtistThumbnail) {
-					Assert.assertEquals(messageEmbed.getThumbnail().getUrl(), artistThumbnail);
-				} else {
-					if (isLeaderboard)
-						Assert.assertEquals(messageEmbed.getThumbnail().getUrl(), channelWorker.getGuild()
-								.getIconUrl());
-					else
-						Assert.assertEquals(messageEmbed.getThumbnail().getUrl(), first.get().getUser().getAvatarUrl());
-				}
-			}
-			message.addReaction("U+27A1").submit();
-			message.addReaction("U+27A1").submit();
-		} else {
-			Assert.assertTrue(Arrays
-					.asList("You don't have any crown :'(",
-							"This guild has no registered users:(",
-							header + " doesn't have any album crown :'(",
-							"You have no Unique Artists :(",
-							"Sis, dont use the same person twice"
-					)
-					.contains(message.getContentStripped()) || message.getContentStripped()
-					.contains("hasn't stolen anything from"));
-		}
 	}
 
-	public static void testLeaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, boolean hasPing) {
-		testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, hasPing, false, null);
+
+	public static void testLeaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, boolean hasPing, Pattern NoEmbededPattern) {
+		testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, hasPing, null, NoEmbededPattern);
 	}
 
-	public static void testLeaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, boolean hasPing, String artistThumbnail) {
-		testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, false, true, artistThumbnail);
+	public static void testLeaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, Pattern NoEmbededPattern) {
+		testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, false, null, NoEmbededPattern);
 	}
+
+
+	public static void testNonLeadearboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, Pattern NoEmbededPattern) {
+		testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, false, null, NoEmbededPattern);
+	}
+
+
+	@Before
+	public void setUp() throws Exception {
+		testerJDAThumbnail = testerJDA.getSelfUser().getAvatarUrl();
+		ogJDAThumbnail = ogJDA.getSelfUser().getAvatarUrl();
+		serverThumbnail = channelWorker.getGuild().getIconUrl();
+	}
+
+
 }

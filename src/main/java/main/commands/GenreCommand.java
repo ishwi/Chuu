@@ -52,8 +52,7 @@ public class GenreCommand extends ConcurrentCommand {
 	@Override
 	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
-		String[] returned;
-		returned = parser.parse(e);
+		String[] returned = parser.parse(e);
 		if (returned == null)
 			return;
 
