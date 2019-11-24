@@ -15,26 +15,28 @@
  */
 package main.commands;
 
+import dao.DaoImplementation;
 import main.Chuu;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
-public class HelpCommand extends MyCommand {
+public class HelpCommand extends ConcurrentCommand {
 	private static final String NO_NAME = "No name provided for this command. Sorry!";
 	private static final String NO_DESCRIPTION = "No description has been provided for this command. Sorry!";
 	private static final String NO_USAGE = "No usage instructions have been provided for this command. Sorry!";
 
 	private final TreeMap<String, MyCommand> commands;
 
-	public HelpCommand() {
+	public HelpCommand(DaoImplementation dao) {
+		super(dao);
 
 		commands = new TreeMap<>();
 		commands.put(this.getAliases().get(0), this);
@@ -66,6 +68,11 @@ public class HelpCommand extends MyCommand {
 	}
 
 	@Override
+	public String getName() {
+		return "Help Command";
+	}
+
+	@Override
 	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		Character prefix = Chuu.getCorrespondingPrefix(e);
 		String[] args = commandArgs(e.getMessage());
@@ -88,6 +95,17 @@ public class HelpCommand extends MyCommand {
 	public void sendPrivate(MessageChannel channel, String[] args, Character prefix) {
 		if (args.length < 2) {
 			StringBuilder s = new StringBuilder();
+			s.append("A lot of commands accept different time frames which are the following:\n" +
+					" w: Week \n")
+					.append(" m: Month \n")
+					.append(" q: quarter \n")
+					.append(" s: semester \n")
+					.append(" y: year \n")
+					.append(" a: alltime \n")
+					.append("\n")
+					.append("You can use ").append(prefix).append(getAliases().get(0))
+					.append(" + other command to get a exact description of what a command accepts\n")
+					.append("\n");
 			boolean flagSeveralPages = false;
 			for (MyCommand c : commands.values()) {
 				if (s.length() > 1800) {
@@ -148,11 +166,6 @@ public class HelpCommand extends MyCommand {
 		channel.sendMessage(new MessageBuilder().append("The provided command '**").append(args[1])
 				.append("**' does not exist. Use ").append(prefix).append("help to list all commands.")
 				.build()).queue();
-	}
-
-	@Override
-	public String getName() {
-		return "Help Command";
 	}
 
 

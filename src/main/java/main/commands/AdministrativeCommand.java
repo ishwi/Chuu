@@ -2,6 +2,7 @@ package main.commands;
 
 import dao.DaoImplementation;
 import main.Chuu;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.UrlParser;
 import net.dv8tion.jda.api.JDA;
@@ -14,7 +15,6 @@ import org.imgscalr.Scalr;
 
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
-import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;

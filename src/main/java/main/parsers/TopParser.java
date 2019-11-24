@@ -2,6 +2,7 @@ package main.parsers;
 
 import dao.DaoImplementation;
 import dao.entities.LastFMData;
+import main.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class TopParser extends DaoParser {
@@ -14,11 +15,10 @@ public class TopParser extends DaoParser {
 		opts.add(new OptionalEntity("--artist", "use artist instead of albums"));
 	}
 
-	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
 
 		LastFMData username = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
-		if (username == null)
-			return null;
+
 		return new String[]{username.getName()};
 	}
 

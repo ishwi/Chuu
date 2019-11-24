@@ -3,6 +3,7 @@ package main.parsers;
 import dao.DaoImplementation;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
+import main.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class TimerFrameParser extends DaoParser {
@@ -13,7 +14,7 @@ public class TimerFrameParser extends DaoParser {
 		this.defaultTFE = defaultTFE;
 	}
 
-	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
 
 		String[] message = getSubMessage(e.getMessage());
 		TimeFrameEnum timeFrame = defaultTFE;
@@ -23,9 +24,7 @@ public class TimerFrameParser extends DaoParser {
 		message = auxiliar.getMessage();
 
 		LastFMData data = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
-		if (data == null) {
-			return null;
-		}
+
 		return new String[]{data.getName(), String.valueOf(data.getDiscordId()), timeFrame.toApiFormat()};
 	}
 

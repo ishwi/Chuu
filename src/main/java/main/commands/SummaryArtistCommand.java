@@ -7,13 +7,13 @@ import main.apis.discogs.DiscogsApi;
 import main.apis.discogs.DiscogsSingleton;
 import main.apis.spotify.Spotify;
 import main.apis.spotify.SpotifySingleton;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.ArtistParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;

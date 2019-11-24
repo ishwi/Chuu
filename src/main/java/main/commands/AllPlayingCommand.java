@@ -3,6 +3,7 @@ package main.commands;
 import dao.DaoImplementation;
 import dao.entities.NowPlayingArtist;
 import dao.entities.UsersWrapper;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.OptionableParser;
 import main.parsers.OptionalEntity;
@@ -11,7 +12,6 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

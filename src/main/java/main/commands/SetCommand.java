@@ -5,6 +5,7 @@ import dao.entities.ArtistData;
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
 import main.Chuu;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFMNoPlaysException;
 import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
@@ -12,7 +13,6 @@ import main.parsers.OneWordParser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;

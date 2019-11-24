@@ -3,6 +3,7 @@ package main.parsers;
 import dao.DaoImplementation;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
+import main.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Year;
@@ -10,7 +11,7 @@ import java.time.Year;
 public class ChartFromYearParser extends ChartParser {
 	private final TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
 
-	public ChartFromYearParser(DaoImplementation dao, int chartSize) {
+	public ChartFromYearParser(DaoImplementation dao) {
 		super(dao);
 	}
 
@@ -22,7 +23,7 @@ public class ChartFromYearParser extends ChartParser {
 	}
 
 	@Override
-	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
 		TimeFrameEnum timeFrame = defaultTFE;
 		LastFMData discordName;
 
@@ -36,10 +37,7 @@ public class ChartFromYearParser extends ChartParser {
 		subMessage = chartParserAux.getMessage();
 
 		discordName = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
-		if (discordName == null) {
 
-			return null;
-		}
 		if (Year.now().compareTo(Year.of(Integer.parseInt(year))) < 0) {
 			sendError(getErrorMessage(6), e);
 			return null;

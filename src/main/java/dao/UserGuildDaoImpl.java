@@ -2,11 +2,11 @@ package dao;
 
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
+import main.exceptions.InstanceNotFoundException;
 import org.apache.commons.collections4.map.MultiValueMap;
 import org.intellij.lang.annotations.Language;
 
 import javax.imageio.ImageIO;
-import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.Connection;
@@ -60,7 +60,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 			if (!resultSet.next()) {
-				throw new InstanceNotFoundException("Not found ");
+				throw new main.exceptions.InstanceNotFoundException(discordId);
 			}
 
 			/* Get results. */

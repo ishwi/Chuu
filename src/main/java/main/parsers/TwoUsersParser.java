@@ -1,10 +1,10 @@
 package main.parsers;
 
 import dao.DaoImplementation;
+import main.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,7 +14,7 @@ public class TwoUsersParser extends DaoParser {
 		super(dao);
 	}
 
-	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
 		String[] message = getSubMessage(e.getMessage());
 		if (message.length == 0) {
 			sendError(getErrorMessage(5), e);
@@ -24,14 +24,9 @@ public class TwoUsersParser extends DaoParser {
 		String[] userList = {"", ""};
 		if (message.length == 1) {
 			userList[1] = message[0];
-			try {
-				userList[0] = dao.findLastFMData(e.getAuthor().getIdLong()).getName();
-			} catch (InstanceNotFoundException ex) {
-				sendError(getErrorMessage(1), e);
-				return null;
+			userList[0] = dao.findLastFMData(e.getAuthor().getIdLong()).getName();
 
 
-			}
 		} else {
 			userList[0] = message[0];
 			userList[1] = message[1];
@@ -45,9 +40,8 @@ public class TwoUsersParser extends DaoParser {
 					.map(s -> lambda(s, list))
 					.collect(Collectors.toList());
 			lastFmNames.forEach(System.out::println);
-		} catch (Exception ex) {
-			sendError(getErrorMessage(-1), e);
-			return null;
+		} catch (RuntimeException ex) {
+			throw new InstanceNotFoundException(Long.parseLong(ex.getMessage()));
 		}
 		return new String[]{lastFmNames.get(0), lastFmNames.get(1)};
 	}
@@ -59,7 +53,7 @@ public class TwoUsersParser extends DaoParser {
 				try {
 					return dao.findLastFMData(result.getIdLong()).getName();
 				} catch (InstanceNotFoundException e) {
-					throw new RuntimeException(result.getName());
+					throw new RuntimeException(String.valueOf(e.getDiscordId()));
 				}
 			}
 		}

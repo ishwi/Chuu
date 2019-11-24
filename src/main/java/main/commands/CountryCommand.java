@@ -7,12 +7,12 @@ import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import main.imagerenderer.WorldMapRenderer;
 import main.parsers.TimerFrameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

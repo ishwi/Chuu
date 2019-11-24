@@ -27,7 +27,7 @@ repositories {
 }
 compileJava.options.encoding = 'UTF-8'
 
-task connectToDb  {
+task connectToDb {
     doLast {
 
 
@@ -92,5 +92,9 @@ dependencies {
     compile group: 'com.zaxxer', name: 'HikariCP', version: '3.3.1'
 // https://mvnrepository.com/artifact/org.awaitility/awaitility
     testCompile group: 'org.awaitility', name: 'awaitility', version: '4.0.1'
+    testCompile group: 'com.openpojo', name: 'openpojo', version: '0.8.3'
+// https://mvnrepository.com/artifact/org.ow2.asm/asm
+    testCompile group: 'org.ow2.asm', name: 'asm', version: '7.2'
+
 
 }

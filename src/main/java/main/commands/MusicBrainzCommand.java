@@ -5,6 +5,7 @@ import dao.entities.AlbumInfo;
 import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.ChartFromYearParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -22,11 +23,17 @@ public class MusicBrainzCommand extends ArtistCommand {
 	public static final int chartSize = 100;
 	private final MusicBrainzService mb;
 
+
 	public MusicBrainzCommand(DaoImplementation dao) {
 		super(dao);
-		this.parser = new ChartFromYearParser(dao, chartSize);//
+		this.parser = new ChartFromYearParser(dao);//
 
 		mb = MusicBrainzServiceSingleton.getInstance();
+	}
+
+	@Override
+	public String getName() {
+		return "Released in YEAR";
 	}
 
 	@Override
@@ -40,11 +47,28 @@ public class MusicBrainzCommand extends ArtistCommand {
 	}
 
 	@Override
-	public void processQueue(String username, String time, int ignored, int yearInt, MessageReceivedEvent e, boolean writeTiles, boolean writePlays) throws LastFmException {
-		BlockingQueue<UrlCapsule> queue = new LinkedBlockingDeque<>();
+	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+		String[] returned;
+		returned = parser.parse(e);
+		if (returned == null)
+			return;
+
+		Year year = Year.of(Integer.parseInt(returned[0]));
+		String username = returned[1];
+		String time = returned[2];
+		boolean titleWrite = !Boolean.parseBoolean(returned[3]);
+		boolean playsWrite = Boolean.parseBoolean(returned[4]);
+
 		int x = (int) Math.sqrt(chartSize);
-		Year year = Year.of(yearInt);
-		lastFM.getUserList(username, time, x, x, true, queue);
+		calculateYearAlbums(username, time, chartSize, x, x, year, e, titleWrite, playsWrite, false);
+
+
+	}
+
+	public void calculateYearAlbums(String username, String time, int numberOfAlbumsToQueryFor, int x, int y, Year year, MessageReceivedEvent e, boolean writeTiles, boolean writePlays, boolean caresAboutSize) throws LastFmException {
+		BlockingQueue<UrlCapsule> queue = new LinkedBlockingDeque<>();
+
+		lastFM.getUserList(username, time, numberOfAlbumsToQueryFor, 1, true, queue);
 		//List of obtained elements
 		Map<Boolean, List<AlbumInfo>> results =
 				queue.stream()
@@ -59,25 +83,27 @@ public class MusicBrainzCommand extends ArtistCommand {
 		List<AlbumInfo> albumsMbizMatchingYear = mb.listOfYearReleases(nonEmptyMbid, year);
 		List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(emptyMbid, year);
 		emptyMbid.removeAll(mbFoundBYName);
+		int discogsMetrics = 0;
+		if (doDiscogs()) {
+			List<AlbumInfo> foundDiscogsMatchingYear = emptyMbid.stream().filter(albumInfo -> {
+				try {
 
-		List<AlbumInfo> foundDiscogsMatchingYear = emptyMbid.stream().filter(albumInfo -> {
-			try {
-
-				Year tempYear = (discogsApi.getYearRelease(albumInfo.getName(), albumInfo.getArtist()));
-				if (tempYear == null) {
+					Year tempYear = (discogsApi.getYearRelease(albumInfo.getName(), albumInfo.getArtist()));
+					if (tempYear == null) {
+						//nullYearList.add(albumInfo);
+						return false;
+					}
+					return tempYear.equals(year);
+				} catch (Exception ex) {
+					//Chuu.getLogger().warn(e.getMessage(), e);
 					//nullYearList.add(albumInfo);
 					return false;
 				}
-				return tempYear.equals(year);
-			} catch (Exception ex) {
-				//Chuu.getLogger().warn(e.getMessage(), e);
-				//nullYearList.add(albumInfo);
-				return false;
-			}
-		}).collect(Collectors.toList());
-
+			}).collect(Collectors.toList());
+			albumsMbizMatchingYear.addAll(foundDiscogsMatchingYear);
+			discogsMetrics = foundDiscogsMatchingYear.size();
+		}
 		albumsMbizMatchingYear.addAll(mbFoundBYName);
-		albumsMbizMatchingYear.addAll(foundDiscogsMatchingYear);
 
 		//Keep the order of the original queue so the final chart is ordered by plays
 		AtomicInteger counter2 = new AtomicInteger(0);
@@ -94,18 +120,26 @@ public class MusicBrainzCommand extends ArtistCommand {
 		});
 
 		if (queue.isEmpty()) {
-			sendMessageQueue(e, "Dont have any " + year.toString() + " album in your top " + chartSize + " albums");
+			sendMessageQueue(e, "Dont have any " + year.toString() + " album in your top " + x * y + " albums");
 			return;
 		}
-		int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
-		generateImage(queue, imageSize, imageSize, e, writeTiles, writePlays);
-		getDao().updateMetrics(foundDiscogsMatchingYear.size(), mbFoundBYName.size(), albumsMbizMatchingYear
+		if (!caresAboutSize) {
+			int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
+			generateImage(queue, imageSize, imageSize, e, writeTiles, writePlays);
+		} else {
+			BlockingQueue<UrlCapsule> tempQueuenew = new LinkedBlockingDeque<>();
+			queue.drainTo(tempQueuenew, x * y);
+			generateImage(tempQueuenew, x, y, e, writeTiles, writePlays);
+		}
+
+		getDao().updateMetrics(discogsMetrics, mbFoundBYName.size(), albumsMbizMatchingYear
 				.size(), x * x);
+
 	}
 
-	@Override
-	public String getName() {
-		return "Released in YEAR";
+	public boolean doDiscogs() {
+		return true;
+
 	}
 
 

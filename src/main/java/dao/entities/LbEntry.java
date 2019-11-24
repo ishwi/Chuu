@@ -6,7 +6,7 @@ public abstract class LbEntry {
 	private final int entryCount;
 	private String discordName;
 
-	LbEntry(String user, long discordId, int entryCount) {
+	public LbEntry(String user, long discordId, int entryCount) {
 		this.lastFmId = user;
 		this.discordId = discordId;
 		this.entryCount = entryCount;
@@ -34,6 +34,7 @@ public abstract class LbEntry {
 
 	@Override
 	public abstract String toString();
+
 
 }
 

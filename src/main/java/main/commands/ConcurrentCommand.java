@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.concurrent.ExecutorService;
 
 
-public abstract class ConcurrentCommand extends MyCommandDbAccess {
+public abstract class ConcurrentCommand extends MyCommand {
 	private final ExecutorService executor = ExecutorsSingleton.getInstanceUsingDoubleLocking();
 
 
@@ -19,8 +19,7 @@ public abstract class ConcurrentCommand extends MyCommandDbAccess {
 	@Override
 	void measureTime(MessageReceivedEvent e) {
 		executor.submit(() -> {
-			long startTime = 0;
-			startTime = System.currentTimeMillis();
+			long startTime = System.currentTimeMillis();
 			handleCommand(e);
 					long endTime = System.currentTimeMillis();
 					long timeElapsed = endTime - startTime;

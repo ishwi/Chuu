@@ -4,13 +4,13 @@ import dao.DaoImplementation;
 import dao.entities.NowPlayingArtist;
 import dao.entities.TimeFrameEnum;
 import main.apis.last.ConcurrentLastFM;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.ArrayUtils;
 
-import javax.management.InstanceNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class ArtistTimeFrameParser extends ArtistParser {
 	}
 
 	@Override
-	public String[] parseLogic(MessageReceivedEvent e, String[] words) {
+	public String[] parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
 		User sample;
 		TimeFrameEnum timeFrame = defaultTFE;
 
@@ -49,18 +49,9 @@ public class ArtistTimeFrameParser extends ArtistParser {
 		if (words.length == 0) {
 
 			NowPlayingArtist np;
-			try {
 
-				String userName = dao.findLastFMData(sample.getIdLong()).getName();
-				np = lastFM.getNowPlayingInfo(userName);
-
-			} catch (InstanceNotFoundException ex) {
-				sendError(sample.getName() + " needs to be registered on the bot!", e);
-				return null;
-			} catch (LastFmException ex) {
-				sendError(this.getErrorMessage(2), e);
-				return null;
-			}
+			String userName = dao.findLastFMData(sample.getIdLong()).getName();
+			np = lastFM.getNowPlayingInfo(userName);
 
 			strings = doSomethingWithNp(np, sample, e);
 

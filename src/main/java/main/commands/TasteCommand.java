@@ -3,12 +3,12 @@ package main.commands;
 import dao.DaoImplementation;
 import dao.entities.ResultWrapper;
 import dao.entities.UserInfo;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import main.imagerenderer.TasteRenderer;
 import main.parsers.TwoUsersParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;

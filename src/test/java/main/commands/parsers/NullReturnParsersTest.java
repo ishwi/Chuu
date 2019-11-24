@@ -1,6 +1,7 @@
 package main.commands.parsers;
 
 import main.commands.utils.TestResources;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import org.junit.Assert;
@@ -99,7 +100,14 @@ public class NullReturnParsersTest {
 			return complete.getRetrievedHistory().size() == 1;
 		});
 		Message message = channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
-		assertEqualsErrorMessage("User not on database", message);
+		Member memberById = channelWorker.getGuild().getMemberById(developerId);
+		assert memberById != null;
+		String effectiveName = memberById.getEffectiveName();
+		String expeceted = effectiveName +
+				" has not set their last.fm account\n" +
+				"To link to the bot you must have a last.fm account and then do:\n" +
+				" !set your_last_fm_account";
+		assertEqualsErrorMessage(expeceted, message);
 	}
 
 	public static void oneWordParser(String command) {

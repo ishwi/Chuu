@@ -6,11 +6,11 @@ import dao.entities.ArtistAlbums;
 import dao.entities.ArtistData;
 import dao.entities.WrapperReturnNowPlaying;
 import main.Chuu;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import main.imagerenderer.BandRendered;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Comparator;
