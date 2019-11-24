@@ -24,11 +24,15 @@ public class FeaturedCommand extends ConcurrentCommand {
 		super(dao);
 		currentPresence = new PresenceInfo(DEFAULT_ARTIST, DEFAULT_URL, Long.MAX_VALUE, 1);
 		scheduledManager.scheduleAtFixedRate(() -> {
+			try {
 			PresenceInfo randomArtistWithUrl = getDao().getRandomArtistWithUrl();
 			Chuu.updatePresence(randomArtistWithUrl.getArtist());
 			this.currentPresence = randomArtistWithUrl;
 			Chuu.getLogger()
 					.info("[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE) + "]\t!Updated Presence");
+			} catch (Exception e) {
+				Chuu.getLogger().warn(e.getMessage());
+			}
 		}, 1, 30, TimeUnit.MINUTES);
 	}
 
@@ -46,12 +50,12 @@ public class FeaturedCommand extends ConcurrentCommand {
 	protected void onCommand(MessageReceivedEvent e) {
 		String userString = this.getUserGlobalString(currentPresence.getDiscordId(), e, DEFAULT_USER);
 		EmbedBuilder embedBuilder = new EmbedBuilder()
-				.setColor(CommandUtil.randomColor())
-				.setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
-				.setTitle("Chuu's Featured Artist:", CommandUtil.getLastFmArtistUrl(currentPresence.getArtist()))
-				.addField("Artist:", currentPresence.getArtist(), false)
-				.addField("User:", userString, false)
-				.addField("Total Artist Plays:", String.valueOf(currentPresence.getSum()), false);
+			.setColor(CommandUtil.randomColor())
+			.setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
+			.setTitle("Chuu's Featured Artist:", CommandUtil.getLastFmArtistUrl(currentPresence.getArtist()))
+			.addField("Artist:", currentPresence.getArtist(), false)
+			.addField("User:", userString, false)
+			.addField("Total Artist Plays:", String.valueOf(currentPresence.getSum()), false);
 
 		MessageBuilder messageBuilder = new MessageBuilder();
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
