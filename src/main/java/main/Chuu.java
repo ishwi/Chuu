@@ -4,6 +4,9 @@ import dao.DaoImplementation;
 import main.apis.discogs.DiscogsSingleton;
 import main.apis.spotify.SpotifySingleton;
 import main.commands.*;
+import main.scheduledtasks.ImageUpdaterThread;
+import main.scheduledtasks.SpotifyUpdaterThread;
+import main.scheduledtasks.UpdaterThread;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -24,6 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Chuu {
 
@@ -123,14 +127,14 @@ public class Chuu {
 		PrefixCommand prefixCommand = new PrefixCommand(dao);
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(3);
-//		scheduledManager.scheduleAtFixedRate(
-//				new UpdaterThread(dao, null, true, DiscogsSingleton.getInstanceUsingDoubleLocking()), 0, 60,
-//				TimeUnit.SECONDS);
-//		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
-//		scheduledManager.scheduleAtFixedRate(
-//				new SpotifyUpdaterThread(dao, SpotifySingleton.getInstanceUsingDoubleLocking()), 0, 10,
-//				TimeUnit.MINUTES);
-//
+		scheduledManager.scheduleAtFixedRate(
+				new UpdaterThread(dao, null, true, DiscogsSingleton.getInstanceUsingDoubleLocking()), 0, 60,
+				TimeUnit.SECONDS);
+		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(
+				new SpotifyUpdaterThread(dao, SpotifySingleton.getInstanceUsingDoubleLocking()), 0, 10,
+				TimeUnit.MINUTES);
+
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
 		builder.setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
 				.setEventManager(new CustomInterfacedEventManager()).addEventListeners(help)
