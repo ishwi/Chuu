@@ -3,6 +3,7 @@ package main.parsers;
 import dao.DaoImplementation;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
+import main.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -24,9 +25,8 @@ public class ChartParser extends DaoParser {
 	}
 
 	@Override
-	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
 		TimeFrameEnum timeFrame = defaultTFE;
-		String discordName;
 		String x = "5";
 		String y = "5";
 
@@ -51,9 +51,6 @@ public class ChartParser extends DaoParser {
 		subMessage = chartParserAux.getMessage();
 
 		LastFMData data = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
-		if (data == null) {
-			return null;
-		}
 
 		return new String[]{x, y, data.getName(), timeFrame.toApiFormat()};
 	}
@@ -68,7 +65,7 @@ public class ChartParser extends DaoParser {
 		return "**" + commandName + " *[w,m,q,s,y,a]* *sizeXsize*  *Username* ** \n" +
 				"\tIf time is not specified defaults to Yearly \n" +
 				"\tIf username is not specified defaults to authors account \n" +
-				"\tIf Size not specified it defaults  to 5x5\n";
+				"\tIf Size not specified it defaults to 5x5\n";
 	}
 
 	@Override

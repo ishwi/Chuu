@@ -6,6 +6,7 @@ import main.apis.discogs.DiscogsApi;
 import main.apis.discogs.DiscogsSingleton;
 import main.apis.spotify.Spotify;
 import main.apis.spotify.SpotifySingleton;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import main.imagerenderer.ProfileMaker;
 import main.parsers.OnlyUsernameParser;
@@ -14,7 +15,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;

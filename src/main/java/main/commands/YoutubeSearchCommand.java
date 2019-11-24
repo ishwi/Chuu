@@ -3,11 +3,11 @@ package main.commands;
 import dao.DaoImplementation;
 import main.apis.youtube.Search;
 import main.apis.youtube.SearchSingleton;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.UsernameAndNpQueryParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 

@@ -118,7 +118,7 @@ public class Chuu {
 		new SpotifySingleton(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
 
 		// Needs these three references
-		HelpCommand help = new HelpCommand();
+		HelpCommand help = new HelpCommand(dao);
 		AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
 		PrefixCommand prefixCommand = new PrefixCommand(dao);
 

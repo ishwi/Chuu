@@ -2,9 +2,9 @@ package dao;
 
 import dao.entities.*;
 import main.Chuu;
+import main.exceptions.InstanceNotFoundException;
 import org.apache.commons.collections4.map.MultiValueMap;
 
-import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;

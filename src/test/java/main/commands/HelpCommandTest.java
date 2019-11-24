@@ -89,7 +89,7 @@ public class HelpCommandTest extends CommandTest {
 		String[] split1 = message1.getContentStripped().split("\n");
 
 		//All should be commands
-		List<String> strings1 = new ArrayList<>(Arrays.asList(Arrays.copyOfRange(split, 1, split.length)));
+		List<String> strings1 = new ArrayList<>(Arrays.asList(Arrays.copyOfRange(split, 11, split.length)));
 		List<String> split2 = new ArrayList<>(Arrays.asList(split1));
 
 		strings1.addAll(split2);

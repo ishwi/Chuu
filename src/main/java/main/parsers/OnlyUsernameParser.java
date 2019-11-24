@@ -2,6 +2,7 @@ package main.parsers;
 
 import dao.DaoImplementation;
 import dao.entities.LastFMData;
+import main.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -16,12 +17,9 @@ public class OnlyUsernameParser extends DaoParser {
 		opts.addAll(Arrays.asList(strings));
 	}
 
-	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
+	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
 
 		LastFMData data = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
-		if (data == null) {
-			return null;
-		}
 		return new String[]{data.getName(), String.valueOf(data.getDiscordId())};
 	}
 

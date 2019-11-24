@@ -2,10 +2,10 @@ package main.parsers;
 
 import dao.DaoImplementation;
 import dao.entities.LastFMData;
+import main.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.util.List;
 
 public abstract class DaoParser extends Parser {
@@ -16,8 +16,7 @@ public abstract class DaoParser extends Parser {
 		this.dao = dao;
 	}
 
-	LastFMData getLastFmUsername1input(String[] message, Long id, MessageReceivedEvent event) {
-		try {
+	LastFMData getLastFmUsername1input(String[] message, Long id, MessageReceivedEvent event) throws InstanceNotFoundException {
 			if (event.isFromGuild()) {
 				LastFMData data;
 				List<User> list = event.getMessage().getMentionedUsers();
@@ -29,10 +28,7 @@ public abstract class DaoParser extends Parser {
 			} else {
 				return dao.findLastFMData((id));
 			}
-		} catch (InstanceNotFoundException e) {
-			sendError(getErrorMessage(1), event);
-			return null;
-		}
+
 	}
 
 	@Override

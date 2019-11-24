@@ -3,12 +3,12 @@ package main.commands;
 import dao.DaoImplementation;
 import dao.entities.ArtistInfo;
 import main.Chuu;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.ArtistUrlParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
-import javax.management.InstanceNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;

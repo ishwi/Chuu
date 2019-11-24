@@ -6,11 +6,11 @@ import main.apis.discogs.DiscogsApi;
 import main.apis.discogs.DiscogsSingleton;
 import main.apis.spotify.Spotify;
 import main.apis.spotify.SpotifySingleton;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.ArtistAlbumParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.management.InstanceNotFoundException;
 import java.util.Collections;
 import java.util.List;
 

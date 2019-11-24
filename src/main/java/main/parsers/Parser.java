@@ -1,5 +1,7 @@
 package main.parsers;
 
+import main.exceptions.InstanceNotFoundException;
+import main.exceptions.LastFmException;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
@@ -24,7 +26,7 @@ public abstract class Parser {
 	protected abstract void setUpErrorMessages();
 
 
-	public String[] parse(MessageReceivedEvent e) {
+	public String[] parse(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] subMessage = getSubMessage(e.getMessage());
 		List<String> subMessageBuilding = new ArrayList<>();
 		List<String> optionals = new ArrayList<>();
@@ -50,7 +52,7 @@ public abstract class Parser {
 		return withFlags;
 	}
 
-	protected abstract String[] parseLogic(MessageReceivedEvent e, String[] words);
+	protected abstract String[] parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException;
 
 	String[] getSubMessage(Message message) {
 		return getSubMessage(message.getContentRaw());

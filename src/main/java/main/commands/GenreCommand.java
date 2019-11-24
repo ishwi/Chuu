@@ -7,6 +7,7 @@ import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFmException;
 import main.parsers.TimerFrameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -15,7 +16,6 @@ import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.style.PieStyler;
 import org.knowm.xchart.style.Styler;
 
-import javax.management.InstanceNotFoundException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Collections;

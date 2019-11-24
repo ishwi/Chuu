@@ -20,7 +20,8 @@ class ChartParserAux {
 
 	TimeFrameEnum parseTimeframe(TimeFrameEnum defaultTimeFrame) {
 		TimeFrameEnum timeFrame = defaultTimeFrame;
-		Stream<String> secondStream = Arrays.stream(message).filter(s -> s.length() == 1 && s.matches("[yqsmwa]"));
+		Stream<String> secondStream = Arrays.stream(message).filter(s -> s.length() == 1 && s
+				.matches("([yqsmwa]|year(ly)?|month(ly)?|quarter(ly)?|semester(ly)?|week(ly)?|alltime|overall|all)"));
 		Optional<String> opt2 = secondStream.findAny();
 		if (opt2.isPresent()) {
 			timeFrame = TimeFrameEnum.get(opt2.get());
