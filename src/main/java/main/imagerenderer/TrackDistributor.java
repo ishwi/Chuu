@@ -22,7 +22,7 @@ public class TrackDistributor {
 	private static final int HEIGHT_BOTTOM = 0;
 	private static final int FONT_SIZE = 30;
 	private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, FONT_SIZE);
-	private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP Regular", Font.PLAIN, FONT_SIZE);
+	private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP", Font.PLAIN, FONT_SIZE);
 
 
 	private static final BufferedImage template;
