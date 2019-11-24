@@ -9,7 +9,7 @@ import main.exceptions.InstanceNotFoundException;
 import main.exceptions.LastFMNoPlaysException;
 import main.exceptions.LastFmEntityNotFoundException;
 import main.exceptions.LastFmException;
-import main.parsers.OneWordParser;
+import main.parsers.SetParser;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class SetCommand extends ConcurrentCommand {
 	public SetCommand(DaoImplementation dao) {
 		super(dao);
-		parser = new OneWordParser();
+		parser = new SetParser();
 		this.respondInPrivate = false;
 
 	}

@@ -2,10 +2,10 @@ package main.parsers;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class OneWordParser extends Parser {
+public class SetParser extends Parser {
 	@Override
 	protected void setUpErrorMessages() {
-		errorMessages.put(0, "You need to introduce a word!");
+		errorMessages.put(0, "You need to introduce only a valid last.fm account!");
 	}
 
 	@Override
