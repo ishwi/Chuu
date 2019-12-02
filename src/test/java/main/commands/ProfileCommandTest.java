@@ -5,7 +5,7 @@ import main.apis.last.ConcurrentLastFM;
 import main.apis.last.LastFMFactory;
 import main.commands.parsers.NullReturnParsersTest;
 import main.commands.utils.CommandTest;
-import main.commands.utils.GenericEmbedMatcher;
+import main.commands.utils.EmbedTesterBuilder;
 import main.commands.utils.ImageUtils;
 import main.commands.utils.TestResources;
 import main.exceptions.LastFmException;
@@ -55,8 +55,14 @@ public class ProfileCommandTest extends CommandTest {
 		List<UserInfo> pablopita = newInstance.getUserInfo(Collections.singletonList("pablopita"));
 		String image = pablopita.get(0).getImage();
 		image = image.isEmpty() ? null : image;
-		GenericEmbedMatcher
-				.GeneralFunction(COMMAND_ALIAS, footerRegex, matcherFooter, titleRegex, matcherBooleanFunction, descriptionRegex, null, null, null, 45, true, image, null);
+		new EmbedTesterBuilder(COMMAND_ALIAS)
+				.footernPattern(footerRegex)
+				.footerMatch(matcherFooter)
+				.titlePattern(titleRegex)
+				.descriptionPattern(descriptionRegex)
+				.hasThumbnail(true)
+				.thumbnail(image)
+				.titleMatch(matcherBooleanFunction).build().GeneralFunction();
 
 
 	}
