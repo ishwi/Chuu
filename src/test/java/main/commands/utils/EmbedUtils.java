@@ -79,9 +79,17 @@ public class EmbedUtils {
 
 		Pattern titlePattern = Pattern.compile(titleRegex.replaceAll("\\$\\{header}", header));
 
-		GenericEmbedMatcher
-				.GeneralFunction(command, footerRegex, null, titlePattern, null, descriptionRegex, matcherDescription,
-						NoEmbededPattern, null, 45, true, artistThumbnail, null);
+	new EmbedTesterBuilder(command)
+				.footernPattern(footerRegex)
+				.titlePattern(titlePattern)
+				.descriptionPattern(descriptionRegex)
+				.descriptionMatcher(matcherDescription)
+				.noEmbbed(NoEmbededPattern)
+				.timeout(45)
+				.hasThumbnail(true)
+				.thumbnail(artistThumbnail)
+				.build().GeneralFunction();
+
 
 
 	}

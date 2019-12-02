@@ -6,11 +6,22 @@ plugins {
     id 'application'
     id "com.github.johnrengelman.shadow" version "5.0.0"
     id "com.github.spotbugs" version "2.0.0"
-
+    id 'info.solidsoft.pitest' version '1.4.5'
 
 }
+
+pitest {
+//    mainSourceSets = ["main.parsers*"]
+    targetClasses = ['main.*']  //by default "${project.group}.*"
+
+    threads = 1
+    outputFormats = ['XML', 'HTML']
+    timestampedReports = false
+}
+
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'info.solidsoft.pitest'
 
 mainClassName = "main.Chuu"
 
@@ -18,8 +29,8 @@ group 'ish'
 version '1.0'
 apply plugin: 'java'
 
-sourceCompatibility = 12
-targetCompatibility = 12
+sourceCompatibility = 11
+targetCompatibility = 11
 
 repositories {
     mavenCentral()

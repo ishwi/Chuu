@@ -20,7 +20,6 @@ import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -58,15 +57,15 @@ public class Chuu {
 
 	}
 
-	public static void main(String[] args) throws UnsupportedEncodingException, InterruptedException {
+	public static void main(String[] args) throws  InterruptedException {
 		if (System.getProperty("file.encoding").equals("UTF-8")) {
-			setupBot();
+			setupBot(false);
 		} else {
 			relaunchInUTF8();
 		}
 	}
 
-	private static void relaunchInUTF8() throws InterruptedException, UnsupportedEncodingException {
+	private static void relaunchInUTF8() throws InterruptedException {
 		System.out.println("BotLauncher: We are not running in UTF-8 mode! This is a problem!");
 		System.out.println("BotLauncher: Relaunching in UTF-8 mode using -Dfile.encoding=UTF-8");
 
@@ -96,7 +95,7 @@ public class Chuu {
 		}
 	}
 
-	private static File getThisJarFile() throws UnsupportedEncodingException {
+	private static File getThisJarFile()  {
 		// Gets the path of the currently running Jar file
 		String path = Chuu.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
@@ -113,7 +112,7 @@ public class Chuu {
 		return logger;
 	}
 
-	public static void setupBot() {
+	public static void setupBot(boolean isTest) {
 		logger = LoggerFactory.getLogger(Chuu.class);
 		Properties properties = readToken();
 		DaoImplementation dao = new DaoImplementation();
@@ -127,14 +126,15 @@ public class Chuu {
 		PrefixCommand prefixCommand = new PrefixCommand(dao);
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(3);
-		scheduledManager.scheduleAtFixedRate(
-				new UpdaterThread(dao, null, true, DiscogsSingleton.getInstanceUsingDoubleLocking()), 0, 60,
-				TimeUnit.SECONDS);
-		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 10, 10, TimeUnit.MINUTES);
-		scheduledManager.scheduleAtFixedRate(
-				new SpotifyUpdaterThread(dao, SpotifySingleton.getInstanceUsingDoubleLocking()), 10, 10,
-				TimeUnit.MINUTES);
-
+		if(!isTest) {
+			scheduledManager.scheduleAtFixedRate(
+					new UpdaterThread(dao, null, true, DiscogsSingleton.getInstanceUsingDoubleLocking()), 0, 60,
+					TimeUnit.SECONDS);
+			scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
+			scheduledManager.scheduleAtFixedRate(
+					new SpotifyUpdaterThread(dao, SpotifySingleton.getInstanceUsingDoubleLocking()), 0, 10,
+					TimeUnit.MINUTES);
+		}
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
 		builder.setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
 				.setEventManager(new CustomInterfacedEventManager()).addEventListeners(help)
