@@ -10,9 +10,12 @@ public class EmbedWithFieldsUtils {
 
 	public static void testEmbedWithFields(String command, @Nullable Pattern noEmbedCase, List<FieldRowMatcher> fieldRowMatchers, Pattern title, Predicate<Matcher> titlePredicate) {
 
-		GenericEmbedMatcher
-				.GeneralFunction(command, null, null, title, titlePredicate, null, null, noEmbedCase, null, 45, false, null, fieldRowMatchers);
-
+		new EmbedTesterBuilder(command)
+				.titlePattern(title)
+				.titleMatch(titlePredicate)
+				.noEmbbed(noEmbedCase)
+				.fieldRowMatch(fieldRowMatchers)
+				.build().GeneralFunction();
 
 	}
 

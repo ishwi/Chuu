@@ -60,7 +60,7 @@ public class Chuu {
 
 	public static void main(String[] args) throws UnsupportedEncodingException, InterruptedException {
 		if (System.getProperty("file.encoding").equals("UTF-8")) {
-			setupBot();
+			setupBot(false);
 		} else {
 			relaunchInUTF8();
 		}
@@ -113,7 +113,7 @@ public class Chuu {
 		return logger;
 	}
 
-	public static void setupBot() {
+	public static void setupBot(boolean isTest) {
 		logger = LoggerFactory.getLogger(Chuu.class);
 		Properties properties = readToken();
 		DaoImplementation dao = new DaoImplementation();
@@ -127,14 +127,15 @@ public class Chuu {
 		PrefixCommand prefixCommand = new PrefixCommand(dao);
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(3);
-		scheduledManager.scheduleAtFixedRate(
-				new UpdaterThread(dao, null, true, DiscogsSingleton.getInstanceUsingDoubleLocking()), 0, 60,
-				TimeUnit.SECONDS);
-		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
-		scheduledManager.scheduleAtFixedRate(
-				new SpotifyUpdaterThread(dao, SpotifySingleton.getInstanceUsingDoubleLocking()), 0, 10,
-				TimeUnit.MINUTES);
-
+		if(!isTest) {
+			scheduledManager.scheduleAtFixedRate(
+					new UpdaterThread(dao, null, true, DiscogsSingleton.getInstanceUsingDoubleLocking()), 0, 60,
+					TimeUnit.SECONDS);
+			scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
+			scheduledManager.scheduleAtFixedRate(
+					new SpotifyUpdaterThread(dao, SpotifySingleton.getInstanceUsingDoubleLocking()), 0, 10,
+					TimeUnit.MINUTES);
+		}
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
 		builder.setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
 				.setEventManager(new CustomInterfacedEventManager()).addEventListeners(help)
