@@ -59,13 +59,13 @@ public class TasteRenderer {
 
 		float[] rgb1 = new float[3];
 		Color.ORANGE.getRGBColorComponents(rgb1);
-		Color colorA = new Color(rgb1[0], rgb1[1], rgb1[2], 0.1f);
-		Color colorA1 = new Color(rgb1[0], rgb1[1], rgb1[2], 0.6f);
+		Color colorA = new Color(rgb1[0], rgb1[1], rgb1[2], 0.5f);
+		Color colorA1 = new Color(rgb1[0], rgb1[1], rgb1[2], 0.8f);
 
 		float[] rgb2 = new float[3];
 		Color.CYAN.getRGBColorComponents(rgb2);
-		Color colorB = new Color(rgb2[0], rgb2[1], rgb2[2], 0.1f);
-		Color colorB1 = new Color(rgb2[0], rgb2[1], rgb2[2], 0.6f);
+		Color colorB = new Color(rgb2[0], rgb2[1], rgb2[2], 0.5f);
+		Color colorB1 = new Color(rgb2[0], rgb2[1], rgb2[2], 0.8f);
 
 		g.setFont(usernameFont);
 		int widht1 = g.getFontMetrics().stringWidth(userInfoLiust.get(0).getUsername());
@@ -112,9 +112,9 @@ public class TasteRenderer {
 			g.fillRect(rectanglePosition, rectangle_start_y, (int) (rectangle_width * percentage), rectangle_height);
 			g.setColor(Color.WHITE);
 			g.setFont(usernameFont);
-			g.drawString(userInfo.getUsername(), nameStringPosition, 20 + PROFILE_IMAGE_SIZE / 2);
+			GraphicUtils.drawStringNicely(g,userInfo.getUsername(), nameStringPosition, 20 + PROFILE_IMAGE_SIZE / 2,canvas);
 			g.setFont(scrobbleFont);
-			g.drawString("" + userInfo.getPlayCount(), countStringPosition, rectangle_start_y + rectangle_height - 1);
+			GraphicUtils.drawStringNicely(g,"" + userInfo.getPlayCount(), countStringPosition, rectangle_start_y + rectangle_height - 1,canvas);
 			x++;
 
 		}
@@ -125,11 +125,11 @@ public class TasteRenderer {
 
 		g.setFont(titleFont);
 		int length = g.getFontMetrics().stringWidth(a);
-		g.drawString("" + resultWrapper.getRows(), x_MAX / 2 - length / 2, y - 30);
+		GraphicUtils.drawStringNicely(g,"" + resultWrapper.getRows(), x_MAX / 2 - length / 2, y - 30,canvas);
 
 		g.setFont(subtitle);
 
-		g.drawString("common artists", x_MAX / 2 + length / 2 + 4, y - 30);
+		GraphicUtils.drawStringNicely(g,"common artists", x_MAX / 2 + length / 2 + 4, y - 30,canvas);
 
 		//Draws Top 10
 		for (Results item : resultWrapper.getResultList()) {
@@ -153,11 +153,11 @@ public class TasteRenderer {
 			int widthB = g.getFontMetrics().stringWidth(strCountBString);
 
 			int countBStart = x_MAX - 100 - widthB;
-			g.drawString("" + countA, 100, y);
-			g.drawString("" + countB, countBStart, y);
+			GraphicUtils.drawStringNicely(g,"" + countA, 100, y,canvas);
+			GraphicUtils.drawStringNicely(g,"" + countB, countBStart, y,canvas);
 			g.setFont(artistFont);
 			int widthStr = g.getFontMetrics().stringWidth(item.getArtistID());
-			g.drawString(artistID, x_MAX / 2 - (widthStr / 2), y);
+			GraphicUtils.drawStringNicely(g,artistID, x_MAX / 2 - (widthStr / 2), y,canvas);
 
 			y += g.getFontMetrics().getHeight() + 5;
 			System.out.println(g.getFontMetrics().getHeight());

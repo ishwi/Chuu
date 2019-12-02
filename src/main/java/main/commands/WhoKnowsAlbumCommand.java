@@ -71,7 +71,7 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 			return np;
 		}).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
 		if (list2.isEmpty()) {
-			sendMessageQueue(e, " No one knows " + artist + " - " + album);
+			sendMessageQueue(e, " No one knows " + corrected_artist + " - " + corrected_album);
 			return;
 		}
 

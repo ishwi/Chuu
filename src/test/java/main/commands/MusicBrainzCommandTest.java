@@ -27,22 +27,10 @@ public class MusicBrainzCommandTest extends CommandTest {
 	public void normalUsage() {
 		ImageUtils.testImage(COMMAND_ALIAS, true, Integer.MAX_VALUE, Integer.MAX_VALUE, 60, ".png", ".jpg");
 
-		long guildId = TestResources.channelWorker.getGuild().getIdLong();
-		long idLong = TestResources.ogJDA.getSelfUser()
-				.getIdLong();
-		TestResources.dao.removeUserFromOneGuildConsequent(idLong, guildId);
-
-		TestResources.dao.insertArtistDataList(new LastFMData("arawish", idLong, guildId));
 		Pattern compile = Pattern.compile("Dont have any (\\d{4}) album in your top (\\d+) albums");
 
-		OneLineUtils.testCommands(COMMAND_ALIAS + " a " + TestResources.ogJDA.getSelfUser()
-				.getAsMention(), compile, matcher -> Integer.parseInt(matcher.group(1)) == LocalDateTime.now()
-				.getYear() && Integer.parseInt(matcher.group(2)) == MusicBrainzCommand.chartSize, 65);
+		OneLineUtils.testCommands(COMMAND_ALIAS + " a 1876 ", compile, matcher -> Integer.parseInt(matcher.group(1)) == 1876 && Integer.parseInt(matcher.group(2)) == MusicBrainzCommand.chartSize, 65);
 
-		TestResources.dao.removeUserFromOneGuildConsequent(idLong, guildId);
-
-		TestResources.dao.insertArtistDataList(new LastFMData("guillecs", idLong, guildId));
-		TestResources.insertCommonArtistWithPlays(1);
 
 	}
 }

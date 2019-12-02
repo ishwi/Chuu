@@ -130,9 +130,9 @@ public class Chuu {
 		scheduledManager.scheduleAtFixedRate(
 				new UpdaterThread(dao, null, true, DiscogsSingleton.getInstanceUsingDoubleLocking()), 0, 60,
 				TimeUnit.SECONDS);
-		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
+		scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 10, 10, TimeUnit.MINUTES);
 		scheduledManager.scheduleAtFixedRate(
-				new SpotifyUpdaterThread(dao, SpotifySingleton.getInstanceUsingDoubleLocking()), 0, 10,
+				new SpotifyUpdaterThread(dao, SpotifySingleton.getInstanceUsingDoubleLocking()), 10, 10,
 				TimeUnit.MINUTES);
 
 		JDABuilder builder = new JDABuilder(AccountType.BOT);

@@ -140,7 +140,9 @@ public class HelpCommand extends ConcurrentCommand {
 			if (c.getAliases().contains(command)) {
 				String name = c.getName();
 				String description = c.getDescription();
-				String usageInstructions = c.getUsageInstructions();
+				String usageInstructions = "";
+				usageInstructions = c.getUsageInstructions();
+
 				name = (name == null || name.isEmpty()) ? NO_NAME : name;
 				description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
 				usageInstructions = (usageInstructions == null || usageInstructions
@@ -149,8 +151,8 @@ public class HelpCommand extends ConcurrentCommand {
 				//TODO: Replace with a PrivateMessage
 				channel.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n")
 						.append("**Description:** ").append(description).append("\n")
-						.append("**Alliases:** ")
-						.append(String.join(", ", c.getAliases())).append("\n")
+						.append("**Alliases:** ").append(String.valueOf(prefix))
+						.append(String.join(", " + prefix, c.getAliases())).append("\n")
 						.append("**Usage:** ")
 						.append(prefix).append(usageInstructions)
 						.build()).queue();

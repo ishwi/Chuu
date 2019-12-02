@@ -65,7 +65,9 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
 
 		final String userString = getUserStringConsideringGuildOrNot(e, userId, lastFmName);
 		if (ai.isEmpty()) {
-			sendMessageQueue(e, " No faves on provided time!");
+			sendMessageQueue(e, ("Coudnt't find your fav tracks of " + who.getArtist() + (timeframew
+					.equals("overall") ? "" : " in the last " + TimeFrameEnum
+					.fromCompletePeriod(timeframew).toString().toLowerCase() + "!")));
 			return;
 		}
 

@@ -61,7 +61,8 @@ CREATE TABLE `album_crowns`
     CONSTRAINT `album_crown_fK_guildID` FOREIGN KEY (`discordId`, `guildID`) REFERENCES `user_guild` (`discordId`, `guildId`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT=dynamic;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

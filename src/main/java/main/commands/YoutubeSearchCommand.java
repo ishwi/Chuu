@@ -27,7 +27,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand {
 
 	@Override
 	List<String> getAliases() {
-		return Arrays.asList("yt", "!npyt", "youtube", "you");
+		return Arrays.asList("yt", "npyt", "youtube", "you");
 	}
 
 	@Override

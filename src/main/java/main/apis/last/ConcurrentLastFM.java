@@ -722,10 +722,10 @@ public class ConcurrentLastFM {//implements LastFMService {
 
 		// Execute the method.
 
-		JSONObject jsonObject = doMethod(method, new ExceptionEntity(artist, true));
+		JSONObject jsonObject = doMethod(method, new ExceptionEntity(artist, true)).getJSONObject("artist");
 
 		if (jsonObject.getJSONObject("stats").has("userplaycount")) {
-			return jsonObject.getJSONObject("artist").getJSONObject("stats").getInt("userplaycount");
+			return jsonObject.getJSONObject("stats").getInt("userplaycount");
 		} else
 			return 0;
 
