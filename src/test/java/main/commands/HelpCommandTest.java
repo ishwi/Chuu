@@ -122,7 +122,7 @@ public class HelpCommandTest extends CommandTest {
 				});
 				Message message = channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
 				id = message.getIdLong();
-				String collect = String.join(", ", command.getAliases());
+				String collect ="!" + String.join(", !", command.getAliases());
 				String expected = "Name: " + command.getName() + "\n"
 						+ "Description: " + command.getDescription() + "\n"
 						+ "Alliases: " + collect + "\n"
@@ -167,7 +167,7 @@ public class HelpCommandTest extends CommandTest {
 		});
 		MessageHistory complete = channelWorker.getHistoryAfter(id, 20).complete();
 		Message message = complete.getRetrievedHistory().get(0);
-		String collect = String.join(", ", command.getAliases());
+		String collect = "!" + String.join(", !", command.getAliases());
 
 		String expected = "Name: " + command.getName() + "\n"
 				+ "Description: " + command.getDescription() + "\n"

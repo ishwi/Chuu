@@ -29,7 +29,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 
 	@Override
 	public String getDescription() {
-		return "Gets your top albums of the year queried. \n" +
+		return "Gets your top albums of the year queried.\t" +
 				"NOTE: The further the year is from the  current year, the less precise the command will be";
 	}
 

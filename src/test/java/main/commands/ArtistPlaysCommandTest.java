@@ -16,7 +16,7 @@ import static org.awaitility.Awaitility.await;
 public class ArtistPlaysCommandTest extends CommandTest {
 
 	private static final Pattern responsePattern = Pattern.compile(
-			".+?(?=has scrobbled)has scrobbled ([\\w ]+) (\\d+)  (times|time)");
+			".+?(?=has scrobbled)has scrobbled ([\\w ]+) (\\d+) (times|time)");
 
 	@Override
 	public String giveCommandName() {
@@ -44,7 +44,7 @@ public class ArtistPlaysCommandTest extends CommandTest {
 		String groupName = matches.group(1);
 		int playCount = Integer.parseInt(matches.group(2));
 
-		Assert.assertEquals(groupName, "BLACKPINK");
+		Assert.assertTrue(groupName.equalsIgnoreCase("BLACKPINK"));
 		Assert.assertTrue(playCount >= 282);
 		Assert.assertEquals("times", matches.group(3));
 	}

@@ -53,13 +53,14 @@ public class MusicBrainzCommand extends ArtistCommand {
 		if (returned == null)
 			return;
 
-		Year year = Year.of(Integer.parseInt(returned[0]));
-		String username = returned[1];
-		String time = returned[2];
-		boolean titleWrite = !Boolean.parseBoolean(returned[3]);
-		boolean playsWrite = Boolean.parseBoolean(returned[4]);
+		Year year = Year.of(Integer.parseInt(returned[1]));
+		String username = returned[2];
+		String time = returned[3];
+		boolean titleWrite = !Boolean.parseBoolean(returned[5]);
+		boolean playsWrite = Boolean.parseBoolean(returned[6]);
 
 		int x = (int) Math.sqrt(chartSize);
+
 		calculateYearAlbums(username, time, chartSize, x, x, year, e, titleWrite, playsWrite, false);
 
 
@@ -120,7 +121,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 		});
 
 		if (queue.isEmpty()) {
-			sendMessageQueue(e, "Dont have any " + year.toString() + " album in your top " + x * y + " albums");
+			sendMessageQueue(e, "Dont have any " + year.toString() + " album in your top " + numberOfAlbumsToQueryFor + " albums");
 			return;
 		}
 		if (!caresAboutSize) {

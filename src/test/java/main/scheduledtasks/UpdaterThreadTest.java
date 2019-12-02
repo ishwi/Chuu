@@ -6,6 +6,7 @@ import dao.entities.ArtistData;
 import dao.entities.ArtistInfo;
 import dao.entities.LastFMData;
 import dao.entities.TimestampWrapper;
+import main.Chuu;
 import main.apis.discogs.DiscogsApi;
 import main.apis.last.ConcurrentLastFM;
 import main.apis.last.LastFMFactory;
@@ -37,9 +38,9 @@ public class UpdaterThreadTest {
 	public void tearDown() throws Exception {
 		dao.removeUserCompletely(1L);
 		try (Connection connection = dataSource.getConnection()) {
-			PreparedStatement preparedStatement = connection.prepareStatement("TRUNCATE `lastfm_test`.`artist_url`");
+			PreparedStatement preparedStatement = connection.prepareStatement("TRUNCATE `lastfm_test`.`corrections`");
 			preparedStatement.execute();
-			preparedStatement = connection.prepareStatement("TRUNCATE `lastfm_test`.`corrections`");
+			preparedStatement = connection.prepareStatement("Delete from `lastfm_test`.`artist_url` where artist_id like 'Raphael%' or artist_id = 'manolo'");
 			preparedStatement.execute();
 		}
 
@@ -67,6 +68,7 @@ public class UpdaterThreadTest {
 		a.add(new ArtistData("Raphael2", 3, null));
 		a.add(new ArtistData("Raphael3", 4, null));
 
+
 		TimestampWrapper<List<ArtistData>> artistDataLinkedList = new TimestampWrapper<>(a, Instant.now()
 				.get(ChronoField.MILLI_OF_SECOND) * 1000);
 		//Correction with current last fm implementation should return the same name so no correction gives
@@ -93,8 +95,8 @@ public class UpdaterThreadTest {
 		}
 		dao.incrementalUpdate(artistDataLinkedList, "manuelk");
 		correctionAdder.forEach((artistData, s) -> dao.insertCorrection(s, artistData.getArtist()));
-		assertTrue(dao.getUpdaterStatus("Rapahel1").isCorrection_status());
-		assertEquals(dao.getUpdaterStatus("Rapahel1").getArtistUrl(), "a");
+		assertTrue(dao.getUpdaterStatus("Raphael1").isCorrection_status());
+		assertEquals(dao.getUpdaterStatus("Raphael1").getArtistUrl(), "a");
 		assertNull(dao.findCorrection("Raphael1"));
 		assertEquals(dao.findCorrection("Raphael4"), lastFM.getCorrection("Raphael4"));
 	}
