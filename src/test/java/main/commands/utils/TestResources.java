@@ -65,7 +65,7 @@ public class TestResources extends ExternalResource {
 				e.printStackTrace();
 			}
 
-			Chuu.setupBot();
+			Chuu.setupBot(true);
 			ogJDA = Chuu.getPresence().getJDA();
 
 			Guild testing_server = testerJDA.getGuildById(properties.getProperty("TESTING_SERVER"));
