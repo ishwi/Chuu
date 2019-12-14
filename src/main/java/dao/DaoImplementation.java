@@ -1,8 +1,8 @@
 package dao;
 
 import dao.entities.*;
-import main.Chuu;
-import main.exceptions.InstanceNotFoundException;
+import core.Chuu;
+import core.exceptions.InstanceNotFoundException;
 import org.apache.commons.collections4.map.MultiValueMap;
 
 import java.awt.image.BufferedImage;

@@ -2,7 +2,7 @@ package dao;
 
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
-import main.exceptions.InstanceNotFoundException;
+import core.exceptions.InstanceNotFoundException;
 import org.apache.commons.collections4.map.MultiValueMap;
 import org.intellij.lang.annotations.Language;
 
@@ -60,7 +60,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 			if (!resultSet.next()) {
-				throw new main.exceptions.InstanceNotFoundException(discordId);
+				throw new core.exceptions.InstanceNotFoundException(discordId);
 			}
 
 			/* Get results. */

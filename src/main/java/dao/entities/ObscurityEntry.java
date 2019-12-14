@@ -1,6 +1,6 @@
 package dao.entities;
 
-import main.commands.CommandUtil;
+import core.commands.CommandUtil;
 
 public class ObscurityEntry extends LbEntry {
 	public ObscurityEntry(String lastFMId, long discordId, int crowns) {
