@@ -2,7 +2,7 @@ package dao;
 
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
-import main.exceptions.InstanceNotFoundException;
+import core.exceptions.InstanceNotFoundException;
 import org.apache.commons.collections4.map.MultiValueMap;
 
 import java.awt.image.BufferedImage;
@@ -14,7 +14,7 @@ interface UserGuildDao {
 
 	void insertUserData(Connection con, LastFMData lastFMData);
 
-	LastFMData findLastFmData(Connection con, long discordId) throws main.exceptions.InstanceNotFoundException;
+	LastFMData findLastFmData(Connection con, long discordId) throws core.exceptions.InstanceNotFoundException;
 
 	List<Long> guildList(Connection connection, long userId);
 

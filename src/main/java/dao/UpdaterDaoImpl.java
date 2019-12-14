@@ -1,7 +1,7 @@
 package dao;
 
 import dao.entities.*;
-import main.Chuu;
+import core.Chuu;
 import org.intellij.lang.annotations.Language;
 
 import java.sql.*;

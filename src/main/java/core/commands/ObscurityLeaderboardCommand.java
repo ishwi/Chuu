@@ -1,0 +1,35 @@
+package core.commands;
+
+import dao.DaoImplementation;
+import dao.entities.LbEntry;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class ObscurityLeaderboardCommand extends CrownLeaderboardCommand {
+	public ObscurityLeaderboardCommand(DaoImplementation dao) {
+		super(dao);
+		this.entryName = "Obscurity points";
+
+	}
+
+	@Override
+	public String getDescription() {
+		return "Gets how obscure your scrobbled artist are in relation with all the rest of the users of the bot (Not only from this server)";
+	}
+
+	@Override
+	public List<String> getAliases() {
+		return Arrays.asList("obscuritylb", "ob", "obs");
+	}
+
+	@Override
+	List<LbEntry> getList(long guildId) {
+		return getDao().getObscurityRankings(guildId);
+	}
+
+	@Override
+	public String getName() {
+		return "Obscurity";
+	}
+}

@@ -12,7 +12,8 @@ plugins {
 
 pitest {
 //    mainSourceSets = ["main.parsers*"]
-    targetClasses = ['main.*']  //by default "${project.group}.*"
+    targetClasses = ['core.*']  //by default "${project.group}.*"
+    excludedTestClasses = ['main.commands.TrackListCommandTest','main.commands.GuildCommandTest','main.commands.MusicBrainzCommandTest']
 
     threads = 1
     outputFormats = ['XML', 'HTML']
@@ -107,5 +108,11 @@ dependencies {
 // https://mvnrepository.com/artifact/org.ow2.asm/asm
     testCompile group: 'org.ow2.asm', name: 'asm', version: '7.2'
 
+// https://mvnrepository.com/artifact/org.graphwalker/graphwalker-core
+    compile group: 'org.graphwalker', name: 'graphwalker-core', version: '4.1.0'
+
+// https://mvnrepository.com/artifact/com.pholser/junit-quickcheck-core
+    //a
+    testCompile group: 'com.pholser', name: 'junit-quickcheck-core', version: '0.9'
 
 }
