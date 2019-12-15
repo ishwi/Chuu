@@ -23,23 +23,14 @@ public class ExceptionEntity {
 		return userName;
 	}
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
 
 	public String getArtistName() {
 		return artistName;
 	}
 
-	public void setArtistName(String artistName) {
-		this.artistName = artistName;
-	}
 
 	public String getAlbumName() {
 		return albumName;
 	}
 
-	public void setAlbumName(String albumName) {
-		this.albumName = albumName;
-	}
 }

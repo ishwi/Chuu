@@ -66,7 +66,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 
 	}
 
-	public void calculateYearAlbums(String username, String time, int numberOfAlbumsToQueryFor, int x, int y, Year year, MessageReceivedEvent e, boolean writeTiles, boolean writePlays, boolean caresAboutSize) throws LastFmException {
+	void calculateYearAlbums(String username, String time, int numberOfAlbumsToQueryFor, int x, int y, Year year, MessageReceivedEvent e, boolean writeTiles, boolean writePlays, boolean caresAboutSize) throws LastFmException {
 		BlockingQueue<UrlCapsule> queue = new LinkedBlockingDeque<>();
 
 		lastFM.getUserList(username, time, numberOfAlbumsToQueryFor, 1, true, queue);
@@ -138,7 +138,7 @@ public class MusicBrainzCommand extends ArtistCommand {
 
 	}
 
-	public boolean doDiscogs() {
+	boolean doDiscogs() {
 		return true;
 
 	}

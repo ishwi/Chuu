@@ -9,10 +9,10 @@ import test.commands.utils.TestResources;
 
 import java.util.List;
 
-public class UniqueArtistsGen extends Generator<UniqueData> {
+public class UniqueGen extends Generator<UniqueData> {
 	private List<UniqueData> poolOfArtist;
 
-	public UniqueArtistsGen() {
+	public UniqueGen() {
 
 		super(UniqueData.class);
 		long idLong = TestResources.channelWorker.getGuild().getIdLong();

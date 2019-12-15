@@ -27,8 +27,4 @@ public class CountryCommandTest extends CommandTest {
 
 	}
 
-	@Test
-	public void countryTestWithMockedMb() {
-
-	}
 }

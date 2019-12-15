@@ -1,7 +1,7 @@
 package dao;
 
-import dao.entities.*;
 import core.Chuu;
+import dao.entities.*;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
@@ -509,7 +509,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 	@Override
 	public StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser, long guildId) {
 		List<StolenCrown> returnList = new ArrayList<>();
-		long discordID = 0L;
+		long discordID;
 		long discordID2 = 0L;
 		@Language("MariaDB") String queryString = "SELECT \n" +
 				"    inn.artist_id as artist ,inn.orden as ogPlays , inn.discordID as ogId , inn2.discordID queriedId,  inn2.orden as queriedPlays\n" +
@@ -649,33 +649,6 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 		return getLbEntries(con, guildID, queryString, AlbumCrownLbEntry::new, false);
 	}
 
-	//TriFunction is not the simplest approach but i felt like using it so :D
-	@NotNull
-	private List<LbEntry> getLbEntries(Connection connection, long guildId, String queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needs_reSet) {
-		List<LbEntry> returnedList = new ArrayList<>();
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-			int i = 1;
-			preparedStatement.setLong(i, guildId);
-			if (needs_reSet)
-				preparedStatement.setLong(++i, guildId);
-
-			ResultSet resultSet = preparedStatement.executeQuery();
-			while (resultSet.next()) { //&& (j < 10 && j < rows)) {
-				String lastFMId = resultSet.getString("lastfmID");
-				long discordId = resultSet.getLong("discordId");
-				int crowns = resultSet.getInt("ord");
-
-				returnedList.add(fun.apply(lastFMId, discordId, crowns));
-
-
-			}
-			return returnedList;
-		} catch (SQLException e) {
-			Chuu.getLogger().warn(e.getMessage(), e);
-			throw new RuntimeException((e));
-		}
-	}
-
 	@Override
 	public ObscuritySummary getUserObscuritPoints(Connection connection, String lastfmid) {
 		@Language("MariaDB") String queryString = "\tSelect  b, other_plays_on_my_artists, unique_coefficient,\n" +
@@ -732,6 +705,60 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 			Chuu.getLogger().warn(e.getMessage(), e);
 		}
 		return null;
+	}
+
+	@Override
+	public int getRandomCount(Connection connection, Long userId) {
+		@Language("MariaDB") String queryString = "SELECT \n" +
+				"  count(*) as counted " +
+				"FROM\n" +
+				"    randomlinks \n";
+		if (userId != null) {
+			queryString += "WHERE discordId = ?";
+
+		}
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			if (userId != null) {
+				preparedStatement.setLong(1, userId);
+			}
+			ResultSet resultSet = preparedStatement.executeQuery();
+			if (!resultSet.next()) {
+				return 0;
+			}
+
+			return resultSet.getInt("counted");
+
+		} catch (SQLException e) {
+			Chuu.getLogger().error(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	//TriFunction is not the simplest approach but i felt like using it so :D
+	@NotNull
+	private List<LbEntry> getLbEntries(Connection connection, long guildId, String queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needs_reSet) {
+		List<LbEntry> returnedList = new ArrayList<>();
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			int i = 1;
+			preparedStatement.setLong(i, guildId);
+			if (needs_reSet)
+				preparedStatement.setLong(++i, guildId);
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) { //&& (j < 10 && j < rows)) {
+				String lastFMId = resultSet.getString("lastfmID");
+				long discordId = resultSet.getLong("discordId");
+				int crowns = resultSet.getInt("ord");
+
+				returnedList.add(fun.apply(lastFMId, discordId, crowns));
+
+
+			}
+			return returnedList;
+		} catch (SQLException e) {
+			Chuu.getLogger().warn(e.getMessage(), e);
+			throw new RuntimeException((e));
+		}
 	}
 }
 

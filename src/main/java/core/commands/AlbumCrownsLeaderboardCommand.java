@@ -6,8 +6,8 @@ import dao.entities.LbEntry;
 import java.util.Arrays;
 import java.util.List;
 
-public class AlbumCronwsLeaderboardCommand extends CrownLeaderboardCommand {
-	public AlbumCronwsLeaderboardCommand(DaoImplementation dao) {
+public class AlbumCrownsLeaderboardCommand extends CrownLeaderboardCommand {
+	public AlbumCrownsLeaderboardCommand(DaoImplementation dao) {
 		super(dao);
 		this.entryName = "Album Crowns";
 

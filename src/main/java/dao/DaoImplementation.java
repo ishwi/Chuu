@@ -1,10 +1,11 @@
 package dao;
 
-import dao.entities.*;
 import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
+import dao.entities.*;
 import org.apache.commons.collections4.map.MultiValueMap;
 
+import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -548,6 +549,22 @@ public class DaoImplementation {
 		}
 	}
 
+
+	public int randomCount(@Nullable Long userId) {
+		try (Connection connection = dataSource.getConnection()) {
+			return (queriesDao.getRandomCount(connection, userId));
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public boolean randomUrlExists(String url) {
+		try (Connection connection = dataSource.getConnection()) {
+			return (updaterDao.findRandomUrlById(connection, url) != null);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public boolean addToRandomPool(RandomUrlEntity randomUrlEntity) {
 		try (Connection connection = dataSource.getConnection()) {

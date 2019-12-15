@@ -28,15 +28,10 @@ public class UpdateCommand extends MyCommand {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-		String[] returned;
-		returned = parser.parse(e);
-
-		if (returned == null)
-			return;
+		String[] returned = parser.parse(e);
 		String lastFmName = returned[0];
 		long discordID = Long.parseLong(returned[1]);
 		String userString = getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
-
 			if (e.isFromGuild()) {
 				if (getDao().getAll(e.getGuild().getIdLong()).stream()
 						.noneMatch(s -> s.getLastFMName().equals(lastFmName))) {

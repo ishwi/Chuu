@@ -68,7 +68,7 @@ public class ProfileCommandTest extends CommandTest {
 	}
 
 	@Test
-	public void normalUsageImage() throws LastFmException {
+	public void normalUsageImage() {
 
 		ImageUtils.testImage(COMMAND_ALIAS + " --image", 1080, 1920, 50, ".png");
 	}

@@ -7,11 +7,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.concurrent.ExecutorService;
 
 
-public abstract class ConcurrentCommand extends MyCommand {
+abstract class ConcurrentCommand extends MyCommand {
 	private final ExecutorService executor = ExecutorsSingleton.getInstanceUsingDoubleLocking();
 
 
-	public ConcurrentCommand(DaoImplementation dao) {
+	ConcurrentCommand(DaoImplementation dao) {
 		super(dao);
 	}
 

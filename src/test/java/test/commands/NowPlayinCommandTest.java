@@ -2,7 +2,7 @@ package test.commands;
 
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
-import core.commands.ConcurrentCommand;
+
 import core.exceptions.LastFmException;
 import dao.entities.NowPlayingArtist;
 import org.junit.Test;
@@ -10,11 +10,9 @@ import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedWithFieldsUtils;
 import test.commands.utils.FieldRowMatcher;
-import test.commands.utils.TestResources;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class NowPlayinCommandTest extends CommandTest {

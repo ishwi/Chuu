@@ -10,7 +10,6 @@ import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.Parser;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Member;
@@ -141,7 +140,7 @@ public abstract class MyCommand extends ListenerAdapter {
 		}
 	}
 
-	public String getUserString(Long discordId, MessageReceivedEvent e, String replacement) {
+	String getUserString(Long discordId, MessageReceivedEvent e, String replacement) {
 
 		if (e.getChannelType().isGuild()) {
 			Member member = e.getGuild().getMemberById(discordId);

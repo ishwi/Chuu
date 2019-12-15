@@ -73,7 +73,7 @@ public class HelpCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+	public void onCommand(MessageReceivedEvent e) {
 		Character prefix = Chuu.getCorrespondingPrefix(e);
 		String[] args = commandArgs(e.getMessage());
 
@@ -133,15 +133,14 @@ public class HelpCommand extends ConcurrentCommand {
 		}
 	}
 
-	public void doSend(String[] args, MessageChannel channel, Character prefix) {
+	private void doSend(String[] args, MessageChannel channel, Character prefix) {
 		String command = args[1]
 				.charAt(0) == prefix ? args[1] : "" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
 		for (MyCommand c : commands.values()) {
 			if (c.getAliases().contains(command)) {
 				String name = c.getName();
 				String description = c.getDescription();
-				String usageInstructions = "";
-				usageInstructions = c.getUsageInstructions();
+				String usageInstructions = c.getUsageInstructions();
 
 				name = (name == null || name.isEmpty()) ? NO_NAME : name;
 				description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;

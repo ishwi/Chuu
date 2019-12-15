@@ -1,14 +1,5 @@
 package core.commands;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import javax.annotation.Nonnull;
-
 import core.Chuu;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
@@ -17,6 +8,10 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.internal.JDAImpl;
+
+import javax.annotation.Nonnull;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class CustomInterfacedEventManager implements IEventManager {
 
@@ -27,10 +22,32 @@ public class CustomInterfacedEventManager implements IEventManager {
 
 	}
 
-	@Nonnull
 	@Override
-	public List<Object> getRegisteredListeners() {
-		return Collections.unmodifiableList(new LinkedList<>(listeners));
+	public void register(@Nonnull Object listener) {
+		if (!(listener instanceof EventListener))
+			throw new IllegalArgumentException("Listener must implement EventListener");
+		if ((listener instanceof MyCommand)) {
+			MyCommand myCommand = (MyCommand) listener;
+			List<String> aliases = myCommand.getAliases();
+			for (String alias : aliases) {
+				commandListeners.put(alias, myCommand);
+			}
+
+		}
+		listeners.add(((EventListener) listener));
+	}
+
+	@Override
+	public void unregister(@Nonnull Object listener) {
+		if ((listener instanceof MyCommand)) {
+			MyCommand myCommand = (MyCommand) listener;
+			List<String> aliases = myCommand.getAliases();
+			for (String alias : aliases) {
+				commandListeners.remove(alias);
+			}
+
+		}
+		listeners.remove(listener);
 	}
 
 	/**
@@ -73,31 +90,9 @@ public class CustomInterfacedEventManager implements IEventManager {
 		}
 	}
 
+	@Nonnull
 	@Override
-	public void register(@Nonnull Object listener) {
-		if (!(listener instanceof EventListener))
-			throw new IllegalArgumentException("Listener must implement EventListener");
-		if ((listener instanceof MyCommand)) {
-			MyCommand myCommand = (MyCommand) listener;
-			List<String> aliases = myCommand.getAliases();
-			for (String alias : aliases) {
-				commandListeners.put(alias, myCommand);
-			}
-
-		}
-		listeners.add(((EventListener) listener));
-	}
-
-	@Override
-	public void unregister(@Nonnull Object listener) {
-		if ((listener instanceof MyCommand)) {
-			MyCommand myCommand = (MyCommand) listener;
-			List<String> aliases = myCommand.getAliases();
-			for (String alias : aliases) {
-				commandListeners.remove(alias);
-			}
-
-		}
-		listeners.remove(listener);
+	public List<Object> getRegisteredListeners() {
+		return Collections.unmodifiableList(new LinkedList<>(listeners));
 	}
 }
