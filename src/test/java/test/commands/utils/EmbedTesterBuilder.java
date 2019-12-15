@@ -5,10 +5,8 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.awaitility.Awaitility.await;
-
 public class EmbedTesterBuilder {
-    private String command;
+    private final String command;
     private Pattern footerPatern;
     private Predicate<Matcher> footerMatch;
     private Pattern titlePattern;

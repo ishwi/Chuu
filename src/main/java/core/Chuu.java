@@ -179,7 +179,7 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new CrownsStolenCommand(dao)))
 				.addEventListeners(help.registerCommand(new FavesFromArtistCommand(dao)))
 				.addEventListeners(help.registerCommand(new AlbumCrownsCommand(dao)))
-				.addEventListeners(help.registerCommand(new AlbumCronwsLeaderboardCommand(dao)))
+				.addEventListeners(help.registerCommand(new AlbumCrownsLeaderboardCommand(dao)))
 				.addEventListeners(help.registerCommand(new PrefixCommand(dao)))
 				.addEventListeners(help.registerCommand(new DailyCommand(dao)))
 				.addEventListeners(help.registerCommand(new WeeklyCommand(dao)))

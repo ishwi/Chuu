@@ -7,7 +7,7 @@ import core.exceptions.LastFmException;
 import core.parsers.NpParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public abstract class NpCommand extends ConcurrentCommand {
+abstract class NpCommand extends ConcurrentCommand {
 
 
 	NpCommand(DaoImplementation dao) {

@@ -12,10 +12,13 @@ plugins {
 
 pitest {
 //    mainSourceSets = ["main.parsers*"]
+
     targetClasses = ['core.*']  //by default "${project.group}.*"
-    excludedTestClasses = ['main.commands.TrackListCommandTest','main.commands.GuildCommandTest','main.commands.MusicBrainzCommandTest']
+    targetTests = ['test.*']
+    excludedTestClasses = ['test.commands.TrackListCommandTest','test.commands.MusicBrainzCommandTest','test.properties.*','test.state.*']
 
     threads = 1
+    verbose = true
     outputFormats = ['XML', 'HTML']
     timestampedReports = false
 }
@@ -24,7 +27,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'info.solidsoft.pitest'
 
-mainClassName = "main.Chuu"
+mainClassName = "core.Chuu"
 
 group 'ish'
 version '1.0'
@@ -109,7 +112,9 @@ dependencies {
     testCompile group: 'org.ow2.asm', name: 'asm', version: '7.2'
 
 // https://mvnrepository.com/artifact/org.graphwalker/graphwalker-core
-    compile group: 'org.graphwalker', name: 'graphwalker-core', version: '4.1.0'
+//    compile group: 'org.graphwalker', name: 'graphwalker-core', version: '4.1.0'
+// https://mvnrepository.com/artifact/org.graphwalker/graphwalker-java
+    testCompile group: 'org.graphwalker', name: 'graphwalker-java', version: '4.1.0'
 
 // https://mvnrepository.com/artifact/com.pholser/junit-quickcheck-core
     //a

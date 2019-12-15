@@ -63,7 +63,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
 				}));
 
 		npList.forEach((usersWrapper, optionalNowPlayingArtist) -> {
-					if (!optionalNowPlayingArtist.isPresent())
+					if (optionalNowPlayingArtist.isEmpty())
 						return;
 					NowPlayingArtist nowPlayingArtist = optionalNowPlayingArtist.get();
 					if (showFresh) {

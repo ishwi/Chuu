@@ -44,20 +44,20 @@ public class AlbumCrownsCommandTest extends CommandTest {
 	@Test
 	public void stolenCrowns() {
 
-		Pattern noEmbeddedPatern = Pattern.compile("(.*) hasn't stolen anything from (.*)");
+		Pattern noEmbeddedPattern = Pattern.compile("(.*) hasn't stolen anything from (.*)");
 
-		Pattern noEmbeddedPatern2 = Pattern.compile("Sis, dont use the same person twice");
+		Pattern noEmbeddedPattern2 = Pattern.compile("Sis, dont use the same person twice");
 
 		String titleRegex = ".*?(?=Top 10 crowns Stolen by )Top 10 crowns Stolen by .*";
 		TestResources.insertCommonArtistWithPlays(Integer.MAX_VALUE);
 		EmbedUtils.testLeaderboardEmbed("!stolen " + TestResources.ogJDA.getSelfUser()
-				.getAsMention(), EmbedUtils.stolenRegex, titleRegex, false, false, noEmbeddedPatern);
+				.getAsMention(), EmbedUtils.stolenRegex, titleRegex, false, false, noEmbeddedPattern);
 		TestResources.insertCommonArtistWithPlays(1);
 		EmbedUtils.testLeaderboardEmbed("!stolen " + TestResources.ogJDA.getSelfUser()
-				.getAsMention(), EmbedUtils.stolenRegex, titleRegex, false, false, noEmbeddedPatern);
+				.getAsMention(), EmbedUtils.stolenRegex, titleRegex, false, false, noEmbeddedPattern);
 
 		EmbedUtils.testLeaderboardEmbed("!stolen " + TestResources.testerJDA.getSelfUser()
-				.getAsMention(), EmbedUtils.stolenRegex, titleRegex, false, false, noEmbeddedPatern2);
+				.getAsMention(), EmbedUtils.stolenRegex, titleRegex, false, false, noEmbeddedPattern2);
 
 	}
 

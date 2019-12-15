@@ -58,9 +58,9 @@ public class RandomAlbumParser extends Parser {
 			if (matches.group(1) != null && matches.group(2) != null) {
 				url = "https://www.deezer.com/" + matches.group(1) + "/" + matches.group(2);
 			}
-		} else if ((matches = soundCloundPattern.matcher(url)).matches()) {
+		} else if (soundCloundPattern.matcher(url).matches()) {
 			group = "soundCloud";
-		} else if ((matches = bandCampPatter.matcher(url)).matches()) {
+		} else if (bandCampPatter.matcher(url).matches()) {
 			group = "bandcamp";
 		} else {
 			sendError(getErrorMessage(1), e);

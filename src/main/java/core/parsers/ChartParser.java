@@ -71,7 +71,7 @@ public class ChartParser extends DaoParser {
 	}
 
 	@Override
-	public void setUpErrorMessages() {
+	protected void setUpErrorMessages() {
 		super.setUpErrorMessages();
 		errorMessages.put(5, "You Introduced too many words");
 		errorMessages.put(6, "0 is not a valid value for a chart!");

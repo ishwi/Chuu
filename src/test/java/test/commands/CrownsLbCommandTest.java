@@ -1,4 +1,4 @@
 package test.commands;
 
-public class CrownsLbCommandTest {
+class CrownsLbCommandTest {
 }

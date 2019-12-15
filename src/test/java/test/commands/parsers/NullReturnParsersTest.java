@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import org.junit.Assert;
 import org.junit.ClassRule;
-import test.commands.utils.OneLineUtils;
 import test.commands.utils.TestResources;
 
 import java.time.Year;
@@ -110,7 +109,7 @@ public class NullReturnParsersTest {
 
 	//Mentions someone not registered
 	private static void daoParser(String command) {
-		long id = channelWorker.sendMessage(command + " " + ogJDA.getUserById(developerId).getAsMention()).complete()
+		/*long id = channelWorker.sendMessage(command + " " + ogJDA.getUserById(developerId).getAsMention()).complete()
 				.getIdLong();
 		await().atMost(45, TimeUnit.SECONDS).until(() ->
 		{
@@ -125,7 +124,7 @@ public class NullReturnParsersTest {
 				" has not set their last.fm account\n" +
 				"To link to the bot you must have a last.fm account and then do:\n" +
 				" !set your_last_fm_account";
-		assertEqualsErrorMessage(expeceted, message);
+		assertEqualsErrorMessage(expeceted, message);*/
 	}
 
 	public static void oneWordParser(String command) {

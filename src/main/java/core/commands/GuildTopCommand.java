@@ -33,7 +33,7 @@ public class GuildTopCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+	public void onCommand(MessageReceivedEvent e) {
 		List<UrlCapsule> resultWrapper = getDao().getGuildTop(e.getGuild().getIdLong());
 		BufferedImage image = GuildMaker.generateCollageThreaded(5, 5, new LinkedBlockingDeque<>(resultWrapper));
 		sendImage(image, e);

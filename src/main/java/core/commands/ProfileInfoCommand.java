@@ -114,7 +114,4 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 		return "Profile";
 	}
 
-	private void generateImage() {
-
-	}
 }

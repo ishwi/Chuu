@@ -39,7 +39,7 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 	}
 
 	@Override
-	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+	public void onCommand(MessageReceivedEvent e) {
 		List<LbEntry> list = getList(e.getGuild().getIdLong());
 		printList(list, e);
 	}

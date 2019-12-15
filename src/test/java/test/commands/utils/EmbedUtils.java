@@ -11,31 +11,31 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EmbedUtils {
-	public static Pattern descriptionArtistRegex = Pattern.compile(
+	public static final Pattern descriptionArtistRegex = Pattern.compile(
 			"(\\d+)" + //Indexed list *captured
 					"\\. \\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //Markdown link
 					"(?=(?: -|:))(?: -|:) " + //anything until a ":" or a " -"
 					"(\\d+) " + //count of the description *captured
 					"(play(?:s)?|(?:album )?crown(?:s)?|obscurity points|artist(?:s)?|unique artist(?:s)?)");
 	//ending
-	public static Pattern descriptionArtistRegexNoMarkDownLink = Pattern.compile(
+	public static final Pattern descriptionArtistRegexNoMarkDownLink = Pattern.compile(
 			"(\\d+)" + //Indexed list *captured
 					"\\. (?:.*) [-:] " + // aristName
 					"(\\d+) " + //count of the description *captured
 					"(play(?:s)?|(?:album )?crown(?:s)?|obscurity points|artist(?:s)?|unique artist(?:s)?)");
-	public static Pattern stolenRegex = Pattern.compile(
+	public static final Pattern stolenRegex = Pattern.compile(
 			"(\\d+)" + //Indexed list *captured
 					"\\. \\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //Markdown link
 					"(?= : )(?: : )" + //anything until a ":"
 					"(\\d+)" + //your plays
 					"(?: -> )(?:\\d+)"); //Separator and other user plays
-	public static Pattern descriptionArtistAlbumRegex = Pattern.compile(
+	public static final Pattern descriptionArtistAlbumRegex = Pattern.compile(
 			"(\\d+)\\. " + //digit
 					"\\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //markdown url
 					"(?= - ) - (\\d+) play(?:s)?"); /// remaining
-	public static String serverThumbnail;
-	public static String testerJDAThumbnail;
-	public static String ogJDAThumbnail;
+	private static String serverThumbnail;
+	private static String testerJDAThumbnail;
+	private static String ogJDAThumbnail;
 	public Function<String, String> getArtistThumbnail = (artistName) ->
 			TestResources.dao.getArtistUrl(artistName);
 
@@ -108,7 +108,7 @@ public class EmbedUtils {
 
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		testerJDAThumbnail = TestResources.testerJDA.getSelfUser().getAvatarUrl();
 		ogJDAThumbnail = TestResources.ogJDA.getSelfUser().getAvatarUrl();
 		serverThumbnail = TestResources.channelWorker.getGuild().getIconUrl();
