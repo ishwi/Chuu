@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
-public class UpdaterThreadTest {
+public class UpdaterThreadLogicTest {
 	private Spotify spotify;
 	private DaoImplementation dao;
 	private DiscogsApi discogsApi;
