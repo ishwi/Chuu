@@ -1,11 +1,11 @@
 package core.scheduledtasks;
 
-import dao.DaoImplementation;
-import dao.entities.ArtistInfo;
 import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.exceptions.DiscogsServiceException;
+import dao.DaoImplementation;
+import dao.entities.ArtistInfo;
 
 import java.util.Set;
 
@@ -27,7 +27,6 @@ public class ImageUpdaterThread implements Runnable {
 			String url;
 			System.out.println("Working with artist " + artistDatum);
 			try {
-				Thread.sleep(1000);
 				url = discogsApi.findArtistImage(artistDatum);
 				if (url != null) {
 
@@ -38,13 +37,10 @@ public class ImageUpdaterThread implements Runnable {
 				}
 			} catch (DiscogsServiceException e) {
 				Chuu.getLogger().warn(e.getMessage(), e);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+
+
 			}
-
 		}
-
-
 	}
 
 

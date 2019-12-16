@@ -1,5 +1,20 @@
 package core.scheduledtasks;
 
+import core.Chuu;
+import core.apis.discogs.DiscogsApi;
+import core.apis.discogs.DiscogsSingleton;
+import core.apis.last.ConcurrentLastFM;
+import core.apis.last.LastFMFactory;
+import core.apis.spotify.Spotify;
+import core.apis.spotify.SpotifySingleton;
+import core.commands.CommandUtil;
+import core.exceptions.LastFMNoPlaysException;
+import core.exceptions.LastFmEntityNotFoundException;
+import dao.DaoImplementation;
+import dao.entities.ArtistData;
+import dao.entities.TimestampWrapper;
+import dao.entities.UpdaterUserWrapper;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -8,45 +23,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import dao.DaoImplementation;
-import dao.entities.ArtistData;
-import dao.entities.TimestampWrapper;
-import dao.entities.UpdaterUserWrapper;
-import core.Chuu;
-import core.apis.discogs.DiscogsApi;
-import core.apis.last.ConcurrentLastFM;
-import core.apis.last.LastFMFactory;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
-import core.commands.CommandUtil;
-import core.exceptions.LastFMNoPlaysException;
-import core.exceptions.LastFmEntityNotFoundException;
-
 public class UpdaterThread implements Runnable {
 
 	private final DaoImplementation dao;
 	private final ConcurrentLastFM lastFM;
 	private final Spotify spotify;
-	private UpdaterUserWrapper username;
-	private boolean isIncremental;
-	private DiscogsApi discogsApi;
+	private final boolean isIncremental;
+	private final DiscogsApi discogsApi;
 
-	private UpdaterThread(DaoImplementation dao) {
+
+	public UpdaterThread(DaoImplementation dao, boolean isIncremental) {
 		this.dao = dao;
 		lastFM = LastFMFactory.getNewInstance();
 		spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
-	}
-
-	private UpdaterThread(DaoImplementation dao, UpdaterUserWrapper username, boolean isIncremental) {
-		this(dao);
-		this.username = username;
+		discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
 		this.isIncremental = isIncremental;
-	}
-
-	public UpdaterThread(DaoImplementation dao, UpdaterUserWrapper username, boolean isIncremental,
-			DiscogsApi discogsApi) {
-		this(dao, username, isIncremental);
-		this.discogsApi = discogsApi;
 	}
 
 	@Override
@@ -56,19 +47,15 @@ public class UpdaterThread implements Runnable {
 			UpdaterUserWrapper userWork;
 			Random r = new Random();
 			float chance = r.nextFloat();
-
-			if (username == null) {
-				userWork = dao.getLessUpdated();
-			} else {
-				userWork = username;
-			}
+			userWork = dao.getLessUpdated();
 
 			try {
 				if (isIncremental && chance <= 0.93f) {
 					Map<ArtistData, String> correctionAdder = new HashMap<>();
 
-					TimestampWrapper<List<ArtistData>> artistDataLinkedList = lastFM.getWhole(userWork.getLastFMName(),
-							userWork.getTimestamp());
+					TimestampWrapper<List<ArtistData>> artistDataLinkedList = lastFM
+							.getWhole(userWork.getLastFMName(),
+									userWork.getTimestamp());
 
 					// Correction with current last fm implementation should return the same name so
 					// no correction gives

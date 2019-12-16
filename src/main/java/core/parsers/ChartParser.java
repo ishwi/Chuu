@@ -45,6 +45,7 @@ public class ChartParser extends DaoParser {
 			subMessage = Arrays.stream(subMessage).filter(s -> !s.equals(opt.get())).toArray(String[]::new);
 			if (x.equals("0") || y.equals("0")){
 				sendError(getErrorMessage(6),e);
+				return null;
 			}
 		}
 

@@ -22,11 +22,6 @@ public class SpotifyUpdaterThread implements Runnable {
 		System.out.println("Found at lest Spotify " + artistData.size() + "null artist ");
 		for (String artistDatum : artistData) {
 			String url;
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 			System.out.println("Working with artist " + artistDatum);
 			url = spotifyApi.getArtistUrlImage(artistDatum);
 			if (url != null) {

@@ -1,12 +1,12 @@
 package core;
 
-import dao.DaoImplementation;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.*;
 import core.scheduledtasks.ImageUpdaterThread;
 import core.scheduledtasks.SpotifyUpdaterThread;
 import core.scheduledtasks.UpdaterThread;
+import dao.DaoImplementation;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -57,7 +57,7 @@ public class Chuu {
 
 	}
 
-	public static void main(String[] args) throws  InterruptedException {
+	public static void main(String[] args) throws InterruptedException {
 		if (System.getProperty("file.encoding").equals("UTF-8")) {
 			setupBot(false);
 		} else {
@@ -95,7 +95,7 @@ public class Chuu {
 		}
 	}
 
-	private static File getThisJarFile()  {
+	private static File getThisJarFile() {
 		// Gets the path of the currently running Jar file
 		String path = Chuu.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
@@ -106,10 +106,6 @@ public class Chuu {
 			return new File("Chuu.jar");
 		return new File(decodedPath); // We use File so that when we send the path to the ProcessBuilder, we will be
 		// using the proper System path formatting.
-	}
-
-	public static Logger getLogger() {
-		return logger;
 	}
 
 	public static void setupBot(boolean isTest) {
@@ -126,9 +122,9 @@ public class Chuu {
 		PrefixCommand prefixCommand = new PrefixCommand(dao);
 
 		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(3);
-		if(!isTest) {
+		if (!isTest) {
 			scheduledManager.scheduleAtFixedRate(
-					new UpdaterThread(dao, null, true, DiscogsSingleton.getInstanceUsingDoubleLocking()), 0, 60,
+					new UpdaterThread(dao, true), 0, 60,
 					TimeUnit.SECONDS);
 			scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
 			scheduledManager.scheduleAtFixedRate(
@@ -195,6 +191,10 @@ public class Chuu {
 		} catch (LoginException | InterruptedException e) {
 			Chuu.getLogger().warn(e.getMessage(), e);
 		}
+	}
+
+	public static Logger getLogger() {
+		return logger;
 	}
 
 	private static Map<Long, Character> initPrefixMap(DaoImplementation dao) {
