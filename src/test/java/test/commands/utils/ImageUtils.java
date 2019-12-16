@@ -6,9 +6,9 @@ import net.dv8tion.jda.api.entities.MessageHistory;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static test.commands.utils.TestResources.channelWorker;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
+import static test.commands.utils.TestResources.channelWorker;
 
 public class ImageUtils {
 
@@ -71,6 +71,29 @@ public class ImageUtils {
 		batteryTestForImage(message, isSizeLimit, height, width, formats);
 
 	}
+
+
+	public static void testImageWithPreWarningDeletable(String command, String warningMessage, boolean isSizeLimit, int height, int width, int timeout, String... formats) {
+		long id = channelWorker.sendMessage(command).complete().getIdLong();
+		await().atMost(timeout, TimeUnit.SECONDS).until(() ->
+		{
+			MessageHistory complete = channelWorker.getHistoryAfter(id, 20).complete();
+			return complete.getRetrievedHistory().size() == 1;
+		});
+
+		Message warning = channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
+		assertEquals(warning.getContentStripped(), warningMessage);
+		await().atMost(timeout, TimeUnit.SECONDS).until(() ->
+		{
+			MessageHistory complete = channelWorker.getHistoryAfter(id, 20).complete();
+			return complete.getRetrievedHistory().size() == 1 && !complete.getRetrievedHistory().get(0).getAttachments()
+					.isEmpty();
+		});
+		Message message = channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
+		batteryTestForImage(message, isSizeLimit, height, width, formats);
+
+	}
+
 
 	public static void testImageWithPreWarning(String command, String warningMessage, int height, int width, int timeout, String... formats) {
 		testImageWithPreWarning(command, warningMessage, false, height, width, timeout, formats);

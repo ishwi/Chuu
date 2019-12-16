@@ -15,12 +15,14 @@ public class Beans {
 
 	// The package to test
 	private static final String POJO_PACKAGE = "dao.entities";
+	private static final String EXCEPTION_PACKAGE = "core.exceptions";
 
 	@Test
 	public void ensureExpectedPojoCount() {
 
 		List<PojoClass> pojoClasses = PojoClassFactory.getPojoClasses(POJO_PACKAGE,
 				new FilterPackageInfo());
+		pojoClasses.addAll(PojoClassFactory.getPojoClasses(EXCEPTION_PACKAGE,new FilterPackageInfo()));
 		//Affirm.affirmEquals("Classes added / removed?", EXPECTED_CLASS_COUNT, pojoClasses.size());
 	}
 
@@ -35,6 +37,7 @@ public class Beans {
 				// Add Testers to validate behaviour for POJO_PACKAGE
 				// See com.openpojo.validation.test.impl for more ...
 				.with(new SetterTester())
+//				.with(new )
 				.with(new GetterTester())
 				.build();
 

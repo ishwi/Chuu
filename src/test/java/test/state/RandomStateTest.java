@@ -13,18 +13,18 @@ import org.graphwalker.core.model.Guard;
 import org.graphwalker.core.model.Model;
 import org.graphwalker.core.model.Vertex;
 import org.junit.*;
+import org.junit.rules.TestRule;
 import test.commands.utils.TestResources;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Random;
 
-
 public class RandomStateTest extends ExecutionContext implements RandomState {
 
 
 	@ClassRule
-	public static final TestResources res = new TestResources();
+	public static final TestRule res = TestResources.INSTANCE;
 	private static final String[] validAndInvalidUrls = new String[]{
 			"https://open.spotify.com/album/3DcOkGnGL9cZgq9G1R75HE?si=ZxAlBG36TMK0rR5FZDtl9w",
 			"https://open.spotify.com/album/1uhwfCCEWi4q8Yzv9QBJ0w?si=pU_tTcm9R5CJT7m2HrWFiA",

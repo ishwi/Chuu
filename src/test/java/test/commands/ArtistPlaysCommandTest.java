@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public class ArtistPlaysCommandTest extends CommandTest {
 
 	private static final Pattern responsePattern = Pattern.compile(
-			".+?(?=has scrobbled)has scrobbled ([\\w ]+) (\\d+) (times|time)");
+			".+?(?=has scrobbled)has scrobbled (.*) (\\d+) (times|time)");
 
 	private static final BiFunction<String, Integer, Predicate<Matcher>> matcher = (s, i) -> matcher -> {
 		String groupName = matcher.group(1);

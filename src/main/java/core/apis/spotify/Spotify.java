@@ -45,39 +45,7 @@ public class Spotify {
 		}
 	}
 
-	public String search(String queryString, int type) {
-		initRequest();
-		SearchItemRequest request = spotifyApi.searchItem(queryString, "")
-				.market(CountryCode.NZ).limit(1).build();
-		try {
-			SearchResult result = request.execute();
 
-			Paging<Artist> artists = result.getArtists();
-			if (artists.getItems().length != 0) {
-				Artist a = artists.getItems()[0];
-				return "https://open.spotify.com/artist/" + a.getUri().split("spotify:artist:")[1];
-			}
-			Paging<AlbumSimplified> albums = result.getAlbums();
-			if (albums.getItems().length != 0) {
-				AlbumSimplified a = albums.getItems()[0];
-				return "https://open.spotify.com/albums/" + a.getUri().split("spotify:albums:")[1];
-			}
-			Paging<PlaylistSimplified> playlists = result.getPlaylists();
-
-			if (playlists.getItems().length != 0) {
-				PlaylistSimplified a = playlists.getItems()[0];
-				return "https://open.spotify.com/playlist/" + a.getUri().split("spotify:playlist:")[1];
-			}
-			Paging<Track> tracks = result.getTracks();
-			if (tracks.getItems().length != 0) {
-				Track a = tracks.getItems()[0];
-				return "https://open.spotify.com/track/" + a.getUri().split("spotify:track:")[1];
-			}
-		} catch (IOException | SpotifyWebApiException e) {
-			Chuu.getLogger().warn(e.getMessage(), e);
-		}
-		return "";
-	}
 
 	private void initRequest() {
 		if (!this.time.isAfter(LocalDateTime.now())) {

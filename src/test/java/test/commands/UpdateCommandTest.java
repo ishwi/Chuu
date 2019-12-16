@@ -1,5 +1,6 @@
 package test.commands;
 
+import org.junit.Test;
 import test.commands.utils.CommandTest;
 import test.commands.utils.OneLineUtils;
 
@@ -12,6 +13,7 @@ public class UpdateCommandTest extends CommandTest {
 	}
 
 	@Override
+	@Test
 	public void nullParserReturned() {
 		Pattern compile = Pattern.compile("Successfully updated (.*) info !");
 		OneLineUtils.testCommands(COMMAND_ALIAS, compile);

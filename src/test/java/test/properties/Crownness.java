@@ -15,24 +15,26 @@ import test.commands.utils.TestResources;
 import java.util.List;
 
 @RunWith(JUnitQuickcheck.class)
-public class Uniqueness {
+public class Crownness {
 	@ClassRule
-	public static  final TestRule res = TestResources.INSTANCE;
+
+	public static final TestRule res = TestResources.INSTANCE;
 
 	@Property
-	public void onlyOneUser(@From(UniqueGen.class) UniqueData uniqueData) {
+	public void youAreFirst(@From(CrownGen.class) UniqueData uniqueData) {
 
-
+		//Who knows the given artist
 		WrapperReturnNowPlaying wrapperReturnNowPlaying = TestResources.dao
 				.whoKnows(uniqueData.getArtistName(), TestResources.channelWorker.getGuild()
 						.getIdLong(), Integer.MAX_VALUE);
 
 		System.out.println(uniqueData.getArtistName());
+
 		List<ReturnNowPlaying> returnNowPlayings = wrapperReturnNowPlaying.getReturnNowPlayings();
-		Assert.assertEquals(1, returnNowPlayings.size());
+		//We know there is at least one
+		Assert.assertTrue(returnNowPlayings.size() >= 1);
+		//we should be the first one
 		Assert.assertEquals(returnNowPlayings.get(0).getLastFMId(), "pablopita");
 
 	}
-
-
 }

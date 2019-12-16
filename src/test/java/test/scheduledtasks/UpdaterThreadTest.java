@@ -1,16 +1,17 @@
 package test.scheduledtasks;
 
+import core.apis.discogs.DiscogsApi;
+import core.apis.last.ConcurrentLastFM;
+import core.apis.last.LastFMFactory;
+import core.apis.spotify.Spotify;
+import core.commands.CommandUtil;
+import core.exceptions.DiscogsServiceException;
 import dao.DaoImplementation;
 import dao.SimpleDataSource;
 import dao.entities.ArtistData;
 import dao.entities.ArtistInfo;
 import dao.entities.LastFMData;
 import dao.entities.TimestampWrapper;
-import core.apis.discogs.DiscogsApi;
-import core.apis.last.ConcurrentLastFM;
-import core.apis.last.LastFMFactory;
-import core.apis.spotify.Spotify;
-import core.commands.CommandUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +26,9 @@ import java.time.temporal.ChronoField;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 public class UpdaterThreadTest {
@@ -40,33 +44,40 @@ public class UpdaterThreadTest {
 		try (Connection connection = dataSource.getConnection()) {
 			PreparedStatement preparedStatement = connection.prepareStatement("TRUNCATE `lastfm_test`.`corrections`");
 			preparedStatement.execute();
-			preparedStatement = connection.prepareStatement("Delete from `lastfm_test`.`artist_url` where artist_id like 'Raphael%' or artist_id = 'manolo'");
+			preparedStatement = connection
+					.prepareStatement("Delete from `lastfm_test`.`artist_url` where artist_id like 'Raphael%' or artist_id = 'manolo'");
 			preparedStatement.execute();
 		}
 
 	}
 
 	@Before
-	public void setUp() throws SQLException {
+	public void setUp() throws SQLException, DiscogsServiceException {
 
 		dataSource = new SimpleDataSource("/datasource.properties");
-		discogsApi = new DiscogsMockup();
-		spotify = null;
+		discogsApi = mock(DiscogsApi.class);
+		when(discogsApi.findArtistImage(anyString())).thenReturn("a");
+		when(discogsApi.getYearRelease(anyString(), anyString())).thenReturn(Year.now());
+		spotify = mock(Spotify.class);
+		when(spotify.getArtistUrlImage(anyString())).thenReturn("a");
+
 		lastFM = LastFMFactory.getNewInstance();
+
 		dao = new DaoImplementation(dataSource);
 		dao.insertArtistDataList(new LastFMData("manuelk", 1));
 		dao.insertArtistDataList(Collections.emptyList(), "manuelk");
 		try (Connection connection = dataSource.getConnection()) {
 			PreparedStatement preparedStatement = connection.prepareStatement("TRUNCATE `lastfm_test`.`corrections`");
 			preparedStatement.execute();
-			preparedStatement = connection.prepareStatement("Delete from `lastfm_test`.`artist_url` where artist_id like 'Raphael%' or artist_id = 'manolo'");
+			preparedStatement = connection
+					.prepareStatement("Delete from `lastfm_test`.`artist_url` where artist_id like 'Raphael%' or artist_id = 'manolo'");
 			preparedStatement.execute();
 		}
 
 	}
 
 	@Test
-	public void run() {
+	public void run() throws DiscogsServiceException {
 		Map<ArtistData, String> correctionAdder = new HashMap<>();
 
 		List<ArtistData> a = new ArrayList<>();
@@ -74,7 +85,6 @@ public class UpdaterThreadTest {
 		a.add(new ArtistData("Raphael1", 2, null));
 		a.add(new ArtistData("Raphael2", 3, null));
 		a.add(new ArtistData("Raphael3", 4, null));
-
 
 		TimestampWrapper<List<ArtistData>> artistDataLinkedList = new TimestampWrapper<>(a, Instant.now()
 				.get(ChronoField.MILLI_OF_SECOND) * 1000);
@@ -88,7 +98,12 @@ public class UpdaterThreadTest {
 
 		dao.upsertUrl(new ArtistInfo("b", "manolo"));
 
-		lastFM = new lastFMMockup("apikey");
+		lastFM = mock(ConcurrentLastFM.class);
+
+		when(lastFM.getCorrection(anyString())).thenAnswer(invocation ->
+				"axdasd" + invocation.getArgument(0, String.class) + "ax" + LocalDateTime.now().getDayOfYear()
+		);
+
 		a = new ArrayList<>();
 		a.add(new ArtistData("Raphael4", 1, null));
 		a.add(new ArtistData("Raphael1", 2, null));
@@ -108,35 +123,5 @@ public class UpdaterThreadTest {
 		assertEquals(dao.findCorrection("Raphael4"), lastFM.getCorrection("Raphael4"));
 	}
 
-	static class lastFMMockup extends ConcurrentLastFM {
-		lastFMMockup(String apikey) {
-			super(apikey);
-		}
 
-		@Override
-		public String getCorrection(String artistToCorrect) {
-			return "axdasd" + artistToCorrect + "ax" + LocalDateTime.now().getDayOfYear();
-		}
-	}
-
-	static class DiscogsMockup extends core.apis.discogs.DiscogsApi {
-
-		public DiscogsMockup(String secret, String key) {
-			super(secret, key);
-		}
-
-		DiscogsMockup() {
-			super("a", "b");
-		}
-
-		@Override
-		public Year getYearRelease(String album, String artist) {
-			return Year.now();
-		}
-
-		@Override
-		public String findArtistImage(String artist) {
-			return "a";
-		}
-	}
 }
