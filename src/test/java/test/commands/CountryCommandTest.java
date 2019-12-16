@@ -23,7 +23,7 @@ public class CountryCommandTest extends CommandTest {
 	@Test
 	public void countryTest() {
 		ImageUtils
-				.testImageWithPreWarning(COMMAND_ALIAS + " s", "Going to take a while", false, 1398, 2754, 75, ".png");
+				.testImageWithPreWarning(COMMAND_ALIAS + " s", "Going to take a while", false, 1398, 2754, 80, ".png");
 
 	}
 

@@ -1,10 +1,10 @@
 package test.commands.parsers;
 
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import org.junit.Assert;
 import org.junit.ClassRule;
+import org.junit.rules.TestRule;
 import test.commands.utils.TestResources;
 
 import java.time.Year;
@@ -16,7 +16,7 @@ import static test.commands.utils.TestResources.*;
 
 public class NullReturnParsersTest {
 	@ClassRule
-	public static final TestResources res = new TestResources();
+	public static final TestRule res = TestResources.INSTANCE;
 
 	public static void artistSongParser(String command) {
 		artistAlbumParser(command);
@@ -81,12 +81,12 @@ public class NullReturnParsersTest {
 
 	//Fails With three words
 	public static void chartFromYearParser(String command) {
-		moreThanXWordsFailure(command, "You Introduced too many words", 3);
+		moreThanXWordsFailure(command, "You Introduced too many words", 4);
 		futureYear(command);
 	}
 
 	private static void futureYear(String command) {
-		Year year =Year.now().plus(2, ChronoUnit.YEARS);
+		Year year = Year.now().plus(2, ChronoUnit.YEARS);
 		long id = channelWorker.sendMessage(command + " " + year).complete().getIdLong();
 		await().atMost(45, TimeUnit.SECONDS).until(() ->
 		{
@@ -184,5 +184,8 @@ public class NullReturnParsersTest {
 
 	}
 
+	public static void setParser(String command) {
+		noWordsFailure(command, "You need to introduce only a valid last.fm account!");
+	}
 
 }

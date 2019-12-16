@@ -3,6 +3,7 @@ package test.commands;
 import dao.entities.TimeFrameEnum;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.OneLineUtils;
 import test.commands.utils.TestResources;
@@ -15,7 +16,7 @@ import java.util.regex.Pattern;
 
 public class ReturnsOneLineCommands {
 	@ClassRule
-	public static final TestResources res = new TestResources();
+	public static final TestRule res = TestResources.INSTANCE;
 
 
 	@Test
@@ -86,7 +87,9 @@ public class ReturnsOneLineCommands {
 	@Test
 	public void spotifyNpSearch() {
 		Pattern spotify = Pattern
-				.compile("^(https://open.spotify.com/(album|artist|track|playlist)/|spotify:(album|artist|track|playlist):)([a-zA-Z0-9]{22})(?:\\?.*)?$");
+				.compile(
+						"(^(https://open.spotify.com/(album|artist|track|playlist)/|spotify:(album|artist|track|playlist):)([a-zA-Z0-9]{22})(?:\\?.*)?$|" +
+								"(Was not able to find (.*) on spotify))");
 		OneLineUtils.testCommands("!nps", spotify);
 	}
 
@@ -95,7 +98,7 @@ public class ReturnsOneLineCommands {
 	public void prefixSuccesfull() {
 
 		String s = "(.*)The prefix must be one of the following:(.*)";
-		OneLineUtils.testCommands("!prefix €E€!", Pattern.compile(s,Pattern.DOTALL), null);
+		OneLineUtils.testCommands("!prefix €E€!", Pattern.compile(s, Pattern.DOTALL), null);
 
 		Pattern pattern = Pattern
 				.compile("(.) is the new server prefix");
@@ -120,6 +123,13 @@ public class ReturnsOneLineCommands {
 		OneLineUtils.testCommands("!album blackpink - square up ", pattern, parentFunction.apply("square up"));
 		OneLineUtils.testCommands("!album my bloody valentine - loveless ", pattern, parentFunction.apply("loveless"));
 
+
+	}
+
+	@Test
+	public void ParserErrorsAlbumPlays() {
+		Pattern compile = Pattern.compile("(.*)You need to use - to separate artist and album!",Pattern.DOTALL);
+		OneLineUtils.testCommands("!album my bloody valentine  loveless ", compile, null);
 
 	}
 }

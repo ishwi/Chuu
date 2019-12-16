@@ -44,11 +44,7 @@ public class DiscogsApi {
 	private int doSearch(String query) throws DiscogsServiceException {
 
 		System.out.println("DOING SEARCH : " + query);
-		try {
-			query = URLEncoder.encode(query, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			Chuu.getLogger().warn(e.getMessage(), e);
-		}
+		query = URLEncoder.encode(query, StandardCharsets.UTF_8);
 		String url = BASE_API + "database/search?q=" + query + "&type=artist&key=" + KEY + "&secret=" + SECRET;
 
 		GetMethod getMethod = new GetMethod(url);
@@ -72,14 +68,8 @@ public class DiscogsApi {
 	public Year getYearRelease(String album, String artist) throws DiscogsServiceException {
 		String albumenc;
 		String artistenc;
-		try {
-			albumenc = URLEncoder.encode(album, "UTF-8");
-			artistenc = URLEncoder.encode(artist, "UTF-8");
-
-		} catch (UnsupportedEncodingException e) {
-			Chuu.getLogger().warn(e.getMessage(), e);
-			return null;
-		}
+		albumenc = URLEncoder.encode(album, StandardCharsets.UTF_8);
+		artistenc = URLEncoder.encode(artist, StandardCharsets.UTF_8);
 
 		String url = BASE_API + "database/search?&type=release&artist=" + artistenc + "&release_title=" + albumenc + "&key=" + KEY + "&secret=" + SECRET;
 		GetMethod getMethod = new GetMethod(url);

@@ -1,19 +1,27 @@
 package test.commands;
 
+import core.apis.last.ExceptionEntity;
 import core.commands.NPSpotifyCommand;
+import core.exceptions.InstanceNotFoundException;
+import core.exceptions.LastFmException;
+import core.parsers.NoOpParser;
+import core.parsers.OptionalEntity;
+import core.parsers.PrefixParser;
+import core.parsers.UrlParser;
 import dao.entities.NowPlayingArtist;
-import test.commands.utils.TestResources;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import test.commands.utils.TestResources;
 
 import java.util.Optional;
 
 public class UnreachableTests {
 	@ClassRule
-	public static final TestResources res = new TestResources();
+	public static final TestRule res = TestResources.INSTANCE;
 
-	@Test
+	@Test(expected = NullPointerException.class)
 	public void spotifyNpSearch() {
 		Optional<NPSpotifyCommand> any = TestResources.ogJDA.getRegisteredListeners().stream()
 				.filter(x -> x instanceof NPSpotifyCommand).map(x -> (NPSpotifyCommand) x).findAny();
@@ -22,14 +30,37 @@ public class UnreachableTests {
 		NowPlayingArtist nowPlayingArtist = new NowPlayingArtist("doesnt exist asdasdaad", "", true, "doesnt existasdasdaad", "doesntasdasdaad exists", "", "pepito");
 
 		//This will crash but it increase coverage :D
-		try {
-			npSpotifyCommand.doSomethingWithArtist(nowPlayingArtist, null);
-			Assert.fail();
-		} catch (NullPointerException ignored) {
-			return;
-		}
-		Assert.fail();
+		npSpotifyCommand.doSomethingWithArtist(nowPlayingArtist, null);
 
 	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void noOpParserParsing() throws LastFmException, InstanceNotFoundException {
+		NoOpParser noOpParser = new NoOpParser();
+		noOpParser.parseLogic(null, null);
+	}
+
+	@Test
+	public void OptionalEntityEquals() {
+		OptionalEntity optionalEntity = new OptionalEntity("--test", "testdef");
+		Assert.assertEquals(optionalEntity, optionalEntity);
+		Assert.assertNotEquals(optionalEntity, optionalEntity.getDefinition());
+		Assert.assertNotEquals(null, optionalEntity);
+		Assert.assertNotEquals(this, optionalEntity);
+	}
+
+
+	@Test
+	public void gettersSettersExeption() {
+		ExceptionEntity exceptionEntity = new ExceptionEntity("artist", "album");
+		ExceptionEntity exceptionEntity1 = new ExceptionEntity("username");
+		Assert.assertEquals(exceptionEntity.getArtistName(), "artist");
+		Assert.assertEquals(exceptionEntity.getAlbumName(), "album");
+		Assert.assertEquals(exceptionEntity1.getUserName(), "username");
+
+		UrlParser urlParser = new UrlParser();
+		PrefixParser prefixParser = new PrefixParser();
+	}
+
 
 }

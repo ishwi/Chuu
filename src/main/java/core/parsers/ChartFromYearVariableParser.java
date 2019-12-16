@@ -1,8 +1,8 @@
 package core.parsers;
 
+import core.exceptions.InstanceNotFoundException;
 import dao.DaoImplementation;
 import dao.entities.LastFMData;
-import core.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Year;
@@ -47,8 +47,9 @@ public class ChartFromYearVariableParser extends DaoParser {
 			x = (opt.get().split("[xX]")[0]);
 			y = opt.get().split("[xX]")[1];
 			words = Arrays.stream(words).filter(s -> !s.equals(opt.get())).toArray(String[]::new);
-			if (x.equals("0") || y.equals("0")){
-				sendError(getErrorMessage(8),e);
+			if (x.equals("0") || y.equals("0")) {
+				sendError(getErrorMessage(8), e);
+				return null;
 			}
 		}
 
@@ -74,7 +75,7 @@ public class ChartFromYearVariableParser extends DaoParser {
 
 	@Override
 	protected void setUpErrorMessages() {
-		errorMessages.put(5, "You Introduced too many words!");
+		errorMessages.put(5, "You Introduced too many words");
 		errorMessages.put(6, "YEAR must be current year or lower");
 		errorMessages.put(7, "Cant use a size for the chart if you specify the --nolimit flag!");
 		errorMessages.put(8, "0 is not a valid value for a chart!");

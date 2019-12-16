@@ -15,7 +15,7 @@ pitest {
 
     targetClasses = ['core.*']  //by default "${project.group}.*"
     targetTests = ['test.*']
-    excludedTestClasses = ['test.commands.TrackListCommandTest','test.commands.MusicBrainzCommandTest','test.properties.*','test.state.*']
+    //excludedTestClasses =
 
     threads = 1
     verbose = true
@@ -119,5 +119,6 @@ dependencies {
 // https://mvnrepository.com/artifact/com.pholser/junit-quickcheck-core
     //a
     testCompile group: 'com.pholser', name: 'junit-quickcheck-core', version: '0.9'
+    testCompile "org.mockito:mockito-core:2.+"
 
 }

@@ -53,4 +53,17 @@ public class DailyCommandTest extends CommandTest {
 								.parseLong(matcher.group(6)) == 1 && matcher.group(7).isEmpty() || (Long
 								.parseLong(matcher.group(6)) != 1 && matcher.group(7).equals("s")));
 	}
+
+	public static class SetCommandTest extends CommandTest {
+		@Override
+		public String giveCommandName() {
+			return "!set";
+		}
+
+		@Test
+		@Override
+		public void nullParserReturned() {
+			NullReturnParsersTest.setParser(COMMAND_ALIAS);
+		}
+	}
 }
