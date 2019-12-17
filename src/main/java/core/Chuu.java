@@ -128,8 +128,8 @@ public class Chuu {
 					TimeUnit.SECONDS);
 			scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
 			scheduledManager.scheduleAtFixedRate(
-                    new SpotifyUpdaterThread(dao), 0, 10,
-                    TimeUnit.MINUTES);
+					new SpotifyUpdaterThread(dao), 0, 10,
+					TimeUnit.MINUTES);
 		}
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
 		builder.setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
@@ -180,7 +180,9 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new DailyCommand(dao)))
 				.addEventListeners(help.registerCommand(new WeeklyCommand(dao)))
 				.addEventListeners(help.registerCommand(new UserTopTrackCommand(dao)))
-				.addEventListeners(help.registerCommand(new SummaryArtistCommand(dao)));
+				.addEventListeners(help.registerCommand(new SummaryArtistCommand(dao)))
+				.addEventListeners(help.registerCommand(new InviteCommand(dao)))
+				.addEventListeners(help.registerCommand(new SourceCommand(dao)));
 
 		try {
 			jda = builder.build().awaitReady();
