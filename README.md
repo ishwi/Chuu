@@ -11,10 +11,10 @@ There are a ton of available commands like:
 
 ## Invite Link
 
-You can invite the bot to your discord server using this [link]([https://discordapp.com/oauth2/authorize?scope=bot&client_id=537353774205894676&permissions=387136](https://discordapp.com/oauth2/authorize?scope=bot&client_id=537353774205894676&permissions=387136)):
+You can invite the bot to your discord server using this [link:](https://discordapp.com/oauth2/authorize?scope=bot&client_id=537353774205894676&permissions=387136)
 ## Set-Up
 You can also build the bot and install it on your own.
-In order to do that at least:<br><br>
+In order to do that you need:<br><br>
 -Java 8+ (Only tested on 11 and 12) but should work on 8 or 9<br><br>
 -MariaDB<br><br>
 -Postgresql <br><br>
