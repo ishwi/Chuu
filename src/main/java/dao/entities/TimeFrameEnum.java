@@ -16,7 +16,7 @@ public enum TimeFrameEnum {
 				.collect(Collectors.toMap(TimeFrameEnum::getName, Function.identity()));
 	}
 
-	private String name;
+	private final String name;
 
 	TimeFrameEnum(String name) {
 		this.name = name;
@@ -51,14 +51,25 @@ public enum TimeFrameEnum {
 	public String toApiFormat() {
 		switch (name) {
 			case "y":
+			case "yearly":
+			case "year":
 				return "12month";
 			case "q":
+			case "quarter":
+			case "quarterly":
 				return "3month";
 			case "m":
+			case "month":
+			case "monthly":
 				return "1month";
 			case "a":
+			case "alltime":
+			case "overall":
+			case "all":
 				return "overall";
 			case "s":
+			case "semester":
+			case "semesterly":
 				return "6month";
 			default:
 				return "7day";

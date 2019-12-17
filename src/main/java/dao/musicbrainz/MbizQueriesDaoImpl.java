@@ -1,7 +1,7 @@
 package dao.musicbrainz;
 
 import dao.entities.*;
-import main.Chuu;
+import core.Chuu;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

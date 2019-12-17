@@ -6,28 +6,48 @@ plugins {
     id 'application'
     id "com.github.johnrengelman.shadow" version "5.0.0"
     id "com.github.spotbugs" version "2.0.0"
-
+    id 'info.solidsoft.pitest' version '1.4.5'
 
 }
+spotbugs {
+    ignoreFailures = true
+}
+
+pitest {
+//    mainSourceSets = ["main.parsers*"]
+
+    targetClasses = ['core.*','dao.*']  //by default "${project.group}.*"
+    targetTests = ['test.*']
+    //excludedTestClasses =
+
+    threads = 1
+    verbose = true
+    outputFormats = ['XML', 'HTML']
+    timestampedReports = false
+}
+
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'info.solidsoft.pitest'
 
-mainClassName = "main.Chuu"
+mainClassName = "core.Chuu"
 
 group 'ish'
 version '1.0'
 apply plugin: 'java'
 
-sourceCompatibility = 12
-targetCompatibility = 12
+sourceCompatibility = 11
+targetCompatibility = 11
 
 repositories {
     mavenCentral()
     jcenter()
 }
+
 compileJava.options.encoding = 'UTF-8'
 
-task connectToDb  {
+
+task connectToDb {
     doLast {
 
 
@@ -90,5 +110,20 @@ dependencies {
     compile group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.11'
 // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
     compile group: 'com.zaxxer', name: 'HikariCP', version: '3.3.1'
+// https://mvnrepository.com/artifact/org.awaitility/awaitility
+    testCompile group: 'org.awaitility', name: 'awaitility', version: '4.0.1'
+    testCompile group: 'com.openpojo', name: 'openpojo', version: '0.8.3'
+// https://mvnrepository.com/artifact/org.ow2.asm/asm
+    testCompile group: 'org.ow2.asm', name: 'asm', version: '7.2'
+
+// https://mvnrepository.com/artifact/org.graphwalker/graphwalker-core
+    testCompile group: 'org.graphwalker', name: 'graphwalker-core', version: '4.1.0'
+// https://mvnrepository.com/artifact/org.graphwalker/graphwalker-java
+    // group: 'org.graphwalker', name: 'graphwalker-java', version: '4.1.0'
+
+// https://mvnrepository.com/artifact/com.pholser/junit-quickcheck-core
+    //a
+    testCompile group: 'com.pholser', name: 'junit-quickcheck-core', version: '0.9'
+    testCompile "org.mockito:mockito-core:2.+"
 
 }

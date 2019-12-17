@@ -1,7 +1,7 @@
 package dao;
 
+import core.Chuu;
 import dao.entities.*;
-import main.Chuu;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
@@ -509,7 +509,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 	@Override
 	public StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser, long guildId) {
 		List<StolenCrown> returnList = new ArrayList<>();
-		long discordID = 0L;
+		long discordID;
 		long discordID2 = 0L;
 		@Language("MariaDB") String queryString = "SELECT \n" +
 				"    inn.artist_id as artist ,inn.orden as ogPlays , inn.discordID as ogId , inn2.discordID queriedId,  inn2.orden as queriedPlays\n" +
@@ -649,6 +649,91 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 		return getLbEntries(con, guildID, queryString, AlbumCrownLbEntry::new, false);
 	}
 
+	@Override
+	public ObscuritySummary getUserObscuritPoints(Connection connection, String lastfmid) {
+		@Language("MariaDB") String queryString = "\tSelect  b, other_plays_on_my_artists, unique_coefficient,\n" +
+				"\tPOW(((b/ (other_plays_on_my_artists)) * (unique_coefficient + 1)),0.4) as total\n" +
+				"\t\tfrom (\n" +
+				"\n" +
+				"\tSELECT (Select sum(a.playnumber) * count(*) from \n" +
+				"\tartist a \n" +
+				"\twhere lastfmid = main.lastfmid) as b ,  \n" +
+				"\t\t   (SELECT COALESCE(Sum(a.playnumber), 1) \n" +
+				"\t\t\tFROM   artist a \n" +
+				" WHERE  lastfmid != main.lastfmid \n" +
+				"   AND a.artist_id IN (SELECT artist_id \n" +
+				"   FROM   artist \n" +
+				"   WHERE  lastfmid = main.lastfmid)) AS \n" +
+				"   other_plays_on_my_artists, \n" +
+				"   (SELECT Count(*) / (SELECT Count(*) + 1 \n" +
+				"   FROM   artist a \n" +
+				"\t\t\t\t\t\t\t   WHERE  lastfmid = main.lastfmid) * ( \n" +
+				"\t\t\t\t   COALESCE(Sum(playnumber \n" +
+				"\t\t\t\t\t\t\t), 1) ) \n" +
+				"\t\t\tFROM   (SELECT artist_id, \n" +
+				"\t\t\t\t\t\t   playnumber, \n" +
+				"\t\t\t\t\t\t   a.lastfmid \n" +
+				"\t\t\t\t\tFROM   artist a \n" +
+				"\t\t\t\t\tGROUP  BY a.artist_id \n" +
+				"\t\t\t\t\tHAVING Count(*) = 1) temp \n" +
+				"\t\t\tWHERE  temp.lastfmid = main.lastfmid \n" +
+				"\t\t\t\t   AND temp.playnumber > 1) \n" +
+				"\t\t   as unique_coefficient                      \n" +
+				"\tFROM   artist main \n" +
+				"\tgroup by lastFMID\n" +
+				"\thaving lastFMID =  ?\n" +
+				"\t) outer_main\n";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			int i = 1;
+			preparedStatement.setString(i, lastfmid);
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			if (!resultSet.next()) {
+				return null;
+
+			}
+
+			int totalPlays = resultSet.getInt("b");
+			int other_plays_on_my_artists = resultSet.getInt("other_plays_on_my_artists");
+			int unique_coefficient = resultSet.getInt("unique_coefficient");
+			int total = resultSet.getInt("total");
+
+			return new ObscuritySummary(totalPlays, other_plays_on_my_artists, unique_coefficient, total);
+
+
+		} catch (SQLException e) {
+			Chuu.getLogger().warn(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	@Override
+	public int getRandomCount(Connection connection, Long userId) {
+		@Language("MariaDB") String queryString = "SELECT \n" +
+				"  count(*) as counted " +
+				"FROM\n" +
+				"    randomlinks \n";
+		if (userId != null) {
+			queryString += "WHERE discordId = ?";
+
+		}
+		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+			if (userId != null) {
+				preparedStatement.setLong(1, userId);
+			}
+			ResultSet resultSet = preparedStatement.executeQuery();
+			if (!resultSet.next()) {
+				return 0;
+			}
+
+			return resultSet.getInt("counted");
+
+		} catch (SQLException e) {
+			Chuu.getLogger().error(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
+	}
+
 	//TriFunction is not the simplest approach but i felt like using it so :D
 	@NotNull
 	private List<LbEntry> getLbEntries(Connection connection, long guildId, String queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needs_reSet) {
@@ -676,5 +761,6 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 		}
 	}
 }
+
 
 
