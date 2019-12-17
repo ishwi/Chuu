@@ -1,6 +1,7 @@
 package test.scheduledtasks;
 
 import core.scheduledtasks.ImageUpdaterThread;
+import core.scheduledtasks.SpotifyUpdaterThread;
 import core.scheduledtasks.UpdaterThread;
 import dao.entities.ArtistData;
 import dao.entities.UpdaterStatus;
@@ -62,21 +63,21 @@ public class ThreadTester {
 		ImageUpdaterThread imageUpdaterThread = new ImageUpdaterThread(TestResources.dao);
 		imageUpdaterThread.run();
 		for (String nullUrl : nullUrls) {
-			UpdaterStatus updaterStatus = TestResources.dao.getUpdaterStatus(nullUrl);
-			Assert.assertNotNull(updaterStatus.getArtistUrl());
-		}
+            UpdaterStatus updaterStatus = TestResources.dao.getUpdaterStatus(nullUrl);
+            Assert.assertTrue(updaterStatus.getArtistUrl() == "" || updaterStatus.getArtistUrl() != null);
+
+        }
 	}
 
 	@Test
 	public void spotifyImageUpdated() {
-		Set<String> nullUrls = TestResources.dao.getSpotifyNulledUrls();
-		ImageUpdaterThread imageUpdaterThread = new ImageUpdaterThread(TestResources.dao);
-		imageUpdaterThread.run();
-		for (String nullUrl : nullUrls) {
-			UpdaterStatus updaterStatus = TestResources.dao.getUpdaterStatus(nullUrl);
-			Assert.assertFalse(updaterStatus.isCorrection_status());
-			Assert.assertNotNull(updaterStatus.getArtistUrl());
+        Set<String> nullUrls = TestResources.dao.getSpotifyNulledUrls();
+        SpotifyUpdaterThread spotifyUpdaterThread = new SpotifyUpdaterThread(TestResources.dao);
+        spotifyUpdaterThread.run();
+        for (String nullUrl : nullUrls) {
+            UpdaterStatus updaterStatus = TestResources.dao.getUpdaterStatus(nullUrl);
+            Assert.assertTrue(updaterStatus.getArtistUrl().equals("") || updaterStatus.getArtistUrl() != null);
 
-		}
-	}
+        }
+    }
 }

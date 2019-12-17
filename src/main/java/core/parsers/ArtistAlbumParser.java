@@ -1,10 +1,10 @@
 package core.parsers;
 
-import dao.DaoImplementation;
-import dao.entities.NowPlayingArtist;
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import dao.DaoImplementation;
+import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -66,6 +66,7 @@ public class ArtistAlbumParser extends DaoParser {
 			builder.append(s).append(" ");
 		}
 		String s = builder.toString();
+		//To escape the "-" that could appear on some cases
 		String regex = "(?<!\\\\)" + ("\\s*-\\s*");
 		String[] content = s.split(regex);
 
@@ -89,7 +90,7 @@ public class ArtistAlbumParser extends DaoParser {
 	@Override
 	public String getUsageLogic(String commandName) {
 		return "**" + commandName + " *artist-album** username* " +
-				"\n\tif username its not specified";
+				"\n\tif username its not specified it defaults to you";
 
 	}
 
@@ -97,7 +98,6 @@ public class ArtistAlbumParser extends DaoParser {
 	public void setUpErrorMessages() {
 		super.setUpErrorMessages();
 		errorMessages.put(5, "You need to use - to separate artist and album!");
-		errorMessages.put(6, "Didn't find what you were looking for");
 		errorMessages
 				.put(7, "You need to add the escape character **\"\\\\\"** in the **\"-\"** that appear on the album or artist.\n " +
 						"\tFor example: Artist - Alb**\\\\-**um  ");

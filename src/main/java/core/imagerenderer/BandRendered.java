@@ -1,11 +1,11 @@
 package core.imagerenderer;
 
 
+import core.Chuu;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ArtistAlbums;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
-import core.Chuu;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -42,6 +42,8 @@ public class BandRendered {
 
 		String artist = wrapperReturnNowPlaying.getArtist();
 		boolean needsJapanese = false;
+
+		//Loads logo if it were to exist
 		try (InputStream in = BandRendered.class.getResourceAsStream("/images/logo2.png")) {
 			lastFmLogo = ImageIO.read(in);
 			lastFmLogo = Scalr.resize(lastFmLogo, 30);
@@ -52,6 +54,7 @@ public class BandRendered {
 
 		BufferedImage artistImageFill = GraphicUtils
 				.getImageFromUrl(wrapperReturnNowPlaying.getUrl(), artistReplacement);
+		//Inits the background with the blurred image
 		Graphics2D g = GraphicUtils.initArtistBackground(canvas, artistImageFill);
 
 		Color colorB1 = GraphicUtils.getReadableColorBackgroundForFont(GraphicUtils.getFontColorBackground(canvas));

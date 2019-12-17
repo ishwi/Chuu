@@ -23,6 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+/**
+ * Thread that is the core of the appliaction
+ * Will update the less updated person
+ */
 public class UpdaterThread implements Runnable {
 
 	private final DaoImplementation dao;

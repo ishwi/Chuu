@@ -16,25 +16,30 @@ import java.util.List;
 
 @RunWith(JUnitQuickcheck.class)
 public class Crownness {
-	@ClassRule
+    @ClassRule
 
-	public static final TestRule res = TestResources.INSTANCE;
+    public static final TestRule res = TestResources.INSTANCE;
 
-	@Property
-	public void youAreFirst(@From(CrownGen.class) UniqueData uniqueData) {
+    @Property
+    public void youAreFirst(@From(CrownGen.class) UniqueData uniqueData) {
 
-		//Who knows the given artist
-		WrapperReturnNowPlaying wrapperReturnNowPlaying = TestResources.dao
-				.whoKnows(uniqueData.getArtistName(), TestResources.channelWorker.getGuild()
-						.getIdLong(), Integer.MAX_VALUE);
+        //Who knows the given artist
+        WrapperReturnNowPlaying wrapperReturnNowPlaying = TestResources.dao
+                .whoKnows(uniqueData.getArtistName(), TestResources.channelWorker.getGuild()
+                        .getIdLong(), Integer.MAX_VALUE);
 
-		System.out.println(uniqueData.getArtistName());
+        System.out.println(uniqueData.getArtistName());
 
-		List<ReturnNowPlaying> returnNowPlayings = wrapperReturnNowPlaying.getReturnNowPlayings();
-		//We know there is at least one
-		Assert.assertTrue(returnNowPlayings.size() >= 1);
-		//we should be the first one
-		Assert.assertEquals(returnNowPlayings.get(0).getLastFMId(), "pablopita");
+        List<ReturnNowPlaying> returnNowPlayings = wrapperReturnNowPlaying.getReturnNowPlayings();
+        //We know there is at least one
+        Assert.assertTrue(returnNowPlayings.size() >= 1);
+        //we should be the first one
+        Assert.assertEquals(returnNowPlayings.get(0).getLastFMId(), "pablopita");
+        int plays = returnNowPlayings.get(0).getPlayNumber();
 
-	}
+        for (ReturnNowPlaying returnNowPlaying : returnNowPlayings) {
+            Assert.assertTrue(returnNowPlaying.getPlayNumber() <= plays);
+        }
+
+    }
 }

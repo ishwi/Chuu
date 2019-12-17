@@ -128,8 +128,8 @@ public class Chuu {
 					TimeUnit.SECONDS);
 			scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
 			scheduledManager.scheduleAtFixedRate(
-					new SpotifyUpdaterThread(dao, SpotifySingleton.getInstanceUsingDoubleLocking()), 0, 10,
-					TimeUnit.MINUTES);
+                    new SpotifyUpdaterThread(dao), 0, 10,
+                    TimeUnit.MINUTES);
 		}
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
 		builder.setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)

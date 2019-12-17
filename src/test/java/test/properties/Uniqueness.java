@@ -29,8 +29,9 @@ public class Uniqueness {
 
 		System.out.println(uniqueData.getArtistName());
 		List<ReturnNowPlaying> returnNowPlayings = wrapperReturnNowPlaying.getReturnNowPlayings();
-		Assert.assertEquals(1, returnNowPlayings.size());
 		Assert.assertEquals(returnNowPlayings.get(0).getLastFMId(), "pablopita");
+		long count = returnNowPlayings.stream().filter(x -> !x.getLastFMId().equals("pablopita") && x.getPlayNumber() > 2).count();
+		Assert.assertEquals(0L, count);
 
 	}
 
