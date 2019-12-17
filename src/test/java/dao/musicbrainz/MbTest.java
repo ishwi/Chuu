@@ -3,9 +3,9 @@ package dao.musicbrainz;
 import dao.entities.AlbumInfo;
 import dao.entities.FullAlbumEntity;
 import dao.entities.Genre;
-import main.apis.last.ConcurrentLastFM;
-import main.apis.last.LastFMFactory;
-import main.exceptions.LastFmException;
+import core.apis.last.ConcurrentLastFM;
+import core.apis.last.LastFMFactory;
+import core.exceptions.LastFmException;
 import org.junit.Test;
 
 import java.time.Year;

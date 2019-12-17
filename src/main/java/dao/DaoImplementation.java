@@ -1,10 +1,11 @@
 package dao;
 
+import core.Chuu;
+import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
-import main.Chuu;
 import org.apache.commons.collections4.map.MultiValueMap;
 
-import javax.management.InstanceNotFoundException;
+import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -35,6 +36,7 @@ public class DaoImplementation {
 		this.queriesDao = new SQLQueriesDaoImpl();
 		this.userGuildDao = new UserGuildDaoImpl();
 		this.updaterDao = new UpdaterDaoImpl();
+
 	}
 
 	public void updateUserTimeStamp(String lastFmName, Integer timestamp, Integer timestampControl) {
@@ -548,6 +550,22 @@ public class DaoImplementation {
 	}
 
 
+	public int randomCount(@Nullable Long userId) {
+		try (Connection connection = dataSource.getConnection()) {
+			return (queriesDao.getRandomCount(connection, userId));
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public boolean randomUrlExists(String url) {
+		try (Connection connection = dataSource.getConnection()) {
+			return (updaterDao.findRandomUrlById(connection, url) != null);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public boolean addToRandomPool(RandomUrlEntity randomUrlEntity) {
 		try (Connection connection = dataSource.getConnection()) {
 			connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
@@ -606,6 +624,14 @@ public class DaoImplementation {
 		}
 	}
 
+	public void deleteAlbumCrown(String artist, String album, long discordID, long guildId) {
+		try (Connection connection = dataSource.getConnection()) {
+			updaterDao.deleteAlbumCrown(connection, artist, album, discordID, guildId);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public Map<Long, Character> getGuildPrefixes() {
 		try (Connection connection = dataSource.getConnection()) {
 			return updaterDao.getGuildPrefixes(connection);
@@ -620,6 +646,22 @@ public class DaoImplementation {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
+	}
 
+	public ObscuritySummary getObscuritySummary(String lastfmid) {
+		try (Connection connection = dataSource.getConnection()) {
+			return queriesDao.getUserObscuritPoints(connection, lastfmid);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	public void truncateRandomPool() {
+		try (Connection connection = dataSource.getConnection()) {
+			updaterDao.truncateRandomPool(connection);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
