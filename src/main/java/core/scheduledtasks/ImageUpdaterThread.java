@@ -8,7 +8,10 @@ import dao.DaoImplementation;
 import dao.entities.ArtistInfo;
 
 import java.util.Set;
-
+/**
+ * Searches the artists wiht null urls
+ * Note that after this method has run unless a discogs expection occurred the url will be set to either the image found or to a new state that will allow spotify to search for a new image
+ */
 public class ImageUpdaterThread implements Runnable {
 	private final DaoImplementation dao;
 	private final DiscogsApi discogsApi;
@@ -27,6 +30,8 @@ public class ImageUpdaterThread implements Runnable {
 			String url;
 			System.out.println("Working with artist " + artistDatum);
 			try {
+				//We can get rate limited if we do it wihtout sleeping
+				Thread.sleep(100l);
 				url = discogsApi.findArtistImage(artistDatum);
 				if (url != null) {
 
@@ -39,6 +44,8 @@ public class ImageUpdaterThread implements Runnable {
 				Chuu.getLogger().warn(e.getMessage(), e);
 
 
+			} catch (InterruptedException e) {
+				Chuu.getLogger().warn(e.getMessage(), e);
 			}
 		}
 	}

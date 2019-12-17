@@ -1,12 +1,11 @@
 package core.apis.last;
 
-import dao.entities.*;
-import core.Chuu;
 import core.apis.ClientSingleton;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFMServiceException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
+import dao.entities.*;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -22,6 +21,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -115,7 +116,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 				return jsonObject;
 
 			} catch (IOException | LastFMServiceException e) {
-				Chuu.getLogger().warn(e.getMessage(), e);
+				Logger.getAnonymousLogger().log(Level.WARNING, e.getMessage(), e);
 				//	throw new LastFMServiceException("HTTP");
 			}//	throw new LastFMServiceException("IO");
 			finally {

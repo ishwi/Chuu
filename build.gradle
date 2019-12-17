@@ -9,11 +9,14 @@ plugins {
     id 'info.solidsoft.pitest' version '1.4.5'
 
 }
+spotbugs {
+    ignoreFailures = true
+}
 
 pitest {
 //    mainSourceSets = ["main.parsers*"]
 
-    targetClasses = ['core.*']  //by default "${project.group}.*"
+    targetClasses = ['core.*','dao.*']  //by default "${project.group}.*"
     targetTests = ['test.*']
     //excludedTestClasses =
 
@@ -40,7 +43,9 @@ repositories {
     mavenCentral()
     jcenter()
 }
+
 compileJava.options.encoding = 'UTF-8'
+
 
 task connectToDb {
     doLast {
@@ -112,9 +117,9 @@ dependencies {
     testCompile group: 'org.ow2.asm', name: 'asm', version: '7.2'
 
 // https://mvnrepository.com/artifact/org.graphwalker/graphwalker-core
-//    compile group: 'org.graphwalker', name: 'graphwalker-core', version: '4.1.0'
+    testCompile group: 'org.graphwalker', name: 'graphwalker-core', version: '4.1.0'
 // https://mvnrepository.com/artifact/org.graphwalker/graphwalker-java
-    testCompile group: 'org.graphwalker', name: 'graphwalker-java', version: '4.1.0'
+    // group: 'org.graphwalker', name: 'graphwalker-java', version: '4.1.0'
 
 // https://mvnrepository.com/artifact/com.pholser/junit-quickcheck-core
     //a
