@@ -1,0 +1,19 @@
+os: linux
+dist: trusty
+services:
+  - mysql
+  - postgresql
+addons:
+  mariadb: '10.4.8'
+  postgresql: "11.5"
+
+before_install:
+  - cd $TRAVIS_BUILD_DIR/
+  - mysql -e 'DROP DATABASE IF EXISTS lastfm_test'
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS lastfm_test;'
+  - mysql -u root --password=""  --default-character-set=utf8mb4 lastfm_test < src/main/resources/MariaDBCreateTables.sql
+  - psql -c 'create database musicbrainz;' -U postgres
+  - psql -U musicbrainz -d muscicbrainz < src/test/resources/musicbrainz.sql
+language: java
+jdk:
+  - oraclejdk12
