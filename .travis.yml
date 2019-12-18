@@ -1,0 +1,54 @@
+os: linux
+dist: trusty
+services:
+  - mysql
+  - postgresql
+addons:
+  mariadb: 10.4.8
+  postgresql: "10"
+  apt:
+    packages:
+      - postgresql-10
+      - postgresql-client-10
+
+before_install:
+  - sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/*/main/pg_hba.conf
+  - sudo service postgresql restart
+  - sleep 1
+  - cd $TRAVIS_BUILD_DIR/
+  - psql -c "CREATE DATABASE musicbrainz;" -U postgres
+  - mysql -e 'DROP DATABASE IF EXISTS lastfm_test'
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS lastfm_test;'
+  - mysql -u root --password=""  --default-character-set=utf8mb4 lastfm_test < src/main/resources/MariaDBCreateTables.sql
+  - psql -U postgres -d musicbrainz < src/test/resources/musicbrainz.sql
+  - awk -v key=$YT_API '/YT_API/{$3=key}3;' src/test/resources/all.properties > tmp && mv tmp src/test/resources/all.properties
+  - awk -v key=$DC_API '/DC_API/{$3=key}3;' src/test/resources/all.properties > tmp && mv tmp src/test/resources/all.properties
+  - awk -v key=$DC_SC '/DC_SC/{$3=key}3;' src/test/resources/all.properties > tmp && mv tmp src/test/resources/all.properties
+  - awk -v key=$DISCORD_TOKEN '/DISCORD_TOKEN/{$3=key}3;' src/test/resources/all.properties > tmp && mv tmp src/test/resources/all.properties
+  - awk -v key=$client_Secret '/client_Secret/{$3=key}3;' src/test/resources/all.properties > tmp && mv tmp src/test/resources/all.properties
+  - awk -v key=$LASTFM_APIKEY '/LASTFM_APIKEY/{$3=key}3;' src/test/resources/all.properties > tmp && mv tmp src/test/resources/all.properties
+  - awk -v key=$T_DISCORD_TOKEN '/DISCORD_TOKEN/{$3=key}3;' src/test/resources/tester.properties > tmp && mv tmp src/test/resources/tester.properties
+  - awk -v key=$TESTING_SERVER '/TESTING_SERVER/{$3=key}3;' src/test/resources/tester.properties > tmp && mv tmp src/test/resources/tester.properties
+  - awk -v key=$DEVELOPER_ID '/DEVELOPER_ID/{$3=key}3;' src/test/resources/tester.properties > tmp && mv tmp src/test/resources/tester.properties
+
+
+script:
+  - ./gradlew check --info --debug
+language: java
+jdk:
+  - oraclejdk12
+env:
+  global:
+    - PGPORT=5433
+    - PGUSER=postgres
+    - secure: jymjTnpAecjHjsQ0cvKFuRvOQExrARHrLtcU3/l6agJRPzNg2piR1PcN393EBsZooVCfeYkPe9eqXiQ+q/Rm38z5Ef5z53ldGIFcGOq3YQO4edYDTJjro4FTDsvkYpGMsf7IkLZoM12VTzG4mLhkJN3e/wJTQ9TITldWdjbcCHRcK2vMDKuQ+CXxPxGeLZGwPhmcd/EXez3Ut0GHi73wDTkHTnjFj6JMh1FQrRiutzW8VL4BFxPoo9zaxEGExsOA+rSrJP0pu+MFUdkteyt2RWZLt3NqrdUaF2XjiQnfqMS+6+20zS87g/mqFGL7QAjTfN/sMHfjYqcRxP5aIxVvWkIcEV3aN981iAPamwkff3pX3JXWnRx7ewPSH6ItgZYx3WS8hd7sygT0PZkCHpCEtpbTMG/Nn3lqcHihI/wIl4S0Y4CRyLCcHbqSZ9bqyzuH2+9HN4sADlWeM9F2qxRfC8DpbixINXjJAIU1FwDvNnpg1X/z5VQ1rd2HpDSEVDydHfXjYAKFXKDrvMD5Kf+tiyvHlCb65cuZ3BuvK3xm3kFXOpouaZx5rNBLcCbuelJUFD1tmIICe2h71/eukuVpsPSUVtNHTuj7lCeSg06HsK+Lcw3PrGE14mOTAq85bd9uNuFJ5XcGHd30jDkraQ9nqccdGL4VSyruHjULOQLS6E4=
+    - secure: fav2xKBObziXb6I5EZwj5W1MImvkwGQxFFYFRPGJdac8pExuXsJgsNkP5jHBSeMs6hP0NQz75WTfeoDLsWitPtwI8ZVoaedGBGjUYYsACd8Cw8JEE4teUkjh5w3VojAV1rQyIKDennekwKTXgIB0fj33dEMh9lJGLSWPDl8ALiSzrobg1sBzorIlXI73hCdHc3bWZMEBhAjZ7Q2N7eXA/PC5ayoVztsFHkCZdtGR4sE3jVV2xFsUSmLDqpcIHXrlEHF9h7u+73H3RnMx2yvF10CD4IlHdo4vtSdM5XmlpBVHEXSHJ979oriYUHIO1uPm++karSRWgsiq/ocdrLtVFaxkFJyf/iJ22nHf2OIBP3jekzWQYgiNVLRhJyPT4ftLlhxlOYYqfwctG4FIV7D0gV5pwyARpe6Yod1q6naYHjf3Bj1xlgBWgDYeBn8+iszVcJqJRgwhzlTH5EIQn8w1d3TV466CSx6hSMxhZuHrnDBsIBeFBYtkWcknpZW2avfkQDbAEXqBMY6w+GJj6LpL2AgkAhbZyLneLjAAK5M6xBmz5KXOswDqJR44V90DKdr9Y0W2WPhnpSHrVyBgFIlzKVKl2MGt8gdJLWwQJgGzNPyeRPye5++lbdntj65P1euzkzdP8m1mJgA7fKbvnBh21aaDJR/I5bzXaC1o/ggSyQk=
+    - secure: bDmiGkOJ6XQSfyEAhlstZ9WhZ/HW48IFHrB9JqtBGMw5OwWa6KJnxpls0W7exBgyFGRLiK7XdFBmhH3Ty4qfEHr40bDUVi13v5RBqttdLpDInIjyY734drKcKJPVOZ/KCMCvVf0f1z6GDv93erRyInX6BZWCvKYaUQoSKE2/FDYo3tADNBKqLV6D2PJKMzFN9MyUbNk0xV3GMA3i+Dpj1S+5n9NLDulGykCEVi4n/IbYPZQgv4x6PI7xRaiTmRZwce2XCidaAGSg3oJ9+t61GGphr+6ov8wRxdj5JdzkHORc/6U3ft4VC1YS04Pa333ayfPiiN8IquAb9ztXRJyArSxQe9bAFs2b2aADQpcz4YGq/xBznfOoLVBehRwr3t7dFa6fSmwiK2vZ99XwN+OawvGbOtCDyzRnEntGr7n8ztrCzz0gHR4ozjMmqZODn+BhB+Gh0yYtxYgkecFAFEk85kIdHntpWXKowMHlCi5RhcMyJdnywla1gLKDN8bBLG496TKBmrpmsxHBCl1gDLhqz/9TzeBjMupRXXuqnMNAl02I7JOKjVSMU0bZ4UawrSBEa4Qww3qgjR6ZFAy3i2LsiPB8ArHbc/AhOwj1OFlIXO98CT7vNB/s4APBxs9NtpFJKFSpx4Eb74eL8PiCiSzV4bTOJtO5JoB9x0uxW9APqdM=
+    - secure: bhsx0MsctC4CjoQ7W2YflCwDIUIYgvl/CtxpcqyQqVnZiF54N/GMKSM3xrzZV4Pp9qP9kXWBQpE3AzM21dGP/3EU+Ax6yuAzh62Jo7447Ij5+7CbGKkAmWC4/Jf/uetJAU0C206AtuU6AigCiIIeK6Zk/giHwcijHnTTwDgzU9E+4RIJrQf9rTQ0FAwN7ccHyxMaoMY2W1LtyYcJxaTyNQjhMZaPVq7KX8oPz8kYE8KbahXD04RuIemlP+QvbJkBdrEC27MH9Jz85b1fNM3IrAAQqpVB4nmWndxwhr7m3ayvMfhSOmcl+A+1XOs8mOqxR82gWKMRUd4gwniBKZNTqrVNZsLApfc2z51G7j/qCLdj8UfrMmm0f+1VhDoVzqbeOyx6jwfAQHw5yN7kFCi6m7Zn3wISWJZrF0MJ3IatccsxoCphAexuO6iZ/E0mo8xJE9TzxkQRlTH0bgDqrW90pWPQYIA3ESNrgAeke6Il82qto8yiZmjH1IIn+OBlzxJg9zJTrAvGWIOEjlQ+Y9ng8YCRSNSsx8agTfHzFykJMezfHAkYrrQIMSdCFlUglM9SrX2v2e33m4dxoR81atxNdPMI4SP56gtJfYFqRANLZnpfiyOkhfmV63nqByD2ZSqDS1E3m9OzMouiZPu5YCqXI+SvpVrWaUrMHOjYb92/kFk=
+    - secure: AvN0NVi2b9tQbrIxRqUPr6Dew+14HAe6+OD5pfTbkXEHWPDthndNI6yAhhPRa6G9zbOiQvmOXyT1h+HGYjhGndMSpbytaT1h0e/7kml/E+EnXKn6grRuUwgXtPOdz6kwxCFEpzovQ1JtZs8xrieovn1AzVRz4/SVT4PiIPW+5JsbmzNi27a52GiCtOoJgNKQsKOR0DcBMbwhgYpU7GyePXHn1D0f/zm4pKLckdIUcbMc3RvXrgJPpmmUo8G1tmFzwpkjrDU/OOkRwU5gg+6sajhNHTDwmdIbjLRDSVapSqIcHF6qlUY9+2wTcBGyXV9TqihSkxXCjZFexJMWdjUFossvLozyoZJG3AmD23qMTWnW508/P8u2cCKWIZTxi4uf6YCwrdHq+koTizFTXYLPA9mLFV4rHRR8RFOvfWyp5Zt3QvxNpIG2HRmU3h6+/AYYzcCyA0nwoxnK5mRMchb7C73TUug/83nZOQNYTtPw2CDIXU49JMpbt1jKS/F4KQYYzTmQ+BLPOUQfpQwMxrnhzkzRiptbQetSebZriYQK1CoUwaYiRTdZi82dVxQsHbOiZgdqEFxjWhn+r3UEWB3zwkv0jlMXRSaAEQ10nkq9eWFVt3Zc7HLDrhRD2UiUq3BFWyGJU3B7JjPYeVw3oSOiEYVDc6/JQP2c4Xlm2Yyfu+Q=
+    - secure: EbVoATNerhq3/9wulyJmvOGYOvJIg13hquNud+zjzL8J8anK5bSRjsMXlKiAxqjVJXRitsQDuBLNPo0GKw4KxMpQBxzFbmGuE9a0VNYy4B2tvp1lJpf/xxlrKqMqqZ6Hb/LKMgizIE/0hgHAR1V+uFp4869ht8SJwZf7RETBVkjKLc1VJ1fHgps2iFVilYZvgIAEqLrWrkYhTZ4an/S/vXJI5x4tFrPQhMu9WE6OuNE+48ci4eNgayVfkym8RLXraMgDC3Vh8qvFpzgu3Bl4CnfH2LKRRIO5cy/UILz507UWMQHg2suYauRPBCPgpbxGUDyr/g5o4DWwNyN85dZb6aDr5kiP+w13SquiXm+gC3EteKY8L1gc8Y8fcdYf23I0F8nRhku0Wrj6nLnrUvr2n8K4/5NyS1Jv1aVUkT/Iu5ZJpFpAMz6vwUxFOB3ydh1HVUqg7JBJdQEWlvQVZfUQAzXzWuCXLdNoTaMVK+zgUDzauE72Szn/lvG9PK2v3r1RYQ+WVkQYjidLF5/LUwz56nrlmCLhYY/jlX0IlIhFf0+W1Tuwr0Jpgp4ukc7eJx4vsoiii3n+3Bvq4TfMTup2642fnHbgfw5WkNgQKvRRINmlMg3/OQTXto6LEMCNa4oynnFlls8SwVwn8TDUV42ezPBGolyiKxRLprIRCbVw3vk=
+    - secure: RR+qfrWdzICiQ2zaba/w/vr1Ysdrj5K3qr2fU1w+VvqI/PsnFiSWANw8qCeLH7hBGtFPpkPcGzzychFq14tP1BpNKVpTu6tMjvHZ29vfnPcfckfWcQiblJEBNwHjSq9c9JIw33qXGqquWLcQAyQJFVUFT3PN4uvpXk7Fc1jhWXQTGKZTVtfv0uAd1JrIXR0RUHHxnWDNIK/Zji/6bHVd/+nM1vEFD+yv4cdcOMRrwRAU4OVvV5a6V+ZIIZlo6rZw4o+TmX416h6vZIjjcQm05d33qee3RffuR++H2D28PoIKPRgslEs54IgzhDMu9jlnjEZjLJ1I0ItjRZYt/fXdd3zKnblWrchPAzvWirRBfs1X2XWlg0SGuGcgfO6QPCMEOdfIIV6usVNoXOEolCEkBTO5mucx9vDWZXfQp9SzMysmcPTHA5b1UcowIB7XUmcJsv1H21zc0vxEh7XLmJ9b931c90bqQlfUYV2doNlW4EvK6jVcCUi0lHK4NB9LSIBaOSLRE1nKXBMwVH62TGU0CWVVTVYunkPgA6wCoGs2a8A8nZv9MvhOON2bD2r+Uu0gLtnRbypJl7kYTC5ItwglYfrIVGB1IG+jU4QVgxHf2Iv29nngEnv5Sv/fkSnJUWQIyuun+wHcz4xuZu4/1VnT5vrT8hxSPA5pCz1XDsKuJcU=
+    - secure: Sh3SCQ6Tf54DjhPYW+KE8hwqH1l5UlnFmEg+5+cKyB3uPyU4YgBZt0P5/Ddo6PGrsc6giDQn8XuE2RX9HNoHenlrV4VcbMmXPJDIBjMh1rZ9sgxog0VO9O+IaSG1Dnq5ch9QOuL0LD4s66FiJIadsh091PPkqKsrBpvYepeSCl5GDEgUSrIS3X79NA/GLUiUVILDP32wkt2JtFDMVn1SAbs0h3v9ILM0t1W4FM8+DEvsoKXXVCatd0qkdSSsV0jpad0c3BdSXd+DA0a3O+rhVfinDxBUWPlzqFl85sg4SCt5GhPx9Un58OD7R7kbB4QPgKV97ysszUOruZIKVSKAMjM13hXB4dOkByI7jfTUUvdWCF93P600y6dKd76dRYkRmd9TdegTqF0jln1d7jysHgXInhH5VggfdjOpIoSBsQEDfIDQNR12Ti92wr5PsCH28Jur0RE4AuSmEQIwnXfE9vadAKzhTJ9ZWYUqEXlAipjiF1uWLnH0pj2E9NSBnyenEO+gpD3BaE7Xu0y5Ft5S6MZiB3Gt8ba+UqDFJ1Mllu4M3JwLPQAYgPNqUwNd0+0RCx/SoX4sxAMkuA0g+Cfvs9E3NBAtY5CuwrceDBpUdxBer85JxEppGg+NKaw/NFEagKBZC4oUJ+uLXFkNR+y1fnYtPtNgWI+dG1J/ofIwBgE=
+    - secure: eyRMS3nRXXJctqnkE2tvMmfWuvE2Kc4LbKa0VTLCxnlSrn/PGd4kjwAgu/7EbJXGiw4KqZ6TefiU9x8HhsziOZq+nIvbqYFjD1uEl0rR52XCV1sn6xnIJwAVwUUFWYs1I5XNRIgjiSHxFK/tRH3NQqhTSQfPCDUt3bawkIaUP2Y9r4RcoRmxzj45xB2BeNj0o7JhSsuVDoSJD0mDpEN7eZZitTHMQq7HihbZLTFwamzYfeg/KsuxEeF7QC9MmFZK3YNhqaB/WKrKX57LSHaKsZC43eddAe+jGuDC5uH9bjLmaYiCgJlHnHQCLDQ+3Iq9S6Mal+tAqgbDv96B4ZzEWHawQAM0IKrBGvXsMSARZY2b1jjzuDe0g3evMmPUyAxljmJ6oNJSqAQXNSpQpu3zXbctd2vpQHetbbPg+FO6qv3qkeNVgFFNKfj+soveKJ1E8LmYkqxViasDv2cu60kZb3f/O9ixil+Pda+ooO1Rm27OjtoMokEHm0K1JA5q5gjXAzJMDAJIRBifunSpYf5Io2VgTTSzXq7tXqqau2OwEUQZnsLsnlFNU+551OJFxN+9obtNf/TuTM4b4D4IsuwJdSsg6yyiL1nlMt6EkgjrFHolOJS8L+9jeaFFpo6Qkkj5xUZdrWVtv1fsOki6BMY9/U7dWk4x+O8FI+KYIQgMqOs=
+    - secure: PZe64L76eEmPR4A+GEPNa281V5ff8LKgnhoqR8iKjWHAm4dS0YUw3E/aYKTlnCs0Nrm+AzMnwUQ9ztnGbMH2an8zbMqAT07I49RfnMY7rWivxBfMs/GBMNwFLKlLx9IqQDO4CBCvnb/pJdBRaMySHYnfpiRk6Ri5kefQx0fkzI1/dsdPbwErh4GC1KwLk2gQBe9ZHoZLkYaI5VYotwmK9kf4PrxrZ8zkesBIffWp1+30C6/5AaEnlHBcLQfjAXp2tMj7vL8fjf7sdv/f6SwcLhnaftcqo4O1rHaGZwIxqd9mJfil6H+jGwFJO12Z7zT2XnCVVBYjlUWJIgxAt2arljWY5KH8oC7PT4ZBev1+kZUDAW6p+3VrBpoXbaHs3JXNKRRDXbCGBt0Nr9oTvEqw65o8JFQAchcKt3yLzAffAs+Rs2BVUfwJ6YLxNr7noHR1yi5JAmNPkUWd6T5zYVKGo4dkSv7fnsEJGLh9Rcw9W3o6NiC+eSD9ZAqU16OQ3OpJdRhb0WJE1VVROvqMeDeiCgORDHcZ52tA0pw97VayP0nokcaHej6SaDJYnlBuHuleFa2IslZhi8O3a/SuZO6hDnOjMVzDj7LCwJpaWOpDVpI0g7XgdYlHgtE1VROKVxjuQNJFB6XZhx7lg1r8NLY4IkATcVxCVc2aAEzHD5cdML0=
+    - secure: c5VMPlUWKiUiHntdowgiPeepCw0wiqcCPh6h4D0RdplLOz+F5jWr+jzsiqkhTm/6Bq5aiA938VhyQ14Zckae0936GQYR4XD6Mxm/o8dLyovvvcvSalJROzroOP6ShJ7K/lSNJZGj9WZuC2zuh3kFK6ESV1xuaT6elOftyxP5hWjIGOhO9SOyhZ47MhDx/DRB9YBCmpuKV4xlA0ARxuW4mGrVijStHZ9yryw3+nErd1VmbRoR3U4ZvTvFv58Di6c8Gm1wsD9U8PmI6HuG23g+3+WD65m+LizZchSdhu9G1BLNmEEkHygxV8O4Q6wNswZ7//RamI9WcX3vXhDzAbdtQhFo5xoeHWKHjZMQuqlozb3bW+Ek4MG5bi2cmFZRxWPuJyHXlFXFP9rzQIx3H0DWGklvIs5ZJq4TjkERBY9a4oS/bY9CuUMOVJL4rJTuFf09IUjrZHdVA1j2kARLgJ72A/IgdOlJMLizs4suj4VK+yrzsoMMzBiY6i4sOkE22pqwY5l9DwlDvMfRf2yYvHgeLJoYqCCtVBxMnGTampnkkKuJMo3aSCYx1WI09EZtrG5d2IFDJGKN9hRZdrVg5r7+fxEsl0HcWHnZCQNmKaHIPGDIH/tmCVuM5GYabyohPPvDBh8rhZnnjIgdaowVXRLVK/YZZmwSzNorhQmIkxcJRyM=

@@ -3,7 +3,6 @@
 -- Host: localhost    Database: lastfm
 -- ------------------------------------------------------
 -- Server version	10.1.43-MariaDB-0ubuntu0.18.04.1
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -23,16 +22,16 @@ DROP TABLE IF EXISTS `album_crowns`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `album_crowns` (
-                                `artist_id` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                `artist_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
                                 `discordId` bigint(20) NOT NULL,
-                                `album` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                `album` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
                                 `plays` int(11) NOT NULL,
                                 `guildID` bigint(20) NOT NULL,
                                 PRIMARY KEY (`artist_id`,`album`,`guildID`),
-                                UNIQUE KEY `artist_id_UNIQUE` (`artist_id`,`album`,`guildID`),
+                                -- UNIQUE KEY `artist_id_UNIQUE` (`artist_id`,`album`,`guildID`),
                                 KEY `album_crown_fK_guildID` (`discordId`,`guildID`),
                                 CONSTRAINT `album_crown_fK_guildID` FOREIGN KEY (`discordId`, `guildID`) REFERENCES `user_guild` (`discordId`, `guildId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -43,12 +42,12 @@ DROP TABLE IF EXISTS `artist`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `artist` (
-                          `artist_ID` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `artist_ID` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
                           `playNumber` int(11) DEFAULT NULL,
                           `lastFMID` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
                           PRIMARY KEY (`artist_ID`,`lastFMID`),
                           KEY `artist_idx_lastfmid_id` (`lastFMID`,`artist_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -59,13 +58,13 @@ DROP TABLE IF EXISTS `artist_url`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `artist_url` (
-                              `artist_ID` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                              `artist_ID` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
                               `url` varchar(180) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                               `url_status` tinyint(1) DEFAULT '1',
                               `correction_status` tinyint(1) DEFAULT '0',
                               PRIMARY KEY (`artist_ID`),
                               UNIQUE KEY `artist_url_artist_id_uindex` (`artist_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -76,12 +75,12 @@ DROP TABLE IF EXISTS `corrections`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `corrections` (
-                               `artist_id` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-                               `correction` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                               `artist_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                               `correction` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                                UNIQUE KEY `correction_UNIQUE` (`correction`),
                                UNIQUE KEY `artist_id_UNIQUE` (`artist_id`),
                                CONSTRAINT `a_id_fk` FOREIGN KEY (`correction`) REFERENCES `artist_url` (`artist_ID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -154,11 +153,11 @@ DROP TABLE IF EXISTS `randomlinks`;
 CREATE TABLE `randomlinks` (
                                `discordId` bigint(20) NOT NULL,
                                `guildId` bigint(20) DEFAULT NULL,
-                               `url` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+                               `url` varchar(191) COLLATE utf8mb4_general_ci NOT NULL,
                                PRIMARY KEY (`url`),
                                UNIQUE KEY `unique_url_random` (`url`),
                                KEY `discordId` (`discordId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
