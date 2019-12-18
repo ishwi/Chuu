@@ -113,9 +113,11 @@ public class TasteRenderer {
 			g.fillRect(rectanglePosition, rectangle_start_y, (int) (rectangle_width * percentage), rectangle_height);
 			g.setColor(Color.WHITE);
 			g.setFont(usernameFont);
-			GraphicUtils.drawStringNicely(g,userInfo.getUsername(), nameStringPosition, 20 + PROFILE_IMAGE_SIZE / 2,canvas);
+			GraphicUtils.drawStringNicely(g, userInfo
+					.getUsername(), nameStringPosition, 20 + PROFILE_IMAGE_SIZE / 2, canvas);
 			g.setFont(scrobbleFont);
-			GraphicUtils.drawStringNicely(g,"" + userInfo.getPlayCount(), countStringPosition, rectangle_start_y + rectangle_height - 1,canvas);
+			GraphicUtils.drawStringNicely(g, "" + userInfo
+					.getPlayCount(), countStringPosition, rectangle_start_y + rectangle_height - 1, canvas);
 			x++;
 
 		}
@@ -126,11 +128,11 @@ public class TasteRenderer {
 
 		g.setFont(titleFont);
 		int length = g.getFontMetrics().stringWidth(a);
-		GraphicUtils.drawStringNicely(g,"" + resultWrapper.getRows(), x_MAX / 2 - length / 2, y - 30,canvas);
+		GraphicUtils.drawStringNicely(g, "" + resultWrapper.getRows(), x_MAX / 2 - length / 2, y - 30, canvas);
 
 		g.setFont(subtitle);
 
-		GraphicUtils.drawStringNicely(g,"common artists", x_MAX / 2 + length / 2 + 4, y - 30,canvas);
+		GraphicUtils.drawStringNicely(g, "common artists", x_MAX / 2 + length / 2 + 4, y - 30, canvas);
 
 		//Draws Top 10
 
@@ -155,18 +157,18 @@ public class TasteRenderer {
 			int widthB = g.getFontMetrics().stringWidth(strCountBString);
 
 			int countBStart = x_MAX - 100 - widthB;
-			GraphicUtils.drawStringNicely(g,"" + countA, 100, y,canvas);
-			GraphicUtils.drawStringNicely(g,"" + countB, countBStart, y,canvas);
+			GraphicUtils.drawStringNicely(g, "" + countA, 100, y, canvas);
+			GraphicUtils.drawStringNicely(g, "" + countB, countBStart, y, canvas);
 			g.setFont(artistFont);
-			int widthStr = g.getFontMetrics().stringWidth(item.getArtistID());
 
 
 			Font fontToUse;
 			if (g.getFont().canDisplayUpTo(artistID) != -1) {
 				fontToUse = new Font("Noto Serif CJK JP", Font.PLAIN, 21);
 				g.setFont(fontToUse);
-			} else
-			GraphicUtils.drawStringNicely(g,artistID, x_MAX / 2 - (widthStr / 2), y,canvas);
+			}
+			int widthStr = g.getFontMetrics().stringWidth(item.getArtistID());
+			GraphicUtils.drawStringNicely(g, artistID, x_MAX / 2 - (widthStr / 2), y, canvas);
 			y += g.getFontMetrics().getHeight() + 5;
 		}
 		g.dispose();
