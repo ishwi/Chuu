@@ -2,6 +2,7 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.NoOpParser;
 import dao.DaoImplementation;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -15,6 +16,7 @@ public class InviteCommand extends ConcurrentCommand {
 
 	public InviteCommand(DaoImplementation dao) {
 		super(dao);
+		this.parser = new NoOpParser();
 	}
 
 	@Override
