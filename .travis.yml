@@ -32,6 +32,7 @@ before_install:
   - awk -v key=$DC_API '/DC_API/{$3=key}3;' src/test/resources/all.properties > tmp && mv tmp src/test/resources/all.properties
   - awk -v key=$DC_SC '/DC_SC/{$3=key}3;' src/test/resources/all.properties > tmp && mv tmp src/test/resources/all.properties
   - awk -v key=$DISCORD_TOKEN '/DISCORD_TOKEN/{$3=key}3;' src/test/resources/all.properties > tmp && mv tmp src/test/resources/all.properties
+  - awk -v key=$client_ID '/client_ID/{$3=key}3;' src/test/resources/all.properties > tmp && mv tmp src/test/resources/all.properties
   - awk -v key=$client_Secret '/client_Secret/{$3=key}3;' src/test/resources/all.properties > tmp && mv tmp src/test/resources/all.properties
   - awk -v key=$LASTFM_APIKEY '/LASTFM_APIKEY/{$3=key}3;' src/test/resources/all.properties > tmp && mv tmp src/test/resources/all.properties
   - awk -v key=$T_DISCORD_TOKEN '/DISCORD_TOKEN/{$3=key}3;' src/test/resources/tester.properties > tmp && mv tmp src/test/resources/tester.properties
@@ -40,7 +41,7 @@ before_install:
 
 
 script:
-  - ./gradlew check --info --debug
+  - ./gradlew check --info
 language: java
 jdk:
   - oraclejdk12
