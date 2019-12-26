@@ -82,7 +82,6 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 "       select artist_id, playNumber, a.lastFMID ,b.discordID" +
                 "       from artist a join lastfm b " +
                 "       ON a.lastFMID = b.lastFmId " +
-                "       JOIN user_guild c ON b.discordID = c.discordId " +
                 "       where  a.playNumber > 2 " +
                 "       group by a.artist_id " +
                 "       having count( *) = 1) temp " +
