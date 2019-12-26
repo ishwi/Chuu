@@ -1,12 +1,12 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.UniqueData;
-import dao.entities.UniqueWrapper;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
+import dao.DaoImplementation;
+import dao.entities.UniqueData;
+import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -21,6 +21,14 @@ public class CrownsCommand extends ConcurrentCommand {
 		parser = new OnlyUsernameParser(dao);
 		this.respondInPrivate = false;
 
+	}
+
+	public boolean isGlobal() {
+		return false;
+	}
+
+	public UniqueWrapper<UniqueData> getList(long guildId, String lastFmName) {
+		return getDao().getCrowns(lastFmName, guildId);
 	}
 
 	@Override
@@ -38,12 +46,11 @@ public class CrownsCommand extends ConcurrentCommand {
 		String[] returned = parser.parse(e);
 		String lastFmName = returned[0];
 		//long discordID = Long.parseLong(returned[1]);
-
-		UniqueWrapper<UniqueData> uniqueDataUniqueWrapper = getDao().getCrowns(lastFmName, e.getGuild().getIdLong());
+		UniqueWrapper<UniqueData> uniqueDataUniqueWrapper = getList(e.getGuild().getIdLong(), lastFmName);
 		List<UniqueData> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 		int rows = resultWrapper.size();
 		if (rows == 0) {
-			sendMessageQueue(e, "You don't have any crown :'(");
+			sendMessageQueue(e, "You don't have any" + (isGlobal() ? " global " : " ") + "crown :'(");
 			return;
 		}
 
@@ -59,8 +66,8 @@ public class CrownsCommand extends ConcurrentCommand {
 		EmbedBuilder embedBuilder = new EmbedBuilder();
 		embedBuilder.setDescription(a);
 		embedBuilder.setColor(CommandUtil.randomColor());
-		embedBuilder.setTitle(name + "'s crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
-		embedBuilder.setFooter(name + " has " + resultWrapper.size() + " crowns!!\n", null);
+		embedBuilder.setTitle(name + "'s " + (isGlobal() ? "global " : "") + "crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
+		embedBuilder.setFooter(name + " has " + resultWrapper.size() + (isGlobal() ? " global" : "") + " crowns!!\n", null);
 		if (whoD != null)
 			embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
 
