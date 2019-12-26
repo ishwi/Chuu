@@ -73,7 +73,7 @@ public class EmbedUtils {
 			artistThumbnail = isLeaderboard ? serverThumbnail : first.get().getUser().getAvatarUrl();
 		}
 		Pattern footerRegex = Pattern
-				.compile("(" + header + " has (?:(\\d+) ((?:album )?crown(s)?!|registered user(s)?|unique artist(s)?|)|stolen (\\d+) crown(?:s)? {2})|(.*) has stolen \\d+ crowns)!");
+				.compile("(" + header + " has (?:(\\d+) (?:global )?((?:album )?crown(s)?!|registered user(s)?|unique artist(s)?|)|stolen (\\d+) crown(?:s)? {2})|(.*) has stolen \\d+ crowns)!");
 
 		Pattern titlePattern = Pattern.compile(titleRegex.replaceAll("\\$\\{header}", header));
 
