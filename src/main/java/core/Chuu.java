@@ -182,7 +182,11 @@ public class Chuu {
 				.addEventListeners(help.registerCommand(new UserTopTrackCommand(dao)))
 				.addEventListeners(help.registerCommand(new SummaryArtistCommand(dao)))
 				.addEventListeners(help.registerCommand(new InviteCommand(dao)))
-				.addEventListeners(help.registerCommand(new SourceCommand(dao)));
+				.addEventListeners(help.registerCommand(new SourceCommand(dao)))
+				.addEventListeners(help.registerCommand(new GloablArtistCommand(dao)))
+				.addEventListeners(help.registerCommand(new GlobalCrownsCommand(dao)))
+				.addEventListeners(help.registerCommand(new GlobalUniquesCommand(dao)));
+
 
 		try {
 			jda = builder.build().awaitReady();
