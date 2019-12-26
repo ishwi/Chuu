@@ -38,26 +38,43 @@ public class TestResources extends ExternalResource {
 	public static boolean setUp = false;
 	public static long developerId;
 	public static String commonArtist;
-	public static String testerJdaUsername;
-	private final AtomicBoolean started = new AtomicBoolean();
+    public static String testerJdaUsername;
+    private final AtomicBoolean started = new AtomicBoolean();
 
-	private TestResources() {
+    private TestResources() {
 
-	}
+    }
 
-	public static void deleteCommonArtists() {
-		dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-				.getGuild().getIdLong()));
-		ArrayList<ArtistData> artistData = new ArrayList<>();
-		dao.insertArtistDataList(artistData, "guilleecs");
-		dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
-	}
+    public static void deleteCommonArtists() {
+        dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
+                .getGuild().getIdLong()));
+        ArrayList<ArtistData> artistData = new ArrayList<>();
+        dao.insertArtistDataList(artistData, "guilleecs");
+        dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
+    }
 
-	@Override
-	protected void before() throws Throwable {
-		if (!started.compareAndSet(false, true)) {
-			return;
-		}
+    public static void insertOnlyKnownSecond(String second, int plays) {
+        dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
+                .getGuild().getIdLong()));
+        ArrayList<ArtistData> artistData = new ArrayList<>();
+        artistData.add(new ArtistData("guilleecs", second, plays));
+        dao.insertArtistDataList(artistData, "guilleecs");
+        dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
+    }
+
+    public static void deleteOnlyKnownSecond() {
+        dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
+                .getGuild().getIdLong()));
+        ArrayList<ArtistData> artistData = new ArrayList<>();
+        dao.insertArtistDataList(artistData, "guilleecs");
+        dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
+    }
+
+    @Override
+    protected void before() throws Throwable {
+        if (!started.compareAndSet(false, true)) {
+            return;
+        }
 		init();
 		// Initialization code goes here
 	}

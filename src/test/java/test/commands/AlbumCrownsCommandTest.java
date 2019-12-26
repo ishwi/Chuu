@@ -1,10 +1,10 @@
 package test.commands;
 
+import org.junit.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedUtils;
 import test.commands.utils.TestResources;
-import org.junit.Test;
 
 import java.util.regex.Pattern;
 
@@ -39,6 +39,19 @@ public class AlbumCrownsCommandTest extends CommandTest {
 		EmbedUtils.testLeaderboardEmbed("!crowns " + TestResources.ogJDA.getSelfUser()
 				.getAsMention(), EmbedUtils.descriptionArtistRegex, regex, false, true, Pattern
 				.compile("You don't have any crown :'\\("));
+	}
+
+	@Test
+	public void globalCrowns() {
+
+		String regex = "${header}'s global crown(s)?";
+
+		EmbedUtils.testLeaderboardEmbed("!globalcrowns", EmbedUtils.descriptionArtistRegex, regex, false, Pattern
+				.compile("You don't have any global crown :'\\("));
+
+		EmbedUtils.testLeaderboardEmbed("!globalcrowns " + TestResources.ogJDA.getSelfUser()
+				.getAsMention(), EmbedUtils.descriptionArtistRegex, regex, false, true, Pattern
+				.compile("You don't have any global crown :'\\("));
 	}
 
 	@Test
@@ -98,6 +111,17 @@ public class AlbumCrownsCommandTest extends CommandTest {
 		String regex = "${header}'s Top 10 unique Artists";
 		EmbedUtils.testLeaderboardEmbed("!unique", EmbedUtils.descriptionArtistRegex, regex, false, noEmbeddPattern);
 		EmbedUtils.testLeaderboardEmbed("!unique " + TestResources.ogJDA.getSelfUser()
+				.getAsMention(), EmbedUtils.descriptionArtistRegex, regex, false, true, noEmbeddPattern);
+
+	}
+
+	@Test
+	public void globalUniques() {
+
+		Pattern noEmbeddPattern = Pattern.compile("You have no global Unique Artists :\\(");
+		String regex = "${header}'s Top 10 global unique Artists";
+		EmbedUtils.testLeaderboardEmbed("!globalunique", EmbedUtils.descriptionArtistRegex, regex, false, noEmbeddPattern);
+		EmbedUtils.testLeaderboardEmbed("!globalunique " + TestResources.ogJDA.getSelfUser()
 				.getAsMention(), EmbedUtils.descriptionArtistRegex, regex, false, true, noEmbeddPattern);
 
 	}
