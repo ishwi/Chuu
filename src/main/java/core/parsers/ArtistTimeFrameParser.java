@@ -1,11 +1,11 @@
 package core.parsers;
 
-import dao.DaoImplementation;
-import dao.entities.NowPlayingArtist;
-import dao.entities.TimeFrameEnum;
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import dao.DaoImplementation;
+import dao.entities.NowPlayingArtist;
+import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -38,8 +38,8 @@ public class ArtistTimeFrameParser extends ArtistParser {
 					return null;
 				}
 				sample = members.get(0).getUser();
-				words = Arrays.stream(words).filter(s -> !s.equals(sample.getAsMention()))
-						.toArray(String[]::new);
+				words = Arrays.stream(words).filter(s -> !s.equals(sample.getAsMention()) && !s
+						.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
 			} else {
 				sample = e.getMember().getUser();
 			}
