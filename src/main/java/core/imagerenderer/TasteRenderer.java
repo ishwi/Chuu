@@ -26,16 +26,18 @@ public class TasteRenderer {
 		Graphics2D g = canvas.createGraphics();
 		GraphicUtils.setQuality(g);
 
-		GraphicUtils.initRandomImageBlurredBackground(g, x_MAX, y_MAX);
+		//	GraphicUtils.initRandomImageBlurredBackground(g, x_MAX, y_MAX);
 
 		//Gets Profile Images
 		for (UserInfo userInfo : userInfoLiust) {
 			try {
 				java.net.URL url = new java.net.URL(userInfo.getImage());
 				imageList.add(ImageIO.read(url));
-			} catch (IOException e) {
+			} catch (IndexOutOfBoundsException | IOException exception) {
+				//JDK error when reading a gif as png | other errors
 				imageList.add(GraphicUtils.noArtistImage);
 			}
+
 		}
 
 		//Init Of Variables
@@ -160,7 +162,6 @@ public class TasteRenderer {
 			GraphicUtils.drawStringNicely(g, "" + countA, 100, y, canvas);
 			GraphicUtils.drawStringNicely(g, "" + countB, countBStart, y, canvas);
 			g.setFont(artistFont);
-
 
 			Font fontToUse;
 			if (g.getFont().canDisplayUpTo(artistID) != -1) {

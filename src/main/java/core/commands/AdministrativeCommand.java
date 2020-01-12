@@ -41,6 +41,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 		System.out.println("USER LEFT");
 		System.out.println("USER LEFT");
 
+
 		Executors.newSingleThreadExecutor()
 				.execute(() -> getDao()
 						.removeUserFromOneGuildConsequent(event.getMember().getIdLong(), event.getGuild().getIdLong())
@@ -67,6 +68,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 				usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser))
 						.collect(Collectors.toList());
 				usersToDelete.forEach(u -> getDao().removeUserFromOneGuildConsequent(u, key));
+				Chuu.getLogger().info("Deleted Users :" + usersToDelete.size());
 
 
 			} else {

@@ -1,12 +1,12 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.UniqueData;
-import dao.entities.UniqueWrapper;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
+import dao.DaoImplementation;
+import dao.entities.UniqueData;
+import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -33,6 +33,11 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
 	}
 
 	@Override
+	public String getName() {
+		return "Your own album top";
+	}
+
+	@Override
 	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] returned = parser.parse(e);
 		String lastFmName = returned[0];
@@ -41,7 +46,6 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
 		Member whoD = e.getGuild().getMemberById(discordID);
 		String name = whoD != null ? whoD
 				.getEffectiveName() : getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
-
 
 		UniqueWrapper<UniqueData> uniqueDataUniqueWrapper = getDao()
 				.getUserAlbumCrowns(lastFmName, e.getGuild().getIdLong());
@@ -70,12 +74,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
 
 		MessageBuilder mes = new MessageBuilder();
 		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-				new Reactionary<>(resultWrapper, message1, embedBuilder));
-	}
-
-	@Override
-	public String getName() {
-		return "Your own album top";
+				executor.submit(() -> new Reactionary<>(resultWrapper, message1, embedBuilder)));
 	}
 
 }

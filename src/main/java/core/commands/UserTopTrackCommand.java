@@ -1,12 +1,12 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.TimeFrameEnum;
-import dao.entities.Track;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.TimerFrameParser;
+import dao.DaoImplementation;
+import dao.entities.TimeFrameEnum;
+import dao.entities.Track;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -67,7 +67,8 @@ public class UserTopTrackCommand extends ConcurrentCommand {
 						.getLastFmUser(timeframe));
 		embedBuilder.setThumbnail(url.toString().isEmpty() ? null : url.toString());
 		e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build())
-				.queue(message -> new Reactionary<>(listTopTrack, message, embedBuilder));
+				.queue(message ->
+						executor.submit(() -> new Reactionary<>(listTopTrack, message, embedBuilder)));
 
 	}
 }

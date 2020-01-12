@@ -93,8 +93,7 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 				.setThumbnail(member.getUser().getAvatarUrl())
 				.setFooter(member2.getEffectiveName() + " has stolen " + rows + " crowns!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
-				new Reactionary<>(resultWrapper.getList(), m, embedBuilder)
-		);
+				executor.submit(() -> new Reactionary<>(resultWrapper.getList(), m, embedBuilder)));
 
 	}
 

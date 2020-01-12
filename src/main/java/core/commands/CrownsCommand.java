@@ -73,7 +73,8 @@ public class CrownsCommand extends ConcurrentCommand {
 
 		MessageBuilder mes = new MessageBuilder();
 		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-				new Reactionary<>(resultWrapper, message1, embedBuilder));
+
+				executor.submit(() -> new Reactionary<>(resultWrapper, message1, embedBuilder)));
 	}
 
 	@Override
