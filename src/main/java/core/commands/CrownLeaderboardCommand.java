@@ -1,11 +1,9 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.LbEntry;
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
+import dao.DaoImplementation;
+import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -68,8 +66,8 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 				.setThumbnail(e.getGuild().getIconUrl())
 				.setFooter(e.getGuild().getName() + " has " + list.size() + " registered users!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
-				new Reactionary<>(list, message, embedBuilder)
-		);
+				executor.submit(() -> new Reactionary<>(list, message, embedBuilder)));
+
 	}
 
 

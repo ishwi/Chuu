@@ -842,9 +842,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public List<GlobalCrown> getGlobalKnows(Connection connection, String artistID) {
         List<GlobalCrown> returnedList = new ArrayList<>();
-        @Language("MariaDB") String queryString = "Select  @rank := @rank + 1  ranking , playnumber as ord, discordId, l.lastfmID\n" +
+        @Language("MariaDB") String queryString = "Select  playnumber as ord, discordId, l.lastfmID\n" +
                 " FROM  artist ar\n" +
-                "JOIN  ( SELECT  @rank := 0 ) AS init " +
                 "  	 	 JOIN lastfm l on ar.lastfmid = l.lastfmid " +
                 "        WHERE  artist_id = ? " +
                 "        ORDER BY  playNumber desc";
@@ -856,14 +855,15 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 
             ResultSet resultSet = preparedStatement.executeQuery();
+            int j =1 ;
             while (resultSet.next()) { //&& (j < 10 && j < rows)) {
-                int rank = resultSet.getInt("ranking");
+
 
                 String lastFMId = resultSet.getString("lastfmID");
                 long discordId = resultSet.getLong("discordId");
                 int crowns = resultSet.getInt("ord");
 
-                returnedList.add(new GlobalCrown(lastFMId, discordId, crowns, rank));
+                returnedList.add(new GlobalCrown(lastFMId, discordId, crowns, j++));
             }
             return returnedList;
         } catch (SQLException e) {

@@ -33,12 +33,9 @@ public class UniqueCommand extends ConcurrentCommand {
 		return Collections.singletonList("unique");
 	}
 
-	public boolean isGlobal() {
-		return false;
-	}
-
-	public UniqueWrapper<UniqueData> getList(long guildId, String lastFmName) {
-		return getDao().getUniqueArtist(guildId, lastFmName);
+	@Override
+	public String getName() {
+		return "Unique List Of Artists";
 	}
 
 	@Override
@@ -65,20 +62,24 @@ public class UniqueCommand extends ConcurrentCommand {
 		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
 				.setThumbnail(e.getGuild().getIconUrl());
 		embedBuilder.setDescription(a).setTitle(member
-				.getEffectiveName() + "'s Top 10" + (isGlobal() ? " global" : "") + " unique Artists", CommandUtil.getLastFmUser(lastFmName))
+				.getEffectiveName() + "'s Top 10" + (isGlobal() ? " global" : "") + " unique Artists", CommandUtil
+				.getLastFmUser(lastFmName))
 				.setThumbnail(member.getUser().getAvatarUrl())
-				.setFooter(member.getEffectiveName() + " has " + rows + (isGlobal() ? " global" : "") + " unique artists!\n", null);
+				.setFooter(member
+						.getEffectiveName() + " has " + rows + (isGlobal() ? " global" : "") + " unique artists!\n", null);
 
 		MessageBuilder messageBuilder = new MessageBuilder();
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
-				new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder)
-		);
+				executor.submit(() -> new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder)));
 
 	}
 
-	@Override
-	public String getName() {
-		return "Unique List Of Artists";
+	public boolean isGlobal() {
+		return false;
+	}
+
+	public UniqueWrapper<UniqueData> getList(long guildId, String lastFmName) {
+		return getDao().getUniqueArtist(guildId, lastFmName);
 	}
 
 

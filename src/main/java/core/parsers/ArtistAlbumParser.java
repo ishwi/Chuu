@@ -33,8 +33,7 @@ public class ArtistAlbumParser extends DaoParser {
 					return null;
 				}
 				sample = members.get(0).getUser();
-				subMessage = Arrays.stream(subMessage).filter(s -> !s.equals(sample.getAsMention()))
-						.toArray(String[]::new);
+				subMessage = Arrays.stream(subMessage).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
 			} else {
 				sample = e.getMember().getUser();
 			}

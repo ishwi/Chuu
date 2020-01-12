@@ -92,8 +92,9 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 					.setColor(CommandUtil.randomColor());
 			//.setFooter("Command invoked by " + event.getMember().getLastFmId().getDiscriminator() + "" + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toApiFormat(), );
 			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel())
-					.queue(message1 -> new Reactionary<>(wrapperReturnNowPlaying
-							.getReturnNowPlayings(), message1, embedBuilder));
+					.queue(message1 ->
+							executor.submit(() -> new Reactionary<>(wrapperReturnNowPlaying
+							.getReturnNowPlayings(), message1, embedBuilder)));
 		} else {
 
 			wrapperReturnNowPlaying.getReturnNowPlayings().forEach(element ->
