@@ -1,7 +1,7 @@
 package dao.musicbrainz;
 
-import dao.entities.*;
 import core.Chuu;
+import dao.entities.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -94,18 +94,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 				i++;
 			}
 
-			preparedStatement.setInt(1 + releaseInfo.size() * 2, year.get(ChronoField.YEAR));
-
-			ResultSet resultSet = preparedStatement.executeQuery();
-
-			while (resultSet.next()) {
-
-				String artist = resultSet.getString("artistname");
-				String album = resultSet.getString("albumname");
-
-				AlbumInfo ai = new AlbumInfo("", album, artist);
-				returnList.add(ai);
-			}
+			prepareRealeaseYearStatement(releaseInfo, year, returnList, preparedStatement);
 		} catch (SQLException e) {
 			Chuu.getLogger().warn(e.getMessage(), e);
 			throw new RuntimeException(e);
@@ -246,6 +235,64 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 				"order by e.position;";
 
 		return processTracks(connection, artist, album, returnList, queryString);
+	}
+
+	@Override
+	public List<AlbumInfo> getYearAlbumsByReleaseNameLowerCase(Connection con, List<AlbumInfo> releaseInfo, Year year) {
+		String queryString = "SELECT DISTINCT\n" +
+				"    (a.name) as artistname, b.name as albumname,  d.first_release_date_year as year \n" +
+				"FROM\n" +
+				"    musicbrainz.artist_credit a\n" +
+				"        JOIN\n" +
+				"    musicbrainz.release b ON a.id = b.artist_credit\n" +
+				"        JOIN\n" +
+				"    musicbrainz.release_group c ON b.release_group = c.id\n" +
+				"        JOIN\n" +
+				"    musicbrainz.release_group_meta d ON c.id = d.id ";
+		String whereSentence;
+
+		StringBuilder artistWhere = new StringBuilder("where lower(a.name) in (");
+		StringBuilder albumWhere = new StringBuilder("and lower(b.name) in  (");
+		for (AlbumInfo ignored : releaseInfo) {
+			artistWhere.append(" ? ,");
+			albumWhere.append(" ? ,");
+		}
+		whereSentence = artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
+		whereSentence += albumWhere.toString().substring(0, albumWhere.length() - 1) + ") ";
+		whereSentence += "and d.first_release_date_year = ?";
+
+		List<AlbumInfo> returnList = new ArrayList<>();
+		try (PreparedStatement preparedStatement = con.prepareStatement(queryString + whereSentence)) {
+			int i = 1;
+
+			for (AlbumInfo albumInfo : releaseInfo) {
+
+				preparedStatement.setString(i, albumInfo.getName().toLowerCase());
+				preparedStatement.setString(i + releaseInfo.size(), albumInfo.getName().toLowerCase());
+				i++;
+			}
+
+			prepareRealeaseYearStatement(releaseInfo, year, returnList, preparedStatement);
+		} catch (SQLException e) {
+			Chuu.getLogger().warn(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
+		return returnList;
+	}
+
+	private void prepareRealeaseYearStatement(List<AlbumInfo> releaseInfo, Year year, List<AlbumInfo> returnList, PreparedStatement preparedStatement) throws SQLException {
+		preparedStatement.setInt(1 + releaseInfo.size() * 2, year.get(ChronoField.YEAR));
+
+		ResultSet resultSet = preparedStatement.executeQuery();
+
+		while (resultSet.next()) {
+
+			String artist = resultSet.getString("artistname");
+			String album = resultSet.getString("albumname");
+
+			AlbumInfo ai = new AlbumInfo("", album, artist);
+			returnList.add(ai);
+		}
 	}
 
 	private List<Track> processTracks(Connection connection, String artist, String album, List<Track> returnList, String queryString) {

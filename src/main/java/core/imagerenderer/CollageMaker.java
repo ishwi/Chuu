@@ -1,14 +1,17 @@
 package core.imagerenderer;
 
-import dao.entities.UrlCapsule;
 import core.Chuu;
+import core.apis.ExecutorsSingleton;
+import dao.entities.UrlCapsule;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CollageMaker {
@@ -30,13 +33,14 @@ public class CollageMaker {
 		GraphicUtils.setQuality(g);
 
 		AtomicInteger max = new AtomicInteger(queue.size());
-		ExecutorService es = Executors.newCachedThreadPool();
+		ExecutorService es = ExecutorsSingleton.getInstanceUsingDoubleLocking();
 
-		for (int i = 0; i < 3; i++)
-			es.execute((new ThreadQueue(queue, g, x, y, max, writePlays, writeTitles, makeSmaller)));
-		es.shutdown();
+		List<Callable<Object>> calls = new ArrayList<>();
+		for (int i = 0; i < 2; i++) {
+			calls.add(Executors.callable(new ThreadQueue(queue, g, x, y, max, writePlays, writeTitles, makeSmaller)));
+		}
 		try {
-			es.awaitTermination(10, TimeUnit.MINUTES);
+			es.invokeAll(calls);
 		} catch (InterruptedException e) {
 			Chuu.getLogger().warn(e.getMessage(), e);
 		}

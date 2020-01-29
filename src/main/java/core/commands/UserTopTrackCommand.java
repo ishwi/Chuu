@@ -68,7 +68,7 @@ public class UserTopTrackCommand extends ConcurrentCommand {
 		embedBuilder.setThumbnail(url.toString().isEmpty() ? null : url.toString());
 		e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build())
 				.queue(message ->
-						executor.submit(() -> new Reactionary<>(listTopTrack, message, embedBuilder)));
+						executor.execute(() -> new Reactionary<>(listTopTrack, message, embedBuilder)));
 
 	}
 }
