@@ -1,7 +1,7 @@
 package core.commands;
 
-import dao.DaoImplementation;
 import core.apis.ExecutorsSingleton;
+import dao.DaoImplementation;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.concurrent.ExecutorService;
@@ -18,7 +18,7 @@ abstract class ConcurrentCommand extends MyCommand {
 
 	@Override
 	void measureTime(MessageReceivedEvent e) {
-		executor.submit(() -> {
+		executor.execute(() -> {
 			long startTime = System.currentTimeMillis();
 			handleCommand(e);
 					long endTime = System.currentTimeMillis();

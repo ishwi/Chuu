@@ -1,9 +1,5 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.ArtistData;
-import dao.entities.ReturnNowPlaying;
-import dao.entities.WrapperReturnNowPlaying;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
@@ -14,6 +10,10 @@ import core.imagerenderer.WhoKnowsMaker;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
+import dao.DaoImplementation;
+import dao.entities.ArtistData;
+import dao.entities.ReturnNowPlaying;
+import dao.entities.WrapperReturnNowPlaying;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -93,7 +93,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 			//.setFooter("Command invoked by " + event.getMember().getLastFmId().getDiscriminator() + "" + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toApiFormat(), );
 			messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel())
 					.queue(message1 ->
-							executor.submit(() -> new Reactionary<>(wrapperReturnNowPlaying
+							executor.execute(() -> new Reactionary<>(wrapperReturnNowPlaying
 							.getReturnNowPlayings(), message1, embedBuilder)));
 		} else {
 

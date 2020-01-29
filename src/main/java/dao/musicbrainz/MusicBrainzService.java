@@ -15,6 +15,9 @@ public interface MusicBrainzService {
 
 	List<AlbumInfo> findArtistByRelease(List<AlbumInfo> releaseInfo, Year year);
 
+	List<AlbumInfo> findArtistByReleaseLowerCase(List<AlbumInfo> releaseInfo, Year year);
+
+
 	List<AlbumInfo> findArtistByReleaseCurrentYear(List<AlbumInfo> releaseInfo);
 
 	Map<Genre, Integer> genreCount(List<AlbumInfo> releaseInfo);

@@ -70,7 +70,7 @@ public class UniqueCommand extends ConcurrentCommand {
 
 		MessageBuilder messageBuilder = new MessageBuilder();
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
-				executor.submit(() -> new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder)));
+				executor.execute(() -> new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder)));
 
 	}
 

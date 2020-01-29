@@ -1,6 +1,14 @@
 package core.commands;
 
 import com.google.common.collect.Multimaps;
+import core.apis.discogs.DiscogsApi;
+import core.apis.discogs.DiscogsSingleton;
+import core.apis.spotify.Spotify;
+import core.apis.spotify.SpotifySingleton;
+import core.exceptions.InstanceNotFoundException;
+import core.exceptions.LastFmEntityNotFoundException;
+import core.exceptions.LastFmException;
+import core.imagerenderer.TrackDistributor;
 import dao.DaoImplementation;
 import dao.entities.ArtistData;
 import dao.entities.FullAlbumEntity;
@@ -8,13 +16,6 @@ import dao.entities.LastFMData;
 import dao.entities.Track;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
-import core.imagerenderer.TrackDistributor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
@@ -61,7 +62,15 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 		artist = artistData.getArtist();
 		artistUrl = artistData.getUrl();
 
-		fullAlbumEntity = lastFM.getTracksAlbum(data.getName(), artist, album);
+		try {
+			fullAlbumEntity = lastFM.getTracksAlbum(data.getName(), artist, album);
+
+		} catch (LastFmEntityNotFoundException ex)
+		//If it doesnt exists on last.fm we do a little workaround
+		{
+			int artistPlays = getDao().getArtistPlays(artist, data.getName());
+			fullAlbumEntity = new FullAlbumEntity(artist, album, artistPlays, null, data.getName());
+		}
 
 		List<Track> trackList = fullAlbumEntity.getTrackList();
 		if (trackList.isEmpty()) {
@@ -70,7 +79,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 					.stream().map(t ->
 					{
 						try {
-							return lastFM.getTrackInfo(fullAlbumEntity.getUsername(), t.getArtist(), t.getName());
+							return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
 						} catch (LastFmException ex) {
 							return t;
 						}
@@ -83,7 +92,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 						.stream().map(t ->
 						{
 							try {
-								return lastFM.getTrackInfo(fullAlbumEntity.getUsername(), t.getArtist(), t.getName());
+								return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
 							} catch (LastFmException ex) {
 								return t;
 							}

@@ -121,14 +121,14 @@ public class Chuu {
 		AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
 		PrefixCommand prefixCommand = new PrefixCommand(dao);
 
-		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(3);
+		ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
 		if (!isTest) {
 			scheduledManager.scheduleAtFixedRate(
-					new UpdaterThread(dao, true), 0, 60,
+					new UpdaterThread(dao, true), 0, 120,
 					TimeUnit.SECONDS);
-			scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 10, TimeUnit.MINUTES);
+			scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 20, TimeUnit.MINUTES);
 			scheduledManager.scheduleAtFixedRate(
-					new SpotifyUpdaterThread(dao), 0, 10,
+					new SpotifyUpdaterThread(dao), 11, 20,
 					TimeUnit.MINUTES);
 		}
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
