@@ -66,7 +66,7 @@ public class CrownLeaderboardCommand extends ConcurrentCommand {
 				.setThumbnail(e.getGuild().getIconUrl())
 				.setFooter(e.getGuild().getName() + " has " + list.size() + " registered users!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
-				executor.submit(() -> new Reactionary<>(list, message, embedBuilder)));
+				executor.execute(() -> new Reactionary<>(list, message, embedBuilder)));
 
 	}
 

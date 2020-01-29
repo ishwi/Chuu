@@ -26,7 +26,7 @@ public class TasteRenderer {
 		Graphics2D g = canvas.createGraphics();
 		GraphicUtils.setQuality(g);
 
-		//	GraphicUtils.initRandomImageBlurredBackground(g, x_MAX, y_MAX);
+		GraphicUtils.initRandomImageBlurredBackground(g, x_MAX, y_MAX);
 
 		//Gets Profile Images
 		for (UserInfo userInfo : userInfoLiust) {

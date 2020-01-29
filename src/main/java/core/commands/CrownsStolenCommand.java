@@ -1,12 +1,12 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.StolenCrown;
-import dao.entities.StolenCrownWrapper;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.TwoUsersParser;
+import dao.DaoImplementation;
+import dao.entities.StolenCrown;
+import dao.entities.StolenCrownWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -93,7 +93,7 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 				.setThumbnail(member.getUser().getAvatarUrl())
 				.setFooter(member2.getEffectiveName() + " has stolen " + rows + " crowns!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
-				executor.submit(() -> new Reactionary<>(resultWrapper.getList(), m, embedBuilder)));
+				executor.execute(() -> new Reactionary<>(resultWrapper.getList(), m, embedBuilder)));
 
 	}
 

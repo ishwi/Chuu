@@ -19,4 +19,6 @@ interface MbizQueriesDao {
 	List<Track> getAlbumTrackList(Connection connection, String artist, String album);
 
 	List<Track> getAlbumTrackListLower(Connection connection, String artist, String album);
+
+	List<AlbumInfo> getYearAlbumsByReleaseNameLowerCase(Connection con, List<AlbumInfo> releaseInfo, Year year);
 }

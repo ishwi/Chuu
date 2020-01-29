@@ -45,6 +45,16 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
 	}
 
 	@Override
+	public List<AlbumInfo> findArtistByReleaseLowerCase(List<AlbumInfo> releaseInfo, Year year) {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setReadOnly(true);
+			return mbizQueriesDao.getYearAlbumsByReleaseNameLowerCase(connection, releaseInfo, year);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
 	public List<AlbumInfo> findArtistByReleaseCurrentYear(List<AlbumInfo> releaseInfo) {
 		return null;
 	}

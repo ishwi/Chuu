@@ -1,13 +1,13 @@
 package core.commands;
 
+import core.exceptions.InstanceNotFoundException;
+import core.exceptions.LastFmException;
+import core.parsers.ChartFromYearParser;
 import dao.DaoImplementation;
 import dao.entities.AlbumInfo;
 import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
-import core.parsers.ChartFromYearParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Year;
@@ -84,6 +84,12 @@ public class MusicBrainzCommand extends ArtistCommand {
 		List<AlbumInfo> albumsMbizMatchingYear = mb.listOfYearReleases(nonEmptyMbid, year);
 		List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(emptyMbid, year);
 		emptyMbid.removeAll(mbFoundBYName);
+		List<AlbumInfo> artistByReleaseLower = mb.findArtistByRelease(emptyMbid, year);
+		emptyMbid.removeAll(artistByReleaseLower);
+
+		albumsMbizMatchingYear.addAll(mbFoundBYName);
+		albumsMbizMatchingYear.addAll(artistByReleaseLower);
+
 		int discogsMetrics = 0;
 		if (doDiscogs()) {
 			List<AlbumInfo> foundDiscogsMatchingYear = emptyMbid.stream().filter(albumInfo -> {
@@ -104,7 +110,6 @@ public class MusicBrainzCommand extends ArtistCommand {
 			albumsMbizMatchingYear.addAll(foundDiscogsMatchingYear);
 			discogsMetrics = foundDiscogsMatchingYear.size();
 		}
-		albumsMbizMatchingYear.addAll(mbFoundBYName);
 
 		//Keep the order of the original queue so the final chart is ordered by plays
 		AtomicInteger counter2 = new AtomicInteger(0);
