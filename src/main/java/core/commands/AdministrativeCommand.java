@@ -1,16 +1,16 @@
 package core.commands;
 
-import dao.DaoImplementation;
 import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.UrlParser;
+import dao.ChuuService;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.apache.commons.collections4.map.MultiValueMap;
+import org.apache.commons.collections4.MultiValuedMap;
 import org.imgscalr.Scalr;
 
 import javax.annotation.Nonnull;
@@ -26,102 +26,93 @@ import java.util.stream.Collectors;
 
 public class AdministrativeCommand extends ConcurrentCommand {
 
-	public AdministrativeCommand(DaoImplementation dao) {
-		super(dao);
-		parser = new UrlParser();
-	}
+    public AdministrativeCommand(ChuuService dao) {
+        super(dao);
+        parser = new UrlParser();
+    }
 
-	@Override
-	public void onGuildMemberLeave(@Nonnull GuildMemberLeaveEvent event) {
+    @Override
+    public void onGuildMemberLeave(@Nonnull GuildMemberLeaveEvent event) {
 
-		System.out.println("USER LEFT");
-		System.out.println("USER LEFT");
-		System.out.println("USER LEFT");
-		System.out.println("USER LEFT");
-		System.out.println("USER LEFT");
-		System.out.println("USER LEFT");
+        System.out.println("USER LEFT");
+        Executors.newSingleThreadExecutor()
+                .execute(() -> getService()
+                        .removeUserFromOneGuildConsequent(event.getMember().getIdLong(), event.getGuild().getIdLong())
+                );
+    }
 
+    public void onStartup(JDA jda) {
+        MultiValuedMap<Long, Long> map = getService().getMapGuildUsers();
+        map.mapIterator().forEachRemaining((key) -> {
+            List<Long> usersToDelete;
+            //Users in guild key
+            List<Long> user = (List<Long>) map.get(key);
+            Guild guild = jda.getGuildById(key);
+            if (guild != null) {
+                //Get all members in guild
+                List<Member> memberList = guild.getMembers();
+                //Gets all ids
+                List<Long> guildList = memberList.stream().map(x -> x.getUser().getIdLong())
+                        .collect(Collectors.toList());
 
-		Executors.newSingleThreadExecutor()
-				.execute(() -> getDao()
-						.removeUserFromOneGuildConsequent(event.getMember().getIdLong(), event.getGuild().getIdLong())
-				);
-	}
-
-	public void onStartup(JDA jda) {
-		MultiValueMap<Long, Long> map = getDao().getMapGuildUsers();
-		//
-
-		map.forEach((key, value) -> {
-			List<Long> usersToDelete;
-			//Users in guild key
-			List<Long> user = (List<Long>) map.getCollection(key);
-			Guild guild = jda.getGuildById(key);
-			if (guild != null) {
-				//Get all members in guild
-				List<Member> memberList = guild.getMembers();
-				//Gets all ids
-				List<Long> guildList = memberList.stream().map(x -> x.getUser().getIdLong())
-						.collect(Collectors.toList());
-
-				//if user in app but not in guild -> mark to delete
-				usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser))
-						.collect(Collectors.toList());
-				usersToDelete.forEach(u -> getDao().removeUserFromOneGuildConsequent(u, key));
-				Chuu.getLogger().info("Deleted Users :" + usersToDelete.size());
+                //if user in app but not in guild -> mark to delete
+                usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser))
+                        .collect(Collectors.toList());
+                usersToDelete.forEach(u -> getService().removeUserFromOneGuildConsequent(u, key));
+                Chuu.getLogger().info("Deleted Users :" + usersToDelete.size());
 
 
-			} else {
-				user.forEach(u -> getDao().removeUserFromOneGuildConsequent(u, key));
-			}
-		});
+            } else {
+                user.forEach(u -> getService().removeUserFromOneGuildConsequent(u, key));
+            }
+        });
 
-	}
+    }
 
-	@Override
-	public String getDescription() {
-		return "Adds logo to be displayed on some bot functionalities";
-	}
+    @Override
+    public String getDescription() {
+        return "Adds logo to be displayed on some bot functionalities";
+    }
 
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("logo");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Collections.singletonList("logo");
+    }
 
-	@Override
-	public String getName() {
-		return "Logo";
-	}
+    @Override
+    public String getName() {
+        return "Logo";
+    }
 
-	@Override
-	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    @Override
+    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
-		String[] urlParsed = parser.parse(e);
-		if (urlParsed == null)
-			return;
+        String[] urlParsed = parser.parse(e);
+        if (urlParsed == null)
+            return;
 
-		if (urlParsed.length == 0) {
-			getDao().removeLogo(e.getGuild().getIdLong());
-			sendMessageQueue(e, "Removed logo from the server  ");
-		} else {
+        if (urlParsed.length == 0) {
+            getService().removeLogo(e.getGuild().getIdLong());
+            sendMessageQueue(e, "Removed logo from the server  ");
+        } else {
 
-			try (InputStream in = new URL(urlParsed[0]).openStream()) {
-				BufferedImage image = ImageIO.read(in);
-				if (image == null) {
-					sendMessageQueue(e, "Couldn't get an Image from link supplied");
-					return;
-				}
-				image = Scalr.resize(image, Scalr.Method.QUALITY, 75, Scalr.OP_ANTIALIAS);
+            try (InputStream in = new URL(urlParsed[0]).openStream()) {
+                BufferedImage image = ImageIO.read(in);
+                if (image == null) {
+                    sendMessageQueue(e, "Couldn't get an Image from link supplied");
+                    return;
+                }
+                image = Scalr.resize(image, Scalr.Method.QUALITY, 75, Scalr.OP_ANTIALIAS);
 
-				getDao().addLogo(e.getGuild().getIdLong(), image);
-				sendMessageQueue(e, "Logo updated");
-			} catch (IOException exception) {
-				Chuu.getLogger().warn(exception.getMessage(), exception);
-				sendMessageQueue(e, "Something happened while processing the image ");
-			}
+                getService().addLogo(e.getGuild().getIdLong(), image);
+                sendMessageQueue(e, "Logo updated");
+            } catch (IOException exception) {
+                Chuu.getLogger().warn(exception.getMessage(), exception);
+                sendMessageQueue(e, "Something happened while processing the image ");
+            }
 
-		}
-	}
+        }
+    }
 
 
 }

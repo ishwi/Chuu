@@ -1,23 +1,23 @@
 package core.parsers;
 
-import dao.DaoImplementation;
-import dao.entities.NowPlayingArtist;
 import core.apis.last.ConcurrentLastFM;
+import dao.ChuuService;
+import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class UsernameAndNpQueryParser extends ArtistParser {
-	public UsernameAndNpQueryParser(DaoImplementation dao, ConcurrentLastFM lastFM) {
-		super(dao, lastFM);
-	}
+    public UsernameAndNpQueryParser(ChuuService dao, ConcurrentLastFM lastFM) {
+        super(dao, lastFM);
+    }
 
-	@Override
-	public String[] doSomethingWithNp(NowPlayingArtist np, User sample, MessageReceivedEvent e) {
-		return new String[]{np.getArtistName() + " " + np.getSongName(), String.valueOf(e.getAuthor().getIdLong())};
-	}
+    @Override
+    public String[] doSomethingWithNp(NowPlayingArtist np, User sample, MessageReceivedEvent e) {
+        return new String[]{np.getArtistName() + " " + np.getSongName(), String.valueOf(e.getAuthor().getIdLong())};
+    }
 
-	@Override
-	public String getUsageLogic(String commandName) {
+    @Override
+    public String getUsageLogic(String commandName) {
 		return "**" + commandName + " [whatever you want to search for] **\n" +
 				"\tif you dont introduce a query takes your now playing song\n" +
 				"\tyou can add a username to use that user now playing song\n";

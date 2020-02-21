@@ -6,11 +6,11 @@ import core.apis.last.LastFMFactory;
 import core.apis.spotify.Spotify;
 import core.commands.CommandUtil;
 import core.exceptions.DiscogsServiceException;
-import dao.DaoImplementation;
+import dao.ChuuService;
 import dao.SimpleDataSource;
-import dao.entities.ArtistData;
 import dao.entities.ArtistInfo;
 import dao.entities.LastFMData;
+import dao.entities.ScrobbledArtist;
 import dao.entities.TimestampWrapper;
 import org.junit.After;
 import org.junit.Before;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 
 public class UpdaterThreadLogicTest {
 	private Spotify spotify;
-	private DaoImplementation dao;
+	private ChuuService dao;
 	private DiscogsApi discogsApi;
 	private ConcurrentLastFM lastFM;
 	private SimpleDataSource dataSource;
@@ -63,14 +63,14 @@ public class UpdaterThreadLogicTest {
 
 		lastFM = LastFMFactory.getNewInstance();
 
-		dao = new DaoImplementation(dataSource);
+		dao = new ChuuService(dataSource);
 		dao.insertArtistDataList(new LastFMData("manuelk", 1));
 		dao.insertArtistDataList(Collections.emptyList(), "manuelk");
 		try (Connection connection = dataSource.getConnection()) {
-			PreparedStatement preparedStatement = connection.prepareStatement("TRUNCATE `lastfm_test`.`corrections`");
+			PreparedStatement preparedStatement = connection.prepareStatement("TRUNCATE lastfm_test.corrections");
 			preparedStatement.execute();
 			preparedStatement = connection
-					.prepareStatement("Delete from `lastfm_test`.`artist_url` where artist_id like 'Raphael%' or artist_id = 'manolo'");
+					.prepareStatement("DELETE FROM lastfm_test.artist_url WHERE artist_id LIKE 'Raphael%' OR artist_id = 'manolo'");
 			preparedStatement.execute();
 		}
 
@@ -78,18 +78,18 @@ public class UpdaterThreadLogicTest {
 
 	@Test
 	public void run() throws DiscogsServiceException {
-		Map<ArtistData, String> correctionAdder = new HashMap<>();
+		Map<ScrobbledArtist, String> correctionAdder = new HashMap<>();
 
-		List<ArtistData> a = new ArrayList<>();
-		a.add(new ArtistData("Raphael", 1, null));
-		a.add(new ArtistData("Raphael1", 2, null));
-		a.add(new ArtistData("Raphael2", 3, null));
-		a.add(new ArtistData("Raphael3", 4, null));
+		List<ScrobbledArtist> a = new ArrayList<>();
+		a.add(new ScrobbledArtist("Raphael", 1, null));
+		a.add(new ScrobbledArtist("Raphael1", 2, null));
+		a.add(new ScrobbledArtist("Raphael2", 3, null));
+		a.add(new ScrobbledArtist("Raphael3", 4, null));
 
-		TimestampWrapper<List<ArtistData>> artistDataLinkedList = new TimestampWrapper<>(a, Instant.now()
+		TimestampWrapper<List<ScrobbledArtist>> artistDataLinkedList = new TimestampWrapper<>(a, Instant.now()
 				.get(ChronoField.MILLI_OF_SECOND) * 1000);
 		//Correction with current last fm implementation should return the same name so no correction gives
-		for (ArtistData datum : artistDataLinkedList.getWrapped()) {
+		for (ScrobbledArtist datum : artistDataLinkedList.getWrapped()) {
 			CommandUtil.valiate(dao, datum, lastFM, discogsApi, spotify, correctionAdder);
 		}
 
@@ -105,18 +105,19 @@ public class UpdaterThreadLogicTest {
 		);
 
 		a = new ArrayList<>();
-		a.add(new ArtistData("Raphael4", 1, null));
-		a.add(new ArtistData("Raphael1", 2, null));
-		a.add(new ArtistData("Raphael2", 3, null));
-		a.add(new ArtistData("manolo", 4, null));
+		new ScrobbledArtist("Raphael1", 2, null)
+		a.add(new ScrobbledArtist("Raphael4", 1, null));
+		a.add();
+		a.add(new ScrobbledArtist("Raphael2", 3, null));
+		a.add(new ScrobbledArtist("manolo", 4, null));
 		artistDataLinkedList.setWrapped(a);
 		correctionAdder = new HashMap<>();
 
-		for (ArtistData datum : artistDataLinkedList.getWrapped()) {
-			CommandUtil.valiate(dao, datum, lastFM, discogsApi, spotify, correctionAdder);
+		for (ScrobbledArtist datum : artistDataLinkedList.getWrapped()) {
+			CommandUtil.validate(dao, datum, lastFM, discogsApi, spotify);
 		}
 		dao.incrementalUpdate(artistDataLinkedList, "manuelk");
-		correctionAdder.forEach((artistData, s) -> dao.insertCorrection(s, artistData.getArtist()));
+
 		assertTrue(dao.getUpdaterStatus("Raphael1").isCorrection_status());
 		assertEquals(dao.getUpdaterStatus("Raphael1").getArtistUrl(), "a");
 		assertNull(dao.findCorrection("Raphael1"));

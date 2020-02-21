@@ -1,11 +1,12 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.ArtistInfo;
 import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistUrlParser;
+import dao.ChuuService;
+import dao.entities.ArtistInfo;
+import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
@@ -17,54 +18,54 @@ import java.util.Collections;
 import java.util.List;
 
 public class ArtistUrlCommand extends ConcurrentCommand {
-	public ArtistUrlCommand(DaoImplementation dao) {
-		super(dao);
-		this.parser = new ArtistUrlParser();
-	}
+    public ArtistUrlCommand(ChuuService dao) {
+        super(dao);
+        this.parser = new ArtistUrlParser();
+    }
 
-	@Override
-	public String getDescription() {
-		return "changes artist image that is  displayed on some bot functionalities";
-	}
+    @Override
+    public String getDescription() {
+        return "changes artist image that is  displayed on some bot functionalities";
+    }
 
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("url");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Collections.singletonList("url");
+    }
 
-	@Override
-	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-		String urlParsed;
-		String artist;
+    @Override
+    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+        String urlParsed;
+        String artist;
 
-		String[] message = parser.parse(e);
-		if (message == null)
-			return;
-		urlParsed = message[1];
+        String[] message = parser.parse(e);
+        if (message == null)
+            return;
+        urlParsed = message[1];
 
-		artist = message[0];
-		try (InputStream in = new URL(urlParsed).openStream()) {
-			BufferedImage image = ImageIO.read(in);
-			if (image == null) {
-				parser.sendError(parser.getErrorMessage(2), e);
-				return;
-			}
-			String correction = CommandUtil.onlyCorrection(getDao(), artist, lastFM);
-			getDao().upsertUrl(new ArtistInfo(urlParsed, correction));
-			sendMessageQueue(e, "Image of " + correction + " updated");
+        artist = message[0];
+        try (InputStream in = new URL(urlParsed).openStream()) {
+            BufferedImage image = ImageIO.read(in);
+            if (image == null) {
+                parser.sendError(parser.getErrorMessage(2), e);
+                return;
+            }
+            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), artist, lastFM);
+            getService().upsertUrl(new ArtistInfo(urlParsed, scrobbledArtist.getArtist()));
+            sendMessageQueue(e, "Image of " + scrobbledArtist.getArtist() + " updated");
 
-		} catch (IOException exception) {
-			parser.sendError(parser.getErrorMessage(2), e);
-			Chuu.getLogger().warn(exception.getMessage(), exception);
-		}
+        } catch (IOException exception) {
+            parser.sendError(parser.getErrorMessage(2), e);
+            Chuu.getLogger().warn(exception.getMessage(), exception);
+        }
 
 
-	}
+    }
 
-	@Override
-	public String getName() {
-		return "Artist Url ";
-	}
+    @Override
+    public String getName() {
+        return "Artist Url ";
+    }
 
 
 }

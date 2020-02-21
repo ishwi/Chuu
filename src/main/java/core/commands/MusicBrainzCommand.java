@@ -3,7 +3,7 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ChartFromYearParser;
-import dao.DaoImplementation;
+import dao.ChuuService;
 import dao.entities.AlbumInfo;
 import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
@@ -20,21 +20,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class MusicBrainzCommand extends ArtistCommand {
-	public static final int chartSize = 100;
-	private final MusicBrainzService mb;
+    public static final int chartSize = 100;
+    private final MusicBrainzService mb;
 
 
-	public MusicBrainzCommand(DaoImplementation dao) {
-		super(dao);
-		this.parser = new ChartFromYearParser(dao);//
+    public MusicBrainzCommand(ChuuService dao) {
+        super(dao);
+        this.parser = new ChartFromYearParser(dao);//
 
-		mb = MusicBrainzServiceSingleton.getInstance();
-	}
+        mb = MusicBrainzServiceSingleton.getInstance();
+    }
 
-	@Override
-	public String getName() {
-		return "Released in YEAR";
-	}
+    @Override
+    public String getName() {
+        return "Released in YEAR";
+    }
 
 	@Override
 	public String getDescription() {
@@ -128,20 +128,20 @@ public class MusicBrainzCommand extends ArtistCommand {
 		if (queue.isEmpty()) {
 			sendMessageQueue(e, "Dont have any " + year.toString() + " album in your top " + numberOfAlbumsToQueryFor + " albums");
 			return;
-		}
-		if (!caresAboutSize) {
-			int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
-			generateImage(queue, imageSize, imageSize, e, writeTiles, writePlays);
-		} else {
-			BlockingQueue<UrlCapsule> tempQueuenew = new LinkedBlockingDeque<>();
-			queue.drainTo(tempQueuenew, x * y);
-			generateImage(tempQueuenew, x, y, e, writeTiles, writePlays);
-		}
+        }
+        if (!caresAboutSize) {
+            int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
+            generateImage(queue, imageSize, imageSize, e, writeTiles, writePlays);
+        } else {
+            BlockingQueue<UrlCapsule> tempQueuenew = new LinkedBlockingDeque<>();
+            queue.drainTo(tempQueuenew, x * y);
+            generateImage(tempQueuenew, x, y, e, writeTiles, writePlays);
+        }
 
-		getDao().updateMetrics(discogsMetrics, mbFoundBYName.size(), albumsMbizMatchingYear
-				.size(), ((long) x)  * x);
+        getService().updateMetrics(discogsMetrics, mbFoundBYName.size(), albumsMbizMatchingYear
+                .size(), ((long) x) * x);
 
-	}
+    }
 
 	boolean doDiscogs() {
 		return true;

@@ -1,11 +1,11 @@
 package core.imagerenderer;
 
-import dao.DaoImplementation;
-import dao.entities.UrlCapsule;
 import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.spotify.Spotify;
 import core.commands.CommandUtil;
+import dao.ChuuService;
+import dao.entities.UrlCapsule;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -14,12 +14,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class UrlCapsuleConcurrentQueue extends LinkedBlockingQueue<UrlCapsule> {
 	private static final long serialVersionUID = 1L;
-	private transient final DaoImplementation dao;
+	private transient final ChuuService dao;
 	private transient final DiscogsApi discogsApi;
 	private transient final Spotify spotifyApi;
 	private transient final LinkedBlockingQueue<CompletableFuture<UrlCapsule>> wrapper;
 
-	public UrlCapsuleConcurrentQueue(DaoImplementation dao, DiscogsApi discogsApi, Spotify spotify) {
+	public UrlCapsuleConcurrentQueue(ChuuService dao, DiscogsApi discogsApi, Spotify spotify) {
 		super();
 		this.dao = dao;
 		this.discogsApi = discogsApi;

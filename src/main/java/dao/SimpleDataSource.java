@@ -18,14 +18,16 @@ public class SimpleDataSource {
 
 	public SimpleDataSource(boolean selector) {
 
-		String name = "/datasource.properties";
-		if (!selector)
-			name = "/mbiz.properties";
+        String name = "/datasource.properties";
+        if (!selector)
+            name = "/mbiz.properties";
 
-		HikariConfig config = new HikariConfig(name);
-		this.ds = new HikariDataSource(config);
+        HikariConfig config = new HikariConfig(name);
+        config.setConnectionInitSql("set @@sql_mode='NO_ZERO_DATE'");
 
-	}
+        this.ds = new HikariDataSource(config);
+
+    }
 
 	public Connection getConnection() throws SQLException {
 		return ds.getConnection();

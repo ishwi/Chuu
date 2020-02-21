@@ -3,7 +3,7 @@ package core.parsers;
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import dao.DaoImplementation;
+import dao.ChuuService;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -13,19 +13,19 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ArtistAlbumParser extends DaoParser {
-	final ConcurrentLastFM lastFM;
+    final ConcurrentLastFM lastFM;
 
-	public ArtistAlbumParser(DaoImplementation dao, ConcurrentLastFM lastFM) {
-		super(dao);
-		this.lastFM = lastFM;
-	}
+    public ArtistAlbumParser(ChuuService dao, ConcurrentLastFM lastFM) {
+        super(dao);
+        this.lastFM = lastFM;
+    }
 
 
-	@Override
-	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
-		User sample;
+    @Override
+    public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
+        User sample;
 
-		if (e.isFromGuild()) {
+        if (e.isFromGuild()) {
 			List<Member> members = e.getMessage().getMentionedMembers();
 			if (!members.isEmpty()) {
 				if (members.size() != 1) {

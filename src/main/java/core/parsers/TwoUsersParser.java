@@ -1,7 +1,7 @@
 package core.parsers;
 
-import dao.DaoImplementation;
 import core.exceptions.InstanceNotFoundException;
+import dao.ChuuService;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -10,16 +10,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TwoUsersParser extends DaoParser {
-	public TwoUsersParser(DaoImplementation dao) {
-		super(dao);
-	}
+    public TwoUsersParser(ChuuService dao) {
+        super(dao);
+    }
 
-	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
-		String[] message = getSubMessage(e.getMessage());
-		if (message.length == 0) {
-			sendError(getErrorMessage(5), e);
-			return null;
-		}
+    public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+        String[] message = getSubMessage(e.getMessage());
+        if (message.length == 0) {
+            sendError(getErrorMessage(5), e);
+            return null;
+        }
 
 		String[] userList = {"", ""};
 		if (message.length == 1) {

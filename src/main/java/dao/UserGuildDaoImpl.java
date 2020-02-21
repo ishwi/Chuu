@@ -1,9 +1,10 @@
 package dao;
 
+import core.exceptions.InstanceNotFoundException;
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
-import core.exceptions.InstanceNotFoundException;
-import org.apache.commons.collections4.map.MultiValueMap;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.intellij.lang.annotations.Language;
 
 import javax.imageio.ImageIO;
@@ -18,334 +19,350 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class UserGuildDaoImpl implements UserGuildDao {
-	@Override
-	public void insertUserData(Connection con, LastFMData lastFMData) {
-		/* Create "queryString". */
-		String queryString = "INSERT INTO  lastfm"
-				+ " (lastFmId, discordID) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE lastFmId=" + "?";
 
-		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setString(i++, lastFMData.getName());
-			preparedStatement.setLong(i++, lastFMData.getDiscordId());
-			preparedStatement.setString(i, lastFMData.getName());
+    @Override
+    public void createGuild(Connection con, long guildId) {
+        String queryString = "INSERT IGNORE INTO  guild"
+                + " (guild_id) " + " VALUES (?) ";
 
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-			/* Execute query. */
-			preparedStatement.executeUpdate();
+            /* Fill "preparedStatement". */
+            preparedStatement.setLong(1, guildId);
+            /* Execute query. */
+            preparedStatement.executeUpdate();
 
-			/* Get generated identifier. */
+            /* Get generated identifier. */
 
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	@Override
-	public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
+    @Override
+    public void insertUserData(Connection con, LastFMData lastFMData) {
+        /* Create "queryString". */
+        String queryString = "INSERT INTO  user"
+                + " (lastfm_id, discord_id) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE lastfm_id=" + "?";
 
-		/* Create "queryString". */
-		String queryString = "SELECT discordID, lastFmid FROM lastfm WHERE discordID = ?";
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setString(i++, lastFMData.getName());
+            preparedStatement.setLong(i++, lastFMData.getDiscordId());
+            preparedStatement.setString(i, lastFMData.getName());
 
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setLong(i, discordId);
 
+            /* Execute query. */
+            preparedStatement.executeUpdate();
 
-			/* Execute query. */
-			ResultSet resultSet = preparedStatement.executeQuery();
+            /* Get generated identifier. */
 
-			if (!resultSet.next()) {
-				throw new core.exceptions.InstanceNotFoundException(discordId);
-			}
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-			/* Get results. */
-			i = 1;
-			long resDiscordID = resultSet.getLong(i++);
-			String lastFmID = resultSet.getString(i);
+    @Override
+    public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
-			return new LastFMData(lastFmID, resDiscordID);
+        /* Create "queryString". */
+        String queryString = "SELECT   discord_id, lastfm_id FROM user WHERE discord_id = ?";
 
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-	@Override
-	public List<Long> guildList(Connection connection, long userId) {
-		@Language("MySQL") String queryString = "Select discordId,guildId  FROM user_guild  WHERE discordID = ?";
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i, discordId);
 
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setLong(i, userId);
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-			List<Long> returnList = new LinkedList<>();
-			/* Execute query. */
-			ResultSet resultSet = preparedStatement.executeQuery();
+            if (!resultSet.next()) {
+                throw new core.exceptions.InstanceNotFoundException(discordId);
+            }
 
-			while (resultSet.next()) {
+            /* Get results. */
+            i = 1;
+            long resDiscordID = resultSet.getLong(i++);
+            String lastFmID = resultSet.getString(i);
 
-				long guildId = resultSet.getLong("guildId");
+            return new LastFMData(lastFmID, resDiscordID);
 
-				returnList.add(guildId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-			}
-			return returnList;
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    @Override
+    public List<Long> guildsFromUser(Connection connection, long userId) {
+        @Language("MariaDB") String queryString = "SELECT discord_id,guild_id  FROM user_guild  WHERE discord_id = ?";
 
-	@Override
-	public MultiValueMap<Long, Long> getWholeUser_Guild(Connection connection) {
-		@Language("MySQL") String queryString = "Select discordId,guildId  FROM user_guild ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
-		MultiValueMap<Long, Long> map = new MultiValueMap<>();
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i, userId);
 
-			ResultSet resultSet = preparedStatement.executeQuery();
+            List<Long> returnList = new LinkedList<>();
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-			while (resultSet.next()) {
+            while (resultSet.next()) {
 
-				long guildId = resultSet.getLong("guildId");
-				long discordId = resultSet.getLong("discordId");
-				map.put(guildId, discordId);
+                long guildId = resultSet.getLong("guild_Id");
 
+                returnList.add(guildId);
 
-			}
+            }
+            return returnList;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		return map;
-	}
+    @Override
+    public MultiValuedMap<Long, Long> getWholeUser_Guild(Connection connection) {
+        @Language("MariaDB") String queryString = "SELECT discord_id,guild_id  FROM user_guild ";
 
-	@Override
-	public void updateLastFmData(Connection con, LastFMData lastFMData) {
-		/* Create "queryString". */
-		String queryString = "UPDATE lastfm SET lastFmId= ? WHERE discordID = ?";
+        MultiValuedMap<Long, Long> map = new ArrayListValuedHashMap<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
-		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
-
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setString(i++, lastFMData.getName());
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-			preparedStatement.setLong(i, lastFMData.getDiscordId());
+            while (resultSet.next()) {
 
-			/* Execute query. */
-			int updatedRows = preparedStatement.executeUpdate();
+                long guildId = resultSet.getLong("guild_Id");
+                long discordId = resultSet.getLong("discord_Id");
+                map.put(guildId, discordId);
 
-			if (updatedRows == 0) {
-				throw new RuntimeException("E");
-			}
 
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+            }
 
-	@Override
-	public void removeUser(Connection con, Long discordId) {
-		/* Create "queryString". */
-		@Language("MySQL") String queryString = "DELETE FROM  lastfm WHERE" + " discordID = ?";
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return map;
+    }
 
-		deleteIdLong(con, discordId, queryString);
+    @Override
+    public void updateLastFmData(Connection con, LastFMData lastFMData) {
+        /* Create "queryString". */
+        String queryString = "UPDATE user SET lastfm_id= ? WHERE discord_id = ?";
 
-	}
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-	private void deleteIdLong(Connection con, Long discordID, String queryString) {
-		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setString(i++, lastFMData.getName());
 
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setLong(i, discordID);
+            preparedStatement.setLong(i, lastFMData.getDiscordId());
 
-			/* Execute query. */
-			int removedRows = preparedStatement.executeUpdate();
+            /* Execute query. */
+            int updatedRows = preparedStatement.executeUpdate();
 
-			if (removedRows == 0) {
-				System.err.println("No rows removed");
-			}
+            if (updatedRows == 0) {
+                throw new RuntimeException("E");
+            }
 
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	@Override
-	public void removeUserGuild(Connection con, long discordId, long guildId) {
-		/* Create "queryString". */
-		@Language("MySQL") String queryString = "DELETE FROM  user_guild" + " where discordID = ? and guildId = ?";
+    @Override
+    public void removeUser(Connection con, Long discordId) {
+        /* Create "queryString". */
+        @Language("MariaDB") String queryString = "DELETE FROM  user WHERE discord_id = ?";
 
-		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+        deleteIdLong(con, discordId, queryString);
 
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setLong(i++, discordId);
-			preparedStatement.setLong(i, guildId);
+    }
 
+    private void deleteIdLong(Connection con, Long discordID, String queryString) {
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-			/* Execute query. */
-			int removedRows = preparedStatement.executeUpdate();
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i, discordID);
 
-			if (removedRows == 0) {
-				System.err.println("No rows removed");
-			}
+            /* Execute query. */
+            int removedRows = preparedStatement.executeUpdate();
 
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+            if (removedRows == 0) {
+                System.err.println("No rows removed");
+            }
 
-	@Override
-	public List<UsersWrapper> getAll(Connection connection, long guildId) {
-		String queryString = "Select a.discordID, a.lastFmId FROM lastfm a join (Select discordId from user_guild where guildId = ? ) b on a.discordID = b.discordId";
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-			/* Fill "preparedStatement". */
+    @Override
+    public void removeUserGuild(Connection con, long discordId, long guildId) {
+        /* Create "queryString". */
+        @Language("MariaDB") String queryString = "DELETE FROM  user_guild  WHERE discord_id = ? AND guild_id = ?";
 
-			/* Execute query. */
-			preparedStatement.setLong(1, guildId);
-			ResultSet resultSet = preparedStatement.executeQuery();
-			List<UsersWrapper> returnList = new ArrayList<>();
-			while (resultSet.next()) {
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-				String name = resultSet.getString("a.lastFmId");
-				long discordID = resultSet.getLong("a.discordID");
-				returnList.add(new UsersWrapper(discordID, name));
-			}
-			return returnList;
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, discordId);
+            preparedStatement.setLong(i, guildId);
 
-	@Override
-	public void addGuild(Connection con, long userId, long guildId) {
-		/* Create "queryString". */
-		String queryString = "INSERT IGNORE INTO  user_guild"
-				+ " ( discordId,guildId) " + " VALUES (?, ?) ";
 
-		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+            /* Execute query. */
+            int removedRows = preparedStatement.executeUpdate();
 
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setLong(i++, userId);
-			preparedStatement.setLong(i, guildId);
+            if (removedRows == 0) {
+                System.err.println("No rows removed");
+            }
 
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-			/* Execute query. */
-			preparedStatement.executeUpdate();
+    @Override
+    public List<UsersWrapper> getAll(Connection connection, long guildId) {
+        String queryString = "SELECT a.discord_id, a.lastfm_id FROM user a JOIN (SELECT discord_id FROM user_guild WHERE guild_id = ? ) b ON a.discord_id = b.discord_id";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
-			/* Get generated identifier. */
+            /* Fill "preparedStatement". */
 
-			/* Return booking. */
+            /* Execute query. */
+            preparedStatement.setLong(1, guildId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<UsersWrapper> returnList = new ArrayList<>();
+            while (resultSet.next()) {
 
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+                String name = resultSet.getString("a.lastFm_Id");
+                long discordID = resultSet.getLong("a.discord_ID");
+                returnList.add(new UsersWrapper(discordID, name));
+            }
+            return returnList;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	@Override
-	public void addLogo(Connection con, long guildID, BufferedImage image) {
-		@Language("MySQL") String queryString = "INSERT INTO guild_logo(guildId, logo) VALUES (?,?)" +
-				" ON DUPLICATE KEY UPDATE logo = ?";
-		try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+    @Override
+    public void addGuild(Connection con, long userId, long guildId) {
+        /* Create "queryString". */
+        String queryString = "INSERT IGNORE INTO  user_guild"
+                + " ( discord_id,guild_id) " + " VALUES (?, ?) ";
 
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setLong(i++, guildID);
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(image, "png", baos);
-			InputStream is = new ByteArrayInputStream(baos.toByteArray());
-			ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
-			ImageIO.write(image, "png", baos2);
-			InputStream is2 = new ByteArrayInputStream(baos.toByteArray());
-			preparedStatement.setBlob(i++, new BufferedInputStream(is));
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, userId);
+            preparedStatement.setLong(i, guildId);
 
-			preparedStatement.setBlob(i, is2);
-			preparedStatement.executeUpdate();
 
+            /* Execute query. */
+            preparedStatement.executeUpdate();
 
-		} catch (SQLException | IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+            /* Get generated identifier. */
 
-	@Override
-	public void removeLogo(Connection connection, long guildId) {
-		/* Create "queryString". */
-		@Language("MySQL") String queryString = "DELETE FROM guild_logo WHERE  guildId = ?";
+            /* Return booking. */
 
-		deleteIdLong(connection, guildId, queryString);
-	}
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	@Override
-	public InputStream findLogo(Connection connection, long guildID) {
-		/* Create "queryString". */
-		String queryString = "SELECT logo FROM guild_logo WHERE guildId = ?";
+    @Override
+    public void addLogo(Connection con, long guildID, BufferedImage image) {
+        @Language("MariaDB") String queryString = "UPDATE  guild SET  logo = ? WHERE guild_id = ? ";
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            int i = 1;
 
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setLong(i, guildID);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
+            InputStream is = new ByteArrayInputStream(baos.toByteArray());
+            preparedStatement.setBlob(i++, new BufferedInputStream(is));
+            preparedStatement.setLong(i, guildID);
 
+            preparedStatement.executeUpdate();
 
-			/* Execute query. */
-			ResultSet resultSet = preparedStatement.executeQuery();
 
-			if (!resultSet.next()) {
-				return null;
-			}
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-			/* Get results. */
-			return resultSet.getBinaryStream("logo");
+    @Override
+    public void removeLogo(Connection connection, long guildId) {
+        /* Create "queryString". */
+        @Language("MariaDB") String queryString = "UPDATE  guild SET logo = NULL WHERE guild_id = ?";
 
+        deleteIdLong(connection, guildId, queryString);
+    }
 
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    @Override
+    public InputStream findLogo(Connection connection, long guildID) {
+        /* Create "queryString". */
+        String queryString = "SELECT logo FROM guild WHERE guild_id = ?";
 
-	@Override
-	public long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) throws InstanceNotFoundException {
-		@Language("MySQL") String queryString = "Select a.discordID " +
-				"from   lastfm a" +
-				" join  user_guild  b " +
-				"on a.discordID = b.discordId " +
-				" where  a.lastFmId = ? and b.guildId = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
-		try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i, guildID);
 
-			/* Fill "preparedStatement". */
-			int i = 1;
-			preparedStatement.setString(i++, lastFmName);
-			preparedStatement.setLong(i, guildId);
 
-			/* Execute query. */
-			ResultSet resultSet = preparedStatement.executeQuery();
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-			if (!resultSet.next()) {
-				throw new InstanceNotFoundException("Not found ");
-			}
+            if (!resultSet.next()) {
+                return null;
+            }
 
-			/* Get results. */
+            /* Get results. */
+            return resultSet.getBinaryStream("logo");
 
-			return resultSet.getLong(1);
 
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	}
+    @Override
+    public long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) throws InstanceNotFoundException {
+        @Language("MariaDB") String queryString = "SELECT a.discord_id " +
+                "FROM   user a" +
+                " JOIN  user_guild  b " +
+                "ON a.discord_id = b.discord_id " +
+                " WHERE  a.lastfm_id = ? AND b.guild_id = ? ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setString(i++, lastFmName);
+            preparedStatement.setLong(i, guildId);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.next()) {
+                throw new InstanceNotFoundException("Not found ");
+            }
+
+            /* Get results. */
+
+            return resultSet.getLong(1);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
 }

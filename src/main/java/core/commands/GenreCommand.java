@@ -1,15 +1,15 @@
 package core.commands;
 
-import dao.DaoImplementation;
+import core.exceptions.InstanceNotFoundException;
+import core.exceptions.LastFmException;
+import core.parsers.TimerFrameParser;
+import dao.ChuuService;
 import dao.entities.AlbumInfo;
 import dao.entities.Genre;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
-import core.parsers.TimerFrameParser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieChartBuilder;
@@ -26,18 +26,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 public class GenreCommand extends ConcurrentCommand {
-	private final MusicBrainzService musicBrainz;
+    private final MusicBrainzService musicBrainz;
 
-	public GenreCommand(DaoImplementation dao) {
-		super(dao);
-		this.parser = new TimerFrameParser(dao, TimeFrameEnum.YEAR);
-		this.musicBrainz = MusicBrainzServiceSingleton.getInstance();
-	}
+    public GenreCommand(ChuuService dao) {
+        super(dao);
+        this.parser = new TimerFrameParser(dao, TimeFrameEnum.YEAR);
+        this.musicBrainz = MusicBrainzServiceSingleton.getInstance();
+    }
 
-	@Override
-	public String getDescription() {
-		return "Genre list";
-	}
+    @Override
+    public String getDescription() {
+        return "Genre list";
+    }
 
 	@Override
 	public List<String> getAliases() {
@@ -52,24 +52,24 @@ public class GenreCommand extends ConcurrentCommand {
 	@Override
 	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
-		String[] returned = parser.parse(e);
-		String username = returned[0];
-		long discordId = Long.parseLong(returned[1]);
+        String[] returned = parser.parse(e);
+        String username = returned[0];
+        long discordId = Long.parseLong(returned[1]);
 
-		String timeframe = returned[2];
-		String usableString = getUserStringConsideringGuildOrNot(e, discordId, username);
-		BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
-		lastFM.getUserList(username, timeframe, 15, 15, true, queue);
+        String timeframe = returned[2];
+        String usableString = getUserStringConsideringGuildOrNot(e, discordId, username);
+        BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
+        lastFM.getUserList(username, timeframe, 400, 1, true, queue);
 
-		List<AlbumInfo> albumInfos = queue.stream()
-				.map(capsule -> new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()))
-				.filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
-				.collect(Collectors.toList());
-		Map<Genre, Integer> map = musicBrainz.genreCount(albumInfos);
-		if (map.isEmpty()) {
-			sendMessageQueue(e, "Was not able to find any genre in  " + usableString + "'s artist");
-			return;
-		}
+        List<AlbumInfo> albumInfos = queue.stream()
+                .map(capsule -> new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()))
+                .filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
+                .collect(Collectors.toList());
+        Map<Genre, Integer> map = musicBrainz.genreCount(albumInfos);
+        if (map.isEmpty()) {
+            sendMessageQueue(e, "Was not able to find any genre in  " + usableString + "'s artist");
+            return;
+        }
 
 		PieChart pieChart =
 				new PieChartBuilder()

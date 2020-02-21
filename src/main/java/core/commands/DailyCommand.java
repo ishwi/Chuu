@@ -1,12 +1,12 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.SecondsTimeFrameCount;
-import dao.entities.Track;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
+import dao.ChuuService;
+import dao.entities.SecondsTimeFrameCount;
+import dao.entities.Track;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Instant;
@@ -16,17 +16,17 @@ import java.util.List;
 import java.util.Map;
 
 public class DailyCommand extends ConcurrentCommand {
-	public DailyCommand(DaoImplementation dao) {
-		super(dao);
-		parser = new OnlyUsernameParser(dao);
-	}
+    public DailyCommand(ChuuService dao) {
+        super(dao);
+        parser = new OnlyUsernameParser(dao);
+    }
 
-	@Override
-	public String getDescription() {
-		return "Return time spent listening in the last 24 hours";
-	}
+    @Override
+    public String getDescription() {
+        return "Return time spent listening in the last 24 hours";
+    }
 
-	@Override
+    @Override
 	public List<String> getAliases() {
 		return Arrays.asList("daily", "day");
 	}

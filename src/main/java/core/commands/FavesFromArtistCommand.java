@@ -1,9 +1,5 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.ArtistData;
-import dao.entities.TimeFrameEnum;
-import dao.entities.Track;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
@@ -11,6 +7,10 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistTimeFrameParser;
+import dao.ChuuService;
+import dao.entities.ScrobbledArtist;
+import dao.entities.TimeFrameEnum;
+import dao.entities.Track;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -19,20 +19,20 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FavesFromArtistCommand extends ConcurrentCommand {
-	private final DiscogsApi discogsApi;
-	private final Spotify spotify;
+    private final DiscogsApi discogsApi;
+    private final Spotify spotify;
 
-	public FavesFromArtistCommand(DaoImplementation dao) {
-		super(dao);
-		respondInPrivate = true;
-		this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-		this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
-		this.parser = new ArtistTimeFrameParser(dao, lastFM);
-	}
+    public FavesFromArtistCommand(ChuuService dao) {
+        super(dao);
+        respondInPrivate = true;
+        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.parser = new ArtistTimeFrameParser(dao, lastFM);
+    }
 
-	@Override
-	public String getDescription() {
-		return
+    @Override
+    public String getDescription() {
+        return
 				"Fav  tracks from an artist";
 	}
 
@@ -49,29 +49,29 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-		String[] returned;
-		returned = parser.parse(e);
-		if (returned == null)
-			return;
-		long userId = Long.parseLong(returned[1]);
-		String timeframew = returned[2];
-		ArtistData who = new ArtistData(returned[0], 0, "");
-		CommandUtil.lessHeavyValidate(getDao(), who, lastFM, discogsApi, spotify);
-		List<Track> ai;
-		String lastFmName;
-		lastFmName = getDao().findLastFMData(userId).getName();
+        String[] returned;
+        returned = parser.parse(e);
+        if (returned == null)
+            return;
+        long userId = Long.parseLong(returned[1]);
+        String timeframew = returned[2];
+        String artist = returned[0];
+        ScrobbledArtist who = CommandUtil.onlyCorrection(getService(), artist, lastFM);
+        List<Track> ai;
+        String lastFmName;
+        lastFmName = getService().findLastFMData(userId).getName();
 
-		ai = lastFM.getTopArtistTracks(lastFmName, who.getArtist(), timeframew);
+        ai = lastFM.getTopArtistTracks(lastFmName, who.getArtist(), timeframew);
 
-		final String userString = getUserStringConsideringGuildOrNot(e, userId, lastFmName);
-		if (ai.isEmpty()) {
-			sendMessageQueue(e, ("Coudnt't find your fav tracks of " + who.getArtist() + (timeframew
-					.equals("overall") ? "" : " in the last " + TimeFrameEnum
-					.fromCompletePeriod(timeframew).toString().toLowerCase() + "!")));
-			return;
-		}
+        final String userString = getUserStringConsideringGuildOrNot(e, userId, lastFmName);
+        if (ai.isEmpty()) {
+            sendMessageQueue(e, ("Coudnt't find your fav tracks of " + who.getArtist() + (timeframew
+                    .equals("overall") ? "" : " in the last " + TimeFrameEnum
+                    .fromCompletePeriod(timeframew).toString().toLowerCase() + "!")));
+            return;
+        }
 
-		MessageBuilder mes = new MessageBuilder();
+        MessageBuilder mes = new MessageBuilder();
 		StringBuilder s = new StringBuilder();
 
 		for (int i = 0; i < 10 && i < ai.size(); i++) {

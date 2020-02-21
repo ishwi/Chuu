@@ -3,7 +3,7 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
-import dao.DaoImplementation;
+import dao.ChuuService;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -12,19 +12,19 @@ import java.util.EnumSet;
 import java.util.List;
 
 public class InviteCommand extends ConcurrentCommand {
-	private static final long PERMISSIONS = 387136;
+    private static final long PERMISSIONS = 387136;
 
-	public InviteCommand(DaoImplementation dao) {
-		super(dao);
-		this.parser = new NoOpParser();
-	}
+    public InviteCommand(ChuuService dao) {
+        super(dao);
+        this.parser = new NoOpParser();
+    }
 
-	@Override
-	public String getDescription() {
-		return "Invite the bot to other servers!";
-	}
+    @Override
+    public String getDescription() {
+        return "Invite the bot to other servers!";
+    }
 
-	@Override
+    @Override
 	public List<String> getAliases() {
 		return Collections.singletonList("invite");
 	}

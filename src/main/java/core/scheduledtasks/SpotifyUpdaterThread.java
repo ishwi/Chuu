@@ -2,7 +2,7 @@ package core.scheduledtasks;
 
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import dao.DaoImplementation;
+import dao.ChuuService;
 import dao.entities.ArtistInfo;
 
 import java.util.Set;
@@ -13,10 +13,10 @@ import java.util.Set;
  * Note that after this method has run unless a spotify expection occurred the url will be set to either the image found or to the empty string to represent that no image was found
  */
 public class SpotifyUpdaterThread implements Runnable {
-    private final DaoImplementation dao;
+    private final ChuuService dao;
     private final Spotify spotifyApi;
 
-    public SpotifyUpdaterThread(DaoImplementation dao) {
+    public SpotifyUpdaterThread(ChuuService dao) {
         this.dao = dao;
         this.spotifyApi = SpotifySingleton.getInstanceUsingDoubleLocking();
 

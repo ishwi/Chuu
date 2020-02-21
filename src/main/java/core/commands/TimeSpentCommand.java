@@ -1,28 +1,28 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.SecondsTimeFrameCount;
-import dao.entities.TimeFrameEnum;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.TimerFrameParser;
+import dao.ChuuService;
+import dao.entities.SecondsTimeFrameCount;
+import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
 
 public class TimeSpentCommand extends ConcurrentCommand {
-	public TimeSpentCommand(DaoImplementation dao) {
-		super(dao);
-		this.parser = new TimerFrameParser(dao, TimeFrameEnum.WEEK);
-	}
+    public TimeSpentCommand(ChuuService dao) {
+        super(dao);
+        this.parser = new TimerFrameParser(dao, TimeFrameEnum.WEEK);
+    }
 
-	@Override
-	public String getDescription() {
-		return "Minutes listened last week";
-	}
+    @Override
+    public String getDescription() {
+        return "Minutes listened last week";
+    }
 
-	@Override
+    @Override
 	public List<String> getAliases() {
 		return Collections.singletonList("minutes");
 	}

@@ -2,11 +2,11 @@ package dao.entities;
 
 import java.util.List;
 
-public class ResultWrapper {
+public class ResultWrapper<T> {
 	private int rows;
-	private List<Results> resultList;
+	private List<T> resultList;
 
-	public ResultWrapper(int rows, List<Results> resultList) {
+	public ResultWrapper(int rows, List<T> resultList) {
 		this.rows = rows;
 		this.resultList = resultList;
 	}
@@ -19,11 +19,11 @@ public class ResultWrapper {
 		this.rows = rows;
 	}
 
-	public List<Results> getResultList() {
+	public List<T> getResultList() {
 		return resultList;
 	}
 
-	public void setResultList(List<Results> resultList) {
+	public void setResultList(List<T> resultList) {
 		this.resultList = resultList;
 	}
 }

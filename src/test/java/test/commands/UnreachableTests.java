@@ -23,16 +23,16 @@ public class UnreachableTests {
 
 	@Test(expected = NullPointerException.class)
 	public void spotifyNpSearch() {
-		Optional<NPSpotifyCommand> any = TestResources.ogJDA.getRegisteredListeners().stream()
-				.filter(x -> x instanceof NPSpotifyCommand).map(x -> (NPSpotifyCommand) x).findAny();
-		assert any.isPresent();
-		NPSpotifyCommand npSpotifyCommand = any.get();
-		NowPlayingArtist nowPlayingArtist = new NowPlayingArtist("doesnt exist asdasdaad", "", true, "doesnt existasdasdaad", "doesntasdasdaad exists", "", "pepito");
+        Optional<NPSpotifyCommand> any = TestResources.ogJDA.getRegisteredListeners().stream()
+                .filter(x -> x instanceof NPSpotifyCommand).map(x -> (NPSpotifyCommand) x).findAny();
+        assert any.isPresent();
+        NPSpotifyCommand npSpotifyCommand = any.get();
+        NowPlayingArtist nowPlayingArtist = new NowPlayingArtist("doesnt exist asdasdaad", "", true, "doesnt existasdasdaad", "doesntasdasdaad exists", "", "pepito");
 
-		//This will crash but it increase coverage :D
-		npSpotifyCommand.doSomethingWithArtist(nowPlayingArtist, null);
+        //This will crash but it increase coverage :D
+        npSpotifyCommand.doSomethingWithArtist(nowPlayingArtist, null, -1L);
 
-	}
+    }
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void noOpParserParsing() throws LastFmException, InstanceNotFoundException {

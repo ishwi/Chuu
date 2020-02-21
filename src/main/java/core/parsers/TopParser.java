@@ -1,21 +1,21 @@
 package core.parsers;
 
-import dao.DaoImplementation;
-import dao.entities.LastFMData;
 import core.exceptions.InstanceNotFoundException;
+import dao.ChuuService;
+import dao.entities.LastFMData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class TopParser extends DaoParser {
-	public TopParser(DaoImplementation dao) {
-		super(dao);
-	}
+    public TopParser(ChuuService dao) {
+        super(dao);
+    }
 
-	@Override
-	protected void setUpOptionals() {
-		opts.add(new OptionalEntity("--artist", "use artist instead of albums"));
-	}
+    @Override
+    protected void setUpOptionals() {
+        opts.add(new OptionalEntity("--artist", "use artist instead of albums"));
+    }
 
-	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
 
 		LastFMData username = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
 

@@ -15,10 +15,8 @@
  */
 package core.commands;
 
-import dao.DaoImplementation;
 import core.Chuu;
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
+import dao.ChuuService;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -29,23 +27,23 @@ import java.util.List;
 import java.util.TreeMap;
 
 public class HelpCommand extends ConcurrentCommand {
-	private static final String NO_NAME = "No name provided for this command. Sorry!";
-	private static final String NO_DESCRIPTION = "No description has been provided for this command. Sorry!";
-	private static final String NO_USAGE = "No usage instructions have been provided for this command. Sorry!";
+    private static final String NO_NAME = "No name provided for this command. Sorry!";
+    private static final String NO_DESCRIPTION = "No description has been provided for this command. Sorry!";
+    private static final String NO_USAGE = "No usage instructions have been provided for this command. Sorry!";
 
-	private final TreeMap<String, MyCommand> commands;
+    private final TreeMap<String, MyCommand> commands;
 
-	public HelpCommand(DaoImplementation dao) {
-		super(dao);
+    public HelpCommand(ChuuService dao) {
+        super(dao);
 
-		commands = new TreeMap<>();
-		commands.put(this.getAliases().get(0), this);
-	}
+        commands = new TreeMap<>();
+        commands.put(this.getAliases().get(0), this);
+    }
 
-	public MyCommand registerCommand(MyCommand command) {
-		commands.put(command.getAliases().get(0), command);
-		return command;
-	}
+    public MyCommand registerCommand(MyCommand command) {
+        commands.put(command.getAliases().get(0), command);
+        return command;
+    }
 
 	@Override
 	public String getDescription() {

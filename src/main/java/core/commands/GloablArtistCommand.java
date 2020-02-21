@@ -7,9 +7,9 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
-import dao.DaoImplementation;
-import dao.entities.ArtistData;
+import dao.ChuuService;
 import dao.entities.GlobalCrown;
+import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -22,7 +22,7 @@ public class GloablArtistCommand extends ConcurrentCommand {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
-    public GloablArtistCommand(DaoImplementation dao) {
+    public GloablArtistCommand(ChuuService dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
@@ -50,11 +50,11 @@ public class GloablArtistCommand extends ConcurrentCommand {
         returned = parser.parse(e);
         if (returned == null)
             return;
-        ArtistData validable = new ArtistData(returned[0], 0, "");
         long userId = Long.parseLong(returned[1]);
-        CommandUtil.lessHeavyValidate(getDao(), validable, lastFM, discogsApi, spotify);
+        ScrobbledArtist validable = new ScrobbledArtist(returned[0], 0, "");
+        CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
 
-        List<GlobalCrown> globalArtistRanking = getDao().getGlobalArtistRanking(validable.getArtist());
+        List<GlobalCrown> globalArtistRanking = getService().getGlobalArtistRanking(validable.getArtistId());
 
         if (globalArtistRanking.isEmpty()) {
             sendMessageQueue(e, "No one knows " + validable.getArtist());

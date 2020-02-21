@@ -17,76 +17,76 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 
     @Override
-    public void getGlobalRank(Connection connection, String lastfmid) {
+    public void getGlobalRank(Connection connection, String lastfmId) {
 
     }
 
     @Override
-    public UniqueWrapper<UniqueData> getGlobalCrowns(Connection connection, String lastFmId) {
-        List<UniqueData> returnList = new ArrayList<>();
-        long discordID;
+    public UniqueWrapper<ArtistPlays> getGlobalCrowns(Connection connection, String lastfmId) {
+        List<ArtistPlays> returnList = new ArrayList<>();
+        long discordId;
 
-        @Language("MariaDB") String queryString = "SELECT artist_id, b.discordID , playNumber as orden" +
-                " FROM  artist  a" +
-                " join lastfm b on a.lastFMID = b.lastFmId" +
-                " where  a.lastFMID = ?" +
-                " and playNumber > 0" +
-                " AND  playNumber >= all" +
-                "       (Select max(b.playNumber) " +
-                " from " +
-                "(Select in_A.artist_id,in_A.playNumber" +
-                " from artist in_A  " +
-                " join " +
-                " lastfm in_B" +
-                " on in_A.lastFMID = in_B.lastFmid" +
-                " natural join " +
-                " user_guild in_C" +
-                "   ) as b" +
-                " where b.artist_id = a.artist_id" +
-                " group by artist_id)" +
-                " order by orden DESC";
+        @Language("MariaDB") String queryString = "SELECT c.name , b.discord_id , playnumber AS orden" +
+                " FROM  scrobbled_artist  a" +
+                " JOIN user b ON a.lastfm_id = b.lastfm_id" +
+                " JOIN artist c ON " +
+                " a.artist_id = c.id" +
+                " WHERE  a.lastfm_id = ?" +
+                " AND playnumber > 0" +
+                " AND  playnumber >= ALL" +
+                "       (SELECT max(b.playnumber) " +
+                " FROM " +
+                "(SELECT in_a.artist_id,in_a.playnumber" +
+                " FROM scrobbled_artist in_a  " +
+                " JOIN " +
+                " user in_b" +
+                " ON in_a.lastfm_id = in_b.lastfm_id" +
+                "   ) AS b" +
+                " WHERE b.artist_id = a.artist_id" +
+                " GROUP BY artist_id)" +
+                " ORDER BY orden DESC";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            int i = 1;
-            preparedStatement.setString(i++, lastFmId);
+            preparedStatement.setString(1, lastfmId);
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (!resultSet.next()) {
-                return new UniqueWrapper<>(0, 0, lastFmId, returnList);
+                return new UniqueWrapper<>(0, 0, lastfmId, returnList);
 
             } else {
-                discordID = resultSet.getLong("b.discordID");
+                discordId = resultSet.getLong("b.discord_id");
                 resultSet.beforeFirst();
             }
 
             while (resultSet.next()) {
 
-                String artist = resultSet.getString("artist_id");
+                String artist = resultSet.getString("c.name");
                 int plays = resultSet.getInt("orden");
-                returnList.add(new UniqueData(artist, plays));
+                returnList.add(new ArtistPlays(artist, plays));
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new RuntimeException(e);
         }
-        return new UniqueWrapper<>(returnList.size(), discordID, lastFmId, returnList);
+        return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
 
     }
 
     @Override
-    public UniqueWrapper<UniqueData> getGlobalUniques(Connection connection, String lastfmId) {
+    public UniqueWrapper<ArtistPlays> getGlobalUniques(Connection connection, String lastfmId) {
 
-        @Language("MySQL") String queryString = "SELECT * " +
+        @Language("MariaDB") String queryString = "SELECT a.name, temp.playnumber, temp.lastfm_id, temp.discord_id " +
                 "FROM(  " +
-                "       select artist_id, playNumber, a.lastFMID ,b.discordID" +
-                "       from artist a join lastfm b " +
-                "       ON a.lastFMID = b.lastFmId " +
-                "       where  a.playNumber > 2 " +
-                "       group by a.artist_id " +
-                "       having count( *) = 1) temp " +
-                "Where temp.lastFMID = ? and temp.playNumber > 1 " +
-                " order by temp.playNumber desc ";
+                "       SELECT artist_id, playnumber, a.lastfm_id ,b.discord_id" +
+                "       FROM scrobbled_artist a JOIN user b " +
+                "       ON a.lastfm_id = b.lastfm_id " +
+                "       WHERE  a.playnumber > 2 " +
+                "       GROUP BY a.artist_id " +
+                "       HAVING count( *) = 1) temp " +
+                " JOIN artist a ON temp.artist_id = a.id " +
+                "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
+                " ORDER BY temp.playnumber DESC ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -97,19 +97,19 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 return new UniqueWrapper<>(0, 0, lastfmId, new ArrayList<>());
             }
 
-            List<UniqueData> returnList = new ArrayList<>();
+            List<ArtistPlays> returnList = new ArrayList<>();
             resultSet.last();
             int rows = resultSet.getRow();
-            long discordId = resultSet.getLong("temp.discordID");
+            long discordId = resultSet.getLong("temp.discord_id");
 
             resultSet.beforeFirst();
             /* Get results. */
 
             while (resultSet.next()) { //&& (j < 10 && j < rows)) {
-                String name = resultSet.getString("temp.artist_id");
+                String name = resultSet.getString("a.name");
                 int count_a = resultSet.getInt("temp.playNumber");
 
-                returnList.add(new UniqueData(name, count_a));
+                returnList.add(new ArtistPlays(name, count_a));
 
             }
             return new UniqueWrapper<>(rows, discordId, lastfmId, returnList);
@@ -122,72 +122,156 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public UniqueWrapper<UniqueData> getUniqueArtist(Connection connection, Long guildID, String lastFmId) {
-        @Language("MySQL") String queryString = "SELECT * " +
+    public ResultWrapper<ArtistPlays> getArtistFrequencies(Connection connection, Long guildId) {
+        @Language("MariaDB") String queryBody =
+                "FROM  (SELECT artist_id " +
+                        "FROM scrobbled_artist a" +
+                        " JOIN user b  " +
+                        " ON a.lastfm_id = b.lastfm_id " +
+                        " JOIN user_guild c " +
+                        " ON b.discord_id = c.discord_id" +
+                        " WHERE c.guild_id = ?) main" +
+                        " JOIN artist b ON" +
+                        " main.artist_id = b.id ";
+
+        String normalQuery = "SELECT b.name, count(*) AS orden " + queryBody + " GROUP BY b.id ORDER BY orden DESC  Limit 200";
+        String countQuery = "Select count(*) " + queryBody;
+        try (PreparedStatement preparedStatement2 = connection.prepareStatement(countQuery)) {
+            preparedStatement2.setLong(1, guildId);
+
+            ResultSet resultSet = preparedStatement2.executeQuery();
+            if (!resultSet.next()) {
+                throw new RuntimeException();
+            }
+            int rows = resultSet.getInt(1);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(normalQuery)) {
+                preparedStatement.setLong(1, guildId);
+                return getArtistPlaysResultWrapper(rows, preparedStatement);
+            }
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @NotNull
+    private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(int rows, PreparedStatement preparedStatement) throws SQLException {
+        ResultSet resultSet;
+        resultSet = preparedStatement.executeQuery();
+        List<ArtistPlays> returnList = new ArrayList<>();
+        while (resultSet.next()) {
+            String name = resultSet.getString("b.name");
+            int count = resultSet.getInt("orden");
+            returnList.add(new ArtistPlays(name, count));
+        }
+
+        return new ResultWrapper<>(rows, returnList);
+    }
+
+
+    @Override
+    public ResultWrapper<ArtistPlays> getGlobalArtistFrequencies(Connection connection) {
+        @Language("MariaDB") String queryString =
+                "FROM  scrobbled_artist a" +
+                        " JOIN artist b " +
+                        " ON a.artist_id = b.id ";
+
+
+        String normalQuery = "SELECT b.name, count(*) AS orden " + queryString + "     GROUP BY artist_id  ORDER BY orden DESC  Limit 200";
+        String countQuery = "Select count(*) " + queryString;
+        int rows = 0;
+        try (PreparedStatement preparedStatement2 = connection.prepareStatement(countQuery)) {
+
+            ResultSet resultSet = preparedStatement2.executeQuery();
+            if (!resultSet.next()) {
+                throw new RuntimeException();
+            }
+            rows = resultSet.getInt(1);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(normalQuery)) {
+
+
+                return getArtistPlaysResultWrapper(rows, preparedStatement);
+            }
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Override
+    public UniqueWrapper<ArtistPlays> getUniqueArtist(Connection connection, Long guildID, String lastfmId) {
+        @Language("MariaDB") String queryString = "SELECT * " +
                 "FROM(  " +
-                "       select artist_id, playNumber, a.lastFMID ,b.discordID" +
-                "       from artist a join lastfm b " +
-                "       ON a.lastFMID = b.lastFmId " +
-                "       JOIN user_guild c ON b.discordID = c.discordId " +
-                "       where c.guildId = ? and a.playNumber > 2 " +
-                "       group by a.artist_id " +
-                "       having count( *) = 1) temp " +
-                "Where temp.lastFMID = ? and temp.playNumber > 1 " +
-                " order by temp.playNumber desc ";
+                "       SELECT a2.name, playnumber, a.lastfm_id ,b.discord_id" +
+                "       FROM scrobbled_artist a JOIN user b " +
+                "       ON a.lastfm_id = b.lastfm_id " +
+                "       JOIN user_guild c ON b.discord_id = c.discord_id " +
+                " JOIN artist a2 ON a.artist_id = a2.id " +
+                "       WHERE c.guild_id = ? AND a.playnumber > 2 " +
+                "       GROUP BY a.artist_id " +
+                "       HAVING count( *) = 1) temp " +
+                "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
+                " ORDER BY temp.playnumber DESC ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(i++, guildID);
-            preparedStatement.setString(i, lastFmId);
+            preparedStatement.setString(i, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (!resultSet.next()) {
-                return new UniqueWrapper<>(0, 0, lastFmId, new ArrayList<>());
+                return new UniqueWrapper<>(0, 0, lastfmId, new ArrayList<>());
             }
 
-            List<UniqueData> returnList = new ArrayList<>();
+            List<ArtistPlays> returnList = new ArrayList<>();
             resultSet.last();
             int rows = resultSet.getRow();
-            long discordId = resultSet.getLong("temp.discordID");
+            long discordId = resultSet.getLong("temp.discord_id");
 
             resultSet.beforeFirst();
             /* Get results. */
 
             while (resultSet.next()) { //&& (j < 10 && j < rows)) {
-                String name = resultSet.getString("temp.artist_id");
+                String name = resultSet.getString("temp.name");
                 int count_a = resultSet.getInt("temp.playNumber");
 
-                returnList.add(new UniqueData(name, count_a));
+                returnList.add(new ArtistPlays(name, count_a));
 
             }
-            return new UniqueWrapper<>(rows, discordId, lastFmId, returnList);
+            return new UniqueWrapper<>(rows, discordId, lastfmId, returnList);
 
 
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     @Override
-    public ResultWrapper similar(Connection connection, List<String> lastfMNames) {
+    public ResultWrapper<UserArtistComparison> similar(Connection connection, List<String> lastfMNames) {
         int MAX_IN_DISPLAY = 10;
         String userA = lastfMNames.get(0);
         String userB = lastfMNames.get(1);
 
-        @Language("MySQL") String queryString = "SELECT a.artist_id ,a.lastFMID , a.playNumber, b.lastFMID,b.playNumber ,((a.playNumber + b.playNumber)/(abs(a.playNumber-b.playNumber)+1)* ((a.playNumber + b.playNumber))*2.5) media , c.url " +
-                "FROM " +
-                "(SELECT * " +
-                "FROM artist " +
-                "WHERE lastFMID = ? ) a " +
-                "JOIN " +
-                "(SELECT * " +
-                "FRom artist " +
-                "where  lastFMID = ? ) b " +
-                "ON a.artist_id=b.artist_id " +
-                "JOIN artist_url c " +
-                "on c.artist_id=b.artist_id" +
-                " order by media desc ";
+        @Language("MariaDB") String queryString =
+                "SELECT c.name  , a.playnumber,b.playnumber ," +
+                        "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1)* ((a.playnumber + b.playnumber))*2.5) media ," +
+                        " c.url " +
+                        "FROM " +
+                        "(SELECT artist_id,playnumber " +
+                        "FROM scrobbled_artist " +
+                        "JOIN user b ON scrobbled_artist.lastfm_id = b.lastfm_id " +
+                        "WHERE b.lastfm_id = ? ) a " +
+                        "JOIN " +
+                        "(SELECT artist_id,playnumber " +
+                        "FROM scrobbled_artist " +
+                        " JOIN user b ON scrobbled_artist.lastfm_id = b.lastfm_id " +
+                        " WHERE b.lastfm_id = ? ) b " +
+                        "ON a.artist_id=b.artist_id " +
+                        "JOIN artist c " +
+                        "ON c.id=b.artist_id" +
+                        " ORDER BY media DESC ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -199,10 +283,10 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
             /* Execute query. */
             ResultSet resultSet = preparedStatement.executeQuery();
-            List<Results> returnList = new ArrayList<>();
+            List<UserArtistComparison> returnList = new ArrayList<>();
 
             if (!resultSet.next()) {
-                return new ResultWrapper(0, returnList);
+                return new ResultWrapper<>(0, returnList);
             }
             resultSet.last();
             int rows = resultSet.getRow();
@@ -211,15 +295,14 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             int j = 0;
             while (resultSet.next() && (j < MAX_IN_DISPLAY && j < rows)) {
                 j++;
-                String name = resultSet.getString("a.artist_id");
+                String name = resultSet.getString("c.name");
                 int count_a = resultSet.getInt("a.playNumber");
                 int count_b = resultSet.getInt("b.playNumber");
                 String url = resultSet.getString("c.url");
-                returnList.add(new Results(count_a, count_b, name, userA, userB, url));
-
+                returnList.add(new UserArtistComparison(count_a, count_b, name, userA, userB, url));
             }
 
-            return new ResultWrapper(rows, returnList);
+            return new ResultWrapper<>(rows, returnList);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -228,26 +311,26 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public WrapperReturnNowPlaying knows(Connection con, String artist, long guildId, int limit) {
+    public WrapperReturnNowPlaying knows(Connection con, long artistId, long guildId, int limit) {
 
-        String queryString = "Select temp.artist_id, temp.lastFMID,temp.playNumber,b.url, c.discordID " +
-                "FROM (SELECT a.artist_id, a.lastFMID, a.playNumber " +
-                "FROM  artist a  " +
-                "where artist_id = ?" +
-                "group by a.artist_id,a.lastFMID,a.playNumber " +
-                "order by playNumber desc) temp " +
-                "JOIN artist_url b ON temp.artist_id=b.artist_id " +
-                "JOIN lastfm c on c.lastFmId = temp.lastFMID " +
-                "JOIN user_guild d on c.discordID = d.discordId " +
-                "where d.guildId = ? " +
-                "ORDER BY temp.playNumber desc ";
+        @Language("MariaDB")
+        String queryString =
+                "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id " +
+                        "FROM  scrobbled_artist a" +
+                        " JOIN artist a2 ON a.artist_id = a2.id  " +
+                        "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
+                        "JOIN user_guild d on c.discord_ID = d.discord_Id " +
+                        "where d.guild_Id = ? " +
+                        "and  a2.id = ? " +
+                        "ORDER BY a.playNumber desc ";
         queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
             int i = 1;
-            preparedStatement.setString(i++, artist);
-            preparedStatement.setLong(i, guildId);
+            preparedStatement.setLong(i++, guildId);
+            preparedStatement.setLong(i, artistId);
+
 
 
             /* Execute query. */
@@ -255,13 +338,16 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             ResultSet resultSet = preparedStatement.executeQuery();
             int rows;
             String url = "";
+            String artistName = "";
             List<ReturnNowPlaying> returnList = new ArrayList<>();
             if (!resultSet.next()) {
                 rows = 0;
             } else {
                 resultSet.last();
                 rows = resultSet.getRow();
-                url = resultSet.getString("b.url");
+                url = resultSet.getString("a2.url");
+                artistName = resultSet.getString("a2.name");
+
 
             }
             /* Get generated identifier. */
@@ -271,14 +357,15 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             int j = 0;
             while (resultSet.next() && (j < limit && j < rows)) {
                 j++;
-                String lastFMId = resultSet.getString("temp.lastFMID");
-                int playNumber = resultSet.getInt("temp.playNumber");
-                long discordId = resultSet.getLong("c.discordID");
+                String lastfmId = resultSet.getString("a.lastFM_ID");
 
-                returnList.add(new ReturnNowPlaying(discordId, lastFMId, artist, playNumber));
+                int playNumber = resultSet.getInt("a.playNumber");
+                long discordId = resultSet.getLong("c.discord_ID");
+
+                returnList.add(new ReturnNowPlaying(discordId, lastfmId, artistName, playNumber));
             }
             /* Return booking. */
-            return new WrapperReturnNowPlaying(returnList, rows, url, artist);
+            return new WrapperReturnNowPlaying(returnList, rows, url, artistName);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -286,81 +373,91 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public UniqueWrapper<UniqueData> getCrowns(Connection connection, String lastFmId, long guildID) {
-        List<UniqueData> returnList = new ArrayList<>();
-        long discordID;
+    public UniqueWrapper<ArtistPlays> getCrowns(Connection connection, String lastfmId, long guildID) {
+        List<ArtistPlays> returnList = new ArrayList<>();
+        long discordId;
 
-        @Language("MariaDB") String queryString = "SELECT artist_id, b.discordID , playNumber as orden" +
-                " FROM  artist  a" +
-                " join lastfm b on a.lastFMID = b.lastFmId" +
-                " where  a.lastFMID = ?" +
-                " and playNumber > 0" +
-                " AND  playNumber >= all" +
-                "       (Select max(b.playNumber) " +
-                " from " +
-                "(Select in_A.artist_id,in_A.playNumber" +
-                " from artist in_A  " +
-                " join " +
-                " lastfm in_B" +
-                " on in_A.lastFMID = in_B.lastFmid" +
-                " natural join " +
-                " user_guild in_C" +
-                " where guildId = ?" +
-                "   ) as b" +
-                " where b.artist_id = a.artist_id" +
-                " group by artist_id)" +
-                " order by orden DESC";
+        @Language("MariaDB") String queryString = "SELECT a2.name, b.discord_id , playnumber AS orden" +
+                " FROM  scrobbled_artist  a" +
+                " JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                " JOIN artist a2 ON a.artist_id = a2.id " +
+                " WHERE  b.lastfm_id = ?" +
+                " AND playnumber > 0" +
+                " AND  playnumber >= ALL" +
+                "       (SELECT max(b.playnumber) " +
+                " FROM " +
+                "(SELECT in_a.artist_id,in_a.playnumber" +
+                " FROM scrobbled_artist in_a  " +
+                " JOIN " +
+                " user in_b" +
+                " ON in_a.lastfm_id = in_b.lastfm_id" +
+                " NATURAL JOIN " +
+                " user_guild in_c" +
+                " WHERE guild_id = ?" +
+                "   ) AS b" +
+                " WHERE b.artist_id = a.artist_id" +
+                " GROUP BY artist_id)" +
+                " ORDER BY orden DESC";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
-            preparedStatement.setString(i++, lastFmId);
+            preparedStatement.setString(i++, lastfmId);
             preparedStatement.setLong(i, guildID);
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (!resultSet.next()) {
-                return new UniqueWrapper<>(0, 0, lastFmId, returnList);
+                return new UniqueWrapper<>(0, 0, lastfmId, returnList);
 
             } else {
-                discordID = resultSet.getLong("b.discordID");
+                discordId = resultSet.getLong("b.discord_id");
                 resultSet.beforeFirst();
             }
 
             while (resultSet.next()) {
 
-                String artist = resultSet.getString("artist_id");
+                String artist = resultSet.getString("a2.name");
                 int plays = resultSet.getInt("orden");
-                returnList.add(new UniqueData(artist, plays));
+                returnList.add(new ArtistPlays(artist, plays));
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new RuntimeException(e);
         }
-        return new UniqueWrapper<>(returnList.size(), discordID, lastFmId, returnList);
+        return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
     }
 
     @Override
-    public List<UrlCapsule> getGuildTop(Connection connection, Long guildID) {
-        @Language("MariaDB") String queryString = "SELECT a.artist_id, sum(playNumber) as orden ,url  FROM  artist a" +
-                " JOIN lastfm b" +
-                " ON a.lastFMID = b.lastFmId" +
-                " JOIN artist_url d " +
-                " ON a.artist_id = d.artist_id" +
-                " JOIN  user_guild c" +
-                " On b.discordID=c.discordId" +
-                " Where c.guildId = ?" +
-                " group by artist_id,url" +
-                " order BY orden DESC" +
-                " LIMIT 25;";
+    public List<UrlCapsule> getGuildTop(Connection connection, Long guildID, int limit) {
+        //TODO LIMIT
+        @Language("MariaDB") String queryString = "SELECT d.name, sum(playnumber) AS orden ,url  " +
+                "FROM  scrobbled_artist a" +
+                " JOIN user b" +
+                " ON a.lastfm_id = b.lastfm_id" +
+                " JOIN artist d " +
+                " ON a.artist_id = d.id";
+        if (guildID != null) {
+
+            queryString += " JOIN  user_guild c" +
+                    " ON b.discord_id=c.discord_id" +
+                    " WHERE c.guild_id = ?";
+        }
+        queryString += " GROUP BY artist_id,url" +
+                " ORDER BY orden DESC" +
+                " LIMIT ?;";
         List<UrlCapsule> list = new LinkedList<>();
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setLong(1, guildID);
+            int i = 1;
+            if (guildID != null)
+                preparedStatement.setLong(i++, guildID);
+
+            preparedStatement.setInt(i, limit);
 
             ResultSet resultSet = preparedStatement.executeQuery();
             int count = 0;
             while (resultSet.next()) {
-                String artist = resultSet.getString("a.artist_id");
+                String artist = resultSet.getString("d.name");
                 String url = resultSet.getString("url");
 
                 int plays = resultSet.getInt("orden");
@@ -376,16 +473,16 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public int userPlays(Connection con, String artist, String whom) {
-        @Language("MariaDB") String queryString = "Select a.playNumber " +
-                "FROM artist a JOIN lastfm b on a.lastFMID=b.lastFmId " +
-                "JOIN artist_url c on a.artist_id = c.artist_id " +
-                "where a.lastFMID = ? and a.artist_id =?";
+    public int userPlays(Connection con, long artistId, String whom) {
+        @Language("MariaDB") String queryString = "SELECT a.playnumber " +
+                "FROM scrobbled_artist a JOIN user b ON a.lastfm_id=b.lastfm_id " +
+                "JOIN artist c ON a.artist_id = c.id " +
+                "WHERE a.lastfm_id = ? AND c.id = ?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setString(i++, whom);
-            preparedStatement.setString(i, artist);
+            preparedStatement.setLong(i, artistId);
 
 
 
@@ -404,35 +501,35 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
     @Override
     public List<LbEntry> crownsLeaderboard(Connection connection, long guildID) {
-        @Language("MariaDB") String queryString = "SELECT t2.lastFMID,t3.discordID,count(t2.lastFMID) ord " +
-                "From " +
+        @Language("MariaDB") String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
+                "FROM " +
                 "( " +
-                "Select " +
-                "        a.artist_id,max(a.playNumber) plays " +
+                "SELECT " +
+                "        a.artist_id,max(a.playnumber) plays " +
                 "    FROM " +
-                "         artist a  " +
+                "         scrobbled_artist a  " +
                 "    JOIN " +
-                "        lastfm b  " +
-                "            ON a.lastFMID = b.lastFmId  " +
+                "        user b  " +
+                "            ON a.lastfm_id = b.lastfm_id  " +
                 "    JOIN " +
                 "        user_guild c  " +
-                "            ON b.discordID = c.discordId  " +
+                "            ON b.discord_id = c.discord_id  " +
                 "    WHERE " +
-                "        c.guildId = ?  " +
+                "        c.guild_id = ?  " +
                 "    GROUP BY " +
                 "        a.artist_id  " +
                 "  ) t " +
-                "  JOIN artist t2  " +
+                "  JOIN scrobbled_artist t2  " +
                 "   " +
-                "  on t.plays = t2.playNumber and t.artist_id = t2.artist_id " +
-                "  JOIN lastfm t3  ON t2.lastFMID = t3.lastFmId  " +
+                "  ON t.plays = t2.playnumber AND t.artist_id = t2.artist_id " +
+                "  JOIN user t3  ON t2.lastfm_id = t3.lastfm_id  " +
                 "    JOIN " +
                 "        user_guild t4  " +
-                "            ON t3.discordID = t4.discordId  " +
+                "            ON t3.discord_id = t4.discord_id  " +
                 "    WHERE " +
-                "        t4.guildId = ?  " +
-                "  group by t2.lastFMID,t3.discordID " +
-                "  order by ord desc";
+                "        t4.guild_id = ?  " +
+                "  GROUP BY t2.lastfm_id,t3.discord_id " +
+                "  ORDER BY ord DESC";
 
         return getLbEntries(connection, guildID, queryString, CrownsLbEntry::new, true);
 
@@ -442,20 +539,20 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public List<LbEntry> uniqueLeaderboard(Connection connection, long guildId) {
         @Language("MariaDB") String queryString = "SELECT  " +
-                "    count(temp.lastfmID) as ord,temp.lastFMID,temp.discordID " +
+                "    count(temp.lastfm_id) AS ord,temp.lastfm_id,temp.discord_id " +
                 "FROM " +
                 "    (SELECT  " +
-                "         a.lastFMID, b.discordID " +
+                "         a.lastfm_id, b.discord_id " +
                 "    FROM " +
-                "        artist a " +
-                "    JOIN lastfm b ON a.lastFMID = b.lastFmId " +
-                "    JOIN user_guild c ON b.discordID = c.discordId " +
+                "        scrobbled_artist a " +
+                "    JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                "    JOIN user_guild c ON b.discord_id = c.discord_id " +
                 "    WHERE " +
-                "        c.guildId = ? " +
-                "            AND a.playNumber > 2 " +
+                "        c.guild_id = ? " +
+                "            AND a.playnumber > 2 " +
                 "    GROUP BY a.artist_id " +
                 "    HAVING COUNT(*) = 1) temp " +
-                "group by lastFMID " +
+                "GROUP BY lastfm_id " +
                 "ORDER BY ord DESC";
 
         return getLbEntries(connection, guildId, queryString, UniqueLbEntry::new, false);
@@ -464,7 +561,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
     @Override
     public int userArtistCount(Connection con, String whom) {
-        String queryString = "Select count(*) as numb from artist where artist.lastFMID=?";
+        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_artist WHERE scrobbled_artist.lastfm_id=?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
@@ -485,15 +582,15 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public List<LbEntry> artistLeaderboard(Connection con, long guildID) {
         @Language("MariaDB") String queryString = "(SELECT  " +
-                "        a.lastfmID , count(*) as ord, c.discordId" +
+                "        a.lastfm_id , count(*) AS ord, c.discord_id" +
                 "    FROM " +
-                "        artist a " +
-                "    JOIN lastfm b ON a.lastFMID = b.lastFmId " +
-                "    JOIN user_guild c ON b.discordID = c.discordId " +
+                "        scrobbled_artist a " +
+                "    JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                "    JOIN user_guild c ON b.discord_id = c.discord_id " +
                 "    WHERE " +
-                "        c.guildId = ? " +
-                " group by a.lastFMID,c.discordId " +
-                "    order by ord desc    )";
+                "        c.guild_id = ? " +
+                " GROUP BY a.lastfm_id,c.discord_id " +
+                "    ORDER BY ord DESC    )";
 
         return getLbEntries(con, guildID, queryString, ArtistLbEntry::new, false);
     }
@@ -501,59 +598,59 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public List<LbEntry> obscurityLeaderboard(Connection connection, long guildId) {
         @Language("MariaDB") String queryString = "\n" +
-                "Select finalMain.lastfmid,  POW(((mytotalPlays / (other_plays_on_my_artists)) * (as_unique_coefficient + 1)),\n" +
-                "            0.4) as ord , c.discordId\n" +
-                "from (\n" +
+                "SELECT finalmain.lastfm_id,  POW(((mytotalplays / (other_plays_on_my_artists)) * (as_unique_coefficient + 1)),\n" +
+                "            0.4) AS ord , c.discord_id\n" +
+                "FROM (\n" +
                 "SELECT \n" +
-                "    main.lastFMID,\n" +                //OBtains total plays, and other users plays on your artist
+                "    main.lastfm_id,\n" +                //OBtains total plays, and other users plays on your artist
                 "    (SELECT \n" +
-                "              COALESCE(SUM(a.playNumber) * (COUNT(*)), 0)\n" +
+                "              COALESCE(SUM(a.playnumber) * (COUNT(*)), 0)\n" +
                 "        FROM\n" +
-                "            artist a\n" +
+                "            scrobbled_artist a\n" +
                 "        WHERE\n" +
-                "            lastfmid = main.lastfmid) AS mytotalPlays,\n" +
+                "            lastfm_id = main.lastfm_id) AS mytotalplays,\n" +
                 "    (SELECT \n" +
-                "             COALESCE(SUM(a.playNumber), 1)\n" +
+                "             COALESCE(SUM(a.playnumber), 1)\n" +
                 "        FROM\n" +
-                "            artist a\n" +
+                "            scrobbled_artist a\n" +
                 "        WHERE\n" +
-                "            lastfmid != main.lastfmid\n" +
+                "            lastfm_id != main.lastfm_id\n" +
                 "                AND a.artist_id IN (SELECT \n" +
                 "                    artist_id\n" +
                 "                FROM\n" +
                 "                    artist\n" +
                 "                WHERE\n" +
-                "                    lastfmid = main.lastfmid))as  other_plays_on_my_artists,\n" +
+                "                    lastfm_id = main.lastfm_id))AS  other_plays_on_my_artists,\n" +
                 "  " +
                 "  (SELECT \n" +                // Obtains uniques, percentage of uniques, and plays on uniques
                 "            COUNT(*) / (SELECT \n" +
                 "                        COUNT(*) + 1\n" +
                 "                    FROM\n" +
-                "                        artist a\n" +
+                "                        scrobbled_artist a\n" +
                 "                    WHERE\n" +
-                "                        lastfmid = main.lastfmid) * (COALESCE(SUM(playNumber), 1))\n" +
+                "                        lastfm_id = main.lastfm_id) * (COALESCE(SUM(playnumber), 1))\n" +
                 "        FROM\n" +
                 "            (SELECT \n" +
-                "                artist_id, playNumber, a.lastFMID\n" +
+                "                artist_id, playnumber, a.lastfm_id\n" +
                 "            FROM\n" +
-                "                artist a\n" +
+                "                scrobbled_artist a\n" +
                 "            GROUP BY a.artist_id\n" +
                 "            HAVING COUNT(*) = 1) temp \n" +
                 "        WHERE\n" +
-                "            temp.lastFMID = main.lastfmID\n" +
-                "                AND temp.playNumber > 1\n" +
+                "            temp.lastfm_id = main.lastfm_id\n" +
+                "                AND temp.playnumber > 1\n" +
                 "        ) as_unique_coefficient\n" +
                 "FROM\n" +
                 //"\t#full artist table, we will filter later because is somehow faster :D\n" +
-                "    artist main\n" +
+                "    scrobbled_artist main\n" +
                 "    \n" +
-                "GROUP BY main.lastfmid\n" +
-                ") finalMain" +
-                " join lastfm b\n" +
-                "ON finalMain.lastFMID = b.lastFmId \n" +
-                "JOIN user_guild c ON b.discordID = c.discordId \n" +
-                "where c.guildId = ?" +
-                " order by ord desc";
+                "GROUP BY main.lastfm_id\n" +
+                ") finalmain" +
+                " JOIN user b\n" +
+                "ON finalmain.lastfm_id = b.lastfm_id \n" +
+                "JOIN user_guild c ON b.discord_id = c.discord_id \n" +
+                "WHERE c.guild_id = ?" +
+                " ORDER BY ord DESC";
 
         return getLbEntries(connection, guildId, queryString, ObscurityEntry::new, false);
     }
@@ -563,34 +660,33 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
         @Language("MariaDB") String queryString =
                 "SELECT \n" +
-                        "    a.artist_id,\n" +
+                        "    b.name,\n" +
                         "    b.url,\n " +
-                        "    discordID,\n" +
+                        "    discord_id,\n" +
                         "    (SELECT \n" +
-                        "            SUM(playNumber)\n" +
+                        "            SUM(playnumber)\n" +
                         "        FROM\n" +
-                        "            artist\n" +
+                        "            scrobbled_artist\n" +
                         "        WHERE\n" +
-                        "            artist_id = a.artist_id) as summa\n" +
+                        "            artist_id = a.artist_id) AS summa\n" +
                         "FROM\n" +
-                        "    artist a\n" +
+                        "    scrobbled_artist a\n" +
                         "        JOIN\n" +
-                        "    artist_url b ON a.artist_id = b.artist_id\n" +
+                        "    artist b ON a.artist_id = b.id\n" +
                         "        NATURAL JOIN\n" +
-                        "    lastfm c\n" +
+                        "    user c\n" +
                         "WHERE\n" +
-                        "    b.artist_id IN (SELECT \n" +
-                        "            artist_id\n" +
+                        "    b.id IN (SELECT \n" +
+                        "            rando.id\n" +
                         "        FROM\n" +
                         "            (SELECT \n" +
-                        "                a.artist_id\n" +
+                        "                a.id\n" +
                         "            FROM\n" +
                         "                artist a\n" +
-                        "            JOIN artist_url b ON a.artist_id = b.artist_id\n" +
-                        "                AND b.url IS NOT NULL\n" +
-                        "                AND b.url != ''\n" +
+                        "                WHERE a.url IS NOT NULL\n" +
+                        "                AND a.url != ''\n" +
                         "            ORDER BY RAND()\n" +
-                        "            LIMIT 1) artist)\n" +
+                        "            LIMIT 1) rando)\n" +
                         "ORDER BY RAND()\n" +
                         "LIMIT 1;";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -599,12 +695,12 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             if (!resultSet.next())
                 return null;
 
-            String artist_id = resultSet.getString("artist_id");
+            String artist_id = resultSet.getString("name");
             String url = resultSet.getString("url");
 
             long summa = resultSet.getLong("summa");
-            long discordID = resultSet.getLong("discordID");
-            return new PresenceInfo(artist_id, url, summa, discordID);
+            long discordId = resultSet.getLong("discord_id");
+            return new PresenceInfo(artist_id, url, summa, discordId);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -614,50 +710,51 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser, long guildId) {
         List<StolenCrown> returnList = new ArrayList<>();
-        long discordID;
-        long discordID2 = 0L;
+        long discordid;
+        long discordid2;
         @Language("MariaDB") String queryString = "SELECT \n" +
-                "    inn.artist_id as artist ,inn.orden as ogPlays , inn.discordID as ogId , inn2.discordID queriedId,  inn2.orden as queriedPlays\n" +
+                "    inn.name AS artist ,inn.orden AS ogplays , inn.discord_id AS ogid , inn2.discord_id queriedid,  inn2.orden AS queriedplays\n" +
                 "FROM\n" +
                 "    (SELECT \n" +
-                "        artist_id, b.discordID, playNumber AS orden\n" +
+                "        a.artist_id, a2.name, b.discord_id, playnumber AS orden\n" +
                 "    FROM\n" +
-                "        artist a\n" +
-                "    JOIN lastfm b ON a.lastFMID = b.lastFmId\n" +
+                "        scrobbled_artist a\n" +
+                "    JOIN user b ON a.lastfm_id = b.lastfm_id\n" +
+                " JOIN artist a2 ON a.artist_id = a2.id " +
                 "    WHERE\n" +
-                "        a.lastFMID = ?) inn\n" +
+                "        a.lastfm_id = ?) inn\n" +
                 "        JOIN\n" +
                 "    (SELECT \n" +
-                "        artist_id, b.discordID, playNumber AS orden\n" +
+                "        artist_id, b.discord_id, playnumber AS orden\n" +
                 "    FROM\n" +
-                "        artist a\n" +
-                "    JOIN lastfm b ON a.lastFMID = b.lastFmId\n" +
+                "        scrobbled_artist a\n" +
+                "    JOIN user b ON a.lastfm_id = b.lastfm_id\n" +
                 "    WHERE\n" +
-                "        b.lastFMID = ?) inn2 ON inn.artist_id = inn2.artist_id\n" +
+                "        b.lastfm_id = ?) inn2 ON inn.artist_id = inn2.artist_id\n" +
                 "WHERE\n" +
                 "    (inn2.artist_id , inn2.orden) = (SELECT \n" +
-                "            in_A.artist_id, MAX(in_A.playnumber)\n" +
+                "            in_a.artist_id, MAX(in_a.playnumber)\n" +
                 "        FROM\n" +
-                "            artist in_A\n" +
+                "            scrobbled_artist in_a\n" +
                 "                JOIN\n" +
-                "            lastfm in_B ON in_A.lastFMID = in_B.lastFmid\n" +
+                "            user in_b ON in_a.lastfm_id = in_b.lastfm_id\n" +
                 "                NATURAL JOIN\n" +
-                "            user_guild in_C\n" +
+                "            user_guild in_c\n" +
                 "        WHERE\n" +
-                "            guildId = ?\n" +
+                "            guild_id = ?\n" +
                 "                AND artist_id = inn2.artist_id)\n" +
                 "        AND (inn.artist_id , inn.orden) = (SELECT \n" +
-                "            in_A.artist_id, in_A.playnumber\n" +
+                "            in_a.artist_id, in_a.playnumber\n" +
                 "        FROM\n" +
-                "            artist in_A\n" +
+                "            scrobbled_artist in_a\n" +
                 "                JOIN\n" +
-                "            lastfm in_B ON in_A.lastFMID = in_B.lastFmid\n" +
+                "            user in_b ON in_a.lastfm_id = in_b.lastfm_id\n" +
                 "                NATURAL JOIN\n" +
-                "            user_guild in_C\n" +
+                "            user_guild in_c\n" +
                 "        WHERE\n" +
-                "            guildId = ?\n" +
+                "            guild_id = ?\n" +
                 "                AND artist_id = inn.artist_id\n" +
-                "        ORDER BY in_A.playnumber DESC\n" +
+                "        ORDER BY in_a.playnumber DESC\n" +
                 "        LIMIT 1 , 1)\n" +
                 "ORDER BY inn.orden DESC , inn2.orden DESC\n" +
                 "        \n";
@@ -674,8 +771,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             if (!resultSet.next()) {
                 return new StolenCrownWrapper(0, 0, returnList);
             } else {
-                discordID = resultSet.getLong("ogId");
-                discordID2 = resultSet.getLong("queriedId");
+                discordid = resultSet.getLong("ogId");
+                discordid2 = resultSet.getLong("queriedId");
                 resultSet.beforeFirst();
             }
 
@@ -692,43 +789,47 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             throw new RuntimeException(e);
         }
         //Ids will be 0 if returnlist is empty;
-        return new StolenCrownWrapper(discordID, discordID2, returnList);
+        return new StolenCrownWrapper(discordid, discordid2, returnList);
     }
 
     @Override
-    public UniqueWrapper<UniqueData> getUserAlbumCrowns(Connection connection, String lastfmid, long guildId) {
+    public UniqueWrapper<ArtistPlays> getUserAlbumCrowns(Connection connection, String lastfmId, long guildId) {
 
-        @Language("MySQL") String queryString = "Select a.artist_id,a.album,a.plays,b.discordID from album_crowns a join lastfm b on a.discordId = b.discordID where guildId = ? and b.lastFmId = ? order by plays desc";
+        @Language("MariaDB") String queryString = "SELECT a2.name ,a.album,a.plays,b.discord_id " +
+                "FROM album_crowns a " +
+                "JOIN user b ON a.discordid = b.discord_id" +
+                " JOIN artist a2 ON a.artist_id = a2.id " +
+                " WHERE guildid = ? AND b.lastfm_id = ? ORDER BY plays DESC";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(i++, guildId);
-            preparedStatement.setString(i, lastfmid);
+            preparedStatement.setString(i, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (!resultSet.next()) {
-                return new UniqueWrapper<>(0, 0, lastfmid, new ArrayList<>());
+                return new UniqueWrapper<>(0, 0, lastfmId, new ArrayList<>());
             }
 
-            List<UniqueData> returnList = new ArrayList<>();
+            List<ArtistPlays> returnList = new ArrayList<>();
             resultSet.last();
             int rows = resultSet.getRow();
 
-            long discordId = resultSet.getLong("discordID");
+            long discordId = resultSet.getLong("discord_id");
 
             resultSet.beforeFirst();
             /* Get results. */
 
             while (resultSet.next()) { //&& (j < 10 && j < rows)) {
-                String name = resultSet.getString("artist_id");
+                String name = resultSet.getString("name");
                 String album = resultSet.getString("album");
 
                 int count_a = resultSet.getInt("plays");
 
-                returnList.add(new UniqueData(name + " - " + album, count_a));
+                returnList.add(new ArtistPlays(name + " - " + album, count_a));
 
             }
-            return new UniqueWrapper<>(rows, discordId, lastfmid, returnList);
+            return new UniqueWrapper<>(rows, discordId, lastfmId, returnList);
 
 
         } catch (SQLException e) {
@@ -741,56 +842,57 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public List<LbEntry> albumCrownsLeaderboard(Connection con, long guildID) {
         @Language("MariaDB") String queryString = "SELECT \n" +
-                "    a.discordId, b.lastfmid, COUNT(*) AS ord\n" +
+                "    b.discord_id , b.lastfm_id, COUNT(*) AS ord\n" +
                 "FROM\n" +
                 "    album_crowns a\n" +
                 "      RIGHT JOIN\n" +
-                "    lastfm b ON a.discordId = b.discordId\n" +
+                "    user b ON a.discordid = b.discord_id\n" +
                 "WHERE\n" +
-                "    guildID = ?\n" +
-                "GROUP BY a.discordID , b.lastfmid\n" +
-                "ORDER BY ord desc ;";
+                "    guildid = ?\n" +
+                "GROUP BY a.discordid , b.lastfm_id\n" +
+                "ORDER BY ord DESC ;";
 
         return getLbEntries(con, guildID, queryString, AlbumCrownLbEntry::new, false);
     }
 
     @Override
-    public ObscuritySummary getUserObscuritPoints(Connection connection, String lastfmid) {
-        @Language("MariaDB") String queryString = "\tSelect  b, other_plays_on_my_artists, unique_coefficient,\n" +
-                "\tPOW(((b/ (other_plays_on_my_artists)) * (unique_coefficient + 1)),0.4) as total\n" +
-                "\t\tfrom (\n" +
+    public ObscuritySummary getUserObscuritPoints(Connection connection, String lastfmId) {
+        @Language("MariaDB") String queryString = "\tSELECT  b, other_plays_on_my_artists, unique_coefficient,\n" +
+                "\tPOW(((b/ (other_plays_on_my_artists)) * (unique_coefficient + 1)),0.4) AS total\n" +
+                "\t\tFROM (\n" +
                 "\n" +
-                "\tSELECT (Select sum(a.playnumber) * count(*) from \n" +
-                "\tartist a \n" +
-                "\twhere lastfmid = main.lastfmid) as b ,  \n" +
+                "\tSELECT (SELECT sum(a.playnumber) * count(*) FROM \n" +
+                "\tscrobbled_artist a \n" +
+                "\tWHERE lastfm_id = main.lastfm_id) AS b ,  \n" +
                 "\t\t   (SELECT COALESCE(Sum(a.playnumber), 1) \n" +
-                "\t\t\tFROM   artist a \n" +
-                " WHERE  lastfmid != main.lastfmid \n" +
+                "\t\t\tFROM   scrobbled_artist a \n" +
+                " WHERE  lastfm_id != main.lastfm_id \n" +
                 "   AND a.artist_id IN (SELECT artist_id \n" +
                 "   FROM   artist \n" +
-                "   WHERE  lastfmid = main.lastfmid)) AS \n" +
+                "   WHERE  lastfm_id = main.lastfm_id)) AS \n" +
                 "   other_plays_on_my_artists, \n" +
                 "   (SELECT Count(*) / (SELECT Count(*) + 1 \n" +
-                "   FROM   artist a \n" +
-                "\t\t\t\t\t\t\t   WHERE  lastfmid = main.lastfmid) * ( \n" +
+                "   FROM   scrobbled_artist a \n" +
+                "\t\t\t\t\t\t\t   WHERE  lastfm_id = main.lastfm_id) * ( \n" +
                 "\t\t\t\t   COALESCE(Sum(playnumber \n" +
                 "\t\t\t\t\t\t\t), 1) ) \n" +
                 "\t\t\tFROM   (SELECT artist_id, \n" +
                 "\t\t\t\t\t\t   playnumber, \n" +
-                "\t\t\t\t\t\t   a.lastfmid \n" +
-                "\t\t\t\t\tFROM   artist a \n" +
+                "\t\t\t\t\t\t   a.lastfm_id \n" +
+                "\t\t\t\t\tFROM   scrobbled_artist a \n" +
                 "\t\t\t\t\tGROUP  BY a.artist_id \n" +
                 "\t\t\t\t\tHAVING Count(*) = 1) temp \n" +
-                "\t\t\tWHERE  temp.lastfmid = main.lastfmid \n" +
+                "\t\t\tWHERE  temp.lastfm_id = main.lastfm_id \n" +
                 "\t\t\t\t   AND temp.playnumber > 1) \n" +
-                "\t\t   as unique_coefficient                      \n" +
-                "\tFROM   artist main \n" +
-                "\tgroup by lastFMID\n" +
-                "\thaving lastFMID =  ?\n" +
+                "\t\t   AS unique_coefficient                      \n" +
+                "\tFROM   scrobbled_artist main \n" +
+                "\tWHERE  lastfm_id =  ?" +
+                " GROUP BY lastfm_id\n" +
+                "\t\n" +
                 "\t) outer_main\n";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
-            preparedStatement.setString(i, lastfmid);
+            preparedStatement.setString(i, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (!resultSet.next()) {
@@ -819,7 +921,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 "FROM\n" +
                 "    randomlinks \n";
         if (userId != null) {
-            queryString += "WHERE discordId = ?";
+            queryString += "WHERE discord_id = ?";
 
         }
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -840,30 +942,30 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public List<GlobalCrown> getGlobalKnows(Connection connection, String artistID) {
+    public List<GlobalCrown> getGlobalKnows(Connection connection, long artistID) {
         List<GlobalCrown> returnedList = new ArrayList<>();
-        @Language("MariaDB") String queryString = "Select  playnumber as ord, discordId, l.lastfmID\n" +
-                " FROM  artist ar\n" +
-                "  	 	 JOIN lastfm l on ar.lastfmid = l.lastfmid " +
-                "        WHERE  artist_id = ? " +
-                "        ORDER BY  playNumber desc";
+        @Language("MariaDB") String queryString = "SELECT  playnumber AS ord, discord_id, l.lastfm_id\n" +
+                " FROM  scrobbled_artist ar\n" +
+                "  	 	 JOIN user l ON ar.lastfm_id = l.lastfm_id " +
+                "        WHERE  ar.artist_id = ? " +
+                "        ORDER BY  playnumber DESC";
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
-            preparedStatement.setString(i, artistID);
+            preparedStatement.setLong(i, artistID);
 
 
             ResultSet resultSet = preparedStatement.executeQuery();
-            int j =1 ;
+            int j = 1;
             while (resultSet.next()) { //&& (j < 10 && j < rows)) {
 
 
-                String lastFMId = resultSet.getString("lastfmID");
-                long discordId = resultSet.getLong("discordId");
+                String lastfmId = resultSet.getString("lastfm_id");
+                long discordId = resultSet.getLong("discord_id");
                 int crowns = resultSet.getInt("ord");
 
-                returnedList.add(new GlobalCrown(lastFMId, discordId, crowns, j++));
+                returnedList.add(new GlobalCrown(lastfmId, discordId, crowns, j++));
             }
             return returnedList;
         } catch (SQLException e) {
@@ -884,11 +986,11 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) { //&& (j < 10 && j < rows)) {
-                String lastFMId = resultSet.getString("lastfmID");
-                long discordId = resultSet.getLong("discordId");
+                String lastfmId = resultSet.getString("lastfm_id");
+                long discordId = resultSet.getLong("discord_id");
                 int crowns = resultSet.getInt("ord");
 
-                returnedList.add(fun.apply(lastFMId, discordId, crowns));
+                returnedList.add(fun.apply(lastfmId, discordId, crowns));
 
 
             }
