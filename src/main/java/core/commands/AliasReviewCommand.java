@@ -48,17 +48,18 @@ public class AliasReviewCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        if (this.isActive) {
-            sendMessageQueue(e, "Other admin is reviewing the aliases, pls wait till they have finished!");
-            return;
-        }
-        this.isActive = true;
+
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = getService().findLastFMData(idLong);
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Only bot admins can review the alias queue!");
             return;
         }
+        if (this.isActive) {
+            sendMessageQueue(e, "Other admin is reviewing the aliases, pls wait till they have finished!");
+            return;
+        }
+        this.isActive = true;
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Alias Review");

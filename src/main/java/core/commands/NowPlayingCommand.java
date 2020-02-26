@@ -22,7 +22,7 @@ public class NowPlayingCommand extends NpCommand {
 
         CommandUtil.getUserInfoConsideringGuildOrNot(userNameHolder, urlHolder, e, discordId);
 
-        userNameHolder.append(" 's ").append(nowPlayingArtist.isNowPlaying() ? "current" : "last").append(" song:");
+        userNameHolder.append("'s ").append(nowPlayingArtist.isNowPlaying() ? "current" : "last").append(" song:");
         String username = nowPlayingArtist.getUsername();
         a.append("**").append(nowPlayingArtist.getArtistName())
                 .append("** | ").append(nowPlayingArtist.getAlbumName());

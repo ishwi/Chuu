@@ -46,7 +46,7 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
         embedBuilder.setColor(CommandUtil.randomColor());
         embedBuilder.setTitle("Most Popular artists");
         embedBuilder.setFooter(e.getJDA().getSelfUser().getName() + " has " + list.getRows() + " different artists!\n", null);
-        embedBuilder.setThumbnail(e.getGuild().getIconUrl());
+        embedBuilder.setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 executor.execute(() -> new Reactionary<>(collect, message1, embedBuilder)));
@@ -59,7 +59,7 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("gl", "globalhz", "globallisteners");
+        return Arrays.asList("globalListeners", "globalhz", "gl");
     }
 
     @Override

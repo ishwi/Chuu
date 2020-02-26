@@ -70,13 +70,13 @@ public class AllPlayingCommand extends ConcurrentCommand {
                     Member member = e.getGuild().getMemberById(usersWrapper.getDiscordID());
                     String username = member == null ? usersWrapper.getLastFMName() : member.getEffectiveName();
                     String started = !showFresh && value.isNowPlaying() ? "#" : "+";
-                    return started + "[" +
-                            username + "](" +
-                            CommandUtil.getLastFmUser(usersWrapper.getLastFMName()) +
-                            "): " +
-                            value.getSongName() +
-                            " - " + value.getArtistName() +
-                            " | " + value.getAlbumName() + "\n";
+                    return started + " [" +
+                           username + "](" +
+                           CommandUtil.getLastFmUser(usersWrapper.getLastFMName()) +
+                           "): " +
+                           value.getSongName() +
+                           " - " + value.getArtistName() +
+                           " | " + value.getAlbumName() + "\n";
                 }
         ).collect(Collectors.toList());
 
