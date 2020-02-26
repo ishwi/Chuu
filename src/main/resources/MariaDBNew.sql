@@ -36,7 +36,7 @@ CREATE TABLE artist
     correction_status TINYINT(1)                              DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE (name)
-);
+) ROW_FORMAT = DYNAMIC;
 
 CREATE TABLE scrobbled_artist
 (
@@ -59,7 +59,7 @@ CREATE TABLE album_crowns
     UNIQUE KEY artist_id_unique (artist_id, album, guildid),
     CONSTRAINT `album_crowns_fk_artist_id ` FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT album_crown_fk_guildid FOREIGN KEY (discordid, guildid) REFERENCES user_guild (discord_id, guild_id) ON DELETE CASCADE
-);
+) ROW_FORMAT = DYNAMIC;
 
 CREATE TABLE corrections
 (
@@ -68,7 +68,7 @@ CREATE TABLE corrections
     artist_id BIGINT(20)                              NOT NULL,
     CONSTRAINT corrections_fk_artist FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
     PRIMARY KEY (id)
-);
+) ROW_FORMAT = DYNAMIC;
 CREATE TABLE metrics
 (
     id    INT(11) NOT NULL AUTO_INCREMENT,
@@ -84,9 +84,9 @@ CREATE TABLE randomlinks
     url        VARCHAR(200) COLLATE utf8mb4_unicode_ci NOT NULL,
     PRIMARY KEY (url),
     UNIQUE KEY unique_url_random (url),
-    CONSTRAINT randomlinks_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    CONSTRAINT randomlinks_fk_guild FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON UPDATE CASCADE ON DELETE NO ACTION
-);
+    CONSTRAINT randomlinks_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT randomlinks_fk_guild FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON UPDATE CASCADE ON DELETE CASCADE
+) ROW_FORMAT = DYNAMIC;
 CREATE TABLE queued_alias
 (
     id         INT(11)      NOT NULL AUTO_INCREMENT,
@@ -97,4 +97,4 @@ CREATE TABLE queued_alias
     PRIMARY KEY (id),
     CONSTRAINT queuedalias_fk_artsit FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT queuedalias_fk_discordid FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE CASCADE
-)
+) ROW_FORMAT = DYNAMIC;

@@ -40,7 +40,7 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
         EmbedBuilder embedBuilder = initList(a, collect)
                 .setTitle("Most Played Artists")
                 .setFooter(e.getJDA().getSelfUser().getName() + " has stored " + list.getRows() + " plays!\n", null)
-                .setThumbnail(e.getGuild().getIconUrl());
+                .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 executor.execute(() -> new Reactionary<>(collect, message1, embedBuilder)));
@@ -53,7 +53,7 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("gp", "globalplays");
+        return Arrays.asList("globalplays", "gp");
     }
 
     @Override

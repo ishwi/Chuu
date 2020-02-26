@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class CountryParser extends DaoParser {
     public CountryParser(ChuuService dao) {
@@ -55,17 +56,21 @@ public class CountryParser extends DaoParser {
         String countryCode = String.join(" ", words);
         CountryCode country;
         if (countryCode.length() == 2) {
+            if (countryCode.equalsIgnoreCase("uk")) {
+                countryCode = "gb";
+            }
             country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
         } else if (countryCode.length() == 3) {
             country = CountryCode.getByAlpha3Code(countryCode.toUpperCase());
         } else {
+            String finalCountryCode = countryCode;
             Optional<Locale> opt = Arrays.stream(Locale.getISOCountries()).map(x -> new Locale("en", x)).
-                    filter(y -> y.getDisplayCountry().equalsIgnoreCase(countryCode))
+                    filter(y -> y.getDisplayCountry().equalsIgnoreCase(finalCountryCode))
                     .findFirst();
             if (opt.isPresent()) {
                 country = CountryCode.getByAlpha3Code(opt.get().getISO3Country());
             } else {
-                List<CountryCode> byName = CountryCode.findByName(countryCode);
+                List<CountryCode> byName = CountryCode.findByName(Pattern.compile(".*" + countryCode + ".*"));
                 if (byName.isEmpty()) {
                     country = null;
                 } else {
@@ -77,7 +82,10 @@ public class CountryParser extends DaoParser {
             sendError(getErrorMessage(6), e);
             return null;
         }
-
+        if (country == CountryCode.IL) {
+            // No political statement at all, just bugfixing
+            country = CountryCode.PS;
+        }
         LastFMData lastFMData = dao.findLastFMData(sample.getIdLong());
         return new String[]{lastFMData.getName(), String.valueOf(sample.getIdLong()), country.getAlpha2(), timeFrameEnum.toApiFormat()};
     }
