@@ -1,6 +1,7 @@
 package dao;
 
 import core.Chuu;
+import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -224,6 +225,15 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return userGuildDao.getAll(connection, guildId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<UsersWrapper> getAllALL() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getAll(connection);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -727,6 +737,99 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.getGlobalArtistFrequencies((connection));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResultWrapper<ArtistPlays> getArtistPlayCount(long guildID) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getArtistPlayCount(connection, guildID);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResultWrapper<ArtistPlays> getArtistPlayCountGlobal() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getGlobalArtistPlayCount((connection));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<ScrobbledArtist> getAllUserArtist(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getAllUsersArtist(connection, discordId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void changeLastFMName(long userId, String lastFmID) throws DuplicateInstanceException, InstanceNotFoundException {
+        try (Connection connection = dataSource.getConnection()) {
+            try {
+                LastFMData lastFMData = userGuildDao.findByLastFMId(connection, lastFmID);
+                throw new DuplicateInstanceException(lastFmID);
+            } catch (InstanceNotFoundException ignored) {
+            }
+            updaterDao.deleteAllArtists(connection, lastFmID);
+            LastFMData lastFmData = userGuildDao.findLastFmData(connection, userId);
+            lastFmData.setName(lastFmID);
+            userGuildDao.updateLastFmData(connection, lastFmData);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public List<LbEntry> matchingArtistsCount(long userId, long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.matchingArtistCount(connection, userId, guildId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void addAlias(String alias, long toArtist) throws DuplicateInstanceException {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.addAlias(connection, alias, toArtist);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void enqueAlias(String alias, long toArtist, long whom) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.queueAlias(connection, alias, toArtist, whom);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public AliasEntity getNextInAliasQueue() {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.getNextInAliasQueue(connection);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteAliasById(long aliasId) throws InstanceNotFoundException {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.deleteAliasById(connection, aliasId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public long getArtistId(String artist) throws InstanceNotFoundException {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.getArtistId(connection, artist);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

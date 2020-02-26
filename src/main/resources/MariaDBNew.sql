@@ -1,11 +1,12 @@
 CREATE TABLE user
 (
-    lastfm_id         VARCHAR(45) COLLATE ascii_general_ci NOT NULL,
+    lastfm_id         VARCHAR(45) COLLATE ascii_general_ci  NOT NULL,
     discord_id        BIGINT(20),
-    last_update       TIMESTAMP                            NULL DEFAULT current_timestamp(),
-    control_timestamp TIMESTAMP                            NULL DEFAULT current_timestamp(),
+    last_update       TIMESTAMP                             NULL     DEFAULT current_timestamp(),
+    control_timestamp TIMESTAMP                             NULL     DEFAULT current_timestamp(),
+    role              ENUM ('USER','IMAGE_BLOCKED','ADMIN') NOT NULL DEFAULT 'USER',
     PRIMARY KEY (discord_id),
-    UNIQUE (lastfm_id, discord_id)
+    UNIQUE (lastfm_id)
 );
 
 CREATE TABLE guild
@@ -85,6 +86,15 @@ CREATE TABLE randomlinks
     UNIQUE KEY unique_url_random (url),
     CONSTRAINT randomlinks_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE NO ACTION,
     CONSTRAINT randomlinks_fk_guild FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON UPDATE CASCADE ON DELETE NO ACTION
-
-
 );
+CREATE TABLE queued_alias
+(
+    id         INT(11)      NOT NULL AUTO_INCREMENT,
+    alias      VARCHAR(255) NOT NULL,
+    artist_id  BIGINT(20)   NOT NULL,
+    discord_id BIGINT(20)   NOT NULL,
+    added_date DATETIME     NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (id),
+    CONSTRAINT queuedalias_fk_artsit FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT queuedalias_fk_discordid FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE CASCADE
+)

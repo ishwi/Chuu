@@ -41,4 +41,9 @@ interface UserGuildDao {
     long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) throws InstanceNotFoundException;
 
 
+    LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException;
+
+
+    List<UsersWrapper> getAll(Connection connection);
+
 }

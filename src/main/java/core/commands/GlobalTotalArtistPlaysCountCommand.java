@@ -12,41 +12,35 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistPlays> {
-    public GlobalArtistFrequenciesCommand(ChuuService dao) {
+public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<ArtistPlays> {
+    public GlobalTotalArtistPlaysCountCommand(ChuuService dao) {
         super(dao);
     }
 
     @Override
     public ResultWrapper<ArtistPlays> getList(String[] message, MessageReceivedEvent e) {
-        return getService().getArtistFrequenciesGlobal();
+        return getService().getArtistPlayCountGlobal();
     }
 
     @Override
     public void printList(ResultWrapper<ArtistPlays> list, MessageReceivedEvent e) {
         if (list.getRows() == 0) {
-            sendMessageQueue(e, "No one has ever played any artist yet!");
+            sendMessageQueue(e, "No one has ever played any artist!");
+            return;
         }
 
         StringBuilder a = new StringBuilder();
         List<ArtistPlays> resultList = list.getResultList();
 
         List<String> collect = resultList.stream().map(x -> ". [" +
-                x.getArtistName() +
-                "](" + CommandUtil.getLastFmArtistUrl(x.getArtistName()) +
-                ") - " + x.getCount() +
-                " total listeners\n").collect(Collectors.toList());
-        for (int i = 0, size = collect.size(); i < 10 && i < size; i++) {
-            String text = collect.get(i);
-            a.append(i + 1).append(text);
-        }
-
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setDescription(a);
-        embedBuilder.setColor(CommandUtil.randomColor());
-        embedBuilder.setTitle("Most Popular artists");
-        embedBuilder.setFooter(e.getJDA().getSelfUser().getName() + " has " + list.getRows() + " different artists!\n", null);
-        embedBuilder.setThumbnail(e.getGuild().getIconUrl());
+                                                            x.getArtistName() +
+                                                            "](" + CommandUtil.getLastFmArtistUrl(x.getArtistName()) +
+                                                            ") - " + x.getCount() +
+                                                            " plays\n").collect(Collectors.toList());
+        EmbedBuilder embedBuilder = initList(a, collect)
+                .setTitle("Most Played Artists")
+                .setFooter(e.getJDA().getSelfUser().getName() + " has stored " + list.getRows() + " plays!\n", null)
+                .setThumbnail(e.getGuild().getIconUrl());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 executor.execute(() -> new Reactionary<>(collect, message1, embedBuilder)));
@@ -54,17 +48,16 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
 
     @Override
     public String getDescription() {
-        return " Artists ranked by listeners on all servers that this bot handles";
+        return " Artists ranked by total plays on all servers that this bot handles";
     }
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("gl", "globalhz", "globallisteners");
+        return Arrays.asList("gp", "globalplays");
     }
 
     @Override
     public String getName() {
-        return "Total Listeners";
+        return "Total Artist Plays";
     }
-
 }

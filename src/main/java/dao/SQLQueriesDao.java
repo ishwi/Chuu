@@ -53,8 +53,15 @@ interface SQLQueriesDao {
 
     UniqueWrapper<ArtistPlays> getGlobalUniques(Connection connection, String lastfmId);
 
+    ResultWrapper<ArtistPlays> getArtistPlayCount(Connection connection, Long guildId);
+
     ResultWrapper<ArtistPlays> getArtistFrequencies(Connection connection, Long guildId);
+
+    ResultWrapper<ArtistPlays> getGlobalArtistPlayCount(Connection connection);
 
     ResultWrapper<ArtistPlays> getGlobalArtistFrequencies(Connection connection);
 
+    List<ScrobbledArtist> getAllUsersArtist(Connection connection, long discordId);
+
+    List<LbEntry> matchingArtistCount(Connection connection, long userId, long guildId);
 }

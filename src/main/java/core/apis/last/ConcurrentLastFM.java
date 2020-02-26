@@ -197,7 +197,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         int requestedSize = x * y;
         int size = 0;
         int page = 1;
-        if (requestedSize > 1000)
+        if (requestedSize >= 1000)
             url += "&limit=1000";
         if (requestedSize > 700)
             url += "&limit=500";
@@ -729,6 +729,10 @@ public class ConcurrentLastFM {//implements LastFMService {
         int userPlayCount = statObject.getInt("userplaycount");
         int listeners = statObject.getInt("listeners");
         int playcount = statObject.getInt("playcount");
+        String mbid = null;
+        if (globalJson.has("mbid")) {
+            mbid = globalJson.getString("mbid");
+        }
         String artistName = globalJson.getString("name");
         JSONArray artistArray = globalJson.getJSONObject("similar").getJSONArray("artist");
         JSONArray tagsArray = globalJson.getJSONObject("tags").getJSONArray("tag");
@@ -741,7 +745,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         int i = summary.indexOf("<a");
         summary = summary.substring(0, i);
 
-        return new ArtistSummary(userPlayCount, listeners, playcount, similars, tags, summary, artistName);
+        return new ArtistSummary(userPlayCount, listeners, playcount, similars, tags, summary, artistName, mbid);
 
     }
 
@@ -812,6 +816,90 @@ public class ConcurrentLastFM {//implements LastFMService {
 
         return trackList;
 
+    }
+
+    public FullAlbumEntityExtended getAlbumSummary(String lastfmId, String artist, String album) throws LastFmException {
+        JSONObject obj = initAlbumJSON(lastfmId, artist, album);
+
+        JSONArray images = obj.getJSONArray("image");
+        String correctedArtist = obj.getString("artist");
+        String correctedAlbum = obj.getString("name");
+
+        String image_url = images.getJSONObject(images.length() - 1).getString("#text");
+        if (!obj.has("userplaycount")) {
+            throw new LastFmEntityNotFoundException(new ExceptionEntity(lastfmId));
+        }
+
+        int playCount = obj.getInt("userplaycount");
+        int totalPlayCount = obj.getInt("playcount");
+        int listeners = obj.getInt("listeners");
+
+        int duration = 0;
+
+
+        JSONArray tagsArray = obj.getJSONObject("tags").getJSONArray("tag");
+        List<String> tags = StreamSupport.stream(tagsArray.spliterator(), false).map(JSONObject.class::cast)
+                .map(x -> x.getString("name")).collect(Collectors.toList());
+//TODO MBIZ
+        FullAlbumEntityExtended fae = new FullAlbumEntityExtended(correctedArtist, correctedAlbum, playCount, image_url, lastfmId, listeners, totalPlayCount);
+        fae.setTagList(tags);
+        if (obj.has("tracks")) {
+            JSONArray arr = obj.getJSONObject("tracks").getJSONArray("track");
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject trackObj = arr.getJSONObject(i);
+                String trackName = trackObj.getString("name");
+                int duration1 = trackObj.getInt("duration");
+                duration += duration1;
+                Track track = new Track(correctedArtist, trackName, 0, false, duration1);
+                track.setPosition(trackObj.getJSONObject("@attr").getInt("rank"));
+
+
+                fae.addTrack(track);
+            }
+        }
+        fae.setTotalDuration(duration);
+        return fae;
+    }
+
+    public TrackExtended getTrackInfoExtended(String username, String artist, String song) throws LastFmException {
+        String url = BASE + GET_TRACK_INFO + username + "&artist=" + URLEncoder
+                .encode(artist, StandardCharsets.UTF_8) + "&track=" + URLEncoder
+                             .encode(song, StandardCharsets.UTF_8) +
+                     API_KEY + ENDING + "&autocorrect=1";
+        HttpMethodBase method = createMethod(url);
+        ExceptionEntity exceptionEntity = new ExceptionEntity(song, artist);
+        JSONObject obj = doMethod(method, exceptionEntity);
+        obj = obj.getJSONObject("track");
+        if (!obj.has("userplaycount")) {
+            throw new LastFmEntityNotFoundException(new ExceptionEntity(username));
+        }
+        int userplaycount = obj.getInt("userplaycount");
+        int listeners = obj.getInt("listeners");
+        int totalPlayCount = obj.getInt("playcount");
+
+
+        String re_trackName = obj.getString("name");
+        boolean userloved = obj.getInt("userloved") != 0;
+        int duration = obj.getInt("duration") / 1000;
+        String re_artist = obj.getJSONObject("artist").getString("name");
+        JSONArray tagsArray = obj.getJSONObject("toptags").getJSONArray("tag");
+
+        List<String> tags = StreamSupport.stream(tagsArray.spliterator(), false).map(JSONObject.class::cast)
+                .map(x -> x.getString("name")).collect(Collectors.toList());
+        String albumName = null;
+        if ((obj).has("album")) {
+            albumName = obj.getJSONObject("album").getString("title");
+        }
+        TrackExtended track = new TrackExtended(re_artist, re_trackName, userplaycount, userloved, duration, tags, totalPlayCount, listeners, albumName);
+
+        JSONObject images;
+        if ((images = obj).has("album") && (images = images.getJSONObject("album")).has("image")) {
+            JSONArray ar = images.getJSONArray("image");
+            track.setImageUrl(
+                    ar.getJSONObject(ar.length() - 1).getString("#text")
+            );
+        }
+        return track;
     }
 }
 

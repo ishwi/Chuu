@@ -38,17 +38,17 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
     @Override
     public String getDescription() {
         return "Plays on each track of the provided album";
-	}
+    }
 
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("tracks", "tt");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Arrays.asList("tracks", "tt");
+    }
 
-	@Override
-	public String getName() {
-		return "Track Distribution";
-	}
+    @Override
+    public String getName() {
+        return "Track Distribution";
+    }
 
     @Override
     void doSomethingWithAlbumArtist(ScrobbledArtist scrobbledArtist, String album, MessageReceivedEvent e, long who) throws InstanceNotFoundException, LastFmException {
@@ -69,60 +69,73 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
             fullAlbumEntity = new FullAlbumEntity(artist, album, artistPlays, null, data.getName());
         }
 
-		List<Track> trackList = fullAlbumEntity.getTrackList();
-		if (trackList.isEmpty()) {
+        List<Track> trackList = fullAlbumEntity.getTrackList();
 
-			mb.getAlbumTrackList(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum())
-					.stream().map(t ->
-					{
-						try {
-							return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
-						} catch (LastFmException ex) {
-							return t;
-						}
-					}
-			).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
+        if (trackList.isEmpty()) {
+            if (fullAlbumEntity.getMbid() != null && !fullAlbumEntity.getMbid().isBlank()) {
+                mb.getAlbumTrackListMbid(fullAlbumEntity.getMbid()).stream().map(t ->
+                        {
+                            try {
+                                return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
+                            } catch (LastFmException ex) {
+                                return t;
+                            }
+                        }
+                ).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
+            }
+            if (trackList.isEmpty()) {
+                mb.getAlbumTrackList(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum())
+                        .stream().map(t ->
+                        {
+                            try {
+                                return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
+                            } catch (LastFmException ex) {
+                                return t;
+                            }
+                        }
+                ).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
 
-			if (trackList.isEmpty()) {
-				//Force it to lowerCase
-				mb.getAlbumTrackListLowerCase(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum())
-						.stream().map(t ->
-						{
-							try {
-								return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
-							} catch (LastFmException ex) {
-								return t;
-							}
-						}
-				).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
+                if (trackList.isEmpty()) {
+                    //Force it to lowerCase
+                    mb.getAlbumTrackListLowerCase(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum())
+                            .stream().map(t ->
+                            {
+                                try {
+                                    return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
+                                } catch (LastFmException ex) {
+                                    return t;
+                                }
+                            }
+                    ).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
 
-				if (trackList.isEmpty()) {
-					//If is still empty well fuck it
+                    if (trackList.isEmpty()) {
+                        //If is still empty well fuck it
 
-					sendMessageQueue(e, "Couldn't find a tracklist for " + fullAlbumEntity
-							.getArtist() + " - " + fullAlbumEntity
-							.getAlbum());
-					return;
-				}
+                        sendMessageQueue(e, "Couldn't find a tracklist for " + fullAlbumEntity
+                                .getArtist() + " - " + fullAlbumEntity
+                                                    .getAlbum());
+                        return;
+                    }
+                }
 
-			}
+            }
 
-		}
-		List<Track> handler = new ArrayList<>(trackList);
+        }
+        List<Track> handler = new ArrayList<>(trackList);
 
-		List<Track> collect = Multimaps.index(handler, Track::getPosition)
-				.asMap().values().stream()
-				.map(value -> {
-					Optional<Track> max = value.stream().max(Comparator.comparingInt(Track::getPlays));
-					return max.orElse(null);
-				}).filter(Objects::nonNull).sorted(Comparator.comparingInt(Track::getPosition))
-				.collect(Collectors.toList());
-		if (trackList.stream().mapToInt(Track::getPlays).sum() <= collect.stream().mapToInt(Track::getPlays).sum()) {
-			fullAlbumEntity.setTrackList(collect);
-		}
+        List<Track> collect = Multimaps.index(handler, Track::getPosition)
+                .asMap().values().stream()
+                .map(value -> {
+                    Optional<Track> max = value.stream().max(Comparator.comparingInt(Track::getPlays));
+                    return max.orElse(null);
+                }).filter(Objects::nonNull).sorted(Comparator.comparingInt(Track::getPosition))
+                .collect(Collectors.toList());
+        if (trackList.stream().mapToInt(Track::getPlays).sum() <= collect.stream().mapToInt(Track::getPlays).sum()) {
+            fullAlbumEntity.setTrackList(collect);
+        }
 
-		fullAlbumEntity.setArtistUrl(artistUrl);
-		BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity, false);
-		sendImage(bufferedImage, e);
-	}
+        fullAlbumEntity.setArtistUrl(artistUrl);
+        BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity, false);
+        sendImage(bufferedImage, e);
+    }
 }

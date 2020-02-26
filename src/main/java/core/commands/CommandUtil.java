@@ -128,6 +128,11 @@ public class CommandUtil {
 
     }
 
+    public static String getLastFmArtistAlbumUrl(String artist, String album) {
+        return "https://www.last.fm/music/" + artist.replaceAll(" ", "+").replaceAll("[)]", "%29") + "/" + album.replaceAll(" ", "+").replaceAll("[)]", "%29");
+
+    }
+
     public static String getLastFmTagUrl(String tag) {
         return "https://www.last.fm/tag/" + tag.replaceAll(" ", "+").replaceAll("[)]", "%29");
 

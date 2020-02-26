@@ -36,15 +36,15 @@ public class ProfileInfoCommand extends ConcurrentCommand {
     @Override
     public String getDescription() {
         return "Brief description of user Profile";
-	}
+    }
 
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("profile");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Collections.singletonList("profile");
+    }
 
-	@Override
-	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    @Override
+    protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] returned = parser.parse(e);
         String lastFmName = returned[0];
         //long discordID = Long.parseLong(returned[1]);
@@ -57,7 +57,6 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 
         UniqueWrapper<ArtistPlays> crowns = getService().getCrowns(lastFmName, e.getGuild().getIdLong());
         UniqueWrapper<ArtistPlays> unique = getService().getUniqueArtist(e.getGuild().getIdLong(), lastFmName);
-        ObscuritySummary summary = getService().getObscuritySummary(lastFmName);
 
         int totalUnique = unique.getRows();
         int totalCrowns = crowns.getRows();
@@ -72,46 +71,47 @@ public class ProfileInfoCommand extends ConcurrentCommand {
         if (isList) {
 
             StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("Total number of scrobbles: ").append(userInfo.getPlayCount()).append("\n")
-					.append("Total number of albums: ").append(albumCount).append("\n")
-					.append("Total number of artists: ").append(totalArtist).append("\n")
-					.append("Total number of crowns: ").append(totalCrowns).append("\n")
-					.append("Top crown:").append(crownRepresentative).append("\n")
-					.append("Total number of unique artist: ").append(totalUnique).append("\n")
-					.append("Top unique:").append(UniqueRepresentative).append("\n");
+            stringBuilder.append("Total number of scrobbles: ").append(userInfo.getPlayCount()).append("\n")
+                    .append("Total number of albums: ").append(albumCount).append("\n")
+                    .append("Total number of artists: ").append(totalArtist).append("\n")
+                    .append("Total number of crowns: ").append(totalCrowns).append("\n")
+                    .append("Top crown:").append(crownRepresentative).append("\n")
+                    .append("Total number of unique artist: ").append(totalUnique).append("\n")
+                    .append("Top unique:").append(UniqueRepresentative).append("\n");
 
-			String name = getUserString(unique.getDiscordId(), e, lastFmName);
+            String name = getUserString(unique.getDiscordId(), e, lastFmName);
 
-			EmbedBuilder embedBuilder = new EmbedBuilder()
-					.setTitle(name + "'s profile", CommandUtil.getLastFmUser(lastFmName))
-					.setColor(CommandUtil.randomColor())
-					.setThumbnail(userInfo.getImage().isEmpty() ? null : userInfo.getImage())
-					.setDescription(stringBuilder)
-					.setFooter("Account created on " + date);
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setTitle(name + "'s profile", CommandUtil.getLastFmUser(lastFmName))
+                    .setColor(CommandUtil.randomColor())
+                    .setThumbnail(userInfo.getImage().isEmpty() ? null : userInfo.getImage())
+                    .setDescription(stringBuilder)
+                    .setFooter("Account created on " + date);
 
-			MessageBuilder mes = new MessageBuilder();
-			mes.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+            MessageBuilder mes = new MessageBuilder();
+            mes.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 
-		} else {
+        } else {
+            ObscuritySummary summary = getService().getObscuritySummary(lastFmName);
 
-			String crownImage = !crowns.getUniqueData().isEmpty() ?
+            String crownImage = !crowns.getUniqueData().isEmpty() ?
                     CommandUtil
                             .getArtistImageUrl(getService(), crownRepresentative, lastFM, discogsApi, spotify)
-					: null;
+                    : null;
 
             String uniqueImage = !unique.getUniqueData().isEmpty() ? CommandUtil
                     .getArtistImageUrl(getService(), UniqueRepresentative, lastFM, discogsApi, spotify) : null;
 
-			ProfileEntity entity = new ProfileEntity(lastFmName, "", crownRepresentative, UniqueRepresentative, uniqueImage, crownImage, userInfo
-					.getImage(), "", userInfo
-					.getPlayCount(), albumCount, totalArtist, totalCrowns, totalUnique, summary.getTotal(), date);
-			sendImage(ProfileMaker.makeProfile(entity), e);
-		}
-	}
+            ProfileEntity entity = new ProfileEntity(lastFmName, "", crownRepresentative, UniqueRepresentative, uniqueImage, crownImage, userInfo
+                    .getImage(), "", userInfo
+                    .getPlayCount(), albumCount, totalArtist, totalCrowns, totalUnique, summary.getTotal(), date);
+            sendImage(ProfileMaker.makeProfile(entity), e);
+        }
+    }
 
-	@Override
-	public String getName() {
-		return "Profile";
-	}
+    @Override
+    public String getName() {
+        return "Profile";
+    }
 
 }

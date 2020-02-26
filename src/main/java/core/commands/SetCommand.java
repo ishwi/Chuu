@@ -1,13 +1,9 @@
 package core.commands;
 
 import core.Chuu;
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFMNoPlaysException;
-import core.exceptions.LastFmEntityNotFoundException;
-import core.exceptions.LastFmException;
+import core.exceptions.*;
 import core.parsers.SetParser;
 import dao.ChuuService;
-import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UsersWrapper;
@@ -50,44 +46,62 @@ public class SetCommand extends ConcurrentCommand {
         String lastFmID = returned[0];
         long guildID = e.getGuild().getIdLong();
         long userId = e.getAuthor().getIdLong();
-        List<UsersWrapper> list = getService().getAll(guildID);
-        if (list.isEmpty()) {
+        //Gets all users in this server
+        List<UsersWrapper> guildlist = getService().getAll(guildID);
+        if (guildlist.isEmpty()) {
             getService().createGuild(guildID);
         }
-        Optional<UsersWrapper> name = (list.stream().filter(user -> user.getLastFMName().equals(lastFmID)).findFirst());
+
+        List<UsersWrapper> list = getService().getAllALL();
+        Optional<UsersWrapper> globalName = (list.stream().filter(user -> user.getLastFMName().equals(lastFmID)).findFirst());
+        if (globalName.isPresent()) {
+            if (globalName.get().getDiscordID() != userId) {
+                sendMessageQueue(e, "That username is already registered, if you think this is a mistake, please contact the bot developers");
+            }
+        }
+
+        Optional<UsersWrapper> name = (guildlist.stream().filter(user -> user.getLastFMName().equals(lastFmID)).findFirst());
+        //If name is already registered in this server
         if (name.isPresent()) {
-
-            if (name.get().getDiscordID() == userId)
-                sendMessageQueue(e, "You already have that username!");
+            if (name.get().getDiscordID() != userId)
+                sendMessageQueue(e, "That username is already registered, if you think this is a mistake, please contact the bot developers");
             else
-                sendMessageQueue(e, "That username is already registered in this server sorry");
-
+                sendMessageQueue(e, e.getAuthor().getName() + ", you are good to go!");
             return;
         }
 
-        Optional<UsersWrapper> u = (list.stream().filter(user -> user.getDiscordID() == userId).findFirst());
+        Optional<UsersWrapper> u = (guildlist.stream().filter(user -> user.getDiscordID() == userId).findFirst());
         //User was already registered in this guild
         if (u.isPresent()) {
             //Registered with different username
-            if (!u.get().getLastFMName().equals(lastFmID)) {
+            if (!u.get().getLastFMName().equalsIgnoreCase(lastFmID)) {
                 sendMessageQueue(e, "Changing your username, might take a while");
                 //Remove but only from the guild if not guild removeUser all
-                getService().removeUserFromOneGuildConsequent(userId, guildID);
+                try {
+                    getService().changeLastFMName(userId, lastFmID);
+                } catch (DuplicateInstanceException ex) {
+                    sendMessageQueue(e, "That username is already registered, if you think this is a mistake, please contact the bot developers");
+                    return;
+                }
+
             } else {
-                sendMessageQueue(e, e.getAuthor().getName() + " , you are good to go!");
+                sendMessageQueue(e, e.getAuthor().getName() + ", you are good to go!");
                 return;
             }
             //First Time on the guild
         } else {
             //If it was registered in at least other  guild theres no need to update
-            if (getService().getGuildList(userId).stream().anyMatch(user -> user != guildID)) {
+            if (getService().getGuildList(userId).stream().anyMatch(guild -> guild != guildID)) {
                 //Adds the user to the guild
-                getService().addGuildUser(userId, guildID);
-                sendMessageQueue(e, e.getAuthor().getName() + " , you are good to go!");
-                return;
+                // Changing the global username to another one
 
+                getService().addGuildUser(userId, guildID);
+                sendMessageQueue(e, e.getAuthor().getName() + ", you are good to go!");
+                return;
             }
+
         }
+
 
         //Never registered before
         mes.setContent("**" + e.getAuthor()
@@ -96,9 +110,8 @@ public class SetCommand extends ConcurrentCommand {
 
 
         try {
-            List<ScrobbledArtist> scrobbledArtistLinkedList = lastFM.getAllArtists(lastFmID, TimeFrameEnum.ALL.toApiFormat());
 
-            getService().insertArtistDataList(new LastFMData(lastFmID, userId, guildID));
+            List<ScrobbledArtist> scrobbledArtistLinkedList = lastFM.getAllArtists(lastFmID, TimeFrameEnum.ALL.toApiFormat());
             getService().insertArtistDataList(scrobbledArtistLinkedList, lastFmID);
             System.out.println("Updated Info Normally  of " + lastFmID + LocalDateTime
                     .now().format(DateTimeFormatter.ISO_DATE));
@@ -121,8 +134,6 @@ public class SetCommand extends ConcurrentCommand {
             sendMessageQueue(e, "Error  updating " + e.getAuthor()
                     .getName() + "'s  library, try to use the !update command!");
         }
-
-
     }
 
     @Override

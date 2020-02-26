@@ -2,6 +2,7 @@ package dao;
 
 import core.exceptions.InstanceNotFoundException;
 import dao.entities.LastFMData;
+import dao.entities.Role;
 import dao.entities.UsersWrapper;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -24,7 +25,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void createGuild(Connection con, long guildId) {
         String queryString = "INSERT IGNORE INTO  guild"
-                + " (guild_id) " + " VALUES (?) ";
+                             + " (guild_id) " + " VALUES (?) ";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -44,7 +45,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public void insertUserData(Connection con, LastFMData lastFMData) {
         /* Create "queryString". */
         String queryString = "INSERT INTO  user"
-                + " (lastfm_id, discord_id) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE lastfm_id=" + "?";
+                             + " (lastfm_id, discord_id) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE lastfm_id=" + "?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -69,7 +70,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
         /* Create "queryString". */
-        String queryString = "SELECT   discord_id, lastfm_id FROM user WHERE discord_id = ?";
+        String queryString = "SELECT   discord_id, lastfm_id,role FROM user WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -88,9 +89,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
             /* Get results. */
             i = 1;
             long resDiscordID = resultSet.getLong(i++);
-            String lastFmID = resultSet.getString(i);
+            String lastFmID = resultSet.getString(i++);
+            Role role = Role.valueOf(resultSet.getString(i));
 
-            return new LastFMData(lastFmID, resDiscordID);
+            return new LastFMData(lastFmID, resDiscordID, role);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -253,7 +255,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public void addGuild(Connection con, long userId, long guildId) {
         /* Create "queryString". */
         String queryString = "INSERT IGNORE INTO  user_guild"
-                + " ( discord_id,guild_id) " + " VALUES (?, ?) ";
+                             + " ( discord_id,guild_id) " + " VALUES (?, ?) ";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -336,10 +338,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) throws InstanceNotFoundException {
         @Language("MariaDB") String queryString = "SELECT a.discord_id " +
-                "FROM   user a" +
-                " JOIN  user_guild  b " +
-                "ON a.discord_id = b.discord_id " +
-                " WHERE  a.lastfm_id = ? AND b.guild_id = ? ";
+                                                  "FROM   user a" +
+                                                  " JOIN  user_guild  b " +
+                                                  "ON a.discord_id = b.discord_id " +
+                                                  " WHERE  a.lastfm_id = ? AND b.guild_id = ? ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -363,6 +365,58 @@ public class UserGuildDaoImpl implements UserGuildDao {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Override
+    public LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException {
+        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role " +
+                                                  "FROM   user a" +
+                                                  " WHERE  a.lastfm_id = ? ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setString(i, lastFmID);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.next()) {
+                throw new InstanceNotFoundException("Not found ");
+            }
+            long aLong = resultSet.getLong(1);
+            String string = resultSet.getString(2);
+            Role role = Role.valueOf(resultSet.getString(3));
+
+            /* Get results. */
+
+            return new LastFMData(string, aLong, role);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<UsersWrapper> getAll(Connection connection) {
+        String queryString = "SELECT a.discord_id, a.lastfm_id FROM user a ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<UsersWrapper> returnList = new ArrayList<>();
+            while (resultSet.next()) {
+
+                String name = resultSet.getString("a.lastFm_Id");
+                long discordID = resultSet.getLong("a.discord_ID");
+                returnList.add(new UsersWrapper(discordID, name));
+            }
+            return returnList;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

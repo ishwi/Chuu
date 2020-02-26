@@ -111,7 +111,7 @@ public abstract class Parser {
         this.opts.addAll(Arrays.asList(optionalEntity));
     }
 
-    abstract String getUsageLogic(String commandName);
+    public abstract String getUsageLogic(String commandName);
 
 
 }

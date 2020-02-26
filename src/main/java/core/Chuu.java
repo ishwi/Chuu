@@ -62,7 +62,7 @@ public class Chuu {
 
     public static void main(String[] args) throws InterruptedException {
         if (System.getProperty("file.encoding").equals("UTF-8")) {
-            setupBot(false);
+            setupBot(true);
         } else {
             relaunchInUTF8();
         }
@@ -191,12 +191,22 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new GlobalUniquesCommand(dao)))
                 .addEventListeners(help.registerCommand(new ArtistFrequencyCommand(dao)))
                 .addEventListeners(help.registerCommand(new GlobalArtistFrequenciesCommand(dao)))
+                .addEventListeners(help.registerCommand(new ArtistFromCountryCommand(dao)))
+                .addEventListeners(help.registerCommand(new AlbumInfoCommand(dao)))
+                .addEventListeners(help.registerCommand(new TrackInfoCommand(dao)))
+                .addEventListeners(help.registerCommand(new TrackPlaysCommand(dao)))
+                .addEventListeners(help.registerCommand(new MatchingArtistCommand(dao)))
+                .addEventListeners(help.registerCommand(new GlobalTotalArtistPlaysCountCommand(dao)))
+                .addEventListeners(help.registerCommand(new TotalArtistPlayCountCommand(dao)))
+                .addEventListeners(help.registerCommand(new AliasCommand(dao)))
+                .addEventListeners(new AliasReviewCommand(dao))
+
                 .setDisabledCacheFlags(EnumSet.allOf(CacheFlag.class))
                 .setChunkingFilter(ChunkingFilter.NONE);
 
         try {
             jda = builder.build().awaitReady();
-            commandAdministrator.onStartup(jda);
+            //  commandAdministrator.onStartup(jda);
             prefixCommand.onStartup(jda);
 
             updatePresence("Chuu");

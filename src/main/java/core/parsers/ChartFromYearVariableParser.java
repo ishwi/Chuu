@@ -65,11 +65,11 @@ public class ChartFromYearVariableParser extends DaoParser {
     }
 
     @Override
-    String getUsageLogic(String commandName) {
+    public String getUsageLogic(String commandName) {
         return "**" + commandName + " *Username* *YEAR* *sizeXsize*** \n" +
-                "\tIf username is not specified defaults to authors account \n" +
-                "\tIf YEAR not specified it default to current year\n" +
-                "\tIf Size not specified it defaults to 5x5\n";
+               "\tIf username is not specified defaults to authors account \n" +
+               "\tIf YEAR not specified it default to current year\n" +
+               "\tIf Size not specified it defaults to 5x5\n";
     }
 
     @Override

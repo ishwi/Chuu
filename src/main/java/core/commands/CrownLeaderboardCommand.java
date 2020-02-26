@@ -1,7 +1,6 @@
 package core.commands;
 
 import core.otherlisteners.Reactionary;
-import core.parsers.NoOpParser;
 import dao.ChuuService;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,7 +16,6 @@ public class CrownLeaderboardCommand extends ListCommand<LbEntry> {
     public CrownLeaderboardCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
-        this.parser = new NoOpParser();
 
     }
 
@@ -38,7 +36,7 @@ public class CrownLeaderboardCommand extends ListCommand<LbEntry> {
 
 
     @Override
-    public List<LbEntry> getList(MessageReceivedEvent e) {
+    public List<LbEntry> getList(String[] message, MessageReceivedEvent e) {
         return getService().getGuildCrownLb(e.getGuild().getIdLong());
     }
 

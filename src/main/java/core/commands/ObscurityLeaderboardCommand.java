@@ -25,7 +25,7 @@ public class ObscurityLeaderboardCommand extends CrownLeaderboardCommand {
     }
 
     @Override
-    public List<LbEntry> getList(MessageReceivedEvent e) {
+    public List<LbEntry> getList(String[] message, MessageReceivedEvent e) {
         return getService().getObscurityRankings(e.getGuild().getIdLong());
     }
 

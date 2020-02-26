@@ -1,5 +1,6 @@
 package dao;
 
+import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
 
@@ -66,4 +67,12 @@ interface UpdaterDao {
 
 
     UpdaterUserWrapper getUserUpdateStatus(Connection connection, long discordId) throws InstanceNotFoundException;
+
+    void addAlias(Connection connection, String alias, long toArtistId) throws DuplicateInstanceException;
+
+    void queueAlias(Connection connection, String alias, long toArtistId, long whom);
+
+    AliasEntity getNextInAliasQueue(Connection connection);
+
+    void deleteAliasById(Connection connection, long aliasId) throws InstanceNotFoundException;
 }

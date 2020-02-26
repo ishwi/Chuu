@@ -8,9 +8,9 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import dao.ChuuService;
-import dao.entities.ArtistSummary;
-import dao.entities.LastFMData;
-import dao.entities.ScrobbledArtist;
+import dao.entities.*;
+import dao.musicbrainz.MusicBrainzService;
+import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -23,11 +23,13 @@ public class SummaryArtistCommand extends ConcurrentCommand {
 
     private final Spotify spotify;
     private final DiscogsApi discogsApi;
+    private final MusicBrainzService mb;
 
     public SummaryArtistCommand(ChuuService dao) {
         super(dao);
         this.parser = new ArtistParser(dao, lastFM);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+        this.mb = MusicBrainzServiceSingleton.getInstance();
         this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
     }
 
@@ -58,6 +60,7 @@ public class SummaryArtistCommand extends ConcurrentCommand {
         long whom = Long.parseLong(returned[1]);
         LastFMData data = getService().findLastFMData(whom);
         ArtistSummary summary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data.getName());
+        ArtistMusicBrainzDetails artistDetails = mb.getArtistDetails(new ArtistInfo(null, summary.getArtistname(), summary.getMbid()));
 
         String username = getUserStringConsideringGuildOrNot(e, whom, data.getName());
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -78,8 +81,17 @@ public class SummaryArtistCommand extends ConcurrentCommand {
         embedBuilder.setTitle("Information about " + summary.getArtistname(), CommandUtil.getLastFmArtistUrl(scrobbledArtist.getArtist()))
                 .addField(username + "'s plays:", String.valueOf(summary.getUserPlayCount()), true)
                 .addField("Listeners:", String.valueOf(summary.getListeners()), true)
-                .addField("Scrobbles:", String.valueOf(summary.getPlaycount()), true)
-                .addField("Tags:", tagsField, false)
+                .addField("Scrobbles:", String.valueOf(summary.getPlaycount()), true);
+        if (artistDetails != null) {
+            if (artistDetails.getGender() != null) {
+                embedBuilder.addField("Gender:", artistDetails.getGender(), true);
+            }
+            if (artistDetails.getCountryCode() != null) {
+                embedBuilder.addField("Country:", ":flag_" + artistDetails.getCountryCode().toLowerCase() + ":", true);
+            }
+        }
+
+        embedBuilder.addField("Tags:", tagsField, false)
                 .addField("Similars:", similarField, false)
                 .addField("Bio:", summary.getSummary(), false)
                 .setImage(scrobbledArtist.getUrl().isBlank() ? null : scrobbledArtist.getUrl())

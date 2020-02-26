@@ -27,24 +27,24 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         long discordId;
 
         @Language("MariaDB") String queryString = "SELECT c.name , b.discord_id , playnumber AS orden" +
-                " FROM  scrobbled_artist  a" +
-                " JOIN user b ON a.lastfm_id = b.lastfm_id" +
-                " JOIN artist c ON " +
-                " a.artist_id = c.id" +
-                " WHERE  a.lastfm_id = ?" +
-                " AND playnumber > 0" +
-                " AND  playnumber >= ALL" +
-                "       (SELECT max(b.playnumber) " +
-                " FROM " +
-                "(SELECT in_a.artist_id,in_a.playnumber" +
-                " FROM scrobbled_artist in_a  " +
-                " JOIN " +
-                " user in_b" +
-                " ON in_a.lastfm_id = in_b.lastfm_id" +
-                "   ) AS b" +
-                " WHERE b.artist_id = a.artist_id" +
-                " GROUP BY artist_id)" +
-                " ORDER BY orden DESC";
+                                                  " FROM  scrobbled_artist  a" +
+                                                  " JOIN user b ON a.lastfm_id = b.lastfm_id" +
+                                                  " JOIN artist c ON " +
+                                                  " a.artist_id = c.id" +
+                                                  " WHERE  a.lastfm_id = ?" +
+                                                  " AND playnumber > 0" +
+                                                  " AND  playnumber >= ALL" +
+                                                  "       (SELECT max(b.playnumber) " +
+                                                  " FROM " +
+                                                  "(SELECT in_a.artist_id,in_a.playnumber" +
+                                                  " FROM scrobbled_artist in_a  " +
+                                                  " JOIN " +
+                                                  " user in_b" +
+                                                  " ON in_a.lastfm_id = in_b.lastfm_id" +
+                                                  "   ) AS b" +
+                                                  " WHERE b.artist_id = a.artist_id" +
+                                                  " GROUP BY artist_id)" +
+                                                  " ORDER BY orden DESC";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, lastfmId);
@@ -77,16 +77,16 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     public UniqueWrapper<ArtistPlays> getGlobalUniques(Connection connection, String lastfmId) {
 
         @Language("MariaDB") String queryString = "SELECT a.name, temp.playnumber, temp.lastfm_id, temp.discord_id " +
-                "FROM(  " +
-                "       SELECT artist_id, playnumber, a.lastfm_id ,b.discord_id" +
-                "       FROM scrobbled_artist a JOIN user b " +
-                "       ON a.lastfm_id = b.lastfm_id " +
-                "       WHERE  a.playnumber > 2 " +
-                "       GROUP BY a.artist_id " +
-                "       HAVING count( *) = 1) temp " +
-                " JOIN artist a ON temp.artist_id = a.id " +
-                "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
-                " ORDER BY temp.playnumber DESC ";
+                                                  "FROM(  " +
+                                                  "       SELECT artist_id, playnumber, a.lastfm_id ,b.discord_id" +
+                                                  "       FROM scrobbled_artist a JOIN user b " +
+                                                  "       ON a.lastfm_id = b.lastfm_id " +
+                                                  "       WHERE  a.playnumber > 2 " +
+                                                  "       GROUP BY a.artist_id " +
+                                                  "       HAVING count( *) = 1) temp " +
+                                                  " JOIN artist a ON temp.artist_id = a.id " +
+                                                  "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
+                                                  " ORDER BY temp.playnumber DESC ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -122,20 +122,25 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public ResultWrapper<ArtistPlays> getArtistFrequencies(Connection connection, Long guildId) {
+    public ResultWrapper<ArtistPlays> getArtistPlayCount(Connection connection, Long guildId) {
         @Language("MariaDB") String queryBody =
-                "FROM  (SELECT artist_id " +
-                        "FROM scrobbled_artist a" +
-                        " JOIN user b  " +
-                        " ON a.lastfm_id = b.lastfm_id " +
-                        " JOIN user_guild c " +
-                        " ON b.discord_id = c.discord_id" +
-                        " WHERE c.guild_id = ?) main" +
-                        " JOIN artist b ON" +
-                        " main.artist_id = b.id ";
+                "FROM  (SELECT artist_id,playnumber " +
+                "FROM scrobbled_artist a" +
+                " JOIN user b  " +
+                " ON a.lastfm_id = b.lastfm_id " +
+                " JOIN user_guild c " +
+                " ON b.discord_id = c.discord_id" +
+                " WHERE c.guild_id = ?) main" +
+                " JOIN artist b ON" +
+                " main.artist_id = b.id ";
 
-        String normalQuery = "SELECT b.name, count(*) AS orden " + queryBody + " GROUP BY b.id ORDER BY orden DESC  Limit 200";
-        String countQuery = "Select count(*) " + queryBody;
+        String normalQuery = "SELECT b.name, sum(playNumber) AS orden " + queryBody + " GROUP BY main.artist_id ORDER BY orden DESC  Limit 200";
+        String countQuery = "Select sum(playnumber) " + queryBody;
+        return getArtistPlaysResultWrapper(connection, guildId, normalQuery, countQuery);
+    }
+
+    @NotNull
+    private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(Connection connection, Long guildId, String normalQuery, String countQuery) {
         try (PreparedStatement preparedStatement2 = connection.prepareStatement(countQuery)) {
             preparedStatement2.setLong(1, guildId);
 
@@ -154,6 +159,24 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         }
     }
 
+    @Override
+    public ResultWrapper<ArtistPlays> getArtistFrequencies(Connection connection, Long guildId) {
+        @Language("MariaDB") String queryBody =
+                "FROM  (SELECT artist_id " +
+                "FROM scrobbled_artist a" +
+                " JOIN user b  " +
+                " ON a.lastfm_id = b.lastfm_id " +
+                " JOIN user_guild c " +
+                " ON b.discord_id = c.discord_id" +
+                " WHERE c.guild_id = ?) main" +
+                " JOIN artist b ON" +
+                " main.artist_id = b.id ";
+
+        String normalQuery = "SELECT b.name, count(*) AS orden " + queryBody + " GROUP BY b.id ORDER BY orden DESC  Limit 200";
+        String countQuery = "Select count(*) " + queryBody;
+        return getArtistPlaysResultWrapper(connection, guildId, normalQuery, countQuery);
+    }
+
     @NotNull
     private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(int rows, PreparedStatement preparedStatement) throws SQLException {
         ResultSet resultSet;
@@ -170,15 +193,22 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 
     @Override
-    public ResultWrapper<ArtistPlays> getGlobalArtistFrequencies(Connection connection) {
+    public ResultWrapper<ArtistPlays> getGlobalArtistPlayCount(Connection connection) {
         @Language("MariaDB") String queryString =
                 "FROM  scrobbled_artist a" +
-                        " JOIN artist b " +
-                        " ON a.artist_id = b.id ";
+                " JOIN artist b " +
+                " ON a.artist_id = b.id ";
 
 
-        String normalQuery = "SELECT b.name, count(*) AS orden " + queryString + "     GROUP BY artist_id  ORDER BY orden DESC  Limit 200";
-        String countQuery = "Select count(*) " + queryString;
+        String normalQuery = "SELECT b.name, sum(playNumber) AS orden " + queryString + "     GROUP BY artist_id  ORDER BY orden DESC  Limit 200";
+        String countQuery = "Select sum(playNumber) " + queryString;
+
+        return getArtistPlaysResultWrapper(connection, queryString, normalQuery, countQuery);
+
+    }
+
+    @NotNull
+    private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(Connection connection, String queryString, String normalQuery, String countQuery) {
         int rows = 0;
         try (PreparedStatement preparedStatement2 = connection.prepareStatement(countQuery)) {
 
@@ -196,23 +226,104 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
 
+    @Override
+    public ResultWrapper<ArtistPlays> getGlobalArtistFrequencies(Connection connection) {
+        @Language("MariaDB") String queryString =
+                "FROM  scrobbled_artist a" +
+                " JOIN artist b " +
+                " ON a.artist_id = b.id ";
+
+
+        String normalQuery = "SELECT b.name, count(*) AS orden " + queryString + "     GROUP BY artist_id  ORDER BY orden DESC  Limit 200";
+        String countQuery = "Select count(*)" + queryString;
+        return getArtistPlaysResultWrapper(connection, queryString, normalQuery, countQuery);
+
+    }
+
+    @Override
+    public List<ScrobbledArtist> getAllUsersArtist(Connection connection, long discordId) {
+        List<ScrobbledArtist> scrobbledArtists = new ArrayList<>();
+        String queryString = " Select * from scrobbled_artist a join artist b on a.artist_id = b.id join user" +
+                             " c on a.lastfm_id = c.lastfm_id where c.lastfmid = ? order by a.plays desc";
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, discordId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String artistName = resultSet.getString("b.name");
+                String artistUrl = resultSet.getString("b.url");
+                int plays = resultSet.getInt("a.playNumber");
+                scrobbledArtists.add(new ScrobbledArtist(artistName, artistUrl, plays));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return scrobbledArtists;
+    }
+
+    @Override
+    public List<LbEntry> matchingArtistCount(Connection connection, long userId, long guildId) {
+
+        String queryString = "        select discord_id,lastfm_id,count(*) as orden\n" +
+                             "        from\n" +
+                             "                (select artist_id,a.lastfm_id,b.discord_id from scrobbled_artist a\n" +
+                             "                        join user b\n" +
+                             "                        on a.lastfm_id = b.lastfm_id\n" +
+                             "                        join user_guild c\n" +
+                             "                        on c.discord_id = b.discord_id\n" +
+                             "                        where c.guild_id = ?\n" +
+                             "                and b.discord_id != ?) main\n" +
+                             "\n" +
+                             "\n" +
+                             "        where main.artist_id in\n" +
+                             "        (Select artist_id from scrobbled_artist a join user b on a.lastfm_id = b.lastfm_id where\n" +
+                             "        discord_id = ?\n" +
+                             "	)\n" +
+                             "        group by lastfm_id,discord_id\n" +
+                             "        order by orden desc;\n";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i++, guildId);
+            preparedStatement.setLong(i++, userId);
+            preparedStatement.setLong(i, userId);
+
+            List<LbEntry> returnedList = new ArrayList<>();
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) { //&& (j < 10 && j < rows)) {
+                String lastfmId = resultSet.getString("lastfm_id");
+                long discordId = resultSet.getLong("discord_id");
+                int crowns = resultSet.getInt("orden");
+
+                returnedList.add(new ArtistLbEntry(lastfmId, discordId, crowns));
+
+
+            }
+            return returnedList;
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new RuntimeException((e));
+        }
     }
 
     @Override
     public UniqueWrapper<ArtistPlays> getUniqueArtist(Connection connection, Long guildID, String lastfmId) {
         @Language("MariaDB") String queryString = "SELECT * " +
-                "FROM(  " +
-                "       SELECT a2.name, playnumber, a.lastfm_id ,b.discord_id" +
-                "       FROM scrobbled_artist a JOIN user b " +
-                "       ON a.lastfm_id = b.lastfm_id " +
-                "       JOIN user_guild c ON b.discord_id = c.discord_id " +
-                " JOIN artist a2 ON a.artist_id = a2.id " +
-                "       WHERE c.guild_id = ? AND a.playnumber > 2 " +
-                "       GROUP BY a.artist_id " +
-                "       HAVING count( *) = 1) temp " +
-                "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
-                " ORDER BY temp.playnumber DESC ";
+                                                  "FROM(  " +
+                                                  "       SELECT a2.name, playnumber, a.lastfm_id ,b.discord_id" +
+                                                  "       FROM scrobbled_artist a JOIN user b " +
+                                                  "       ON a.lastfm_id = b.lastfm_id " +
+                                                  "       JOIN user_guild c ON b.discord_id = c.discord_id " +
+                                                  " JOIN artist a2 ON a.artist_id = a2.id " +
+                                                  "       WHERE c.guild_id = ? AND a.playnumber > 2 " +
+                                                  "       GROUP BY a.artist_id " +
+                                                  "       HAVING count( *) = 1) temp " +
+                                                  "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
+                                                  " ORDER BY temp.playnumber DESC ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -256,22 +367,22 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
         @Language("MariaDB") String queryString =
                 "SELECT c.name  , a.playnumber,b.playnumber ," +
-                        "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1)* ((a.playnumber + b.playnumber))*2.5) media ," +
-                        " c.url " +
-                        "FROM " +
-                        "(SELECT artist_id,playnumber " +
-                        "FROM scrobbled_artist " +
-                        "JOIN user b ON scrobbled_artist.lastfm_id = b.lastfm_id " +
-                        "WHERE b.lastfm_id = ? ) a " +
-                        "JOIN " +
-                        "(SELECT artist_id,playnumber " +
-                        "FROM scrobbled_artist " +
-                        " JOIN user b ON scrobbled_artist.lastfm_id = b.lastfm_id " +
-                        " WHERE b.lastfm_id = ? ) b " +
-                        "ON a.artist_id=b.artist_id " +
-                        "JOIN artist c " +
-                        "ON c.id=b.artist_id" +
-                        " ORDER BY media DESC ";
+                "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1)* ((a.playnumber + b.playnumber))*2.5) media ," +
+                " c.url " +
+                "FROM " +
+                "(SELECT artist_id,playnumber " +
+                "FROM scrobbled_artist " +
+                "JOIN user b ON scrobbled_artist.lastfm_id = b.lastfm_id " +
+                "WHERE b.lastfm_id = ? ) a " +
+                "JOIN " +
+                "(SELECT artist_id,playnumber " +
+                "FROM scrobbled_artist " +
+                " JOIN user b ON scrobbled_artist.lastfm_id = b.lastfm_id " +
+                " WHERE b.lastfm_id = ? ) b " +
+                "ON a.artist_id=b.artist_id " +
+                "JOIN artist c " +
+                "ON c.id=b.artist_id" +
+                " ORDER BY media DESC ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -316,13 +427,13 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         @Language("MariaDB")
         String queryString =
                 "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id " +
-                        "FROM  scrobbled_artist a" +
-                        " JOIN artist a2 ON a.artist_id = a2.id  " +
-                        "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
-                        "JOIN user_guild d on c.discord_ID = d.discord_Id " +
-                        "where d.guild_Id = ? " +
-                        "and  a2.id = ? " +
-                        "ORDER BY a.playNumber desc ";
+                "FROM  scrobbled_artist a" +
+                " JOIN artist a2 ON a.artist_id = a2.id  " +
+                "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
+                "JOIN user_guild d on c.discord_ID = d.discord_Id " +
+                "where d.guild_Id = ? " +
+                "and  a2.id = ? " +
+                "ORDER BY a.playNumber desc ";
         queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -378,26 +489,26 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         long discordId;
 
         @Language("MariaDB") String queryString = "SELECT a2.name, b.discord_id , playnumber AS orden" +
-                " FROM  scrobbled_artist  a" +
-                " JOIN user b ON a.lastfm_id = b.lastfm_id " +
-                " JOIN artist a2 ON a.artist_id = a2.id " +
-                " WHERE  b.lastfm_id = ?" +
-                " AND playnumber > 0" +
-                " AND  playnumber >= ALL" +
-                "       (SELECT max(b.playnumber) " +
-                " FROM " +
-                "(SELECT in_a.artist_id,in_a.playnumber" +
-                " FROM scrobbled_artist in_a  " +
-                " JOIN " +
-                " user in_b" +
-                " ON in_a.lastfm_id = in_b.lastfm_id" +
-                " NATURAL JOIN " +
-                " user_guild in_c" +
-                " WHERE guild_id = ?" +
-                "   ) AS b" +
-                " WHERE b.artist_id = a.artist_id" +
-                " GROUP BY artist_id)" +
-                " ORDER BY orden DESC";
+                                                  " FROM  scrobbled_artist  a" +
+                                                  " JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                                                  " JOIN artist a2 ON a.artist_id = a2.id " +
+                                                  " WHERE  b.lastfm_id = ?" +
+                                                  " AND playnumber > 0" +
+                                                  " AND  playnumber >= ALL" +
+                                                  "       (SELECT max(b.playnumber) " +
+                                                  " FROM " +
+                                                  "(SELECT in_a.artist_id,in_a.playnumber" +
+                                                  " FROM scrobbled_artist in_a  " +
+                                                  " JOIN " +
+                                                  " user in_b" +
+                                                  " ON in_a.lastfm_id = in_b.lastfm_id" +
+                                                  " NATURAL JOIN " +
+                                                  " user_guild in_c" +
+                                                  " WHERE guild_id = ?" +
+                                                  "   ) AS b" +
+                                                  " WHERE b.artist_id = a.artist_id" +
+                                                  " GROUP BY artist_id)" +
+                                                  " ORDER BY orden DESC";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -431,20 +542,20 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     public List<UrlCapsule> getGuildTop(Connection connection, Long guildID, int limit) {
         //TODO LIMIT
         @Language("MariaDB") String queryString = "SELECT d.name, sum(playnumber) AS orden ,url  " +
-                "FROM  scrobbled_artist a" +
-                " JOIN user b" +
-                " ON a.lastfm_id = b.lastfm_id" +
-                " JOIN artist d " +
-                " ON a.artist_id = d.id";
+                                                  "FROM  scrobbled_artist a" +
+                                                  " JOIN user b" +
+                                                  " ON a.lastfm_id = b.lastfm_id" +
+                                                  " JOIN artist d " +
+                                                  " ON a.artist_id = d.id";
         if (guildID != null) {
 
             queryString += " JOIN  user_guild c" +
-                    " ON b.discord_id=c.discord_id" +
-                    " WHERE c.guild_id = ?";
+                           " ON b.discord_id=c.discord_id" +
+                           " WHERE c.guild_id = ?";
         }
         queryString += " GROUP BY artist_id,url" +
-                " ORDER BY orden DESC" +
-                " LIMIT ?;";
+                       " ORDER BY orden DESC" +
+                       " LIMIT ?;";
         List<UrlCapsule> list = new LinkedList<>();
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -475,9 +586,9 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public int userPlays(Connection con, long artistId, String whom) {
         @Language("MariaDB") String queryString = "SELECT a.playnumber " +
-                "FROM scrobbled_artist a JOIN user b ON a.lastfm_id=b.lastfm_id " +
-                "JOIN artist c ON a.artist_id = c.id " +
-                "WHERE a.lastfm_id = ? AND c.id = ?";
+                                                  "FROM scrobbled_artist a JOIN user b ON a.lastfm_id=b.lastfm_id " +
+                                                  "JOIN artist c ON a.artist_id = c.id " +
+                                                  "WHERE a.lastfm_id = ? AND c.id = ?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
@@ -502,34 +613,34 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public List<LbEntry> crownsLeaderboard(Connection connection, long guildID) {
         @Language("MariaDB") String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
-                "FROM " +
-                "( " +
-                "SELECT " +
-                "        a.artist_id,max(a.playnumber) plays " +
-                "    FROM " +
-                "         scrobbled_artist a  " +
-                "    JOIN " +
-                "        user b  " +
-                "            ON a.lastfm_id = b.lastfm_id  " +
-                "    JOIN " +
-                "        user_guild c  " +
-                "            ON b.discord_id = c.discord_id  " +
-                "    WHERE " +
-                "        c.guild_id = ?  " +
-                "    GROUP BY " +
-                "        a.artist_id  " +
-                "  ) t " +
-                "  JOIN scrobbled_artist t2  " +
-                "   " +
-                "  ON t.plays = t2.playnumber AND t.artist_id = t2.artist_id " +
-                "  JOIN user t3  ON t2.lastfm_id = t3.lastfm_id  " +
-                "    JOIN " +
-                "        user_guild t4  " +
-                "            ON t3.discord_id = t4.discord_id  " +
-                "    WHERE " +
-                "        t4.guild_id = ?  " +
-                "  GROUP BY t2.lastfm_id,t3.discord_id " +
-                "  ORDER BY ord DESC";
+                                                  "FROM " +
+                                                  "( " +
+                                                  "SELECT " +
+                                                  "        a.artist_id,max(a.playnumber) plays " +
+                                                  "    FROM " +
+                                                  "         scrobbled_artist a  " +
+                                                  "    JOIN " +
+                                                  "        user b  " +
+                                                  "            ON a.lastfm_id = b.lastfm_id  " +
+                                                  "    JOIN " +
+                                                  "        user_guild c  " +
+                                                  "            ON b.discord_id = c.discord_id  " +
+                                                  "    WHERE " +
+                                                  "        c.guild_id = ?  " +
+                                                  "    GROUP BY " +
+                                                  "        a.artist_id  " +
+                                                  "  ) t " +
+                                                  "  JOIN scrobbled_artist t2  " +
+                                                  "   " +
+                                                  "  ON t.plays = t2.playnumber AND t.artist_id = t2.artist_id " +
+                                                  "  JOIN user t3  ON t2.lastfm_id = t3.lastfm_id  " +
+                                                  "    JOIN " +
+                                                  "        user_guild t4  " +
+                                                  "            ON t3.discord_id = t4.discord_id  " +
+                                                  "    WHERE " +
+                                                  "        t4.guild_id = ?  " +
+                                                  "  GROUP BY t2.lastfm_id,t3.discord_id " +
+                                                  "  ORDER BY ord DESC";
 
         return getLbEntries(connection, guildID, queryString, CrownsLbEntry::new, true);
 
@@ -539,21 +650,21 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public List<LbEntry> uniqueLeaderboard(Connection connection, long guildId) {
         @Language("MariaDB") String queryString = "SELECT  " +
-                "    count(temp.lastfm_id) AS ord,temp.lastfm_id,temp.discord_id " +
-                "FROM " +
-                "    (SELECT  " +
-                "         a.lastfm_id, b.discord_id " +
-                "    FROM " +
-                "        scrobbled_artist a " +
-                "    JOIN user b ON a.lastfm_id = b.lastfm_id " +
-                "    JOIN user_guild c ON b.discord_id = c.discord_id " +
-                "    WHERE " +
-                "        c.guild_id = ? " +
-                "            AND a.playnumber > 2 " +
-                "    GROUP BY a.artist_id " +
-                "    HAVING COUNT(*) = 1) temp " +
-                "GROUP BY lastfm_id " +
-                "ORDER BY ord DESC";
+                                                  "    count(temp.lastfm_id) AS ord,temp.lastfm_id,temp.discord_id " +
+                                                  "FROM " +
+                                                  "    (SELECT  " +
+                                                  "         a.lastfm_id, b.discord_id " +
+                                                  "    FROM " +
+                                                  "        scrobbled_artist a " +
+                                                  "    JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                                                  "    JOIN user_guild c ON b.discord_id = c.discord_id " +
+                                                  "    WHERE " +
+                                                  "        c.guild_id = ? " +
+                                                  "            AND a.playnumber > 2 " +
+                                                  "    GROUP BY a.artist_id " +
+                                                  "    HAVING COUNT(*) = 1) temp " +
+                                                  "GROUP BY lastfm_id " +
+                                                  "ORDER BY ord DESC";
 
         return getLbEntries(connection, guildId, queryString, UniqueLbEntry::new, false);
     }
@@ -582,15 +693,15 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public List<LbEntry> artistLeaderboard(Connection con, long guildID) {
         @Language("MariaDB") String queryString = "(SELECT  " +
-                "        a.lastfm_id , count(*) AS ord, c.discord_id" +
-                "    FROM " +
-                "        scrobbled_artist a " +
-                "    JOIN user b ON a.lastfm_id = b.lastfm_id " +
-                "    JOIN user_guild c ON b.discord_id = c.discord_id " +
-                "    WHERE " +
-                "        c.guild_id = ? " +
-                " GROUP BY a.lastfm_id,c.discord_id " +
-                "    ORDER BY ord DESC    )";
+                                                  "        a.lastfm_id , count(*) AS ord, c.discord_id" +
+                                                  "    FROM " +
+                                                  "        scrobbled_artist a " +
+                                                  "    JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                                                  "    JOIN user_guild c ON b.discord_id = c.discord_id " +
+                                                  "    WHERE " +
+                                                  "        c.guild_id = ? " +
+                                                  " GROUP BY a.lastfm_id,c.discord_id " +
+                                                  "    ORDER BY ord DESC    )";
 
         return getLbEntries(con, guildID, queryString, ArtistLbEntry::new, false);
     }
@@ -598,59 +709,59 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public List<LbEntry> obscurityLeaderboard(Connection connection, long guildId) {
         @Language("MariaDB") String queryString = "\n" +
-                "SELECT finalmain.lastfm_id,  POW(((mytotalplays / (other_plays_on_my_artists)) * (as_unique_coefficient + 1)),\n" +
-                "            0.4) AS ord , c.discord_id\n" +
-                "FROM (\n" +
-                "SELECT \n" +
-                "    main.lastfm_id,\n" +                //OBtains total plays, and other users plays on your artist
-                "    (SELECT \n" +
-                "              COALESCE(SUM(a.playnumber) * (COUNT(*)), 0)\n" +
-                "        FROM\n" +
-                "            scrobbled_artist a\n" +
-                "        WHERE\n" +
-                "            lastfm_id = main.lastfm_id) AS mytotalplays,\n" +
-                "    (SELECT \n" +
-                "             COALESCE(SUM(a.playnumber), 1)\n" +
-                "        FROM\n" +
-                "            scrobbled_artist a\n" +
-                "        WHERE\n" +
-                "            lastfm_id != main.lastfm_id\n" +
-                "                AND a.artist_id IN (SELECT \n" +
-                "                    artist_id\n" +
-                "                FROM\n" +
-                "                    artist\n" +
-                "                WHERE\n" +
-                "                    lastfm_id = main.lastfm_id))AS  other_plays_on_my_artists,\n" +
-                "  " +
-                "  (SELECT \n" +                // Obtains uniques, percentage of uniques, and plays on uniques
-                "            COUNT(*) / (SELECT \n" +
-                "                        COUNT(*) + 1\n" +
-                "                    FROM\n" +
-                "                        scrobbled_artist a\n" +
-                "                    WHERE\n" +
-                "                        lastfm_id = main.lastfm_id) * (COALESCE(SUM(playnumber), 1))\n" +
-                "        FROM\n" +
-                "            (SELECT \n" +
-                "                artist_id, playnumber, a.lastfm_id\n" +
-                "            FROM\n" +
-                "                scrobbled_artist a\n" +
-                "            GROUP BY a.artist_id\n" +
-                "            HAVING COUNT(*) = 1) temp \n" +
-                "        WHERE\n" +
-                "            temp.lastfm_id = main.lastfm_id\n" +
-                "                AND temp.playnumber > 1\n" +
-                "        ) as_unique_coefficient\n" +
-                "FROM\n" +
-                //"\t#full artist table, we will filter later because is somehow faster :D\n" +
-                "    scrobbled_artist main\n" +
-                "    \n" +
-                "GROUP BY main.lastfm_id\n" +
-                ") finalmain" +
-                " JOIN user b\n" +
-                "ON finalmain.lastfm_id = b.lastfm_id \n" +
-                "JOIN user_guild c ON b.discord_id = c.discord_id \n" +
-                "WHERE c.guild_id = ?" +
-                " ORDER BY ord DESC";
+                                                  "SELECT finalmain.lastfm_id,  POW(((mytotalplays / (other_plays_on_my_artists)) * (as_unique_coefficient + 1)),\n" +
+                                                  "            0.4) AS ord , c.discord_id\n" +
+                                                  "FROM (\n" +
+                                                  "SELECT \n" +
+                                                  "    main.lastfm_id,\n" +                //OBtains total plays, and other users plays on your artist
+                                                  "    (SELECT \n" +
+                                                  "              COALESCE(SUM(a.playnumber) * (COUNT(*)), 0)\n" +
+                                                  "        FROM\n" +
+                                                  "            scrobbled_artist a\n" +
+                                                  "        WHERE\n" +
+                                                  "            lastfm_id = main.lastfm_id) AS mytotalplays,\n" +
+                                                  "    (SELECT \n" +
+                                                  "             COALESCE(SUM(a.playnumber), 1)\n" +
+                                                  "        FROM\n" +
+                                                  "            scrobbled_artist a\n" +
+                                                  "        WHERE\n" +
+                                                  "            lastfm_id != main.lastfm_id\n" +
+                                                  "                AND a.artist_id IN (SELECT \n" +
+                                                  "                    artist_id\n" +
+                                                  "                FROM\n" +
+                                                  "                    artist\n" +
+                                                  "                WHERE\n" +
+                                                  "                    lastfm_id = main.lastfm_id))AS  other_plays_on_my_artists,\n" +
+                                                  "  " +
+                                                  "  (SELECT \n" +                // Obtains uniques, percentage of uniques, and plays on uniques
+                                                  "            COUNT(*) / (SELECT \n" +
+                                                  "                        COUNT(*) + 1\n" +
+                                                  "                    FROM\n" +
+                                                  "                        scrobbled_artist a\n" +
+                                                  "                    WHERE\n" +
+                                                  "                        lastfm_id = main.lastfm_id) * (COALESCE(SUM(playnumber), 1))\n" +
+                                                  "        FROM\n" +
+                                                  "            (SELECT \n" +
+                                                  "                artist_id, playnumber, a.lastfm_id\n" +
+                                                  "            FROM\n" +
+                                                  "                scrobbled_artist a\n" +
+                                                  "            GROUP BY a.artist_id\n" +
+                                                  "            HAVING COUNT(*) = 1) temp \n" +
+                                                  "        WHERE\n" +
+                                                  "            temp.lastfm_id = main.lastfm_id\n" +
+                                                  "                AND temp.playnumber > 1\n" +
+                                                  "        ) as_unique_coefficient\n" +
+                                                  "FROM\n" +
+                                                  //"\t#full artist table, we will filter later because is somehow faster :D\n" +
+                                                  "    scrobbled_artist main\n" +
+                                                  "    \n" +
+                                                  "GROUP BY main.lastfm_id\n" +
+                                                  ") finalmain" +
+                                                  " JOIN user b\n" +
+                                                  "ON finalmain.lastfm_id = b.lastfm_id \n" +
+                                                  "JOIN user_guild c ON b.discord_id = c.discord_id \n" +
+                                                  "WHERE c.guild_id = ?" +
+                                                  " ORDER BY ord DESC";
 
         return getLbEntries(connection, guildId, queryString, ObscurityEntry::new, false);
     }
@@ -660,35 +771,35 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
         @Language("MariaDB") String queryString =
                 "SELECT \n" +
-                        "    b.name,\n" +
-                        "    b.url,\n " +
-                        "    discord_id,\n" +
-                        "    (SELECT \n" +
-                        "            SUM(playnumber)\n" +
-                        "        FROM\n" +
-                        "            scrobbled_artist\n" +
-                        "        WHERE\n" +
-                        "            artist_id = a.artist_id) AS summa\n" +
-                        "FROM\n" +
-                        "    scrobbled_artist a\n" +
-                        "        JOIN\n" +
-                        "    artist b ON a.artist_id = b.id\n" +
-                        "        NATURAL JOIN\n" +
-                        "    user c\n" +
-                        "WHERE\n" +
-                        "    b.id IN (SELECT \n" +
-                        "            rando.id\n" +
-                        "        FROM\n" +
-                        "            (SELECT \n" +
-                        "                a.id\n" +
-                        "            FROM\n" +
-                        "                artist a\n" +
-                        "                WHERE a.url IS NOT NULL\n" +
-                        "                AND a.url != ''\n" +
-                        "            ORDER BY RAND()\n" +
-                        "            LIMIT 1) rando)\n" +
-                        "ORDER BY RAND()\n" +
-                        "LIMIT 1;";
+                "    b.name,\n" +
+                "    b.url,\n " +
+                "    discord_id,\n" +
+                "    (SELECT \n" +
+                "            SUM(playnumber)\n" +
+                "        FROM\n" +
+                "            scrobbled_artist\n" +
+                "        WHERE\n" +
+                "            artist_id = a.artist_id) AS summa\n" +
+                "FROM\n" +
+                "    scrobbled_artist a\n" +
+                "        JOIN\n" +
+                "    artist b ON a.artist_id = b.id\n" +
+                "        NATURAL JOIN\n" +
+                "    user c\n" +
+                "WHERE\n" +
+                "    b.id IN (SELECT \n" +
+                "            rando.id\n" +
+                "        FROM\n" +
+                "            (SELECT \n" +
+                "                a.id\n" +
+                "            FROM\n" +
+                "                artist a\n" +
+                "                WHERE a.url IS NOT NULL\n" +
+                "                AND a.url != ''\n" +
+                "            ORDER BY RAND()\n" +
+                "            LIMIT 1) rando)\n" +
+                "ORDER BY RAND()\n" +
+                "LIMIT 1;";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -713,51 +824,51 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         long discordid;
         long discordid2;
         @Language("MariaDB") String queryString = "SELECT \n" +
-                "    inn.name AS artist ,inn.orden AS ogplays , inn.discord_id AS ogid , inn2.discord_id queriedid,  inn2.orden AS queriedplays\n" +
-                "FROM\n" +
-                "    (SELECT \n" +
-                "        a.artist_id, a2.name, b.discord_id, playnumber AS orden\n" +
-                "    FROM\n" +
-                "        scrobbled_artist a\n" +
-                "    JOIN user b ON a.lastfm_id = b.lastfm_id\n" +
-                " JOIN artist a2 ON a.artist_id = a2.id " +
-                "    WHERE\n" +
-                "        a.lastfm_id = ?) inn\n" +
-                "        JOIN\n" +
-                "    (SELECT \n" +
-                "        artist_id, b.discord_id, playnumber AS orden\n" +
-                "    FROM\n" +
-                "        scrobbled_artist a\n" +
-                "    JOIN user b ON a.lastfm_id = b.lastfm_id\n" +
-                "    WHERE\n" +
-                "        b.lastfm_id = ?) inn2 ON inn.artist_id = inn2.artist_id\n" +
-                "WHERE\n" +
-                "    (inn2.artist_id , inn2.orden) = (SELECT \n" +
-                "            in_a.artist_id, MAX(in_a.playnumber)\n" +
-                "        FROM\n" +
-                "            scrobbled_artist in_a\n" +
-                "                JOIN\n" +
-                "            user in_b ON in_a.lastfm_id = in_b.lastfm_id\n" +
-                "                NATURAL JOIN\n" +
-                "            user_guild in_c\n" +
-                "        WHERE\n" +
-                "            guild_id = ?\n" +
-                "                AND artist_id = inn2.artist_id)\n" +
-                "        AND (inn.artist_id , inn.orden) = (SELECT \n" +
-                "            in_a.artist_id, in_a.playnumber\n" +
-                "        FROM\n" +
-                "            scrobbled_artist in_a\n" +
-                "                JOIN\n" +
-                "            user in_b ON in_a.lastfm_id = in_b.lastfm_id\n" +
-                "                NATURAL JOIN\n" +
-                "            user_guild in_c\n" +
-                "        WHERE\n" +
-                "            guild_id = ?\n" +
-                "                AND artist_id = inn.artist_id\n" +
-                "        ORDER BY in_a.playnumber DESC\n" +
-                "        LIMIT 1 , 1)\n" +
-                "ORDER BY inn.orden DESC , inn2.orden DESC\n" +
-                "        \n";
+                                                  "    inn.name AS artist ,inn.orden AS ogplays , inn.discord_id AS ogid , inn2.discord_id queriedid,  inn2.orden AS queriedplays\n" +
+                                                  "FROM\n" +
+                                                  "    (SELECT \n" +
+                                                  "        a.artist_id, a2.name, b.discord_id, playnumber AS orden\n" +
+                                                  "    FROM\n" +
+                                                  "        scrobbled_artist a\n" +
+                                                  "    JOIN user b ON a.lastfm_id = b.lastfm_id\n" +
+                                                  " JOIN artist a2 ON a.artist_id = a2.id " +
+                                                  "    WHERE\n" +
+                                                  "        a.lastfm_id = ?) inn\n" +
+                                                  "        JOIN\n" +
+                                                  "    (SELECT \n" +
+                                                  "        artist_id, b.discord_id, playnumber AS orden\n" +
+                                                  "    FROM\n" +
+                                                  "        scrobbled_artist a\n" +
+                                                  "    JOIN user b ON a.lastfm_id = b.lastfm_id\n" +
+                                                  "    WHERE\n" +
+                                                  "        b.lastfm_id = ?) inn2 ON inn.artist_id = inn2.artist_id\n" +
+                                                  "WHERE\n" +
+                                                  "    (inn2.artist_id , inn2.orden) = (SELECT \n" +
+                                                  "            in_a.artist_id, MAX(in_a.playnumber)\n" +
+                                                  "        FROM\n" +
+                                                  "            scrobbled_artist in_a\n" +
+                                                  "                JOIN\n" +
+                                                  "            user in_b ON in_a.lastfm_id = in_b.lastfm_id\n" +
+                                                  "                NATURAL JOIN\n" +
+                                                  "            user_guild in_c\n" +
+                                                  "        WHERE\n" +
+                                                  "            guild_id = ?\n" +
+                                                  "                AND artist_id = inn2.artist_id)\n" +
+                                                  "        AND (inn.artist_id , inn.orden) = (SELECT \n" +
+                                                  "            in_a.artist_id, in_a.playnumber\n" +
+                                                  "        FROM\n" +
+                                                  "            scrobbled_artist in_a\n" +
+                                                  "                JOIN\n" +
+                                                  "            user in_b ON in_a.lastfm_id = in_b.lastfm_id\n" +
+                                                  "                NATURAL JOIN\n" +
+                                                  "            user_guild in_c\n" +
+                                                  "        WHERE\n" +
+                                                  "            guild_id = ?\n" +
+                                                  "                AND artist_id = inn.artist_id\n" +
+                                                  "        ORDER BY in_a.playnumber DESC\n" +
+                                                  "        LIMIT 1 , 1)\n" +
+                                                  "ORDER BY inn.orden DESC , inn2.orden DESC\n" +
+                                                  "        \n";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -796,10 +907,10 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     public UniqueWrapper<ArtistPlays> getUserAlbumCrowns(Connection connection, String lastfmId, long guildId) {
 
         @Language("MariaDB") String queryString = "SELECT a2.name ,a.album,a.plays,b.discord_id " +
-                "FROM album_crowns a " +
-                "JOIN user b ON a.discordid = b.discord_id" +
-                " JOIN artist a2 ON a.artist_id = a2.id " +
-                " WHERE guildid = ? AND b.lastfm_id = ? ORDER BY plays DESC";
+                                                  "FROM album_crowns a " +
+                                                  "JOIN user b ON a.discordid = b.discord_id" +
+                                                  " JOIN artist a2 ON a.artist_id = a2.id " +
+                                                  " WHERE guildid = ? AND b.lastfm_id = ? ORDER BY plays DESC";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -842,15 +953,15 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public List<LbEntry> albumCrownsLeaderboard(Connection con, long guildID) {
         @Language("MariaDB") String queryString = "SELECT \n" +
-                "    b.discord_id , b.lastfm_id, COUNT(*) AS ord\n" +
-                "FROM\n" +
-                "    album_crowns a\n" +
-                "      RIGHT JOIN\n" +
-                "    user b ON a.discordid = b.discord_id\n" +
-                "WHERE\n" +
-                "    guildid = ?\n" +
-                "GROUP BY a.discordid , b.lastfm_id\n" +
-                "ORDER BY ord DESC ;";
+                                                  "    b.discord_id , b.lastfm_id, COUNT(*) AS ord\n" +
+                                                  "FROM\n" +
+                                                  "    album_crowns a\n" +
+                                                  "      RIGHT JOIN\n" +
+                                                  "    user b ON a.discordid = b.discord_id\n" +
+                                                  "WHERE\n" +
+                                                  "    guildid = ?\n" +
+                                                  "GROUP BY a.discordid , b.lastfm_id\n" +
+                                                  "ORDER BY ord DESC ;";
 
         return getLbEntries(con, guildID, queryString, AlbumCrownLbEntry::new, false);
     }
@@ -858,38 +969,38 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public ObscuritySummary getUserObscuritPoints(Connection connection, String lastfmId) {
         @Language("MariaDB") String queryString = "\tSELECT  b, other_plays_on_my_artists, unique_coefficient,\n" +
-                "\tPOW(((b/ (other_plays_on_my_artists)) * (unique_coefficient + 1)),0.4) AS total\n" +
-                "\t\tFROM (\n" +
-                "\n" +
-                "\tSELECT (SELECT sum(a.playnumber) * count(*) FROM \n" +
-                "\tscrobbled_artist a \n" +
-                "\tWHERE lastfm_id = main.lastfm_id) AS b ,  \n" +
-                "\t\t   (SELECT COALESCE(Sum(a.playnumber), 1) \n" +
-                "\t\t\tFROM   scrobbled_artist a \n" +
-                " WHERE  lastfm_id != main.lastfm_id \n" +
-                "   AND a.artist_id IN (SELECT artist_id \n" +
-                "   FROM   artist \n" +
-                "   WHERE  lastfm_id = main.lastfm_id)) AS \n" +
-                "   other_plays_on_my_artists, \n" +
-                "   (SELECT Count(*) / (SELECT Count(*) + 1 \n" +
-                "   FROM   scrobbled_artist a \n" +
-                "\t\t\t\t\t\t\t   WHERE  lastfm_id = main.lastfm_id) * ( \n" +
-                "\t\t\t\t   COALESCE(Sum(playnumber \n" +
-                "\t\t\t\t\t\t\t), 1) ) \n" +
-                "\t\t\tFROM   (SELECT artist_id, \n" +
-                "\t\t\t\t\t\t   playnumber, \n" +
-                "\t\t\t\t\t\t   a.lastfm_id \n" +
-                "\t\t\t\t\tFROM   scrobbled_artist a \n" +
-                "\t\t\t\t\tGROUP  BY a.artist_id \n" +
-                "\t\t\t\t\tHAVING Count(*) = 1) temp \n" +
-                "\t\t\tWHERE  temp.lastfm_id = main.lastfm_id \n" +
-                "\t\t\t\t   AND temp.playnumber > 1) \n" +
-                "\t\t   AS unique_coefficient                      \n" +
-                "\tFROM   scrobbled_artist main \n" +
-                "\tWHERE  lastfm_id =  ?" +
-                " GROUP BY lastfm_id\n" +
-                "\t\n" +
-                "\t) outer_main\n";
+                                                  "\tPOW(((b/ (other_plays_on_my_artists)) * (unique_coefficient + 1)),0.4) AS total\n" +
+                                                  "\t\tFROM (\n" +
+                                                  "\n" +
+                                                  "\tSELECT (SELECT sum(a.playnumber) * count(*) FROM \n" +
+                                                  "\tscrobbled_artist a \n" +
+                                                  "\tWHERE lastfm_id = main.lastfm_id) AS b ,  \n" +
+                                                  "\t\t   (SELECT COALESCE(Sum(a.playnumber), 1) \n" +
+                                                  "\t\t\tFROM   scrobbled_artist a \n" +
+                                                  " WHERE  lastfm_id != main.lastfm_id \n" +
+                                                  "   AND a.artist_id IN (SELECT artist_id \n" +
+                                                  "   FROM   artist \n" +
+                                                  "   WHERE  lastfm_id = main.lastfm_id)) AS \n" +
+                                                  "   other_plays_on_my_artists, \n" +
+                                                  "   (SELECT Count(*) / (SELECT Count(*) + 1 \n" +
+                                                  "   FROM   scrobbled_artist a \n" +
+                                                  "\t\t\t\t\t\t\t   WHERE  lastfm_id = main.lastfm_id) * ( \n" +
+                                                  "\t\t\t\t   COALESCE(Sum(playnumber \n" +
+                                                  "\t\t\t\t\t\t\t), 1) ) \n" +
+                                                  "\t\t\tFROM   (SELECT artist_id, \n" +
+                                                  "\t\t\t\t\t\t   playnumber, \n" +
+                                                  "\t\t\t\t\t\t   a.lastfm_id \n" +
+                                                  "\t\t\t\t\tFROM   scrobbled_artist a \n" +
+                                                  "\t\t\t\t\tGROUP  BY a.artist_id \n" +
+                                                  "\t\t\t\t\tHAVING Count(*) = 1) temp \n" +
+                                                  "\t\t\tWHERE  temp.lastfm_id = main.lastfm_id \n" +
+                                                  "\t\t\t\t   AND temp.playnumber > 1) \n" +
+                                                  "\t\t   AS unique_coefficient                      \n" +
+                                                  "\tFROM   scrobbled_artist main \n" +
+                                                  "\tWHERE  lastfm_id =  ?" +
+                                                  " GROUP BY lastfm_id\n" +
+                                                  "\t\n" +
+                                                  "\t) outer_main\n";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i, lastfmId);
@@ -917,9 +1028,9 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public int getRandomCount(Connection connection, Long userId) {
         @Language("MariaDB") String queryString = "SELECT \n" +
-                "  count(*) as counted " +
-                "FROM\n" +
-                "    randomlinks \n";
+                                                  "  count(*) as counted " +
+                                                  "FROM\n" +
+                                                  "    randomlinks \n";
         if (userId != null) {
             queryString += "WHERE discord_id = ?";
 
@@ -945,10 +1056,10 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     public List<GlobalCrown> getGlobalKnows(Connection connection, long artistID) {
         List<GlobalCrown> returnedList = new ArrayList<>();
         @Language("MariaDB") String queryString = "SELECT  playnumber AS ord, discord_id, l.lastfm_id\n" +
-                " FROM  scrobbled_artist ar\n" +
-                "  	 	 JOIN user l ON ar.lastfm_id = l.lastfm_id " +
-                "        WHERE  ar.artist_id = ? " +
-                "        ORDER BY  playnumber DESC";
+                                                  " FROM  scrobbled_artist ar\n" +
+                                                  "  	 	 JOIN user l ON ar.lastfm_id = l.lastfm_id " +
+                                                  "        WHERE  ar.artist_id = ? " +
+                                                  "        ORDER BY  playnumber DESC";
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {

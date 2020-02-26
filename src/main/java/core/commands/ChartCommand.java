@@ -65,14 +65,14 @@ public class ChartCommand extends ConcurrentCommand {
 
     void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays) {
         int size = queue.size();
-        ChartQuality chartQuality;
+        ChartQuality chartQuality = ChartQuality.PNG_BIG;
         int minx = (int) Math.ceil((double) size / x);
         //int miny = (int) Math.ceil((double) size / y);
         if (minx == 1)
             x = size;
         if (size > 45 && size < 400)
             chartQuality = ChartQuality.JPEG_BIG;
-        else
+        else if (size >= 400)
             chartQuality = ChartQuality.JPEG_SMALL;
         BufferedImage image = CollageMaker
                 .generateCollageThreaded(x, minx, queue, writeTitles, writePlays, chartQuality);

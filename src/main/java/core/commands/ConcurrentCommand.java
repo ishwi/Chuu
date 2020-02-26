@@ -11,21 +11,21 @@ abstract class ConcurrentCommand extends MyCommand {
     final ExecutorService executor = ExecutorsSingleton.getInstanceUsingDoubleLocking();
 
 
-    ConcurrentCommand(ChuuService dao) {
+    public ConcurrentCommand(ChuuService dao) {
         super(dao);
     }
 
 
     @Override
-    void measureTime(MessageReceivedEvent e) {
+    protected void measureTime(MessageReceivedEvent e) {
         executor.execute(() -> {
-            long startTime = System.currentTimeMillis();
-            handleCommand(e);
-            long endTime = System.currentTimeMillis();
-					long timeElapsed = endTime - startTime;
-					System.out.println("Execution time in milliseconds " + getName() + " : " + timeElapsed);
-					System.out.println();
-				}
-		);
-	}
+                    long startTime = System.currentTimeMillis();
+                    handleCommand(e);
+                    long endTime = System.currentTimeMillis();
+                    long timeElapsed = endTime - startTime;
+                    System.out.println("Execution time in milliseconds " + getName() + " : " + timeElapsed);
+                    System.out.println();
+                }
+        );
+    }
 }

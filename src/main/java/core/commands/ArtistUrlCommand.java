@@ -6,6 +6,8 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistUrlParser;
 import dao.ChuuService;
 import dao.entities.ArtistInfo;
+import dao.entities.LastFMData;
+import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -37,7 +39,11 @@ public class ArtistUrlCommand extends ConcurrentCommand {
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String urlParsed;
         String artist;
-
+        LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
+        if (lastFMData.getRole().equals(Role.IMAGE_BLOCKED)) {
+            sendMessageQueue(e, "You don't have enough permissions to add an image!");
+            return;
+        }
         String[] message = parser.parse(e);
         if (message == null)
             return;
