@@ -1,10 +1,10 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.NowPlayingArtist;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
+import dao.ChuuService;
+import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -13,19 +13,19 @@ import java.util.Collections;
 import java.util.List;
 
 public class RecentListCommand extends ConcurrentCommand {
-	private static final int LIMIT = 5;
+    private static final int LIMIT = 5;
 
-	public RecentListCommand(DaoImplementation dao) {
-		super(dao);
-		this.parser = new OnlyUsernameParser(dao);
-	}
+    public RecentListCommand(ChuuService dao) {
+        super(dao);
+        this.parser = new OnlyUsernameParser(dao);
+    }
 
-	@Override
-	public String getDescription() {
-		return "Returns your most recent songs played";
-	}
+    @Override
+    public String getDescription() {
+        return "Returns your most recent songs played";
+    }
 
-	@Override
+    @Override
 	public List<String> getAliases() {
 		return Collections.singletonList("recent");
 	}

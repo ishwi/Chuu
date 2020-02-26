@@ -15,27 +15,27 @@ import static java.lang.Math.min;
 import static java.lang.StrictMath.max;
 
 public class Reactionary<T> extends ListenerAdapter {
-	private final Message message;
-	private final EmbedBuilder who;
-	private final int pageSize;
-	private final List<T> list;
-	private int counter = 0;
+    private final Message message;
+    private final EmbedBuilder who;
+    private final int pageSize;
+    private final List<T> list;
+    private int counter = 0;
 
-	public Reactionary(List<T> list, Message message, EmbedBuilder who) {
-		this(list, message, 10, who);
-	}
+    public Reactionary(List<T> list, Message message, EmbedBuilder who) {
+        this(list, message, 10, who);
+    }
 
-	private Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who) {
-		this.who = who;
-		this.list = list;
-		this.message = messageToReact;
-		this.pageSize = pageSize;
+    public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who) {
+        this.who = who;
+        this.list = list;
+        this.message = messageToReact;
+        this.pageSize = pageSize;
 
-		initReactionary(messageToReact, list, messageToReact.getJDA());
+        initReactionary(messageToReact, list, messageToReact.getJDA());
 
-	}
+    }
 
-	private void initReactionary(Message message, List<T> list, JDA jda) {
+    private void initReactionary(Message message, List<T> list, JDA jda) {
 		if (list.size() <= 10)
 			return;
 		message.addReaction("U+2B05").submit();

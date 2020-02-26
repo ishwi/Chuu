@@ -1,60 +1,78 @@
 package dao;
 
+import core.exceptions.DuplicateInstanceException;
+import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
 
 import java.sql.Connection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 interface UpdaterDao {
-	void addArtist(Connection con, ArtistData artistData);
+
+    void addSrobbledArtists(Connection con, List<ScrobbledArtist> scrobbledArtists);
+
+    UpdaterUserWrapper getLessUpdated(Connection connection);
+
+    void setUpdatedTime(Connection connection, String id, Integer timestamp, Integer timestampControl);
+
+    void upsertArtist(Connection con, List<ScrobbledArtist> scrobbledArtist);
+
+    long upsertUrl(Connection con, ArtistInfo artistInfo);
 
 
-	UpdaterUserWrapper getLessUpdated(Connection connection);
+    void upsertArtistsDetails(Connection con, List<ScrobbledArtist> scrobbledArtists);
 
-	void addUrl(Connection con, ArtistData artistData);
+    String getArtistUrl(Connection connection, String artist);
 
-	void setUpdatedTime(Connection connection, String id, Integer timestamp, Integer timestampControl);
+    Set<String> selectNullUrls(Connection connection, boolean spotifyNull);
 
-	void upsertArtist(Connection con, ArtistData artistData);
+    long upsertSpotify(Connection con, ArtistInfo artistInfo);
 
-	void upsertUrl(Connection con, ArtistInfo artistInfo);
+    UpdaterStatus getUpdaterStatus(Connection connection, String artist) throws InstanceNotFoundException;
+
+    void insertCorrection(Connection connection, long artistId, String correction);
+
+    void updateStatusBit(Connection connection, long artistId);
+
+    String findCorrection(Connection connection, String artist);
+
+    void updateMetric(Connection connection, int metricId, long value);
+
+    void deleteAllArtists(Connection con, String id);
+
+    boolean insertRandomUrl(Connection con, String url, long discordId, Long guildId);
+
+    RandomUrlEntity getRandomUrl(Connection con);
+
+    RandomUrlEntity findRandomUrlById(Connection con, String url);
+
+    void insertAlbumCrown(Connection connection, long artistId, String album, long discordID, long guildId, int plays);
+
+    Map<Long, Character> getGuildPrefixes(Connection connection);
+
+    void upsertGuildPrefix(Connection connection, long guildID, Character prefix);
+
+    void deleteAlbumCrown(Connection connection, String artist, String album, long discordID, long guildId);
+
+    void truncateRandomPool(Connection connection);
 
 
-	void upsertUrlBitMask(Connection con, ArtistInfo artistInfo, boolean bit);
+    void fillIds(Connection connection, List<ScrobbledArtist> list);
 
-	String getArtistUrl(Connection connection, String artist);
+    void insertArtists(Connection connection, List<ScrobbledArtist> nonExistingId);
 
-	Set<String> selectNullUrls(Connection connection, boolean spotifyNull);
+    long getArtistId(Connection connection, String artistId) throws InstanceNotFoundException;
 
-	void upsertSpotify(Connection con, ArtistInfo artistInfo);
 
-	UpdaterStatus getUpdaterStatus(Connection connection, String artist_id);
+    UpdaterUserWrapper getUserUpdateStatus(Connection connection, long discordId) throws InstanceNotFoundException;
 
-	void insertCorrection(Connection connection, String artist, String correction);
+    void addAlias(Connection connection, String alias, long toArtistId) throws DuplicateInstanceException;
 
-	void updateStatusBit(Connection connection, String artist_id);
+    void queueAlias(Connection connection, String alias, long toArtistId, long whom);
 
-	String findCorrection(Connection connection, String artist);
+    AliasEntity getNextInAliasQueue(Connection connection);
 
-	void updateMetric(Connection connection, int metricId, long value);
-
-	void deleteAllArtists(Connection con, String id);
-
-	boolean insertRandomUrl(Connection con, String url, long discordId, Long guildId);
-
-	RandomUrlEntity getRandomUrl(Connection con);
-
-	RandomUrlEntity findRandomUrlById(Connection con, String url);
-
-	void insertAlbumCrown(Connection connection, String artist, String album, long discordID, long guildId, int plays);
-
-	Map<Long, Character> getGuildPrefixes(Connection connection);
-
-	void upsertGuildPrefix(Connection connection, long guildID, Character prefix);
-
-	void deleteAlbumCrown(Connection connection, String artist, String album, long discordID, long guildId);
-
-	void truncateRandomPool(Connection connection);
-
+    void deleteAliasById(Connection connection, long aliasId) throws InstanceNotFoundException;
 }

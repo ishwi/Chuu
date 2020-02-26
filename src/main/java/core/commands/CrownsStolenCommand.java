@@ -4,7 +4,7 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.TwoUsersParser;
-import dao.DaoImplementation;
+import dao.ChuuService;
 import dao.entities.StolenCrown;
 import dao.entities.StolenCrownWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -16,17 +16,17 @@ import java.util.Collections;
 import java.util.List;
 
 public class CrownsStolenCommand extends ConcurrentCommand {
-	public CrownsStolenCommand(DaoImplementation dao) {
-		super(dao);
-		parser = new TwoUsersParser(dao);
-		this.respondInPrivate = false;
+    public CrownsStolenCommand(ChuuService dao) {
+        super(dao);
+        parser = new TwoUsersParser(dao);
+        this.respondInPrivate = false;
 
-	}
+    }
 
-	@Override
-	public String getDescription() {
-		return ("List of crowns you would have if  other user concedes their crowns");
-	}
+    @Override
+    public String getDescription() {
+        return ("List of crowns you would have if  other user concedes their crowns");
+    }
 
 	@Override
 	public List<String> getAliases() {
@@ -42,34 +42,34 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 		String[] message;
 		message = parser.parse(e);
-		if (message == null)
-			return;
+        if (message == null)
+            return;
 
-		String ogLastFmId = message[0];
-		String secondlastFmId = message[1];
-		if (ogLastFmId.equals(secondlastFmId)) {
-			sendMessageQueue(e, "Sis, dont use the same person twice");
-			return;
-		}
+        String ogLastFmId = message[0];
+        String secondlastFmId = message[1];
+        if (ogLastFmId.equals(secondlastFmId)) {
+            sendMessageQueue(e, "Sis, dont use the same person twice");
+            return;
+        }
 
-		StolenCrownWrapper resultWrapper = getDao()
-				.getCrownsStolenBy(ogLastFmId, secondlastFmId, e.getGuild().getIdLong());
+        StolenCrownWrapper resultWrapper = getService()
+                .getCrownsStolenBy(ogLastFmId, secondlastFmId, e.getGuild().getIdLong());
 
-		int rows = resultWrapper.getList().size();
+        int rows = resultWrapper.getList().size();
 
-		if (rows == 0) {
+        if (rows == 0) {
 
-			long discId1 = getDao().getDiscordIdFromLastfm(ogLastFmId, e.getGuild().getIdLong());
-			long discId2 = getDao().getDiscordIdFromLastfm(secondlastFmId, e.getGuild().getIdLong());
-			Member member = e.getGuild().getMemberById(discId1);
-			Member member2 = e.getGuild().getMemberById(discId2);
-			assert (member != null);
-			assert member2 != null;
-			sendMessageQueue(e, member2.getEffectiveName() + " hasn't stolen anything from " + member
-					.getEffectiveName());
+            long discId1 = getService().getDiscordIdFromLastfm(ogLastFmId, e.getGuild().getIdLong());
+            long discId2 = getService().getDiscordIdFromLastfm(secondlastFmId, e.getGuild().getIdLong());
+            Member member = e.getGuild().getMemberById(discId1);
+            Member member2 = e.getGuild().getMemberById(discId2);
+            assert (member != null);
+            assert member2 != null;
+            sendMessageQueue(e, member2.getEffectiveName() + " hasn't stolen anything from " + member
+                    .getEffectiveName());
 
-			return;
-		}
+            return;
+        }
 		MessageBuilder messageBuilder = new MessageBuilder();
 
 		EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())

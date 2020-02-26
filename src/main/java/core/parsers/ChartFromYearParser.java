@@ -1,26 +1,26 @@
 package core.parsers;
 
-import dao.DaoImplementation;
+import core.exceptions.InstanceNotFoundException;
+import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
-import core.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Year;
 
 public class ChartFromYearParser extends ChartParser {
-	private final TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
+    private final TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
 
-	public ChartFromYearParser(DaoImplementation dao) {
-		super(dao);
-	}
+    public ChartFromYearParser(ChuuService dao) {
+        super(dao);
+    }
 
-	@Override
-	protected void setUpOptionals() {
-		opts.add(new OptionalEntity("--notitles", "dont display titles"));
-		opts.add(new OptionalEntity("--plays", "display play count"));
+    @Override
+    protected void setUpOptionals() {
+        opts.add(new OptionalEntity("--notitles", "dont display titles"));
+        opts.add(new OptionalEntity("--plays", "display play count"));
 
-	}
+    }
 
 	@Override
 	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {

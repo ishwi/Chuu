@@ -1,27 +1,27 @@
 package core.parsers;
 
-import dao.DaoImplementation;
-import dao.entities.LastFMData;
 import core.exceptions.InstanceNotFoundException;
+import dao.ChuuService;
+import dao.entities.LastFMData;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
 public abstract class DaoParser extends Parser {
-	final DaoImplementation dao;
+    final ChuuService dao;
 
-	DaoParser(DaoImplementation dao) {
-		super();
-		this.dao = dao;
-	}
+    DaoParser(ChuuService dao) {
+        super();
+        this.dao = dao;
+    }
 
-	LastFMData getLastFmUsername1input(String[] message, Long id, MessageReceivedEvent event) throws InstanceNotFoundException {
-			if (event.isFromGuild()) {
-				LastFMData data;
-				List<User> list = event.getMessage().getMentionedUsers();
-				data = list.isEmpty()
-						? this.dao.findLastFMData((id))
+    LastFMData getLastFmUsername1input(String[] message, Long id, MessageReceivedEvent event) throws InstanceNotFoundException {
+        if (event.isFromGuild()) {
+            LastFMData data;
+            List<User> list = event.getMessage().getMentionedUsers();
+            data = list.isEmpty()
+                    ? this.dao.findLastFMData((id))
 						: this.dao.findLastFMData(list.get(0).getIdLong());
 
 				return data;

@@ -1,10 +1,10 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.TimeFrameEnum;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ChartFromYearVariableParser;
+import dao.ChuuService;
+import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -16,15 +16,15 @@ import java.util.List;
 public class MbizThisYearCommand extends MusicBrainzCommand {
 
 
-	public MbizThisYearCommand(DaoImplementation dao) {
-		super(dao);
-		this.parser = new ChartFromYearVariableParser(dao);
-	}
+    public MbizThisYearCommand(ChuuService dao) {
+        super(dao);
+        this.parser = new ChartFromYearVariableParser(dao);
+    }
 
-	@Override
-	public boolean doDiscogs() {
-		return false;
-	}
+    @Override
+    public boolean doDiscogs() {
+        return false;
+    }
 
 
 	@Override

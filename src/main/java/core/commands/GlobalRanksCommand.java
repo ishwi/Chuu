@@ -2,14 +2,14 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import dao.DaoImplementation;
+import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
 
 public class GlobalRanksCommand extends ConcurrentCommand {
-    GlobalRanksCommand(DaoImplementation dao) {
+    GlobalRanksCommand(ChuuService dao) {
         super(dao);
     }
 

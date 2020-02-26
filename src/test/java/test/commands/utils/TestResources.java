@@ -2,10 +2,10 @@ package test.commands.utils;
 
 import core.Chuu;
 import core.commands.CustomInterfacedEventManager;
-import dao.DaoImplementation;
-import dao.entities.ArtistData;
+import dao.ChuuService;
+import dao.entities.ArtistPlays;
 import dao.entities.LastFMData;
-import dao.entities.UniqueData;
+import dao.entities.ScrobbledArtist;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
@@ -30,7 +30,7 @@ import static org.awaitility.Awaitility.await;
 
 public class TestResources extends ExternalResource {
 	public static final TestRule INSTANCE = new TestResources();
-	public static DaoImplementation dao;
+	public static ChuuService dao;
 	public static JDA testerJDA;
 	public static JDA ogJDA;
 	public static TextChannel channelWorker;
@@ -38,50 +38,73 @@ public class TestResources extends ExternalResource {
 	public static boolean setUp = false;
 	public static long developerId;
 	public static String commonArtist;
-    public static String testerJdaUsername;
-    private final AtomicBoolean started = new AtomicBoolean();
+	public static String testerJdaUsername;
+	private final AtomicBoolean started = new AtomicBoolean();
 
     private TestResources() {
 
     }
 
     public static void deleteCommonArtists() {
-        dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong()));
-        ArrayList<ArtistData> artistData = new ArrayList<>();
-        dao.insertArtistDataList(artistData, "guilleecs");
-        dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
-    }
+		dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
+				.getGuild().getIdLong()));
+		ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
+		dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
+		dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
+	}
 
     public static void insertOnlyKnownSecond(String second, int plays) {
-        dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong()));
-        ArrayList<ArtistData> artistData = new ArrayList<>();
-        artistData.add(new ArtistData("guilleecs", second, plays));
-        dao.insertArtistDataList(artistData, "guilleecs");
-        dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
-    }
+		dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
+				.getGuild().getIdLong()));
+		ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
+		scrobbledArtistData.add(new ScrobbledArtist("guilleecs", second, plays));
+		dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
+		dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
+	}
 
     public static void deleteOnlyKnownSecond() {
-        dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong()));
-        ArrayList<ArtistData> artistData = new ArrayList<>();
-        dao.insertArtistDataList(artistData, "guilleecs");
-        dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
-    }
+		dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
+				.getGuild().getIdLong()));
+		ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
+		dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
+		dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
+	}
 
-    @Override
-    protected void before() throws Throwable {
-        if (!started.compareAndSet(false, true)) {
-            return;
-        }
+	@Override
+	protected void before() throws Throwable {
+		if (!started.compareAndSet(false, true)) {
+			return;
+		}
 		init();
 		// Initialization code goes here
 	}
 
+	public static void insertCommonArtistWithPlays(int plays) {
+		dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
+				.getGuild().getIdLong()));
+		ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
+		scrobbledArtistData.add(new ScrobbledArtist("guilleecs", commonArtist, plays));
+		dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
+		dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
+	}
+
+	private void deleteAllMessage(TextChannel channel) {
+		List<Message> messages = channel.getHistory().retrievePast(50).complete();
+		OffsetDateTime twoWeeksAgo = OffsetDateTime.now().minus(2, ChronoUnit.WEEKS);
+
+		messages.removeIf(m -> m.getTimeCreated().isBefore(twoWeeksAgo));
+
+		while (messages.size() >= 2) {
+			channel.deleteMessages(messages).complete();
+			messages = channel.getHistory().retrievePast(50).complete();
+			messages.removeIf(m -> m.getTimeCreated().isBefore(twoWeeksAgo));
+
+		}
+	}
+
 	private void init() {
 		if (!setUp) {
-			dao = new DaoImplementation();
+			dao = new ChuuService();
 
 			Properties properties = new Properties();
 			try (InputStream in = Chuu.class.getResourceAsStream("/tester.properties")) {
@@ -125,11 +148,11 @@ public class TestResources extends ExternalResource {
 				return false;
 			});
 
-			UniqueWrapper<UniqueData> artistLeaderboard = dao
+			UniqueWrapper<ArtistPlays> artistLeaderboard = dao
 					.getUniqueArtist(channelWorker.getGuild().getIdLong(), "pablopita");
 			assert artistLeaderboard.getUniqueData().size() >= 1;
-			UniqueData uniqueData = artistLeaderboard.getUniqueData().stream().findFirst().get();
-			commonArtist = uniqueData.getArtistName();
+			ArtistPlays artistPlays = artistLeaderboard.getUniqueData().stream().findFirst().get();
+			commonArtist = artistPlays.getArtistName();
 
 			//Insert one artist so both have one in common for further tests
 			insertCommonArtistWithPlays(1);
@@ -139,29 +162,6 @@ public class TestResources extends ExternalResource {
 			testerJdaUsername = first.get().getEffectiveName();
 			setUp = true;
 		}
-	}
-
-	private void deleteAllMessage(TextChannel channel) {
-		List<Message> messages = channel.getHistory().retrievePast(50).complete();
-		OffsetDateTime twoWeeksAgo = OffsetDateTime.now().minus(2, ChronoUnit.WEEKS);
-
-		messages.removeIf(m -> m.getTimeCreated().isBefore(twoWeeksAgo));
-
-		while (messages.size() >= 2) {
-			channel.deleteMessages(messages).complete();
-			messages = channel.getHistory().retrievePast(50).complete();
-			messages.removeIf(m -> m.getTimeCreated().isBefore(twoWeeksAgo));
-
-		}
-	}
-
-	public static void insertCommonArtistWithPlays(int plays) {
-		dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-				.getGuild().getIdLong()));
-		ArrayList<ArtistData> artistData = new ArrayList<>();
-		artistData.add(new ArtistData("guilleecs", commonArtist, plays));
-		dao.insertArtistDataList(artistData, "guilleecs");
-		dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
 	}
 
 	@Override

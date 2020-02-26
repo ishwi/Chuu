@@ -3,7 +3,7 @@ package test.scheduledtasks;
 import core.scheduledtasks.ImageUpdaterThread;
 import core.scheduledtasks.SpotifyUpdaterThread;
 import core.scheduledtasks.UpdaterThread;
-import dao.entities.ArtistData;
+import dao.entities.ScrobbledArtist;
 import dao.entities.UpdaterStatus;
 import dao.entities.UpdaterUserWrapper;
 import org.junit.Assert;
@@ -46,14 +46,14 @@ public class ThreadTester {
 		UpdaterThread updaterThread = new UpdaterThread(TestResources.dao, false);
 		//We insert an non existing artist for the user we are going to update
 		TestResources.dao.insertArtistDataList(Collections
-				.singletonList(new ArtistData(lessUpdated
-						.getLastFMName(), "Invented unexisting artist", 1000)), lessUpdated
+                .singletonList(new ScrobbledArtist(lessUpdated
+                        .getLastFMName(), "Invented unexisting artist", 1000)), lessUpdated
 				.getLastFMName());
 
 		updaterThread.run();
 		//After we run the thread the things that are not in last.fm should have dissapeared
-		Assert.assertEquals(0, TestResources.dao
-				.getArtistPlays("Invented unexisting artist", lessUpdated.getLastFMName()));
+        Assert.assertEquals(0, TestResources.dao
+                .getArtistPlays(-1L, lessUpdated.getLastFMName()));
 
 	}
 

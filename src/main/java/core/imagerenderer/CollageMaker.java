@@ -15,37 +15,49 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CollageMaker {
-	private static final int DEFAULT_SIZE = 300;
+    private static final int DEFAULT_SIZE = 300;
 
-	public static BufferedImage generateCollageThreaded(int x, int y, BlockingQueue<UrlCapsule> queue, boolean writeTitles, boolean writePlays, boolean makeSmaller) {
-		BufferedImage result;
-		int imageSize = DEFAULT_SIZE;
-		int imageType = BufferedImage.TYPE_INT_ARGB;
+    public static BufferedImage generateCollageThreaded(int x, int y, BlockingQueue<UrlCapsule> queue, boolean writeTitles, boolean writePlays, ChartQuality chartQuality) {
+        BufferedImage result;
+        int imageSize = DEFAULT_SIZE;
+        int imageType = BufferedImage.TYPE_INT_ARGB;
 
-		if (makeSmaller) {
-			imageSize = 150;
-			imageType = BufferedImage.TYPE_INT_RGB;
-		}
 
-		result = new BufferedImage(x * imageSize, y * imageSize, imageType);
+        switch (chartQuality) {
+            case PNG_BIG:
+                break;
+            case JPEG_BIG:
+                imageType = BufferedImage.TYPE_INT_RGB;
+                break;
+            case PNG_SMALL:
+                imageSize = 150;
+                break;
+            case JPEG_SMALL:
+                imageSize = 150;
+                imageType = BufferedImage.TYPE_INT_RGB;
+                break;
+        }
 
-		Graphics2D g = result.createGraphics();
-		GraphicUtils.setQuality(g);
 
-		AtomicInteger max = new AtomicInteger(queue.size());
-		ExecutorService es = ExecutorsSingleton.getInstanceUsingDoubleLocking();
+        result = new BufferedImage(x * imageSize, y * imageSize, imageType);
 
-		List<Callable<Object>> calls = new ArrayList<>();
-		for (int i = 0; i < 2; i++) {
-			calls.add(Executors.callable(new ThreadQueue(queue, g, x, y, max, writePlays, writeTitles, makeSmaller)));
-		}
-		try {
-			es.invokeAll(calls);
-		} catch (InterruptedException e) {
-			Chuu.getLogger().warn(e.getMessage(), e);
-		}
+        Graphics2D g = result.createGraphics();
+        GraphicUtils.setQuality(g);
 
-		g.dispose();
-		return result;
-	}
+        AtomicInteger max = new AtomicInteger(queue.size());
+        ExecutorService es = ExecutorsSingleton.getInstanceUsingDoubleLocking();
+
+        List<Callable<Object>> calls = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            calls.add(Executors.callable(new ThreadQueue(queue, g, x, y, max, writePlays, writeTitles, imageSize == 150)));
+        }
+        try {
+            es.invokeAll(calls);
+        } catch (InterruptedException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+        }
+
+        g.dispose();
+        return result;
+    }
 }

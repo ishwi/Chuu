@@ -4,7 +4,7 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.TimerFrameParser;
-import dao.DaoImplementation;
+import dao.ChuuService;
 import dao.entities.TimeFrameEnum;
 import dao.entities.Track;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -15,16 +15,16 @@ import java.util.Arrays;
 import java.util.List;
 
 public class UserTopTrackCommand extends ConcurrentCommand {
-	public UserTopTrackCommand(DaoImplementation dao) {
-		super(dao);
-		parser = new TimerFrameParser(dao, TimeFrameEnum.WEEK);
-		respondInPrivate = false;
-	}
+    public UserTopTrackCommand(ChuuService dao) {
+        super(dao);
+        parser = new TimerFrameParser(dao, TimeFrameEnum.WEEK);
+        respondInPrivate = false;
+    }
 
-	@Override
-	public String getDescription() {
-		return "Top songs in the provided period";
-	}
+    @Override
+    public String getDescription() {
+        return "Top songs in the provided period";
+    }
 
 	@Override
 	public List<String> getAliases() {

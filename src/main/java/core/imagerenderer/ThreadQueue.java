@@ -1,7 +1,7 @@
 package core.imagerenderer;
 
-import dao.entities.UrlCapsule;
 import core.Chuu;
+import dao.entities.UrlCapsule;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -90,7 +90,6 @@ class ThreadQueue implements Runnable {
 					//Chuu.getLogger().warn(e.getMessage(), e);
 					Color temp = g.getColor();
 					g.setColor(Color.WHITE);
-
 					g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
 					g.setColor(Color.BLACK);
 
@@ -119,19 +118,19 @@ class ThreadQueue implements Runnable {
 	}
 
 	void drawNames(UrlCapsule capsule, int y, int x, Graphics2D g, int imageWidth, BufferedImage image) {
-		String artistName = capsule.getArtistName();
-		String albumName = capsule.getAlbumName();
-		String plays = capsule.getPlays() + (capsule.getPlays() > 1 ? " plays" : "play");
+        String artistName = capsule.getArtistName();
+        String albumName = capsule.getAlbumName();
+        String plays = capsule.getPlays() + (capsule.getPlays() != 1 ? " plays" : " play");
 
-		int accum = 3;
-		if (this.writeTitles) {
-			Font artistFont = START_FONT;
-			int artistFontsSize = START_FONT_SIZE;
-			int albumFontsSize = START_FONT_SIZE;
+        int accum = 3;
+        if (this.writeTitles) {
+            Font artistFont = START_FONT;
+            int artistFontsSize = START_FONT_SIZE;
+            int albumFontsSize = START_FONT_SIZE;
 
-			Font albumFont = START_FONT;
+            Font albumFont = START_FONT;
 
-			g.setFont(artistFont);
+            g.setFont(artistFont);
 
 			int artistWidth = g.getFontMetrics().stringWidth(artistName);
 

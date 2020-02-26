@@ -1,11 +1,11 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.UrlCapsule;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.UrlCapsuleConcurrentQueue;
 import core.parsers.TopParser;
+import dao.ChuuService;
+import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
@@ -14,17 +14,17 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class TopCommand extends ArtistCommand {
-	public TopCommand(DaoImplementation dao) {
-		super(dao);
-		this.parser = new TopParser(dao);
+    public TopCommand(ChuuService dao) {
+        super(dao);
+        this.parser = new TopParser(dao);
 
-	}
+    }
 
-	@Override
-	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-		String[] message;
-		message = parser.parse(e);
-		String lastfmName = message[0];
+    @Override
+    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+        String[] message;
+        message = parser.parse(e);
+        String lastfmName = message[0];
 		boolean isArtist = Boolean.parseBoolean(message[1]);
 
 		if (!isArtist) {
@@ -33,10 +33,10 @@ public class TopCommand extends ArtistCommand {
 			generateImage(queue, 5, 5, e, true, true);
 
 		} else {
-			UrlCapsuleConcurrentQueue queue = new UrlCapsuleConcurrentQueue(getDao(), discogsApi, spotifyApi);
-			lastFM.getUserList(lastfmName, "overall", 5, 5, false, queue);
-			generateImage(queue, 5, 5, e, true, true);
-		}
+            UrlCapsuleConcurrentQueue queue = new UrlCapsuleConcurrentQueue(getService(), discogsApi, spotifyApi);
+            lastFM.getUserList(lastfmName, "overall", 5, 5, false, queue);
+            generateImage(queue, 5, 5, e, true, true);
+        }
 	}
 
 	@Override

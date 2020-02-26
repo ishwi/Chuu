@@ -1,9 +1,9 @@
 package dao;
 
+import core.exceptions.InstanceNotFoundException;
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
-import core.exceptions.InstanceNotFoundException;
-import org.apache.commons.collections4.map.MultiValueMap;
+import org.apache.commons.collections4.MultiValuedMap;
 
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -12,31 +12,38 @@ import java.util.List;
 
 interface UserGuildDao {
 
-	void insertUserData(Connection con, LastFMData lastFMData);
+    void createGuild(Connection con, long guildId);
 
-	LastFMData findLastFmData(Connection con, long discordId) throws core.exceptions.InstanceNotFoundException;
+    void insertUserData(Connection con, LastFMData lastFMData);
 
-	List<Long> guildList(Connection connection, long userId);
+    LastFMData findLastFmData(Connection con, long discordId) throws core.exceptions.InstanceNotFoundException;
 
-	MultiValueMap<Long, Long> getWholeUser_Guild(Connection connection);
+    List<Long> guildsFromUser(Connection connection, long userId);
 
-	void updateLastFmData(Connection con, LastFMData lastFMData);
+    MultiValuedMap<Long, Long> getWholeUser_Guild(Connection connection);
 
-	void removeUser(Connection con, Long discordId);
+    void updateLastFmData(Connection con, LastFMData lastFMData);
 
-	void removeUserGuild(Connection con, long discordId, long guildId);
+    void removeUser(Connection con, Long discordId);
 
-	List<UsersWrapper> getAll(Connection connection, long guildId);
+    void removeUserGuild(Connection con, long discordId, long guildId);
 
-	void addGuild(Connection con, long userId, long guildId);
+    List<UsersWrapper> getAll(Connection connection, long guildId);
 
-	void addLogo(Connection con, long guildID, BufferedImage image);
+    void addGuild(Connection con, long userId, long guildId);
 
-	void removeLogo(Connection connection, long guildId);
+    void addLogo(Connection con, long guildID, BufferedImage image);
 
-	InputStream findLogo(Connection connection, long guildID);
+    void removeLogo(Connection connection, long guildId);
 
-	long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) throws InstanceNotFoundException;
+    InputStream findLogo(Connection connection, long guildID);
 
+    long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) throws InstanceNotFoundException;
+
+
+    LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException;
+
+
+    List<UsersWrapper> getAll(Connection connection);
 
 }

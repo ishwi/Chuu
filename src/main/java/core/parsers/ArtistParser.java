@@ -1,8 +1,8 @@
 package core.parsers;
 
-import dao.DaoImplementation;
-import dao.entities.NowPlayingArtist;
 import core.apis.last.ConcurrentLastFM;
+import dao.ChuuService;
+import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -10,20 +10,20 @@ import java.util.Arrays;
 
 public class ArtistParser extends ArtistAlbumParser {
 
-	public ArtistParser(DaoImplementation dao, ConcurrentLastFM lastFM) {
-		super(dao, lastFM);
-	}
+    public ArtistParser(ChuuService dao, ConcurrentLastFM lastFM) {
+        super(dao, lastFM);
+    }
 
-	public ArtistParser(DaoImplementation dao, ConcurrentLastFM lastFM, OptionalEntity... strings) {
-		super(dao, lastFM);
-		opts.addAll(Arrays.asList(strings));
-	}
+    public ArtistParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... strings) {
+        super(dao, lastFM);
+        opts.addAll(Arrays.asList(strings));
+    }
 
-	@Override
-	String[] doSomethingWithNp(NowPlayingArtist np, User sample, MessageReceivedEvent e) {
-		//With the ping you get only the np from that person
-		return new String[]{np.getArtistName(), String.valueOf(e.getAuthor().getIdLong())};
-	}
+    @Override
+    String[] doSomethingWithNp(NowPlayingArtist np, User sample, MessageReceivedEvent e) {
+        //With the ping you get only the np from that person
+        return new String[]{np.getArtistName(), String.valueOf(e.getAuthor().getIdLong())};
+    }
 
 	@Override
 	String[] doSomethingWithString(String[] subMessage, User sample, MessageReceivedEvent e) {

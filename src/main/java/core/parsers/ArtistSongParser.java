@@ -1,20 +1,20 @@
 package core.parsers;
 
-import dao.DaoImplementation;
-import dao.entities.NowPlayingArtist;
 import core.apis.last.ConcurrentLastFM;
+import dao.ChuuService;
+import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ArtistSongParser extends ArtistAlbumParser {
-	public ArtistSongParser(DaoImplementation dao, ConcurrentLastFM lastFM) {
-		super(dao, lastFM);
-	}
+    public ArtistSongParser(ChuuService dao, ConcurrentLastFM lastFM) {
+        super(dao, lastFM);
+    }
 
-	@Override
-	String[] doSomethingWithNp(NowPlayingArtist np, User ignored, MessageReceivedEvent e) {
-		return new String[]{np.getArtistName(), np.getSongName(), String.valueOf(e.getAuthor().getIdLong())};
-	}
+    @Override
+    String[] doSomethingWithNp(NowPlayingArtist np, User ignored, MessageReceivedEvent e) {
+        return new String[]{np.getArtistName(), np.getSongName(), String.valueOf(e.getAuthor().getIdLong())};
+    }
 
 
 }

@@ -3,7 +3,7 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
-import dao.DaoImplementation;
+import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
@@ -11,7 +11,7 @@ import java.util.List;
 
 public class SourceCommand extends ConcurrentCommand {
 
-    public SourceCommand(DaoImplementation dao) {
+    public SourceCommand(ChuuService dao) {
         super(dao);
         this.parser = new NoOpParser();
 

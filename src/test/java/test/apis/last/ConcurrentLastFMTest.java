@@ -94,19 +94,19 @@ public class ConcurrentLastFMTest {
 
 	@Test(expected = LastFMNoPlaysException.class)
 	public void empty() throws LastFmException {
-		ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-		TimestampWrapper<List<ArtistData>> ishwaracoello = lastFM
-				.getWhole("ishwaracoello", (int) (Instant.now().getEpochSecond() + 4000));
-	}
+        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
+        TimestampWrapper<List<ScrobbledArtist>> ishwaracoello = lastFM
+                .getWhole("ishwaracoello", (int) (Instant.now().getEpochSecond() + 4000));
+    }
 
 	//Will fail if I stop listening to music for 11 days
 	@Test
 	public void nonempty() throws LastFmException {
-		ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-		TimestampWrapper<List<ArtistData>> ishwaracoello = lastFM
-				.getWhole("ishwaracoello", (int) (Instant.now().getEpochSecond() - 1000000));
-		Assert.assertFalse(ishwaracoello.getWrapped().isEmpty());
-	}
+        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
+        TimestampWrapper<List<ScrobbledArtist>> ishwaracoello = lastFM
+                .getWhole("ishwaracoello", (int) (Instant.now().getEpochSecond() - 1000000));
+        Assert.assertFalse(ishwaracoello.getWrapped().isEmpty());
+    }
 
 	@Test
 	public void notExistingArtist() {

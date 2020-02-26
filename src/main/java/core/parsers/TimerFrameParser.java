@@ -1,25 +1,25 @@
 package core.parsers;
 
-import dao.DaoImplementation;
+import core.exceptions.InstanceNotFoundException;
+import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
-import core.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class TimerFrameParser extends DaoParser {
-	private final TimeFrameEnum defaultTFE;
+    private final TimeFrameEnum defaultTFE;
 
-	public TimerFrameParser(DaoImplementation dao, TimeFrameEnum defaultTFE) {
-		super(dao);
-		this.defaultTFE = defaultTFE;
-	}
+    public TimerFrameParser(ChuuService dao, TimeFrameEnum defaultTFE) {
+        super(dao);
+        this.defaultTFE = defaultTFE;
+    }
 
-	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
 
-		String[] message = getSubMessage(e.getMessage());
-		TimeFrameEnum timeFrame = defaultTFE;
+        String[] message = getSubMessage(e.getMessage());
+        TimeFrameEnum timeFrame = defaultTFE;
 
-		ChartParserAux auxiliar = new ChartParserAux(message);
+        ChartParserAux auxiliar = new ChartParserAux(message);
 		timeFrame = auxiliar.parseTimeframe(timeFrame);
 		message = auxiliar.getMessage();
 

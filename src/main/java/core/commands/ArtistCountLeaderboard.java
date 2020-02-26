@@ -1,35 +1,36 @@
 package core.commands;
 
-import dao.DaoImplementation;
+import dao.ChuuService;
 import dao.entities.LbEntry;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
 
 public class ArtistCountLeaderboard extends CrownLeaderboardCommand {
-	public ArtistCountLeaderboard(DaoImplementation dao) {
-		super(dao);
-		this.entryName = "artist";
-	}
+    public ArtistCountLeaderboard(ChuuService dao) {
+        super(dao);
+        this.entryName = "artist";
+    }
 
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("scrobbledlb");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Collections.singletonList("scrobbledlb");
+    }
 
-	@Override
-	public List<LbEntry> getList(long guildId) {
-		return getDao().getArtistLeaderboard(guildId);
-	}
+    @Override
+    public List<LbEntry> getList(String[] message, MessageReceivedEvent e) {
+        return getService().getArtistLeaderboard(e.getGuild().getIdLong());
+    }
 
-	@Override
-	public String getDescription() {
-		return ("Artists count per user ordered desc");
-	}
+    @Override
+    public String getDescription() {
+        return ("Artists count per user ordered desc");
+    }
 
-	@Override
-	public String getName() {
-		return "Artist count Leaderboard";
-	}
+    @Override
+    public String getName() {
+        return "Artist count Leaderboard";
+    }
 
 }

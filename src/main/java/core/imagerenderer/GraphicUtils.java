@@ -1,8 +1,8 @@
 package core.imagerenderer;
 
+import core.imagerenderer.stealing.GaussianFilter;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
-import core.imagerenderer.stealing.GaussianFilter;
 import org.imgscalr.Scalr;
 
 import javax.annotation.Nullable;
@@ -16,48 +16,48 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
-class GraphicUtils {
+public class GraphicUtils {
 
 
-	static final BufferedImage noArtistImage;
+    static final BufferedImage noArtistImage;
 
-	static {
-		try {
-			noArtistImage = ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png"));
-		} catch (IOException e) {
-			throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
-		}
-	}
+    static {
+        try {
+            noArtistImage = ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png"));
+        } catch (IOException e) {
+            throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
+        }
+    }
 
-	static Graphics2D initArtistBackground(BufferedImage canvas, BufferedImage artistImage) {
+    static Graphics2D initArtistBackground(BufferedImage canvas, BufferedImage artistImage) {
 
-		Graphics2D g = canvas.createGraphics();
-		GraphicUtils.setQuality(g);
-		if (artistImage == null) {
-			return g;
-		}
-		g.drawImage(artistImage, 0, 0, canvas.getWidth(), canvas.getHeight(), 0, 0, artistImage.getWidth(), artistImage
-				.getHeight(), null);
-		new GaussianFilter(90).filter(canvas, canvas);
-		return g;
-	}
+        Graphics2D g = canvas.createGraphics();
+        GraphicUtils.setQuality(g);
+        if (artistImage == null) {
+            return g;
+        }
+        g.drawImage(artistImage, 0, 0, canvas.getWidth(), canvas.getHeight(), 0, 0, artistImage.getWidth(), artistImage
+                .getHeight(), null);
+        new GaussianFilter(90).filter(canvas, canvas);
+        return g;
+    }
 
-	static void setQuality(Graphics2D g) {
-		g.setRenderingHint(
-				RenderingHints.KEY_TEXT_ANTIALIASING,
-				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+    public static void setQuality(Graphics2D g) {
+        g.setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
-		g.setRenderingHint(RenderingHints.KEY_RENDERING,
-				RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
 
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
-	}
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+    }
 
 	static Color getFontColorBackground(BufferedImage canvas) {
 		int a = canvas.getRGB(0, 0);

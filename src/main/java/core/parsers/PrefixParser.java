@@ -39,8 +39,8 @@ public class PrefixParser extends Parser {
 	}
 
 	@Override
-	String getUsageLogic(String commandName) {
-		return "**" + commandName + " *[!@#$%^_.,;:~]* " +
-				"\n\tAn elevated user should use  one of the above symbols";
-	}
+    public String getUsageLogic(String commandName) {
+        return "**" + commandName + " *[!@#$%^_.,;:~]* " +
+               "\n\tAn elevated user should use  one of the above symbols";
+    }
 }

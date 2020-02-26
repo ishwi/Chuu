@@ -1,14 +1,14 @@
 package core.commands;
 
-import dao.DaoImplementation;
-import dao.entities.UniqueData;
+import dao.ChuuService;
+import dao.entities.ArtistPlays;
 import dao.entities.UniqueWrapper;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class GlobalCrownsCommand extends CrownsCommand {
-    public GlobalCrownsCommand(DaoImplementation dao) {
+    public GlobalCrownsCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = true;
     }
@@ -19,8 +19,8 @@ public class GlobalCrownsCommand extends CrownsCommand {
     }
 
     @Override
-    public UniqueWrapper<UniqueData> getList(long ignored, String lastFmName) {
-        return getDao().getGlobalCrowns(lastFmName);
+    public UniqueWrapper<ArtistPlays> getList(long ignored, String lastFmName) {
+        return getService().getGlobalCrowns(lastFmName);
     }
 
     @Override

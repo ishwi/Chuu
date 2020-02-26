@@ -10,17 +10,17 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.CommandUtil;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmEntityNotFoundException;
-import dao.DaoImplementation;
-import dao.entities.ArtistData;
+import dao.ChuuService;
+import dao.entities.ScrobbledArtist;
+import dao.entities.TimeFrameEnum;
 import dao.entities.TimestampWrapper;
 import dao.entities.UpdaterUserWrapper;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -29,74 +29,75 @@ import java.util.Random;
  */
 public class UpdaterThread implements Runnable {
 
-	private final DaoImplementation dao;
-	private final ConcurrentLastFM lastFM;
-	private final Spotify spotify;
-	private final boolean isIncremental;
-	private final DiscogsApi discogsApi;
+    private final ChuuService dao;
+    private final ConcurrentLastFM lastFM;
+    private final Spotify spotify;
+    private final boolean isIncremental;
+    private final DiscogsApi discogsApi;
 
 
-	public UpdaterThread(DaoImplementation dao, boolean isIncremental) {
-		this.dao = dao;
-		lastFM = LastFMFactory.getNewInstance();
-		spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
-		discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-		this.isIncremental = isIncremental;
-	}
+    public UpdaterThread(ChuuService dao, boolean isIncremental) {
+        this.dao = dao;
+        lastFM = LastFMFactory.getNewInstance();
+        spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+        this.isIncremental = isIncremental;
+    }
 
-	@Override
-	public void run() {
-		try {
-			System.out.println("THREAD WORKING ) + " + LocalDateTime.now().toString());
-			UpdaterUserWrapper userWork;
-			Random r = new Random();
-			float chance = r.nextFloat();
-			userWork = dao.getLessUpdated();
+    @Override
+    public void run() {
+        try {
+            System.out.println("THREAD WORKING ) + " + LocalDateTime.now().toString());
+            UpdaterUserWrapper userWork;
+            Random r = new Random();
+            float chance = r.nextFloat();
+            userWork = dao.getLessUpdated();
 
-			try {
-				if (isIncremental && chance <= 0.93f) {
-					Map<ArtistData, String> correctionAdder = new HashMap<>();
+            try {
+                if (isIncremental && chance <= 0.93f) {
 
-					TimestampWrapper<List<ArtistData>> artistDataLinkedList = lastFM
-							.getWhole(userWork.getLastFMName(),
-									userWork.getTimestamp());
+                    TimestampWrapper<List<ScrobbledArtist>> artistDataLinkedList = lastFM
+                            .getWhole(userWork.getLastFMName(),
+                                    userWork.getTimestamp());
 
-					// Correction with current last fm implementation should return the same name so
-					// no correction gives
-					for (ArtistData datum : artistDataLinkedList.getWrapped()) {
-						CommandUtil.valiate(dao, datum, lastFM, discogsApi, spotify, correctionAdder);
-					}
+                    // Correction with current last fm implementation should return the same name so
+                    // no correction gives
+                    for (Iterator<ScrobbledArtist> iterator = artistDataLinkedList.getWrapped().iterator(); iterator.hasNext(); ) {
+                        ScrobbledArtist datum = iterator.next();
+                        try {
+                            CommandUtil.validate(dao, datum, lastFM, discogsApi, spotify);
+                        } catch (LastFmEntityNotFoundException ex) {
+                            Chuu.getLogger().error("WTF ARTIST DELETED" + datum.getArtist());
+                            iterator.remove();
+                        }
+                    }
 
-					dao.incrementalUpdate(artistDataLinkedList, userWork.getLastFMName());
+                    dao.incrementalUpdate(artistDataLinkedList, userWork.getLastFMName());
 
-					// Workarround non deferrable foreign key
-					correctionAdder.forEach((correctedArtistData, originalArtistName) -> dao
-							.insertCorrection(originalArtistName, correctedArtistData.getArtist()));
+                    System.out.println("Updated Info Incrementally of " + userWork.getLastFMName()
+                            + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+                    System.out.println(" Number of rows updated :" + artistDataLinkedList.getWrapped().size());
+                } else {
 
-					System.out.println("Updated Info Incrementally of " + userWork.getLastFMName()
-							+ LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-					System.out.println(" Number of rows updated :" + artistDataLinkedList.getWrapped().size());
-				} else {
+                    List<ScrobbledArtist> scrobbledArtistLinkedList = lastFM.getAllArtists(userWork.getLastFMName(), TimeFrameEnum.ALL.toApiFormat());
+                    dao.insertArtistDataList(scrobbledArtistLinkedList, userWork.getLastFMName());
+                    System.out.println("Updated Info Normally  of " + userWork.getLastFMName()
+                            + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+                    System.out.println(" Number of rows updated :" + scrobbledArtistLinkedList.size());
+                }
+            } catch (LastFMNoPlaysException e) {
+                // dao.updateUserControlTimestamp(userWork.getLastFMName(),userWork.getTimestampControl());
+                dao.updateUserTimeStamp(userWork.getLastFMName(), userWork.getTimestamp(),
+                        (int) (Instant.now().getEpochSecond() + 4000));
+                System.out.println("No plays " + userWork.getLastFMName()
+                        + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+            } catch (LastFmEntityNotFoundException e) {
+                dao.removeUserCompletely(userWork.getDiscordID());
+            }
 
-					List<ArtistData> artistDataLinkedList = lastFM.getLibrary(userWork.getLastFMName());
-					dao.insertArtistDataList(artistDataLinkedList, userWork.getLastFMName());
-					System.out.println("Updated Info Normally  of " + userWork.getLastFMName()
-							+ LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-					System.out.println(" Number of rows updated :" + artistDataLinkedList.size());
-				}
-			} catch (LastFMNoPlaysException e) {
-				// dao.updateUserControlTimestamp(userWork.getLastFMName(),userWork.getTimestampControl());
-				dao.updateUserTimeStamp(userWork.getLastFMName(), userWork.getTimestamp(),
-						(int) (Instant.now().getEpochSecond() + 4000));
-				System.out.println("No plays " + userWork.getLastFMName()
-						+ LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-			} catch (LastFmEntityNotFoundException e) {
-				dao.removeUserCompletely(userWork.getDiscordID());
-			}
-
-		} catch (Throwable e) {
-			System.out.println("Error while updating" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-			Chuu.getLogger().warn(e.getMessage(), e);
-		}
-	}
+        } catch (Throwable e) {
+            System.out.println("Error while updating" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+            Chuu.getLogger().warn(e.getMessage(), e);
+        }
+    }
 }
