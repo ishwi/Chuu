@@ -62,7 +62,7 @@ public class Chuu {
 
     public static void main(String[] args) throws InterruptedException {
         if (System.getProperty("file.encoding").equals("UTF-8")) {
-            setupBot(true);
+            setupBot(false);
         } else {
             relaunchInUTF8();
         }
@@ -206,7 +206,7 @@ public class Chuu {
 
         try {
             jda = builder.build().awaitReady();
-            //  commandAdministrator.onStartup(jda);
+            commandAdministrator.onStartup(jda);
             prefixCommand.onStartup(jda);
 
             updatePresence("Chuu");
