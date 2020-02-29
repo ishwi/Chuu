@@ -46,6 +46,11 @@ public class AliasCommand extends ConcurrentCommand {
         String alias = message[0];
         String to = message[1];
         long artistId;
+	String corrected = getService().findCorrection(alias);
+	if (corrected != null) {
+            	sendMessageQueue(e, "The alias: " + alias + " already exists on the bot");
+		return;	
+	}
         try {
             artistId = getService().getArtistId(to);
         } catch (InstanceNotFoundException ex) {
@@ -55,7 +60,7 @@ public class AliasCommand extends ConcurrentCommand {
         try {
             getService().getArtistId(alias);
             sendMessageQueue(e, "The alias: " + alias + "  points to an existing artist within the bot!");
-
+	    return;
         } catch (InstanceNotFoundException ex) {
             try {
                 ArtistSummary artistSummary = lastFM.getArtistSummary(alias, lastFMData.getName());

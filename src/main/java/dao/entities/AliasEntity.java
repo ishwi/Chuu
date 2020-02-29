@@ -1,6 +1,6 @@
 package dao.entities;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class AliasEntity {
@@ -8,10 +8,10 @@ public class AliasEntity {
     private final String alias;
     private final long artistId;
     private final long discorId;
-    private final LocalDate dateTime;
+    private final LocalDateTime dateTime;
     private String artistName;
 
-    public AliasEntity(long id, String alias, long artistId, long discorId, LocalDate dateTime, String artistName) {
+    public AliasEntity(long id, String alias, long artistId, long discorId, LocalDateTime dateTime, String artistName) {
         this.id = id;
         this.alias = alias;
         this.artistId = artistId;
@@ -20,7 +20,7 @@ public class AliasEntity {
         this.artistName = artistName;
     }
 
-    public LocalDate getDateTime() {
+    public LocalDateTime getDateTime() {
         return dateTime;
     }
 
