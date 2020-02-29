@@ -25,7 +25,7 @@ public class NowPlayingCommand extends NpCommand {
         userNameHolder.append("'s ").append(nowPlayingArtist.isNowPlaying() ? "current" : "last").append(" song:");
         String username = nowPlayingArtist.getUsername();
         a.append("**").append(nowPlayingArtist.getArtistName())
-                .append("** | ").append(nowPlayingArtist.getAlbumName());
+                .append("** | ").append(nowPlayingArtist.getAlbumName()).append("\n");
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setAuthor(userNameHolder.toString(), CommandUtil.getLastFmUser(username), urlHolder.toString())

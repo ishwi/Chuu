@@ -42,7 +42,7 @@ public class TestResourcesSingleton extends ExternalResource {
     private final AtomicBoolean started = new AtomicBoolean();
 
 	public static void deleteCommonArtists() {
-        dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
+        dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
                 .getGuild().getIdLong()));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
@@ -59,7 +59,7 @@ public class TestResourcesSingleton extends ExternalResource {
     }
 
     public static void insertCommonArtistWithPlays(int plays) {
-        dao.insertArtistDataList(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
+        dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
                 .getGuild().getIdLong()));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         scrobbledArtistData.add(new ScrobbledArtist("guilleecs", commonArtist, plays));

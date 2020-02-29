@@ -375,9 +375,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
     @Override
     public RandomUrlEntity getRandomUrl(Connection con) {
-        String queryString = "\n" +
-                             "\n" +
-                             "SELECT * FROM randomlinks WHERE url IN \n" +
+        String queryString = "SELECT * FROM randomlinks WHERE url IN " +
                              "    (SELECT url FROM (SELECT url FROM randomlinks ORDER BY RAND() LIMIT 1) random)\n" +
                              "        ";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
@@ -389,7 +387,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
             String url = resultSet.getString("url");
             long discordID = resultSet.getLong("discord_Id");
-            long guildId = resultSet.getLong("guild_Id");
+            Long guildId = resultSet.getLong("guild_Id");
             return new RandomUrlEntity(url, discordID, guildId);
 
         } catch (SQLException e) {
@@ -546,7 +544,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public void fillIds(Connection connection, List<ScrobbledArtist> list) {
         String queryString = "SELECT id, name FROM  artist WHERE name IN (%s)  ";
-        String sql = String.format(queryString, preparePlaceHolders(list.size()));
+        String sql = String.format(queryString, list.size() == 0 ? null : preparePlaceHolders(list.size()));
 
         sql += " ORDER BY  name";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -697,7 +695,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 long discordID = resultSet.getLong(4);
                 Timestamp date = resultSet.getTimestamp(5);
                 String artistName = resultSet.getString(6);
-                ;
                 return new AliasEntity(aliasId, alias, artistId, discordID, date.toLocalDateTime(), artistName);
             }
             return null;
@@ -707,7 +704,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
-    public void deleteAliasById(Connection con, long aliasId) throws InstanceNotFoundException {
+    public void deleteAliasById(Connection con, long aliasId) {
         String queryString = "DELETE FROM queued_alias WHERE id = ? ";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {

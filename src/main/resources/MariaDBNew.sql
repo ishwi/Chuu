@@ -84,7 +84,7 @@ CREATE TABLE randomlinks
     url        VARCHAR(200) COLLATE utf8mb4_unicode_ci NOT NULL,
     PRIMARY KEY (url),
     UNIQUE KEY unique_url_random (url),
-    CONSTRAINT randomlinks_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT randomlinks_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE SET NULL,
     CONSTRAINT randomlinks_fk_guild FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ROW_FORMAT = DYNAMIC;
 CREATE TABLE queued_alias
