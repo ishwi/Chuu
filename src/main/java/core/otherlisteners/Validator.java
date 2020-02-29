@@ -37,15 +37,20 @@ public class Validator<T> extends ListenerAdapter {
         this.who = who;
         this.messageChannel = channel;
         this.whom = discordId;
-        initReactionary();
+        try {
+		initReactionary();
+	} catch (Throwable e) {
+		Chuu.getLogger().warn(e.getMessage());
+	}
     }
 
     private void endItAll(JDA jda) {
         jda.removeEventListener(this);
-        message.clearReactions().complete();
+        message.clearReactions().queue();
     }
 
     private void noMoreElements(JDA jda) {
+	    System.out.println(message.toString());
         if (message == null) {
             this.message = messageChannel.sendMessage("No Aliases To Review!").complete();
         } else

@@ -13,7 +13,8 @@ import dao.entities.Role;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -23,7 +24,7 @@ public class AliasReviewCommand extends ConcurrentCommand {
             embedBuilder.clearFields()
                     .addField("Alias:", aliasEntity.getAlias(), false)
                     .addField("Artist to be aliased:", aliasEntity.getArtistName(), false)
-                    .addField("Added:", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z").format(aliasEntity.getDateTime()), false)
+		    .addField("Added:", aliasEntity.getDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("YYYY-dd-mm HH:mm 'UTC'")), false)
                     .setColor(CommandUtil.randomColor());
 
     public AliasReviewCommand(ChuuService dao) {
@@ -60,7 +61,7 @@ public class AliasReviewCommand extends ConcurrentCommand {
             return;
         }
         this.isActive = true;
-
+	try {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Alias Review");
         this.executor.submit(() -> {
@@ -92,5 +93,9 @@ public class AliasReviewCommand extends ConcurrentCommand {
                     }, embedBuilder, e.getChannel(), e.getAuthor().getIdLong());
             this.isActive = false;
         });
+	} catch(Throwable ex) {
+		Chuu.getLogger().warn(ex.getMessage());
+		this.isActive = false;
+	}
     }
 }
