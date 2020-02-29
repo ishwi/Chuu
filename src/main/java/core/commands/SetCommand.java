@@ -4,9 +4,7 @@ import core.Chuu;
 import core.exceptions.*;
 import core.parsers.SetParser;
 import dao.ChuuService;
-import dao.entities.ScrobbledArtist;
-import dao.entities.TimeFrameEnum;
-import dao.entities.UsersWrapper;
+import dao.entities.*;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -47,6 +45,13 @@ public class SetCommand extends ConcurrentCommand {
         long guildID = e.getGuild().getIdLong();
         long userId = e.getAuthor().getIdLong();
         //Gets all users in this server
+
+        try {
+            lastFM.getUserInfo(List.of(lastFmID));
+        } catch (LastFmEntityNotFoundException ex) {
+            sendMessageQueue(e, "The provided username doesn't exist on last.fm, choose another one");
+            return;
+        }
         List<UsersWrapper> guildlist = getService().getAll(guildID);
         if (guildlist.isEmpty()) {
             getService().createGuild(guildID);
@@ -76,14 +81,12 @@ public class SetCommand extends ConcurrentCommand {
             //Registered with different username
             if (!u.get().getLastFMName().equalsIgnoreCase(lastFmID)) {
                 sendMessageQueue(e, "Changing your username, might take a while");
-                //Remove but only from the guild if not guild removeUser all
                 try {
                     getService().changeLastFMName(userId, lastFmID);
                 } catch (DuplicateInstanceException ex) {
                     sendMessageQueue(e, "That username is already registered, if you think this is a mistake, please contact the bot developers");
                     return;
                 }
-
             } else {
                 sendMessageQueue(e, e.getAuthor().getName() + ", you are good to go!");
                 return;
@@ -93,13 +96,10 @@ public class SetCommand extends ConcurrentCommand {
             //If it was registered in at least other  guild theres no need to update
             if (getService().getGuildList(userId).stream().anyMatch(guild -> guild != guildID)) {
                 //Adds the user to the guild
-                // Changing the global username to another one
-
                 getService().addGuildUser(userId, guildID);
                 sendMessageQueue(e, e.getAuthor().getName() + ", you are good to go!");
                 return;
             }
-
         }
 
 
@@ -108,31 +108,29 @@ public class SetCommand extends ConcurrentCommand {
                 .getName() + "** has set their last FM name \n Updating your library, wait a moment");
         mes.sendTo(e.getChannel()).queue(t -> e.getChannel().sendTyping().queue());
 
+        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER);
+        lastFMData.setGuildID(guildID);
+        getService().insertNewUser(lastFMData);
 
         try {
 
-            List<ScrobbledArtist> scrobbledArtistLinkedList = lastFM.getAllArtists(lastFmID, TimeFrameEnum.ALL.toApiFormat());
-            getService().insertArtistDataList(scrobbledArtistLinkedList, lastFmID);
-            System.out.println("Updated Info Normally  of " + lastFmID + LocalDateTime
-                    .now().format(DateTimeFormatter.ISO_DATE));
-
-            System.out.println(" Number of rows updated :" + scrobbledArtistLinkedList.size());
+            List<ScrobbledArtist> allArtists = lastFM.getAllArtists(lastFmID, TimeFrameEnum.ALL.toApiFormat());
+            getService().insertArtistDataList(allArtists, lastFmID);
             sendMessageQueue(e, "Finished updating " + e.getAuthor().getName() + " library, you are good to go!");
         } catch (
                 LastFMNoPlaysException ex) {
-            getService().updateUserTimeStamp(lastFmID, null, null);
             sendMessageQueue(e, "Finished updating " + e.getAuthor().getName() + "'s library, you are good to go!");
-
         } catch (LastFmEntityNotFoundException ex) {
-            sendMessageQueue(e, "The provided username doesn't exist on last.fm, choose another one");
-
+            getService().removeUserCompletely(userId);
+            Chuu.getLogger().warn(ex.getMessage(), ex);
+            sendMessageQueue(e, "The provided username doesn't exist anymore on last.fm, please re-set your account");
         } catch (Throwable ex) {
             System.out.println("Error while updating " + lastFmID + LocalDateTime.now()
                     .format(DateTimeFormatter.ISO_DATE));
             Chuu.getLogger().warn(ex.getMessage(), ex);
             getService().updateUserTimeStamp(lastFmID, 0, null);
-            sendMessageQueue(e, "Error  updating " + e.getAuthor()
-                    .getName() + "'s  library, try to use the !update command!");
+            sendMessageQueue(e, "Error downloading  " + e.getAuthor()
+                    .getName() + "'s  library, try to run !update, try again later or contact bot admins if the error persists");
         }
     }
 

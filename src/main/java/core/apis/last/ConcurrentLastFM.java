@@ -482,6 +482,9 @@ public class ConcurrentLastFM {//implements LastFMService {
             obj = obj.getJSONObject(topObject);
             if (page++ == 1) {
                 pages = obj.getJSONObject("@attr").getInt("totalPages");
+                if (obj.getJSONObject("@attr").getInt("total") == 0) {
+                    throw new LastFMNoPlaysException(user);
+                }
             }
             JSONArray arr = obj.getJSONArray("artist");
             for (int i = 0; i < arr.length(); i++) {
@@ -531,7 +534,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         String url;
         url = BASE + GET_TRACKS + username + "&artist=" + URLEncoder
                 .encode(artist, StandardCharsets.UTF_8) + "&album=" + URLEncoder.encode(album, StandardCharsets.UTF_8) +
-                API_KEY + ENDING + "&autocorrect=1";
+              API_KEY + ENDING + "&autocorrect=1";
 
         HttpMethodBase method = createMethod(url);
         JSONObject obj = doMethod(method, new ExceptionEntity(artist, album));
@@ -570,8 +573,8 @@ public class ConcurrentLastFM {//implements LastFMService {
     public Track getTrackInfo(String username, String artist, String trackName) throws LastFmException {
         String url = BASE + GET_TRACK_INFO + username + "&artist=" + URLEncoder
                 .encode(artist, StandardCharsets.UTF_8) + "&track=" + URLEncoder
-                .encode(trackName, StandardCharsets.UTF_8) +
-                API_KEY + ENDING + "&autocorrect=1";
+                             .encode(trackName, StandardCharsets.UTF_8) +
+                     API_KEY + ENDING + "&autocorrect=1";
         HttpMethodBase method = createMethod(url);
         ExceptionEntity exceptionEntity = new ExceptionEntity(trackName, artist);
         JSONObject obj = doMethod(method, exceptionEntity);
@@ -651,7 +654,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         int limit = 2;
 
         url = BASE + GET_TOP_TRACKS + username +
-                API_KEY + "&limit=" + 1000 + ENDING + "&period=" + weekly;
+              API_KEY + "&limit=" + 1000 + ENDING + "&period=" + weekly;
         if (weekly.equalsIgnoreCase(TimeFrameEnum.WEEK.toApiFormat()) || weekly
                 .equalsIgnoreCase(TimeFrameEnum.MONTH.toApiFormat())) {
             dontdoAll = false;

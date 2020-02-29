@@ -57,23 +57,24 @@ public class ChuuService {
             try {
 
                 /* Prepare connection. */
+
                 connection.setAutoCommit(false);
+                if (!list.isEmpty()) {
+                    //delete everything first to have a clean start
+                    updaterDao.deleteAllArtists(connection, id);
+                    /* Do work. */
+                    updaterDao.fillIds(connection, list);
 
-                //delete everything first to have a clean start
-                updaterDao.deleteAllArtists(connection, id);
-                /* Do work. */
-                updaterDao.fillIds(connection, list);
-
-                Map<Boolean, List<ScrobbledArtist>> map = list.stream().peek(x -> x.setDiscordID(id)).collect(Collectors.partitioningBy(scrobbledArtist -> scrobbledArtist.getArtistId() == -1));
-                List<ScrobbledArtist> nonExistingId = map.get(true);
-                if (nonExistingId.size() > 0) {
-                    updaterDao.insertArtists(connection, nonExistingId);
+                    Map<Boolean, List<ScrobbledArtist>> map = list.stream().peek(x -> x.setDiscordID(id)).collect(Collectors.partitioningBy(scrobbledArtist -> scrobbledArtist.getArtistId() == -1));
+                    List<ScrobbledArtist> nonExistingId = map.get(true);
+                    if (nonExistingId.size() > 0) {
+                        updaterDao.insertArtists(connection, nonExistingId);
+                    }
+                    List<ScrobbledArtist> scrobbledArtists = map.get(false);
+                    scrobbledArtists.addAll(nonExistingId);
+                    updaterDao.addSrobbledArtists(connection, scrobbledArtists);
                 }
-                List<ScrobbledArtist> scrobbledArtists = map.get(false);
-                scrobbledArtists.addAll(nonExistingId);
-                updaterDao.addSrobbledArtists(connection, scrobbledArtists);
                 updaterDao.setUpdatedTime(connection, id, null, null);
-
                 connection.commit();
             } catch (SQLException e) {
                 connection.rollback();
@@ -124,7 +125,7 @@ public class ChuuService {
 
     }
 
-    public void insertArtistDataList(LastFMData data) {
+    public void insertNewUser(LastFMData data) {
         try (Connection connection = dataSource.getConnection()) {
 
             try {

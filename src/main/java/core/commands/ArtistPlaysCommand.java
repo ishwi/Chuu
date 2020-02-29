@@ -8,7 +8,6 @@ import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Collections;
 import java.util.List;
 
 public class ArtistPlaysCommand extends ConcurrentCommand {
@@ -24,7 +23,7 @@ public class ArtistPlaysCommand extends ConcurrentCommand {
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("plays");
+        return List.of("plays", "p");
     }
 
     @Override

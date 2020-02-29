@@ -76,7 +76,7 @@ public class Validator<T> extends ListenerAdapter {
         while (true) {
             int prevCounter = counter;
             try {
-                Thread.sleep(40000);
+                Thread.sleep(20000);
             } catch (InterruptedException ex) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);
             }
