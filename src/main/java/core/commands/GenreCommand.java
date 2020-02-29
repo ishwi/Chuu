@@ -37,7 +37,7 @@ public class GenreCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return "Genre list";
+        return "Top 10 genres from an user";
     }
 
     @Override
@@ -47,7 +47,7 @@ public class GenreCommand extends ConcurrentCommand {
 
     @Override
     public String getName() {
-        return "Genre";
+        return "Top Genres";
     }
 
     @Override

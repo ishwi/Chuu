@@ -25,7 +25,7 @@ public class GlobalCrownsCommand extends CrownsCommand {
 
     @Override
     public String getDescription() {
-        return "Your top considering all bot users";
+        return "Like your crowns but considering all bot users instead of only a server";
     }
 
     @Override

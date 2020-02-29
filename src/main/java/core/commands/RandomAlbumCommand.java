@@ -18,7 +18,7 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return "Gets a random url that other users have added , or add one yourself";
+        return "Gets a random url that other users have added, or add one yourself";
     }
 
     @Override

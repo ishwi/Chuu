@@ -9,7 +9,7 @@ public class UrlParser extends Parser {
 	@Override
 	public void setUpErrorMessages() {
 		errorMessages.put(1, "Invalid url ");
-		errorMessages.put(2, "Insufficient Permissions, only a mod  can");
+		errorMessages.put(2, "Insufficient Permissions, only a mod can");
 
 	}
 

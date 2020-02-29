@@ -24,21 +24,21 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return ("List of albums you are the top listener from");
+        return ("List of albums you are the top listener within a guild");
     }
 
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("crownsalbum", "crownsal");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Arrays.asList("crownsalbum", "crownsal");
+    }
 
-	@Override
-	public String getName() {
-		return "Your own album top";
-	}
+    @Override
+    public String getName() {
+        return "Your album crowns";
+    }
 
-	@Override
-	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    @Override
+    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] returned = parser.parse(e);
         String lastFmName = returned[0];
         long discordID = Long.parseLong(returned[1]);
@@ -62,20 +62,20 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
             ArtistPlays g = resultWrapper.get(i);
             a.append(i + 1).append(g.toString());
         }
-		EmbedBuilder embedBuilder = new EmbedBuilder();
-		embedBuilder.setDescription(a);
-		embedBuilder.setColor(CommandUtil.randomColor());
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setDescription(a);
+        embedBuilder.setColor(CommandUtil.randomColor());
 
-		embedBuilder
-				.setTitle(name + "'s album crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
-		embedBuilder.setFooter(name + " has " + resultWrapper.size() + " album crowns!!\n", null);
-		if (whoD != null)
-			embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
+        embedBuilder
+                .setTitle(name + "'s album crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
+        embedBuilder.setFooter(name + " has " + resultWrapper.size() + " album crowns!!\n", null);
+        if (whoD != null)
+            embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
 
-		MessageBuilder mes = new MessageBuilder();
-		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-				executor.execute(() -> new Reactionary<>(resultWrapper, message1, embedBuilder)));
-	}
+        MessageBuilder mes = new MessageBuilder();
+        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+                executor.execute(() -> new Reactionary<>(resultWrapper, message1, embedBuilder)));
+    }
 
 }
 

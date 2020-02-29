@@ -16,7 +16,7 @@ public class AlbumCrownsLeaderboardCommand extends CrownLeaderboardCommand {
 
     @Override
     public String getDescription() {
-        return ("Album Crowns per user ordered desc");
+        return ("List of users ordered by number of crown albums");
     }
 
     @Override
@@ -31,6 +31,6 @@ public class AlbumCrownsLeaderboardCommand extends CrownLeaderboardCommand {
 
     @Override
     public String getName() {
-        return "Album Crowns Leaderboard";
+        return "Album Crown Leaderboard";
     }
 }

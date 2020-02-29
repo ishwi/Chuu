@@ -40,8 +40,8 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 
 	@Override
 	public String getName() {
-		return "Your chart with your top albums of the year!";
-	}
+        return "Albums Of The Year!";
+    }
 
 	@Override
 	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {

@@ -29,6 +29,6 @@ public class OnlyUsernameParser extends DaoParser {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *username*** \n" +
-               "\t If username is not specified defaults to authors account\n";
+               "\t If the username is not specified it defaults to author's account\n";
     }
 }

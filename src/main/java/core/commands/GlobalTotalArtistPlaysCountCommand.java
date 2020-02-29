@@ -37,7 +37,7 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
                                                             "](" + CommandUtil.getLastFmArtistUrl(x.getArtistName()) +
                                                             ") - " + x.getCount() +
                                                             " plays\n").collect(Collectors.toList());
-        EmbedBuilder embedBuilder = initList(a, collect)
+        EmbedBuilder embedBuilder = initList(collect)
                 .setTitle("Most Played Artists")
                 .setFooter(e.getJDA().getSelfUser().getName() + " has stored " + list.getRows() + " plays!\n", null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());

@@ -30,7 +30,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return ("Returns lists of all people playing music rn");
+        return ("Returns lists of all people that are playing music right now");
     }
 
     @Override

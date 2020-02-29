@@ -21,7 +21,7 @@ public class CrownLeaderboardCommand extends ListCommand<LbEntry> {
 
     @Override
     public String getDescription() {
-        return ("Crowns per user ordered desc");
+        return ("Users of a server ranked by crowns");
     }
 
     @Override
@@ -31,7 +31,7 @@ public class CrownLeaderboardCommand extends ListCommand<LbEntry> {
 
     @Override
     public String getName() {
-        return "Crowns Leaderboard";
+        return "Crown Leaderboard";
     }
 
 

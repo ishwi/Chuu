@@ -27,7 +27,7 @@ public class ArtistUrlCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return "changes artist image that is  displayed on some bot functionalities";
+        return "Changes artist image that is displayed on some bot functionalities";
     }
 
     @Override

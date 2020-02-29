@@ -89,7 +89,7 @@ public class ArtistAlbumParser extends DaoParser {
 	@Override
 	public String getUsageLogic(String commandName) {
 		return "**" + commandName + " *artist-album** username* " +
-				"\n\tif username its not specified it defaults to you";
+               "\n\tif username its not specified it defaults to yours";
 
 	}
 

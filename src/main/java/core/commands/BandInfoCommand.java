@@ -25,7 +25,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
     @Override
     public String getDescription() {
-        return "Band info";
+        return "An image returning some information about an artist related to an user ";
     }
 
     @Override
@@ -81,7 +81,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
     @Override
     public String getName() {
-        return "Band";
+        return "Artist";
     }
 
 

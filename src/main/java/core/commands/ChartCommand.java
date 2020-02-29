@@ -25,7 +25,7 @@ public class ChartCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return "Returns a Chart with albums";
+        return "Returns a chart with album images";
     }
 
     @Override

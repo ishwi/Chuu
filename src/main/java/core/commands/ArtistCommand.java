@@ -25,7 +25,7 @@ public class ArtistCommand extends ChartCommand {
 
     @Override
     public String getDescription() {
-        return "Returns a Chart with artist";
+        return "Returns a chart with artist images";
     }
 
 	@Override
@@ -42,8 +42,8 @@ public class ArtistCommand extends ChartCommand {
 
 	@Override
 	public String getName() {
-		return "Artists";
-	}
+        return "Artist Chart";
+    }
 
 
 }

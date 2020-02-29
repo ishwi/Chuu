@@ -16,7 +16,7 @@ public class ObscurityLeaderboardCommand extends CrownLeaderboardCommand {
 
     @Override
     public String getDescription() {
-        return "Gets how obscure your scrobbled artist are in relation with all the rest of the users of the bot (Not only from this server)";
+        return "Gets how \\*obscure\\* your scrobbled artist are in relation with all the rest of the users of the server";
     }
 
     @Override

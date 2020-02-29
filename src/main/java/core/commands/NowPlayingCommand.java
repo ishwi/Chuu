@@ -39,7 +39,7 @@ public class NowPlayingCommand extends NpCommand {
 
     @Override
     public String getDescription() {
-        return "Returns your current playing song";
+        return "Returns your last or current playing song";
     }
 
     @Override

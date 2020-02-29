@@ -19,7 +19,7 @@ public class UsernameAndNpQueryParser extends ArtistParser {
     @Override
     public String getUsageLogic(String commandName) {
 		return "**" + commandName + " [whatever you want to search for] **\n" +
-				"\tif you dont introduce a query takes your now playing song\n" +
-				"\tyou can add a username to use that user now playing song\n";
+               "\tIf you don't introduce a query it takes your now playing song\n" +
+               "\tYou can add an username to use their now playing song\n";
 	}
 }

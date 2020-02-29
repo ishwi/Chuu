@@ -23,7 +23,7 @@ public class CountryParser extends DaoParser {
     @Override
     protected void setUpErrorMessages() {
         errorMessages.put(5, "You forgot to input a country. You can try the full country name or the 2/3 ISO code");
-        errorMessages.put(6, "Coudnt find any country named like that");
+        errorMessages.put(6, "Could not find any country named like that");
 
     }
 
@@ -94,8 +94,8 @@ public class CountryParser extends DaoParser {
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *COUNTRY*  *timeframe* *username* " +
                "\n\tif username its not specified it defaults to you" +
-               "\n\tif timeframe its not specified it defaults to All Time" +
-               "\n\tCountry must come in the full name format or in the  ISO 3166-1 alpha-2/alpha-3" +
+               "\n\tif timeframe its not specified it defaults to all Time" +
+               "\n\tCountry must come in the full name format or in the ISO 3166-1 alpha-2/alpha-3" +
                " format ";
     }
 }

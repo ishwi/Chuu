@@ -31,9 +31,9 @@ public class TimerFrameParser extends DaoParser {
 
 	@Override
 	public String getUsageLogic(String commandName) {
-		return "**" + commandName + " *[w,m,q,s,y,a]* *Username ** \n" +
-				"\tIf time is not specified defaults to " + defaultTFE.toString() + "\n" +
-				"\tIf username is not specified defaults to authors account \n";
-	}
+        return "**" + commandName + " *[w,m,q,s,y,a]* *username ** \n" +
+               "\tIf timeframe is not specified it defaults to " + defaultTFE.toString() + "\n" +
+               "\tIf username is not specified it defaults to authors account \n";
+    }
 
 }

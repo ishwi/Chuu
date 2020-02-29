@@ -42,7 +42,7 @@ public class CountryCommand extends ConcurrentCommand {
 
     @Override
     public String getName() {
-        return "My Countries ";
+        return "My Countries";
     }
 
     @Override
@@ -67,7 +67,7 @@ public class CountryCommand extends ConcurrentCommand {
         Map<Country, Integer> map = musicBrainz.countryCount(artistInfos);
 
         if (map.isEmpty()) {
-            sendMessageQueue(e, "Was not able to find any country  on " + getUserStringConsideringGuildOrNot(e, discordId, username));
+            sendMessageQueue(e, "Was not able to find any country on " + getUserStringConsideringGuildOrNot(e, discordId, username));
             return;
         }
 

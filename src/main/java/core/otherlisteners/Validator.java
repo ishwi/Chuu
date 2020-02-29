@@ -38,10 +38,10 @@ public class Validator<T> extends ListenerAdapter {
         this.messageChannel = channel;
         this.whom = discordId;
         try {
-		initReactionary();
-	} catch (Throwable e) {
-		Chuu.getLogger().warn(e.getMessage());
-	}
+            initReactionary();
+        } catch (Throwable e) {
+            Chuu.getLogger().warn(e.getMessage());
+        }
     }
 
     private void endItAll(JDA jda) {
@@ -50,11 +50,10 @@ public class Validator<T> extends ListenerAdapter {
     }
 
     private void noMoreElements(JDA jda) {
-	    System.out.println(message.toString());
         if (message == null) {
-            this.message = messageChannel.sendMessage("No Aliases To Review!").complete();
+            this.message = messageChannel.sendMessage("No aliases to eview!").complete();
         } else
-            message.editMessage(who.clearFields().setTitle("No Aliases To Review!").build()).complete();
+            message.editMessage(who.clearFields().setTitle("No more aliases to review!").build()).complete();
         endItAll(jda);
     }
 

@@ -35,7 +35,7 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return "Brief description of user Profile";
+        return "Brief description of an user profile";
     }
 
     @Override

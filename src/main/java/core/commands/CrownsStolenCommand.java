@@ -25,7 +25,7 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return ("List of crowns you would have if  other user concedes their crowns");
+        return ("List of crowns you would have if the other would concedes their crowns");
     }
 
 	@Override
@@ -35,8 +35,8 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 
 	@Override
 	public String getName() {
-		return "List Of Stolen Crowns";
-	}
+        return "List of stolen crowns";
+    }
 
 	@Override
 	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
@@ -88,8 +88,8 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 		assert (member != null);
 		assert member2 != null;
 		embedBuilder.setDescription(a).setTitle(member
-				.getEffectiveName() + "'s Top 10 crowns Stolen by " + member2.getEffectiveName(), CommandUtil
-				.getLastFmUser(ogLastFmId))
+                                                        .getEffectiveName() + "'s Top Crowns stolen by " + member2.getEffectiveName(), CommandUtil
+                .getLastFmUser(ogLastFmId))
 				.setThumbnail(member.getUser().getAvatarUrl())
 				.setFooter(member2.getEffectiveName() + " has stolen " + rows + " crowns!\n", null);
 		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->

@@ -33,7 +33,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return "Your artist that are form a specific country";
+        return "Your top artist that are from a specific country";
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand {
 
     @Override
     public String getName() {
-        return "Artist From Country";
+        return "Artist from a country";
     }
 
     @Override

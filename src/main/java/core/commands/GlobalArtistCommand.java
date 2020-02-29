@@ -18,11 +18,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class GloablArtistCommand extends ConcurrentCommand {
+public class GlobalArtistCommand extends ConcurrentCommand {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
-    public GloablArtistCommand(ChuuService dao) {
+    public GlobalArtistCommand(ChuuService dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
@@ -31,7 +31,7 @@ public class GloablArtistCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return "Who knows but for all bot members";
+        return "Like who knows but for all bot members";
     }
 
     @Override

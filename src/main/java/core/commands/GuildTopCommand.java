@@ -25,12 +25,12 @@ public class GuildTopCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return ("Chart 5x5 of guild most listened artist");
+        return ("Chart of a server most listened artist");
     }
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("guild", "server", "general");
+        return Arrays.asList("server", "guild", "general");
     }
 
     @Override
@@ -50,7 +50,7 @@ public class GuildTopCommand extends ConcurrentCommand {
 
     @Override
     public String getName() {
-        return "Guild Top Artists";
+        return "Server Top Artists";
     }
 
 }

@@ -1,9 +1,5 @@
 package core.commands;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistTimeFrameParser;
@@ -19,36 +15,31 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FavesFromArtistCommand extends ConcurrentCommand {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
 
     public FavesFromArtistCommand(ChuuService dao) {
         super(dao);
         respondInPrivate = true;
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
         this.parser = new ArtistTimeFrameParser(dao, lastFM);
     }
 
     @Override
     public String getDescription() {
-        return
-				"Fav  tracks from an artist";
-	}
+        return "Your favourite tracks from an artist";
+    }
 
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("favs", "favourites", "favorites");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Arrays.asList("favs", "favourites", "favorites");
+    }
 
-	@Override
-	public String getName() {
+    @Override
+    public String getName() {
 
-		return "Fav tracks";
-	}
+        return "Fav tracks";
+    }
 
-	@Override
-	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    @Override
+    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] returned;
         returned = parser.parse(e);
         if (returned == null)
@@ -72,22 +63,22 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
         }
 
         MessageBuilder mes = new MessageBuilder();
-		StringBuilder s = new StringBuilder();
+        StringBuilder s = new StringBuilder();
 
-		for (int i = 0; i < 10 && i < ai.size(); i++) {
-			Track g = ai.get(i);
-			s.append(i + 1).append(". **").append(g.getName()).append("** - ").append(g.getPlays()).append(" plays")
-					.append("\n");
-		}
-		EmbedBuilder embedBuilder = new EmbedBuilder();
-		embedBuilder.setDescription(s);
-		embedBuilder.setColor(CommandUtil.randomColor());
+        for (int i = 0; i < 10 && i < ai.size(); i++) {
+            Track g = ai.get(i);
+            s.append(i + 1).append(". **").append(g.getName()).append("** - ").append(g.getPlays()).append(" plays")
+                    .append("\n");
+        }
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setDescription(s);
+        embedBuilder.setColor(CommandUtil.randomColor());
 
-		embedBuilder
-				.setTitle(userString + "'s Top " + who.getArtist() + " Tracks in " + TimeFrameEnum
-						.fromCompletePeriod(timeframew).toString(), CommandUtil.getLastFmUser(lastFmName));
-		embedBuilder.setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
+        embedBuilder
+                .setTitle(userString + "'s Top " + who.getArtist() + " Tracks in " + TimeFrameEnum
+                        .fromCompletePeriod(timeframew).toString(), CommandUtil.getLastFmUser(lastFmName));
+        embedBuilder.setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
 
-		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
-	}
+        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
+    }
 }

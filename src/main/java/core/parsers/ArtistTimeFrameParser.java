@@ -66,9 +66,9 @@ public class ArtistTimeFrameParser extends ArtistParser {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *artist* *[w,m,q,s,y,a]*** \n" +
-                "\tIf time is not specified defaults to Yearly \n" +
-                "\tDue to being able to provide an artist name and the timeframe some" +
-                " conflicts may occure if the timeframe keyword appears on the artist name, to reduce possible" +
-                " conflicts only the one letter shorthand is available for the timeframe  ";
+               "\tIf time is not specified defaults to " + defaultTFE.toString() + "\n" +
+               "\tDue to being able to provide an artist name and the timeframe, some" +
+               " conflicts may occure if the timeframe keyword appears on the artist name, to reduce possible" +
+               " conflicts only the one letter shorthand is available for the timeframe";
     }
 }

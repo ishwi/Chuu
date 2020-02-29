@@ -41,7 +41,6 @@ public class TimeSpentCommand extends ConcurrentCommand {
 		}
 
 		SecondsTimeFrameCount wastedOnMusic = lastFM.getMinutesWastedOnMusic(username, timeframe);
-
 			sendMessageQueue(e, "**" + usableString + "** played " +
 					wastedOnMusic.getMinutes() +
 					" minutes of music, " + String

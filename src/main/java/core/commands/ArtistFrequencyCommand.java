@@ -33,21 +33,12 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays> {
             sendMessageQueue(e, "No one has played any artist yet!");
         }
 
-        StringBuilder a = new StringBuilder();
         List<String> collect = list.stream().map(x -> ". [" +
-                x.getArtistName() +
-                "](" + CommandUtil.getLastFmArtistUrl(x.getArtistName()) +
-                ") - " + x.getCount() +
-                " listeners \n").collect(Collectors.toList());
-        for (int i = 0, size = collect.size(); i < 10 && i < size; i++) {
-            String text = collect.get(i);
-            a.append(i + 1).append(text);
-        }
-
-
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setDescription(a);
-        embedBuilder.setColor(CommandUtil.randomColor());
+                                                      x.getArtistName() +
+                                                      "](" + CommandUtil.getLastFmArtistUrl(x.getArtistName()) +
+                                                      ") - " + x.getCount() +
+                                                      " listeners \n").collect(Collectors.toList());
+        EmbedBuilder embedBuilder = initList(collect);
         embedBuilder.setTitle("Artist's frequencies");
         embedBuilder.setFooter(e.getGuild().getName() + " has " + wrapper.getRows() + " different artists!\n", null);
         embedBuilder.setThumbnail(e.getGuild().getIconUrl());

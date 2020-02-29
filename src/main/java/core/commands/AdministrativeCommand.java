@@ -71,7 +71,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return "Adds logo to be displayed on some bot functionalities";
+        return "Adds a logo that will be displayed on some bot functionalities";
     }
 
     @Override
@@ -93,13 +93,13 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
         if (urlParsed.length == 0) {
             getService().removeLogo(e.getGuild().getIdLong());
-            sendMessageQueue(e, "Removed logo from the server  ");
+            sendMessageQueue(e, "Removed logo from the server");
         } else {
 
             try (InputStream in = new URL(urlParsed[0]).openStream()) {
                 BufferedImage image = ImageIO.read(in);
                 if (image == null) {
-                    sendMessageQueue(e, "Couldn't get an Image from link supplied");
+                    sendMessageQueue(e, "Couldn't get an image from the supplied link");
                     return;
                 }
                 image = Scalr.resize(image, Scalr.Method.QUALITY, 75, Scalr.OP_ANTIALIAS);
@@ -108,7 +108,7 @@ public class AdministrativeCommand extends ConcurrentCommand {
                 sendMessageQueue(e, "Logo updated");
             } catch (IOException exception) {
                 Chuu.getLogger().warn(exception.getMessage(), exception);
-                sendMessageQueue(e, "Something happened while processing the image ");
+                sendMessageQueue(e, "Something happened while processing the image");
             }
 
         }

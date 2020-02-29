@@ -33,16 +33,16 @@ public class CrownsCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return ("List of artist you are the top listener from");
+        return ("List of artist you are the top listener within a server");
     }
 
     @Override
     public List<String> getAliases() {
         return Collections.singletonList("crowns");
-	}
+    }
 
-	@Override
-	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    @Override
+    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] returned = parser.parse(e);
         String lastFmName = returned[0];
         //long discordID = Long.parseLong(returned[1]);
@@ -60,27 +60,27 @@ public class CrownsCommand extends ConcurrentCommand {
             a.append(i + 1).append(g.toString());
         }
 
-		Member whoD = e.getGuild().getMemberById(uniqueDataUniqueWrapper.getDiscordId());
-		String name = whoD == null ? lastFmName : whoD.getEffectiveName();
+        Member whoD = e.getGuild().getMemberById(uniqueDataUniqueWrapper.getDiscordId());
+        String name = whoD == null ? lastFmName : whoD.getEffectiveName();
 
-		EmbedBuilder embedBuilder = new EmbedBuilder();
-		embedBuilder.setDescription(a);
-		embedBuilder.setColor(CommandUtil.randomColor());
-		embedBuilder.setTitle(name + "'s " + (isGlobal() ? "global " : "") + "crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
-		embedBuilder.setFooter(name + " has " + resultWrapper.size() + (isGlobal() ? " global" : "") + " crowns!!\n", null);
-		if (whoD != null)
-			embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setDescription(a);
+        embedBuilder.setColor(CommandUtil.randomColor());
+        embedBuilder.setTitle(name + "'s " + (isGlobal() ? "global " : "") + "crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
+        embedBuilder.setFooter(name + " has " + resultWrapper.size() + (isGlobal() ? " global" : "") + " crowns!!\n", null);
+        if (whoD != null)
+            embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
 
-		MessageBuilder mes = new MessageBuilder();
-		e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        MessageBuilder mes = new MessageBuilder();
+        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
 
-				executor.execute(() -> new Reactionary<>(resultWrapper, message1, embedBuilder)));
-	}
+                executor.execute(() -> new Reactionary<>(resultWrapper, message1, embedBuilder)));
+    }
 
-	@Override
-	public String getName() {
-		return "Your own top";
-	}
+    @Override
+    public String getName() {
+        return "Crowns";
+    }
 
 
 }

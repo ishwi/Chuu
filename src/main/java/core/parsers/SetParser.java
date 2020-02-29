@@ -5,8 +5,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class SetParser extends Parser {
 	@Override
 	protected void setUpErrorMessages() {
-		errorMessages.put(0, "You need to introduce only a valid last.fm account!");
-	}
+        errorMessages.put(0, "You need to introduce a valid last.fm account!");
+    }
 
 	@Override
 	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {

@@ -25,7 +25,7 @@ public class ArtistCountLeaderboard extends CrownLeaderboardCommand {
 
     @Override
     public String getDescription() {
-        return ("Artists count per user ordered desc");
+        return ("Users of a server ranked by number of artists scrobbled");
     }
 
     @Override

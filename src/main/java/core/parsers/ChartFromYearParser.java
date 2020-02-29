@@ -17,47 +17,47 @@ public class ChartFromYearParser extends ChartParser {
 
     @Override
     protected void setUpOptionals() {
-        opts.add(new OptionalEntity("--notitles", "dont display titles"));
+        opts.add(new OptionalEntity("--notitles", "don't display titles"));
         opts.add(new OptionalEntity("--plays", "display play count"));
 
     }
 
-	@Override
-	public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
-		TimeFrameEnum timeFrame = defaultTFE;
-		LastFMData discordName;
+    @Override
+    public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+        TimeFrameEnum timeFrame = defaultTFE;
+        LastFMData discordName;
 
-		if (subMessage.length > 2) {
-			sendError(getErrorMessage(5), e);
-			return null;
-		}
-		ChartParserAux chartParserAux = new ChartParserAux(subMessage);
-		String year = chartParserAux.parseYear();
-		timeFrame = chartParserAux.parseTimeframe(timeFrame);
-		subMessage = chartParserAux.getMessage();
+        if (subMessage.length > 2) {
+            sendError(getErrorMessage(5), e);
+            return null;
+        }
+        ChartParserAux chartParserAux = new ChartParserAux(subMessage);
+        String year = chartParserAux.parseYear();
+        timeFrame = chartParserAux.parseTimeframe(timeFrame);
+        subMessage = chartParserAux.getMessage();
 
-		discordName = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
+        discordName = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
 
-		if (Year.now().compareTo(Year.of(Integer.parseInt(year))) < 0) {
-			sendError(getErrorMessage(6), e);
-			return null;
-		}
+        if (Year.now().compareTo(Year.of(Integer.parseInt(year))) < 0) {
+            sendError(getErrorMessage(6), e);
+            return null;
+        }
 
-		return new String[]{"0", year, discordName.getName(), timeFrame.toApiFormat(), Boolean.toString(true)};
+        return new String[]{"0", year, discordName.getName(), timeFrame.toApiFormat(), Boolean.toString(true)};
 
-	}
+    }
 
-	@Override
-	public String getUsageLogic(String commandName) {
-		return "**" + commandName + " *[w,m,q,s,y,a]* *Username* *YEAR*** \n" +
-				"\tIf time is not specified defaults to Weekly \n" +
-				"\tIf username is not specified defaults to authors account \n" +
-				"\tIf YEAR not specified it default to current year\n";
-	}
+    @Override
+    public String getUsageLogic(String commandName) {
+        return "**" + commandName + " *[w,m,q,s,y,a]* *Username* *YEAR*** \n" +
+               "\tIf time is not specified defaults to " + defaultTFE.toString() + "\n" +
+               "\tIf username is not specified defaults to authors account \n" +
+               "\tIf YEAR not specified it default to current year\n";
+    }
 
-	@Override
-	public void setUpErrorMessages() {
-		super.setUpErrorMessages();
-		errorMessages.put(6, "YEAR must be current year or lower");
-	}
+    @Override
+    public void setUpErrorMessages() {
+        super.setUpErrorMessages();
+        errorMessages.put(6, "YEAR must be current year or lower");
+    }
 }

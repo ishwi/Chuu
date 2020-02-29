@@ -34,39 +34,39 @@ public class FeaturedCommand extends ConcurrentCommand {
                 Chuu.getLogger()
                         .info("[" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE) + "]\t!Updated Presence");
             } catch (Exception e) {
-				Chuu.getLogger().warn(e.getMessage());
-			}
-		}, 1, 30, TimeUnit.MINUTES);
-	}
+                Chuu.getLogger().warn(e.getMessage());
+            }
+        }, 1, 30, TimeUnit.MINUTES);
+    }
 
-	@Override
-	public String getDescription() {
-		return "Info About the artist that appears on the bot status";
-	}
+    @Override
+    public String getDescription() {
+        return "Info about the artist that appears on the bot status";
+    }
 
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("featured");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Collections.singletonList("featured");
+    }
 
-	@Override
-	public String getName() {
-		return "Featured";
-	}
+    @Override
+    public String getName() {
+        return "Featured Artist";
+    }
 
-	@Override
-	protected void onCommand(MessageReceivedEvent e) {
-		String userString = this.getUserGlobalString(currentPresence.getDiscordId(), e, DEFAULT_USER);
-		EmbedBuilder embedBuilder = new EmbedBuilder()
-				.setColor(CommandUtil.randomColor())
-				.setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
-				.setTitle(Chuu.getPresence().getJDA().getSelfUser().getName() + "'s Featured Artist:", CommandUtil
-						.getLastFmArtistUrl(currentPresence.getArtist()))
-				.addField("Artist:", currentPresence.getArtist(), false)
-				.addField("User:", userString, false)
-				.addField("Total Artist Plays:", String.valueOf(currentPresence.getSum()), false);
+    @Override
+    protected void onCommand(MessageReceivedEvent e) {
+        String userString = this.getUserGlobalString(currentPresence.getDiscordId(), e, DEFAULT_USER);
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setColor(CommandUtil.randomColor())
+                .setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
+                .setTitle(Chuu.getPresence().getJDA().getSelfUser().getName() + "'s Featured Artist:", CommandUtil
+                        .getLastFmArtistUrl(currentPresence.getArtist()))
+                .addField("Artist:", currentPresence.getArtist(), false)
+                .addField("User:", userString, false)
+                .addField("Total Artist Plays:", String.valueOf(currentPresence.getSum()), false);
 
-		MessageBuilder messageBuilder = new MessageBuilder();
-		messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
-	}
+        MessageBuilder messageBuilder = new MessageBuilder();
+        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+    }
 }

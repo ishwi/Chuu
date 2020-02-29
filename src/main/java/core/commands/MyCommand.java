@@ -3,10 +3,7 @@ package core.commands;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFMNoPlaysException;
-import core.exceptions.LastFmEntityNotFoundException;
-import core.exceptions.LastFmException;
+import core.exceptions.*;
 import core.imagerenderer.ChartQuality;
 import core.parsers.Parser;
 import dao.ChuuService;
@@ -60,7 +57,7 @@ public abstract class MyCommand extends ListenerAdapter {
         //if (containsCommand(e.getMessage())) {
         e.getChannel().sendTyping().queue();
         System.out.println("We received a message from " +
-                e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
+                           e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
         if (!e.getChannelType().isGuild() && !respondInPrivate) {
             sendMessageQueue(e, "This command only works in a server");
             return;
@@ -105,12 +102,6 @@ public abstract class MyCommand extends ListenerAdapter {
             parser.sendError(username + " " + init, e);
         } catch (LastFmEntityNotFoundException ex) {
             parser.sendError(ex.toMessage(), e);
-        } catch (LastFmException ex) {
-            if (ex.getMessage().equals("500")) {
-                parser.sendError("Last.fm is not working well atm :(", e);
-                return;
-            }
-            parser.sendError("Internal Chuu Error", e);
         } catch (InstanceNotFoundException ex) {
             String instanceNotFoundTemplate = InstanceNotFoundException.getInstanceNotFoundTemplate();
 
@@ -119,6 +110,14 @@ public abstract class MyCommand extends ListenerAdapter {
                             .getLastFMName()));
             s = s.replaceFirst("\\$\\{prefix}", String.valueOf(e.getMessage().getContentStripped().charAt(0)));
             parser.sendError(s, e);
+        } catch (
+                Exception ex) {
+            if (ex instanceof LastFMServiceException && ex.getMessage().equals("500")) {
+                parser.sendError("Last.fm is not working well atm :(", e);
+                return;
+            }
+            parser.sendError("Internal Chuu Error", e);
+            Chuu.getLogger().warn(ex.getMessage(), ex);
         }
 
     }

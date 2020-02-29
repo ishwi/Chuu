@@ -37,7 +37,7 @@ public class WeeklyCommand extends ConcurrentCommand {
 
     @Override
     public String getName() {
-        return "Weekly  ";
+        return "Weekly";
     }
 
     @SuppressWarnings("unchecked")

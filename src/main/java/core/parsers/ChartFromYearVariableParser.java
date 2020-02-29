@@ -75,8 +75,8 @@ public class ChartFromYearVariableParser extends DaoParser {
     @Override
     protected void setUpErrorMessages() {
         errorMessages.put(5, "You Introduced too many words");
-        errorMessages.put(6, "YEAR must be current year or lower");
-        errorMessages.put(7, "Cant use a size for the chart if you specify the --nolimit flag!");
+        errorMessages.put(6, "YEAR must be the current year or lower");
+        errorMessages.put(7, "Can't use a size for the chart if you specify the --nolimit flag!");
         errorMessages.put(8, "0 is not a valid value for a chart!");
 
     }

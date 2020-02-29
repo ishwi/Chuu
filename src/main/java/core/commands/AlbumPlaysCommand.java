@@ -39,8 +39,8 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 
 	@Override
 	public String getName() {
-		return "Get Plays Album";
-	}
+        return "Get album plays";
+    }
 
 	@Override
 	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {

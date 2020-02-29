@@ -18,6 +18,7 @@ import dao.entities.TimestampWrapper;
 import dao.entities.UpdaterUserWrapper;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -66,9 +67,11 @@ public class UpdateCommand extends MyCommand {
             List<ScrobbledArtist> list = lastFM.getAllArtists(lastFmName, TimeFrameEnum.ALL.toApiFormat());
             getService().insertArtistDataList(list, lastFmName);
         } else {
+            UpdaterUserWrapper userUpdateStatus = null;
 
             try {
-                UpdaterUserWrapper userUpdateStatus = getService().getUserUpdateStatus(discordID);
+                userUpdateStatus = getService().getUserUpdateStatus(discordID);
+
                 TimestampWrapper<List<ScrobbledArtist>> artistDataLinkedList = lastFM
                         .getWhole(userUpdateStatus.getLastFMName(),
                                 userUpdateStatus.getTimestamp());
@@ -87,6 +90,8 @@ public class UpdateCommand extends MyCommand {
 
                 getService().incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
             } catch (LastFMNoPlaysException ex) {
+                getService().updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
+                        (int) (Instant.now().getEpochSecond() + 4000));
                 sendMessageQueue(e, "You were already up to date!");
                 return;
             }

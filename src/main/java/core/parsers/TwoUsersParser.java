@@ -75,7 +75,7 @@ public class TwoUsersParser extends DaoParser {
 	@Override
 	public String getUsageLogic(String commandName) {
 		return "**" + commandName + " *userName* *userName***\n" +
-				"\tIf user2 is missing it gets replaced by Author user\n";
+               "\tIf the second user is missing it gets replaced by the owner of the message\n";
 
 	}
 

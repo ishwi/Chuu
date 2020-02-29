@@ -123,8 +123,8 @@ public class ConcurrentLastFM {//implements LastFMService {
                 method.releaseConnection();
             }
             System.out.println("Reattempting request");
-            if (++counter == 3) {
-                throw new LastFMServiceException("IO");
+            if (++counter == 2) {
+                throw new LastFMServiceException("500");
             }
 
         }
@@ -149,9 +149,7 @@ public class ConcurrentLastFM {//implements LastFMService {
     }
 
     private HttpMethodBase createMethod(String url) {
-        GetMethod method = new GetMethod(url);
-        method.setRequestHeader(new Header("User-Agent", "IshDiscordBot"));
-        return method;
+        return new GetMethod(url);
 
     }
 
