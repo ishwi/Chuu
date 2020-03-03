@@ -378,6 +378,88 @@ public class ConcurrentLastFM {//implements LastFMService {
         return returned;
     }
 
+    public int getInfoPeriod(String username, int timestampQuery) throws LastFmException {
+        String url = BASE + GET_NOW_PLAYINH + username + API_KEY + ENDING + "&extended=1" + "&from=" + (timestampQuery);
+        HttpMethodBase method = createMethod(url);
+        JSONObject obj = doMethod(method, new ExceptionEntity(username));
+        obj = obj.getJSONObject("recenttracks");
+        JSONObject attrObj = obj.getJSONObject("@attr");
+        return attrObj.getInt("total");
+    }
+
+    public StreakEntity getCombo(String username) throws LastFmException {
+        String url = BASE + GET_ALL + username + API_KEY + ENDING + "&extended=1";
+        int page = 0;
+        String currentArtist = null;
+        String currentAlbum = null;
+        String currentSong = null;
+        int aCounter = 0;
+        int albCounter = 0;
+        int tCounter = 0;
+        boolean inited = false;
+        boolean stopAlbCounter = false;
+        boolean stopTCounter = false;
+        boolean cont = true;
+        while (cont) {
+            String urlPage = url + "&page=" + ++page;
+            if (page == 6) {
+                break;
+            }
+            HttpMethodBase method = createMethod(urlPage);
+            JSONObject obj = doMethod(method, new ExceptionEntity(username));
+            obj = obj.getJSONObject("recenttracks");
+            JSONObject attrObj = obj.getJSONObject("@attr");
+            int total = attrObj.getInt("total");
+            if (total == 0) {
+                throw new LastFMNoPlaysException(username, "day");
+            }
+            JSONArray arr = obj.getJSONArray("track");
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject trackObj = arr.getJSONObject(i);
+                String trackName = trackObj.getString("name");
+                JSONObject artistObj = trackObj.getJSONObject("artist");
+                String artistName = artistObj.getString("name");
+                String albumString = null;
+                JSONObject album = trackObj.getJSONObject("album");
+                if (album.has("#text")) {
+                    albumString = album.getString("#text");
+                } else {
+                    stopAlbCounter = true;
+                }
+
+                if (inited) {
+                    if (currentArtist.equals(artistName)) {
+                        aCounter++;
+                    } else {
+                        cont = false;
+                        break;
+                    }
+                    if (!stopAlbCounter && currentAlbum.equals(albumString))
+                        albCounter++;
+                    else {
+                        stopAlbCounter = true;
+                    }
+                    if (!stopTCounter && currentSong.equals(trackName))
+                        tCounter++;
+                    else
+                        stopTCounter = true;
+                } else {
+                    if (!stopAlbCounter) {
+                        albCounter++;
+                        currentAlbum = albumString;
+                    }
+                    currentArtist = artistName;
+                    currentSong = trackName;
+                    aCounter++;
+                    tCounter++;
+                    inited = true;
+                }
+            }
+        }
+        return new StreakEntity(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter);
+    }
+
+
     public TimestampWrapper<List<ScrobbledArtist>> getWhole(String username, int timestampQuery) throws LastFmException {
         List<NowPlayingArtist> list = new ArrayList<>();
         String url = BASE + GET_ALL + username + API_KEY + ENDING + "&extended=1";

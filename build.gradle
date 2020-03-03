@@ -1,13 +1,11 @@
-
 plugins {
     id 'java'
     id 'application'
     id "com.github.johnrengelman.shadow" version "5.2.0"
     id 'info.solidsoft.pitest' version '1.4.6'
-        id 'se.patrikerdes.use-latest-versions' version '0.2.13'
-        id 'com.github.ben-manes.versions' version '0.27.0'
+    id 'se.patrikerdes.use-latest-versions' version '0.2.13'
+    id 'com.github.ben-manes.versions' version '0.27.0'
 }
-
 
 
 apply plugin: 'java'
@@ -27,9 +25,13 @@ repositories {
     jcenter()
 
 }
-
+compileJava {
+    options.compilerArgs += ["--enable-preview"]
+}
+test {
+    jvmArgs '--enable-preview'
+}
 compileJava.options.encoding = 'UTF-8'
-
 
 
 dependencies {

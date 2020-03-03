@@ -72,7 +72,7 @@ public class Chuu {
         System.out.println("BotLauncher: We are not running in UTF-8 mode! This is a problem!");
         System.out.println("BotLauncher: Relaunching in UTF-8 mode using -Dfile.encoding=UTF-8");
 
-        String[] command = new String[]{"java", "-Dfile.encoding=UTF-8", "-jar",
+        String[] command = new String[]{"java", "-Dfile.encoding=UTF-8", "--enable-preview", "-jar",
                 Chuu.getThisJarFile().getAbsolutePath()};
 
         // Relaunches the bot using UTF-8 mode.
@@ -199,6 +199,8 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new GlobalTotalArtistPlaysCountCommand(dao)))
                 .addEventListeners(help.registerCommand(new TotalArtistPlayCountCommand(dao)))
                 .addEventListeners(help.registerCommand(new AliasCommand(dao)))
+                .addEventListeners(help.registerCommand(new PaceCommand(dao)))
+                .addEventListeners(help.registerCommand(new StreakCommand(dao)))
                 .addEventListeners(new AliasReviewCommand(dao))
 
                 .setDisabledCacheFlags(EnumSet.allOf(CacheFlag.class))

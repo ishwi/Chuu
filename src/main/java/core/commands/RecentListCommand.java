@@ -2,7 +2,7 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.parsers.ExtraParser;
+import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
 import dao.ChuuService;
 import dao.entities.NowPlayingArtist;
@@ -14,24 +14,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 public class RecentListCommand extends ConcurrentCommand {
 
     public RecentListCommand(ChuuService dao) {
         super(dao);
-        Pattern compile = Pattern.compile("\\d+");
         Map<Integer, String> map = new HashMap<>(1);
-        map.put(10, "The number introduced must be lower than 15");
-        this.parser = new ExtraParser<>(new OnlyUsernameParser(getService()),
-                5,
-                (s) -> compile.matcher(s).matches(),
-                (number) -> number > 15,
-                Integer::parseInt,
-                String::valueOf,
-                map,
-                "number",
-                "You can also introduce a number to vary the number of songs shown, defaults to 5, max 15");
+        map.put(NumberParser.INNER_ERROR, "The number introduced must be lower than 15");
+        String s = "You can also introduce a number to vary the number of songs shown, defaults to" + 5 + " , max " + 15;
+        this.parser = new NumberParser<>(new OnlyUsernameParser(getService()),
+                5L,
+                15L,
+                map, s);
     }
 
     @Override
@@ -50,12 +44,12 @@ public class RecentListCommand extends ConcurrentCommand {
         if (returned == null) {
             return;
         }
-        int limit = Integer.parseInt(returned[0]);
+        long limit = Integer.parseInt(returned[0]);
         String lastFmName = returned[1];
         long discordID = Long.parseLong(returned[2]);
         String usable = getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
 
-        List<NowPlayingArtist> list = lastFM.getRecent(lastFmName, limit);
+        List<NowPlayingArtist> list = lastFM.getRecent(lastFmName, (int) limit);
         //Can't be empty because NoPLaysException
         NowPlayingArtist header = list.get(0);
 

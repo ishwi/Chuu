@@ -30,7 +30,7 @@ public class NowPlayingCommand extends NpCommand {
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setAuthor(userNameHolder.toString(), CommandUtil.getLastFmUser(username), urlHolder.toString())
                 .setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
-                .setTitle(nowPlayingArtist.getSongName(), CommandUtil.getUserArtistTrackUrl(nowPlayingArtist.getArtistName(), nowPlayingArtist.getSongName()))
+                .setTitle(nowPlayingArtist.getSongName(), CommandUtil.getLastFMArtistTrack(nowPlayingArtist.getArtistName(), nowPlayingArtist.getSongName()))
                 .setDescription(a);
 
         MessageBuilder messageBuilder = new MessageBuilder();

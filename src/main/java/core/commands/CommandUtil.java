@@ -192,9 +192,10 @@ public class CommandUtil {
         url.append(user.getAvatarUrl() != null ? user.getAvatarUrl() : "");
     }
 
-    public static String getUserArtistTrackUrl(String artist, String track) {
+    public static String getLastFMArtistTrack(String artist, String track) {
         return getLastFmArtistUrl(artist) + "/_/" + track.replaceAll(" ", "+")
                 .replaceAll("[)]", "%29");
     }
+
 
 }

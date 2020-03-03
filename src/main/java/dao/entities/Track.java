@@ -78,11 +78,11 @@ public class Track {
 	public String toString() {
 
 		return ". " +
-				"[" +
-				artist + " - " + name +
-				"](" + CommandUtil.getUserArtistTrackUrl(artist, name) +
-				")" +
-				" - " + plays + " plays" +
-				"\n";
+			   "[" +
+			   artist + " - " + name +
+			   "](" + CommandUtil.getLastFMArtistTrack(artist, name) +
+			   ")" +
+			   " - " + plays + " plays" +
+			   "\n";
 	}
 }
