@@ -13,7 +13,7 @@ public class PaceParser extends NumberParser<ExtraParser<NaturalTimeFrameParser,
     private final static LocalDate LASTFM_CREATION_DATE = LocalDate.of(2002, 2, 20);
 
     // Dont ask
-    public PaceParser(ChuuService dao, Map<Integer, String> errorMessages, String fieldName, String fieldDescription) {
+    public PaceParser(ChuuService dao, Map<Integer, String> errorMessages) {
         super(new ExtraParser<>(
                         new NaturalTimeFrameParser(dao, NaturalTimeFrameEnum.ALL),
                         null,
@@ -22,8 +22,8 @@ public class PaceParser extends NumberParser<ExtraParser<NaturalTimeFrameParser,
                         Long::parseLong,
                         String::valueOf,
                         errorMessages,
-                        fieldName,
-                        fieldDescription,
+                        "*scrobble_goal*",
+                        "Number of scrobles that will be needed to hit the goal",
                         (arr, number) -> {
                             NaturalTimeFrameEnum naturalTimeFrameEnum = NaturalTimeFrameEnum.fromCompletePeriod(arr[2]);
                             LocalDate now = LocalDate.now();
@@ -37,7 +37,7 @@ public class PaceParser extends NumberParser<ExtraParser<NaturalTimeFrameParser,
                                 case DAY -> number > ChronoUnit.DAYS.between(LASTFM_CREATION_DATE, now);
                             };
                         })
-                , null, Long.MAX_VALUE, new HashMap<>(), fieldDescription, false, (list) -> list.stream().mapToLong(Long::longValue).max().getAsLong());
+                , null, Long.MAX_VALUE, new HashMap<>(), "Number represents the number of periods of the specified timeframe", false, (list) -> list.stream().mapToLong(Long::longValue).max().getAsLong());
     }
     // [0] -> NumberParserResult [1] -> ExtraParser of Natural
     //

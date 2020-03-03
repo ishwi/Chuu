@@ -32,7 +32,7 @@ public class NaturalTimeFrameParser extends DaoParser {
 
     @Override
     public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *[d,w,m,q,s,y,a]* *username ** \n" +
+        return "**" + commandName + " *[d,w,m,q,s,y,a]* *username* \n" +
                "\tIf timeframe is not specified it defaults to " + defaultTFE.toString() + "\n" +
                "\tIf username is not specified it defaults to authors account \n";
     }

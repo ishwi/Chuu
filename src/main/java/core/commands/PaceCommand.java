@@ -28,7 +28,7 @@ public class PaceCommand extends ConcurrentCommand {
         map.put(NumberParser.INNER_ERROR, "The number introduced must be lower");
         map.put(NumberParser.LIMIT_ERROR, "You introduced a real big number");
         this.parser = new PaceParser(dao,
-                map, " time units", "a");
+                map);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class PaceCommand extends ConcurrentCommand {
         };
         int totalScrobbles = lastFM.getInfoPeriod(lastfmId, timestamp);
         int unixtimestamp = mainUser.getUnixtimestamp();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
         long totalUnits;
         if (totalScrobbles == playCount) {
             if (useHours)

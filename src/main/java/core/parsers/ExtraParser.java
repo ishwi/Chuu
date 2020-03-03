@@ -119,6 +119,8 @@ public class ExtraParser<T extends Parser, J> extends Parser {
             }
         }
         String[] strings1 = innerParser.parseLogic(e, returning.toArray(String[]::new));
+        if (strings1 == null)
+            return null;
         if (this.innerPredicate != null && item != null) {
             if (innerPredicate.test(strings1, item)) {
                 this.sendError(this.getErrorMessage(INNER_ERROR), e);

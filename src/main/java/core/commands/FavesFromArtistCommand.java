@@ -1,5 +1,9 @@
 package core.commands;
 
+import core.apis.discogs.DiscogsApi;
+import core.apis.discogs.DiscogsSingleton;
+import core.apis.spotify.Spotify;
+import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistTimeFrameParser;
@@ -16,10 +20,15 @@ import java.util.List;
 
 public class FavesFromArtistCommand extends ConcurrentCommand {
 
+    private final DiscogsApi discogs;
+    private final Spotify spotify;
+
     public FavesFromArtistCommand(ChuuService dao) {
         super(dao);
         respondInPrivate = true;
         this.parser = new ArtistTimeFrameParser(dao, lastFM);
+        this.discogs = DiscogsSingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
     }
 
     @Override
@@ -47,7 +56,8 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
         long userId = Long.parseLong(returned[1]);
         String timeframew = returned[2];
         String artist = returned[0];
-        ScrobbledArtist who = CommandUtil.onlyCorrection(getService(), artist, lastFM);
+        ScrobbledArtist who = new ScrobbledArtist(artist, 0, "");
+        CommandUtil.validate(getService(), who, lastFM, discogs, spotify);
         List<Track> ai;
         String lastFmName;
         lastFmName = getService().findLastFMData(userId).getName();

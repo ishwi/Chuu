@@ -12,10 +12,10 @@ public class NumberParser<T extends Parser> extends ExtraParser<T, Long> {
 
 
     public NumberParser(T innerParser, Long defaultItem, long max, Map<Integer, String> errorMessages, String description) {
-        super(innerParser, defaultItem, predicate, (number) -> number > max || number < 0, Long::parseLong, String::valueOf, errorMessages, "number", description);
+        super(innerParser, defaultItem, predicate, (number) -> number > max || number < 0, Long::parseLong, String::valueOf, errorMessages, "*number*", description);
     }
 
     public NumberParser(T innerParser, Long defaultItem, long max, Map<Integer, String> errorMessages, String description, boolean panicOnFailure, Function<List<Long>, Long> accum) {
-        super(innerParser, defaultItem, predicate, (number) -> number > max || number < 0, Long::parseLong, String::valueOf, errorMessages, "number", description, null, accum, panicOnFailure);
+        super(innerParser, defaultItem, predicate, (number) -> number > max || number < 0, Long::parseLong, String::valueOf, errorMessages, "*number*", description, null, accum, panicOnFailure);
     }
 }
