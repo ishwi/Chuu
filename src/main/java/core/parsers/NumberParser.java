@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class NumberParser<T extends Parser> extends ExtraParser<T, Long> {
-    public static Pattern compile = Pattern.compile("\\d+");
+    public static Pattern compile = Pattern.compile("[1-9][0-9]+");
     public static Predicate<String> predicate = (s) -> compile.matcher(s).matches();
 
 
