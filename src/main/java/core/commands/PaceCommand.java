@@ -86,15 +86,32 @@ public class PaceCommand extends ConcurrentCommand {
 
         NaturalTimeFrameEnum naturalTimeFrameEnum = NaturalTimeFrameEnum.fromCompletePeriod(timeframe);
         LocalDateTime now = LocalDateTime.now();
-        int timestamp = switch (naturalTimeFrameEnum) {
-            case YEAR -> (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant(ZoneOffset.UTC).getEpochSecond();
-            case QUARTER -> (int) now.minus(unitNumber / 4, ChronoUnit.YEARS).toInstant(ZoneOffset.UTC).getEpochSecond();
-            case MONTH -> (int) (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant(ZoneOffset.UTC).getEpochSecond();
-            case ALL -> 0;
-            case SEMESTER -> (int) now.minus(unitNumber / 2, ChronoUnit.YEARS).toInstant(ZoneOffset.UTC).getEpochSecond();
-            case WEEK -> (int) now.minus(unitNumber, ChronoUnit.WEEKS).toInstant(ZoneOffset.UTC).getEpochSecond();
-            case DAY -> (int) (int) now.minus(unitNumber, ChronoUnit.DAYS).toInstant(ZoneOffset.UTC).getEpochSecond();
-        };
+        int timestamp;
+        switch (naturalTimeFrameEnum) {
+            case YEAR:
+                timestamp = (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant(ZoneOffset.UTC).getEpochSecond();
+                break;
+            case QUARTER:
+                timestamp = (int) now.minus(unitNumber / 4, ChronoUnit.YEARS).toInstant(ZoneOffset.UTC).getEpochSecond();
+                break;
+            case MONTH:
+                timestamp = (int) (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant(ZoneOffset.UTC).getEpochSecond();
+                break;
+            case ALL:
+                timestamp = 0;
+                break;
+            case SEMESTER:
+                timestamp = (int) now.minus(unitNumber / 2, ChronoUnit.YEARS).toInstant(ZoneOffset.UTC).getEpochSecond();
+                break;
+            case WEEK:
+                timestamp = (int) now.minus(unitNumber, ChronoUnit.WEEKS).toInstant(ZoneOffset.UTC).getEpochSecond();
+                break;
+            case DAY:
+                timestamp = (int) (int) now.minus(unitNumber, ChronoUnit.DAYS).toInstant(ZoneOffset.UTC).getEpochSecond();
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
         int totalScrobbles = lastFM.getInfoPeriod(lastfmId, timestamp);
         int unixtimestamp = mainUser.getUnixtimestamp();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");

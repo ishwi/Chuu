@@ -27,15 +27,24 @@ public class PaceParser extends NumberParser<ExtraParser<NaturalTimeFrameParser,
                         (arr, number) -> {
                             NaturalTimeFrameEnum naturalTimeFrameEnum = NaturalTimeFrameEnum.fromCompletePeriod(arr[2]);
                             LocalDate now = LocalDate.now();
-                            return switch (naturalTimeFrameEnum) {
-                                case YEAR -> number > (int) ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now);
-                                case QUARTER -> number > (int) ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now) * 4;
-                                case MONTH -> number > ChronoUnit.MONTHS.between(LASTFM_CREATION_DATE, now);
-                                case ALL -> false;
-                                case SEMESTER -> number > ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now) * 2;
-                                case WEEK -> number > ChronoUnit.WEEKS.between(LASTFM_CREATION_DATE, now);
-                                case DAY -> number > ChronoUnit.DAYS.between(LASTFM_CREATION_DATE, now);
-                            };
+                            switch (naturalTimeFrameEnum) {
+                                case YEAR:
+                                    return number > (int) ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now);
+                                case QUARTER:
+                                    return number > (int) ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now) * 4;
+                                case MONTH:
+                                    return number > ChronoUnit.MONTHS.between(LASTFM_CREATION_DATE, now);
+                                case ALL:
+                                    return false;
+                                case SEMESTER:
+                                    return number > ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now) * 2;
+                                case WEEK:
+                                    return number > ChronoUnit.WEEKS.between(LASTFM_CREATION_DATE, now);
+                                case DAY:
+                                    return number > ChronoUnit.DAYS.between(LASTFM_CREATION_DATE, now);
+                                default:
+                                    throw new IllegalArgumentException();
+                            }
                         })
                 , null, Long.MAX_VALUE, new HashMap<>(), "Number represents the number of periods of the specified timeframe", false, (list) -> list.stream().mapToLong(Long::longValue).max().getAsLong());
     }

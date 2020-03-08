@@ -22,15 +22,22 @@ public enum NaturalTimeFrameEnum {
     }
 
     public static NaturalTimeFrameEnum fromCompletePeriod(String period) {
-        return switch (period) {
-            case "12month" -> YEAR;
-            case "3month" -> QUARTER;
-            case "1month" -> MONTH;
-            case "overall" -> ALL;
-            case "6month" -> SEMESTER;
-            case "day" -> DAY;
-            default -> WEEK;
-        };
+        switch (period) {
+            case "12month":
+                return YEAR;
+            case "3month":
+                return QUARTER;
+            case "1month":
+                return MONTH;
+            case "overall":
+                return ALL;
+            case "6month":
+                return SEMESTER;
+            case "day":
+                return DAY;
+            default:
+                return WEEK;
+        }
     }
 
     public static NaturalTimeFrameEnum get(String name) {
@@ -43,14 +50,34 @@ public enum NaturalTimeFrameEnum {
     }
 
     public String toApiFormat() {
-        return switch (name) {
-            case "y", "yearly", "year" -> "12month";
-            case "q", "quarter", "quarterly" -> "3month";
-            case "m", "month", "monthly" -> "1month";
-            case "a", "alltime", "overall", "all" -> "overall";
-            case "s", "semester", "semesterly" -> "6month";
-            case "d", "day", "daily" -> "day";
-            default -> "7day";
-        };
+        switch (name) {
+            case "y":
+            case "yearly":
+            case "year":
+                return "12month";
+            case "q":
+            case "quarter":
+            case "quarterly":
+                return "3month";
+            case "m":
+            case "month":
+            case "monthly":
+                return "1month";
+            case "a":
+            case "alltime":
+            case "overall":
+            case "all":
+                return "overall";
+            case "s":
+            case "semester":
+            case "semesterly":
+                return "6month";
+            case "d":
+            case "day":
+            case "daily":
+                return "day";
+            default:
+                return "7day";
+        }
     }
 }

@@ -23,14 +23,20 @@ public enum TimeFrameEnum {
     }
 
     public static TimeFrameEnum fromCompletePeriod(String period) {
-        return switch (period) {
-            case "12month" -> YEAR;
-            case "3month" -> QUARTER;
-            case "1month" -> MONTH;
-            case "overall" -> ALL;
-            case "6month" -> SEMESTER;
-            default -> WEEK;
-        };
+        switch (period) {
+            case "12month":
+                return YEAR;
+            case "3month":
+                return QUARTER;
+            case "1month":
+                return MONTH;
+            case "overall":
+                return ALL;
+            case "6month":
+                return SEMESTER;
+            default:
+                return WEEK;
+        }
     }
 
     public static TimeFrameEnum get(String name) {
@@ -43,14 +49,31 @@ public enum TimeFrameEnum {
     }
 
     public String toApiFormat() {
-        return switch (name) {
-            case "y", "yearly", "year" -> "12month";
-            case "q", "quarter", "quarterly" -> "3month";
-            case "m", "month", "monthly" -> "1month";
-            case "a", "alltime", "overall", "all" -> "overall";
-            case "s", "semester", "semesterly" -> "6month";
-            default -> "7day";
-        };
+        switch (name) {
+            case "y":
+            case "yearly":
+            case "year":
+                return "12month";
+            case "q":
+            case "quarter":
+            case "quarterly":
+                return "3month";
+            case "m":
+            case "month":
+            case "monthly":
+                return "1month";
+            case "a":
+            case "alltime":
+            case "overall":
+            case "all":
+                return "overall";
+            case "s":
+            case "semester":
+            case "semesterly":
+                return "6month";
+            default:
+                return "7day";
+        }
     }
 
 
