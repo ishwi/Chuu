@@ -68,7 +68,9 @@ public class ChuuService {
                     Map<Boolean, List<ScrobbledArtist>> map = list.stream().peek(x -> x.setDiscordID(id)).collect(Collectors.partitioningBy(scrobbledArtist -> scrobbledArtist.getArtistId() == -1));
                     List<ScrobbledArtist> nonExistingId = map.get(true);
                     if (nonExistingId.size() > 0) {
-                        updaterDao.insertArtists(connection, nonExistingId);
+                        nonExistingId.forEach(x -> updaterDao.insertArtistSad(connection, x));
+                        //updaterDao.insertArtists(connection, nonExistingId);
+                        //updaterDao.insertArtists(connection, nonExistingId);
                     }
                     List<ScrobbledArtist> scrobbledArtists = map.get(false);
                     scrobbledArtists.addAll(nonExistingId);
@@ -304,9 +306,9 @@ public class ChuuService {
         }
     }
 
-    public long upsertUrl(ArtistInfo artistInfo) {
+    public void upsertUrl(ArtistInfo artistInfo) {
         try (Connection connection = dataSource.getConnection()) {
-            return updaterDao.upsertUrl(connection, artistInfo);
+            updaterDao.upsertUrl(connection, artistInfo);
         } catch (SQLException e) {
             throw new RuntimeException(e);
 
@@ -314,9 +316,9 @@ public class ChuuService {
 
     }
 
-    public long upsertSpotify(ArtistInfo artistInfo) {
+    public void upsertSpotify(ArtistInfo artistInfo) {
         try (Connection connection = dataSource.getConnection()) {
-            return updaterDao.upsertSpotify(connection, artistInfo);
+            updaterDao.upsertSpotify(connection, artistInfo);
         } catch (SQLException e) {
             throw new RuntimeException(e);
 
@@ -708,7 +710,7 @@ public class ChuuService {
                 return updaterDao.getArtistId(connection, artistName);
             } catch (InstanceNotFoundException e) {
                 ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistName, 0, null);
-                updaterDao.insertArtists(connection, List.of(scrobbledArtist));
+                updaterDao.insertArtistSad(connection, (scrobbledArtist));
                 return scrobbledArtist.getArtistId();
             }
         } catch (SQLException e) {
