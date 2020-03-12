@@ -19,7 +19,7 @@ interface UpdaterDao {
 
     void upsertArtist(Connection con, List<ScrobbledArtist> scrobbledArtist);
 
-    long upsertUrl(Connection con, ArtistInfo artistInfo);
+    void upsertUrl(Connection con, ArtistInfo artistInfo);
 
 
     void upsertArtistsDetails(Connection con, List<ScrobbledArtist> scrobbledArtists);
@@ -28,7 +28,7 @@ interface UpdaterDao {
 
     Set<String> selectNullUrls(Connection connection, boolean spotifyNull);
 
-    long upsertSpotify(Connection con, ArtistInfo artistInfo);
+    void upsertSpotify(Connection con, ArtistInfo artistInfo);
 
     UpdaterStatus getUpdaterStatus(Connection connection, String artist) throws InstanceNotFoundException;
 
@@ -60,6 +60,8 @@ interface UpdaterDao {
 
 
     void fillIds(Connection connection, List<ScrobbledArtist> list);
+
+    void insertArtistSad(Connection connection, ScrobbledArtist nonExistingId);
 
     void insertArtists(Connection connection, List<ScrobbledArtist> nonExistingId);
 

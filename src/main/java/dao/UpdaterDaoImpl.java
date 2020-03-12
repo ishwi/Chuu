@@ -6,7 +6,6 @@ import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
 import org.intellij.lang.annotations.Language;
 
-import java.sql.Date;
 import java.sql.*;
 import java.text.Normalizer;
 import java.time.Instant;
@@ -131,14 +130,14 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
-    public long upsertUrl(Connection con, ArtistInfo artistInfo) {
+    public void upsertUrl(Connection con, ArtistInfo artistInfo) {
         /* Create "queryString". */
-        String queryString = "INSERT  INTO  artist ( name,url)   VALUES (?, ?) ON DUPLICATE  KEY UPDATE url= ? returning id ";
+        String queryString = "INSERT  INTO  artist ( name,url)   VALUES (?, ?) ON DUPLICATE  KEY UPDATE url= ?  ";
 
-        return insertArtistInfo(con, artistInfo, queryString);
+        insertArtistInfo(con, artistInfo, queryString);
     }
 
-    private long insertArtistInfo(Connection con, ArtistInfo artistInfo, String queryString) {
+    private void insertArtistInfo(Connection con, ArtistInfo artistInfo, String queryString) {
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -153,12 +152,12 @@ public class UpdaterDaoImpl implements UpdaterDao {
             ResultSet ids = preparedStatement.getResultSet();
 
             int counter = 0;
-            if (ids.next()) {
+           /* if (ids.next()) {
                 return ids.getLong(1);
 
-            }
+            }*/
             /* Get generated identifier. */
-            throw new RuntimeException();
+//            throw new RuntimeException();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -233,12 +232,12 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
-    public long upsertSpotify(Connection con, ArtistInfo artistInfo) {
+    public void upsertSpotify(Connection con, ArtistInfo artistInfo) {
         /* Create "queryString". */
         String queryString = "INSERT  INTO  artist"
-                             + " ( name,url,url_status) " + " VALUES (?, ?,0) ON DUPLICATE KEY UPDATE url= ? , url_status = 0 returning id";
+                             + " ( name,url,url_status) " + " VALUES (?, ?,0) ON DUPLICATE KEY UPDATE url= ? , url_status = 0 ";
 
-        return insertArtistInfo(con, artistInfo, queryString);
+        insertArtistInfo(con, artistInfo, queryString);
     }
 
     @Override
@@ -409,8 +408,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 return null;
 
             String url = resultSet.getString("url");
-            long discordID = resultSet.getLong("discordId");
-            long guildId = resultSet.getLong("guildId");
+            long discordID = resultSet.getLong("discord_Id");
+            long guildId = resultSet.getLong("guild_Id");
             return new RandomUrlEntity(url, discordID, guildId);
 
         } catch (SQLException e) {
@@ -581,6 +580,41 @@ public class UpdaterDaoImpl implements UpdaterDao {
         }
     }
 
+    @Override
+    public void insertArtistSad(Connection connection, ScrobbledArtist nonExistingId) {
+        StringBuilder mySql =
+                new StringBuilder("INSERT INTO artist (name,url,url_status) VALUES (?,?,?)");
+        mySql.append(" on duplicate key update correction_status = correction_status");
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString(), Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(+1, nonExistingId.getArtist());
+            preparedStatement.setString(2, nonExistingId.getUrl());
+            preparedStatement.setBoolean(3, nonExistingId.isUpdateBit());
+            preparedStatement.execute();
+
+            ResultSet ids = preparedStatement.getResultSet();
+            int counter = 0;
+            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    nonExistingId.setArtistId(generatedKeys.getLong("GENERATED_KEY"));
+                } else {
+                    try {
+                        long artistId = getArtistId(connection, nonExistingId.getArtist());
+                        nonExistingId.setArtistId(artistId);
+                    } catch (InstanceNotFoundException e) {
+                        throw new SQLException("Creating user failed, no ID obtained.");
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (
+                SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
     @Override
     public void insertArtists(Connection connection, List<ScrobbledArtist> nonExistingId) {
@@ -627,7 +661,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
-    public UpdaterUserWrapper getUserUpdateStatus(Connection connection, long discordId) throws InstanceNotFoundException {
+    public UpdaterUserWrapper getUserUpdateStatus(Connection connection, long discordId) throws
+            InstanceNotFoundException {
         @Language("MariaDB") String queryString =
                 "SELECT a.discord_id, a.lastfm_id,a.last_update,a.control_timestamp " +
                 "FROM user a   " +
@@ -684,7 +719,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
     @Override
     public AliasEntity getNextInAliasQueue(Connection connection) {
-        String queryString = "SELECT a.id,alias,a.artist_id,discord_id,added_date,b.name FROM  queued_alias a JOIN artist b ON a.artist_id = b.id ORDER BY added_date LIMIT 1;";
+        String queryString = "SELECT a.id,alias,a.artist_id,discord_id,added_date,b.name FROM   queued_alias a JOIN artist b ON a.artist_id = b.id ORDER BY added_date LIMIT 1;";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             ResultSet resultSet = preparedStatement.executeQuery();

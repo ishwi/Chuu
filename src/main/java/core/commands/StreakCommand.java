@@ -60,20 +60,20 @@ public class StreakCommand extends ConcurrentCommand {
                 .setAuthor(userName.toString() + " 's current listening streak", CommandUtil.getLastFmUser(lastfmId), userUrl.toString())
                 .setThumbnail(CommandUtil.noImageUrl(artist.getUrl()))
                 .setDescription("");
-        description.append("**Artist**: ").append(combo.getaCounter()).append(combo.getaCounter() >= 1000 ? "+" : "").append(combo.getaCounter() == 1 ? " consecutive plays - " : " play - ").append("**[")
+        description.append("**Artist**: ").append(combo.getaCounter()).append(combo.getaCounter() >= 1000 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
                 .append(artist.getArtist()).append("](").append(CommandUtil.getLastFmArtistUrl(combo.getCurrentArtist())).append(")**").append("\n");
 
         if (combo.getAlbCounter() > 0) {
-            description.append("**Album**: ").append(combo.getAlbCounter()).append(combo.getAlbCounter() >= 1000 ? "+" : "").append(combo.getAlbCounter() == 1 ? " consecutive plays - " : " play - ").append("**[")
+            description.append("**Album**: ").append(combo.getAlbCounter()).append(combo.getAlbCounter() >= 1000 ? "+" : "").append(combo.getAlbCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
                     .append(combo.getCurrentAlbum()).append("](").append(CommandUtil.getLastFmArtistAlbumUrl(combo.getCurrentArtist(), combo.getCurrentAlbum())).append(")**").append("\n");
         }
         if (combo.gettCounter() > 0) {
-            description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 1000 ? "+" : "").append(combo.gettCounter() == 1 ? " consecutive plays - " : " play - ").append("**[")
+            description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 1000 ? "+" : "").append(combo.gettCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
                     .append(combo.getCurrentSong()).append("](").append(CommandUtil.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
         }
         MessageEmbed build = embedBuilder.setDescription(description)
                 .setColor(CommandUtil.randomColor())
-                .setFooter(userName.toString() + " has played " + artist.getArtist() + " " + artistPlays + "!")
+                .setFooter(userName.toString() + " has played " + artist.getArtist() + " " + artistPlays + " times!")
                 .build();
         MessageBuilder messageBuilder = new MessageBuilder();
         messageBuilder.setEmbed(build).sendTo(e.getChannel()).queue();

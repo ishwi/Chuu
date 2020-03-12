@@ -79,8 +79,8 @@ CREATE TABLE metrics
 
 CREATE TABLE randomlinks
 (
-    discord_id BIGINT(20)                              NOT NULL,
-    guild_id   BIGINT(20)                              NOT NULL,
+    discord_id BIGINT(20)                              ,
+    guild_id   BIGINT(20)                              ,
     url        VARCHAR(200) COLLATE utf8mb4_unicode_ci NOT NULL,
     PRIMARY KEY (url),
     UNIQUE KEY unique_url_random (url),
