@@ -27,41 +27,41 @@ public class DailyCommand extends ConcurrentCommand {
     }
 
     @Override
-	public List<String> getAliases() {
-		return Arrays.asList("daily", "day");
-	}
+    public List<String> getAliases() {
+        return Arrays.asList("daily", "day");
+    }
 
-	@Override
-	public String getName() {
-		return "Daily";
-	}
+    @Override
+    public String getName() {
+        return "Daily";
+    }
 
-	@Override
-	void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-		String[] returned = parser.parse(e);
-		String lastFmName = returned[0];
-		long discordID = Long.parseLong(returned[1]);
-		String usable = getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
+    @Override
+    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+        String[] returned = parser.parse(e);
+        String lastFmName = returned[0];
+        long discordID = Long.parseLong(returned[1]);
+        String usable = getUserString(e, discordID, lastFmName);
 
-		try {
-			Map<Track, Integer> durationsFromWeek = lastFM.getDurationsFromWeek(lastFmName);
-			SecondsTimeFrameCount minutesWastedOnMusicDaily = lastFM
-					.getMinutesWastedOnMusicDaily(lastFmName, durationsFromWeek,
-							(int) Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond());
-			sendMessageQueue(e, "**" + usable + "** played " +
-					minutesWastedOnMusicDaily.getMinutes() +
-					" minutes of music, " + String
-					.format("(%d:%02d ", minutesWastedOnMusicDaily.getHours(),
-							minutesWastedOnMusicDaily.getRemainingMinutes()) +
-					"hours" +
-					"), listening to " + minutesWastedOnMusicDaily
-					.getCount() +
-					CommandUtil.singlePlural(minutesWastedOnMusicDaily.getCount(),
-							" track", " tracks")
-					+ " in the last 24 hours");
+        try {
+            Map<Track, Integer> durationsFromWeek = lastFM.getDurationsFromWeek(lastFmName);
+            SecondsTimeFrameCount minutesWastedOnMusicDaily = lastFM
+                    .getMinutesWastedOnMusicDaily(lastFmName, durationsFromWeek,
+                            (int) Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond());
+            sendMessageQueue(e, "**" + usable + "** played " +
+                                minutesWastedOnMusicDaily.getMinutes() +
+                                " minutes of music, " + String
+                                        .format("(%d:%02d ", minutesWastedOnMusicDaily.getHours(),
+                                                minutesWastedOnMusicDaily.getRemainingMinutes()) +
+                                "hours" +
+                                "), listening to " + minutesWastedOnMusicDaily
+                                        .getCount() +
+                                CommandUtil.singlePlural(minutesWastedOnMusicDaily.getCount(),
+                                        " track", " tracks")
+                                + " in the last 24 hours");
 
-		} catch (LastFMNoPlaysException ex) {
-			sendMessageQueue(e, "**" + usable + "** played 0 mins, really, 0! mins in the last 24 hours");
-		}
-	}
+        } catch (LastFMNoPlaysException ex) {
+            sendMessageQueue(e, "**" + usable + "** played 0 mins, really, 0! mins in the last 24 hours");
+        }
+    }
 }

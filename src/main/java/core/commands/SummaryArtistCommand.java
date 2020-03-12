@@ -62,7 +62,7 @@ public class SummaryArtistCommand extends ConcurrentCommand {
         ArtistSummary summary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data.getName());
         ArtistMusicBrainzDetails artistDetails = mb.getArtistDetails(new ArtistInfo(null, summary.getArtistname(), summary.getMbid()));
 
-        String username = getUserStringConsideringGuildOrNot(e, whom, data.getName());
+        String username = getUserString(e, whom, data.getName());
         EmbedBuilder embedBuilder = new EmbedBuilder();
         String tagsField = summary.getTags().isEmpty()
                 ? ""

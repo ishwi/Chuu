@@ -25,28 +25,28 @@ public class YoutubeSearchCommand extends ConcurrentCommand {
         return "Searches in Youtube inputted query or now playing song";
     }
 
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("yt", "npyt", "youtube", "you");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Arrays.asList("yt", "npyt", "youtube", "you");
+    }
 
-	@Override
-	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    @Override
+    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
-		String[] returned = parser.parse(e);
-		if (returned == null) {
-			return;
-		}
-		String query = returned[0];
-		//long whom = Long.parseLong(returned[1]);
-		String s = youtubeSearch.doSearch(query);
-		s = s == null || s.isBlank() ? "Coudn't find \"" + query + "\" on youtube" : s;
-		sendMessageQueue(e, s);
+        String[] returned = parser.parse(e);
+        if (returned == null) {
+            return;
+        }
+        String query = returned[0];
+        //long whom = Long.parseLong(returned[1]);
+        String s = youtubeSearch.doSearch(query);
+        s = s == null || s.isBlank() ? "Coudn't find \"" + query + "\" on youtube" : s;
+        sendMessageQueue(e, s);
 
-	}
+    }
 
-	@Override
-	public String getName() {
-		return "Youtube Search";
-	}
+    @Override
+    public String getName() {
+        return "Youtube Search";
+    }
 }

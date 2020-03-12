@@ -6,10 +6,10 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -43,9 +43,9 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
         String lastFmName = returned[0];
         long discordID = Long.parseLong(returned[1]);
 
-        Member whoD = e.getGuild().getMemberById(discordID);
-        String name = whoD != null ? whoD
-                .getEffectiveName() : getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
+        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
+        String name = userInfo.getUsername();
+        String url = userInfo.getUrlImage();
 
         UniqueWrapper<ArtistPlays> uniqueDataUniqueWrapper = getService()
                 .getUserAlbumCrowns(lastFmName, e.getGuild().getIdLong());
@@ -62,15 +62,12 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
             ArtistPlays g = resultWrapper.get(i);
             a.append(i + 1).append(g.toString());
         }
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setDescription(a);
-        embedBuilder.setColor(CommandUtil.randomColor());
-
-        embedBuilder
-                .setTitle(name + "'s album crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
-        embedBuilder.setFooter(name + " has " + resultWrapper.size() + " album crowns!!\n", null);
-        if (whoD != null)
-            embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setDescription(a)
+                .setColor(CommandUtil.randomColor())
+                .setTitle(name + "'s album crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
+                .setFooter(name + " has " + resultWrapper.size() + " album crowns!!\n", null)
+                .setThumbnail(url);
 
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->

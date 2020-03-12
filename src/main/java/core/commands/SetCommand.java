@@ -7,6 +7,7 @@ import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -71,7 +72,7 @@ public class SetCommand extends ConcurrentCommand {
             if (name.get().getDiscordID() != userId)
                 sendMessageQueue(e, "That username is already registered, if you think this is a mistake, please contact the bot developers");
             else
-                sendMessageQueue(e, e.getAuthor().getName() + ", you are good to go!");
+                sendMessageQueue(e, MarkdownSanitizer.escape(e.getAuthor().getName()) + ", you are good to go!");
             return;
         }
 
@@ -88,7 +89,7 @@ public class SetCommand extends ConcurrentCommand {
                     return;
                 }
             } else {
-                sendMessageQueue(e, e.getAuthor().getName() + ", you are good to go!");
+                sendMessageQueue(e, MarkdownSanitizer.escape(e.getAuthor().getName()) + ", you are good to go!");
                 return;
             }
             //First Time on the guild
@@ -97,15 +98,15 @@ public class SetCommand extends ConcurrentCommand {
             if (getService().getGuildList(userId).stream().anyMatch(guild -> guild != guildID)) {
                 //Adds the user to the guild
                 getService().addGuildUser(userId, guildID);
-                sendMessageQueue(e, e.getAuthor().getName() + ", you are good to go!");
+                sendMessageQueue(e, MarkdownSanitizer.escape(e.getAuthor().getName()) + ", you are good to go!");
                 return;
             }
         }
 
 
         //Never registered before
-        mes.setContent("**" + e.getAuthor()
-                .getName() + "** has set their last FM name \n Updating your library, wait a moment");
+        mes.setContent("**" + MarkdownSanitizer.escape(e.getAuthor()
+                .getName()) + "** has set their last FM name \n Updating your library, wait a moment");
         mes.sendTo(e.getChannel()).queue(t -> e.getChannel().sendTyping().queue());
 
         LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER);
@@ -116,10 +117,10 @@ public class SetCommand extends ConcurrentCommand {
 
             List<ScrobbledArtist> allArtists = lastFM.getAllArtists(lastFmID, TimeFrameEnum.ALL.toApiFormat());
             getService().insertArtistDataList(allArtists, lastFmID);
-            sendMessageQueue(e, "Finished updating " + e.getAuthor().getName() + " library, you are good to go!");
+            sendMessageQueue(e, "Finished updating " + MarkdownSanitizer.escape(e.getAuthor().getName()) + " library, you are good to go!");
         } catch (
                 LastFMNoPlaysException ex) {
-            sendMessageQueue(e, "Finished updating " + e.getAuthor().getName() + "'s library, you are good to go!");
+            sendMessageQueue(e, "Finished updating " + MarkdownSanitizer.escape(e.getAuthor().getName()) + "'s library, you are good to go!");
         } catch (LastFmEntityNotFoundException ex) {
             getService().removeUserCompletely(userId);
             Chuu.getLogger().warn(ex.getMessage(), ex);
@@ -129,8 +130,8 @@ public class SetCommand extends ConcurrentCommand {
                     .format(DateTimeFormatter.ISO_DATE));
             Chuu.getLogger().warn(ex.getMessage(), ex);
             getService().updateUserTimeStamp(lastFmID, 0, null);
-            sendMessageQueue(e, "Error downloading  " + e.getAuthor()
-                    .getName() + "'s  library, try to run !update, try again later or contact bot admins if the error persists");
+            sendMessageQueue(e, "Error downloading  " + MarkdownSanitizer.escape(e.getAuthor()
+                    .getName()) + "'s  library, try to run !update, try again later or contact bot admins if the error persists");
         }
     }
 

@@ -132,7 +132,7 @@ public class PaceCommand extends ConcurrentCommand {
         double remainingUnits = (goal - playCount) / ratio;
         String timeFrame = naturalTimeFrameEnum.equals(NaturalTimeFrameEnum.ALL) ? "overall" : ("over the last " + unitNumber + " " + (unitNumber == 1 ? naturalTimeFrameEnum : naturalTimeFrameEnum.toString().toLowerCase() + "s"));
         String format = now.plus((long) remainingUnits, useHours ? ChronoUnit.HOURS : ChronoUnit.DAYS).format(formatter);
-        String userString = getUserString(discordId, e, lastfmId);
+        String userString = getUserString(e, discordId, lastfmId);
         String s = "**" + userString + "** has a rate of **" + new DecimalFormat("#0.00").format(ratio) + "** scrobbles per " + (useHours ? "hour" : "day") + " " + timeFrame + ", so they are on pace to hit **" + goal + "** scrobbles on **" + format + "**.";
 
 

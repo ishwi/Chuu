@@ -22,18 +22,18 @@ public class RandomAlbumCommand extends ConcurrentCommand {
     }
 
     @Override
-	public List<String> getAliases() {
-		return Collections.singletonList("random");
-	}
+    public List<String> getAliases() {
+        return Collections.singletonList("random");
+    }
 
-	@Override
-	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-		String[] returned;
+    @Override
+    protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+        String[] returned;
 
-		returned = parser.parse(e);
-		if (returned == null)
-			return;
-		if (returned.length == 0) {
+        returned = parser.parse(e);
+        if (returned == null)
+            return;
+        if (returned.length == 0) {
             //get randomurl
             RandomUrlEntity randomUrl = getService().getRandomUrl();
             if (randomUrl == null) {
@@ -41,9 +41,9 @@ public class RandomAlbumCommand extends ConcurrentCommand {
                 return;
             }
             String sb = e.getAuthor().getAsMention() + ", here's your random recommendation\n" +
-                    "**Posted by:** " +
-                    getUserGlobalString(randomUrl.getDiscordId(), e, "unknown") + "\n**Link:** " +
-                    randomUrl.getUrl();
+                        "**Posted by:** " +
+                        getUserString(e, randomUrl.getDiscordId()) + "\n**Link:** " +
+                        randomUrl.getUrl();
             sendMessageQueue(e, sb);
 
             return;
@@ -55,13 +55,13 @@ public class RandomAlbumCommand extends ConcurrentCommand {
             sendMessageQueue(e, "The provided url: " + returned[0] + " was already on the pool");
             return;
         }
-        sendMessageQueue(e, "Successfully added " + getUserString(e.getAuthor().getIdLong(), e, e.getAuthor()
+        sendMessageQueue(e, "Successfully added " + getUserString(e, e.getAuthor().getIdLong(), e.getAuthor()
                 .getName()) + "'s link to the pool");
 
     }
 
-	@Override
-	public String getName() {
-		return "Random Url";
-	}
+    @Override
+    public String getName() {
+        return "Random Url";
+    }
 }

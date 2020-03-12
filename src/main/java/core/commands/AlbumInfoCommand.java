@@ -40,7 +40,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
     void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who) throws InstanceNotFoundException, LastFmException {
         LastFMData lastFMData = getService().findLastFMData(who);
         FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(lastFMData.getName(), artist.getArtist(), album);
-        String username = getUserStringConsideringGuildOrNot(e, who, lastFMData.getName());
+        String username = getUserString(e, who, lastFMData.getName());
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         String tagsField = albumSummary.getTagList().isEmpty()

@@ -5,6 +5,7 @@ import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.TimerFrameParser;
 import dao.ChuuService;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
 import dao.entities.Track;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -26,49 +27,49 @@ public class UserTopTrackCommand extends ConcurrentCommand {
         return "Top songs in the provided period";
     }
 
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("toptracks", "tt");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Arrays.asList("toptracks", "tt");
+    }
 
-	@Override
-	public String getName() {
-		return "Top tracks";
-	}
+    @Override
+    public String getName() {
+        return "Top tracks";
+    }
 
-	@Override
-	void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-		String[] returned;
-		returned = parser.parse(e);
-		String username = returned[0];
-		long discordId = Long.parseLong(returned[1]);
-		String timeframe = returned[2];
+    @Override
+    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+        String[] returned;
+        returned = parser.parse(e);
+        String username = returned[0];
+        long discordId = Long.parseLong(returned[1]);
+        String timeframe = returned[2];
 
-		List<Track> listTopTrack = lastFM.getListTopTrack(username, timeframe);
-		StringBuilder s = new StringBuilder();
-		for (int i = 0; i < 10 && i < listTopTrack.size(); i++) {
-			Track g = listTopTrack.get(i);
-			s.append(i + 1).append(g.toString());
-		}
+        List<Track> listTopTrack = lastFM.getListTopTrack(username, timeframe);
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i < 10 && i < listTopTrack.size(); i++) {
+            Track g = listTopTrack.get(i);
+            s.append(i + 1).append(g.toString());
+        }
 
-		StringBuilder url = new StringBuilder();
-		StringBuilder usableName = new StringBuilder();
+        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
 
-		CommandUtil.getUserInfoConsideringGuildOrNot(usableName, url, e, discordId);
+        String url = userInfo.getUrlImage();
+        String usableName = userInfo.getUsername();
 
-		MessageBuilder messageBuilder = new MessageBuilder();
-		EmbedBuilder embedBuilder = new EmbedBuilder();
-		embedBuilder.setDescription(s);
-		embedBuilder.setColor(CommandUtil.randomColor());
+        MessageBuilder messageBuilder = new MessageBuilder();
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setDescription(s);
+        embedBuilder.setColor(CommandUtil.randomColor());
 
-		embedBuilder
-				.setTitle(usableName + "'s top  tracks in " + TimeFrameEnum.fromCompletePeriod(timeframe)
-						.toString(), CommandUtil
-						.getLastFmUser(timeframe));
-		embedBuilder.setThumbnail(url.toString().isEmpty() ? null : url.toString());
-		e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build())
-				.queue(message ->
-						executor.execute(() -> new Reactionary<>(listTopTrack, message, embedBuilder)));
+        embedBuilder
+                .setTitle(usableName + "'s top  tracks in " + TimeFrameEnum.fromCompletePeriod(timeframe)
+                        .toString(), CommandUtil
+                        .getLastFmUser(timeframe));
+        embedBuilder.setThumbnail(url.isEmpty() ? null : url);
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build())
+                .queue(message ->
+                        executor.execute(() -> new Reactionary<>(listTopTrack, message, embedBuilder)));
 
-	}
+    }
 }

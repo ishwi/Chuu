@@ -4,10 +4,7 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
 import dao.ChuuService;
-import dao.entities.SecondsTimeFrameCount;
-import dao.entities.TimeFrameEnum;
-import dao.entities.TimestampWrapper;
-import dao.entities.Track;
+import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -100,15 +97,15 @@ public class WeeklyCommand extends ConcurrentCommand {
                     .append(" on ").append(minutesWastedOnMusicDaily.getCount())
                     .append(" tracks\n");
         });
-        StringBuilder url = new StringBuilder();
-        StringBuilder usableName = new StringBuilder();
 
-        CommandUtil.getUserInfoConsideringGuildOrNot(usableName, url, e, discordID);
+        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
+        String url = userInfo.getUrlImage();
+        String usableName = userInfo.getUsername();
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setDescription(s)
                 .setColor(CommandUtil.randomColor())
-                .setTitle(usableName.toString() + "'s week", CommandUtil.getLastFmUser(lastFmName))
-                .setThumbnail(url.toString().isEmpty() ? null : url.toString());
+                .setTitle(usableName + "'s week", CommandUtil.getLastFmUser(lastFmName))
+                .setThumbnail(url.isEmpty() ? null : url);
 
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();

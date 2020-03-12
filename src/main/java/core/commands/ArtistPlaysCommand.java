@@ -44,7 +44,7 @@ public class ArtistPlaysCommand extends ConcurrentCommand {
         LastFMData data = getService().findLastFMData(whom);
 
         a = getService().getArtistPlays(scrobbledArtist.getArtistId(), data.getName());
-        String usernameString = getUserStringConsideringGuildOrNot(e, whom, data.getName());
+        String usernameString = getUserString(e, whom, data.getName());
         String ending = a != 1 ? "times" : "time";
         sendMessageQueue(e, "**" + usernameString + "** has scrobbled **" + scrobbledArtist.getArtist() + " " + a + "** " + ending);
 

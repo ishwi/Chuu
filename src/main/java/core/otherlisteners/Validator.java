@@ -51,7 +51,7 @@ public class Validator<T> extends ListenerAdapter {
 
     private void noMoreElements(JDA jda) {
         if (message == null) {
-            this.message = messageChannel.sendMessage("No aliases to eview!").complete();
+            this.message = messageChannel.sendMessage("No aliases to review!").complete();
         } else
             message.editMessage(who.clearFields().setTitle("No more aliases to review!").build()).complete();
         endItAll(jda);

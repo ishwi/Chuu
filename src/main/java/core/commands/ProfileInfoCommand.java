@@ -79,7 +79,7 @@ public class ProfileInfoCommand extends ConcurrentCommand {
                     .append("Total number of unique artist: ").append(totalUnique).append("\n")
                     .append("Top unique:").append(UniqueRepresentative).append("\n");
 
-            String name = getUserString(unique.getDiscordId(), e, lastFmName);
+            String name = getUserString(e, unique.getDiscordId(), lastFmName);
 
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle(name + "'s profile", CommandUtil.getLastFmUser(lastFmName))

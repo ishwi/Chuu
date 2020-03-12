@@ -1,6 +1,7 @@
 package core.commands;
 
 import dao.ChuuService;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -17,18 +18,18 @@ public class NowPlayingCommand extends NpCommand {
     @Override
     public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e, long discordId) {
         StringBuilder a = new StringBuilder();
-        StringBuilder urlHolder = new StringBuilder();
-        StringBuilder userNameHolder = new StringBuilder();
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
 
-        CommandUtil.getUserInfoConsideringGuildOrNot(userNameHolder, urlHolder, e, discordId);
+        String urlHolder = userInformation.getUrlImage();
+        String userName = userInformation.getUsername();
 
-        userNameHolder.append("'s ").append(nowPlayingArtist.isNowPlaying() ? "current" : "last").append(" song:");
-        String username = nowPlayingArtist.getUsername();
+        String title = String.format("%s's %s song:", userName, nowPlayingArtist.isNowPlaying() ? "current" : "last");
+        String lastFMName = nowPlayingArtist.getUsername();
         a.append("**").append(nowPlayingArtist.getArtistName())
                 .append("** | ").append(nowPlayingArtist.getAlbumName()).append("\n");
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
-                .setAuthor(userNameHolder.toString(), CommandUtil.getLastFmUser(username), urlHolder.toString())
+                .setAuthor(title, CommandUtil.getLastFmUser(lastFMName), urlHolder)
                 .setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
                 .setTitle(nowPlayingArtist.getSongName(), CommandUtil.getLastFMArtistTrack(nowPlayingArtist.getArtistName(), nowPlayingArtist.getSongName()))
                 .setDescription(a);

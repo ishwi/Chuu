@@ -47,7 +47,7 @@ public class RecentListCommand extends ConcurrentCommand {
         long limit = Integer.parseInt(returned[0]);
         String lastFmName = returned[1];
         long discordID = Long.parseLong(returned[2]);
-        String usable = getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
+        String usable = getUserString(e, discordID, lastFmName);
 
         List<NowPlayingArtist> list = lastFM.getRecent(lastFmName, (int) limit);
         //Can't be empty because NoPLaysException

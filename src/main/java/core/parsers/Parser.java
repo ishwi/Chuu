@@ -1,9 +1,9 @@
 package core.parsers;
 
+import core.commands.CommandUtil;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -85,16 +85,13 @@ public abstract class Parser {
     }
 
 
-    private Message sendMessage(Message message, MessageReceivedEvent e) {
-        if (e.isFromType(ChannelType.PRIVATE))
-            return e.getPrivateChannel().sendMessage(message).complete();
-        else
-            return e.getTextChannel().sendMessage(message).complete();
+    private void sendMessage(Message message, MessageReceivedEvent e) {
+        e.getChannel().sendMessage(message).queue();
     }
 
-    public Message sendError(String message, MessageReceivedEvent e) {
+    public void sendError(String message, MessageReceivedEvent e) {
         String errorBase = "Error on " + e.getAuthor().getName() + "'s request:\n";
-        return sendMessage(new MessageBuilder().append(errorBase).append(message).build(), e);
+        sendMessage(new MessageBuilder().append(CommandUtil.sanitizeUserString(errorBase)).append(CommandUtil.sanitizeUserString(message)).build(), e);
     }
 
 

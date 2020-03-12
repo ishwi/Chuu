@@ -1,7 +1,6 @@
 package core.commands;
 
 import core.Chuu;
-import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.WhoKnowsMaker;
 import dao.ChuuService;
@@ -35,7 +34,7 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    public void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who) throws LastFmEntityNotFoundException {
+    public void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who) {
 
         long id = e.getGuild().getIdLong();
         // Gets list of users registered in guild
@@ -70,7 +69,7 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
         List<ReturnNowPlaying> list2 = list.stream().sequential().limit(10).map(t -> {
             long id2 = t.getKey().getDiscordID();
             ReturnNowPlaying np = new ReturnNowPlaying(id2, t.getKey().getLastFMName(), corrected_artist, t.getValue());
-            np.setDiscordName(getUserString(id2, e, t.getKey().getLastFMName()));
+            np.setDiscordName(getUserString(e, id2, t.getKey().getLastFMName()));
             return np;
         }).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
         if (list2.isEmpty()) {
@@ -95,7 +94,7 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
     }
 
     Map<UsersWrapper, Integer> fillPlayCounter(List<UsersWrapper> userList, String artist, String album,
-                                               AlbumUserPlays fillWithUrl) throws LastFmEntityNotFoundException {
+                                               AlbumUserPlays fillWithUrl) {
         Map<UsersWrapper, Integer> userMapPlays = new HashMap<>();
         userList.forEach(u -> {
             try {

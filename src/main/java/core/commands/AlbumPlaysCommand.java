@@ -32,18 +32,18 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
         return ("How many times you have heard an album!");
     }
 
-	@Override
-	public List<String> getAliases() {
-		return Collections.singletonList("album");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Collections.singletonList("album");
+    }
 
-	@Override
-	public String getName() {
+    @Override
+    public String getName() {
         return "Get album plays";
     }
 
-	@Override
-	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    @Override
+    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] parsed;
         parsed = parser.parse(e);
         if (parsed == null || parsed.length != 3)
@@ -64,7 +64,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
         int a = lastFM.getPlaysAlbum_Artist(data.getName(), artist.getArtist(), album).getPlays();
         String usernameString = data.getName();
 
-        usernameString = getUserStringConsideringGuildOrNot(e, who, usernameString);
+        usernameString = getUserString(e, who, usernameString);
 
         String ending = a == 1 ? "time " : "times";
 

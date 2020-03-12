@@ -15,7 +15,7 @@ public class GlobalRanksCommand extends ConcurrentCommand {
 
     @Override
     public String getDescription() {
-        return "Ranking on crowns,scrobbles and uniques within the bot";
+        return "Ranking on crowns, scrobbles and uniques within the bot";
     }
 
     @Override

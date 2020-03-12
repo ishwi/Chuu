@@ -37,7 +37,7 @@ public class TrackPlaysCommand extends AlbumPlaysCommand {
         LastFMData lastFMData = getService().findLastFMData(who);
 
         Track trackInfo = lastFM.getTrackInfo(lastFMData.getName(), artist.getArtist(), song);
-        String usernameString = getUserStringConsideringGuildOrNot(e, who, lastFMData.getName());
+        String usernameString = getUserString(e, who, lastFMData.getName());
 
         int plays = trackInfo.getPlays();
         String ending = plays == 1 ? "time " : "times";
