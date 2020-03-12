@@ -51,7 +51,7 @@ public class UpdateCommand extends MyCommand {
         String lastFmName = returned[0];
         long discordID = Long.parseLong(returned[1]);
         boolean force = Boolean.parseBoolean(returned[2]);
-        String userString = getUserStringConsideringGuildOrNot(e, discordID, lastFmName);
+        String userString = getUserString(e, discordID, lastFmName);
         if (e.isFromGuild()) {
             if (getService().getAll(e.getGuild().getIdLong()).stream()
                     .noneMatch(s -> s.getLastFMName().equals(lastFmName))) {

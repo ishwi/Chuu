@@ -6,6 +6,7 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
 import dao.ChuuService;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.entities.StreakEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -47,17 +48,18 @@ public class StreakCommand extends ConcurrentCommand {
         }
         String lastfmId = parse[0];
         long discordID = Long.parseLong(parse[1]);
-        StringBuilder userName = new StringBuilder();
-        StringBuilder userUrl = new StringBuilder();
 
-        CommandUtil.getUserInfoConsideringGuildOrNot(userName, userUrl, e, discordID);
+
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
+        String userName = userInformation.getUsername();
+        String userUrl = userInformation.getUrlImage();
         StreakEntity combo = lastFM.getCombo(lastfmId);
         ScrobbledArtist artist = new ScrobbledArtist(combo.getCurrentArtist(), 0, "");
         CommandUtil.validate(getService(), artist, lastFM, DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstanceUsingDoubleLocking());
         int artistPlays = getService().getArtistPlays(artist.getArtistId(), lastfmId);
         StringBuilder description = new StringBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setAuthor(userName.toString() + " 's current listening streak", CommandUtil.getLastFmUser(lastfmId), userUrl.toString())
+                .setAuthor(userName + " 's current listening streak", CommandUtil.getLastFmUser(lastfmId), userUrl)
                 .setThumbnail(CommandUtil.noImageUrl(artist.getUrl()))
                 .setDescription("");
         description.append("**Artist**: ").append(combo.getaCounter()).append(combo.getaCounter() >= 1000 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
@@ -73,7 +75,7 @@ public class StreakCommand extends ConcurrentCommand {
         }
         MessageEmbed build = embedBuilder.setDescription(description)
                 .setColor(CommandUtil.randomColor())
-                .setFooter(userName.toString() + " has played " + artist.getArtist() + " " + artistPlays + " times!")
+                .setFooter(userName + " has played " + artist.getArtist() + " " + artistPlays + "!")
                 .build();
         MessageBuilder messageBuilder = new MessageBuilder();
         messageBuilder.setEmbed(build).sendTo(e.getChannel()).queue();

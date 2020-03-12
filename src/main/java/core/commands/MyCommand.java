@@ -10,9 +10,7 @@ import dao.ChuuService;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
@@ -51,10 +49,7 @@ public abstract class MyCommand extends ListenerAdapter {
      */
     @Override
     public void onMessageReceived(MessageReceivedEvent e) {
-        //if (!e.getMessage().getContentRaw().startsWith(PREFIX) || (e.getAuthor().isBot() && !respondToBots()))
-        //	return;
 
-        //if (containsCommand(e.getMessage())) {
         e.getChannel().sendTyping().queue();
         System.out.println("We received a message from " +
                            e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
@@ -68,11 +63,11 @@ public abstract class MyCommand extends ListenerAdapter {
     }
 
     void measureTime(MessageReceivedEvent e) {
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         handleCommand(e);
-        long endTime = System.currentTimeMillis();
+        long endTime = System.nanoTime();
         long timeElapsed = endTime - startTime;
-        System.out.println("Execution time in milliseconds " + getName() + " : " + timeElapsed);
+        System.out.println("Execution time in milliseconds " + getName() + " : " + timeElapsed / 1000);
         System.out.println();
     }
 
@@ -87,7 +82,7 @@ public abstract class MyCommand extends ListenerAdapter {
             if (e.isFromGuild()) {
                 try {
                     long discordIdFromLastfm = dao.getDiscordIdFromLastfm(ex.getUsername(), e.getGuild().getIdLong());
-                    username = getUserString(discordIdFromLastfm, e, username);
+                    username = getUserString(e, discordIdFromLastfm, username);
                 } catch (InstanceNotFoundException ignored) {
 
                 }
@@ -106,7 +101,7 @@ public abstract class MyCommand extends ListenerAdapter {
             String instanceNotFoundTemplate = InstanceNotFoundException.getInstanceNotFoundTemplate();
 
             String s = instanceNotFoundTemplate
-                    .replaceFirst("\\$\\{user_to_replace}", getUserStringConsideringGuildOrNot(e, ex.getDiscordId(), ex
+                    .replaceFirst("\\$\\{user_to_replace}", getUserString(e, ex.getDiscordId(), ex
                             .getLastFMName()));
             s = s.replaceFirst("\\$\\{prefix}", String.valueOf(e.getMessage().getContentStripped().charAt(0)));
             parser.sendError(s, e);
@@ -124,33 +119,10 @@ public abstract class MyCommand extends ListenerAdapter {
 
     abstract void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException;
 
-    String getUserStringConsideringGuildOrNot(MessageReceivedEvent e, long who, String replacement) {
-        String firstReturn;
-        if ((firstReturn = getUserString(who, e, replacement)) == null) {
-            return getUserGlobalString(who, e, replacement);
-        } else return firstReturn;
-    }
-
-    String getUserGlobalString(Long discordId, MessageReceivedEvent e, String replacement) {
-        try {
-            User member = e.getJDA().retrieveUserById(discordId).complete();
-            return member == null ? replacement : member.getName();
-        } catch (Exception ex) {
-            return replacement;
-        }
-    }
-
-    String getUserString(Long discordId, MessageReceivedEvent e, String replacement) {
-
-        if (e.getChannelType().isGuild()) {
-            Member member = e.getGuild().getMemberById(discordId);
-            return member == null ? replacement : member.getEffectiveName();
-        }
-        return null;
-    }
 
     void sendMessageQueue(MessageReceivedEvent e, String message) {
-        sendMessageQueue(e, new MessageBuilder().append(message).build());
+
+        sendMessageQueue(e, new MessageBuilder().append(CommandUtil.sanitizeUserString(message)).build());
     }
 
     private void sendMessageQueue(MessageReceivedEvent e, Message message) {
@@ -158,6 +130,14 @@ public abstract class MyCommand extends ListenerAdapter {
             e.getPrivateChannel().sendMessage(message).queue();
         else
             e.getTextChannel().sendMessage(message).queue();
+    }
+
+    public String getUserString(MessageReceivedEvent e, long discordId) {
+        return getUserString(e, discordId, "Unknown");
+    }
+
+    public String getUserString(MessageReceivedEvent e, long discordId, String replacement) {
+        return CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId).getUsername();
     }
 
     MessageAction sendMessage(MessageReceivedEvent e, String message) {

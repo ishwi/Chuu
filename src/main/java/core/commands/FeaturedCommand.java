@@ -56,7 +56,7 @@ public class FeaturedCommand extends ConcurrentCommand {
 
     @Override
     protected void onCommand(MessageReceivedEvent e) {
-        String userString = this.getUserGlobalString(currentPresence.getDiscordId(), e, DEFAULT_USER);
+        String userString = this.getUserString(e, currentPresence.getDiscordId(), DEFAULT_USER);
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))

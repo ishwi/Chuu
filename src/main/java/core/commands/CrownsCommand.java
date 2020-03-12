@@ -6,10 +6,10 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
@@ -47,10 +47,14 @@ public class CrownsCommand extends ConcurrentCommand {
         String lastFmName = returned[0];
         //long discordID = Long.parseLong(returned[1]);
         UniqueWrapper<ArtistPlays> uniqueDataUniqueWrapper = getList(e.getGuild().getIdLong(), lastFmName);
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, uniqueDataUniqueWrapper.getDiscordId());
+        String userName = userInformation.getUsername();
+        String userUrl = userInformation.getUrlImage();
         List<ArtistPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
+
         int rows = resultWrapper.size();
         if (rows == 0) {
-            sendMessageQueue(e, "You don't have any" + (isGlobal() ? " global " : " ") + "crown :'(");
+            sendMessageQueue(e, userName + " doesn't have any" + (isGlobal() ? " global " : " ") + "crown :'(");
             return;
         }
 
@@ -60,16 +64,13 @@ public class CrownsCommand extends ConcurrentCommand {
             a.append(i + 1).append(g.toString());
         }
 
-        Member whoD = e.getGuild().getMemberById(uniqueDataUniqueWrapper.getDiscordId());
-        String name = whoD == null ? lastFmName : whoD.getEffectiveName();
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setDescription(a);
         embedBuilder.setColor(CommandUtil.randomColor());
-        embedBuilder.setTitle(name + "'s " + (isGlobal() ? "global " : "") + "crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
-        embedBuilder.setFooter(name + " has " + resultWrapper.size() + (isGlobal() ? " global" : "") + " crowns!!\n", null);
-        if (whoD != null)
-            embedBuilder.setThumbnail(whoD.getUser().getAvatarUrl());
+        embedBuilder.setTitle(userName + "'s " + (isGlobal() ? "global " : "") + "crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
+        embedBuilder.setFooter(userName + " has " + resultWrapper.size() + (isGlobal() ? " global" : "") + " crowns!!\n", null);
+        embedBuilder.setThumbnail(userUrl);
 
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->

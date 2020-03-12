@@ -70,12 +70,12 @@ public class BandInfoCommand extends WhoKnowsCommand {
         ai.setAlbumList(list);
         WrapperReturnNowPlaying np = getService().whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
         np.getReturnNowPlayings().forEach(element ->
-                element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))
+                element.setDiscordName(getUserString(e, element.getDiscordId(), element.getLastFMId()))
         );
 
         BufferedImage logo = CommandUtil.getLogo(getService(), e);
         BufferedImage returnedImage = BandRendered
-                .makeBandImage(np, ai, plays, logo, getUserString(userId, e, username));
+                .makeBandImage(np, ai, plays, logo, getUserString(e, userId, username));
         sendImage(returnedImage, e);
     }
 

@@ -41,7 +41,7 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
         TrackExtended trackInfo = this.lastFM.getTrackInfoExtended(lastFMData.getName(), artist.getArtist(), song);
 
 
-        String username = getUserStringConsideringGuildOrNot(e, who, lastFMData.getName());
+        String username = getUserString(e, who, lastFMData.getName());
         EmbedBuilder embedBuilder = new EmbedBuilder();
         String tagsField = trackInfo.getTags().isEmpty()
                 ? ""

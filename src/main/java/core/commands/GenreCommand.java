@@ -58,7 +58,7 @@ public class GenreCommand extends ConcurrentCommand {
         long discordId = Long.parseLong(returned[1]);
 
         String timeframe = returned[2];
-        String usableString = getUserStringConsideringGuildOrNot(e, discordId, username);
+        String usableString = getUserString(e, discordId, username);
         BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
         lastFM.getUserList(username, timeframe, 4000, 1, true, queue);
 

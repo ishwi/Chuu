@@ -8,12 +8,14 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.ArtistInfo;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UpdaterStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -172,24 +174,28 @@ public class CommandUtil {
         }
     }
 
-    static void getUserInfoConsideringGuildOrNot(StringBuilder usableName, StringBuilder url, MessageReceivedEvent e, long discordID) {
-        String tempName;
+    static DiscordUserDisplay getUserInfoConsideringGuildOrNot(MessageReceivedEvent e, long discordID) {
+        String username;
         User user;
         if (e.isFromGuild()) {
             Member whoD = e.getGuild().getMemberById(discordID);
             if (whoD == null) {
                 user = e.getJDA().retrieveUserById(discordID).complete();
-                tempName = user.getName();
+                username = user.getName();
             } else {
+                username = whoD.getEffectiveName();
                 user = whoD.getUser();
-                tempName = whoD.getEffectiveName();
             }
         } else {
             user = e.getJDA().retrieveUserById(discordID).complete();
-            tempName = user.getName();
+            username = user.getName();
+
         }
-        usableName.append(tempName);
-        url.append(user.getAvatarUrl() != null ? user.getAvatarUrl() : "");
+        return new DiscordUserDisplay(MarkdownSanitizer.sanitize(username), user.getAvatarUrl() != null ? user.getAvatarUrl() : "");
+    }
+
+    public static String sanitizeUserString(String message) {
+        return message.replaceAll("@", "@\u200E");
     }
 
     public static String getLastFMArtistTrack(String artist, String track) {

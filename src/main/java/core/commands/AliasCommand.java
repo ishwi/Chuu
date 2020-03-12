@@ -59,7 +59,7 @@ public class AliasCommand extends ConcurrentCommand {
         }
         try {
             getService().getArtistId(alias);
-            sendMessageQueue(e, "The alias: " + alias + "  points to an existing artist within the bot!");
+            sendMessageQueue(e, "The alias: " + alias + " points to an existing artist within the bot!");
 	    return;
         } catch (InstanceNotFoundException ex) {
             try {

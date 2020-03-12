@@ -75,7 +75,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
         if (isList) {
             wrapperReturnNowPlaying.getReturnNowPlayings()
-                    .forEach(x -> x.setDiscordName(getUserString(x.getDiscordId(), e, x.getLastFMId())));
+                    .forEach(x -> x.setDiscordName(getUserString(e, x.getDiscordId(), x.getLastFMId())));
 
             StringBuilder builder = new StringBuilder();
             int counter = 1;
@@ -98,7 +98,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
         } else {
 
             wrapperReturnNowPlaying.getReturnNowPlayings().forEach(element ->
-                    element.setDiscordName(getUserString(element.getDiscordId(), e, element.getLastFMId()))
+                    element.setDiscordName(getUserString(e, element.getDiscordId(), element.getLastFMId()))
             );
             BufferedImage logo = CommandUtil.getLogo(getService(), e);
             BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, e.getGuild().getName(), logo);

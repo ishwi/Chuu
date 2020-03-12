@@ -42,7 +42,7 @@ public class CrownLeaderboardCommand extends ListCommand<LbEntry> {
 
     @Override
     public void printList(List<LbEntry> list, MessageReceivedEvent e) {
-        list.forEach(cl -> cl.setDiscordName(getUserString(cl.getDiscordId(), e, cl.getLastFmId())));
+        list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
         MessageBuilder messageBuilder = new MessageBuilder();
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())

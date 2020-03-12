@@ -53,7 +53,6 @@ public class GlobalArtistCommand extends ConcurrentCommand {
         long userId = Long.parseLong(returned[1]);
         ScrobbledArtist validable = new ScrobbledArtist(returned[0], 0, "");
         CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
-
         List<GlobalCrown> globalArtistRanking = getService().getGlobalArtistRanking(validable.getArtistId());
 
         if (globalArtistRanking.isEmpty()) {

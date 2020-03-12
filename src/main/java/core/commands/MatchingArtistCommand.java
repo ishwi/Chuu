@@ -5,6 +5,7 @@ import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import dao.ChuuService;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -45,15 +46,15 @@ public class MatchingArtistCommand extends ConcurrentCommand {
 
         long discordId = Long.parseLong(message[1]);
         List<LbEntry> list = getService().matchingArtistsCount(discordId, e.getGuild().getIdLong());
-        list.forEach(cl -> cl.setDiscordName(getUserString(cl.getDiscordId(), e, cl.getLastFmId())));
+        list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
         MessageBuilder messageBuilder = new MessageBuilder();
-        StringBuilder url = new StringBuilder();
-        StringBuilder usableName = new StringBuilder();
 
-        CommandUtil.getUserInfoConsideringGuildOrNot(usableName, url, e, discordId);
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
+        String url = userInformation.getUrlImage();
+        String usableName = userInformation.getUsername();
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
-                .setThumbnail(url.toString());
+                .setThumbnail(url);
         StringBuilder a = new StringBuilder();
 
         if (list.isEmpty()) {
