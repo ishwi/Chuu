@@ -408,8 +408,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 return null;
 
             String url = resultSet.getString("url");
-            long discordID = resultSet.getLong("discordId");
-            long guildId = resultSet.getLong("guildId");
+            long discordID = resultSet.getLong("discord_Id");
+            long guildId = resultSet.getLong("guild_Id");
             return new RandomUrlEntity(url, discordID, guildId);
 
         } catch (SQLException e) {
