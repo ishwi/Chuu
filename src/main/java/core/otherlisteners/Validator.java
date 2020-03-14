@@ -10,33 +10,36 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.annotation.Nonnull;
-import java.util.function.BiConsumer;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Validator<T> extends ListenerAdapter {
 
+    private final Function<EmbedBuilder, EmbedBuilder> getLastMessage;
     private final Supplier<T> elementFetcher;
     private final BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder;
-    private final BiConsumer<T, JDA> succesFunction;
-    private final Consumer<T> rejectFunction;
     private final EmbedBuilder who;
     private final long whom;
     private final MessageChannel messageChannel;
+    private final Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap;
     private T currentElement;
     private int counter = 0;
     private Message message;
+    private final boolean allowOtherUsers;
 
-
-    public Validator(Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, BiConsumer<T, JDA> succesFunction, Consumer<T> rejectFunction, EmbedBuilder who, MessageChannel channel, long discordId) {
+    public Validator(Function<EmbedBuilder, EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, MessageChannel channel, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap, boolean allowOtherUsers) {
+        this.getLastMessage = getLastMessage;
         this.elementFetcher = elementFetcher;
-        this.succesFunction = succesFunction;
-        this.rejectFunction = rejectFunction;
+
         this.fillBuilder = fillBuilder;
         this.who = who;
         this.messageChannel = channel;
         this.whom = discordId;
+        this.actionMap = actionMap;
+        this.allowOtherUsers = allowOtherUsers;
         try {
             initReactionary();
         } catch (Throwable e) {
@@ -51,36 +54,45 @@ public class Validator<T> extends ListenerAdapter {
 
     private void noMoreElements(JDA jda) {
         if (message == null) {
-            this.message = messageChannel.sendMessage("No aliases to review!").complete();
+            this.message = messageChannel.sendMessage(getLastMessage.apply(who).build()).complete();
         } else
-            message.editMessage(who.clearFields().setTitle("No more aliases to review!").build()).complete();
+            message.editMessage(getLastMessage.apply(who).build()).complete();
         endItAll(jda);
     }
 
-    private MessageAction doTheThing(JDA jda) {
+    @SuppressWarnings("rawtypes")
+    private void initEmotes() {
+        CompletableFuture[] completableFutures1 = this.actionMap.keySet().stream().map(x -> message.addReaction(x).submit()).toArray(CompletableFuture[]::new);
+        CompletableFuture.allOf(completableFutures1).join();
+    }
+
+    private MessageAction doTheThing(JDA jda, boolean newElement) {
         T t = elementFetcher.get();
-        if (t == null || t.equals(currentElement)) {
+        if (t == null) {
             noMoreElements(jda);
             return null;
         }
         this.currentElement = t;
         EmbedBuilder apply = fillBuilder.apply(t, who);
-        return messageChannel.sendMessage(apply.build());
+        if (newElement || this.message == null) {
+            return messageChannel.sendMessage(apply.build());
+        }
+        return this.message.editMessage(apply.build());
     }
 
     private void initReactionary() {
-        MessageAction messageAction = doTheThing(messageChannel.getJDA());
+        MessageAction messageAction = doTheThing(messageChannel.getJDA(), true);
         if (messageAction == null) {
             return;
         }
         this.message = messageAction.complete();
-        message.addReaction("U+274c")
-                .flatMap(x -> message.addReaction("U+2714"))
-                .queue(t -> message.getJDA().addEventListener(this));
+
+        initEmotes();
+        message.getJDA().addEventListener(this);
         while (true) {
             int prevCounter = counter;
             try {
-                Thread.sleep(20000);
+                Thread.sleep(30000);
             } catch (InterruptedException ex) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);
             }
@@ -93,33 +105,29 @@ public class Validator<T> extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
-        if (event.getUserIdLong() != whom || event.getMessageIdLong() != message.getIdLong())
+        if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUserIdLong() != whom) || event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong())
             return;
-
-        switch (event.getReaction().getReactionEmote().getAsCodepoints()) {
-            case "U+2714":
-                this.succesFunction.accept(currentElement, event.getJDA());
-                MessageAction messageAction = this.doTheThing(event.getJDA());
-                if (messageAction != null)
-                    messageAction.queue(x -> accept(x, "Alias Accepted"));
-                break;
-            case "U+274c":
-                this.rejectFunction.accept(currentElement);
-                messageAction = this.doTheThing(event.getJDA());
-                if (messageAction != null)
-                    messageAction.queue(x -> accept(x, "Alias Rejected"));
-                break;
-            default:
+        BiFunction<T, MessageReactionAddEvent, Boolean> action = this.actionMap.get(event.getReaction().getReactionEmote().getAsCodepoints());
+        if (action == null)
+            return;
+        Boolean apply = action.apply(currentElement, event);
+        MessageAction messageAction = this.doTheThing(event.getJDA(), apply);
+        counter++;
+        if (messageAction != null) {
+            if (apply) {
+                messageAction.queue(this::accept);
+            } else if (event.getUser() != null) {
+                event.getReaction().removeReaction(event.getUser()).flatMap(x -> messageAction).queue();
+            } else {
+                messageAction.queue();
+            }
         }
-
     }
 
-    private void accept(Message mes, String content) {
+    private void accept(Message mes) {
         this.message.delete().queue(t -> {
             this.message = mes;
-            counter++;
-            message.addReaction("U+274c")
-                    .flatMap(y -> message.addReaction("U+2714")).queue();
+            this.initEmotes();
         });
     }
 

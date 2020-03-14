@@ -12,9 +12,11 @@ import dao.entities.LastFMData;
 import dao.entities.Role;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -24,7 +26,7 @@ public class AliasReviewCommand extends ConcurrentCommand {
             embedBuilder.clearFields()
                     .addField("Alias:", aliasEntity.getAlias(), false)
                     .addField("Artist to be aliased:", aliasEntity.getArtistName(), false)
-		    .addField("Added:", aliasEntity.getDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("YYYY-dd-mm HH:mm 'UTC'")), false)
+                    .addField("Added:", aliasEntity.getDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("YYYY-dd-mm HH:mm 'UTC'")), false)
                     .setColor(CommandUtil.randomColor());
 
     public AliasReviewCommand(ChuuService dao) {
@@ -49,7 +51,6 @@ public class AliasReviewCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = getService().findLastFMData(idLong);
         if (lastFMData.getRole() != Role.ADMIN) {
@@ -61,41 +62,47 @@ public class AliasReviewCommand extends ConcurrentCommand {
             return;
         }
         this.isActive = true;
-	try {
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle("Alias Review");
-        this.executor.submit(() -> {
-            new Validator<>(
-                    () -> getService().getNextInAliasQueue(),
-                    builder,
-                    (aliasEntity, jda) -> {
-                        try {
-                            getService().addAlias(aliasEntity.getAlias(), aliasEntity.getArtistId());
-                            getService().deleteAliasById(aliasEntity.getId());
-                            jda.retrieveUserById(aliasEntity.getDiscorId())
-                                    .queue(user -> user.openPrivateChannel()
-                                            .flatMap(privateChannel -> privateChannel.sendMessage("Your alias: " + aliasEntity.getAlias() + " has been approved!"))
-                                            .queue());
-                        } catch (DuplicateInstanceException | InstanceNotFoundException ignored) {
-                            try {
-                                getService().deleteAliasById(aliasEntity.getId());
-                            } catch (InstanceNotFoundException ignored1) {
+        try {
 
-                            }
-                        }
-                    },
-                    (a) -> {
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            this.executor.submit(() -> {
+                HashMap<String, BiFunction<AliasEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
+                actionMap.put("U+2714", (aliasEntity, r) -> {
+                    try {
+                        getService().addAlias(aliasEntity.getAlias(), aliasEntity.getArtistId());
+                        getService().deleteAliasById(aliasEntity.getId());
+                        r.getJDA().retrieveUserById(aliasEntity.getDiscorId())
+                                .queue(user -> user.openPrivateChannel()
+                                        .flatMap(privateChannel -> privateChannel.sendMessage("Your alias: " + aliasEntity.getAlias() + " has been approved!"))
+                                        .queue());
+                    } catch (DuplicateInstanceException | InstanceNotFoundException ignored) {
                         try {
-                            getService().deleteAliasById(a.getId());
-                        } catch (InstanceNotFoundException e1) {
-                            Chuu.getLogger().error(e1.getMessage());
+                            getService().deleteAliasById(aliasEntity.getId());
+                        } catch (InstanceNotFoundException ignored1) {
+
                         }
-                    }, embedBuilder, e.getChannel(), e.getAuthor().getIdLong());
+                    }
+                    return true;
+
+                });
+                actionMap.put("U+274c", (a, r) -> {
+                    try {
+                        getService().deleteAliasById(a.getId());
+                    } catch (InstanceNotFoundException e1) {
+                        Chuu.getLogger().error(e1.getMessage());
+                    }
+                    return true;
+                });
+                new Validator<>(
+                        (embedBuilder1) -> embedBuilder.setTitle("No more  Aliases to Review").clearFields(),
+                        () -> getService().getNextInAliasQueue(),
+                        builder
+                        , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false);
+                this.isActive = false;
+            });
+        } catch (Throwable ex) {
+            Chuu.getLogger().warn(ex.getMessage());
             this.isActive = false;
-        });
-	} catch(Throwable ex) {
-		Chuu.getLogger().warn(ex.getMessage());
-		this.isActive = false;
-	}
+        }
     }
 }

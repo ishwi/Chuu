@@ -5,7 +5,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.exceptions.DiscogsServiceException;
 import dao.ChuuService;
-import dao.entities.ArtistInfo;
+import dao.entities.ScrobbledArtist;
 
 import java.util.Set;
 
@@ -25,31 +25,27 @@ public class ImageUpdaterThread implements Runnable {
 
     @Override
     public void run() {
-        Set<String> artistData = dao.getNullUrls();
+        Set<ScrobbledArtist> artistData = dao.getNullUrls();
         System.out.println("Found at lest " + artistData.size() + "null artist ");
-        for (String artistDatum : artistData) {
-			String url;
-			System.out.println("Working with artist " + artistDatum);
-			try {
+        for (ScrobbledArtist artistDatum : artistData) {
+            String url;
+            System.out.println("Working with artist " + artistDatum.getArtist());
+            try {
                 //We can get rate limited if we do it wihtout sleeping
                 Thread.sleep(100L);
-                url = discogsApi.findArtistImage(artistDatum);
+                url = discogsApi.findArtistImage(artistDatum.getArtist());
                 if (url != null) {
 
                     System.out.println("Upserting buddy");
                     if (!url.isEmpty())
                         System.out.println(artistDatum);
-                    dao.upsertUrl(new ArtistInfo(url, artistDatum));
+                    dao.upsertUrl(url, artistDatum.getArtistId());
                 }
-            } catch (DiscogsServiceException e) {
-				Chuu.getLogger().warn(e.getMessage(), e);
-
-
-			} catch (InterruptedException e) {
-				Chuu.getLogger().warn(e.getMessage(), e);
-			}
-		}
-	}
+            } catch (DiscogsServiceException | InterruptedException e) {
+                Chuu.getLogger().warn(e.getMessage(), e);
+            }
+        }
+    }
 
 
 }

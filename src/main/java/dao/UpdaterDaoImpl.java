@@ -130,39 +130,36 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
-    public void upsertUrl(Connection con, ArtistInfo artistInfo) {
+    public long upsertUrl(Connection con, String url, long artist_id, long discord_id) {
         /* Create "queryString". */
-        String queryString = "INSERT  INTO  artist ( name,url)   VALUES (?, ?) ON DUPLICATE  KEY UPDATE url= ?  ";
-
-        insertArtistInfo(con, artistInfo, queryString);
+        String queryString = "INSERT INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?)  ";
+        return insertArtistInfo(con, url, artist_id, discord_id, queryString);
     }
 
-    private void insertArtistInfo(Connection con, ArtistInfo artistInfo, String queryString) {
-        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+    private long insertArtistInfo(Connection con, String url, long artist_id, long discord_id, String queryString) {
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS)) {
 
             /* Fill "preparedStatement". */
             int i = 1;
-            preparedStatement.setString(i++, artistInfo.getArtist());
-            preparedStatement.setString(i++, artistInfo.getArtistUrl());
-            preparedStatement.setString(i, artistInfo.getArtistUrl());
+            preparedStatement.setLong(i++, artist_id);
+            preparedStatement.setString(i++, url);
+            preparedStatement.setLong(i, discord_id);
 
 
             /* Execute query. */
             preparedStatement.execute();
-            ResultSet ids = preparedStatement.getResultSet();
+            ResultSet rs = preparedStatement.getGeneratedKeys();
 
-            int counter = 0;
-           /* if (ids.next()) {
-                return ids.getLong(1);
-
-            }*/
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
             /* Get generated identifier. */
-//            throw new RuntimeException();
+            throw new RuntimeException();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
+    }/**/
 
     @Override
     public void upsertArtistsDetails(Connection con, List<ScrobbledArtist> scrobbledArtists) {
@@ -210,11 +207,11 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
-    public Set<String> selectNullUrls(Connection connection, boolean doSpotifySearch) {
-        Set<String> returnList = new HashSet<>();
+    public Set<ScrobbledArtist> selectNullUrls(Connection connection, boolean doSpotifySearch) {
+        Set<ScrobbledArtist> returnList = new HashSet<>();
 
-        String queryString = doSpotifySearch ? "SELECT * FROM artist where url = '' and  url_status = 1 or url is null limit 20" :
-                "SELECT * FROM artist where url is null limit 20";
+        String queryString = doSpotifySearch ? "SELECT name,id FROM artist where url = '' and  url_status = 1 or url is null limit 20" :
+                "SELECT name,id FROM artist where url is null limit 20";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -222,7 +219,11 @@ public class UpdaterDaoImpl implements UpdaterDao {
             /* Get generated identifier. */
 
             while (resultSet.next()) {
-                returnList.add(resultSet.getString("name"));
+                String name = resultSet.getString("name");
+                long id = resultSet.getLong("id");
+                ScrobbledArtist scrobbledArtist = new ScrobbledArtist(name, 0, null);
+                scrobbledArtist.setArtistId(id);
+                returnList.add(scrobbledArtist);
             }
 
         } catch (SQLException e) {
@@ -232,12 +233,10 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
-    public void upsertSpotify(Connection con, ArtistInfo artistInfo) {
+    public void upsertSpotify(Connection con, String url, long artist_id, long discord_id) {
         /* Create "queryString". */
-        String queryString = "INSERT  INTO  artist"
-                             + " ( name,url,url_status) " + " VALUES (?, ?,0) ON DUPLICATE KEY UPDATE url= ? , url_status = 0 ";
-
-        insertArtistInfo(con, artistInfo, queryString);
+        String queryString = "INSERT INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?) ";
+        insertArtistInfo(con, url, artist_id, discord_id, queryString);
     }
 
     @Override
@@ -748,6 +747,76 @@ public class UpdaterDaoImpl implements UpdaterDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void updateUrlStatus(Connection con, long artist_id) {
+        String queryString = "UPDATE artist SET url_status = 0 WHERE id = ?";
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, artist_id);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public OptionalLong checkArtistUrlExists(Connection con, long artistId, String urlParsed) {
+        String queryString = "SELECT id FROM alt_url WHERE artist_id = ? AND url = ? ";
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+            preparedStatement.setLong(1, artistId);
+            preparedStatement.setString(2, urlParsed);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return OptionalLong.of(resultSet.getLong(1));
+            }
+            return OptionalLong.empty();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void removeVote(Connection con, long url_id, long discord_id) {
+        String queryString = "DELETE FROM vote WHERE discord_id = ? AND alt_id = ? ";
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, discord_id);
+            preparedStatement.setLong(2, url_id);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean castVote(Connection con, long url_id, long discord_id, boolean isPositive) {
+        String queryString = "INSERT IGNORE INTO vote(alt_id,discord_id,ispositive) VALUES (?,?,?) ON DUPLICATE KEY UPDATE  ispositive = ?";
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i++, url_id);
+            preparedStatement.setLong(i++, discord_id);
+            preparedStatement.setBoolean(i++, isPositive);
+            preparedStatement.setBoolean(i, isPositive);
+            return preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void reportImage(Connection connection, long urlId, long userIdLong) {
+
+        String queryString = "INSERT IGNORE INTO reported(alt_id,discord_id) VALUES (?,?) ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i++, urlId);
+            preparedStatement.setLong(i, userIdLong);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
 

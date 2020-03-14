@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 
 import java.util.List;
 
@@ -57,25 +58,31 @@ public class StreakCommand extends ConcurrentCommand {
         ScrobbledArtist artist = new ScrobbledArtist(combo.getCurrentArtist(), 0, "");
         CommandUtil.validate(getService(), artist, lastFM, DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstanceUsingDoubleLocking());
         int artistPlays = getService().getArtistPlays(artist.getArtistId(), lastfmId);
+        String aString = MarkdownSanitizer.escape(artist.getArtist());
         StringBuilder description = new StringBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(userName + " 's current listening streak", CommandUtil.getLastFmUser(lastfmId), userUrl)
                 .setThumbnail(CommandUtil.noImageUrl(artist.getUrl()))
                 .setDescription("");
         description.append("**Artist**: ").append(combo.getaCounter()).append(combo.getaCounter() >= 1000 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
-                .append(artist.getArtist()).append("](").append(CommandUtil.getLastFmArtistUrl(combo.getCurrentArtist())).append(")**").append("\n");
+                .append(aString).append("](").append(CommandUtil.getLastFmArtistUrl(combo.getCurrentArtist())).append(")**").append("\n");
 
         if (combo.getAlbCounter() > 0) {
-            description.append("**Album**: ").append(combo.getAlbCounter()).append(combo.getAlbCounter() >= 1000 ? "+" : "").append(combo.getAlbCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
-                    .append(combo.getCurrentAlbum()).append("](").append(CommandUtil.getLastFmArtistAlbumUrl(combo.getCurrentArtist(), combo.getCurrentAlbum())).append(")**").append("\n");
+            description.append("**Album**: ")
+                    .append(combo.getAlbCounter())
+                    .append(combo.getAlbCounter() >= 1000 ? "+" : "")
+                    .append(combo.getAlbCounter() != 1 ? " consecutive plays - " : " play - ")
+                    .append("**[").append(MarkdownSanitizer.escape(combo.getCurrentAlbum())).append("](")
+                    .append(CommandUtil.getLastFmArtistAlbumUrl(combo.getCurrentArtist(), combo.getCurrentAlbum())).append(")**")
+                    .append("\n");
         }
         if (combo.gettCounter() > 0) {
             description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 1000 ? "+" : "").append(combo.gettCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
-                    .append(combo.getCurrentSong()).append("](").append(CommandUtil.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
+                    .append(MarkdownSanitizer.escape(combo.getCurrentSong())).append("](").append(CommandUtil.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
         }
         MessageEmbed build = embedBuilder.setDescription(description)
                 .setColor(CommandUtil.randomColor())
-                .setFooter(userName + " has played " + artist.getArtist() + " " + artistPlays + "!")
+                .setFooter(userName + " has played " + aString + " " + artistPlays + " times!")
                 .build();
         MessageBuilder messageBuilder = new MessageBuilder();
         messageBuilder.setEmbed(build).sendTo(e.getChannel()).queue();

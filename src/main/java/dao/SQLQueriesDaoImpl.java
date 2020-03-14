@@ -5,10 +5,7 @@ import dao.entities.*;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -309,6 +306,52 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             throw new RuntimeException((e));
         }
     }
+
+    @Override
+    public List<VotingEntity> getAllArtistImages(Connection connection, long artist_id) {
+        List<VotingEntity> returnedList = new ArrayList<>();
+        String queryString = " Select a.id,a.url,a.score,a.discord_id,a.added_date,b.name,b.id,(select count(*) from vote where alt_id = a.id) as totalVotes from alt_url a join artist b on a.artist_id = b.id  where a.artist_id = ? order by a.score desc , added_date asc ";
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, artist_id);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String artistName = resultSet.getString("b.name");
+                String artistUrl = resultSet.getString("a.url");
+                long owner = resultSet.getLong("a.discord_id");
+                long artistId = resultSet.getLong("b.id");
+                long urlId = resultSet.getLong("a.id");
+
+                int votes = resultSet.getInt("a.score");
+                int totalVotes = resultSet.getInt("totalVotes");
+                Timestamp date = resultSet.getTimestamp("a.added_date");
+                returnedList.add(new VotingEntity(artistName, artistUrl, date.toLocalDateTime(), owner, artistId, votes, totalVotes, urlId));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return returnedList;
+    }
+
+    @Override
+    public Boolean hasUserVotedImage(Connection connection, long url_id, long discord_id) {
+        String queryString = "Select ispositive from vote where alt_id = ? and discord_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, url_id);
+            preparedStatement.setLong(2, discord_id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getBoolean(1);
+            }
+            return null;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @Override
     public UniqueWrapper<ArtistPlays> getUniqueArtist(Connection connection, Long guildID, String lastfmId) {
