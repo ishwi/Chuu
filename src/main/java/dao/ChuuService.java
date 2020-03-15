@@ -335,7 +335,9 @@ public class ChuuService {
     public void upsertSpotify(String url, long artist_Id, long discord_id) {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.updateUrlStatus(connection, artist_Id);
-            updaterDao.upsertSpotify(connection, url, artist_Id, discord_id);
+            if (url != null && !url.isBlank()) {
+                updaterDao.upsertSpotify(connection, url, artist_Id, discord_id);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -899,6 +901,14 @@ public class ChuuService {
     public List<String> getArtistAliases(long artistId) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getArtistAliases(connection, artistId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void upsertArtistSad(ScrobbledArtist scrobbledArtist) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.insertArtistSad(connection, scrobbledArtist);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

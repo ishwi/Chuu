@@ -31,7 +31,7 @@ CREATE TABLE artist
 (
     id                BIGINT(20)                              NOT NULL AUTO_INCREMENT,
     name              VARCHAR(400) COLLATE utf8mb4_unicode_ci NOT NULL,
-    url               VARCHAR(180) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    url               VARCHAR(400) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
     url_status        TINYINT(1)                              DEFAULT 1,
     correction_status TINYINT(1)                              DEFAULT 0,
     PRIMARY KEY (id),
@@ -81,7 +81,7 @@ CREATE TABLE randomlinks
 (
     discord_id BIGINT(20),
     guild_id   BIGINT(20),
-    url        VARCHAR(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+    url        VARCHAR(400) COLLATE utf8mb4_unicode_ci NOT NULL,
     PRIMARY KEY (url),
     UNIQUE KEY unique_url_random (url),
     CONSTRAINT randomlinks_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE SET NULL,
@@ -107,7 +107,7 @@ CREATE TABLE alt_url
 (
     id         BIGINT(20)                            NOT NULL AUTO_INCREMENT PRIMARY KEY,
     artist_id  BIGINT(20)                            NOT NULL,
-    url        VARCHAR(255) COLLATE ascii_general_ci NOT NULL,
+    url        VARCHAR(400) COLLATE ascii_general_ci NOT NULL,
     discord_id BIGINT(20)                            NOT NULL,
     added_date DATETIME                              NOT NULL DEFAULT NOW(),
     score      INT                                   NOT NULL DEFAULT 0,

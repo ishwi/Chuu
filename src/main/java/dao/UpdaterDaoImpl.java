@@ -49,7 +49,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public UpdaterUserWrapper getLessUpdated(Connection connection) {
         @Language("MariaDB") String queryString =
-                "SELECT a.discord_id, a.lastfm_id,a.last_update,a.control_timestamp " +
+                "SELECT a.discord_id, a.lastfm_id,(if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) controling " +
                 "FROM user a   " +
                 "ORDER BY  control_timestamp LIMIT 1";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -62,8 +62,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
                 String name = resultSet.getString("a.lastFm_Id");
                 long discordID = resultSet.getLong("a.discord_ID");
-                Timestamp timestamp = resultSet.getTimestamp("a.last_update");
-                Timestamp controlTimestamp = resultSet.getTimestamp("a.control_timestamp");
+                Timestamp timestamp = resultSet.getTimestamp("updating");
+                Timestamp controlTimestamp = resultSet.getTimestamp("controling");
 
                 return new UpdaterUserWrapper(discordID, name, ((int) timestamp.toInstant()
                         .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()));
@@ -663,7 +663,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     public UpdaterUserWrapper getUserUpdateStatus(Connection connection, long discordId) throws
             InstanceNotFoundException {
         @Language("MariaDB") String queryString =
-                "SELECT a.discord_id, a.lastfm_id,a.last_update,a.control_timestamp " +
+                "SELECT a.discord_id, a.lastfm_id, (if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating ,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) control " +
                 "FROM user a   " +
                 " WHERE a.discord_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -677,8 +677,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
                 String name = resultSet.getString("a.lastFm_Id");
                 long discordID = resultSet.getLong("a.discord_ID");
-                Timestamp timestamp = resultSet.getTimestamp("a.last_update");
-                Timestamp controlTimestamp = resultSet.getTimestamp("a.control_timestamp");
+                Timestamp timestamp = resultSet.getTimestamp("updating");
+                Timestamp controlTimestamp = resultSet.getTimestamp("control");
 
                 return new UpdaterUserWrapper(discordID, name, ((int) timestamp.toInstant()
                         .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()));

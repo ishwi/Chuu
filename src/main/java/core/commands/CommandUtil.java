@@ -62,7 +62,13 @@ public class CommandUtil {
                 dao.upsertUrl(newUrl, scrobbledArtist.getArtistId());
             } else {
                 newUrl = spotify.getArtistUrlImage(scrobbledArtist.getArtist());
-                dao.upsertSpotify(newUrl, scrobbledArtist.getArtistId());
+                if (newUrl.isBlank()) {
+                    scrobbledArtist.setUrl("");
+                    scrobbledArtist.setUpdateBit(false);
+                    dao.upsertArtistSad(scrobbledArtist);
+                } else {
+                    dao.upsertSpotify(newUrl, scrobbledArtist.getArtistId());
+                }
             }
         } catch (DiscogsServiceException ignored) {
 

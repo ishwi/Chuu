@@ -32,9 +32,14 @@ public class SpotifyUpdaterThread implements Runnable {
 
             url = spotifyApi.getArtistUrlImage(artistDatum.getArtist());
             if (url != null) {
-                if (!url.isEmpty())
+                if (url.isEmpty()) {
+                    artistDatum.setUrl("");
+                    artistDatum.setUpdateBit(false);
+                    dao.upsertArtistSad(artistDatum);
+                } else {
                     System.out.println("INSERTED : " + artistDatum.getArtist());
-                dao.upsertSpotify(url, artistDatum.getArtistId());
+                    dao.upsertSpotify(url, artistDatum.getArtistId());
+                }
             }
 
         }

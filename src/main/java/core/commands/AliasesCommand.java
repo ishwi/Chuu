@@ -58,7 +58,7 @@ public class AliasesCommand extends ConcurrentCommand {
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
         String correctedArtist = scrobbledArtist.getArtist();
         List<String> artistAliases = getService().getArtistAliases(scrobbledArtist.getArtistId())
-                .stream().map(x -> "." + x).collect(Collectors.toList());
+                .stream().map(x -> "." + x + "\n").collect(Collectors.toList());
         if (artistAliases.size() == 0) {
             sendMessageQueue(e, correctedArtist + " doesn't have any correction:");
             return;

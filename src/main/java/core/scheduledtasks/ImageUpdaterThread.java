@@ -37,9 +37,14 @@ public class ImageUpdaterThread implements Runnable {
                 if (url != null) {
 
                     System.out.println("Upserting buddy");
-                    if (!url.isEmpty())
-                        System.out.println(artistDatum);
-                    dao.upsertUrl(url, artistDatum.getArtistId());
+                    if (url.isEmpty()) {
+                        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistDatum.getArtist(), 0, null);
+                        scrobbledArtist.setArtistId(scrobbledArtist.getArtistId());
+                        scrobbledArtist.setUpdateBit(true);
+                        dao.upsertArtistSad(scrobbledArtist);
+                    } else {
+                        dao.upsertUrl(url, artistDatum.getArtistId());
+                    }
                 }
             } catch (DiscogsServiceException | InterruptedException e) {
                 Chuu.getLogger().warn(e.getMessage(), e);
