@@ -60,18 +60,17 @@ public class ArtistUrlCommand extends ConcurrentCommand {
             ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), artist, lastFM);
             OptionalLong optionalLong = getService().checkArtistUrlExists(scrobbledArtist.getArtistId(), urlParsed);
             if (optionalLong.isPresent()) {
-                sendMessageQueue(e, "That image already existed for the artist: " + scrobbledArtist.getArtist() + "\n Added a vote to that image instead");
+                sendMessageQueue(e, "That image already existed for  artist: " + MarkdownSanitizer.escape(scrobbledArtist.getArtist()) + "\n Added a vote to that image instead");
                 getService().castVote(optionalLong.getAsLong(), e.getAuthor().getIdLong(), true);
                 return;
             }
             getService().userInsertUrl(urlParsed, scrobbledArtist.getArtistId(), e.getAuthor().getIdLong());
-            sendMessageQueue(e, "Added an image and voted it to " + MarkdownSanitizer.escape(scrobbledArtist.getArtist()));
+            sendMessageQueue(e, "Submitted an image for " + MarkdownSanitizer.escape(scrobbledArtist.getArtist()) + " and added a vote");
 
         } catch (IOException exception) {
             parser.sendError(parser.getErrorMessage(2), e);
             Chuu.getLogger().warn(exception.getMessage(), exception);
         }
-
 
     }
 

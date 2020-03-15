@@ -127,7 +127,7 @@ public class ExtraParser<T extends Parser, J> extends Parser {
                 return null;
             }
         }
-        return ObjectArrays.concat(toString.apply(item), strings1);
+        return ObjectArrays.concat(item == null ? null : toString.apply(item), strings1);
 
     }
 

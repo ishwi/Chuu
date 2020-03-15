@@ -206,7 +206,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
     @NotNull
     private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(Connection connection, String queryString, String normalQuery, String countQuery) {
-        int rows = 0;
+        int rows;
         try (PreparedStatement preparedStatement2 = connection.prepareStatement(countQuery)) {
 
             ResultSet resultSet = preparedStatement2.executeQuery();
@@ -350,6 +350,29 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<String> getArtistAliases(Connection connection, long artistId) {
+        @Language("MariaDB") String queryString = "SELECT alias FROM corrections WHERE artist_id = ? ";
+        List<String> returnList = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i, artistId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) { //&& (j < 10 && j < rows)) {
+                String name = resultSet.getString("alias");
+                returnList.add(name);
+            }
+            return returnList;
+
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+
+
     }
 
 

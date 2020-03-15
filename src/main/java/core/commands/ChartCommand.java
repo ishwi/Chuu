@@ -10,7 +10,6 @@ import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -30,7 +29,7 @@ public class ChartCommand extends ConcurrentCommand {
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("chart");
+        return List.of("chart", "c");
     }
 
     @Override

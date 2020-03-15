@@ -205,6 +205,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new UserExportCommand(dao)))
                 .addEventListeners(help.registerCommand(new ImportCommand(dao)))
                 .addEventListeners(help.registerCommand(new VotingCommand(dao)))
+                .addEventListeners(help.registerCommand(new AliasesCommand(dao)))
 
                 .setDisabledCacheFlags(EnumSet.allOf(CacheFlag.class))
                 .setChunkingFilter(ChunkingFilter.NONE);

@@ -24,7 +24,7 @@ public class SimpleDataSource {
 
         HikariConfig config = new HikariConfig(name);
         if (selector) {
-            config.setConnectionInitSql("set @@sql_mode='NO_ZERO_DATE'");
+            config.setConnectionInitSql("set @@sql_mode='NO_ZERO_DATE';");
         }
         this.ds = new HikariDataSource(config);
 

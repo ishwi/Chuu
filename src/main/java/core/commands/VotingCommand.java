@@ -36,7 +36,7 @@ public class VotingCommand extends ConcurrentCommand {
                     .addBlankField(true)
                     .addField("Vote Count:", String.valueOf(votingEntity.getTotalVotes()), true)
                     .setFooter("Image Count: " + integer + " \nUse \uD83D\uDEAB to report this image")
-                    .setImage(votingEntity.getUrl().isBlank() ? null : votingEntity.getUrl())
+                    .setImage(CommandUtil.noImageUrl(votingEntity.getUrl()))
                     .setColor(CommandUtil.randomColor());
 
     public VotingCommand(ChuuService dao) {

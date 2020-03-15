@@ -132,7 +132,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public long upsertUrl(Connection con, String url, long artist_id, long discord_id) {
         /* Create "queryString". */
-        String queryString = "INSERT INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?)  ";
+        String queryString = "INSERT ignore INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?)  ";
         return insertArtistInfo(con, url, artist_id, discord_id, queryString);
     }
 
@@ -235,7 +235,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public void upsertSpotify(Connection con, String url, long artist_id, long discord_id) {
         /* Create "queryString". */
-        String queryString = "INSERT INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?) ";
+        String queryString = "INSERT ignore INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?) ";
         insertArtistInfo(con, url, artist_id, discord_id, queryString);
     }
 

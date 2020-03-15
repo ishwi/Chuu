@@ -129,7 +129,7 @@ public class SetCommand extends ConcurrentCommand {
             System.out.println("Error while updating " + lastFmID + LocalDateTime.now()
                     .format(DateTimeFormatter.ISO_DATE));
             Chuu.getLogger().warn(ex.getMessage(), ex);
-            getService().updateUserTimeStamp(lastFmID, 0, null);
+            getService().updateUserTimeStamp(lastFmID, null, null);
             sendMessageQueue(e, "Error downloading  " + MarkdownSanitizer.escape(e.getAuthor()
                     .getName()) + "'s  library, try to run !update, try again later or contact bot admins if the error persists");
         }

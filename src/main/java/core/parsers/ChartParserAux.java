@@ -8,13 +8,15 @@ import dao.entities.TimeFrameEnum;
 import java.awt.*;
 import java.time.Year;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 class ChartParserAux {
     private final static Pattern pattern = Pattern.compile("(:?[yqsmwa]|(:?year(:?ly)?|month(:?ly)?|quarter(:?ly)?|semester(:?ly)?|week(:?ly)?|alltime|all))");
-    private final static Pattern naturalPattern = Pattern.compile("(:?[yqsmwad]|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(?:ly)?(:?lies)?|day(:?s)?))");
+    private final static Pattern naturalPattern = Pattern.compile("(:?[yqsmwadh']|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(:?ly)?(:?lies)?|day(:?s)?|" +
+                                                                  "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))");
 
     private final static Pattern nonPermissivePattern = Pattern.compile("[yqsmwa]");
     private final static Pattern chartSizePattern = Pattern.compile("\\d+[xX]\\d+");
@@ -41,6 +43,13 @@ class ChartParserAux {
         Optional<String> opt2 = secondStream.findAny();
         if (opt2.isPresent()) {
             String permissiveString = String.valueOf(opt2.get().charAt(0));
+            if (List.of("hour", "hourly", "hours").contains(opt2.get())) {
+                permissiveString = "h";
+            } else if (List.of("min", "mins", "minutes", "minute", "'").contains(opt2.get())) {
+                permissiveString = "min";
+            } else if (List.of("sec", "second", "seconds", "''", "secs").contains(opt2.get())) {
+                permissiveString = "sec";
+            }
             timeFrame = NaturalTimeFrameEnum.get(permissiveString);
             message = Arrays.stream(message).filter(s -> !s.equals(opt2.get())).toArray(String[]::new);
         }

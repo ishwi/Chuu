@@ -70,4 +70,5 @@ interface SQLQueriesDao {
     Boolean hasUserVotedImage(Connection connection, long url_id, long discord_id);
 
 
+    List<String> getArtistAliases(Connection connection, long artistId);
 }

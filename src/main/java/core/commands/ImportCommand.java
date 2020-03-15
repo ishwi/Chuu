@@ -139,7 +139,7 @@ public class ImportCommand extends ConcurrentCommand {
     public String getDescription() {
         return "Import a user list from a file such that the file must be a JSON with at least the following fields:\n" +
                "\tdiscordUserID: which is the id of the discord user\n" +
-               "\tlastFMUsername: which is the lastfm name of the discord user\n\n";
+               "\tlastFMUsername: which is the lastfm name of the discord user\n";
     }
 
     @Override

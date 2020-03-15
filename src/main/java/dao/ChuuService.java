@@ -895,4 +895,12 @@ public class ChuuService {
             throw new RuntimeException(e);
         }
     }
+
+    public List<String> getArtistAliases(long artistId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getArtistAliases(connection, artistId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

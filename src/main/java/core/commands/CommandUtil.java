@@ -207,5 +207,8 @@ public class CommandUtil {
                 .replaceAll("[)]", "%29");
     }
 
+    public static char getMessagePrefix(MessageReceivedEvent e) {
+        return e.getMessage().getContentRaw().charAt(0);
+    }
 
 }
