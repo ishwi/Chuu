@@ -28,8 +28,8 @@ public class ArtistFromCountryCommand extends ConcurrentCommand {
 
     public ArtistFromCountryCommand(ChuuService dao) {
         super(dao);
-        this.parser = new CountryParser(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
+        this.parser = new CountryParser(dao, lastFM, mb);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand {
                 ? ""
                 : ("in the last " + TimeFrameEnum.fromCompletePeriod(timeframe).toString().toLowerCase());
         if (list.isEmpty()) {
-            sendMessageQueue(e, userUrl + " doesnt have any artist from " + ":flag_" + country.getAlpha2().toLowerCase() + ": " + usableTime);
+            sendMessageQueue(e, userName + " doesnt have any artist from " + ":flag_" + country.getAlpha2().toLowerCase() + ": " + usableTime);
             return;
         }
         StringBuilder a = new StringBuilder();
@@ -82,13 +82,13 @@ public class ArtistFromCountryCommand extends ConcurrentCommand {
             a.append(i + 1).append(list.get(i).toString());
         }
 
-        userName += ("'s top artists from  :flag_") + (country.getAlpha2().toLowerCase()) + (":");
+        String title = userName + ("'s top artists from  :flag_") + (country.getAlpha2().toLowerCase()) + (":");
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
-                .setThumbnail(userUrl.toString())
-                .setFooter(userUrl + " has " + list.size() +
+                .setThumbnail(userUrl)
+                .setFooter(userName + " has " + list.size() +
                            (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
-                .setTitle(userName.toString())
+                .setTitle(title)
                 .setDescription(a);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(mes ->
                 executor.execute(() -> new Reactionary<>(list, mes, embedBuilder)));

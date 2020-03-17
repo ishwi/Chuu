@@ -191,34 +191,18 @@ CREATE TRIGGER alt_url_update
     ON alt_url
     FOR EACH ROW
 BEGIN
-    DECLARE current_url VARCHAR(255);
-    DECLARE current_score INT(11);
     (SELECT max(a.score), a.url
+     INTO @current_score,@current_url
      FROM alt_url a
-     WHERE a.artist_id = new.artist_id)
-    INTO current_score,current_url;
-    -- If we are updating the current top url and we are decreasing its score
-    IF ((SELECT url FROM artist b WHERE b.id = new.artist_id) = new.url) AND (new.score < current_score) THEN
-        UPDATE artist SET url = current_url WHERE id = new.artist_id;
-    ELSEIF (new.score >= current_score) THEN
+     WHERE a.artist_id = new.artist_id);
+    IF ((SELECT url FROM artist b WHERE b.id = new.artist_id) = new.url) AND (new.score < @current_score) THEN
+        UPDATE artist SET url = @current_url WHERE id = new.artist_id;
+    ELSEIF (new.score >= @current_score) THEN
         UPDATE artist SET url = new.url WHERE id = new.artist_id;
     END IF;
 END;
 //
 DELIMITER ;
 
-DELIMITER //
-CREATE TRIGGER alt_url_delete
-    AFTER DELETE
-    ON alt_url
-    FOR EACH ROW
-BEGIN
-    IF (old.url = (SELECT url FROM artist WHERE artist_id = old.artist_id)) THEN
-        UPDATE artist
-        SET url = (SELECT url FROM alt_url WHERE artist_id = old.artist_id ORDER BY alt_url.score DESC LIMIT 1)
-        WHERE artist_id = old.artist_id;
-    END IF;
-END;
-//
-DELIMITER ;
+
 
