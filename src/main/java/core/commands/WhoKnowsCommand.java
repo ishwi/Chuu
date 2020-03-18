@@ -68,14 +68,14 @@ public class WhoKnowsCommand extends ConcurrentCommand {
                         ? this.getService().whoKnows(who.getArtistId(), e.getGuild().getIdLong(), Integer.MAX_VALUE)
                         : this.getService().whoKnows(who.getArtistId(), e.getGuild().getIdLong());
         if (wrapperReturnNowPlaying.getRows() == 0) {
-            messageBuilder.setContent("No one knows " + who.getArtist()).sendTo(e.getChannel()).queue();
+            messageBuilder.setContent("No one knows " + CommandUtil.cleanMarkdownCharacter(who.getArtist())).sendTo(e.getChannel()).queue();
             return;
         }
         wrapperReturnNowPlaying.setUrl(who.getUrl());
 
         if (isList) {
             wrapperReturnNowPlaying.getReturnNowPlayings()
-                    .forEach(x -> x.setDiscordName(getUserString(e, x.getDiscordId(), x.getLastFMId())));
+                    .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername()));
 
             StringBuilder builder = new StringBuilder();
             int counter = 1;
@@ -87,7 +87,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
                     break;
             }
 
-            embedBuilder.setTitle("Who knows " + who.getArtist() + " in " + e.getGuild().getName() + "?").
+            embedBuilder.setTitle("Who knows " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + " in " + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "?").
                     setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
                     .setColor(CommandUtil.randomColor());
             //.setFooter("Command invoked by " + event.getMember().getLastFmId().getDiscriminator() + "" + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toApiFormat(), );
@@ -98,7 +98,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
         } else {
 
             wrapperReturnNowPlaying.getReturnNowPlayings().forEach(element ->
-                    element.setDiscordName(getUserString(e, element.getDiscordId(), element.getLastFMId()))
+                    element.setDiscordName(CommandUtil.getUserInfoNotStripped(e, element.getDiscordId()).getUsername())
             );
             BufferedImage logo = CommandUtil.getLogo(getService(), e);
             BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, e.getGuild().getName(), logo);

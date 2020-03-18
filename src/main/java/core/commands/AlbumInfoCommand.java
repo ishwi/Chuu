@@ -46,20 +46,20 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
         String tagsField = albumSummary.getTagList().isEmpty()
                 ? ""
                 : albumSummary.getTagList().stream()
-                .map(tag -> "[" + tag + "](" + CommandUtil.getLastFmTagUrl(tag) + ")")
+                .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + CommandUtil.getLastFmTagUrl(tag) + ")")
                 .collect(Collectors.joining(" - "));
         StringBuilder trackList = new StringBuilder();
 
         albumSummary.getTrackList().forEach(x ->
                 trackList.append(x.getPosition()).append(". ")
-                        .append(x.getName())
+                        .append(CommandUtil.cleanMarkdownCharacter(x.getName()))
                         .append(". ").append(
                         String
                                 .format("%02d:%02d", x.getDuration() / 60, x.getDuration() % 60))
                         .append("\n"));
         MessageBuilder messageBuilder = new MessageBuilder();
-        embedBuilder.setTitle(albumSummary.getAlbum(), CommandUtil.getLastFmArtistAlbumUrl(albumSummary.getArtist(), albumSummary.getAlbum()))
-                .addField("Artist:", "[" + albumSummary.getArtist() + "](" + CommandUtil.getLastFmArtistUrl(albumSummary.getArtist()) + ")", false)
+        embedBuilder.setTitle(CommandUtil.cleanMarkdownCharacter(albumSummary.getAlbum()), CommandUtil.getLastFmArtistAlbumUrl(albumSummary.getArtist(), albumSummary.getAlbum()))
+                .addField("Artist:", "[" + CommandUtil.cleanMarkdownCharacter(albumSummary.getArtist()) + "](" + CommandUtil.getLastFmArtistUrl(albumSummary.getArtist()) + ")", false)
                 .addField(username + "'s plays:", String.valueOf(albumSummary.getTotalPlayNumber()), true)
                 .addField("Listeners:", String.valueOf(albumSummary.getListeners()), true)
                 .addField("Scrobbles:", String.valueOf(albumSummary.getTotalscrobbles()), true)

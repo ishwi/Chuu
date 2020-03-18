@@ -10,7 +10,6 @@ import dao.entities.StolenCrown;
 import dao.entities.StolenCrownWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
@@ -57,18 +56,15 @@ public class CrownsStolenCommand extends ConcurrentCommand {
                 .getCrownsStolenBy(ogLastFmId, secondlastFmId, e.getGuild().getIdLong());
 
         int rows = resultWrapper.getList().size();
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, resultWrapper.getOgId());
+        String userName = userInformation.getUsername();
+        String userUrl = userInformation.getUrlImage();
 
+        DiscordUserDisplay userInformation2 = CommandUtil.getUserInfoConsideringGuildOrNot(e, resultWrapper.getQuriedId());
+        String userName2 = userInformation2.getUsername();
+        String userUrl2 = userInformation2.getUrlImage();
         if (rows == 0) {
-
-            long discId1 = getService().getDiscordIdFromLastfm(ogLastFmId, e.getGuild().getIdLong());
-            long discId2 = getService().getDiscordIdFromLastfm(secondlastFmId, e.getGuild().getIdLong());
-            Member member = e.getGuild().getMemberById(discId1);
-            Member member2 = e.getGuild().getMemberById(discId2);
-            assert (member != null);
-            assert member2 != null;
-            sendMessageQueue(e, member2.getEffectiveName() + " hasn't stolen anything from " + member
-                    .getEffectiveName());
-
+            sendMessageQueue(e, userName2 + " hasn't stolen anything from " + userName);
             return;
         }
         MessageBuilder messageBuilder = new MessageBuilder();
@@ -83,18 +79,12 @@ public class CrownsStolenCommand extends ConcurrentCommand {
             a.append(i + 1).append(g.toString());
 
         }
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, resultWrapper.getOgId());
-        String userName = userInformation.getUsername();
-        String userUrl = userInformation.getUrlImage();
 
-        DiscordUserDisplay userInformation2 = CommandUtil.getUserInfoConsideringGuildOrNot(e, resultWrapper.getQuriedId());
-        String userName2 = userInformation2.getUsername();
-        String userUrl2 = userInformation2.getUrlImage();
-
+        // Footer doesnt allow markdown characters
         embedBuilder.setDescription(a).setTitle(userName + "'s Top Crowns stolen by " + userName2, CommandUtil
                 .getLastFmUser(ogLastFmId))
                 .setThumbnail(userUrl2)
-                .setFooter(userName2 + " has stolen " + rows + " crowns!\n", null);
+                .setFooter(CommandUtil.markdownLessUserString(userName2, resultWrapper.getQuriedId(), e) + " has stolen " + rows + " crowns!\n", null);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
                 executor.execute(() -> new Reactionary<>(resultWrapper.getList(), m, embedBuilder)));
 

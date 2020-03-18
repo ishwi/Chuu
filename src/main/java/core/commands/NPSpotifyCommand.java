@@ -28,27 +28,27 @@ public class NPSpotifyCommand extends NpCommand {
                         .getAlbumName());
 
         if (uri.equals("")) {
-            sendMessageQueue(e, "Was not able to find " + nowPlayingArtist.getArtistName() + " - " + nowPlayingArtist
-                    .getSongName() + " on spotify");
+            sendMessageQueue(e, String.format("Was not able to find %s - %s on spotify", CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getArtistName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist
+                    .getSongName())));
             return;
         }
-		messageBuilder.setContent(uri).sendTo(e.getChannel()).queue();
-	}
+        messageBuilder.setContent(uri).sendTo(e.getChannel()).queue();
+    }
 
-	@Override
-	public String getDescription() {
-		return "Returns a link to your current song via Spotify";
-	}
+    @Override
+    public String getDescription() {
+        return "Returns a link to your current song via Spotify";
+    }
 
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("npspotify", "spotify", "nps", "npspo");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Arrays.asList("npspotify", "spotify", "nps", "npspo");
+    }
 
-	@Override
-	public String getName() {
-		return "Now Playing Spotify";
-	}
+    @Override
+    public String getName() {
+        return "Now Playing Spotify";
+    }
 
 
 }

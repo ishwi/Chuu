@@ -86,7 +86,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand {
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(userUrl)
-                .setFooter(userName + " has " + list.size() +
+                .setFooter(CommandUtil.markdownLessUserString(userName, discordId, e) + " has " + list.size() +
                            (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
                 .setTitle(title)
                 .setDescription(a);

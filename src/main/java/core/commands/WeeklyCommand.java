@@ -14,6 +14,7 @@ import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WeeklyCommand extends ConcurrentCommand {
 
@@ -37,7 +38,6 @@ public class WeeklyCommand extends ConcurrentCommand {
         return "Weekly";
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] returned = parser.parse(e);
@@ -60,7 +60,8 @@ public class WeeklyCommand extends ConcurrentCommand {
                 .getTracksAndTimestamps(lastFmName, (int) from.getEpochSecond(), (int) to.getEpochSecond());
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, d/M:", Locale.UK);
         SecondsTimeFrameCount minutesWastedOnMusicDaily = new SecondsTimeFrameCount(TimeFrameEnum.WEEK);
-
+        AtomicInteger totalSeconds = new AtomicInteger(0);
+        AtomicInteger totalTracks = new AtomicInteger();
         for (TimestampWrapper<Track> tracksAndTimestamp : tracksAndTimestamps) {
             Integer seconds;
             if ((seconds = durationsFromWeek.get(tracksAndTimestamp.getWrapped())) == null) {
@@ -82,7 +83,8 @@ public class WeeklyCommand extends ConcurrentCommand {
             Collection<Map.Entry<Integer, Integer>> value = x.getValue();
 
             int seconds = value.stream().mapToInt(Map.Entry::getValue).sum();
-
+            totalSeconds.addAndGet(seconds);
+            totalTracks.addAndGet(x.getValue().size());
             minutesWastedOnMusicDaily.setSeconds(seconds);
             minutesWastedOnMusicDaily.setCount(value.size());
 
@@ -101,12 +103,14 @@ public class WeeklyCommand extends ConcurrentCommand {
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
         String url = userInfo.getUrlImage();
         String usableName = userInfo.getUsername();
-
+        minutesWastedOnMusicDaily.setSeconds(totalSeconds.get());
         EmbedBuilder embedBuilder = new EmbedBuilder().setDescription(s)
                 .setColor(CommandUtil.randomColor())
                 .setTitle(usableName + "'s week", CommandUtil.getLastFmUser(lastFmName))
-                .setThumbnail(url.isEmpty() ? null : url);
-
+                .setThumbnail(url.isEmpty() ? null : url)
+                .setFooter(String.format("%s has listen to %d distinct tracks (%d total tracks)\n for a total of %s", CommandUtil.markdownLessUserString(usableName, discordID, e), durationsFromWeek.size(), totalTracks.get(),
+                        String.format("%d %s and %02d %s ", minutesWastedOnMusicDaily.getHours(), CommandUtil.singlePlural(minutesWastedOnMusicDaily.getHours(), "hour", "hours"),
+                                minutesWastedOnMusicDaily.getRemainingMinutes(), CommandUtil.singlePlural(minutesWastedOnMusicDaily.getMinutes(), "minute", "minutes"))));
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
 

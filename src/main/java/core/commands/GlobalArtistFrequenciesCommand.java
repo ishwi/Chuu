@@ -31,22 +31,20 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
         StringBuilder a = new StringBuilder();
         List<ArtistPlays> resultList = list.getResultList();
 
-        List<String> collect = resultList.stream().map(x -> ". [" +
-                x.getArtistName() +
-                "](" + CommandUtil.getLastFmArtistUrl(x.getArtistName()) +
-                ") - " + x.getCount() +
-                " total listeners\n").collect(Collectors.toList());
+        List<String> collect = resultList.stream().map(x -> String.format(". [%s](%s) - %d total listeners\n", CommandUtil.cleanMarkdownCharacter(x.getArtistName()),
+                CommandUtil.getLastFmArtistUrl(x.getArtistName()),
+                x.getCount())).collect(Collectors.toList());
         for (int i = 0, size = collect.size(); i < 10 && i < size; i++) {
             String text = collect.get(i);
             a.append(i + 1).append(text);
         }
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setDescription(a);
-        embedBuilder.setColor(CommandUtil.randomColor());
-        embedBuilder.setTitle("Most Popular artists");
-        embedBuilder.setFooter(e.getJDA().getSelfUser().getName() + " has " + list.getRows() + " different artists!\n", null);
-        embedBuilder.setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setDescription(a)
+                .setTitle("Most Popular artists")
+                .setColor(CommandUtil.randomColor())
+                .setFooter(String.format("%s has %d different artists!\n", e.getJDA().getSelfUser().getName(), list.getRows()), null)
+                .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 executor.execute(() -> new Reactionary<>(collect, message1, embedBuilder)));

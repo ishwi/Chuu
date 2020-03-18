@@ -29,17 +29,13 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
             return;
         }
 
-        StringBuilder a = new StringBuilder();
         List<ArtistPlays> resultList = list.getResultList();
 
-        List<String> collect = resultList.stream().map(x -> ". [" +
-                                                            x.getArtistName() +
-                                                            "](" + CommandUtil.getLastFmArtistUrl(x.getArtistName()) +
-                                                            ") - " + x.getCount() +
-                                                            " plays\n").collect(Collectors.toList());
+        List<String> collect = resultList.stream().map(x -> String.format(". [%s](%s) - %d plays\n",
+                CommandUtil.cleanMarkdownCharacter(x.getArtistName()), CommandUtil.getLastFmArtistUrl(x.getArtistName()), x.getCount())).collect(Collectors.toList());
         EmbedBuilder embedBuilder = initList(collect)
                 .setTitle("Most Played Artists")
-                .setFooter(e.getJDA().getSelfUser().getName() + " has stored " + list.getRows() + " plays!\n", null)
+                .setFooter(String.format("%s has stored %d plays!\n", e.getJDA().getSelfUser().getName(), list.getRows()), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->

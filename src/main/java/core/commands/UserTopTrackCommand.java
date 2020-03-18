@@ -63,8 +63,8 @@ public class UserTopTrackCommand extends ConcurrentCommand {
         embedBuilder.setColor(CommandUtil.randomColor());
 
         embedBuilder
-                .setTitle(usableName + "'s top  tracks in " + TimeFrameEnum.fromCompletePeriod(timeframe)
-                        .toString(), CommandUtil
+                .setTitle(String.format("%s's top  tracks in %s", usableName, TimeFrameEnum.fromCompletePeriod(timeframe)
+                        .toString()), CommandUtil
                         .getLastFmUser(timeframe));
         embedBuilder.setThumbnail(url.isEmpty() ? null : url);
         e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build())

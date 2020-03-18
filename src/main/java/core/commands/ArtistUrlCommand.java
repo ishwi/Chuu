@@ -9,7 +9,6 @@ import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -60,12 +59,12 @@ public class ArtistUrlCommand extends ConcurrentCommand {
             ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), artist, lastFM);
             OptionalLong optionalLong = getService().checkArtistUrlExists(scrobbledArtist.getArtistId(), urlParsed);
             if (optionalLong.isPresent()) {
-                sendMessageQueue(e, "That image already existed for  artist: " + MarkdownSanitizer.escape(scrobbledArtist.getArtist()) + "\n Added a vote to that image instead");
+                sendMessageQueue(e, "That image already existed for artist: " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()) + "\n Added a vote to that image instead");
                 getService().castVote(optionalLong.getAsLong(), e.getAuthor().getIdLong(), true);
                 return;
             }
             getService().userInsertUrl(urlParsed, scrobbledArtist.getArtistId(), e.getAuthor().getIdLong());
-            sendMessageQueue(e, "Submitted an image for " + MarkdownSanitizer.escape(scrobbledArtist.getArtist()) + " and added a vote");
+            sendMessageQueue(e, "Submitted an image for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()) + " and added a vote");
 
         } catch (IOException exception) {
             parser.sendError(parser.getErrorMessage(2), e);

@@ -12,7 +12,6 @@ public class NaturalTimeFrameParser extends DaoParser {
     public NaturalTimeFrameParser(ChuuService dao, NaturalTimeFrameEnum defaultTFE) {
         super(dao);
         this.defaultTFE = defaultTFE;
-        this.opts.add(new OptionalEntity("--hour", "use the scrobble rate based on hours instead of days"));
     }
 
     public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {

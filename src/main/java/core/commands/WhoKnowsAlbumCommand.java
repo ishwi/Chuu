@@ -40,7 +40,7 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
         // Gets list of users registered in guild
         List<UsersWrapper> userList = getService().getAll(id);
         if (userList.isEmpty()) {
-            sendMessageQueue(e, "No users are registered on this server");
+            sendMessageQueue(e, "There are no users registered on this server");
             return;
         }
 
@@ -69,11 +69,11 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
         List<ReturnNowPlaying> list2 = list.stream().sequential().limit(10).map(t -> {
             long id2 = t.getKey().getDiscordID();
             ReturnNowPlaying np = new ReturnNowPlaying(id2, t.getKey().getLastFMName(), corrected_artist, t.getValue());
-            np.setDiscordName(getUserString(e, id2, t.getKey().getLastFMName()));
+            np.setDiscordName(CommandUtil.getUserInfoNotStripped(e, id2).getUsername());
             return np;
         }).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
         if (list2.isEmpty()) {
-            sendMessageQueue(e, " No one knows " + corrected_artist + " - " + corrected_album);
+            sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.cleanMarkdownCharacter(corrected_artist), CommandUtil.cleanMarkdownCharacter(corrected_album)));
             return;
         }
 

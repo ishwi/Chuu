@@ -30,14 +30,12 @@ public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlay
             return;
         }
 
-        List<String> collect = list.stream().map(x -> ". [" +
-                                                      x.getArtistName() +
-                                                      "](" + CommandUtil.getLastFmArtistUrl(x.getArtistName()) +
-                                                      ") - " + x.getCount() +
-                                                      " plays \n").collect(Collectors.toList());
+        List<String> collect = list.stream().map(x -> String.format(". [%s](%s) - %d plays \n",
+                CommandUtil.cleanMarkdownCharacter(x.getArtistName()), CommandUtil.getLastFmArtistUrl(x.getArtistName()), x.getCount()))
+                .collect(Collectors.toList());
         EmbedBuilder embedBuilder = initList(collect)
                 .setTitle("Total artist plays")
-                .setFooter(e.getGuild().getName() + " has " + wrapper.getRows() + " total plays!\n", null)
+                .setFooter(String.format("%s has %d total plays!\n", e.getGuild().getName(), wrapper.getRows()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->

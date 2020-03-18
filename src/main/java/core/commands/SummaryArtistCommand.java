@@ -67,18 +67,18 @@ public class SummaryArtistCommand extends ConcurrentCommand {
         String tagsField = summary.getTags().isEmpty()
                 ? ""
                 : summary.getTags().stream()
-                .map(tag -> "[" + tag + "](" + CommandUtil.getLastFmTagUrl(tag) + ")")
+                .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + CommandUtil.getLastFmTagUrl(tag) + ")")
                 .collect(Collectors.joining(" - "));
 
         String similarField =
                 summary.getSimilars().isEmpty()
                         ? ""
                         : summary.getSimilars().stream()
-                        .map(art -> "[" + art + "](" + CommandUtil.getLastFmArtistUrl(art) + ")")
+                        .map(art -> "[" + CommandUtil.cleanMarkdownCharacter(art) + "](" + CommandUtil.getLastFmArtistUrl(art) + ")")
                         .collect(Collectors.joining(" - "));
 
         MessageBuilder messageBuilder = new MessageBuilder();
-        embedBuilder.setTitle("Information about " + summary.getArtistname(), CommandUtil.getLastFmArtistUrl(scrobbledArtist.getArtist()))
+        embedBuilder.setTitle("Information about " + CommandUtil.cleanMarkdownCharacter(summary.getArtistname()), CommandUtil.getLastFmArtistUrl(scrobbledArtist.getArtist()))
                 .addField(username + "'s plays:", String.valueOf(summary.getUserPlayCount()), true)
                 .addField("Listeners:", String.valueOf(summary.getListeners()), true)
                 .addField("Scrobbles:", String.valueOf(summary.getPlaycount()), true);
@@ -93,7 +93,7 @@ public class SummaryArtistCommand extends ConcurrentCommand {
 
         embedBuilder.addField("Tags:", tagsField, false)
                 .addField("Similars:", similarField, false)
-                .addField("Bio:", summary.getSummary(), false)
+                .addField("Bio:", CommandUtil.cleanMarkdownCharacter(summary.getSummary()), false)
                 .setImage(scrobbledArtist.getUrl().isBlank() ? null : scrobbledArtist.getUrl())
                 .setColor(CommandUtil.randomColor());
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();

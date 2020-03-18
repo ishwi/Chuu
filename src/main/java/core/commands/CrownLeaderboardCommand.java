@@ -57,7 +57,7 @@ public class CrownLeaderboardCommand extends ListCommand<LbEntry> {
         for (int i = 0; i < 10 && i < list.size(); i++) {
             a.append(i + 1).append(list.get(i).toString());
         }
-        embedBuilder.setDescription(a).setTitle(e.getGuild().getName() + "'s " + entryName + " leadearboard")
+        embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "'s " + entryName + " leadearboard")
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setFooter(e.getGuild().getName() + " has " + list.size() + " registered users!\n", null);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->

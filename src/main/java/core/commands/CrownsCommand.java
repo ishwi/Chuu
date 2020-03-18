@@ -45,7 +45,6 @@ public class CrownsCommand extends ConcurrentCommand {
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] returned = parser.parse(e);
         String lastFmName = returned[0];
-        //long discordID = Long.parseLong(returned[1]);
         UniqueWrapper<ArtistPlays> uniqueDataUniqueWrapper = getList(e.getGuild().getIdLong(), lastFmName);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, uniqueDataUniqueWrapper.getDiscordId());
         String userName = userInformation.getUsername();
@@ -68,8 +67,8 @@ public class CrownsCommand extends ConcurrentCommand {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setDescription(a);
         embedBuilder.setColor(CommandUtil.randomColor());
-        embedBuilder.setTitle(userName + "'s " + (isGlobal() ? "global " : "") + "crowns", CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
-        embedBuilder.setFooter(userName + " has " + resultWrapper.size() + (isGlobal() ? " global" : "") + " crowns!!\n", null);
+        embedBuilder.setTitle(String.format("%s's %scrowns", userName, isGlobal() ? "global " : ""), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
+        embedBuilder.setFooter(String.format("%s has %d%s crowns!!\n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), isGlobal() ? " global" : ""), null);
         embedBuilder.setThumbnail(userUrl);
 
         MessageBuilder mes = new MessageBuilder();

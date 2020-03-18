@@ -13,19 +13,25 @@ import dao.entities.UpdaterStatus;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 public class CommandUtil {
+    private final static Pattern markdownStripper = Pattern.compile("((?<!\\\\)[*_~|`>\\[()\\]])");
+
     static String noImageUrl(String artist) {
         return artist == null || artist
                 .isEmpty() ? "https://lastfm-img2.akamaized.net/i/u/174s/4128a6eb29f94943c9d206c08e625904" : artist;
@@ -132,27 +138,23 @@ public class CommandUtil {
 
 
     public static String getLastFmArtistUrl(String artist) {
-        return "https://www.last.fm/music/" + artist.replaceAll(" ", "+").replaceAll("[)]", "%29");
-
+        return "https://www.last.fm/music/" + cleanMarkdownCharacter(encodeUrl(artist));
     }
 
     public static String getLastFmArtistAlbumUrl(String artist, String album) {
-        return "https://www.last.fm/music/" + artist.replaceAll(" ", "+").replaceAll("[)]", "%29") + "/" + album.replaceAll(" ", "+").replaceAll("[)]", "%29");
-
+        return "https://www.last.fm/music/" + cleanMarkdownCharacter(encodeUrl(artist)) + "/" + cleanMarkdownCharacter(encodeUrl(album));
     }
 
     public static String getLastFmTagUrl(String tag) {
-        return "https://www.last.fm/tag/" + tag.replaceAll(" ", "+").replaceAll("[)]", "%29");
-
+        return "https://www.last.fm/tag/" + cleanMarkdownCharacter(encodeUrl(tag));
     }
 
     public static String getLastFmArtistUserUrl(String artist, String username) {
-        return getLastFmUser(username) + "/library/music/" + artist.replaceAll(" ", "+")
-                .replaceAll("[)]", "%29");
+        return getLastFmUser(username) + "/library/music/" + cleanMarkdownCharacter(encodeUrl(artist));
     }
 
     public static String getLastFmUser(String username) {
-        return "https://www.last.fm/user/" + username;
+        return "https://www.last.fm/user/" + cleanMarkdownCharacter(username);
     }
 
     public static String singlePlural(int count, String singular, String plural) {
@@ -181,12 +183,13 @@ public class CommandUtil {
     }
 
     static String getGlobalUsername(JDA jda, long discordID) {
-        return jda.retrieveUserById(discordID).complete().getName();
+        return CommandUtil.cleanMarkdownCharacter(jda.retrieveUserById(discordID).complete().getName());
     }
 
-    static DiscordUserDisplay getUserInfoConsideringGuildOrNot(MessageReceivedEvent e, long discordID) {
-        String username;
+    // ugh
+    private static DiscordUserDisplay handleUser(MessageReceivedEvent e, long discordID) {
         User user;
+        String username;
         if (e.isFromGuild()) {
             Member whoD = e.getGuild().getMemberById(discordID);
             if (whoD == null) {
@@ -201,7 +204,17 @@ public class CommandUtil {
             username = user.getName();
 
         }
-        return new DiscordUserDisplay(MarkdownSanitizer.sanitize(username), user.getAvatarUrl() != null ? user.getAvatarUrl() : "");
+        return new DiscordUserDisplay((username), user.getAvatarUrl() == null || user.getAvatarUrl().isBlank() ? null : user.getAvatarUrl());
+
+    }
+
+    static DiscordUserDisplay getUserInfoNotStripped(MessageReceivedEvent e, long discordID) {
+        return handleUser(e, discordID);
+    }
+
+    static DiscordUserDisplay getUserInfoConsideringGuildOrNot(MessageReceivedEvent e, long discordID) {
+        DiscordUserDisplay discordUserDisplay = handleUser(e, discordID);
+        return new DiscordUserDisplay(cleanMarkdownCharacter(discordUserDisplay.getUsername()), discordUserDisplay.getUrlImage());
     }
 
     public static String sanitizeUserString(String message) {
@@ -209,12 +222,46 @@ public class CommandUtil {
     }
 
     public static String getLastFMArtistTrack(String artist, String track) {
-        return getLastFmArtistUrl(artist) + "/_/" + track.replaceAll(" ", "+")
-                .replaceAll("[)]", "%29");
+        return getLastFmArtistUrl(artist) + "/_/" + encodeUrl(track);
+
     }
+
 
     public static char getMessagePrefix(MessageReceivedEvent e) {
         return e.getMessage().getContentRaw().charAt(0);
     }
 
+    public static String encodeUrl(String url) {
+        return URLEncoder.encode(url, StandardCharsets.UTF_8);
+    }
+
+    public static String cleanMarkdownCharacter(String string) {
+        return markdownStripper.matcher(string).replaceAll("\\\\$1");
+    }
+
+    public static String markdownLessString(String string) {
+        if (!string.contains("\\")) {
+            return string;
+        }
+        return string.replaceAll("\\\\", "");
+
+    }
+
+    public static String markdownLessUserString(String string, long discordId, MessageReceivedEvent e) {
+        if (!string.contains("\\")) {
+            return string;
+        }
+        return getUserInfoNotStripped(e, discordId).getUsername();
+    }
+
+    public static void handleConditionalMessage(CompletableFuture<Message> future) {
+        if (future == null) {
+            return;
+        }
+        if (!future.isDone()) {
+            future.cancel(true);
+            return;
+        }
+        future.join().delete().queue();
+    }
 }

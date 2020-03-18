@@ -14,10 +14,10 @@ public class ArtistPlays {
     @Override
     public String toString() {
         return ". [" +
-                getArtistName() +
-                "](" + CommandUtil.getLastFmArtistUrl(artistName) +
-                ") - " + getCount() +
-                " plays\n";
+               CommandUtil.cleanMarkdownCharacter(getArtistName()) +
+               "](" + CommandUtil.getLastFmArtistUrl(artistName) +
+               ") - " + getCount() +
+               " plays\n";
     }
 
     public String getArtistName() {

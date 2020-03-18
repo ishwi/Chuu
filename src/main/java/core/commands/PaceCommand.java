@@ -59,7 +59,6 @@ public class PaceCommand extends ConcurrentCommand {
         String lastfmId = parse[2];
         long discordId = Long.parseLong(parse[3]);
         String timeframe = parse[4];
-        boolean useHours = Boolean.parseBoolean(parse[5]);
         List<UserInfo> holder = lastFM.getUserInfo(List.of(lastfmId));
         UserInfo mainUser = holder.get(0);
         int playCount = mainUser.getPlayCount();
@@ -155,9 +154,7 @@ public class PaceCommand extends ConcurrentCommand {
         String timeFrame = naturalTimeFrameEnum.equals(NaturalTimeFrameEnum.ALL) ? "overall" : ("over the last " + unitNumber + " " + (unitNumber == 1 ? naturalTimeFrameEnum.toString().toLowerCase() : naturalTimeFrameEnum.toString().toLowerCase() + "s"));
         String format = now.plus((long) remainingUnits, chronoUnits.get(i)).format(formatter);
         String unit = chronoUnits.get(i).name().toLowerCase();
-        String s = "**" + userString + "** has a rate of **" + new DecimalFormat("#0.00").format(ratio) + "** scrobbles per " + (unit.substring(0, unit.length() - 1)) + " " + timeFrame + ", so they are on pace to hit **" + goal + "** scrobbles on **" + format + "**.";
-
-
+        String s = String.format("**%s** has a rate of **%s** scrobbles per %s %s, so they are on pace to hit **%d** scrobbles on **%s**.", userString, new DecimalFormat("#0.00").format(ratio), unit.substring(0, unit.length() - 1), timeFrame, goal, format);
         sendMessageQueue(e, s);
     }
 }

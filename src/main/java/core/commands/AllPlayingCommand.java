@@ -10,7 +10,6 @@ import dao.entities.NowPlayingArtist;
 import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
@@ -50,7 +49,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setTitle(
                         (showFresh ? "What is being played now in " : "What was being played in ")
-                                + e.getGuild().getName());
+                        + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()));
 
         List<String> result = list.parallelStream().map(u ->
         {
@@ -67,28 +66,17 @@ public class AllPlayingCommand extends ConcurrentCommand {
         }).map(x -> {
                     UsersWrapper usersWrapper = x.getKey();
                     NowPlayingArtist value = x.getValue().get(); //Checked previous filter
-                    Member member = e.getGuild().getMemberById(usersWrapper.getDiscordID());
-                    String username = member == null ? usersWrapper.getLastFMName() : member.getEffectiveName();
+                    String username = getUserString(e, usersWrapper.getDiscordID(), usersWrapper.getLastFMName());// ;
                     String started = !showFresh && value.isNowPlaying() ? "#" : "+";
                     return started + " [" +
                            username + "](" +
                            CommandUtil.getLastFmUser(usersWrapper.getLastFMName()) +
                            "): " +
-                           value.getSongName() +
-                           " - " + value.getArtistName() +
-                           " | " + value.getAlbumName() + "\n";
+                           CommandUtil.cleanMarkdownCharacter(value.getSongName() +
+                                                              " - " + value.getArtistName() +
+                                                              " | " + value.getAlbumName() + "\n");
                 }
         ).collect(Collectors.toList());
-
-//		if (value.isEmpty()) {
-//			return false;
-//		}
-//		if (showFresh) {
-//			if (!value.get().isNowPlaying()) {
-//				return false;
-//			}
-//		}
-
         if (result.size() == 0) {
             sendMessageQueue(e, "None is listening to music at the moment UwU");
             return;
@@ -97,7 +85,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
         int count = 0;
         for (String string : result) {
             count++;
-            if ((a.length() > 1500) || (count == 20)) {
+            if ((a.length() > 1500) || (count == 30)) {
                 break;
             }
             a.append(string);
@@ -106,7 +94,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
         MessageBuilder mes = new MessageBuilder();
         embedBuilder.setDescription(a);
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                executor.execute(() -> new Reactionary<>(result, message1, pageSize, embedBuilder)));
+                executor.execute(() -> new Reactionary<>(result, message1, pageSize, embedBuilder, false)));
 
     }
 

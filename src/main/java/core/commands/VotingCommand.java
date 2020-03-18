@@ -78,7 +78,7 @@ public class VotingCommand extends ConcurrentCommand {
             sendMessageQueue(e, artist.getArtist() + " doesn't have any image");
             return;
         }
-        String corrected_artist = allArtistImages.get(0).getArtist();
+        String corrected_artist = CommandUtil.cleanMarkdownCharacter(allArtistImages.get(0).getArtist());
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle(corrected_artist + " Images");
         this.executor.submit(() -> {
@@ -146,16 +146,16 @@ public class VotingCommand extends ConcurrentCommand {
                         VotingEntity first = allArtistImages.stream().max(Comparator.comparingLong(VotingEntity::getVotes)).orElse(allArtistImages.get(0));
                         String description = "Submitted by: " + CommandUtil.getGlobalUsername(e.getJDA(), first.getOwner()) + "\n\n";
                         if (first != allArtistImages.get(0)) {
-                            description += "The artist image for " + first.getArtist() + " has changed to:";
+                            description += "The artist image for " + CommandUtil.cleanMarkdownCharacter(first.getArtist()) + " has changed to:";
                         } else {
-                            description += "The top voted image for " + first.getArtist() + " is:";
+                            description += "The top voted image for " + CommandUtil.cleanMarkdownCharacter(first.getArtist()) + " is:";
                         }
                         return finalEmbed.setTitle("Voting Timed Out")
                                 .setImage(first.getUrl())
                                 .clearFields()
                                 .setDescription(description)
-                                .setFooter("Has " + first.getVotes() + " " + CommandUtil.singlePlural(first.getVotes(), "point", "points") + " with " + first.getTotalVotes()
-                                           + CommandUtil.singlePlural(first.getTotalVotes(), " vote", " votes"))
+                                .setFooter(String.format("Has %d %s with %d%s", first.getVotes(), CommandUtil.singlePlural(first.getVotes(), "point", "points"), first.getTotalVotes(),
+                                        CommandUtil.singlePlural(first.getTotalVotes(), " vote", " votes")))
                                 .setColor(CommandUtil.randomColor());
                     },
                     () -> {
