@@ -42,6 +42,12 @@ public class PaceParser extends NumberParser<ExtraParser<NaturalTimeFrameParser,
                                     return number > ChronoUnit.WEEKS.between(LASTFM_CREATION_DATE, now);
                                 case DAY:
                                     return number > ChronoUnit.DAYS.between(LASTFM_CREATION_DATE, now);
+                                case HOUR:
+                                    return number > ChronoUnit.HOURS.between(LASTFM_CREATION_DATE, now);
+                                case MINUTE:
+                                    return number > ChronoUnit.MINUTES.between(LASTFM_CREATION_DATE, now);
+                                case SECOND:
+                                    return number > ChronoUnit.SECONDS.between(LASTFM_CREATION_DATE, now);
                                 default:
                                     throw new IllegalArgumentException();
                             }

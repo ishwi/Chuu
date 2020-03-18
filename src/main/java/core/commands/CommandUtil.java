@@ -7,10 +7,10 @@ import core.exceptions.DiscogsServiceException;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
-import dao.entities.ArtistInfo;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UpdaterStatus;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -54,15 +54,21 @@ public class CommandUtil {
     }
 
 
-    public static String updateUrl(DiscogsApi discogsApi, String artist, ChuuService dao, Spotify spotify) {
+    public static String updateUrl(DiscogsApi discogsApi, ScrobbledArtist scrobbledArtist, ChuuService dao, Spotify spotify) {
         String newUrl = null;
         try {
-            newUrl = discogsApi.findArtistImage(artist);
+            newUrl = discogsApi.findArtistImage(scrobbledArtist.getArtist());
             if (!newUrl.isEmpty()) {
-                dao.upsertUrl(new ArtistInfo(newUrl, artist));
+                dao.upsertUrl(newUrl, scrobbledArtist.getArtistId());
             } else {
-                newUrl = spotify.getArtistUrlImage(artist);
-                dao.upsertSpotify(new ArtistInfo(newUrl, artist));
+                newUrl = spotify.getArtistUrlImage(scrobbledArtist.getArtist());
+                if (newUrl.isBlank()) {
+                    scrobbledArtist.setUrl("");
+                    scrobbledArtist.setUpdateBit(false);
+                    dao.upsertArtistSad(scrobbledArtist);
+                } else {
+                    dao.upsertSpotify(newUrl, scrobbledArtist.getArtistId());
+                }
             }
         } catch (DiscogsServiceException ignored) {
 
@@ -111,7 +117,7 @@ public class CommandUtil {
         }
         if (doUrlCheck) {
             if (!existed || (status.getArtistUrl() == null))
-                scrobbledArtist.setUrl(CommandUtil.updateUrl(discogsApi, scrobbledArtist.getArtist(), dao, spotify));
+                scrobbledArtist.setUrl(CommandUtil.updateUrl(discogsApi, scrobbledArtist, dao, spotify));
             else {
                 scrobbledArtist.setUrl(status.getArtistUrl());
             }
@@ -174,6 +180,10 @@ public class CommandUtil {
         }
     }
 
+    static String getGlobalUsername(JDA jda, long discordID) {
+        return jda.retrieveUserById(discordID).complete().getName();
+    }
+
     static DiscordUserDisplay getUserInfoConsideringGuildOrNot(MessageReceivedEvent e, long discordID) {
         String username;
         User user;
@@ -203,5 +213,8 @@ public class CommandUtil {
                 .replaceAll("[)]", "%29");
     }
 
+    public static char getMessagePrefix(MessageReceivedEvent e) {
+        return e.getMessage().getContentRaw().charAt(0);
+    }
 
 }

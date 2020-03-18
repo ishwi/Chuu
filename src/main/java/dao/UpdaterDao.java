@@ -7,6 +7,7 @@ import dao.entities.*;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalLong;
 import java.util.Set;
 
 interface UpdaterDao {
@@ -19,16 +20,17 @@ interface UpdaterDao {
 
     void upsertArtist(Connection con, List<ScrobbledArtist> scrobbledArtist);
 
-    void upsertUrl(Connection con, ArtistInfo artistInfo);
 
+    long upsertUrl(Connection con, String url, long artistId, long discord_id);
 
     void upsertArtistsDetails(Connection con, List<ScrobbledArtist> scrobbledArtists);
 
     String getArtistUrl(Connection connection, String artist);
 
-    Set<String> selectNullUrls(Connection connection, boolean spotifyNull);
+    Set<ScrobbledArtist> selectNullUrls(Connection connection, boolean spotifyNull);
 
-    void upsertSpotify(Connection con, ArtistInfo artistInfo);
+
+    void upsertSpotify(Connection con, String url, long artistId, long discord_id);
 
     UpdaterStatus getUpdaterStatus(Connection connection, String artist) throws InstanceNotFoundException;
 
@@ -77,4 +79,16 @@ interface UpdaterDao {
     AliasEntity getNextInAliasQueue(Connection connection);
 
     void deleteAliasById(Connection connection, long aliasId) throws InstanceNotFoundException;
+
+    void updateUrlStatus(Connection connection, long artist_id);
+
+    OptionalLong checkArtistUrlExists(Connection connection, long artistId, String urlParsed);
+
+    void removeVote(Connection con, long url_id, long discord_id);
+
+    boolean castVote(Connection con, long url_id, long discord_id, boolean isPositive);
+
+    void reportImage(Connection connection, long urlId, long userIdLong);
+
+
 }

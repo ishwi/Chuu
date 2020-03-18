@@ -34,7 +34,7 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    public void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who) {
+    public void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who) throws LastFmException {
 
         long id = e.getGuild().getIdLong();
         // Gets list of users registered in guild
@@ -46,7 +46,7 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
 
         // Gets play number for each registered artist
         AlbumUserPlays urlContainter = new AlbumUserPlays("", "");
-        List<Long> usersThatKnow = getService().whoKnows(artist.getArtistId(), id, Integer.MAX_VALUE).getReturnNowPlayings().stream()
+        List<Long> usersThatKnow = getService().whoKnows(artist.getArtistId(), id, 25).getReturnNowPlayings().stream()
                 .map(ReturnNowPlaying::getDiscordId)
                 .collect(Collectors.toList());
 
@@ -94,21 +94,18 @@ public class WhoKnowsAlbumCommand extends AlbumPlaysCommand {
     }
 
     Map<UsersWrapper, Integer> fillPlayCounter(List<UsersWrapper> userList, String artist, String album,
-                                               AlbumUserPlays fillWithUrl) {
+                                               AlbumUserPlays fillWithUrl) throws LastFmException {
         Map<UsersWrapper, Integer> userMapPlays = new HashMap<>();
-        userList.forEach(u -> {
-            try {
 
+        UsersWrapper usersWrapper = userList.get(0);
+        AlbumUserPlays temp = lastFM.getPlaysAlbum_Artist(usersWrapper.getLastFMName(), artist, album);
+        fillWithUrl.setAlbum_url(temp.getAlbum_url());
+        fillWithUrl.setAlbum(temp.getAlbum());
+        fillWithUrl.setArtist(temp.getArtist());
+        userMapPlays.put(usersWrapper, temp.getPlays());
+        userList.stream().skip(1).forEach(u -> {
+            try {
                 AlbumUserPlays albumUserPlays = lastFM.getPlaysAlbum_Artist(u.getLastFMName(), artist, album);
-                if (fillWithUrl.getAlbum_url().isEmpty()) {
-                    fillWithUrl.setAlbum_url(albumUserPlays.getAlbum_url());
-                }
-                if (fillWithUrl.getAlbum().isEmpty()) {
-                    fillWithUrl.setAlbum(albumUserPlays.getAlbum());
-                }
-                if (fillWithUrl.getArtist() == null || fillWithUrl.getArtist().isEmpty()) {
-                    fillWithUrl.setArtist(albumUserPlays.getArtist());
-                }
                 userMapPlays.put(u, albumUserPlays.getPlays());
             } catch (LastFmException ex) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);

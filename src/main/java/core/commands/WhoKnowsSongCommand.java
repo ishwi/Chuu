@@ -30,21 +30,19 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
     }
 
     @Override
-    Map<UsersWrapper, Integer> fillPlayCounter(List<UsersWrapper> userList, String artist, String track, AlbumUserPlays fillWithUrl) {
+    Map<UsersWrapper, Integer> fillPlayCounter(List<UsersWrapper> userList, String artist, String track, AlbumUserPlays fillWithUrl) throws LastFmException {
         Map<UsersWrapper, Integer> userMapPlays = new LinkedHashMap<>();
-        userList.forEach(u -> {
+        UsersWrapper usersWrapper = userList.get(0);
+        Track temp = lastFM.getTrackInfo(usersWrapper.getLastFMName(), artist, track);
+        userMapPlays.put(usersWrapper, temp.getPlays());
+        fillWithUrl.setAlbum_url(temp.getImageUrl());
+
+        fillWithUrl.setAlbum(temp.getName());
+        fillWithUrl.setAlbum_url(CommandUtil.getArtistImageUrl(getService(), artist, lastFM, discogsApi, spotify));
+        userList.stream().skip(1).forEach(u -> {
             try {
                 Track trackInfo = lastFM.getTrackInfo(u.getLastFMName(), artist, track);
                 userMapPlays.put(u, trackInfo.getPlays());
-                if (fillWithUrl.getAlbum_url().isEmpty() && trackInfo.getImageUrl() != null)
-                    fillWithUrl.setAlbum_url(trackInfo.getImageUrl());
-
-                if (fillWithUrl.getAlbum().isEmpty())
-                    fillWithUrl.setAlbum(trackInfo.getName());
-                if (fillWithUrl.getAlbum_url().isEmpty()) {
-                    fillWithUrl.setAlbum_url(CommandUtil.getArtistImageUrl(getService(), artist, lastFM, discogsApi, spotify));
-                }
-
             } catch (LastFmException ex) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);
             }

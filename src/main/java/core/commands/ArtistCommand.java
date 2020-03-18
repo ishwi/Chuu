@@ -28,20 +28,20 @@ public class ArtistCommand extends ChartCommand {
         return "Returns a chart with artist images";
     }
 
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("artchart", "charta", "artistchart");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Arrays.asList("artchart", "charta", "artistchart", "ca");
+    }
 
-	@Override
-	public void processQueue(String username, String time, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays) throws LastFmException {
+    @Override
+    public void processQueue(String username, String time, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays) throws LastFmException {
         UrlCapsuleConcurrentQueue queue = new UrlCapsuleConcurrentQueue(getService(), discogsApi, spotifyApi);
         lastFM.getUserList(username, time, x, y, false, queue);
         generateImage(queue, x, y, e, writeTitles, writePlays);
     }
 
-	@Override
-	public String getName() {
+    @Override
+    public String getName() {
         return "Artist Chart";
     }
 

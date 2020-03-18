@@ -11,6 +11,7 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +69,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 
         String ending = a == 1 ? "time " : "times";
 
-        sendMessageQueue(e, "**" + usernameString + "** has listened **" + album + "** " + a + " " + ending);
+        sendMessageQueue(e, "**" + usernameString + "** has listened **" + MarkdownSanitizer.escape(album) + "** " + a + " " + ending);
 
 
     }

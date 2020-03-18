@@ -64,4 +64,11 @@ interface SQLQueriesDao {
     List<ScrobbledArtist> getAllUsersArtist(Connection connection, long discordId);
 
     List<LbEntry> matchingArtistCount(Connection connection, long userId, long guildId);
+
+    List<VotingEntity> getAllArtistImages(Connection connection, long artist_id);
+
+    Boolean hasUserVotedImage(Connection connection, long url_id, long discord_id);
+
+
+    List<String> getArtistAliases(Connection connection, long artistId);
 }

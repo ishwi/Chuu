@@ -20,7 +20,7 @@ public class RecentListCommand extends ConcurrentCommand {
     public RecentListCommand(ChuuService dao) {
         super(dao);
         Map<Integer, String> map = new HashMap<>(1);
-        map.put(NumberParser.INNER_ERROR, "The number introduced must be lower than 15");
+        map.put(NumberParser.LIMIT_ERROR, "The number introduced must be lower than 15");
         String s = "You can also introduce a number to vary the number of songs shown, defaults to" + 5 + " , max " + 15;
         this.parser = new NumberParser<>(new OnlyUsernameParser(getService()),
                 5L,

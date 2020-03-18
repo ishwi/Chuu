@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum NaturalTimeFrameEnum {
-    YEAR("y"), QUARTER("q"), MONTH("m"), ALL("a"), SEMESTER("s"), WEEK("w"), DAY("d");
+    YEAR("y"), QUARTER("q"), MONTH("m"), ALL("a"), SEMESTER("s"), WEEK("w"), DAY("d"), HOUR("h"), MINUTE("min"), SECOND("sec");
 
     private static final Map<String, NaturalTimeFrameEnum> ENUM_MAP;
 
@@ -35,6 +35,12 @@ public enum NaturalTimeFrameEnum {
                 return SEMESTER;
             case "day":
                 return DAY;
+            case "hour":
+                return HOUR;
+            case "minute":
+                return MINUTE;
+            case "second":
+                return SECOND;
             default:
                 return WEEK;
         }
@@ -76,6 +82,13 @@ public enum NaturalTimeFrameEnum {
             case "day":
             case "daily":
                 return "day";
+            case "h":
+            case "hour":
+                return "hour";
+            case "min":
+                return "minute";
+            case "sec":
+                return "second";
             default:
                 return "7day";
         }

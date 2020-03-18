@@ -1,10 +1,12 @@
 package core.parsers;
 
 import com.neovisionaries.i18n.CountryCode;
+import core.apis.last.ConcurrentLastFM;
 import core.exceptions.InstanceNotFoundException;
+import core.exceptions.LastFmException;
 import dao.ChuuService;
-import dao.entities.LastFMData;
-import dao.entities.TimeFrameEnum;
+import dao.entities.*;
+import dao.musicbrainz.MusicBrainzService;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -16,13 +18,18 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class CountryParser extends DaoParser {
-    public CountryParser(ChuuService dao) {
+    private final ConcurrentLastFM lastFM;
+    private final MusicBrainzService musicBrainzService;
+
+    public CountryParser(ChuuService dao, ConcurrentLastFM lastFM, MusicBrainzService musicBrainzService) {
         super(dao);
+        this.lastFM = lastFM;
+        this.musicBrainzService = musicBrainzService;
     }
 
     @Override
     protected void setUpErrorMessages() {
-        errorMessages.put(5, "You forgot to input a country. You can try the full country name or the 2/3 ISO code");
+        errorMessages.put(5, "Couldn't get a country from your now playing artist. You can try the full country name or the 2/3 ISO code");
         errorMessages.put(6, "Could not find any country named like that");
 
     }
@@ -45,15 +52,28 @@ public class CountryParser extends DaoParser {
             }
         } else
             sample = e.getAuthor();
+        LastFMData lastFMData = dao.findLastFMData(sample.getIdLong());
 
         ChartParserAux chartParserAux = new ChartParserAux(words);
         TimeFrameEnum timeFrameEnum = chartParserAux.parseTimeframe(TimeFrameEnum.ALL);
         words = chartParserAux.getMessage();
+        String countryCode;
         if (words.length == 0) {
-            sendError(getErrorMessage(5), e);
-            return null;
+            try {
+                NowPlayingArtist nowPlayingInfo = lastFM.getNowPlayingInfo(lastFMData.getName());
+                ArtistSummary artistSummary = lastFM.getArtistSummary(nowPlayingInfo.getArtistName(), lastFMData.getName());
+                ArtistMusicBrainzDetails artistDetails = musicBrainzService.getArtistDetails(new ArtistInfo(null, artistSummary.getArtistname(), artistSummary.getMbid()));
+                countryCode = artistDetails.getCountryCode();
+                if (countryCode == null || countryCode.isBlank()) {
+                    countryCode = String.join(" ", words);
+                }
+            } catch (LastFmException ex) {
+                sendError(getErrorMessage(5), e);
+                return null;
+            }
+        } else {
+            countryCode = String.join(" ", words);
         }
-        String countryCode = String.join(" ", words);
         CountryCode country;
         if (countryCode.length() == 2) {
             if (countryCode.equalsIgnoreCase("uk")) {
@@ -86,7 +106,6 @@ public class CountryParser extends DaoParser {
             // No political statement at all, just bugfixing
             country = CountryCode.PS;
         }
-        LastFMData lastFMData = dao.findLastFMData(sample.getIdLong());
         return new String[]{lastFMData.getName(), String.valueOf(sample.getIdLong()), country.getAlpha2(), timeFrameEnum.toApiFormat()};
     }
 

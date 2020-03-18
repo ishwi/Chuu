@@ -3,7 +3,7 @@ package core.scheduledtasks;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import dao.ChuuService;
-import dao.entities.ArtistInfo;
+import dao.entities.ScrobbledArtist;
 
 import java.util.Set;
 
@@ -24,23 +24,24 @@ public class SpotifyUpdaterThread implements Runnable {
 
     @Override
     public void run() {
-        Set<String> artistData = dao.getSpotifyNulledUrls();
+        Set<ScrobbledArtist> artistData = dao.getSpotifyNulledUrls();
         System.out.println("Found at lest Spotify " + artistData.size() + "null artist ");
-        for (String artistDatum : artistData) {
+        for (ScrobbledArtist artistDatum : artistData) {
             String url;
-            System.out.println("Working with artist " + artistDatum);
+            System.out.println("Working with artist " + artistDatum.getArtist());
 
-            url = spotifyApi.getArtistUrlImage(artistDatum);
+            url = spotifyApi.getArtistUrlImage(artistDatum.getArtist());
             if (url != null) {
-                if (!url.isEmpty())
-                    System.out.println("INSERTED : " + artistDatum);
-                dao.upsertSpotify(new ArtistInfo(url, artistDatum));
+                if (url.isEmpty()) {
+                    artistDatum.setUrl("");
+                    artistDatum.setUpdateBit(false);
+                    dao.upsertArtistSad(artistDatum);
+                } else {
+                    System.out.println("INSERTED : " + artistDatum.getArtist());
+                    dao.upsertSpotify(url, artistDatum.getArtistId());
+                }
             }
 
         }
-
-
     }
-
-
 }

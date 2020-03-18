@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -278,7 +279,7 @@ public class ChuuService {
         }
     }
 
-    public Set<String> getNullUrls() {
+    public Set<ScrobbledArtist> getNullUrls() {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return updaterDao.selectNullUrls(connection, false);
@@ -287,7 +288,7 @@ public class ChuuService {
         }
     }
 
-    public Set<String> getSpotifyNulledUrls() {
+    public Set<ScrobbledArtist> getSpotifyNulledUrls() {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return updaterDao.selectNullUrls(connection, true);
@@ -306,9 +307,14 @@ public class ChuuService {
         }
     }
 
-    public void upsertUrl(ArtistInfo artistInfo) {
+    public void upsertUrl(String url, long artist_id) {
+        upsertUrl(url, artist_id, Chuu.getPresence().getJDA().getSelfUser().getIdLong());
+    }
+
+    public void userInsertUrl(String url, long artist_id, long discord_id) {
         try (Connection connection = dataSource.getConnection()) {
-            updaterDao.upsertUrl(connection, artistInfo);
+            long url_id = updaterDao.upsertUrl(connection, url, artist_id, discord_id);
+            updaterDao.castVote(connection, url_id, discord_id, true);
         } catch (SQLException e) {
             throw new RuntimeException(e);
 
@@ -316,14 +322,29 @@ public class ChuuService {
 
     }
 
-    public void upsertSpotify(ArtistInfo artistInfo) {
+    private void upsertUrl(String url, long artist_id, long discord_id) {
         try (Connection connection = dataSource.getConnection()) {
-            updaterDao.upsertSpotify(connection, artistInfo);
+            updaterDao.upsertUrl(connection, url, artist_id, discord_id);
         } catch (SQLException e) {
             throw new RuntimeException(e);
 
         }
 
+    }
+
+    public void upsertSpotify(String url, long artist_Id, long discord_id) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.updateUrlStatus(connection, artist_Id);
+            if (url != null && !url.isBlank()) {
+                updaterDao.upsertSpotify(connection, url, artist_Id, discord_id);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void upsertSpotify(String url, long artist_id) {
+        this.upsertSpotify(url, artist_id, Chuu.getPresence().getJDA().getSelfUser().getIdLong());
     }
 
     public void addLogo(long guildId, BufferedImage in) {
@@ -833,6 +854,61 @@ public class ChuuService {
     public long getArtistId(String artist) throws InstanceNotFoundException {
         try (Connection connection = dataSource.getConnection()) {
             return updaterDao.getArtistId(connection, artist);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public OptionalLong checkArtistUrlExists(long artistId, String urlParsed) {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.checkArtistUrlExists(connection, artistId, urlParsed);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public VoteStatus castVote(long url_id, long discord_id, boolean isPositive) {
+        try (Connection connection = dataSource.getConnection()) {
+            Boolean hasVotedBefore = queriesDao.hasUserVotedImage(connection, url_id, discord_id);
+            updaterDao.castVote(connection, url_id, discord_id, isPositive);
+            if (hasVotedBefore == null) {
+                return VoteStatus.NEW_VOTE;
+            }
+            return hasVotedBefore == isPositive ? VoteStatus.SAME_VALUE : VoteStatus.CHANGE_VALUE;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<VotingEntity> getAllArtistImages(long artist_id) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getAllArtistImages(connection, artist_id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void report(long urlId, long userIdLong) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.reportImage(connection, urlId, userIdLong);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<String> getArtistAliases(long artistId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getArtistAliases(connection, artistId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void upsertArtistSad(ScrobbledArtist scrobbledArtist) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.insertArtistSad(connection, scrobbledArtist);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

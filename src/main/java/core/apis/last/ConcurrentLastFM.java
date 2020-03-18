@@ -909,11 +909,12 @@ public class ConcurrentLastFM {//implements LastFMService {
         String correctedAlbum = obj.getString("name");
 
         String image_url = images.getJSONObject(images.length() - 1).getString("#text");
+        int playCount;
         if (!obj.has("userplaycount")) {
-            throw new LastFmEntityNotFoundException(new ExceptionEntity(lastfmId));
+            playCount = 0;
+        } else {
+            playCount = obj.getInt("userplaycount");
         }
-
-        int playCount = obj.getInt("userplaycount");
         int totalPlayCount = obj.getInt("playcount");
         int listeners = obj.getInt("listeners");
 
@@ -953,16 +954,19 @@ public class ConcurrentLastFM {//implements LastFMService {
         ExceptionEntity exceptionEntity = new ExceptionEntity(song, artist);
         JSONObject obj = doMethod(method, exceptionEntity);
         obj = obj.getJSONObject("track");
+
+        int userplaycount;
         if (!obj.has("userplaycount")) {
-            throw new LastFmEntityNotFoundException(new ExceptionEntity(username));
+            userplaycount = 0;
+        } else {
+            userplaycount = obj.getInt("userplaycount");
         }
-        int userplaycount = obj.getInt("userplaycount");
         int listeners = obj.getInt("listeners");
         int totalPlayCount = obj.getInt("playcount");
 
 
         String re_trackName = obj.getString("name");
-        boolean userloved = obj.getInt("userloved") != 0;
+        boolean userloved = obj.has("userlover") && obj.getInt("userloved") != 0;
         int duration = obj.getInt("duration") / 1000;
         String re_artist = obj.getJSONObject("artist").getString("name");
         JSONArray tagsArray = obj.getJSONObject("toptags").getJSONArray("tag");

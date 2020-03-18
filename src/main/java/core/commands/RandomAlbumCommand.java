@@ -42,10 +42,9 @@ public class RandomAlbumCommand extends ConcurrentCommand {
             }
             String sb = e.getAuthor().getAsMention() + ", here's your random recommendation\n" +
                         "**Posted by:** " +
-                        getUserString(e, randomUrl.getDiscordId()) + "\n**Link:** " +
+                        CommandUtil.sanitizeUserString(getUserString(e, randomUrl.getDiscordId())) + "\n**Link:** " +
                         randomUrl.getUrl();
-            sendMessageQueue(e, sb);
-
+            e.getChannel().sendMessage(sb).queue();
             return;
         }
         //add url
