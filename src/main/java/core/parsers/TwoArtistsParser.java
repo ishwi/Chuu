@@ -1,26 +1,26 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TwoArtistsParser extends Parser {
+    private final static Pattern twoArtists = Pattern.compile("(.+) (?:to:)(.+)");
+
     @Override
     protected void setUpErrorMessages() {
         super.errorMessages.put(1, "You need to introduce first the alias you want and next `to: artist_to_alias` \n e.g: `!alias Radohead to: Radiohead`");
     }
 
     @Override
-    protected String[] parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected String[] parseLogic(MessageReceivedEvent e, String[] words) {
         String first;
         String second;
-        Pattern compile = Pattern.compile("(.+) (?:to:)(.+)");
+
         String joined = String.join(" ", words);
 
-        Matcher matcher = compile.matcher(joined);
+        Matcher matcher = twoArtists.matcher(joined);
         if (matcher.matches()) {
             first = matcher.group(1).trim();
             second = matcher.group(2).trim();

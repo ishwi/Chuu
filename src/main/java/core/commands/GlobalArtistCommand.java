@@ -54,9 +54,9 @@ public class GlobalArtistCommand extends ConcurrentCommand {
         ScrobbledArtist validable = new ScrobbledArtist(returned[0], 0, "");
         CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
         List<GlobalCrown> globalArtistRanking = getService().getGlobalArtistRanking(validable.getArtistId());
-
+        String artist = CommandUtil.cleanMarkdownCharacter(validable.getArtist());
         if (globalArtistRanking.isEmpty()) {
-            sendMessageQueue(e, "No one knows " + validable.getArtist());
+            sendMessageQueue(e, "No one knows " + artist);
             return;
         }
         Optional<GlobalCrown> yourPosition = globalArtistRanking.stream().filter(x -> x.getDiscordId() == userId).findFirst();
@@ -85,7 +85,7 @@ public class GlobalArtistCommand extends ConcurrentCommand {
 
 
         embedBuilder.setThumbnail(validable.getUrl().isEmpty() ? null : validable.getUrl());
-        embedBuilder.setTitle("Who knows " + validable.getArtist() + " globally?");
+        embedBuilder.setTitle("Who knows " + artist + " globally?");
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 
     }

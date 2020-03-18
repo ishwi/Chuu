@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class MbizThisYearCommand extends MusicBrainzCommand {
 
@@ -27,61 +28,61 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
     }
 
 
-	@Override
-	public String getDescription() {
-		return "Gets your top albums of the year queried.\t" +
-				"NOTE: The further the year is from the  current year, the less precise the command will be";
-	}
+    @Override
+    public String getDescription() {
+        return "Gets your top albums of the year queried.\t" +
+               "NOTE: The further the year is from the  current year, the less precise the command will be";
+    }
 
-	@Override
-	public List<String> getAliases() {
-		return Arrays.asList("aoty", "albumoftheyear");
-	}
+    @Override
+    public List<String> getAliases() {
+        return Arrays.asList("aoty", "albumoftheyear");
+    }
 
-	@Override
-	public String getName() {
+    @Override
+    public String getName() {
         return "Albums Of The Year!";
     }
 
-	@Override
-	public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-		String[] returned;
-		returned = parser.parse(e);
-		if (returned == null)
-			return;
+    @Override
+    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+        String[] returned;
+        returned = parser.parse(e);
+        if (returned == null)
+            return;
 
-		int x = Integer.parseInt(returned[0]);
-		int y = Integer.parseInt(returned[1]);
-		Year year = Year.of(Integer.parseInt(returned[2]));
-		String username = returned[3];
-		boolean titleWrite = !Boolean.parseBoolean(returned[4]);
-		boolean playsWrite = Boolean.parseBoolean(returned[5]);
-		boolean caresAboutSize = !Boolean.parseBoolean(returned[6]);
+        int x = Integer.parseInt(returned[0]);
+        int y = Integer.parseInt(returned[1]);
+        Year year = Year.of(Integer.parseInt(returned[2]));
+        String username = returned[3];
+        boolean titleWrite = !Boolean.parseBoolean(returned[4]);
+        boolean playsWrite = Boolean.parseBoolean(returned[5]);
+        boolean caresAboutSize = !Boolean.parseBoolean(returned[6]);
 
 
-		TimeFrameEnum timeframe;
-		LocalDateTime time = LocalDateTime.now();
-		if (year.isBefore(Year.of(time.getYear()))) {
-			timeframe = TimeFrameEnum.ALL;
-		} else {
-			int monthValue = time.getMonthValue();
-			if (monthValue == 1 && time.getDayOfMonth() < 8) {
-				timeframe = TimeFrameEnum.WEEK;
-			} else if (monthValue < 2) {
-				timeframe = TimeFrameEnum.MONTH;
-			} else if (monthValue < 4) {
-				timeframe = TimeFrameEnum.QUARTER;
-			} else if (monthValue < 7)
-				timeframe = TimeFrameEnum.SEMESTER;
-			else {
-				timeframe = TimeFrameEnum.YEAR;
-			}
-		}
-		Message will_take_a_while = sendMessage(e, "Will take a while").complete();
-		calculateYearAlbums(username, timeframe
-				.toApiFormat(), 1500, x, y, year, e, titleWrite, playsWrite, caresAboutSize);
-		will_take_a_while.delete().queue();
-	}
+        TimeFrameEnum timeframe;
+        LocalDateTime time = LocalDateTime.now();
+        if (year.isBefore(Year.of(time.getYear()))) {
+            timeframe = TimeFrameEnum.ALL;
+        } else {
+            int monthValue = time.getMonthValue();
+            if (monthValue == 1 && time.getDayOfMonth() < 8) {
+                timeframe = TimeFrameEnum.WEEK;
+            } else if (monthValue < 2) {
+                timeframe = TimeFrameEnum.MONTH;
+            } else if (monthValue < 4) {
+                timeframe = TimeFrameEnum.QUARTER;
+            } else if (monthValue < 7)
+                timeframe = TimeFrameEnum.SEMESTER;
+            else {
+                timeframe = TimeFrameEnum.YEAR;
+            }
+        }
+        CompletableFuture<Message> will_take_a_while = sendMessage(e, "Will take a while").submit();
+        calculateYearAlbums(username, timeframe
+                .toApiFormat(), 1500, x, y, year, e, titleWrite, playsWrite, caresAboutSize);
+        CommandUtil.handleConditionalMessage(will_take_a_while);
+    }
 
 
 }

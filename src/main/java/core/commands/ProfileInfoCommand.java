@@ -63,7 +63,7 @@ public class ProfileInfoCommand extends ConcurrentCommand {
         int totalArtist = getService().getUserArtistCount(lastFmName);
         String crownRepresentative = !crowns.getUniqueData().isEmpty() ? crowns.getUniqueData().get(0)
                 .getArtistName() : "no crowns";
-        String UniqueRepresentative = !unique.getUniqueData().isEmpty() ? unique.getUniqueData().get(0)
+        String uniqueRepresentative = !unique.getUniqueData().isEmpty() ? unique.getUniqueData().get(0)
                 .getArtistName() : "no unique artists";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String date = LocalDateTime.ofEpochSecond(userInfo.getUnixtimestamp(), 0, ZoneOffset.UTC)
@@ -75,9 +75,9 @@ public class ProfileInfoCommand extends ConcurrentCommand {
                     .append("Total number of albums: ").append(albumCount).append("\n")
                     .append("Total number of artists: ").append(totalArtist).append("\n")
                     .append("Total number of crowns: ").append(totalCrowns).append("\n")
-                    .append("Top crown:").append(crownRepresentative).append("\n")
+                    .append("Top crown: ").append(CommandUtil.cleanMarkdownCharacter(crownRepresentative)).append("\n")
                     .append("Total number of unique artist: ").append(totalUnique).append("\n")
-                    .append("Top unique:").append(UniqueRepresentative).append("\n");
+                    .append("Top unique: ").append(CommandUtil.cleanMarkdownCharacter(uniqueRepresentative)).append("\n");
 
             String name = getUserString(e, unique.getDiscordId(), lastFmName);
 
@@ -100,9 +100,9 @@ public class ProfileInfoCommand extends ConcurrentCommand {
                     : null;
 
             String uniqueImage = !unique.getUniqueData().isEmpty() ? CommandUtil
-                    .getArtistImageUrl(getService(), UniqueRepresentative, lastFM, discogsApi, spotify) : null;
+                    .getArtistImageUrl(getService(), uniqueRepresentative, lastFM, discogsApi, spotify) : null;
 
-            ProfileEntity entity = new ProfileEntity(lastFmName, "", crownRepresentative, UniqueRepresentative, uniqueImage, crownImage, userInfo
+            ProfileEntity entity = new ProfileEntity(lastFmName, "", crownRepresentative, uniqueRepresentative, uniqueImage, crownImage, userInfo
                     .getImage(), "", userInfo
                     .getPlayCount(), albumCount, totalArtist, totalCrowns, totalUnique, summary.getTotal(), date);
             sendImage(ProfileMaker.makeProfile(entity), e);

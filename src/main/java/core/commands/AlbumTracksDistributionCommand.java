@@ -111,9 +111,9 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                     if (trackList.isEmpty()) {
                         //If is still empty well fuck it
 
-                        sendMessageQueue(e, "Couldn't find a tracklist for " + fullAlbumEntity
-                                .getArtist() + " - " + fullAlbumEntity
-                                                    .getAlbum());
+                        sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(fullAlbumEntity
+                                .getArtist()) + " - " + CommandUtil.cleanMarkdownCharacter(fullAlbumEntity
+                                .getAlbum()));
                         return;
                     }
                 }

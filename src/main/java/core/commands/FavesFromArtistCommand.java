@@ -66,7 +66,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
 
         final String userString = getUserString(e, userId, lastFmName);
         if (ai.isEmpty()) {
-            sendMessageQueue(e, ("Coudnt't find your fav tracks of " + who.getArtist() + (timeframew
+            sendMessageQueue(e, ("Coudnt't find your fav tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + (timeframew
                     .equals("overall") ? "" : " in the last " + TimeFrameEnum
                     .fromCompletePeriod(timeframew).toString().toLowerCase() + "!")));
             return;
@@ -77,7 +77,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
 
         for (int i = 0; i < 10 && i < ai.size(); i++) {
             Track g = ai.get(i);
-            s.append(i + 1).append(". **").append(g.getName()).append("** - ").append(g.getPlays()).append(" plays")
+            s.append(i + 1).append(". **").append(CommandUtil.cleanMarkdownCharacter(g.getName())).append("** - ").append(g.getPlays()).append(" plays")
                     .append("\n");
         }
         EmbedBuilder embedBuilder = new EmbedBuilder();

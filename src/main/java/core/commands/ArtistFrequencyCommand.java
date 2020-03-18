@@ -34,7 +34,7 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays> {
         }
 
         List<String> collect = list.stream().map(x -> ". [" +
-                                                      x.getArtistName() +
+                                                      CommandUtil.cleanMarkdownCharacter(x.getArtistName()) +
                                                       "](" + CommandUtil.getLastFmArtistUrl(x.getArtistName()) +
                                                       ") - " + x.getCount() +
                                                       " listeners \n").collect(Collectors.toList());

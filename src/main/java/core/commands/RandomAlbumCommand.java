@@ -40,10 +40,7 @@ public class RandomAlbumCommand extends ConcurrentCommand {
                 sendMessageQueue(e, "The pool of urls was empty, add one first!");
                 return;
             }
-            String sb = e.getAuthor().getAsMention() + ", here's your random recommendation\n" +
-                        "**Posted by:** " +
-                        CommandUtil.sanitizeUserString(getUserString(e, randomUrl.getDiscordId())) + "\n**Link:** " +
-                        randomUrl.getUrl();
+            String sb = String.format("%s, here's your random recommendation\n**Posted by:** %s\n**Link:** %s", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getAsMention()), getUserString(e, randomUrl.getDiscordId()), randomUrl.getUrl());
             e.getChannel().sendMessage(sb).queue();
             return;
         }
@@ -51,11 +48,11 @@ public class RandomAlbumCommand extends ConcurrentCommand {
         Long guildId = CommandUtil.getGuildIdConsideringPrivateChannel(e);
 
         if (!getService().addToRandomPool(new RandomUrlEntity(returned[0], e.getAuthor().getIdLong(), guildId))) {
-            sendMessageQueue(e, "The provided url: " + returned[0] + " was already on the pool");
+            sendMessageQueue(e, String.format("The provided url: %s was already on the pool", returned[0]));
             return;
         }
-        sendMessageQueue(e, "Successfully added " + getUserString(e, e.getAuthor().getIdLong(), e.getAuthor()
-                .getName()) + "'s link to the pool");
+        sendMessageQueue(e, String.format("Successfully added %s's link to the pool", getUserString(e, e.getAuthor().getIdLong(), CommandUtil.cleanMarkdownCharacter(e.getAuthor()
+                .getName()))));
 
     }
 

@@ -47,7 +47,7 @@ public class UniqueCommand extends ConcurrentCommand {
         UniqueWrapper<ArtistPlays> resultWrapper = getList(e.getGuild().getIdLong(), lastFmName);
         int rows = resultWrapper.getUniqueData().size();
         if (rows == 0) {
-            sendMessageQueue(e, "You have no " + (isGlobal() ? "global " : "") + "Unique Artists :(");
+            sendMessageQueue(e, String.format("You have no %sunique artists :(", isGlobal() ? "global " : ""));
             return;
         }
 
@@ -62,12 +62,10 @@ public class UniqueCommand extends ConcurrentCommand {
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(e.getGuild().getIconUrl());
-        embedBuilder.setDescription(a).setTitle(userInfo.getUsername()
-                                                + "'s Top 10" + (isGlobal() ? " global" : "") + " unique Artists", CommandUtil
+        embedBuilder.setDescription(a).setTitle(String.format("%s's Top 10%s unique artists", userInfo.getUsername(), isGlobal() ? " global" : ""), CommandUtil
                 .getLastFmUser(lastFmName))
                 .setThumbnail(userInfo.getUrlImage())
-                .setFooter(userInfo.getUsername()
-                           + " has " + rows + (isGlobal() ? " global" : "") + " unique artists!\n", null);
+                .setFooter(String.format("%s has %d%s unique artists!\n", CommandUtil.markdownLessUserString(userInfo.getUsername(), resultWrapper.getDiscordId(), e), rows, isGlobal() ? " global" : ""), null);
 
         MessageBuilder messageBuilder = new MessageBuilder();
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->

@@ -58,8 +58,6 @@ public abstract class MyCommand extends ListenerAdapter {
             return;
         }
         measureTime(e);
-
-
     }
 
     void measureTime(MessageReceivedEvent e) {
@@ -87,7 +85,7 @@ public abstract class MyCommand extends ListenerAdapter {
 
                 }
             } else {
-                username = e.getAuthor().getName();
+                username = CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName());
             }
 
             String init = "hasn't played anything";
@@ -137,7 +135,12 @@ public abstract class MyCommand extends ListenerAdapter {
     }
 
     public String getUserString(MessageReceivedEvent e, long discordId, String replacement) {
-        return CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId).getUsername();
+        try {
+            return CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId).getUsername();
+        } catch (Exception ex) {
+            return replacement;
+        }
+
     }
 
     MessageAction sendMessage(MessageReceivedEvent e, String message) {
