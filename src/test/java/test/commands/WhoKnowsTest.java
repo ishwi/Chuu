@@ -1,13 +1,13 @@
 package test.commands;
 
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageHistory;
+import org.junit.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedUtils;
 import test.commands.utils.ImageUtils;
 import test.commands.utils.TestResources;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageHistory;
-import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -34,14 +34,14 @@ public class WhoKnowsTest extends CommandTest {
 
 	@Test
 	public void EmbedTest() {
-		//"|week||(?:Album )?Crowns leadearboard||"
+        //"|week||(?:Album )?Crowns leaderboard||"
 
-		String commonArtist = TestResources.commonArtist;
-		String artistUrl = TestResources.dao.getArtistUrl(commonArtist);
-		EmbedUtils
-				.testLeaderboardEmbed(COMMAND_ALIAS + " " + TestResources.commonArtist + " --list", EmbedUtils.descriptionArtistRegex, "Who knows (.*?)(?= in ${header}\\?) in ${header}\\?", true, false, artistUrl,
-						Pattern.compile("No one knows (.*)"));
-	}
+        String commonArtist = TestResources.commonArtist;
+        String artistUrl = TestResources.dao.getArtistUrl(commonArtist);
+        EmbedUtils
+                .testLeaderboardEmbed(COMMAND_ALIAS + " " + TestResources.commonArtist + " --list", EmbedUtils.descriptionArtistRegex, "Who knows (.*?)(?= in ${header}\\?) in ${header}\\?", true, false, artistUrl,
+                        Pattern.compile("No one knows (.*)"));
+    }
 
 	@Test
 	public void NoOneKnows() {

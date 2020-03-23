@@ -83,7 +83,7 @@ public class AlbumCrownsCommandTest extends CommandTest {
 		Pattern noembededMessageLb = Pattern.compile("This guild has no registered users:\\(");
 
 		String regex = "${header}'s album crown(:?s)?";
-		String regexLB = "${header}'s Album Crowns leadearboard";
+		String regexLB = "${header}'s Album Crowns leaderboard";
 		EmbedUtils.testLeaderboardEmbed("!crownsal " + TestResources.ogJDA.getSelfUser()
 				.getAsMention(), EmbedUtils.descriptionArtistAlbumRegex, regex, false, true, noembededMessage);
 		EmbedUtils
@@ -131,7 +131,7 @@ public class AlbumCrownsCommandTest extends CommandTest {
 		Pattern noembededMessageLb = Pattern.compile("This guild has no registered users:\\(");
 
 		EmbedUtils
-				.testLeaderboardEmbed("!obscuritylb", EmbedUtils.descriptionArtistRegex, "${header}'s Obscurity points leadearboard", true, noembededMessageLb);
+				.testLeaderboardEmbed("!obscuritylb", EmbedUtils.descriptionArtistRegex, "${header}'s Obscurity points leaderboard", true, noembededMessageLb);
 	}
 
 
@@ -140,7 +140,7 @@ public class AlbumCrownsCommandTest extends CommandTest {
 		Pattern noembededMessageLb = Pattern.compile("This guild has no registered users:\\(");
 
 		EmbedUtils
-				.testLeaderboardEmbed("!scrobbledlb", EmbedUtils.descriptionArtistRegex, "${header}'s artist leadearboard", true, noembededMessageLb);
+				.testLeaderboardEmbed("!scrobbledlb", EmbedUtils.descriptionArtistRegex, "${header}'s artist leaderboard", true, noembededMessageLb);
 	}
 
 	@Test
@@ -148,7 +148,7 @@ public class AlbumCrownsCommandTest extends CommandTest {
 		Pattern noembededMessageLb = Pattern.compile("This guild has no registered users:\\(");
 
 		EmbedUtils
-				.testLeaderboardEmbed("!uniquelb", EmbedUtils.descriptionArtistRegex, "${header}'s Unique Artists leadearboard", true, noembededMessageLb);
+				.testLeaderboardEmbed("!uniquelb", EmbedUtils.descriptionArtistRegex, "${header}'s Unique Artists leaderboard", true, noembededMessageLb);
 	}
 
 
@@ -157,7 +157,7 @@ public class AlbumCrownsCommandTest extends CommandTest {
 		Pattern noembededMessageLb = Pattern.compile("This guild has no registered users:\\(");
 
 		EmbedUtils
-				.testLeaderboardEmbed("!crownslb", EmbedUtils.descriptionArtistRegex, "${header}'s Crowns leadearboard", true, noembededMessageLb);
+				.testLeaderboardEmbed("!crownslb", EmbedUtils.descriptionArtistRegex, "${header}'s Crowns leaderboard", true, noembededMessageLb);
 	}
 
 

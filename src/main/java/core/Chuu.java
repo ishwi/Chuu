@@ -13,8 +13,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.managers.Presence;
-import net.dv8tion.jda.api.utils.ChunkingFilter;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.EnumSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -205,10 +202,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new UserExportCommand(dao)))
                 .addEventListeners(help.registerCommand(new ImportCommand(dao)))
                 .addEventListeners(help.registerCommand(new VotingCommand(dao)))
-                .addEventListeners(help.registerCommand(new AliasesCommand(dao)))
-
-                .setDisabledCacheFlags(EnumSet.allOf(CacheFlag.class))
-                .setChunkingFilter(ChunkingFilter.NONE);
+                .addEventListeners(help.registerCommand(new AliasesCommand(dao)));
 
         try {
             jda = builder.build().awaitReady();

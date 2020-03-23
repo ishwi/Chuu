@@ -6,19 +6,26 @@ import java.util.Objects;
 
 @JsonSerialize(using = UserExportSerializer.class)
 public class UsersWrapper {
+    private final Role role;
     private long discordID;
     private String lastFMName;
     private int timestamp;
 
-    public UsersWrapper(long discordID, String lastFMName) {
+    public UsersWrapper(long discordID, String lastFMName, Role role) {
         this.discordID = discordID;
         this.lastFMName = lastFMName;
+        this.role = role;
     }
 
-    UsersWrapper(long discordID, String lastFMName, int timestamp) {
+    UsersWrapper(long discordID, String lastFMName, int timestamp, Role role) {
         this.discordID = discordID;
         this.lastFMName = lastFMName;
         this.timestamp = timestamp;
+        this.role = role;
+    }
+
+    public Role getRole() {
+        return role;
     }
 
     public int getTimestamp() {

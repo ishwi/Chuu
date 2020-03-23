@@ -85,7 +85,7 @@ public class VotingCommand extends ConcurrentCommand {
             AtomicInteger counter = new AtomicInteger(0);
             HashMap<String, BiFunction<VotingEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
             List<Long> guildList = e.isFromGuild()
-                    ? getService().getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toList())
+                    ? getService().getAll(e.getGuild().getIdLong()).stream().filter(u -> !u.getRole().equals(Role.IMAGE_BLOCKED)).map(UsersWrapper::getDiscordID).collect(Collectors.toList())
                     : List.of(e.getAuthor().getIdLong());
 
             actionMap.put(REPORT, (a, r) -> {

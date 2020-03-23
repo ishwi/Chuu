@@ -7,6 +7,7 @@ import dao.entities.UsersWrapper;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -230,25 +231,32 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public List<UsersWrapper> getAll(Connection connection, long guildId) {
-        String queryString = "SELECT a.discord_id, a.lastfm_id FROM user a JOIN (SELECT discord_id FROM user_guild WHERE guild_id = ? ) b ON a.discord_id = b.discord_id";
+        String queryString = "SELECT a.discord_id, a.lastfm_id,a.role FROM user a JOIN (SELECT discord_id FROM user_guild WHERE guild_id = ? ) b ON a.discord_id = b.discord_id";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
 
             /* Execute query. */
             preparedStatement.setLong(1, guildId);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            List<UsersWrapper> returnList = new ArrayList<>();
-            while (resultSet.next()) {
-
-                String name = resultSet.getString("a.lastFm_Id");
-                long discordID = resultSet.getLong("a.discord_ID");
-                returnList.add(new UsersWrapper(discordID, name));
-            }
-            return returnList;
+            return getUsersWrappers(preparedStatement);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @NotNull
+    private List<UsersWrapper> getUsersWrappers(PreparedStatement preparedStatement) throws SQLException {
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<UsersWrapper> returnList = new ArrayList<>();
+        while (resultSet.next()) {
+
+            String name = resultSet.getString("a.lastFm_Id");
+            long discordID = resultSet.getLong("a.discord_ID");
+            Role role = Role.valueOf(resultSet.getString(3));
+
+            returnList.add(new UsersWrapper(discordID, name, role));
+        }
+        return returnList;
     }
 
     @Override
@@ -399,21 +407,13 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public List<UsersWrapper> getAll(Connection connection) {
-        String queryString = "SELECT a.discord_id, a.lastfm_id FROM user a ";
+        String queryString = "SELECT a.discord_id, a.lastfm_id, a.role FROM user a ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
 
             /* Execute query. */
-            ResultSet resultSet = preparedStatement.executeQuery();
-            List<UsersWrapper> returnList = new ArrayList<>();
-            while (resultSet.next()) {
-
-                String name = resultSet.getString("a.lastFm_Id");
-                long discordID = resultSet.getLong("a.discord_ID");
-                returnList.add(new UsersWrapper(discordID, name));
-            }
-            return returnList;
+            return getUsersWrappers(preparedStatement);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

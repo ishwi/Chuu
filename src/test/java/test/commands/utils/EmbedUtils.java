@@ -83,36 +83,35 @@ public class EmbedUtils {
 				.descriptionPattern(descriptionRegex)
 				.descriptionMatcher(matcherDescription)
 				.noEmbbed(NoEmbededPattern)
-				.timeout(45)
-				.hasThumbnail(true)
-				.thumbnail(artistThumbnail)
-				.build().GeneralFunction();
+            .timeout(45)
+            .hasThumbnail(true)
+            .thumbnail(artistThumbnail)
+            .build().GeneralFunction();
 
 
-
-	}
-
-
-	public static void testLeaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, boolean hasPing, Pattern NoEmbededPattern) {
-		testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, hasPing, null, NoEmbededPattern);
-	}
-
-	public static void testLeaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, Pattern NoEmbededPattern) {
-		testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, false, null, NoEmbededPattern);
-	}
+    }
 
 
-	public static void testNonLeadearboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, Pattern NoEmbededPattern) {
-		testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, false, null, NoEmbededPattern);
-	}
+    public static void testLeaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, boolean hasPing, Pattern NoEmbededPattern) {
+        testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, hasPing, null, NoEmbededPattern);
+    }
+
+    public static void testLeaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, Pattern NoEmbededPattern) {
+        testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, false, null, NoEmbededPattern);
+    }
 
 
-	@Before
-	public void setUp() {
-		testerJDAThumbnail = TestResources.testerJDA.getSelfUser().getAvatarUrl();
-		ogJDAThumbnail = TestResources.ogJDA.getSelfUser().getAvatarUrl();
-		serverThumbnail = TestResources.channelWorker.getGuild().getIconUrl();
-	}
+    public static void testNonleaderboardEmbed(String command, Pattern descriptionRegex, String titleRegex, boolean isLeaderboard, Pattern NoEmbededPattern) {
+        testLeaderboardEmbed(command, descriptionRegex, titleRegex, isLeaderboard, false, null, NoEmbededPattern);
+    }
+
+
+    @Before
+    public void setUp() {
+        testerJDAThumbnail = TestResources.testerJDA.getSelfUser().getAvatarUrl();
+        ogJDAThumbnail = TestResources.ogJDA.getSelfUser().getAvatarUrl();
+        serverThumbnail = TestResources.channelWorker.getGuild().getIconUrl();
+    }
 
 
 }

@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class UpdateCommand extends MyCommand {
+public class UpdateCommand extends ConcurrentCommand {
     private final DiscogsApi discogsApi;
     private final Spotify spotifyApi;
 

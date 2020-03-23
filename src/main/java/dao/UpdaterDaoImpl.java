@@ -49,7 +49,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public UpdaterUserWrapper getLessUpdated(Connection connection) {
         @Language("MariaDB") String queryString =
-                "SELECT a.discord_id, a.lastfm_id,(if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) controling " +
+                "SELECT a.discord_id,a.role, a.lastfm_id,(if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) controling " +
                 "FROM user a   " +
                 "ORDER BY  control_timestamp LIMIT 1";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -64,9 +64,10 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 long discordID = resultSet.getLong("a.discord_ID");
                 Timestamp timestamp = resultSet.getTimestamp("updating");
                 Timestamp controlTimestamp = resultSet.getTimestamp("controling");
+                Role role = Role.valueOf(resultSet.getString("a.role"));
 
                 return new UpdaterUserWrapper(discordID, name, ((int) timestamp.toInstant()
-                        .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()));
+                        .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()), role);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -594,19 +595,16 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
             ResultSet ids = preparedStatement.getResultSet();
             int counter = 0;
-            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    nonExistingId.setArtistId(generatedKeys.getLong("GENERATED_KEY"));
-                } else {
-                    try {
-                        long artistId = getArtistId(connection, nonExistingId.getArtist());
-                        nonExistingId.setArtistId(artistId);
-                    } catch (InstanceNotFoundException e) {
-                        throw new SQLException("Creating user failed, no ID obtained.");
-                    }
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                nonExistingId.setArtistId(generatedKeys.getLong("GENERATED_KEY"));
+            } else {
+                try {
+                    long artistId = getArtistId(connection, nonExistingId.getArtist());
+                    nonExistingId.setArtistId(artistId);
+                } catch (InstanceNotFoundException e) {
+                    throw new SQLException("Creating user failed, no ID obtained.");
                 }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
         } catch (
                 SQLException e) {
@@ -663,7 +661,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     public UpdaterUserWrapper getUserUpdateStatus(Connection connection, long discordId) throws
             InstanceNotFoundException {
         @Language("MariaDB") String queryString =
-                "SELECT a.discord_id, a.lastfm_id, (if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating ,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) control " +
+                "SELECT a.discord_id, a.role, a.lastfm_id, (if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating ,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) control " +
                 "FROM user a   " +
                 " WHERE a.discord_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -679,9 +677,10 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 long discordID = resultSet.getLong("a.discord_ID");
                 Timestamp timestamp = resultSet.getTimestamp("updating");
                 Timestamp controlTimestamp = resultSet.getTimestamp("control");
+                Role role = Role.valueOf(resultSet.getString("a.role"));
 
                 return new UpdaterUserWrapper(discordID, name, ((int) timestamp.toInstant()
-                        .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()));
+                        .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()), role);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
