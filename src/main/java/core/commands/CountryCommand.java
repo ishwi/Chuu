@@ -11,12 +11,14 @@ import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
@@ -52,9 +54,10 @@ public class CountryCommand extends ConcurrentCommand {
         String username = returned[0];
         long discordId = Long.parseLong(returned[1]);
         String timeframe = returned[2];
-
-        if (timeframe.equals(TimeFrameEnum.SEMESTER.toApiFormat()) || timeframe.equals(TimeFrameEnum.ALL.toApiFormat()))
-            sendMessageQueue(e, "Going to take a while ");
+        CompletableFuture<Message> future = null;
+        if (timeframe.equals(TimeFrameEnum.SEMESTER.toApiFormat()) || timeframe.equals(TimeFrameEnum.ALL.toApiFormat())) {
+            future = sendMessage(e, "Going to take a while ").submit();
+        }
 
         BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
         lastFM.getUserList(username, timeframe, 100, 100, false, queue);
@@ -67,11 +70,13 @@ public class CountryCommand extends ConcurrentCommand {
         Map<Country, Integer> map = musicBrainz.countryCount(artistInfos);
 
         if (map.isEmpty()) {
+            CommandUtil.handleConditionalMessage(future);
             sendMessageQueue(e, "Was not able to find any country on " + getUserString(e, discordId, username) + " 's artists");
             return;
         }
 
         byte[] b = WorldMapRenderer.generateImage(map);
+        CommandUtil.handleConditionalMessage(future);
         if (b == null) {
             parser.sendError("Unknown error happened while creating the map", e);
             return;

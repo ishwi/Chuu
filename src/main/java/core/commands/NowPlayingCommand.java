@@ -18,20 +18,23 @@ public class NowPlayingCommand extends NpCommand {
     @Override
     public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e, long discordId) {
         StringBuilder a = new StringBuilder();
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
+
+        // Author fields cant have escaped markdown characters
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoNotStripped(e, discordId);
 
         String urlHolder = userInformation.getUrlImage();
         String userName = userInformation.getUsername();
 
         String title = String.format("%s's %s song:", userName, nowPlayingArtist.isNowPlaying() ? "current" : "last");
         String lastFMName = nowPlayingArtist.getUsername();
-        a.append("**").append(nowPlayingArtist.getArtistName())
-                .append("** | ").append(nowPlayingArtist.getAlbumName()).append("\n");
+
+        a.append("**").append(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getArtistName()))
+                .append("** | ").append(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getAlbumName())).append("\n");
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setAuthor(title, CommandUtil.getLastFmUser(lastFMName), urlHolder)
                 .setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
-                .setTitle(nowPlayingArtist.getSongName(), CommandUtil.getLastFMArtistTrack(nowPlayingArtist.getArtistName(), nowPlayingArtist.getSongName()))
+                .setTitle(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getSongName()), CommandUtil.getLastFMArtistTrack(nowPlayingArtist.getArtistName(), nowPlayingArtist.getSongName()))
                 .setDescription(a);
 
         MessageBuilder messageBuilder = new MessageBuilder();

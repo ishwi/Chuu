@@ -65,8 +65,8 @@ public class MatchingArtistCommand extends ConcurrentCommand {
         for (int i = 0; i < 10 && i < list.size(); i++) {
             a.append(i + 1).append(list.get(i).toString());
         }
-        embedBuilder.setDescription(a).setTitle("Matching artists with " + usableName.toString())
-                .setFooter(usableName + " has " + getService().getUserArtistCount(message[0]) + " total artist!\n", null);
+        embedBuilder.setDescription(a).setTitle("Matching artists with " + usableName)
+                .setFooter(String.format("%s has %d total artist!\n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService().getUserArtistCount(message[0])), null);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(mes ->
                 executor.execute(() -> new Reactionary<>(list, mes, embedBuilder)));
     }

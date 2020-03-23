@@ -42,7 +42,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
         int plays = getService().getArtistPlays(who.getArtistId(), username);
         if (plays == 0) {
-            parser.sendError("You still haven't listened to " + who.getArtist(), e);
+            parser.sendError("You still haven't listened to " + CommandUtil.cleanMarkdownCharacter(who.getArtist()), e);
             return;
         }
 

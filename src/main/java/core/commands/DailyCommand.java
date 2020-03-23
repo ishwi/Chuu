@@ -9,6 +9,7 @@ import dao.entities.SecondsTimeFrameCount;
 import dao.entities.Track;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -48,17 +49,12 @@ public class DailyCommand extends ConcurrentCommand {
             SecondsTimeFrameCount minutesWastedOnMusicDaily = lastFM
                     .getMinutesWastedOnMusicDaily(lastFmName, durationsFromWeek,
                             (int) Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond());
-            sendMessageQueue(e, "**" + usable + "** played " +
-                                minutesWastedOnMusicDaily.getMinutes() +
-                                " minutes of music, " + String
-                                        .format("(%d:%02d ", minutesWastedOnMusicDaily.getHours(),
-                                                minutesWastedOnMusicDaily.getRemainingMinutes()) +
-                                "hours" +
-                                "), listening to " + minutesWastedOnMusicDaily
-                                        .getCount() +
-                                CommandUtil.singlePlural(minutesWastedOnMusicDaily.getCount(),
-                                        " track", " tracks")
-                                + " in the last 24 hours");
+
+            sendMessageQueue(e, MessageFormat.format("**{0}** played {1} minutes of music, {2}hours), listening to {3}{4} in the last 24 hours", usable, minutesWastedOnMusicDaily.getMinutes(), String
+                    .format("(%d:%02d ", minutesWastedOnMusicDaily.getHours(),
+                            minutesWastedOnMusicDaily.getRemainingMinutes()), minutesWastedOnMusicDaily
+                    .getCount(), CommandUtil.singlePlural(minutesWastedOnMusicDaily.getCount(),
+                    " track", " tracks")));
 
         } catch (LastFMNoPlaysException ex) {
             sendMessageQueue(e, "**" + usable + "** played 0 mins, really, 0! mins in the last 24 hours");

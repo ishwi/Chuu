@@ -23,12 +23,12 @@ public class TimeSpentCommand extends ConcurrentCommand {
     }
 
     @Override
-	public List<String> getAliases() {
-		return Collections.singletonList("minutes");
-	}
+    public List<String> getAliases() {
+        return Collections.singletonList("minutes");
+    }
 
-	@Override
-	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    @Override
+    protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] message;
         message = parser.parse(e);
         String username = message[0];
@@ -41,20 +41,16 @@ public class TimeSpentCommand extends ConcurrentCommand {
         }
 
         SecondsTimeFrameCount wastedOnMusic = lastFM.getMinutesWastedOnMusic(username, timeframe);
-        sendMessageQueue(e, "**" + usableString + "** played " +
-                            wastedOnMusic.getMinutes() +
-                            " minutes of music, " + String
-                                    .format("(%d:%02d ", wastedOnMusic.getHours(),
-							wastedOnMusic.getRemainingMinutes()) +
-					CommandUtil.singlePlural(wastedOnMusic.getHours(), "hour", "hours") +
-					"), listening to " + wastedOnMusic.getCount() + " different tracks in the last " +
-					wastedOnMusic.getTimeFrame().toString()
-							.toLowerCase());
+        sendMessageQueue(e, String.format("**%s** played %d minutes of music, %s%s), listening to %d different tracks in the last %s", usableString, wastedOnMusic.getMinutes(), String
+                        .format("(%d:%02d ", wastedOnMusic.getHours(),
+                                wastedOnMusic.getRemainingMinutes()),
+                CommandUtil.singlePlural(wastedOnMusic.getHours(), "hour", "hours"), wastedOnMusic.getCount(), wastedOnMusic.getTimeFrame().toString()
+                        .toLowerCase()));
 
-	}
+    }
 
-	@Override
-	public String getName() {
-		return "Wasted On Music";
-	}
+    @Override
+    public String getName() {
+        return "Wasted On Music";
+    }
 }

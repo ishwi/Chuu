@@ -55,14 +55,13 @@ public class RecentListCommand extends ConcurrentCommand {
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(CommandUtil.noImageUrl(header.getUrl()))
-                .setTitle("" + usable + "'s last " + limit + " tracks",
+                .setTitle(String.format("%s's last %d tracks", usable, limit),
                         CommandUtil.getLastFmUser(lastFmName));
 
         int counter = 1;
         for (NowPlayingArtist nowPlayingArtist : list) {
-            embedBuilder.addField("Track #" + counter++ + ":", "**" + nowPlayingArtist.getSongName() +
-                                                               "** - " + nowPlayingArtist.getArtistName() + " | " + nowPlayingArtist
-                                                                       .getAlbumName() + "\n", false);
+            embedBuilder.addField("Track #" + counter++ + ":", String.format("**%s** - %s | %s\n", CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getSongName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getArtistName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist
+                    .getAlbumName())), false);
         }
 
         MessageBuilder messageBuilder = new MessageBuilder();

@@ -7,11 +7,13 @@ import core.imagerenderer.CollageMaker;
 import core.parsers.ChartParser;
 import dao.ChuuService;
 import dao.entities.UrlCapsule;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class ChartCommand extends ConcurrentCommand {
@@ -46,14 +48,14 @@ public class ChartCommand extends ConcurrentCommand {
         boolean titleWrite = !Boolean.parseBoolean(returned[5]);
         boolean playsWrite = Boolean.parseBoolean(returned[6]);
 
-
+        CompletableFuture<Message> future = null;
         if (x * y > 100) {
-            e.getChannel().sendMessage("Going to take a while").queue();
+            future = e.getChannel().sendMessage("Going to take a while").submit();
         }
 
         processQueue(username, time, x, y, e, titleWrite, playsWrite);
 
-
+        CommandUtil.handleConditionalMessage(future);
     }
 
     void processQueue(String username, String time, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays) throws LastFmException {

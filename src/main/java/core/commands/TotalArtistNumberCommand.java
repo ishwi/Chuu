@@ -21,24 +21,24 @@ public class TotalArtistNumberCommand extends ConcurrentCommand {
     }
 
     @Override
-	public List<String> getAliases() {
-		return Collections.singletonList("scrobbled");
-	}
+    public List<String> getAliases() {
+        return Collections.singletonList("scrobbled");
+    }
 
-	@Override
-	protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    @Override
+    protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] returned = parser.parse(e);
         String lastFmName = returned[0];
         long discordID = Long.parseLong(returned[1]);
         String username = getUserString(e, discordID, lastFmName);
 
         int plays = getService().getUserArtistCount(lastFmName);
-        sendMessageQueue(e, "**" + username + "** has scrobbled **" + plays + "** different artists");
+        sendMessageQueue(e, String.format("**%s** has scrobbled **%d** different artists", username, plays));
 
     }
 
-	@Override
-	public String getName() {
-		return "Artist count ";
-	}
+    @Override
+    public String getName() {
+        return "Artist count ";
+    }
 }

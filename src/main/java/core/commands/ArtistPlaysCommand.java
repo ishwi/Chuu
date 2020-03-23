@@ -46,7 +46,7 @@ public class ArtistPlaysCommand extends ConcurrentCommand {
         a = getService().getArtistPlays(scrobbledArtist.getArtistId(), data.getName());
         String usernameString = getUserString(e, whom, data.getName());
         String ending = a != 1 ? "times" : "time";
-        sendMessageQueue(e, "**" + usernameString + "** has scrobbled **" + scrobbledArtist.getArtist() + " " + a + "** " + ending);
+        sendMessageQueue(e, "**" + usernameString + "** has scrobbled **" + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()) + " " + a + "** " + ending);
 
     }
 }
