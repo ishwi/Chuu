@@ -19,8 +19,9 @@ public class ChartFromYearVariableParser extends DaoParser {
     void setUpOptionals() {
         opts.add(new OptionalEntity("--notitles", "dont display titles"));
         opts.add(new OptionalEntity("--plays", "display play count"));
-        opts.add(new OptionalEntity("--nolimit", "makes the chart as big as possible"));
         opts.add(new OptionalEntity("--list", "display it on list form"));
+        opts.add(new OptionalEntity("--nolimit", "makes the chart as big as possible"));
+
 
     }
 

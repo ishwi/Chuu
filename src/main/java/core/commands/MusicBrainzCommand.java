@@ -4,19 +4,13 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.AlbumChart;
-import core.apis.last.queues.ArtistQueue;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ChartFromYearParser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.ChartYearParameters;
 import dao.ChuuService;
-import dao.entities.AlbumInfo;
-import dao.entities.CountWrapper;
-import dao.entities.TimeFrameEnum;
-import dao.entities.UrlCapsule;
+import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -28,13 +22,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class MusicBrainzCommand extends ChartableCommand {
     private final DiscogsApi discogsApi;
     private final MusicBrainzService mb;
-    private final Spotify spotifyApi;
     public int searchSpace = 100;
 
 
@@ -42,7 +36,6 @@ public class MusicBrainzCommand extends ChartableCommand {
         super(dao);
         this.parser = new ChartFromYearParser(dao);//
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotifyApi = SpotifySingleton.getInstanceUsingDoubleLocking();
         mb = MusicBrainzServiceSingleton.getInstance();
     }
 
@@ -80,7 +73,10 @@ public class MusicBrainzCommand extends ChartableCommand {
         ChartYearParameters chartParameters = new ChartYearParameters(username, discordId, TimeFrameEnum.fromCompletePeriod(time), x, x, e, titleWrite, playsWrite, isList, year, false);
         CountWrapper<BlockingQueue<UrlCapsule>> result = processQueue(chartParameters);
         BlockingQueue<UrlCapsule> queue = result.getResult();
-
+        if (queue.isEmpty()) {
+            noElementsMessage(e, chartParameters);
+            return;
+        }
         if (isList) {
             ArrayList<UrlCapsule> liste = new ArrayList<>(queue.size());
             queue.drainTo(liste);
@@ -95,7 +91,7 @@ public class MusicBrainzCommand extends ChartableCommand {
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters params) throws LastFmException {
-        BlockingQueue<UrlCapsule> queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !params.isList());
+        BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
         lastFM.getChart(params.getUsername(), params.getTimeFrameEnum().toApiFormat(), searchSpace, 1, TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
         ChartYearParameters chartYearParameters = (ChartYearParameters) params;
         Year year = chartYearParameters.getYear();
@@ -169,8 +165,9 @@ public class MusicBrainzCommand extends ChartableCommand {
 
     @Override
     public void noElementsMessage(MessageReceivedEvent e, ChartParameters parameters) {
-        ChartYearParameters chartYearParameters = (ChartYearParameters) parameters;
-        sendMessageQueue(e, "Dont have any " + chartYearParameters.getYear().toString() + " album in your top " + searchSpace + " albums");
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        ChartYearParameters parmas = (ChartYearParameters) parameters;
+        sendMessageQueue(e, String.format("Couldn't find any %s album in %s top %d albums%s!", parmas.getYear().toString(), ingo.getUsername(), searchSpace, parameters.getTimeFrameEnum().getDisplayString()));
     }
 
 

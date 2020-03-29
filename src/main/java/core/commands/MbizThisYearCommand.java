@@ -3,11 +3,9 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ChartFromYearVariableParser;
-import core.parsers.params.ChartParameters;
 import core.parsers.params.ChartYearParameters;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
-import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -66,8 +64,8 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
         long discordId = Long.parseLong(returned[4]);
         boolean titleWrite = !Boolean.parseBoolean(returned[5]);
         boolean playsWrite = Boolean.parseBoolean(returned[6]);
-        boolean noLimitFlag = Boolean.parseBoolean(returned[7]);
-        boolean isList = Boolean.parseBoolean(returned[8]);
+        boolean isList = Boolean.parseBoolean(returned[7]);
+        boolean noLimitFlag = Boolean.parseBoolean(returned[8]);
 
 
         TimeFrameEnum timeframe;
@@ -91,6 +89,10 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
         ChartYearParameters chartParameters = new ChartYearParameters(username, discordId, timeframe, x, y, e, titleWrite, playsWrite, isList, year, !noLimitFlag);
         CountWrapper<BlockingQueue<UrlCapsule>> result = processQueue(chartParameters);
         BlockingQueue<UrlCapsule> queue = result.getResult();
+        if (queue.isEmpty()) {
+            noElementsMessage(e, chartParameters);
+            return;
+        }
         if (isList) {
             ArrayList<UrlCapsule> liste = new ArrayList<>(queue.size());
             queue.drainTo(liste);
@@ -107,10 +109,5 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
         }
     }
 
-    @Override
-    public void noElementsMessage(MessageReceivedEvent e, ChartParameters parameters) {
-        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
-        ChartYearParameters parmas = (ChartYearParameters) parameters;
-        sendMessageQueue(e, String.format("Couldn't find any %s album in %s top %d albums%s!", parmas.getYear().toString(), ingo.getUsername(), searchSpace, parameters.getTimeFrameEnum().getDisplayString()));
-    }
+
 }

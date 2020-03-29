@@ -47,7 +47,7 @@ public abstract class GroupingChartCommand extends ChartableCommand {
             return;
         ChartGroupParameters chartGroupParameters = new ChartGroupParameters(returned, e);
         CountWrapper<GroupingQueue> countWrapper = processGroupedQueue(chartGroupParameters);
-        if (countWrapper.getRows() == 0) {
+        if (countWrapper.getResult().isEmpty()) {
             noElementsMessage(e, chartGroupParameters);
             return;
         }

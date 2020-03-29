@@ -17,8 +17,8 @@ public class ChartFromYearParser extends ChartParser {
 
     @Override
     protected void setUpOptionals() {
-        opts.add(new OptionalEntity("--notitles", "don't display titles"));
-        opts.add(new OptionalEntity("--plays", "display play count"));
+        super.setUpOptionals();
+        ;
 
     }
 
