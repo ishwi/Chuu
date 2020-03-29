@@ -360,7 +360,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
                 preparedStatement1.setString(2 * i + 2, urlCapsules.get(i).getAlbumName());
             }
             preparedStatement1.execute();
-            String queryString = "SELECT a.gid AS mbid, c.name AS albumname, e.artist AS artistaname,e.track AS trackname  \n" +
+            String queryString = "SELECT a.gid AS mbid,c.gid AS ambid, c.name AS albumname, e.artist AS artistaname,e.track AS trackname  \n" +
                                  "FROM musicbrainz.track a \n" +
                                  "JOIN musicbrainz.medium b ON a.medium = b.id \n" +
                                  "JOIN musicbrainz.release c ON b.release = c.id \n" +
@@ -372,8 +372,10 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
                 String string = resultSet.getString("albumName");
                 String name = resultSet.getString("artistaName");
                 String trackName = resultSet.getString("trackName");
+                String albumMid = resultSet.getString("ambid");
 
-                TrackInfo trackInfo = new TrackInfo(name, string, trackName);
+
+                TrackInfo trackInfo = new TrackInfo(name, string, trackName, albumMid);
                 trackInfo.setMbid(mbid);
                 list.add(trackInfo);
             }
@@ -387,8 +389,9 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
 
     @Override
-    public List<AlbumInfo> getAlbumInfoByMbid(Connection connection, List<UrlCapsule> urlCapsules) {
+    public void getAlbumInfoByMbid(Connection connection, List<UrlCapsule> urlCapsules) {
         List<AlbumInfo> list = new ArrayList<>();
+        Map<String, UrlCapsule> collect = urlCapsules.stream().collect(Collectors.toMap(UrlCapsule::getMbid, t -> t));
         String tempTable = "CREATE temp TABLE IF NOT EXISTS frequencies( mbid uuid) ON COMMIT DELETE ROWS;";
         try (PreparedStatement preparedStatement = connection.prepareStatement(tempTable)) {
             preparedStatement.execute();
@@ -402,7 +405,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             }
             preparedStatement1.execute();
 
-            String queryString = "SELECT a.gid AS mbid, c.name AS albumname, e.name AS artistaname  FROM musicbrainz.track a " +
+            String queryString = "SELECT a.gid AS mbid,c.gid AS ambid ,c.name AS albumname, e.name AS artistaname  FROM musicbrainz.track a " +
                                  "JOIN musicbrainz.medium b ON a.medium = b.id " +
                                  "JOIN musicbrainz.release c ON b.release = c.id " +
                                  "JOIN musicbrainz.artist_credit e ON a.artist_credit = e.id " +
@@ -412,15 +415,16 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
                 String mbid = resultSet.getString("mbid");
                 String string = resultSet.getString("albumName");
                 String name = resultSet.getString("artistaName");
-                AlbumInfo albumInfo = new AlbumInfo(string, name);
-                albumInfo.setMbid(mbid);
-                list.add(albumInfo);
+                String almbid = resultSet.getString("ambid");
+                UrlCapsule urlCapsule = collect.get(mbid);
+                urlCapsule.setAlbumName(string);
+                urlCapsule.setMbid(almbid);
             }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return list;
+
 
     }
 

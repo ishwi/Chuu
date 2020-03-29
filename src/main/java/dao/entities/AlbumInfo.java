@@ -43,7 +43,7 @@ public class AlbumInfo extends EntityInfo {
     @Override
     public int hashCode() {
         if (getMbid() != null && !getMbid().isBlank()) {
-            return super.hashCode();
+            return Objects.hash(getMbid());
         }
         return Objects.hash(getArtist(), getName());
     }

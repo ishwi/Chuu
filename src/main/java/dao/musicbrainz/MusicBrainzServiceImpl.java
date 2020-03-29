@@ -162,10 +162,10 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
     }
 
     @Override
-    public List<AlbumInfo> getAlbumInfoByMbid(List<UrlCapsule> urlCapsules) {
+    public void getAlbumInfoByMbid(List<UrlCapsule> urlCapsules) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
-            return mbizQueriesDao.getAlbumInfoByMbid(connection, urlCapsules);
+            mbizQueriesDao.getAlbumInfoByMbid(connection, urlCapsules);
         } catch (
                 SQLException e) {
             throw new RuntimeException(e);

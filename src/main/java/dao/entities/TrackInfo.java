@@ -5,18 +5,20 @@ import java.util.Objects;
 public class TrackInfo extends EntityInfo {
     private String album;
     private String track;
+    private String albumMid;
 
 
-    public TrackInfo(String artist, String album, String track) {
+    public TrackInfo(String artist, String album, String track, String albumMid) {
         super(null, artist);
-
         this.album = album;
         this.track = track;
+        this.albumMid = albumMid;
     }
 
 
-    public TrackInfo(String mbid) {
+    public TrackInfo(String mbid, String albumMid) {
         super(mbid);
+        this.albumMid = albumMid;
     }
 
     public String getAlbum() {
@@ -50,5 +52,13 @@ public class TrackInfo extends EntityInfo {
     @Override
     public int hashCode() {
         return Objects.hash(getArtist(), getTrack());
+    }
+
+    public String getAlbumMid() {
+        return albumMid;
+    }
+
+    public void setAlbumMid(String albumMid) {
+        this.albumMid = albumMid;
     }
 }

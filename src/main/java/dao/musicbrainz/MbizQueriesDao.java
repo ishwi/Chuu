@@ -29,7 +29,7 @@ interface MbizQueriesDao {
 
     List<TrackInfo> getAlbumInfoByName(Connection connection, List<UrlCapsule> urlCapsules);
 
-    List<AlbumInfo> getAlbumInfoByMbid(Connection connection, List<UrlCapsule> urlCapsules);
+    void getAlbumInfoByMbid(Connection connection, List<UrlCapsule> urlCapsules);
 
     ArtistMusicBrainzDetails getArtistInfo(Connection connection, ArtistInfo artistInfo);
 }

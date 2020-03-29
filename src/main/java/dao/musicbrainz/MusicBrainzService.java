@@ -38,7 +38,7 @@ public interface MusicBrainzService {
 
     List<TrackInfo> getAlbumInfoByNames(List<UrlCapsule> urlCapsules);
 
-    List<AlbumInfo> getAlbumInfoByMbid(List<UrlCapsule> urlCapsules);
+    void getAlbumInfoByMbid(List<UrlCapsule> urlCapsules);
 
 }
 

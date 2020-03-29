@@ -4,7 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.TrackDurationChart;
-import core.apis.last.queues.ArtistQueue;
+import core.apis.last.queues.TrackQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
@@ -40,9 +40,11 @@ public class WastedTrackCommand extends ChartableCommand {
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters params) throws LastFmException {
-        ArtistQueue queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !params.isList());
-        int trackCount = lastFM.getChart(params.getUsername(), params.getTimeFrameEnum().toApiFormat(), params.getX(), params.getY(),
+        TrackQueue queue = new TrackQueue(getService(), discogsApi, spotifyApi, !params.isList());
+        int trackCount = lastFM.getChart(params.getUsername(), params.getTimeFrameEnum().toApiFormat(), params.getX() * 2, params.getY() * 2,
                 TopEntity.TRACK, TrackDurationChart.getTrackDurationParser((ChartGroupParameters) params), queue);
+        queue.setUp(params.getX() * params.getY());
+
         return new CountWrapper<>(trackCount, queue);
     }
 

@@ -46,42 +46,38 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
     public List<UrlCapsule> setUp() {
         Map<Boolean, List<UrlCapsule>> partitioned = new ArrayList<>(artistMap.values()).stream().collect(Collectors.partitioningBy(x -> !x.getMbid().isBlank()));
         List<UrlCapsule> haveMbid = partitioned.get(true);
-        List<UrlCapsule> notFound = partitioned.get(false);
+        List<UrlCapsule> noMbid = partitioned.get(false);
 
-        List<UrlCapsule> mbidGrouped;
+        List<UrlCapsule> mbidGrouped = new ArrayList<>();
         if (haveMbid.size() != 0) {
-            joinAlbumInfos(urlCapsule -> {
-                        AlbumInfo albumInfo = new AlbumInfo(urlCapsule.getAlbumName(), urlCapsule.getArtistName());
-                        albumInfo.setMbid(urlCapsule.getMbid());
-                        return albumInfo;
-                    },
-                    albumInfo -> albumInfo,
-                    mbiz::getAlbumInfoByMbid,
-                    haveMbid, (albumInfo, urlCapsule) -> urlCapsule.setAlbumName(albumInfo.getName()));
+            mbiz.getAlbumInfoByMbid(haveMbid);
             mbidGrouped = TrackDurationAlbumArtistChart.getGrouped(haveMbid);
-        } else {
-            mbidGrouped = new ArrayList<>();
         }
         // We assume if an album has tracks with mbid then the whole album should have tracks with mbid
-        Map<AlbumInfo, UrlCapsule> albumMap = this.albumEntities.stream().collect(Collectors.toMap(o -> new AlbumInfo(o.getAlbumName(), o.getArtistName()), o -> o));
-        cleanGrouped(notFound, albumMap, mbidGrouped);
+        Map<AlbumInfo, UrlCapsule> albumMap = this.albumEntities.stream().collect(Collectors.toMap(o -> {
+            AlbumInfo albumInfo = new AlbumInfo(o.getAlbumName(), o.getArtistName());
+            return albumInfo;
+        }, o -> o));
+        cleanGrouped(noMbid, albumMap, mbidGrouped, false);
         List<UrlCapsule> mbGroupedByName;
-
-        if (notFound.size() != 0) {
-            joinAlbumInfos(urlCapsule -> new TrackInfo(urlCapsule.getArtistName(), null, urlCapsule.getAlbumName()),
+        List<UrlCapsule> notFound = new ArrayList<>();
+        if (noMbid.size() != 0) {
+            joinAlbumInfos(urlCapsule -> new TrackInfo(urlCapsule.getArtistName(), null, urlCapsule.getAlbumName(), null),
                     t -> t,
                     mbiz::getAlbumInfoByNames,
-                    notFound, (trackInfo, urlCapsule) ->
-                            urlCapsule.setAlbumName(trackInfo.getAlbum()));
-            mbGroupedByName = TrackDurationAlbumArtistChart.getGrouped(notFound);
+                    noMbid, (trackInfo, urlCapsule) -> {
+                        urlCapsule.setAlbumName(trackInfo.getAlbum());
+                        urlCapsule.setMbid(trackInfo.getAlbumMid());
+                    });
+            mbGroupedByName = TrackDurationAlbumArtistChart.getGrouped(noMbid);
         } else {
             mbGroupedByName = new ArrayList<>();
         }
-        cleanGrouped(notFound, albumMap, mbGroupedByName);
+        cleanGrouped(notFound, albumMap, mbGroupedByName, true);
         mbidGrouped.addAll(mbGroupedByName);
 
         Map<AlbumInfo, Integer> handler = new HashMap<>();
-        notFound.stream().sorted(Comparator.comparing(UrlCapsule::getArtistName).thenComparing(Comparator.comparing(UrlCapsule::getAlbumName).thenComparing(Comparator.comparing(UrlCapsule::getPlays).reversed())))
+        noMbid.stream().sorted(Comparator.comparing(UrlCapsule::getArtistName).thenComparing(Comparator.comparing(UrlCapsule::getAlbumName).thenComparing(Comparator.comparing(UrlCapsule::getPlays).reversed())))
                 .forEachOrdered(
                         x -> {
                             List<UrlCapsule> collect = albumMap.values().stream()
@@ -118,7 +114,7 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
                             }
                         }
                 );
-        List<UrlCapsule> grouped = TrackDurationAlbumArtistChart.getGrouped(notFound);
+        List<UrlCapsule> grouped = TrackDurationAlbumArtistChart.getGrouped(noMbid);
         AtomicInteger counter = new AtomicInteger(0);
         mbidGrouped.addAll(grouped);
         mbidGrouped = TrackDurationAlbumArtistChart.getGrouped(mbidGrouped);
@@ -140,10 +136,12 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
         return collect;
     }
 
-    private void cleanGrouped(List<UrlCapsule> notFound, Map<AlbumInfo, UrlCapsule> albumMap, List<UrlCapsule> groupedList) {
+    private void cleanGrouped(List<UrlCapsule> notFound, Map<AlbumInfo, UrlCapsule> albumMap, List<UrlCapsule> groupedList, boolean doMbid) {
         groupedList.removeIf(x -> {
             AlbumInfo albumInfo = new AlbumInfo(x.getAlbumName(), x.getArtistName());
-            albumInfo.setMbid(x.getMbid());
+            if (doMbid && !x.getMbid().isBlank()) {
+                albumInfo.setMbid(x.getMbid());
+            }
             UrlCapsule remove = albumMap.remove(albumInfo);
             if (remove == null) {
                 notFound.add(x);
