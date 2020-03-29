@@ -135,6 +135,8 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
             }
             return t;
         })));
+        this.ready = true;
+        this.count = collect.size();
         return collect;
     }
 

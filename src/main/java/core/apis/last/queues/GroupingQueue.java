@@ -32,9 +32,14 @@ public abstract class GroupingQueue extends ArtistQueue {
 
     public abstract Comparator<UrlCapsule> comparator();
 
+    boolean ready = false;
+    int count = 0;
+
     @Override
     public int size() {
-        return wrapper.size();
+        if (!ready)
+            return artistMap.size();
+        return count;
     }
 
     @Override
@@ -55,6 +60,8 @@ public abstract class GroupingQueue extends ArtistQueue {
             getUrl(t);
             return t;
         })));
+        this.ready = true;
+        this.count = collected.size();
         return collected;
     }
 

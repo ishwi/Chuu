@@ -8,7 +8,7 @@ public class ChartGroupParameters extends ChartParameters {
 
     public ChartGroupParameters(String[] returned, MessageReceivedEvent e) {
         super(returned, e);
-        showTime = Boolean.parseBoolean(returned[8]);
+        showTime = !Boolean.parseBoolean(returned[8]);
 
 
     }

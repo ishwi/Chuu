@@ -13,6 +13,7 @@ import core.parsers.params.ChartGroupParameters;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
+import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -69,6 +70,7 @@ public class WastedChartCommand extends GroupingChartCommand {
 
     @Override
     public void noElementsMessage(MessageReceivedEvent e, ChartParameters parameters) {
-        sendMessageQueue(e, "Coundn't find any album");
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        sendMessageQueue(e, String.format("%s didn't listen to any artist%s!", ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
     }
 }
