@@ -8,7 +8,6 @@ import dao.ChuuService;
 import dao.entities.AlbumInfo;
 import dao.entities.Genre;
 import dao.entities.TimeFrameEnum;
-import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -22,8 +21,6 @@ import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 public class GenreCommand extends ConcurrentCommand {
@@ -59,12 +56,7 @@ public class GenreCommand extends ConcurrentCommand {
 
         String timeframe = returned[2];
         String usableString = getUserString(e, discordId, username);
-        BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
-        lastFM.getUserList(username, timeframe, 4000, 1, true, queue);
-
-        List<AlbumInfo> albumInfos = queue.stream()
-                .map(capsule -> new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()))
-                .filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
+        List<AlbumInfo> albumInfos = lastFM.getTopAlbums(username, timeframe, 2000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
         Map<Genre, Integer> map = musicBrainz.genreCount(albumInfos);
         if (map.isEmpty()) {
@@ -94,7 +86,6 @@ public class GenreCommand extends ConcurrentCommand {
         pieChart.getStyler().setChartTitleBoxBackgroundColor(Color.decode("#23272a"));
         pieChart.getStyler().setChartBackgroundColor(Color.decode("#23272a"));
         pieChart.getStyler().setChartFontColor(Color.white);
-
         map.entrySet().stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).sequential().limit(10)
                 .forEachOrdered(entry -> {
                     Genre genre = entry.getKey();

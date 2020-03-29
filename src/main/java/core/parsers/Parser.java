@@ -104,6 +104,12 @@ public abstract class Parser {
 
     }
 
+    public void replaceOptional(String previousOptional, OptionalEntity optionalEntity) {
+        int i = opts.indexOf(new OptionalEntity(previousOptional, null));
+        opts.remove(i);
+        opts.add(i, optionalEntity);
+    }
+
     public void addOptional(OptionalEntity... optionalEntity) {
         this.opts.addAll(Arrays.asList(optionalEntity));
     }

@@ -3,16 +3,22 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ChartFromYearVariableParser;
+import core.parsers.params.ChartParameters;
+import core.parsers.params.ChartYearParameters;
 import dao.ChuuService;
+import dao.entities.CountWrapper;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
-import net.dv8tion.jda.api.entities.Message;
+import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.LocalDateTime;
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class MbizThisYearCommand extends MusicBrainzCommand {
 
@@ -20,6 +26,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
     public MbizThisYearCommand(ChuuService dao) {
         super(dao);
         this.parser = new ChartFromYearVariableParser(dao);
+        this.searchSpace = 1500;
     }
 
     @Override
@@ -51,13 +58,16 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
         if (returned == null)
             return;
 
+
         int x = Integer.parseInt(returned[0]);
         int y = Integer.parseInt(returned[1]);
         Year year = Year.of(Integer.parseInt(returned[2]));
         String username = returned[3];
-        boolean titleWrite = !Boolean.parseBoolean(returned[4]);
-        boolean playsWrite = Boolean.parseBoolean(returned[5]);
-        boolean caresAboutSize = !Boolean.parseBoolean(returned[6]);
+        long discordId = Long.parseLong(returned[4]);
+        boolean titleWrite = !Boolean.parseBoolean(returned[5]);
+        boolean playsWrite = Boolean.parseBoolean(returned[6]);
+        boolean noLimitFlag = Boolean.parseBoolean(returned[7]);
+        boolean isList = Boolean.parseBoolean(returned[8]);
 
 
         TimeFrameEnum timeframe;
@@ -78,11 +88,29 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
                 timeframe = TimeFrameEnum.YEAR;
             }
         }
-        CompletableFuture<Message> will_take_a_while = sendMessage(e, "Will take a while").submit();
-        calculateYearAlbums(username, timeframe
-                .toApiFormat(), 1500, x, y, year, e, titleWrite, playsWrite, caresAboutSize);
-        CommandUtil.handleConditionalMessage(will_take_a_while);
+        ChartYearParameters chartParameters = new ChartYearParameters(username, discordId, timeframe, x, y, e, titleWrite, playsWrite, isList, year, !noLimitFlag);
+        CountWrapper<BlockingQueue<UrlCapsule>> result = processQueue(chartParameters);
+        BlockingQueue<UrlCapsule> queue = result.getResult();
+        if (isList) {
+            ArrayList<UrlCapsule> liste = new ArrayList<>(queue.size());
+            queue.drainTo(liste);
+            doList(liste, chartParameters, result.getRows());
+        } else {
+            if (noLimitFlag) {
+                int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
+                doImage(queue, imageSize, imageSize, chartParameters);
+            } else {
+                BlockingQueue<UrlCapsule> tempQueuenew = new LinkedBlockingDeque<>();
+                queue.drainTo(tempQueuenew, x * y);
+                doImage(tempQueuenew, x, y, chartParameters);
+            }
+        }
     }
 
-
+    @Override
+    public void noElementsMessage(MessageReceivedEvent e, ChartParameters parameters) {
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        ChartYearParameters parmas = (ChartYearParameters) parameters;
+        sendMessageQueue(e, String.format("Couldn't find any %s album in %s top %d albums%s!", parmas.getYear().toString(), ingo.getUsername(), searchSpace, parameters.getTimeFrameEnum().getDisplayString()));
+    }
 }

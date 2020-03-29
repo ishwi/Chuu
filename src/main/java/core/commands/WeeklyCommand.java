@@ -44,7 +44,7 @@ public class WeeklyCommand extends ConcurrentCommand {
         String lastFmName = returned[0];
         long discordID = Long.parseLong(returned[1]);
 
-        Map<Track, Integer> durationsFromWeek = lastFM.getDurationsFromWeek(lastFmName);
+        Map<Track, Integer> durationsFromWeek = lastFM.getTrackDurations(lastFmName, TimeFrameEnum.WEEK);
 
         Instant instant = Instant.now();
         ZoneId zoneId = ZoneOffset.UTC;

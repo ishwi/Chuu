@@ -90,7 +90,12 @@ public class Reactionary<T> extends ListenerAdapter {
             default:
                 return;
         }
-        event.getReaction().removeReaction(event.getUser()).queue();
+        event.getReaction().removeReaction(event.getUser()).queue(aVoid -> {
+        }, throwable ->
+        {
+            message.editMessage(who.setFooter("Don't have permissions to clear reactions :(").build()).queue();
+            event.getJDA().removeEventListener(this);
+        });
         StringBuilder a = new StringBuilder();
         for (int i = start; i < start + pageSize && i < list.size(); i++) {
             if (numberedEntries) {

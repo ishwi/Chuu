@@ -20,6 +20,8 @@ public class ChartFromYearVariableParser extends DaoParser {
         opts.add(new OptionalEntity("--notitles", "dont display titles"));
         opts.add(new OptionalEntity("--plays", "display play count"));
         opts.add(new OptionalEntity("--nolimit", "makes the chart as big as possible"));
+        opts.add(new OptionalEntity("--list", "display it on list form"));
+
     }
 
     @Override
@@ -61,7 +63,7 @@ public class ChartFromYearVariableParser extends DaoParser {
             sendError(getErrorMessage(6), e);
             return null;
         }
-        return new String[]{x, y, year, discordName.getName()};
+        return new String[]{x, y, year, discordName.getName(), String.valueOf(discordName.getDiscordId())};
     }
 
     @Override

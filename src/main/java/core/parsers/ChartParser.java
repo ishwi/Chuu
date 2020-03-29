@@ -18,9 +18,9 @@ public class ChartParser extends DaoParser {
 
     @Override
     protected void setUpOptionals() {
-        opts.add(new OptionalEntity("--artist", "use artist instead of albums"));
         opts.add(new OptionalEntity("--notitles", "dont display titles"));
         opts.add(new OptionalEntity("--plays", "display play count"));
+        opts.add(new OptionalEntity("--list", "display it on list form"));
     }
 
     @Override
@@ -28,8 +28,6 @@ public class ChartParser extends DaoParser {
         TimeFrameEnum timeFrame = defaultTFE;
         String x = "5";
         String y = "5";
-
-        String pattern = "\\d+[xX]\\d+";
 
         if (subMessage.length > 3) {
             sendError(getErrorMessage(5), e);
@@ -43,6 +41,7 @@ public class ChartParser extends DaoParser {
             if (chartSize != null) {
                 x = String.valueOf(chartSize.x);
                 y = String.valueOf(chartSize.y);
+
             }
         } catch (InvalidChartValuesException ex) {
             this.sendError(getErrorMessage(6), e);
@@ -53,7 +52,7 @@ public class ChartParser extends DaoParser {
 
         LastFMData data = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
 
-        return new String[]{x, y, data.getName(), timeFrame.toApiFormat()};
+        return new String[]{x, y, String.valueOf(data.getDiscordId()), data.getName(), timeFrame.toApiFormat()};
     }
 
 
@@ -64,16 +63,18 @@ public class ChartParser extends DaoParser {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *[w,m,q,s,y,a]* *sizeXsize*  *Username* ** \n" +
-                "\tIf time is not specified defaults to Yearly \n" +
-                "\tIf username is not specified defaults to authors account \n" +
-                "\tIf Size not specified it defaults to 5x5\n";
+               "\tIf time is not specified defaults to Yearly \n" +
+               "\tIf username is not specified defaults to authors account \n" +
+               "\tIf Size not specified it defaults to 5x5\n";
     }
 
     @Override
     protected void setUpErrorMessages() {
         super.setUpErrorMessages();
         errorMessages.put(5, "You Introduced too many words");
-        errorMessages.put(6, "0 is not a valid value for a chart!");
+        errorMessages.put(6, "Invalid number for the size of the chart!");
+        errorMessages.put(7, "Can't introduce a size if you are doing list mode");
+
 
     }
 

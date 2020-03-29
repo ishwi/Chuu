@@ -1,10 +1,13 @@
 package core.commands;
 
 import com.neovisionaries.i18n.CountryCode;
+import core.apis.last.TopEntity;
+import core.apis.last.chartentities.ArtistChart;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.CountryParser;
+import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.ArtistUserPlays;
 import dao.entities.DiscordUserDisplay;
@@ -61,7 +64,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand {
 
         CountryCode country = CountryCode.getByAlpha2Code(countryCode);
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(1000);
-        lastFM.getUserList(message[0], timeframe, 1000, 1, false, queue);
+        lastFM.getChart(message[0], timeframe, 1000, 1, TopEntity.ARTIST, ArtistChart.getArtistParser(ChartParameters.toListParams()), queue);
 
         List<ArtistUserPlays> list = this.mb.getArtistFromCountry(country, queue, discordId);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);

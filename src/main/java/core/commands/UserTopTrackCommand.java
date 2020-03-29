@@ -1,25 +1,45 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
+import core.apis.discogs.DiscogsApi;
+import core.apis.discogs.DiscogsSingleton;
+import core.apis.last.TopEntity;
+import core.apis.last.chartentities.TrackChart;
+import core.apis.last.queues.ArtistQueue;
+import core.apis.spotify.Spotify;
+import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
-import core.parsers.TimerFrameParser;
+import core.parsers.ChartParser;
+import core.parsers.OptionalEntity;
+import core.parsers.params.ChartParameters;
+import core.parsers.params.ChartTrackParameters;
 import dao.ChuuService;
+import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
-import dao.entities.TimeFrameEnum;
-import dao.entities.Track;
+import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
-public class UserTopTrackCommand extends ConcurrentCommand {
+public class UserTopTrackCommand extends ChartableCommand {
+
+    private final DiscogsApi discogsApi;
+    private final Spotify spotifyApi;
+
+
     public UserTopTrackCommand(ChuuService dao) {
         super(dao);
-        parser = new TimerFrameParser(dao, TimeFrameEnum.WEEK);
-        respondInPrivate = false;
+        parser = new ChartParser(dao);
+        parser.replaceOptional("--list", new OptionalEntity("--image", "show this with a chart instead of a list "));
+        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+        spotifyApi = SpotifySingleton.getInstanceUsingDoubleLocking();
+    }
+
+    @Override
+    public ChartParameters getParameters(String[] message, MessageReceivedEvent e) {
+        return new ChartTrackParameters(message, e);
     }
 
     @Override
@@ -37,39 +57,23 @@ public class UserTopTrackCommand extends ConcurrentCommand {
         return "Top tracks";
     }
 
+
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned;
-        returned = parser.parse(e);
-        String username = returned[0];
-        long discordId = Long.parseLong(returned[1]);
-        String timeframe = returned[2];
+    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters params) throws LastFmException {
+        ChartTrackParameters params1 = (ChartTrackParameters) params;
+        ArtistQueue queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !params1.isList());
+        int i = params.makeCommand(lastFM, queue, TopEntity.TRACK, TrackChart.getTrackParser(params));
+        return new CountWrapper<>(i, queue);
+    }
 
-        List<Track> listTopTrack = lastFM.getListTopTrack(username, timeframe);
-        StringBuilder s = new StringBuilder();
-        for (int i = 0; i < 10 && i < listTopTrack.size(); i++) {
-            Track g = listTopTrack.get(i);
-            s.append(i + 1).append(g.toString());
-        }
+    @Override
+    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
+        return params.initEmbed("'s top tracks", embedBuilder, " has listened to " + count + " tracks");
+    }
 
-        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
-
-        String url = userInfo.getUrlImage();
-        String usableName = userInfo.getUsername();
-
-        MessageBuilder messageBuilder = new MessageBuilder();
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setDescription(s);
-        embedBuilder.setColor(CommandUtil.randomColor());
-
-        embedBuilder
-                .setTitle(String.format("%s's top  tracks in %s", usableName, TimeFrameEnum.fromCompletePeriod(timeframe)
-                        .toString()), CommandUtil
-                        .getLastFmUser(timeframe));
-        embedBuilder.setThumbnail(url.isEmpty() ? null : url);
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build())
-                .queue(message ->
-                        executor.execute(() -> new Reactionary<>(listTopTrack, message, embedBuilder)));
-
+    @Override
+    public void noElementsMessage(MessageReceivedEvent e, ChartParameters parameters) {
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        sendMessageQueue(e, String.format("%s didn't listen to any track%s!", ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
     }
 }

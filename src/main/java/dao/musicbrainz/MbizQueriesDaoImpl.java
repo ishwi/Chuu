@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MbizQueriesDaoImpl implements MbizQueriesDao {
     @Override
@@ -106,6 +107,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
     @Override
     public Map<Genre, Integer> genreCount(Connection con, List<AlbumInfo> releaseInfo) {
         Map<Genre, Integer> returnMap = new HashMap<>();
+        List<Genre> list = new ArrayList<>();
         StringBuilder queryString = new StringBuilder("SELECT \n" +
                                                       "       c.name as neim, count(*) as count\n \n" +
                                                       " FROM\n" +
@@ -138,14 +140,15 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
                 String mbid = resultSet.getString("neim");
                 int count = resultSet.getInt("count");
-
-                returnMap.put(new Genre(mbid, ""), count);
+                Genre genre = new Genre(mbid, "");
+                list.add(genre);
+                returnMap.put(genre, count);
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new RuntimeException(e);
         }
-        return returnMap;
+        return list.stream().collect(Collectors.toMap(genre -> genre, genre -> returnMap.getOrDefault(genre, 0), Integer::sum));
 
     }
 
@@ -340,6 +343,85 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
                              "where b.gid = ? \n" +
                              "order by e.position;";
         return processTracks(connection, mbid, returnList, queryString);
+    }
+
+    @Override
+    public List<TrackInfo> getAlbumInfoByName(Connection connection, List<UrlCapsule> urlCapsules) {
+        List<TrackInfo> list = new ArrayList<>();
+        String tempTable = "CREATE TEMP TABLE IF NOT EXISTS findAlbumByTrackName ( track VARCHAR, artist VARCHAR) ON COMMIT DELETE ROWS;";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(tempTable)) {
+            preparedStatement.execute();
+            StringBuilder append = new StringBuilder().append("insert into findAlbumByTrackName(artist,track) values (?,?)")
+                    .append((",(?,?)").repeat(Math.max(0, urlCapsules.size() - 1)));
+            PreparedStatement preparedStatement1 = connection.prepareStatement(append.toString());
+            ;
+            for (int i = 0; i < urlCapsules.size(); i++) {
+                preparedStatement1.setString(2 * i + 1, urlCapsules.get(i).getArtistName());
+                preparedStatement1.setString(2 * i + 2, urlCapsules.get(i).getAlbumName());
+            }
+            preparedStatement1.execute();
+            String queryString = "SELECT a.gid AS mbid, c.name AS albumname, e.artist AS artistaname,e.track AS trackname  \n" +
+                                 "FROM musicbrainz.track a \n" +
+                                 "JOIN musicbrainz.medium b ON a.medium = b.id \n" +
+                                 "JOIN musicbrainz.release c ON b.release = c.id \n" +
+                                 "JOIN musicbrainz.artist_credit d ON a.artist_credit = d.id \n" +
+                                 "JOIN findalbumbytrackname e ON a.name = e.track AND d.name =  e.artist";
+            ResultSet resultSet = connection.prepareStatement(queryString).executeQuery();
+            while (resultSet.next()) {
+                String mbid = resultSet.getString("mbid");
+                String string = resultSet.getString("albumName");
+                String name = resultSet.getString("artistaName");
+                String trackName = resultSet.getString("trackName");
+
+                TrackInfo trackInfo = new TrackInfo(name, string, trackName);
+                trackInfo.setMbid(mbid);
+                list.add(trackInfo);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+
+    }
+
+
+    @Override
+    public List<AlbumInfo> getAlbumInfoByMbid(Connection connection, List<UrlCapsule> urlCapsules) {
+        List<AlbumInfo> list = new ArrayList<>();
+        String tempTable = "CREATE temp TABLE IF NOT EXISTS frequencies( mbid uuid) ON COMMIT DELETE ROWS;";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(tempTable)) {
+            preparedStatement.execute();
+            StringBuilder append = new StringBuilder().append("insert into frequencies(mbid) values (?)")
+                    .append((",(?)").repeat(Math.max(0, urlCapsules.size() - 1)));
+            PreparedStatement preparedStatement1 = connection.prepareStatement(append.toString());
+            ;
+            for (int i = 0; i < urlCapsules.size(); i++) {
+                preparedStatement1.setObject(i + 1, java.util.UUID.fromString(urlCapsules.get(i).getMbid()));
+                ;
+            }
+            preparedStatement1.execute();
+
+            String queryString = "SELECT a.gid AS mbid, c.name AS albumname, e.name AS artistaname  FROM musicbrainz.track a " +
+                                 "JOIN musicbrainz.medium b ON a.medium = b.id " +
+                                 "JOIN musicbrainz.release c ON b.release = c.id " +
+                                 "JOIN musicbrainz.artist_credit e ON a.artist_credit = e.id " +
+                                 "JOIN frequencies d ON a.gid = d.mbid";
+            ResultSet resultSet = connection.prepareStatement(queryString).executeQuery();
+            while (resultSet.next()) {
+                String mbid = resultSet.getString("mbid");
+                String string = resultSet.getString("albumName");
+                String name = resultSet.getString("artistaName");
+                AlbumInfo albumInfo = new AlbumInfo(string, name);
+                albumInfo.setMbid(mbid);
+                list.add(albumInfo);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+
     }
 
     private void prepareRealeaseYearStatement(List<AlbumInfo> releaseInfo, Year year, List<AlbumInfo> returnList, PreparedStatement preparedStatement) throws SQLException {

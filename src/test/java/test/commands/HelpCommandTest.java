@@ -1,14 +1,14 @@
 package test.commands;
 
-import core.commands.ChartCommand;
+import core.commands.AlbumChartCommand;
 import core.commands.HelpCommand;
 import core.commands.MyCommand;
-import test.commands.utils.CommandTest;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import test.commands.utils.CommandTest;
 import test.commands.utils.TestResources;
 
 import java.util.ArrayList;
@@ -157,10 +157,10 @@ public class HelpCommandTest extends CommandTest {
 	@Test
 	public void ShortHelpViaCommand() {
 		//Cannot send private meessage between bots :(
-		Optional<ChartCommand> chartCommand = TestResources.ogJDA.getRegisteredListeners().stream()
-				.filter(x -> x instanceof ChartCommand).map(x -> (ChartCommand) x).findFirst();
+		Optional<AlbumChartCommand> chartCommand = TestResources.ogJDA.getRegisteredListeners().stream()
+				.filter(x -> x instanceof AlbumChartCommand).map(x -> (AlbumChartCommand) x).findFirst();
 		Assert.assertTrue(chartCommand.isPresent());
-		ChartCommand command = chartCommand.get();
+		AlbumChartCommand command = chartCommand.get();
 		long id = TestResources.channelWorker.sendMessage(COMMAND_ALIAS + " chart").complete().getIdLong();
 		await().atMost(45, TimeUnit.SECONDS).until(() ->
 		{

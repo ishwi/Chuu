@@ -1,11 +1,11 @@
 package test.commands;
 
 import core.commands.MusicBrainzCommand;
+import org.junit.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.ImageUtils;
 import test.commands.utils.OneLineUtils;
-import org.junit.Test;
 
 import java.util.regex.Pattern;
 
@@ -28,7 +28,7 @@ public class MusicBrainzCommandTest extends CommandTest {
 		Pattern compile = Pattern.compile("Dont have any (\\d{4}) album in your top (\\d+) albums");
 
 		OneLineUtils
-				.testCommands(COMMAND_ALIAS + " a 1876 ", compile, matcher -> Integer.parseInt(matcher.group(1)) == 1876 && Integer.parseInt(matcher.group(2)) == MusicBrainzCommand.chartSize, 65);
+				.testCommands(COMMAND_ALIAS + " a 1876 ", compile, matcher -> Integer.parseInt(matcher.group(1)) == 1876 && Integer.parseInt(matcher.group(2)) == MusicBrainzCommand.searchSpace, 65);
 
 
 	}

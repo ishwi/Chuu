@@ -27,6 +27,9 @@ interface MbizQueriesDao {
 
     List<Track> getAlbumTrackListMbid(Connection connection, String mbid);
 
+    List<TrackInfo> getAlbumInfoByName(Connection connection, List<UrlCapsule> urlCapsules);
+
+    List<AlbumInfo> getAlbumInfoByMbid(Connection connection, List<UrlCapsule> urlCapsules);
 
     ArtistMusicBrainzDetails getArtistInfo(Connection connection, ArtistInfo artistInfo);
 }

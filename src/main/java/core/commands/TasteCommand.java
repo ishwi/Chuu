@@ -36,10 +36,14 @@ public class TasteCommand extends ConcurrentCommand {
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         List<String> lastfMNames;
 
-        String[] returned = parser.parse(e);
-        if (returned == null)
+        String[] message = parser.parse(e);
+        if (message == null)
             return;
-        lastfMNames = Arrays.asList(returned);
+        long ogDiscordID = Long.parseLong(message[0]);
+        String ogLastFmId = message[1];
+        long secondDiscordId = Long.parseLong(message[2]);
+        String secondlastFmId = message[3];
+        lastfMNames = Arrays.asList(ogLastFmId, secondlastFmId);
 
         ResultWrapper<UserArtistComparison> resultWrapper;
         resultWrapper = getService().getSimilarities(lastfMNames);

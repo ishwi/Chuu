@@ -1,6 +1,7 @@
 package dao;
 
 import core.Chuu;
+import core.apis.last.chartentities.ArtistChart;
 import dao.entities.*;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
@@ -639,8 +640,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
                 int plays = resultSet.getInt("orden");
 
-                UrlCapsule capsule = new UrlCapsule(url, count++, artist, "", "");
-                capsule.setPlays(plays);
+                UrlCapsule capsule = new ArtistChart(url, count++, artist, plays, true, true);
                 list.add(capsule);
             }
         } catch (SQLException e) {

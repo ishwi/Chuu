@@ -35,4 +35,10 @@ public interface MusicBrainzService {
     List<Track> getAlbumTrackListMbid(String mbid);
 
     ArtistMusicBrainzDetails getArtistDetails(ArtistInfo artist);
+
+    List<TrackInfo> getAlbumInfoByNames(List<UrlCapsule> urlCapsules);
+
+    List<AlbumInfo> getAlbumInfoByMbid(List<UrlCapsule> urlCapsules);
+
 }
+

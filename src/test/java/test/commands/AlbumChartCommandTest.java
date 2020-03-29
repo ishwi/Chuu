@@ -1,14 +1,14 @@
 package test.commands;
 
+import org.junit.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.ImageUtils;
 import test.commands.utils.OneLineUtils;
-import org.junit.Test;
 
 import java.util.regex.Pattern;
 
-public class ChartCommandTest extends CommandTest {
+public class AlbumChartCommandTest extends CommandTest {
 
 	@Override
 	public String giveCommandName() {

@@ -45,9 +45,12 @@ public class CrownsStolenCommand extends ConcurrentCommand {
         if (message == null)
             return;
 
-        String ogLastFmId = message[0];
-        String secondlastFmId = message[1];
-        if (ogLastFmId.equals(secondlastFmId)) {
+        long ogDiscordID = Long.parseLong(message[0]);
+        String ogLastFmId = message[1];
+        long secondDiscordId = Long.parseLong(message[2]);
+        String secondlastFmId = message[3];
+
+        if (ogLastFmId.equals(secondlastFmId) || ogDiscordID == secondDiscordId) {
             sendMessageQueue(e, "Sis, dont use the same person twice");
             return;
         }
@@ -56,11 +59,12 @@ public class CrownsStolenCommand extends ConcurrentCommand {
                 .getCrownsStolenBy(ogLastFmId, secondlastFmId, e.getGuild().getIdLong());
 
         int rows = resultWrapper.getList().size();
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, resultWrapper.getOgId());
+
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, ogDiscordID);
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
 
-        DiscordUserDisplay userInformation2 = CommandUtil.getUserInfoConsideringGuildOrNot(e, resultWrapper.getQuriedId());
+        DiscordUserDisplay userInformation2 = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordId);
         String userName2 = userInformation2.getUsername();
         String userUrl2 = userInformation2.getUrlImage();
         if (rows == 0) {

@@ -42,7 +42,6 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
         String[] returned = parser.parse(e);
         String lastFmName = returned[0];
         long discordID = Long.parseLong(returned[1]);
-
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
         String name = userInfo.getUsername();
         String url = userInfo.getUrlImage();

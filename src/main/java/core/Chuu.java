@@ -126,9 +126,9 @@ public class Chuu {
             scheduledManager.scheduleAtFixedRate(
                     new UpdaterThread(dao, true), 0, 120,
                     TimeUnit.SECONDS);
-            scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 3, 20, TimeUnit.MINUTES);
+            scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 10, 20, TimeUnit.MINUTES);
             scheduledManager.scheduleAtFixedRate(
-                    new SpotifyUpdaterThread(dao), 11, 20,
+                    new SpotifyUpdaterThread(dao), 20, 20,
                     TimeUnit.MINUTES);
         }
         JDABuilder builder = new JDABuilder(AccountType.BOT)
@@ -138,7 +138,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new NowPlayingCommand(dao)))
                 .addEventListeners(help.registerCommand(new WhoKnowsCommand(dao)))
                 // .addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao)))
-                .addEventListeners(help.registerCommand(new ChartCommand(dao)))
+                .addEventListeners(help.registerCommand(new AlbumChartCommand(dao)))
                 .addEventListeners(help.registerCommand(new SetCommand(dao)))
                 .addEventListeners(help.registerCommand(new AllPlayingCommand(dao)))
                 .addEventListeners(help.registerCommand(new TasteCommand(dao)))
@@ -202,7 +202,11 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new UserExportCommand(dao)))
                 .addEventListeners(help.registerCommand(new ImportCommand(dao)))
                 .addEventListeners(help.registerCommand(new VotingCommand(dao)))
-                .addEventListeners(help.registerCommand(new AliasesCommand(dao)));
+                .addEventListeners(help.registerCommand(new AliasesCommand(dao)))
+                .addEventListeners(help.registerCommand(new SupportCommand(dao)))
+                .addEventListeners(help.registerCommand(new WastedChartCommand(dao)))
+                .addEventListeners(help.registerCommand(new WastedAlbumChartCommand(dao)))
+                .addEventListeners(help.registerCommand(new WastedTrackCommand(dao)));
 
         try {
             jda = builder.build().awaitReady();

@@ -212,7 +212,7 @@ public class CommandUtil {
         return handleUser(e, discordID);
     }
 
-    static DiscordUserDisplay getUserInfoConsideringGuildOrNot(MessageReceivedEvent e, long discordID) {
+    public static DiscordUserDisplay getUserInfoConsideringGuildOrNot(MessageReceivedEvent e, long discordID) {
         DiscordUserDisplay discordUserDisplay = handleUser(e, discordID);
         return new DiscordUserDisplay(cleanMarkdownCharacter(discordUserDisplay.getUsername()), discordUserDisplay.getUrlImage());
     }

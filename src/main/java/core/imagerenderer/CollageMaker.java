@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CollageMaker {
     private static final int DEFAULT_SIZE = 300;
 
-    public static BufferedImage generateCollageThreaded(int x, int y, BlockingQueue<UrlCapsule> queue, boolean writeTitles, boolean writePlays, ChartQuality chartQuality) {
+    public static BufferedImage generateCollageThreaded(int x, int y, BlockingQueue<UrlCapsule> queue, ChartQuality chartQuality) {
         BufferedImage result;
         int imageSize = DEFAULT_SIZE;
         int imageType = BufferedImage.TYPE_INT_ARGB;
@@ -49,7 +49,7 @@ public class CollageMaker {
 
         List<Callable<Object>> calls = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
-            calls.add(Executors.callable(new ThreadQueue(queue, g, x, y, max, writePlays, writeTitles, imageSize == 150)));
+            calls.add(Executors.callable(new ThreadQueue(queue, g, x, y, max, imageSize == 150)));
         }
         try {
             es.invokeAll(calls);

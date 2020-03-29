@@ -76,6 +76,16 @@ public enum TimeFrameEnum {
         }
     }
 
+    public static String getDisplayString(String timefraeStr) {
+        return (timefraeStr
+                .equals("overall") ? " " : " in the last " + TimeFrameEnum
+                .fromCompletePeriod(timefraeStr).toString().toLowerCase());
+    }
+
+    public String getDisplayString() {
+        return (this.equals(TimeFrameEnum.ALL) ? "" : " in the last " + this.toString().toLowerCase());
+
+    }
 
 }
 

@@ -6,6 +6,7 @@ import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
 import dao.ChuuService;
 import dao.entities.SecondsTimeFrameCount;
+import dao.entities.TimeFrameEnum;
 import dao.entities.Track;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -45,7 +46,7 @@ public class DailyCommand extends ConcurrentCommand {
         String usable = getUserString(e, discordID, lastFmName);
 
         try {
-            Map<Track, Integer> durationsFromWeek = lastFM.getDurationsFromWeek(lastFmName);
+            Map<Track, Integer> durationsFromWeek = lastFM.getTrackDurations(lastFmName, TimeFrameEnum.WEEK);
             SecondsTimeFrameCount minutesWastedOnMusicDaily = lastFM
                     .getMinutesWastedOnMusicDaily(lastFmName, durationsFromWeek,
                             (int) Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond());

@@ -7,6 +7,7 @@ import dao.entities.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -26,6 +27,9 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
     public List<AlbumInfo> listOfYearReleases(List<AlbumInfo> mbiz, Year year) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
+            if (mbiz.isEmpty()) {
+                return new ArrayList<>();
+            }
             return mbizQueriesDao.getYearAlbums(connection, mbiz, year);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -41,6 +45,10 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
     public List<AlbumInfo> findArtistByRelease(List<AlbumInfo> releaseInfo, Year year) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
+            if (releaseInfo.isEmpty()) {
+                return new ArrayList<>();
+            }
+
             return mbizQueriesDao.getYearAlbumsByReleaseName(connection, releaseInfo, year);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -138,6 +146,28 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             connection.setReadOnly(true);
             return mbizQueriesDao.getArtistInfo(connection, artist);
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<TrackInfo> getAlbumInfoByNames(List<UrlCapsule> urlCapsules) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            return mbizQueriesDao.getAlbumInfoByName(connection, urlCapsules);
+        } catch (
+                SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<AlbumInfo> getAlbumInfoByMbid(List<UrlCapsule> urlCapsules) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            return mbizQueriesDao.getAlbumInfoByMbid(connection, urlCapsules);
+        } catch (
+                SQLException e) {
             throw new RuntimeException(e);
         }
     }

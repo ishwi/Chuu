@@ -20,17 +20,17 @@ public class TimerFrameParser extends DaoParser {
         TimeFrameEnum timeFrame = defaultTFE;
 
         ChartParserAux auxiliar = new ChartParserAux(message);
-		timeFrame = auxiliar.parseTimeframe(timeFrame);
-		message = auxiliar.getMessage();
+        timeFrame = auxiliar.parseTimeframe(timeFrame);
+        message = auxiliar.getMessage();
 
-		LastFMData data = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
+        LastFMData data = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
 
-		return new String[]{data.getName(), String.valueOf(data.getDiscordId()), timeFrame.toApiFormat()};
-	}
+        return new String[]{data.getName(), String.valueOf(data.getDiscordId()), timeFrame.toApiFormat()};
+    }
 
 
-	@Override
-	public String getUsageLogic(String commandName) {
+    @Override
+    public String getUsageLogic(String commandName) {
         return "**" + commandName + " *[w,m,q,s,y,a]* *username ** \n" +
                "\tIf timeframe is not specified it defaults to " + defaultTFE.toString() + "\n" +
                "\tIf username is not specified it defaults to authors account \n";

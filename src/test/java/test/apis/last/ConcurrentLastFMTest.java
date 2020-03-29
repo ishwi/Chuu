@@ -143,9 +143,9 @@ public class ConcurrentLastFMTest {
 
 	@Test(expected = LastFMNoPlaysException.class)
 	public void noPlaysExceptions1() throws LastFmException {
-		ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-		lastFM.getUserList(nonPlaysOnUser, TimeFrameEnum.WEEK.toApiFormat(), 1, 1, true, null);
-	}
+        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
+        lastFM.getChart(nonPlaysOnUser, TimeFrameEnum.WEEK.toApiFormat(), 1, 1, true, null);
+    }
 
 
 }

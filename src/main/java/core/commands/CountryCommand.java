@@ -8,7 +8,6 @@ import dao.ChuuService;
 import dao.entities.ArtistInfo;
 import dao.entities.Country;
 import dao.entities.TimeFrameEnum;
-import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.entities.Message;
@@ -17,9 +16,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 public class CountryCommand extends ConcurrentCommand {
@@ -59,15 +56,11 @@ public class CountryCommand extends ConcurrentCommand {
             future = sendMessage(e, "Going to take a while ").submit();
         }
 
-        BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
-        lastFM.getUserList(username, timeframe, 100, 100, false, queue);
-
-        List<ArtistInfo> artistInfos = queue.stream()
-                .map(capsule -> new ArtistInfo(capsule.getUrl(), capsule.getArtistName(), capsule.getMbid()))
+        List<ArtistInfo> topAlbums = lastFM.getTopArtists(username, timeframe, 10000).stream()
                 .filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
 
-        Map<Country, Integer> map = musicBrainz.countryCount(artistInfos);
+        Map<Country, Integer> map = musicBrainz.countryCount(topAlbums);
 
         if (map.isEmpty()) {
             CommandUtil.handleConditionalMessage(future);
