@@ -4,7 +4,6 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.AlbumChart;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ChartFromYearParser;
 import core.parsers.params.ChartParameters;
@@ -15,13 +14,14 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.knowm.xchart.PieChart;
 
 import java.time.Year;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -55,13 +55,7 @@ public class MusicBrainzCommand extends ChartableCommand {
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned;
-        returned = parser.parse(e);
-        if (returned == null)
-            return;
-
-
+    public ChartParameters getParameters(String[] returned, MessageReceivedEvent e) {
         Year year = Year.of(Integer.parseInt(returned[0]));
         long discordId = Long.parseLong(returned[1]);
         String username = returned[2];
@@ -69,25 +63,12 @@ public class MusicBrainzCommand extends ChartableCommand {
         boolean titleWrite = !Boolean.parseBoolean(returned[5]);
         boolean playsWrite = Boolean.parseBoolean(returned[6]);
         boolean isList = Boolean.parseBoolean(returned[7]);
+        boolean isPie = Boolean.parseBoolean(returned[8]);
+
         int x = (int) Math.sqrt(searchSpace);
-        ChartYearParameters chartParameters = new ChartYearParameters(username, discordId, TimeFrameEnum.fromCompletePeriod(time), x, x, e, titleWrite, playsWrite, isList, year, false);
-        CountWrapper<BlockingQueue<UrlCapsule>> result = processQueue(chartParameters);
-        BlockingQueue<UrlCapsule> queue = result.getResult();
-        if (queue.isEmpty()) {
-            noElementsMessage(e, chartParameters);
-            return;
-        }
-        if (isList) {
-            ArrayList<UrlCapsule> liste = new ArrayList<>(queue.size());
-            queue.drainTo(liste);
-            doList(liste, chartParameters, result.getRows());
-        } else {
-            int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
-            doImage(queue, imageSize, imageSize, chartParameters);
-        }
-
-
+        return new ChartYearParameters(username, discordId, TimeFrameEnum.fromCompletePeriod(time), x, x, e, titleWrite, playsWrite, isList, isPie, year, false);
     }
+
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters params) throws LastFmException {
@@ -152,7 +133,6 @@ public class MusicBrainzCommand extends ChartableCommand {
         getService().updateMetrics(discogsMetrics, mbFoundBYName.size(), albumsMbizMatchingYear
                 .size(), ((long) chartYearParameters.getX()) * chartYearParameters.getX());
 
-
         return new CountWrapper<>(albumsMbizMatchingYear.size(), queue);
     }
 
@@ -164,12 +144,31 @@ public class MusicBrainzCommand extends ChartableCommand {
     }
 
     @Override
+    public void configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+        Year year = ((ChartYearParameters) params).getYear();
+
+        pieChart.setTitle(initTitle + "s top albums from " + year.toString() + params.getTimeFrameEnum().getDisplayString());
+    }
+
+    @Override
     public void noElementsMessage(MessageReceivedEvent e, ChartParameters parameters) {
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         ChartYearParameters parmas = (ChartYearParameters) parameters;
         sendMessageQueue(e, String.format("Couldn't find any %s album in %s top %d albums%s!", parmas.getYear().toString(), ingo.getUsername(), searchSpace, parameters.getTimeFrameEnum().getDisplayString()));
     }
 
+    @Override
+    public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, ChartParameters parameters) {
+        ChartYearParameters yearParameters = (ChartYearParameters) parameters;
+        if (!yearParameters.isCareAboutSized()) {
+            int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
+            super.doImage(queue, imageSize, imageSize, parameters);
+        } else {
+            BlockingQueue<UrlCapsule> tempQueuenew = new LinkedBlockingDeque<>();
+            queue.drainTo(tempQueuenew, x * y);
+            super.doImage(tempQueuenew, x, y, parameters);
+        }
+    }
 
     boolean doDiscogs() {
         return true;

@@ -8,8 +8,8 @@ public class ChartTrackParameters extends ChartParameters {
         super(returned, e);
     }
 
-    public ChartTrackParameters(String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays, boolean isList) {
-        super(username, discordId, timeFrameEnum, x, y, e, writeTitles, writePlays, isList);
+    public ChartTrackParameters(String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays, boolean isList, boolean isPie) {
+        super(username, discordId, timeFrameEnum, x, y, e, writeTitles, writePlays, isList, isPie);
     }
 
     @Override

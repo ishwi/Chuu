@@ -17,6 +17,7 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.knowm.xchart.PieChart;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -67,6 +68,11 @@ public class WastedTrackCommand extends ChartableCommand {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
         return params.initEmbed("'s most listened tracks", embedBuilder, " has listened to " + count + " tracks");
+    }
+
+    @Override
+    public void configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+        pieChart.setTitle(initTitle + "'s most listened tracks" + params.getTimeFrameEnum().getDisplayString());
     }
 
     @Override

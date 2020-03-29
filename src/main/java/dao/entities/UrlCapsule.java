@@ -1,5 +1,7 @@
 package dao.entities;
 
+import core.imagerenderer.ChartLine;
+
 import java.util.List;
 
 public abstract class UrlCapsule {
@@ -28,7 +30,7 @@ public abstract class UrlCapsule {
         this.mbid = mbid;
     }
 
-    public abstract List<String> getLines();
+    public abstract List<ChartLine> getLines();
 
     public abstract String toEmbedDisplay();
 
@@ -84,4 +86,8 @@ public abstract class UrlCapsule {
     public String toString() {
         return this.toEmbedDisplay();
     }
+
+    public abstract String toChartString();
+
+    public abstract int getChartValue();
 }

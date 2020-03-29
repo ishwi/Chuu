@@ -20,7 +20,9 @@ public class ChartParser extends DaoParser {
     protected void setUpOptionals() {
         opts.add(new OptionalEntity("--notitles", "dont display titles"));
         opts.add(new OptionalEntity("--plays", "display play count"));
-        opts.add(new OptionalEntity("--list", "display it on list form"));
+        opts.add(new OptionalEntity("--list", "display it as an embed"));
+        opts.add(new OptionalEntity("--pie", "display it as a chart pie"));
+
     }
 
     @Override
@@ -74,8 +76,6 @@ public class ChartParser extends DaoParser {
         errorMessages.put(5, "You Introduced too many words");
         errorMessages.put(6, "Invalid number for the size of the chart!");
         errorMessages.put(7, "Can't introduce a size if you are doing list mode");
-
-
     }
 
 }

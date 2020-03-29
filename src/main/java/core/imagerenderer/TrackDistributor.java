@@ -1,8 +1,8 @@
 package core.imagerenderer;
 
+import core.Chuu;
 import dao.entities.FullAlbumEntity;
 import dao.entities.Track;
-import core.Chuu;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -149,7 +149,7 @@ public class TrackDistributor {
 			color = color.darker().darker();
 
 		//I like transparency
-		g.setColor(GraphicUtils.MakeMoreTransParent(color, 0.7f));
+		g.setColor(GraphicUtils.makeMoreTransparent(color, 0.7f));
 
 		int startingPoint = HEIGHT_CONSTANT;
 		OptionalInt max = trackList.stream().map(Track::getName)

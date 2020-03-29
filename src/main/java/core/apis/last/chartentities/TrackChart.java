@@ -1,6 +1,7 @@
 package core.apis.last.chartentities;
 
 import core.commands.CommandUtil;
+import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartParameters;
 import dao.entities.UrlCapsule;
 import org.json.JSONObject;
@@ -35,14 +36,14 @@ public class TrackChart extends UrlCapsule {
     }
 
     @Override
-    public List<String> getLines() {
-        List<String> list = new ArrayList<>();
+    public List<ChartLine> getLines() {
+        List<ChartLine> list = new ArrayList<>();
         if (drawTitles) {
-            list.add(getArtistName());
-            list.add(getAlbumName());
+            list.add(new ChartLine(getAlbumName(), ChartLine.Type.TITLE));
+            list.add(new ChartLine(getArtistName()));
         }
         if (drawPlays) {
-            list.add(getPlays() + " " + CommandUtil.singlePlural(getPlays(), "play", "plays"));
+            list.add(new ChartLine(getPlays() + " " + CommandUtil.singlePlural(getPlays(), "play", "plays")));
         }
         return list;
     }
@@ -54,5 +55,15 @@ public class TrackChart extends UrlCapsule {
                 , CommandUtil.cleanMarkdownCharacter(getAlbumName()),
                 CommandUtil.getLastFMArtistTrack(getArtistName(), getAlbumName()),
                 getPlays(), CommandUtil.singlePlural(getPlays(), "play", "plays"));
+    }
+
+    @Override
+    public String toChartString() {
+        return String.format("%s - %s %d %s", getArtistName(), getAlbumName(), getPlays(), CommandUtil.singlePlural(getPlays(), "play", "plays"));
+    }
+
+    @Override
+    public int getChartValue() {
+        return getPlays();
     }
 }

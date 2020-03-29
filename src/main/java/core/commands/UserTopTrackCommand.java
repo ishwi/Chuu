@@ -18,6 +18,7 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
 import java.util.List;
@@ -70,6 +71,12 @@ public class UserTopTrackCommand extends ChartableCommand {
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
         return params.initEmbed("'s top tracks", embedBuilder, " has listened to " + count + " tracks");
     }
+
+    @Override
+    public void configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+        pieChart.setTitle(initTitle + "'s top tracks" + params.getTimeFrameEnum().getDisplayString());
+    }
+
 
     @Override
     public void noElementsMessage(MessageReceivedEvent e, ChartParameters parameters) {

@@ -1,6 +1,7 @@
 package core.apis.last.chartentities;
 
 import core.commands.CommandUtil;
+import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartGroupParameters;
 import dao.entities.UrlCapsule;
 import org.json.JSONObject;
@@ -50,18 +51,17 @@ public class TrackDurationChart extends TrackChart {
     }
 
     @Override
-    public List<String> getLines() {
-        List<String> list = new ArrayList<>();
+    public List<ChartLine> getLines() {
+        List<ChartLine> list = new ArrayList<>();
         if (drawTitles) {
-            list.add(getArtistName());
-            list.add(getAlbumName());
+            list.add(new ChartLine(getAlbumName(), ChartLine.Type.TITLE));
+            list.add(new ChartLine(getArtistName()));
         }
         if (showDuration) {
-            list.add(String.format("%d:%02d hours", seconds / 3600, seconds / 60 % 60));
-
+            list.add(new ChartLine(String.format("%d:%02d hours", seconds / 3600, seconds / 60 % 60)));
         }
         if (drawPlays) {
-            list.add(getPlays() + " " + CommandUtil.singlePlural(getPlays(), "minutes", "plays"));
+            list.add(new ChartLine(getPlays() + " " + CommandUtil.singlePlural(getPlays(), "minutes", "plays")));
         }
         return list;
     }
@@ -75,5 +75,18 @@ public class TrackDurationChart extends TrackChart {
                 String.format("%d:%02d", seconds / 3600, seconds / 60 % 60),
                 getPlays(),
                 CommandUtil.singlePlural(getPlays(), "play", "plays"));
+    }
+
+    @Override
+    public String toChartString() {
+        return String.format("%s - %s %sh",
+                getArtistName(),
+                getAlbumName(),
+                String.format("%d:%02d", seconds / 3600, seconds / 60 % 60));
+    }
+
+    @Override
+    public int getChartValue() {
+        return getSeconds();
     }
 }

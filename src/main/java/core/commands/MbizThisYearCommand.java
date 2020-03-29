@@ -1,22 +1,16 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
 import core.parsers.ChartFromYearVariableParser;
+import core.parsers.params.ChartParameters;
 import core.parsers.params.ChartYearParameters;
 import dao.ChuuService;
-import dao.entities.CountWrapper;
 import dao.entities.TimeFrameEnum;
-import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.LocalDateTime;
 import java.time.Year;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 
 public class MbizThisYearCommand extends MusicBrainzCommand {
 
@@ -50,24 +44,17 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned;
-        returned = parser.parse(e);
-        if (returned == null)
-            return;
-
-
-        int x = Integer.parseInt(returned[0]);
-        int y = Integer.parseInt(returned[1]);
-        Year year = Year.of(Integer.parseInt(returned[2]));
-        String username = returned[3];
-        long discordId = Long.parseLong(returned[4]);
-        boolean titleWrite = !Boolean.parseBoolean(returned[5]);
-        boolean playsWrite = Boolean.parseBoolean(returned[6]);
-        boolean isList = Boolean.parseBoolean(returned[7]);
-        boolean noLimitFlag = Boolean.parseBoolean(returned[8]);
-
-
+    public ChartParameters getParameters(String[] message, MessageReceivedEvent e) {
+        int x = Integer.parseInt(message[0]);
+        int y = Integer.parseInt(message[1]);
+        Year year = Year.of(Integer.parseInt(message[2]));
+        String username = message[3];
+        long discordId = Long.parseLong(message[4]);
+        boolean titleWrite = !Boolean.parseBoolean(message[5]);
+        boolean playsWrite = Boolean.parseBoolean(message[6]);
+        boolean isList = Boolean.parseBoolean(message[7]);
+        boolean isPie = Boolean.parseBoolean(message[8]);
+        boolean noLimitFlag = Boolean.parseBoolean(message[9]);
         TimeFrameEnum timeframe;
         LocalDateTime time = LocalDateTime.now();
         if (year.isBefore(Year.of(time.getYear()))) {
@@ -86,27 +73,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
                 timeframe = TimeFrameEnum.YEAR;
             }
         }
-        ChartYearParameters chartParameters = new ChartYearParameters(username, discordId, timeframe, x, y, e, titleWrite, playsWrite, isList, year, !noLimitFlag);
-        CountWrapper<BlockingQueue<UrlCapsule>> result = processQueue(chartParameters);
-        BlockingQueue<UrlCapsule> queue = result.getResult();
-        if (queue.isEmpty()) {
-            noElementsMessage(e, chartParameters);
-            return;
-        }
-        if (isList) {
-            ArrayList<UrlCapsule> liste = new ArrayList<>(queue.size());
-            queue.drainTo(liste);
-            doList(liste, chartParameters, result.getRows());
-        } else {
-            if (noLimitFlag) {
-                int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
-                doImage(queue, imageSize, imageSize, chartParameters);
-            } else {
-                BlockingQueue<UrlCapsule> tempQueuenew = new LinkedBlockingDeque<>();
-                queue.drainTo(tempQueuenew, x * y);
-                doImage(tempQueuenew, x, y, chartParameters);
-            }
-        }
+        return new ChartYearParameters(username, discordId, timeframe, x, y, e, titleWrite, playsWrite, isList, isPie, year, !noLimitFlag);
     }
 
 

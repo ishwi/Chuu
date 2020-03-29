@@ -52,12 +52,16 @@ public abstract class GroupingChartCommand extends ChartableCommand {
             return;
         }
         GroupingQueue queue = countWrapper.getResult();
-        if (chartGroupParameters.isList()) {
+        if (chartGroupParameters.isList() || chartGroupParameters.isPieFormat()) {
             List<UrlCapsule> urlCapsules = queue.setUp();
             if (countWrapper.getRows() == -1) {
                 countWrapper.setRows(urlCapsules.size());
             }
-            doList(urlCapsules, chartGroupParameters, countWrapper.getRows());
+            if (chartGroupParameters.isPieFormat()) {
+                doPie(urlCapsules, chartGroupParameters, countWrapper.getRows());
+            } else {
+                doList(urlCapsules, chartGroupParameters, countWrapper.getRows());
+            }
         } else {
             queue.setUp();
             doImage(queue, chartGroupParameters.getX(), chartGroupParameters.getY(), chartGroupParameters);

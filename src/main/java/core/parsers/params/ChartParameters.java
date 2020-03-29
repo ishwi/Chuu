@@ -24,6 +24,7 @@ public class ChartParameters {
     private final boolean writeTitles;
     private final boolean writePlays;
     private final boolean isList;
+    private final boolean pieFormat;
 
     public ChartParameters(String[] returned, MessageReceivedEvent e) {
 
@@ -35,6 +36,8 @@ public class ChartParameters {
         boolean titleWrite = !Boolean.parseBoolean(returned[5]);
         boolean playsWrite = Boolean.parseBoolean(returned[6]);
         boolean listFormat = Boolean.parseBoolean(returned[7]);
+        boolean pieFormat = Boolean.parseBoolean(returned[8]);
+
         this.username = username;
         this.discordId = discordId;
         this.timeFrameEnum = TimeFrameEnum.fromCompletePeriod(time);
@@ -44,9 +47,10 @@ public class ChartParameters {
         this.writeTitles = titleWrite;
         this.writePlays = playsWrite;
         this.isList = listFormat;
+        this.pieFormat = pieFormat;
     }
 
-    public ChartParameters(String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays, boolean isList) {
+    public ChartParameters(String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat) {
         this.username = username;
         this.discordId = discordId;
         this.timeFrameEnum = timeFrameEnum;
@@ -56,10 +60,11 @@ public class ChartParameters {
         this.writeTitles = writeTitles;
         this.writePlays = writePlays;
         this.isList = isList;
+        this.pieFormat = pieFormat;
     }
 
     public static ChartParameters toListParams() {
-        return new ChartParameters(null, 0, null, 0, 0, null, true, true, true);
+        return new ChartParameters(null, 0, null, 0, 0, null, true, true, true, false);
     }
 
     public int makeCommand(ConcurrentLastFM lastFM, BlockingQueue<UrlCapsule> queue, TopEntity topEntity, BiFunction<JSONObject, Integer, UrlCapsule> parser) throws LastFmException {
@@ -103,14 +108,15 @@ public class ChartParameters {
         return discordId;
     }
 
-    public DiscordUserDisplay calculateUser() {
-        return CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
-    }
 
     public EmbedBuilder initEmbed(String titleInit, EmbedBuilder embedBuilder, String footerText) {
-        DiscordUserDisplay discordUserDisplay = this.calculateUser();
+        DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         return embedBuilder.setTitle(discordUserDisplay.getUsername() + titleInit + this.getTimeFrameEnum().getDisplayString())
                 .setFooter(CommandUtil.markdownLessString(discordUserDisplay.getUsername()) + footerText + this.getTimeFrameEnum().getDisplayString());
     }
 
+
+    public boolean isPieFormat() {
+        return pieFormat;
+    }
 }

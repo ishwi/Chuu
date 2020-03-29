@@ -14,6 +14,7 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.knowm.xchart.PieChart;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,11 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
         return params.initEmbed("'s most listened albums", embedBuilder, " has listened to " + count + " albums");
+    }
+
+    @Override
+    public void configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+        pieChart.setTitle(initTitle + "'s most listened albums" + params.getTimeFrameEnum().getDisplayString());
     }
 
     @Override

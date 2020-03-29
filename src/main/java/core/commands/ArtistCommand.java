@@ -15,6 +15,7 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +42,11 @@ public class ArtistCommand extends ChartableCommand {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
         return params.initEmbed("'s top artists", embedBuilder, " has listened to " + count + " artists");
+    }
+
+    @Override
+    public void configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+        pieChart.setTitle(initTitle + "'s top artists" + params.getTimeFrameEnum().getDisplayString());
     }
 
     @Override

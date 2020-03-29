@@ -8,18 +8,18 @@ public class ChartGroupParameters extends ChartParameters {
 
     public ChartGroupParameters(String[] returned, MessageReceivedEvent e) {
         super(returned, e);
-        showTime = !Boolean.parseBoolean(returned[8]);
+        showTime = !Boolean.parseBoolean(returned[9]);
 
 
     }
 
-    public ChartGroupParameters(String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays, boolean isList, boolean showTime) {
-        super(username, discordId, timeFrameEnum, x, y, e, writeTitles, writePlays, isList);
+    public ChartGroupParameters(String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays, boolean isList, boolean pieChart, boolean showTime) {
+        super(username, discordId, timeFrameEnum, x, y, e, writeTitles, writePlays, isList, pieChart);
         this.showTime = showTime;
     }
 
     public static ChartGroupParameters toListParams() {
-        return new ChartGroupParameters(null, 0, null, 0, 0, null, true, true, true, true);
+        return new ChartGroupParameters(null, 0, null, 0, 0, null, true, true, true, false, true);
     }
 
     public boolean isShowTime() {

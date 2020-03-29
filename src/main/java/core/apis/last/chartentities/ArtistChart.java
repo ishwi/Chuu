@@ -1,6 +1,7 @@
 package core.apis.last.chartentities;
 
 import core.commands.CommandUtil;
+import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartParameters;
 import dao.entities.UrlCapsule;
 import org.json.JSONObject;
@@ -28,13 +29,13 @@ public class ArtistChart extends UrlCapsule {
     }
 
     @Override
-    public List<String> getLines() {
-        List<String> list = new ArrayList<>();
+    public List<ChartLine> getLines() {
+        List<ChartLine> list = new ArrayList<>();
         if (drawTitles) {
-            list.add(getArtistName());
+            list.add(new ChartLine(getArtistName(), ChartLine.Type.TITLE));
         }
         if (drawPlays) {
-            list.add(getPlays() + CommandUtil.singlePlural(getPlays(), "play", "plays"));
+            list.add(new ChartLine(getPlays() + CommandUtil.singlePlural(getPlays(), " play", " plays")));
         }
         return list;
     }
@@ -45,6 +46,16 @@ public class ArtistChart extends UrlCapsule {
                 CommandUtil.cleanMarkdownCharacter(getArtistName()),
                 CommandUtil.getLastFmArtistUrl(getArtistName()),
                 getPlays(), CommandUtil.singlePlural(getPlays(), "play", "plays"));
+    }
+
+    @Override
+    public String toChartString() {
+        return String.format("%s\n%d %s", getArtistName(), getPlays(), CommandUtil.singlePlural(getPlays(), "play", "plays"));
+    }
+
+    @Override
+    public int getChartValue() {
+        return getPlays();
     }
 }
 

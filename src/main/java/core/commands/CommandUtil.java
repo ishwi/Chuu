@@ -208,7 +208,7 @@ public class CommandUtil {
 
     }
 
-    static DiscordUserDisplay getUserInfoNotStripped(MessageReceivedEvent e, long discordID) {
+    public static DiscordUserDisplay getUserInfoNotStripped(MessageReceivedEvent e, long discordID) {
         return handleUser(e, discordID);
     }
 
