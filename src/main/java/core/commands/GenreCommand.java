@@ -6,6 +6,7 @@ import core.imagerenderer.GraphicUtils;
 import core.parsers.TimerFrameParser;
 import dao.ChuuService;
 import dao.entities.AlbumInfo;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.Genre;
 import dao.entities.TimeFrameEnum;
 import dao.musicbrainz.MusicBrainzService;
@@ -55,7 +56,9 @@ public class GenreCommand extends ConcurrentCommand {
         long discordId = Long.parseLong(returned[1]);
 
         String timeframe = returned[2];
-        String usableString = getUserString(e, discordId, username);
+        DiscordUserDisplay userInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
+        String usableString = userInfo.getUsername();
+        String urlImage = userInfo.getUrlImage();
         List<AlbumInfo> albumInfos = lastFM.getTopAlbums(username, timeframe, 2000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
         Map<Genre, Integer> map = musicBrainz.genreCount(albumInfos);
@@ -66,10 +69,10 @@ public class GenreCommand extends ConcurrentCommand {
 
         PieChart pieChart =
                 new PieChartBuilder()
-                        .width(800)
-                        .height(600)
-                        .title("Top 10 Genres from " + usableString + " in the last " + TimeFrameEnum
-                                .fromCompletePeriod(timeframe).toString())
+                        .width(1000)
+                        .height(750)
+                        .title("Top 10 Genres from " + usableString + TimeFrameEnum
+                                .fromCompletePeriod(timeframe).getDisplayString())
                         .theme(Styler.ChartTheme.GGPlot2)
                         .build();
         pieChart.getStyler().setLegendVisible(false);
@@ -93,10 +96,12 @@ public class GenreCommand extends ConcurrentCommand {
                     pieChart.addSeries(genre.getGenreName(), plays);
                 });
 
-        BufferedImage bufferedImage = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = bufferedImage.createGraphics();
+
         GraphicUtils.setQuality(g);
-        pieChart.paint(g, 800, 600);
+        pieChart.paint(g, 1000, 750);
+        GraphicUtils.inserArtistImage(urlImage, g);
         sendImage(bufferedImage, e);
 
     }

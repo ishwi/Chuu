@@ -913,4 +913,38 @@ public class ChuuService {
             throw new RuntimeException(e);
         }
     }
+
+    public void removeReportedImage(long alt_id, long image_owner, long mod_id) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.removeImage(connection, alt_id);
+            updaterDao.logRemovedImage(connection, image_owner, mod_id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int getReportCount() {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.getReportCount(connection);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void ignoreReportedImage(long altId) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.removeReport(connection, altId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ReportEntity getNextReport(LocalDateTime localDateTime) {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.getReportEntity(connection, localDateTime);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 }

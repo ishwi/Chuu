@@ -2,6 +2,7 @@ package core.commands;
 
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
+import core.apis.last.chartentities.TrackDurationChart;
 import core.apis.last.queues.GroupingQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -54,9 +55,8 @@ public abstract class GroupingChartCommand extends ChartableCommand {
         GroupingQueue queue = countWrapper.getResult();
         if (chartGroupParameters.isList() || chartGroupParameters.isPieFormat()) {
             List<UrlCapsule> urlCapsules = queue.setUp();
-            if (countWrapper.getRows() == -1) {
-                countWrapper.setRows(urlCapsules.size());
-            }
+            int sum = urlCapsules.stream().mapToInt(x -> ((TrackDurationChart) x).getSeconds()).sum();
+            countWrapper.setRows(sum);
             if (chartGroupParameters.isPieFormat()) {
                 doPie(urlCapsules, chartGroupParameters, countWrapper.getRows());
             } else {

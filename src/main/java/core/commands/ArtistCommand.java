@@ -45,8 +45,11 @@ public class ArtistCommand extends ChartableCommand {
     }
 
     @Override
-    public void configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
-        pieChart.setTitle(initTitle + "'s top artists" + params.getTimeFrameEnum().getDisplayString());
+    public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+        String displayString = params.getTimeFrameEnum().getDisplayString();
+        pieChart.setTitle(initTitle + "'s top artists" + displayString);
+        return String.format("%s has listened to %d artists%s (showing top %d)", initTitle, count, displayString, params.getX() * params.getY());
+
     }
 
     @Override

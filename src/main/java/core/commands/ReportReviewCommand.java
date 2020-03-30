@@ -1,0 +1,126 @@
+package core.commands;
+
+import core.Chuu;
+import core.exceptions.InstanceNotFoundException;
+import core.exceptions.LastFmException;
+import core.otherlisteners.Validator;
+import dao.ChuuService;
+import dao.entities.LastFMData;
+import dao.entities.ReportEntity;
+import dao.entities.Role;
+import dao.entities.TriFunction;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
+
+public class ReportReviewCommand extends ConcurrentCommand {
+    private static final String ACCEPT = "U+2714";
+    private static final String DELETE = "U+1f469U+200dU+2696U+fe0f";
+    private final AtomicBoolean isActive = new AtomicBoolean(false);
+
+    private TriFunction<JDA, Integer, Supplier<Integer>, BiFunction<ReportEntity, EmbedBuilder, EmbedBuilder>> builder = (jda, integer, pos) -> (reportEntity, embedBuilder) ->
+            embedBuilder.clearFields()
+                    .addField("Author", CommandUtil.getGlobalUsername(jda, reportEntity.getWhoGotReported()), true)
+                    .addField("#Times user got reported:", String.valueOf(reportEntity.getUserTotalReports()), true)
+                    .addField("Image score:", String.valueOf(reportEntity.getCurrentScore()), false)
+                    .addField("Number of reports on this image:", String.valueOf(reportEntity.getReportCount()), true)
+                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(reportEntity.getArtistName()), CommandUtil.getLastFmArtistUrl(reportEntity.getArtistName())), false)
+                    .setFooter(String.format("%d/%d\nUse \uD83D\uDC69\u200D\u2696\ufe0f to remove this image", pos.get() + 1, integer))
+                    .setImage(CommandUtil.noImageUrl(reportEntity.getUrl()))
+                    .setColor(CommandUtil.randomColor());
+
+    public ReportReviewCommand(ChuuService dao) {
+        super(dao);
+    }
+
+    @Override
+    public String getDescription() {
+        return "Report Review";
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("reports");
+    }
+
+    @Override
+    public String getName() {
+        return "report";
+    }
+
+    @Override
+    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+        long idLong = e.getAuthor().getIdLong();
+        LastFMData lastFMData = getService().findLastFMData(idLong);
+        if (lastFMData.getRole() != Role.ADMIN) {
+            sendMessageQueue(e, "Only bot admins can review the reported images!");
+            return;
+        }
+        if (!this.isActive.compareAndSet(false, true)) {
+            sendMessageQueue(e, "Other admin is reviewing the reported images, pls wait till they have finished!");
+            return;
+        }
+        AtomicInteger statBan = new AtomicInteger(0);
+        AtomicInteger navigationCounter = new AtomicInteger(0);
+        AtomicInteger statIgnore = new AtomicInteger(0);
+        EmbedBuilder embedBuilder = new EmbedBuilder().setTitle("Reports Review");
+        LocalDateTime localDateTime = LocalDateTime.now();
+        this.executor.submit(() -> {
+            try {
+                int totalReports = getService().getReportCount();
+                HashMap<String, BiFunction<ReportEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
+                actionMap.put(DELETE, (reportEntity, r) -> {
+                    getService().removeReportedImage(reportEntity.getImageReported(), reportEntity.getWhoGotReported(), idLong);
+                    statBan.getAndIncrement();
+                    navigationCounter.incrementAndGet();
+                    return false;
+
+                });
+                actionMap.put(ACCEPT, (a, r) -> {
+                    getService().ignoreReportedImage(a.getImageReported());
+                    statIgnore.getAndIncrement();
+                    navigationCounter.incrementAndGet();
+                    return false;
+                });
+
+
+                new Validator<>(
+                        (finalEmbed) -> {
+                            int reportCount = getService().getReportCount();
+                            String description = (navigationCounter.get() == 0) ? null : String.format("You have seen %d %s and decided to delete %d %s and to ignore %d", navigationCounter.get(), CommandUtil.singlePlural(navigationCounter.get(), "image", "images"), statBan.get(), CommandUtil.singlePlural(statBan.get(), "image", "images"), statIgnore.get());
+                            String title;
+                            if (navigationCounter.get() == 0) {
+                                title = "There are no reported images";
+                            } else if (navigationCounter.get() == totalReports) {
+                                title = "There are no more reported images";
+                            } else {
+                                title = "Timed Out";
+                            }
+                            return finalEmbed.setTitle(title)
+                                    .setImage(null)
+                                    .clearFields()
+                                    .setDescription(description)
+                                    .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
+                                    .setColor(CommandUtil.randomColor());
+                        },
+                        () -> getService().getNextReport(localDateTime),
+                        builder.apply(e.getJDA(), totalReports, navigationCounter::get)
+                        , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
+            } catch (Throwable ex) {
+                Chuu.getLogger().warn(ex.getMessage());
+            } finally {
+                this.isActive.set(false);
+            }
+        });
+
+    }
+}

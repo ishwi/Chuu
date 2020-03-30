@@ -206,7 +206,9 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new SupportCommand(dao)))
                 .addEventListeners(help.registerCommand(new WastedChartCommand(dao)))
                 .addEventListeners(help.registerCommand(new WastedAlbumChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new WastedTrackCommand(dao)));
+                .addEventListeners(help.registerCommand(new WastedTrackCommand(dao)))
+                .addEventListeners(help.registerCommand(new ReportReviewCommand(dao)));
+
 
         try {
             jda = builder.build().awaitReady();

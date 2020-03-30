@@ -5,6 +5,7 @@ import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
 
 import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalLong;
@@ -78,6 +79,8 @@ interface UpdaterDao {
 
     AliasEntity getNextInAliasQueue(Connection connection);
 
+    ReportEntity getReportEntity(Connection connection, LocalDateTime localDateTime);
+
     void deleteAliasById(Connection connection, long aliasId) throws InstanceNotFoundException;
 
     void updateUrlStatus(Connection connection, long artist_id);
@@ -91,4 +94,11 @@ interface UpdaterDao {
     void reportImage(Connection connection, long urlId, long userIdLong);
 
 
+    void removeImage(Connection connection, long alt_id);
+
+    void logRemovedImage(Connection connection, long image_owner, long mod_id);
+
+    int getReportCount(Connection connection);
+
+    void removeReport(Connection connection, long reportId);
 }

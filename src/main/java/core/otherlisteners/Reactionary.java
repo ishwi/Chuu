@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -14,9 +13,8 @@ import java.util.List;
 import static java.lang.Math.min;
 import static java.lang.StrictMath.max;
 
-public class Reactionary<T> extends ListenerAdapter {
-    private final Message message;
-    private final EmbedBuilder who;
+public class Reactionary<T> extends ReactionListener {
+
     private final int pageSize;
     private final List<T> list;
     private int counter = 0;
@@ -36,9 +34,8 @@ public class Reactionary<T> extends ListenerAdapter {
     }
 
     public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who, boolean numberedEntries) {
-        this.who = who;
+        super(who, messageToReact);
         this.list = list;
-        this.message = messageToReact;
         this.pageSize = pageSize;
         this.numberedEntries = numberedEntries;
         initReactionary(messageToReact, list, messageToReact.getJDA());
@@ -58,7 +55,7 @@ public class Reactionary<T> extends ListenerAdapter {
             Chuu.getLogger().warn(ex.getMessage(), ex);
         }
         jda.removeEventListener(this);
-        message.clearReactions().queue();
+        clearReacts();
         StringBuilder a = new StringBuilder();
         if (counter < pageSize)
             return;
@@ -90,12 +87,7 @@ public class Reactionary<T> extends ListenerAdapter {
             default:
                 return;
         }
-        event.getReaction().removeReaction(event.getUser()).queue(aVoid -> {
-        }, throwable ->
-        {
-            message.editMessage(who.setFooter("Don't have permissions to clear reactions :(").build()).queue();
-            event.getJDA().removeEventListener(this);
-        });
+
         StringBuilder a = new StringBuilder();
         for (int i = start; i < start + pageSize && i < list.size(); i++) {
             if (numberedEntries) {
@@ -108,6 +100,7 @@ public class Reactionary<T> extends ListenerAdapter {
         who.setDescription(a);
         who.setColor(CommandUtil.randomColor());
         message.editMessage(who.build()).queue();
+        clearOneReact(event);
     }
 
 }

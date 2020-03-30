@@ -14,8 +14,8 @@ public class ArtistChart extends UrlCapsule {
     final boolean drawTitles;
     final boolean drawPlays;
 
-    public ArtistChart(String url, int pos, String artistName, int plays, boolean drawTitles, boolean drawPlays) {
-        super(url, pos, null, artistName, null, plays);
+    public ArtistChart(String url, int pos, String artistName, String mbid, int plays, boolean drawTitles, boolean drawPlays) {
+        super(url, pos, null, artistName, mbid, plays);
         this.drawTitles = drawTitles;
         this.drawPlays = drawPlays;
     }
@@ -24,7 +24,8 @@ public class ArtistChart extends UrlCapsule {
         return (artistObj, size) -> {
             String artistName = artistObj.getString("name");
             int plays = artistObj.getInt("playcount");
-            return new ArtistChart(null, size, artistName, plays, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
+            String mbid = artistObj.getString("mbid");
+            return new ArtistChart(null, size, artistName, mbid, plays, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
         };
     }
 

@@ -18,10 +18,11 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 
 public class AliasReviewCommand extends ConcurrentCommand {
-    public boolean isActive = false;
+    public AtomicBoolean isActive = new AtomicBoolean(false);
     private BiFunction<AliasEntity, EmbedBuilder, EmbedBuilder> builder = (aliasEntity, embedBuilder) ->
             embedBuilder.clearFields()
                     .addField("Alias:", aliasEntity.getAlias(), false)
@@ -57,15 +58,15 @@ public class AliasReviewCommand extends ConcurrentCommand {
             sendMessageQueue(e, "Only bot admins can review the alias queue!");
             return;
         }
-        if (this.isActive) {
+        if (!this.isActive.compareAndSet(false, true)) {
             sendMessageQueue(e, "Other admin is reviewing the aliases, pls wait till they have finished!");
             return;
         }
-        this.isActive = true;
-        try {
 
-            EmbedBuilder embedBuilder = new EmbedBuilder();
-            this.executor.submit(() -> {
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        this.executor.submit(() -> {
+            try {
+
                 HashMap<String, BiFunction<AliasEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
                 actionMap.put("U+2714", (aliasEntity, r) -> {
                     try {
@@ -97,12 +98,14 @@ public class AliasReviewCommand extends ConcurrentCommand {
                         (embedBuilder1) -> embedBuilder.setTitle("No more  Aliases to Review").clearFields(),
                         () -> getService().getNextInAliasQueue(),
                         builder
-                        , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false);
-                this.isActive = false;
-            });
-        } catch (Throwable ex) {
-            Chuu.getLogger().warn(ex.getMessage());
-            this.isActive = false;
-        }
+                        , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, false);
+            } catch (Throwable ex) {
+                Chuu.getLogger().warn(ex.getMessage());
+            } finally {
+                this.isActive.set(false);
+            }
+
+        });
+
     }
 }

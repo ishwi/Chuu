@@ -168,7 +168,7 @@ public class VotingCommand extends ConcurrentCommand {
                         return allArtistImages.get(counter.get());
                     },
                     builder.apply(e.getJDA(), allArtistImages.size())
-                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, true);
+                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, true, true);
         });
     }
 }

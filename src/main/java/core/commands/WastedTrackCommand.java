@@ -42,11 +42,10 @@ public class WastedTrackCommand extends ChartableCommand {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters params) throws LastFmException {
         TrackQueue queue = new TrackQueue(getService(), discogsApi, spotifyApi, !params.isList());
-        int trackCount = lastFM.getChart(params.getUsername(), params.getTimeFrameEnum().toApiFormat(), params.getX() * 2, params.getY() * 2,
+        lastFM.getChart(params.getUsername(), params.getTimeFrameEnum().toApiFormat(), params.getX() * 2, params.getY() * 2,
                 TopEntity.TRACK, TrackDurationChart.getTrackDurationParser((ChartGroupParameters) params), queue);
-        queue.setUp(params.getX() * params.getY());
-
-        return new CountWrapper<>(trackCount, queue);
+        int i = queue.setUp(params.getX() * params.getY());
+        return new CountWrapper<>(i, queue);
     }
 
     @Override
@@ -67,12 +66,16 @@ public class WastedTrackCommand extends ChartableCommand {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
-        return params.initEmbed("'s most listened tracks", embedBuilder, " has listened to " + count + " tracks");
+        return params.initEmbed("'s most listened tracks", embedBuilder,
+                String.format(" has listened to songs for %s", String.format("%d:%02d hours", count / 3600, count / 60 % 60)));
     }
 
     @Override
-    public void configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
-        pieChart.setTitle(initTitle + "'s most listened tracks" + params.getTimeFrameEnum().getDisplayString());
+    public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+        String time = params.getTimeFrameEnum().getDisplayString();
+        pieChart.setTitle(initTitle + "'s most listened tracks" + time);
+        return String.format("%s has listened to songs for %s%s (showing top %d songs)", initTitle,
+                String.format("%d:%02d hours", count / 3600, count / 60 % 60), time, params.getX() * params.getY());
     }
 
     @Override

@@ -63,8 +63,8 @@ public class ArtistFromCountryCommand extends ConcurrentCommand {
         String timeframe = message[3];
 
         CountryCode country = CountryCode.getByAlpha2Code(countryCode);
-        BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(1000);
-        lastFM.getChart(message[0], timeframe, 1000, 1, TopEntity.ARTIST, ArtistChart.getArtistParser(ChartParameters.toListParams()), queue);
+        BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(1500);
+        lastFM.getChart(message[0], timeframe, 1500, 1, TopEntity.ARTIST, ArtistChart.getArtistParser(ChartParameters.toListParams()), queue);
 
         List<ArtistUserPlays> list = this.mb.getArtistFromCountry(country, queue, discordId);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);

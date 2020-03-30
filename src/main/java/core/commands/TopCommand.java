@@ -14,6 +14,7 @@ import dao.entities.CountWrapper;
 import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.knowm.xchart.PieChart;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +52,15 @@ public class TopCommand extends ArtistCommand {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
         String s = ((TopParameters) params).isDoArtist() ? "artists" : "albums";
-        return params.initEmbed("'s top " + s, embedBuilder, " has listened to " + count + " " + s);
+        return params.initEmbed(String.format("'s top %s", s), embedBuilder, " has listened to " + count + " " + s);
+    }
+
+    @Override
+    public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+        String s = ((TopParameters) params).isDoArtist() ? "artists" : "albums";
+        String time = params.getTimeFrameEnum().getDisplayString();
+        pieChart.setTitle(String.format("%s's top %s%s", initTitle, s, time));
+        return String.format("%s has listened to %d %s%s (showing top %d)", initTitle, count, time, s, params.getX() * params.getY());
     }
 
     @Override

@@ -111,7 +111,7 @@ CREATE TABLE alt_url
     discord_id BIGINT(20)                            NOT NULL,
     added_date DATETIME                              NOT NULL DEFAULT NOW(),
     score      INT                                   NOT NULL DEFAULT 0,
-    CONSTRAINT alt_urls_fk_artist FOREIGN KEY (artist_id) REFERENCES artist (id),
+    CONSTRAINT alt_urls_fk_artist FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT uc_url UNIQUE (artist_id, url)
 );
 
@@ -125,8 +125,8 @@ CREATE TABLE vote
     ispositive BOOLEAN    NOT NULL,
     added_date DATETIME   NOT NULL DEFAULT NOW(),
     PRIMARY KEY (alt_id, discord_id),
-    CONSTRAINT vote_fk_alt_url FOREIGN KEY (alt_id) REFERENCES alt_url (id),
-    CONSTRAINT vote_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id)
+    CONSTRAINT vote_fk_alt_url FOREIGN KEY (alt_id) REFERENCES alt_url (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT vote_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE TABLE reported
 (
@@ -135,8 +135,8 @@ CREATE TABLE reported
     discord_id  BIGINT(20) NOT NULL,
     report_date DATETIME   NOT NULL DEFAULT NOW(),
     UNIQUE (alt_id, discord_id),
-    CONSTRAINT reported_fk_alt_url FOREIGN KEY (alt_id) REFERENCES alt_url (id),
-    CONSTRAINT reported_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id)
+    CONSTRAINT reported_fk_alt_url FOREIGN KEY (alt_id) REFERENCES alt_url (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT reported_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 DELIMITER //
 CREATE TRIGGER vote_add
@@ -203,6 +203,26 @@ BEGIN
 END;
 //
 DELIMITER ;
+DELIMITER //
+CREATE TRIGGER alt_url_delete
+    AFTER DELETE
+    ON alt_url
+    FOR EACH ROW
+BEGIN
+    IF (old.url = (SELECT url FROM artist WHERE id = old.artist_id)) THEN
+        UPDATE artist
+        SET url = (SELECT url FROM alt_url WHERE artist_id = old.artist_id ORDER BY alt_url.score DESC LIMIT 1)
+        WHERE id = old.artist_id;
+    END IF;
+END;
+//
+DELIMITER ;
 
-
-
+CREATE TABLE log_reported
+(
+    id       BIGINT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    reported BIGINT(20) NOT NULL,
+    modded   BIGINT(20) NOT NULL,
+    CONSTRAINT log_reported_fk_user FOREIGN KEY (reported) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT log_mod_fk_user FOREIGN KEY (modded) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE
+);

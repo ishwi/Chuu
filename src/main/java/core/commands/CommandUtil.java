@@ -111,15 +111,26 @@ public class CommandUtil {
         } catch (InstanceNotFoundException e) {
             //Artist doesnt exists
             existed = false;
-            String correction = lastFM.getCorrection(scrobbledArtist.getArtist());
-            //Has a correction
-            long byNameConsequent = dao.findByNameConsequent(correction);
-            scrobbledArtist.setArtistId(byNameConsequent);
-
-            if (!scrobbledArtist.getArtist().equalsIgnoreCase(correction)) {
-                dao.insertCorrection(byNameConsequent, scrobbledArtist.getArtist());
+            boolean corrected = false;
+            String originalArtist = scrobbledArtist.getArtist();
+            String correction = lastFM.getCorrection(originalArtist);
+            if (!correction.equalsIgnoreCase(originalArtist)) {
                 scrobbledArtist.setArtist(correction);
+                corrected = true;
             }
+            try {
+                long artistId = dao.getArtistId(correction);
+                scrobbledArtist.setArtistId(artistId);
+
+            } catch (InstanceNotFoundException ex) {
+                scrobbledArtist.setArtist(correction);
+                //Mutates id
+                dao.upsertArtistSad(scrobbledArtist);
+            }
+            if (corrected) {
+                dao.insertCorrection(scrobbledArtist.getArtistId(), originalArtist);
+            }
+
         }
         if (doUrlCheck) {
             if (!existed || (status.getArtistUrl() == null))

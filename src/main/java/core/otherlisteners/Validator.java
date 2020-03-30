@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.annotation.Nonnull;
@@ -16,30 +15,29 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class Validator<T> extends ListenerAdapter {
+public class Validator<T> extends ReactionListener {
 
     private final Function<EmbedBuilder, EmbedBuilder> getLastMessage;
     private final Supplier<T> elementFetcher;
     private final BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder;
-    private final EmbedBuilder who;
     private final long whom;
     private final MessageChannel messageChannel;
     private final Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap;
     private T currentElement;
     private int counter = 0;
-    private Message message;
     private final boolean allowOtherUsers;
+    private final boolean renderInSameElement;
 
-    public Validator(Function<EmbedBuilder, EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, MessageChannel channel, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap, boolean allowOtherUsers) {
+    public Validator(Function<EmbedBuilder, EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, MessageChannel channel, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap, boolean allowOtherUsers, boolean renderInSameElement) {
+        super(who, null);
         this.getLastMessage = getLastMessage;
         this.elementFetcher = elementFetcher;
-
         this.fillBuilder = fillBuilder;
-        this.who = who;
         this.messageChannel = channel;
         this.whom = discordId;
         this.actionMap = actionMap;
         this.allowOtherUsers = allowOtherUsers;
+        this.renderInSameElement = renderInSameElement;
         try {
             initReactionary();
         } catch (Throwable e) {
@@ -49,7 +47,7 @@ public class Validator<T> extends ListenerAdapter {
 
     private void endItAll(JDA jda) {
         jda.removeEventListener(this);
-        message.clearReactions().queue();
+        clearReacts();
     }
 
     private void noMoreElements(JDA jda) {
@@ -86,7 +84,6 @@ public class Validator<T> extends ListenerAdapter {
             return;
         }
         this.message = messageAction.complete();
-
         initEmotes();
         message.getJDA().addEventListener(this);
         while (true) {
@@ -117,7 +114,10 @@ public class Validator<T> extends ListenerAdapter {
             if (apply) {
                 messageAction.queue(this::accept);
             } else if (event.getUser() != null) {
-                event.getReaction().removeReaction(event.getUser()).flatMap(x -> messageAction).queue();
+                clearOneReact(event);
+                if (renderInSameElement) {
+                    messageAction.queue();
+                }
             } else {
                 messageAction.queue();
             }

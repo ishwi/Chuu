@@ -9,6 +9,8 @@ import org.intellij.lang.annotations.Language;
 import java.sql.*;
 import java.text.Normalizer;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -554,7 +556,10 @@ public class UpdaterDaoImpl implements UpdaterDao {
             }
             /* Fill "preparedStatement". */
             ResultSet resultSet = preparedStatement.executeQuery();
-            Map<String, ScrobbledArtist> collect = list.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, Function.identity()));
+            Map<String, ScrobbledArtist> collect = list.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
+                scrobbledArtist.setCount(scrobbledArtist.getCount() + scrobbledArtist2.getCount());
+                return scrobbledArtist;
+            }));
             Pattern compile = Pattern.compile("\\p{M}");
 
             while (resultSet.next()) {
@@ -736,6 +741,42 @@ public class UpdaterDaoImpl implements UpdaterDao {
         }
     }
 
+
+    @Override
+    public ReportEntity getReportEntity(Connection connection, LocalDateTime localDateTime) {
+
+        String queryString = "SELECT b.id,count(*) AS reportcount,b.score,\n" +
+                             "min(a.report_date) AS l,b.added_date,b.discord_id,c.name,c.url,(SELECT count(*) FROM reported WHERE discord_id = b.discord_id),b.artist_id\n" +
+                             "FROM reported a JOIN \n" +
+                             "alt_url b ON a.alt_id = b.id JOIN\n" +
+                             "artist c ON b.artist_id = c.id\n" +
+                             "WHERE a.report_date < ? " +
+                             "" + "GROUP BY a.alt_id ORDER BY l DESC LIMIT 1";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 0;
+            preparedStatement.setTimestamp(1, Timestamp.from(localDateTime.atOffset(ZoneOffset.UTC).toInstant()));
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                long alt_url_id = resultSet.getLong(1);
+                int reportCount = resultSet.getInt(2);
+                int score = resultSet.getInt(3);
+                Timestamp first_report = resultSet.getTimestamp(4);
+                Timestamp imageDate = resultSet.getTimestamp(5);
+                long imageOwner = resultSet.getLong(6);
+                String artistName = resultSet.getString(7);
+                String url = resultSet.getString(8);
+                int userReportCount = resultSet.getInt(9);
+                long artistId = resultSet.getInt(10);
+                return new ReportEntity(url, imageOwner, artistId,
+                        alt_url_id, first_report.toLocalDateTime(), artistName,
+                        imageDate.toLocalDateTime(), score, reportCount, userReportCount);
+            }
+            return null;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void deleteAliasById(Connection con, long aliasId) {
         String queryString = "DELETE FROM queued_alias WHERE id = ? ";
@@ -816,6 +857,55 @@ public class UpdaterDaoImpl implements UpdaterDao {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Override
+    public void removeImage(Connection connection, long alt_id) {
+        String queryString = "DELETE FROM alt_url WHERE id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, alt_id);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void logRemovedImage(Connection connection, long image_owner, long mod_id) {
+        String queryString = "INSERT  INTO log_reported(reported,modded) VALUES (?,?) ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i++, image_owner);
+            preparedStatement.setLong(i, mod_id);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int getReportCount(Connection connection) {
+        String queryString = "SELECT count(*) FROM (SELECT count(*) FROM reported GROUP BY reported.alt_id) a ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void removeReport(Connection connection, long alt_id) {
+        String queryString = "DELETE FROM reported WHERE alt_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, alt_id);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 

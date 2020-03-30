@@ -100,6 +100,10 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
                     .map(capsule -> new ArtistInfo(capsule.getUrl(), capsule.getArtistName(), capsule.getMbid()))
                     .filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                     .collect(Collectors.toList());
+            if (artistInfos.isEmpty()) {
+                return new ArrayList<>();
+            }
+
             List<String> artistFromCountry = mbizQueriesDao.getArtistFromCountry(connection, country, artistInfos);
 
             return queue.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty() && artistFromCountry.contains(u.getMbid()))

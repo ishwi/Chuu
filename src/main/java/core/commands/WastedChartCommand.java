@@ -66,12 +66,15 @@ public class WastedChartCommand extends GroupingChartCommand {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
-        return params.initEmbed("'s most listened artists", embedBuilder, " has listened to " + count + " artists");
+        return params.initEmbed("'s most listened artists", embedBuilder,
+                String.format(" has listened to artists for %s", String.format("%d:%02d hours", count / 3600, count / 60 % 60)));
     }
 
     @Override
-    public void configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+    public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
         pieChart.setTitle(initTitle + "'s most listened artists" + params.getTimeFrameEnum().getDisplayString());
+        return String.format("%s has listened to %d artist (showing top %d)", initTitle, count, params.getX() * params.getY());
+
     }
 
     @Override

@@ -52,8 +52,10 @@ public class AlbumChartCommand extends ChartableCommand {
     }
 
     @Override
-    public void configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
-        pieChart.setTitle(initTitle + "'s top albums" + params.getTimeFrameEnum().getDisplayString());
+    public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+        String time = params.getTimeFrameEnum().getDisplayString();
+        pieChart.setTitle(initTitle + "'s top albums" + time);
+        return String.format("%s has listened to %d albums%s (showing top %d)", initTitle, count, time, params.getX() * params.getY());
     }
 
 

@@ -36,9 +36,21 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
         System.out.println("USER LEFT");
         Executors.newSingleThreadExecutor()
-                .execute(() -> getService()
-                        .removeUserFromOneGuildConsequent(event.getMember().getIdLong(), event.getGuild().getIdLong())
-                );
+                .execute(() -> {
+
+                    try {
+                        getService().findLastFMData(event.getUser().getIdLong());
+                        Member member = event.getMember();
+                        Guild guild = event.getJDA().getGuildById(event.getGuild().getIdLong());
+
+                        // Making sure they really left?
+                        if (guild != null && guild.getMember(event.getUser()) == null)
+                            getService()
+                                    .removeUserFromOneGuildConsequent(member.getIdLong(), event.getGuild().getIdLong());
+
+                    } catch (InstanceNotFoundException ignored) {
+                    }
+                });
     }
 
     public void onStartup(JDA jda) {

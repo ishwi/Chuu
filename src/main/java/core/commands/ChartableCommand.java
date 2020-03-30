@@ -17,17 +17,14 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.style.PieStyler;
 import org.knowm.xchart.style.Styler;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -62,10 +59,10 @@ public abstract class ChartableCommand extends ConcurrentCommand {
         if (chartParameters.isList() || chartParameters.isPieFormat()) {
             ArrayList<UrlCapsule> liste = new ArrayList<>(urlCapsules.size());
             urlCapsules.drainTo(liste);
-            if (chartParameters.isList()) {
-                doList(liste, chartParameters, countWrapper.getRows());
-            } else {
+            if (chartParameters.isPieFormat()) {
                 doPie(liste, chartParameters, countWrapper.getRows());
+            } else {
+                doList(liste, chartParameters, countWrapper.getRows());
             }
         } else {
             doImage(urlCapsules, chartParameters.getX(), chartParameters.getY(), chartParameters);
@@ -184,28 +181,27 @@ public abstract class ChartableCommand extends ConcurrentCommand {
             pieChart.addSeries("Others\u200B", sum);
         }
         DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoNotStripped(chartParameters.getE(), chartParameters.getDiscordId());
-        configPieChart(pieChart, chartParameters, count, userInfoNotStripped.getUsername());
+        String subtitle = configPieChart(pieChart, chartParameters, count, userInfoNotStripped.getUsername());
         String urlImage = userInfoNotStripped.getUrlImage();
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = bufferedImage.createGraphics();
         GraphicUtils.setQuality(g);
-        pieChart.paint(g, 1000, 750);
+        Font annotationsFont = pieChart.getStyler().getAnnotationsFont();
 
-        try {
-            if (urlImage != null && !urlImage.isBlank()) {
-                BufferedImage image = Scalr.crop(ImageIO.read(new URL(urlImage)), 100, 100);
-                g.drawImage(image, 10, 750 - 110, null);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        pieChart.paint(g, 1000, 750);
+        g.setFont(annotationsFont.deriveFont(11.0f));
+        int i = g.getFontMetrics().stringWidth(subtitle);
+        Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(subtitle, g);
+
+        g.drawString(subtitle, 1000 - 10 - (int) stringBounds.getWidth(), 740 - 2);
+        GraphicUtils.inserArtistImage(urlImage, g);
         sendImage(bufferedImage, chartParameters.getE());
 
     }
 
     public abstract EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count);
 
-    public abstract void configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle);
+    public abstract String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle);
 
 
     public abstract void noElementsMessage(MessageReceivedEvent e, ChartParameters parameters);

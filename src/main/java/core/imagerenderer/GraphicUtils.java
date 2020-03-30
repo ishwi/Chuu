@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -26,6 +27,17 @@ public class GraphicUtils {
             noArtistImage = ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png"));
         } catch (IOException e) {
             throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
+        }
+    }
+
+    public static void inserArtistImage(String urlImage, Graphics2D g) {
+        try {
+            if (urlImage != null && !urlImage.isBlank()) {
+                BufferedImage image = Scalr.resize(ImageIO.read(new URL(urlImage)), 100, 100);
+                g.drawImage(image, 10, 750 - 110, null);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 

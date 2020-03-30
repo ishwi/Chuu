@@ -640,7 +640,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
                 int plays = resultSet.getInt("orden");
 
-                UrlCapsule capsule = new ArtistChart(url, count++, artist, plays, true, true);
+                UrlCapsule capsule = new ArtistChart(url, count++, artist, null, plays, true, true);
                 list.add(capsule);
             }
         } catch (SQLException e) {

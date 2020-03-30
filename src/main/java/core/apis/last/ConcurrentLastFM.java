@@ -65,7 +65,7 @@ public class ConcurrentLastFM {//implements LastFMService {
     //@Override
     public NowPlayingArtist getNowPlayingInfo(String user) throws LastFmException {
         String url = BASE + GET_NOW_PLAYINH + user + API_KEY + ENDING;
-        JSONObject obj = initGetRecentTracks(user, url);
+        JSONObject obj = initGetRecentTracks(user, url, TimeFrameEnum.ALL);
         boolean nowPlaying;
 
         JSONObject trackObj = obj.getJSONArray("track").getJSONObject(0);
@@ -88,13 +88,16 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     }
 
-    private JSONObject initGetRecentTracks(String user, String url) throws LastFmException {
+    private JSONObject initGetRecentTracks(String user, String url, TimeFrameEnum timeFrameEnum) throws LastFmException {
         HttpMethodBase method = createMethod(url);
         JSONObject obj = doMethod(method, new ExceptionEntity(user));
+        if (!obj.has("recenttracks")) {
+            throw new LastFMNoPlaysException(user, timeFrameEnum.toApiFormat());
+        }
         obj = obj.getJSONObject("recenttracks");
         JSONObject attrObj = obj.getJSONObject("@attr");
         if (attrObj.getInt("total") == 0) {
-            throw new LastFMNoPlaysException(user, TimeFrameEnum.ALL.toApiFormat());
+            throw new LastFMNoPlaysException(user, timeFrameEnum.toApiFormat());
         }
         return obj;
     }
@@ -406,17 +409,9 @@ public class ConcurrentLastFM {//implements LastFMService {
         int total = 1;
         while (count < total) {
             String urlPage = url + "&page=" + ++page;
-            HttpMethodBase method = createMethod(urlPage);
-            JSONObject obj = doMethod(method, new ExceptionEntity(username));
-            if (!obj.has("recenttracks")) {
-                throw new LastFMNoPlaysException(username, "day");
-            }
-            obj = obj.getJSONObject("recenttracks");
+            JSONObject obj = initGetRecentTracks(username, urlPage, TimeFrameEnum.WEEK);
             JSONObject attrObj = obj.getJSONObject("@attr");
             total = attrObj.getInt("total");
-            if (total == 0) {
-                throw new LastFMNoPlaysException(username, "day");
-            }
             JSONArray arr = obj.getJSONArray("track");
             for (int i = 0; i < arr.length(); i++) {
 
@@ -469,17 +464,8 @@ public class ConcurrentLastFM {//implements LastFMService {
             if (page == 6) {
                 break;
             }
-            HttpMethodBase method = createMethod(urlPage);
-            JSONObject obj = doMethod(method, new ExceptionEntity(username));
-            if (!obj.has("recenttracks")) {
-                throw new LastFMNoPlaysException(username, "day");
-            }
-            obj = obj.getJSONObject("recenttracks");
-            JSONObject attrObj = obj.getJSONObject("@attr");
-            int total = attrObj.getInt("total");
-            if (total == 0) {
-                throw new LastFMNoPlaysException(username, "day");
-            }
+            JSONObject obj = initGetRecentTracks(username, urlPage, TimeFrameEnum.ALL);
+
             JSONArray arr = obj.getJSONArray("track");
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject trackObj = arr.getJSONObject(i);
@@ -541,14 +527,10 @@ public class ConcurrentLastFM {//implements LastFMService {
         while (count < total) {
             String urlPage = url + "&page=" + ++page;
             HttpMethodBase method = createMethod(urlPage);
-            JSONObject obj = doMethod(method, new ExceptionEntity(username));
-            obj = obj.getJSONObject("recenttracks");
+            JSONObject obj = initGetRecentTracks(username, urlPage, TimeFrameEnum.ALL);
+
             JSONObject attrObj = obj.getJSONObject("@attr");
             total = attrObj.getInt("total");
-            if (total == 0) {
-                throw new LastFMNoPlaysException(username, TimeFrameEnum.ALL.toApiFormat());
-            }
-
             JSONArray arr = obj.getJSONArray("track");
             for (int i = 0; i < arr.length(); i++) {
 
@@ -588,7 +570,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     public List<NowPlayingArtist> getRecent(String user, int limit) throws LastFmException {
         String url = BASE + RECENT_TRACKS + "&user=" + user + "&limit=" + limit + API_KEY + ENDING + "&extended=1";
-        JSONObject obj = initGetRecentTracks(user, url);
+        JSONObject obj = initGetRecentTracks(user, url, TimeFrameEnum.ALL);
         List<NowPlayingArtist> npList = new ArrayList<>();
         JSONArray arr = obj.getJSONArray("track");
 
@@ -908,11 +890,8 @@ public class ConcurrentLastFM {//implements LastFMService {
         int totalPages = 1;
         while (page < totalPages) {
             String urlPage = url + "&page=" + ++page;
-            HttpMethodBase method = createMethod(urlPage);
-            JSONObject obj = doMethod(method, new ExceptionEntity(username));
-            obj = obj.getJSONObject("recenttracks");
+            JSONObject obj = initGetRecentTracks(username, urlPage, TimeFrameEnum.WEEK);
             JSONObject attrObj = obj.getJSONObject("@attr");
-            System.out.println("Plays " + attrObj.getInt("total"));
             totalPages = attrObj.getInt("totalPages");
             if (totalPages == 0) {
                 throw new LastFMNoPlaysException(username, TimeFrameEnum.WEEK.toApiFormat());

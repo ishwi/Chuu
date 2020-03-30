@@ -144,10 +144,11 @@ public class MusicBrainzCommand extends ChartableCommand {
     }
 
     @Override
-    public void configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+    public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
         Year year = ((ChartYearParameters) params).getYear();
-
-        pieChart.setTitle(initTitle + "s top albums from " + year.toString() + params.getTimeFrameEnum().getDisplayString());
+        String time = params.getTimeFrameEnum().getDisplayString();
+        pieChart.setTitle(String.format("%ss top albums from %s%s", initTitle, year.toString(), time));
+        return String.format("%s has %d albums from %s in their top %d albums%s (showing top %d)", initTitle, count, year.toString(), searchSpace, time, params.getX() * params.getY());
     }
 
     @Override
