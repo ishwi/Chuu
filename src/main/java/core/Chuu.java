@@ -36,7 +36,10 @@ public class Chuu {
     private static Logger logger;
 
     public static void addGuildPrefix(long guildId, Character prefix) {
-        prefixMap.replace(guildId, prefix);
+        Character replace = prefixMap.replace(guildId, prefix);
+        if (replace == null) {
+            prefixMap.put(guildId, prefix);
+        }
     }
 
     public static Character getCorrespondingPrefix(MessageReceivedEvent e) {
