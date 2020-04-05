@@ -122,7 +122,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
         try {
             java.net.URL url = new java.net.URL(returnNowPlaying.getUrl());
             BufferedImage backgroundImage = Scalr.resize(ImageIO.read(url), 300);
-            g.drawImage(backgroundImage, 10 + backgroundImage.getWidth(), 750 - 10 - backgroundImage.getHeight(), null);
+            g.drawImage(backgroundImage, 10, 750 - 10 - backgroundImage.getHeight(), null);
         } catch (IOException ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);
         }

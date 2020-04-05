@@ -43,7 +43,7 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
 
     @Override
     public ResultWrapper<ArtistPlays> getList(String[] message, MessageReceivedEvent e) {
-        return getService().getArtistFrequencies(e.getGuild().getIdLong());
+        return getService().getArtistsFrequencies(e.getGuild().getIdLong());
     }
 
     @Override

@@ -88,7 +88,8 @@ public class SummaryArtistCommand extends ConcurrentCommand {
 
         if (e.isFromGuild()) {
             long serverArtistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
-            embedBuilder.addField(String.format("Listeners in %s", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), String.valueOf(serverArtistPlays), true);
+            long artistFrequencies = getService().getArtistFrequencies(e.getGuild().getIdLong());
+            embedBuilder.addField(String.format("Listeners in %s", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), String.valueOf(artistFrequencies), true);
             embedBuilder.addField(String.format("Scrobbles in %s", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), String.valueOf(serverArtistPlays), true);
         }
         if (artistDetails != null) {

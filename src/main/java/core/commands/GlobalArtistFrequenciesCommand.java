@@ -39,7 +39,7 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
 
     @Override
     public ResultWrapper<ArtistPlays> getList(String[] message, MessageReceivedEvent e) {
-        return getService().getArtistFrequenciesGlobal();
+        return getService().getArtistsFrequenciesGlobal();
     }
 
     @Override

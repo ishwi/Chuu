@@ -205,7 +205,7 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand {
         try {
             java.net.URL url = new java.net.URL(returnNowPlaying.getUrl());
             BufferedImage backgroundImage = ImageIO.read(url);
-            g.drawImage(backgroundImage, 1000 - backgroundImage.getWidth() - 10, 750 - 10 - backgroundImage.getHeight(), null);
+            g.drawImage(backgroundImage, 10, 750 - 10 - backgroundImage.getHeight(), null);
         } catch (IOException ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);
 

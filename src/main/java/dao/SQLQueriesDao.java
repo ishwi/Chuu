@@ -55,7 +55,7 @@ interface SQLQueriesDao {
 
     ResultWrapper<ArtistPlays> getArtistPlayCount(Connection connection, Long guildId);
 
-    ResultWrapper<ArtistPlays> getArtistFrequencies(Connection connection, Long guildId);
+    ResultWrapper<ArtistPlays> getArtistsFrequencies(Connection connection, Long guildId);
 
     ResultWrapper<ArtistPlays> getGlobalArtistPlayCount(Connection connection);
 
@@ -73,4 +73,6 @@ interface SQLQueriesDao {
     List<String> getArtistAliases(Connection connection, long artistId);
 
     long getArtistPlays(Connection connection, Long guildID, long artistId);
+
+    long getArtistFrequencies(Connection connection, long guildID);
 }

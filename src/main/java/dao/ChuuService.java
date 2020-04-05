@@ -748,7 +748,16 @@ public class ChuuService {
         }
     }
 
-    public ResultWrapper<ArtistPlays> getArtistFrequencies(long guildID) {
+    public ResultWrapper<ArtistPlays> getArtistsFrequencies(long guildID) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getArtistsFrequencies(connection, guildID);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public long getArtistFrequencies(long guildID) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.getArtistFrequencies(connection, guildID);
@@ -757,7 +766,8 @@ public class ChuuService {
         }
     }
 
-    public ResultWrapper<ArtistPlays> getArtistFrequenciesGlobal() {
+
+    public ResultWrapper<ArtistPlays> getArtistsFrequenciesGlobal() {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.getGlobalArtistFrequencies((connection));

@@ -156,7 +156,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public ResultWrapper<ArtistPlays> getArtistFrequencies(Connection connection, Long guildId) {
+    public ResultWrapper<ArtistPlays> getArtistsFrequencies(Connection connection, Long guildId) {
         @Language("MariaDB") String queryBody =
                 "FROM  (SELECT artist_id " +
                 "FROM scrobbled_artist a" +
@@ -401,6 +401,35 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         }
     }
 
+    @Override
+    public long getArtistFrequencies(Connection connection, long guildID) {
+
+        @Language("MariaDB") String queryBody =
+                "FROM  (SELECT artist_id " +
+                "FROM scrobbled_artist a" +
+                " JOIN user b  " +
+                " ON a.lastfm_id = b.lastfm_id " +
+                " JOIN user_guild c " +
+                " ON b.discord_id = c.discord_id" +
+                " WHERE c.guild_id = ?) main" +
+                " JOIN artist b ON" +
+                " main.artist_id = b.id ";
+
+        String countQuery = "Select count(*) " + queryBody;
+        try (PreparedStatement preparedStatement2 = connection.prepareStatement(countQuery)) {
+            preparedStatement2.setLong(1, guildID);
+
+            ResultSet resultSet = preparedStatement2.executeQuery();
+            if (!resultSet.next()) {
+                return 0;
+            }
+            return resultSet.getLong(1);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @Override
     public UniqueWrapper<ArtistPlays> getUniqueArtist(Connection connection, Long guildID, String lastfmId) {
@@ -631,7 +660,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public ResultWrapper<ScrobbledArtist> getGuildTop(Connection connection, Long guildID, int limit, boolean doCount) {
+    public ResultWrapper<ScrobbledArtist> getGuildTop(Connection connection, Long guildID, int limit,
+                                                      boolean doCount) {
         //TODO LIMIT
         @Language("MariaDB") String normalQUery = "SELECT d.name, sum(playnumber) AS orden ,url  ";
 

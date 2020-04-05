@@ -53,10 +53,10 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand {
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
         long artistPlays;
         if (e.isFromGuild()) {
+            artistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
+        } else {
             LastFMData data = getService().findLastFMData(whom);
             artistPlays = getService().getArtistPlays(scrobbledArtist.getArtistId(), data.getName());
-        } else {
-            artistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
         }
         String usableString;
         if (e.isFromGuild()) {

@@ -74,7 +74,6 @@ public abstract class ResultWrappedCommand<T, Y extends CommandParameters> exten
         Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(s, g);
         g.drawString(s, 1000 - 10 - (int) stringBounds.getWidth(), 740 - 2);
         sendImage(bufferedImage, chartParameters.getE());
-        sendImage(bufferedImage, chartParameters.getE());
     }
 
     protected abstract String fillPie(PieChart pieChart, Y params, int count);
