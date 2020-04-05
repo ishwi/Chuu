@@ -1,21 +1,41 @@
 package core.commands;
 
+import core.commands.util.PieableResultWrapper;
 import core.otherlisteners.Reactionary;
+import core.parsers.params.CommandParameters;
+import core.parsers.params.OptionalParameter;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistPlays> {
+public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
     public GlobalArtistFrequenciesCommand(ChuuService dao) {
         super(dao);
+        this.pie = new PieableResultWrapper<>(
+                ArtistPlays::getArtistName,
+                ArtistPlays::getCount);
     }
+
+    @Override
+    public CommandParameters getParameters(MessageReceivedEvent e, String[] message) {
+        return new CommandParameters(message, e, new OptionalParameter("--pie", 0));
+    }
+
+    @Override
+    protected String fillPie(PieChart pieChart, CommandParameters params, int count) {
+        String name = params.getE().getJDA().getSelfUser().getName();
+        pieChart.setTitle(name + "'s most popular artists");
+        return String.format("%s has %d different artists! (showing top %d)", name, count, 15);
+    }
+
 
     @Override
     public ResultWrapper<ArtistPlays> getList(String[] message, MessageReceivedEvent e) {
@@ -23,7 +43,7 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
     }
 
     @Override
-    public void printList(ResultWrapper<ArtistPlays> list, MessageReceivedEvent e) {
+    public void printList(ResultWrapper<ArtistPlays> list, MessageReceivedEvent e, CommandParameters commandParameters) {
         if (list.getRows() == 0) {
             sendMessageQueue(e, "No one has ever played any artist yet!");
         }

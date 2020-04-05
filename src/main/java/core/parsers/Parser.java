@@ -90,8 +90,14 @@ public abstract class Parser {
     }
 
     public void sendError(String message, MessageReceivedEvent e) {
-        String errorBase = "Error on " + e.getAuthor().getName() + "'s request:\n";
+        String errorBase = "Error on " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + "'s request:\n";
         sendMessage(new MessageBuilder().append(CommandUtil.sanitizeUserString(errorBase)).append(CommandUtil.sanitizeUserString(message)).build(), e);
+    }
+
+    public void sendFocusedError(String message, MessageReceivedEvent e, long discordID) {
+        String username = CommandUtil.getUserInfoNotStripped(e, discordID).getUsername();
+        String errorBase = "Error on " + CommandUtil.cleanMarkdownCharacter(username) + "'s request:\n";
+        sendMessage(new MessageBuilder().append(CommandUtil.sanitizeUserString(errorBase)).append(message).build(), e);
     }
 
 
@@ -106,8 +112,12 @@ public abstract class Parser {
 
     public void replaceOptional(String previousOptional, OptionalEntity optionalEntity) {
         int i = opts.indexOf(new OptionalEntity(previousOptional, null));
-        opts.remove(i);
-        opts.add(i, optionalEntity);
+        if (i != -1) {
+            opts.remove(i);
+            opts.add(i, optionalEntity);
+        } else {
+            opts.add(optionalEntity);
+        }
     }
 
     public void addOptional(OptionalEntity... optionalEntity) {

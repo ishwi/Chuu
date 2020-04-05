@@ -1,5 +1,9 @@
 package dao.entities;
 
+import core.parsers.PaceParser;
+
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -87,6 +91,34 @@ public enum TimeFrameEnum {
 
     }
 
+    public LocalDateTime toLocalDate(int count) {
+
+        LocalDateTime localDate;
+        switch (this) {
+            case YEAR:
+                localDate = LocalDateTime.now().minus(count, ChronoUnit.YEARS);
+                break;
+            case QUARTER:
+                localDate = LocalDateTime.now().minus(3 * count, ChronoUnit.MONTHS);
+                break;
+            case MONTH:
+                localDate = LocalDateTime.now().minus(count, ChronoUnit.MONTHS);
+                break;
+            case ALL:
+                localDate = PaceParser.LASTFM_CREATION_DATE.atStartOfDay();
+                break;
+            case SEMESTER:
+                localDate = LocalDateTime.now().minus(6 * count, ChronoUnit.MONTHS);
+                break;
+            case WEEK:
+                localDate = LocalDateTime.now().minus(7 * count, ChronoUnit.DAYS);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + this);
+        }
+        return localDate;
+
+    }
 }
 
 

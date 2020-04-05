@@ -11,6 +11,10 @@ public class ArtistSongParser extends ArtistAlbumParser {
         super(dao, lastFM);
     }
 
+    public ArtistSongParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... o) {
+        super(dao, lastFM, o);
+    }
+
     @Override
     String[] doSomethingWithNp(NowPlayingArtist np, User ignored, MessageReceivedEvent e) {
         return new String[]{np.getArtistName(), np.getSongName(), String.valueOf(e.getAuthor().getIdLong())};

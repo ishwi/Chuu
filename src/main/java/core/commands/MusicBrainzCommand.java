@@ -60,13 +60,8 @@ public class MusicBrainzCommand extends ChartableCommand {
         long discordId = Long.parseLong(returned[1]);
         String username = returned[2];
         String time = returned[3];
-        boolean titleWrite = !Boolean.parseBoolean(returned[5]);
-        boolean playsWrite = Boolean.parseBoolean(returned[6]);
-        boolean isList = Boolean.parseBoolean(returned[7]);
-        boolean isPie = Boolean.parseBoolean(returned[8]);
-
         int x = (int) Math.sqrt(searchSpace);
-        return new ChartYearParameters(username, discordId, TimeFrameEnum.fromCompletePeriod(time), x, x, e, titleWrite, playsWrite, isList, isPie, year, false);
+        return new ChartYearParameters(returned, username, discordId, TimeFrameEnum.fromCompletePeriod(time), x, x, e, year);
     }
 
 

@@ -80,7 +80,11 @@ public class GlobalArtistCommand extends ConcurrentCommand {
             embedBuilder.addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), false);
 
         }
-        embedBuilder.addField("Total Plays:", String.valueOf(totalPlays), false);
+        embedBuilder.addField("Total Plays:", String.valueOf(totalPlays), true);
+        if (e.isFromGuild()) {
+            long serverArtistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), validable.getArtistId());
+            embedBuilder.addField("Server Plays:", String.valueOf(serverArtistPlays), true);
+        }
         embedBuilder.addField("Total Listeners:", String.valueOf(totalPeople), false);
 
 

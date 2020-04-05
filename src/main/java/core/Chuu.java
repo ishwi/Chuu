@@ -210,7 +210,10 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new WastedChartCommand(dao)))
                 .addEventListeners(help.registerCommand(new WastedAlbumChartCommand(dao)))
                 .addEventListeners(help.registerCommand(new WastedTrackCommand(dao)))
-                .addEventListeners(help.registerCommand(new ReportReviewCommand(dao)));
+                .addEventListeners(help.registerCommand(new ReportReviewCommand(dao)))
+                .addEventListeners(help.registerCommand(new GuildArtistPlaysCommand(dao)))
+                .addEventListeners(help.registerCommand(new ScrobblesSinceCommand(dao)))
+                .addEventListeners(help.registerCommand(new UserResumeCommand(dao)));
 
 
         try {

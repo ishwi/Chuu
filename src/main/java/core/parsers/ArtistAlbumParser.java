@@ -20,86 +20,92 @@ public class ArtistAlbumParser extends DaoParser {
         this.lastFM = lastFM;
     }
 
+    public ArtistAlbumParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... o) {
+        super(dao);
+        this.lastFM = lastFM;
+        this.opts.addAll(Arrays.asList(o));
+    }
+
 
     @Override
     public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
         User sample;
 
         if (e.isFromGuild()) {
-			List<Member> members = e.getMessage().getMentionedMembers();
-			if (!members.isEmpty()) {
-				if (members.size() != 1) {
-					sendError("Only one user pls", e);
-					return null;
-				}
-				sample = members.get(0).getUser();
-				subMessage = Arrays.stream(subMessage).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
-			} else {
-				sample = e.getMember().getUser();
-			}
-		} else
-			sample = e.getAuthor();
+            List<Member> members = e.getMessage().getMentionedMembers();
+            if (!members.isEmpty()) {
+                if (members.size() != 1) {
+                    sendError("Only one user pls", e);
+                    return null;
+                }
+                sample = members.get(0).getUser();
+                subMessage = Arrays.stream(subMessage).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
+            } else {
+                sample = e.getMember().getUser();
+            }
+        } else
+            sample = e.getAuthor();
 
-		if (subMessage.length == 0) {
+        if (subMessage.length == 0) {
 
-			NowPlayingArtist np;
+            NowPlayingArtist np;
 
-			String userName = dao.findLastFMData(sample.getIdLong()).getName();
-			np = lastFM.getNowPlayingInfo(userName);
+            String userName = dao.findLastFMData(sample.getIdLong()).getName();
+            np = lastFM.getNowPlayingInfo(userName);
 
-			return doSomethingWithNp(np, sample, e);
+            return doSomethingWithNp(np, sample, e);
 
-		} else {
-			return doSomethingWithString(subMessage, sample, e);
-		}
-	}
+        } else {
+            return doSomethingWithString(subMessage, sample, e);
+        }
+    }
 
 
-	String[] doSomethingWithNp(NowPlayingArtist np, User ignored, MessageReceivedEvent e) {
-		return new String[]{np.getArtistName(), np.getAlbumName(), String.valueOf(e.getAuthor().getIdLong())};
-	}
+    String[] doSomethingWithNp(NowPlayingArtist np, User ignored, MessageReceivedEvent e) {
+        return new String[]{np.getArtistName(), np.getAlbumName(), String.valueOf(e.getAuthor().getIdLong())};
+    }
 
-	String[] doSomethingWithString(String[] subMessage, User sample, MessageReceivedEvent e) {
-		StringBuilder builder = new StringBuilder();
-		for (String s : subMessage) {
-			builder.append(s).append(" ");
-		}
-		String s = builder.toString();
-		//To escape the "-" that could appear on some cases
-		String regex = "(?<!\\\\)" + ("\\s*-\\s*");
-		String[] content = s.split(regex);
+    String[] doSomethingWithString(String[] subMessage, User sample, MessageReceivedEvent e) {
+        StringBuilder builder = new StringBuilder();
+        for (String s : subMessage) {
+            builder.append(s).append(" ");
+        }
+        String s = builder.toString();
+        //To escape the "-" that could appear on some cases
+        String regex = "(?<!\\\\)" + ("\\s*-\\s*");
+        String[] content = s.split(regex);
 
-		//String[] content = s.split("\\s*-\\s*");
+        //String[] content = s.split("\\s*-\\s*");
 
-		if (content.length < 2) {
-			sendError(this.getErrorMessage(5), e);
-			return null;
-		}
-		if (content.length > 2) {
-			sendError(this.getErrorMessage(7), e);
-			return null;
-		}
+        if (content.length < 2) {
+            sendError(this.getErrorMessage(5), e);
+            return null;
+        }
+        if (content.length > 2) {
+            sendError(this.getErrorMessage(7), e);
+            return null;
+        }
 
-		String artist = content[0].trim().replaceAll("\\\\-", "-");
-		String album = content[1].trim().replaceAll("\\\\-", "-");
+        String artist = content[0].trim().replaceAll("\\\\-", "-");
+        String album = content[1].trim().replaceAll("\\\\-", "-");
 
-		return new String[]{artist, album, String.valueOf(sample.getIdLong())};
-	}
+        return new String[]{artist, album, String.valueOf(sample.getIdLong())};
+    }
 
-	@Override
-	public String getUsageLogic(String commandName) {
-		return "**" + commandName + " *artist-album** username* " +
+    @Override
+    public String getUsageLogic(String commandName) {
+        return "**" + commandName + " *artist-album** username* " +
                "\n\tif username its not specified it defaults to yours";
 
-	}
+    }
 
-	@Override
-	public void setUpErrorMessages() {
-		super.setUpErrorMessages();
-		errorMessages.put(5, "You need to use - to separate artist and album!");
-		errorMessages
-				.put(7, "You need to add the escape character **\"\\\\\"** in the **\"-\"** that appear on the album or artist.\n " +
-						"\tFor example: Artist - Alb**\\\\-**um  ");
+    @Override
+    public void setUpErrorMessages() {
+        super.setUpErrorMessages();
+        errorMessages.put(5, "You need to use - to separate artist and album!");
+        errorMessages
+                .put(7, "You need to add the escape character **\"\\\\\"** in the **\"-\"** that appear on the album or artist.\n " +
+                        "\tFor example: Artist - Alb**\\\\-**um  ");
 
-	}
+    }
 }

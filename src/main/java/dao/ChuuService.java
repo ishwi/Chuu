@@ -261,10 +261,10 @@ public class ChuuService {
         }
     }
 
-    public List<UrlCapsule> getGuildTop(Long guildID, int limit) {
+    public ResultWrapper<ScrobbledArtist> getGuildTop(Long guildID, int limit, boolean doCount) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getGuildTop(connection, guildID, limit);
+            return queriesDao.getGuildTop(connection, guildID, limit, doCount);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -766,7 +766,26 @@ public class ChuuService {
         }
     }
 
-    public ResultWrapper<ArtistPlays> getArtistPlayCount(long guildID) {
+    public long getGlobalArtistPlays(long artistId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getArtistPlays(connection, null, artistId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public long getServerArtistPlays(long guildID, long artistId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getArtistPlays(connection, guildID, artistId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public ResultWrapper<ArtistPlays> getServerArtistsPlays(long guildID) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.getArtistPlayCount(connection, guildID);

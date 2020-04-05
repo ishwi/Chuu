@@ -18,7 +18,7 @@ interface SQLQueriesDao {
 
     UniqueWrapper<ArtistPlays> getCrowns(Connection connection, String lastFmId, long guildID);
 
-    List<UrlCapsule> getGuildTop(Connection connection, Long guildID, int limit);
+    ResultWrapper<ScrobbledArtist> getGuildTop(Connection connection, Long guildID, int limit, boolean doCount);
 
     int userPlays(Connection con, long artistId, String whom);
 
@@ -71,4 +71,6 @@ interface SQLQueriesDao {
 
 
     List<String> getArtistAliases(Connection connection, long artistId);
+
+    long getArtistPlays(Connection connection, Long guildID, long artistId);
 }

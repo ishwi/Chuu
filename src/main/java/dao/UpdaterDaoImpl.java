@@ -376,9 +376,9 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
     @Override
     public RandomUrlEntity getRandomUrl(Connection con) {
-        String queryString = "SELECT * FROM randomlinks WHERE url IN " +
-                             "    (SELECT url FROM (SELECT url FROM randomlinks ORDER BY RAND() LIMIT 1) random)\n" +
-                             "        ";
+        String queryString = "SELECT * FROM randomlinks WHERE discord_id IN \n" +
+                             "(SELECT discord_id FROM (SELECT discord_id,count(*)   ,-log(1-rand()) / log(count(*) + 1)  AS ra FROM randomlinks GROUP BY discord_id ORDER BY ra LIMIT 1) t)  \n" +
+                             " ORDER BY rand() LIMIT 1;";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Execute query. */
@@ -387,7 +387,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 return null;
 
             String url = resultSet.getString("url");
-            long discordID = resultSet.getLong("discord_Id");
+            Long discordID = resultSet.getLong("discord_Id");
             Long guildId = resultSet.getLong("guild_Id");
             return new RandomUrlEntity(url, discordID, guildId);
 
@@ -746,7 +746,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     public ReportEntity getReportEntity(Connection connection, LocalDateTime localDateTime) {
 
         String queryString = "SELECT b.id,count(*) AS reportcount,b.score,\n" +
-                             "min(a.report_date) AS l,b.added_date,b.discord_id,c.name,c.url,(SELECT count(*) FROM reported WHERE discord_id = b.discord_id),b.artist_id\n" +
+                             "min(a.report_date) AS l,b.added_date,b.discord_id,c.name,b.url,(SELECT count(*) FROM log_reported WHERE reported = b.discord_id),b.artist_id\n" +
                              "FROM reported a JOIN \n" +
                              "alt_url b ON a.alt_id = b.id JOIN\n" +
                              "artist c ON b.artist_id = c.id\n" +

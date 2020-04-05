@@ -29,7 +29,7 @@ public class OptionalEntity {
         return this.value.equalsIgnoreCase(((OptionalEntity) o).value);
     }
 
-    String getValue() {
+    public String getValue() {
         return value;
     }
 }

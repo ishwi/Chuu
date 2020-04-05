@@ -65,7 +65,7 @@ public class ChartParser extends DaoParser {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *[w,m,q,s,y,a]* *sizeXsize*  *Username* ** \n" +
-               "\tIf time is not specified defaults to Yearly \n" +
+               "\tIf time is not specified defaults to " + this.defaultTFE.name().toLowerCase() + "\n" +
                "\tIf username is not specified defaults to authors account \n" +
                "\tIf Size not specified it defaults to 5x5\n";
     }

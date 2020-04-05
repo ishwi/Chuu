@@ -15,6 +15,7 @@ import dao.ChuuService;
 import dao.entities.CountWrapper;
 import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.knowm.xchart.PieChart;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -58,7 +59,8 @@ public abstract class GroupingChartCommand extends ChartableCommand {
             int sum = urlCapsules.stream().mapToInt(x -> ((TrackDurationChart) x).getSeconds()).sum();
             countWrapper.setRows(sum);
             if (chartGroupParameters.isPieFormat()) {
-                doPie(urlCapsules, chartGroupParameters, countWrapper.getRows());
+                PieChart pieChart = this.pie.doPie(chartGroupParameters, urlCapsules);
+                doPie(pieChart, chartGroupParameters, countWrapper.getRows());
             } else {
                 doList(urlCapsules, chartGroupParameters, countWrapper.getRows());
             }

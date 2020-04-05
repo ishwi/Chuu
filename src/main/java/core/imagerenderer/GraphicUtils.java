@@ -76,7 +76,7 @@ public class GraphicUtils {
         return new Color(a);
     }
 
-    static Color makeMoreTransparent(Color fontColor, float percentage) {
+    public static Color makeMoreTransparent(Color fontColor, float percentage) {
         float[] rgb2 = new float[3];
         fontColor.getRGBColorComponents(rgb2);
         return new Color(rgb2[0], rgb2[1], rgb2[2], percentage);
@@ -115,7 +115,7 @@ public class GraphicUtils {
         doChart(g, x, y_counter, width, height, max_rows, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, true, font);
     }
 
-    static void doChart(Graphics2D g, int x, int y_counter, int width, int row_height, int max_rows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, boolean doNumber, Font font) {
+    public static void doChart(Graphics2D g, int x, int y_counter, int width, int row_height, int max_rows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, boolean doNumber, Font font) {
 
         Font ogFont = g.getFont();
         Color ogColor = g.getColor();

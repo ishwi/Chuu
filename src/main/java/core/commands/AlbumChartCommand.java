@@ -36,7 +36,7 @@ public class AlbumChartCommand extends ChartableCommand {
 
     @Override
     public String getName() {
-        return null;
+        return "Chart";
     }
 
     @Override

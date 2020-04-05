@@ -1,29 +1,48 @@
 package core.commands;
 
+import core.commands.util.PieableResultWrapper;
 import core.otherlisteners.Reactionary;
+import core.parsers.params.CommandParameters;
+import core.parsers.params.OptionalParameter;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.knowm.xchart.PieChart;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlays> {
+public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
 
     public TotalArtistPlayCountCommand(ChuuService dao) {
         super(dao);
+        this.pie = new PieableResultWrapper<>(
+                ArtistPlays::getArtistName,
+                ArtistPlays::getCount);
+    }
+
+    @Override
+    public CommandParameters getParameters(MessageReceivedEvent e, String[] message) {
+        return new CommandParameters(message, e, new OptionalParameter("--pie", 0));
+    }
+
+    @Override
+    protected String fillPie(PieChart pieChart, CommandParameters params, int count) {
+        String name = params.getE().getGuild().getName();
+        pieChart.setTitle(name + "'s total artist plays");
+        return String.format("%s has a total of %d plays (showing top %d)", name, count, 15);
     }
 
     @Override
     public ResultWrapper<ArtistPlays> getList(String[] message, MessageReceivedEvent e) {
-        return getService().getArtistPlayCount(e.getGuild().getIdLong());
+        return getService().getServerArtistsPlays(e.getGuild().getIdLong());
     }
 
     @Override
-    public void printList(ResultWrapper<ArtistPlays> wrapper, MessageReceivedEvent e) {
+    public void printList(ResultWrapper<ArtistPlays> wrapper, MessageReceivedEvent e, CommandParameters commandParameters) {
         List<ArtistPlays> list = wrapper.getResultList();
         if (list.size() == 0) {
             sendMessageQueue(e, "No one has played any artist yet!");

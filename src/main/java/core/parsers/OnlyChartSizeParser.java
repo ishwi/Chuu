@@ -6,11 +6,20 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.awt.*;
 
 public class OnlyChartSizeParser extends OptionableParser {
-    public OnlyChartSizeParser(OptionalEntity optionalEntity) {
+    public OnlyChartSizeParser(OptionalEntity... optionalEntity) {
         super(optionalEntity);
     }
 
     @Override
+    void setUpOptionals() {
+        opts.add(new OptionalEntity("--notitles", "dont display titles"));
+        opts.add(new OptionalEntity("--plays", "display play count"));
+        opts.add(new OptionalEntity("--list", "display it as an embed"));
+        opts.add(new OptionalEntity("--pie", "display it as a chart pie"));
+    }
+
+    @Override
+
     protected void setUpErrorMessages() {
         errorMessages.put(1, "0 is not a valid value for a chart!");
     }

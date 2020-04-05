@@ -1,7 +1,6 @@
 package core.apis.last;
 
 import core.apis.ClientSingleton;
-import core.apis.last.queues.ArtistQueue;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFMServiceException;
 import core.exceptions.LastFmEntityNotFoundException;
@@ -20,6 +19,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.BiFunction;
@@ -1035,9 +1035,13 @@ public class ConcurrentLastFM {//implements LastFMService {
         return track;
     }
 
-    public void getTimeWasted(String username, String time, int x, int y, boolean b, ArtistQueue queue) {
 
-
+    public int scrobblesSince(String username, OffsetDateTime date) throws LastFmException {
+        long time = date.toEpochSecond();
+        String url = BASE + GET_ALL + username + API_KEY + ENDING + "&extended=0&limit=1&from=" + (time + 1);
+        JSONObject obj = initGetRecentTracks(username, url, TimeFrameEnum.ALL);
+        JSONObject attrObj = obj.getJSONObject("@attr");
+        return attrObj.getInt("total");
     }
 }
 

@@ -1,14 +1,12 @@
 package dao;
 
 import core.Chuu;
-import core.apis.last.chartentities.ArtistChart;
 import dao.entities.*;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class SQLQueriesDaoImpl implements SQLQueriesDao {
@@ -201,12 +199,12 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         String normalQuery = "SELECT b.name, sum(playNumber) AS orden " + queryString + "     GROUP BY artist_id  ORDER BY orden DESC  Limit 200";
         String countQuery = "Select sum(playNumber) " + queryString;
 
-        return getArtistPlaysResultWrapper(connection, queryString, normalQuery, countQuery);
+        return getArtistPlaysResultWrapper(connection, normalQuery, countQuery);
 
     }
 
     @NotNull
-    private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(Connection connection, String queryString, String normalQuery, String countQuery) {
+    private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(Connection connection, String normalQuery, String countQuery) {
         int rows;
         try (PreparedStatement preparedStatement2 = connection.prepareStatement(countQuery)) {
 
@@ -236,7 +234,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
         String normalQuery = "SELECT b.name, count(*) AS orden " + queryString + "     GROUP BY artist_id  ORDER BY orden DESC  Limit 200";
         String countQuery = "Select count(*)" + queryString;
-        return getArtistPlaysResultWrapper(connection, queryString, normalQuery, countQuery);
+        return getArtistPlaysResultWrapper(connection, normalQuery, countQuery);
 
     }
 
@@ -353,6 +351,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         }
     }
 
+
     @Override
     public List<String> getArtistAliases(Connection connection, long artistId) {
         @Language("MariaDB") String queryString = "SELECT alias FROM corrections WHERE artist_id = ? ";
@@ -374,6 +373,32 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         }
 
 
+    }
+
+    @Override
+    public long getArtistPlays(Connection connection, Long guildID, long artistId) {
+        @Language("MariaDB") String queryString = "SELECT sum(playnumber) FROM scrobbled_artist a " +
+                                                  "JOIN user b " +
+                                                  "ON a.lastfm_id = b.lastfm_id " +
+                                                  "JOIN user_guild c " +
+                                                  " ON b.discord_id = c.discord_id " +
+                                                  " WHERE  artist_id = ?";
+        if (guildID != null) {
+            queryString += " and c.guild_id = ?";
+        }
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, artistId);
+            if (guildID != null) {
+                preparedStatement.setLong(2, guildID);
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -606,47 +631,62 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public List<UrlCapsule> getGuildTop(Connection connection, Long guildID, int limit) {
+    public ResultWrapper<ScrobbledArtist> getGuildTop(Connection connection, Long guildID, int limit, boolean doCount) {
         //TODO LIMIT
-        @Language("MariaDB") String queryString = "SELECT d.name, sum(playnumber) AS orden ,url  " +
-                                                  "FROM  scrobbled_artist a" +
-                                                  " JOIN user b" +
-                                                  " ON a.lastfm_id = b.lastfm_id" +
-                                                  " JOIN artist d " +
-                                                  " ON a.artist_id = d.id";
+        @Language("MariaDB") String normalQUery = "SELECT d.name, sum(playnumber) AS orden ,url  ";
+
+        String countQuery = "Select count(*) as orden ";
+
+
+        String queryBody = "FROM  scrobbled_artist a" +
+                           " JOIN user b" +
+                           " ON a.lastfm_id = b.lastfm_id" +
+                           " JOIN artist d " +
+                           " ON a.artist_id = d.id";
         if (guildID != null) {
-
-            queryString += " JOIN  user_guild c" +
-                           " ON b.discord_id=c.discord_id" +
-                           " WHERE c.guild_id = ?";
+            queryBody += " JOIN  user_guild c" +
+                         " ON b.discord_id=c.discord_id" +
+                         " WHERE c.guild_id = ?";
         }
-        queryString += " GROUP BY artist_id,url" +
-                       " ORDER BY orden DESC" +
-                       " LIMIT ?;";
-        List<UrlCapsule> list = new LinkedList<>();
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            int i = 1;
+        List<ScrobbledArtist> list = new ArrayList<>();
+        int count = 0;
+        int i = 1;
+        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY artist_id,url  ORDER BY orden DESC  limit ?")) {
             if (guildID != null)
-                preparedStatement.setLong(i++, guildID);
+                preparedStatement1.setLong(i++, guildID);
 
-            preparedStatement.setInt(i, limit);
+            preparedStatement1.setInt(i, limit);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
-            int count = 0;
-            while (resultSet.next()) {
-                String artist = resultSet.getString("d.name");
-                String url = resultSet.getString("url");
+            ResultSet resultSet1 = preparedStatement1.executeQuery();
 
-                int plays = resultSet.getInt("orden");
+            while (resultSet1.next()) {
+                String artist = resultSet1.getString("d.name");
+                String url = resultSet1.getString("url");
 
-                UrlCapsule capsule = new ArtistChart(url, count++, artist, null, plays, true, true);
-                list.add(capsule);
+                int plays = resultSet1.getInt("orden");
+                ScrobbledArtist who = new ScrobbledArtist(artist, plays, url);
+                list.add(who);
+            }
+            if (doCount) {
+
+                PreparedStatement preparedStatement = connection.prepareStatement(countQuery + queryBody);
+                i = 1;
+                if (guildID != null)
+                    preparedStatement.setLong(i, guildID);
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    count = resultSet.getInt(1);
+                }
+
+
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
-        return list;
+        return new ResultWrapper<>(count, list);
     }
 
     @Override
@@ -885,7 +925,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser, long guildId) {
+    public StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser,
+                                                long guildId) {
         List<StolenCrown> returnList = new ArrayList<>();
         long discordid;
         long discordid2;
@@ -970,7 +1011,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public UniqueWrapper<ArtistPlays> getUserAlbumCrowns(Connection connection, String lastfmId, long guildId) {
+    public UniqueWrapper<ArtistPlays> getUserAlbumCrowns(Connection connection, String lastfmId,
+                                                         long guildId) {
 
         @Language("MariaDB") String queryString = "SELECT a2.name ,a.album,a.plays,b.discord_id " +
                                                   "FROM album_crowns a " +
@@ -1153,7 +1195,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
     //TriFunction is not the simplest approach but i felt like using it so :D
     @NotNull
-    private List<LbEntry> getLbEntries(Connection connection, long guildId, String queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needs_reSet) {
+    private List<LbEntry> getLbEntries(Connection connection, long guildId, String
+            queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needs_reSet) {
         List<LbEntry> returnedList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;

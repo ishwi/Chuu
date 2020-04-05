@@ -61,6 +61,7 @@ public class SummaryArtistCommand extends ConcurrentCommand {
         LastFMData data = getService().findLastFMData(whom);
         ArtistSummary summary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data.getName());
         ArtistMusicBrainzDetails artistDetails = mb.getArtistDetails(new ArtistInfo(null, summary.getArtistname(), summary.getMbid()));
+        long globalArtistPlays = getService().getGlobalArtistPlays(scrobbledArtist.getArtistId());
 
         String username = getUserString(e, whom, data.getName());
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -81,7 +82,15 @@ public class SummaryArtistCommand extends ConcurrentCommand {
         embedBuilder.setTitle("Information about " + CommandUtil.cleanMarkdownCharacter(summary.getArtistname()), CommandUtil.getLastFmArtistUrl(scrobbledArtist.getArtist()))
                 .addField(username + "'s plays:", String.valueOf(summary.getUserPlayCount()), true)
                 .addField("Listeners:", String.valueOf(summary.getListeners()), true)
-                .addField("Scrobbles:", String.valueOf(summary.getPlaycount()), true);
+                .addField("Scrobbles:", String.valueOf(summary.getPlaycount()), true)
+                .addField(String.format("Listeners within %s: ", e.getJDA().getSelfUser().getName()), String.valueOf(globalArtistPlays), true)
+                .addField(String.format("Scrobbles within %s: ", e.getJDA().getSelfUser().getName()), String.valueOf(globalArtistPlays), true);
+
+        if (e.isFromGuild()) {
+            long serverArtistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
+            embedBuilder.addField(String.format("Listeners in %s", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), String.valueOf(serverArtistPlays), true);
+            embedBuilder.addField(String.format("Scrobbles in %s", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), String.valueOf(serverArtistPlays), true);
+        }
         if (artistDetails != null) {
             if (artistDetails.getGender() != null) {
                 embedBuilder.addField("Gender:", artistDetails.getGender(), true);

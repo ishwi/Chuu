@@ -101,6 +101,7 @@ public class CommandUtil {
             scrobbledArtist.setArtist(dbCorrection);
         }
         boolean existed;
+        boolean corrected = false;
         //Find by id//
         // Doesnt exist? -> search for lastfm correction
         UpdaterStatus status = null;
@@ -110,8 +111,6 @@ public class CommandUtil {
             existed = true;
         } catch (InstanceNotFoundException e) {
             //Artist doesnt exists
-            existed = false;
-            boolean corrected = false;
             String originalArtist = scrobbledArtist.getArtist();
             String correction = lastFM.getCorrection(originalArtist);
             if (!correction.equalsIgnoreCase(originalArtist)) {
@@ -119,17 +118,19 @@ public class CommandUtil {
                 corrected = true;
             }
             try {
-                long artistId = dao.getArtistId(correction);
-                scrobbledArtist.setArtistId(artistId);
-
+                status = dao.getUpdaterStatusByName(correction);
+                scrobbledArtist.setArtistId(status.getArtistId());
+                existed = true;
             } catch (InstanceNotFoundException ex) {
                 scrobbledArtist.setArtist(correction);
                 //Mutates id
                 dao.upsertArtistSad(scrobbledArtist);
+                existed = false;
             }
             if (corrected) {
                 dao.insertCorrection(scrobbledArtist.getArtistId(), originalArtist);
             }
+
 
         }
         if (doUrlCheck) {

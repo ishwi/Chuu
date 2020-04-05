@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class PaceParser extends NumberParser<ExtraParser<NaturalTimeFrameParser, Long>> {
 
-    private final static LocalDate LASTFM_CREATION_DATE = LocalDate.of(2002, 2, 20);
+    public final static LocalDate LASTFM_CREATION_DATE = LocalDate.of(2002, 2, 20);
 
     // Dont ask
     public PaceParser(ChuuService dao, Map<Integer, String> errorMessages) {

@@ -14,57 +14,85 @@ import org.json.JSONObject;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.BiFunction;
 
-public class ChartParameters {
+public class ChartParameters extends CommandParameters {
     private final String username;
     private final long discordId;
     private final TimeFrameEnum timeFrameEnum;
     private final int x;
     private final int y;
-    private final net.dv8tion.jda.api.events.message.MessageReceivedEvent e;
     private final boolean writeTitles;
     private final boolean writePlays;
     private final boolean isList;
+
+
     private final boolean pieFormat;
 
-    public ChartParameters(String[] returned, MessageReceivedEvent e) {
+    public ChartParameters(String[] message, MessageReceivedEvent e, OptionalParameter... opts) {
+        this(message, e);
+        handleOptParameters(message, opts);
+    }
 
+    public ChartParameters(String[] returned, MessageReceivedEvent e) {
+        super(returned, e, new OptionalParameter("--notiles", 5),
+                new OptionalParameter("--plays", 6),
+                new OptionalParameter("--list", 7),
+                new OptionalParameter("--pie", 8));
         int x = Integer.parseInt(returned[0]);
         int y = Integer.parseInt(returned[1]);
         long discordId = Long.parseLong(returned[2]);
         String username = returned[3];
         String time = returned[4];
-        boolean titleWrite = !Boolean.parseBoolean(returned[5]);
-        boolean playsWrite = Boolean.parseBoolean(returned[6]);
-        boolean listFormat = Boolean.parseBoolean(returned[7]);
-        boolean pieFormat = Boolean.parseBoolean(returned[8]);
-
         this.username = username;
         this.discordId = discordId;
         this.timeFrameEnum = TimeFrameEnum.fromCompletePeriod(time);
         this.x = x;
         this.y = y;
-        this.e = e;
-        this.writeTitles = titleWrite;
-        this.writePlays = playsWrite;
-        this.isList = listFormat;
-        this.pieFormat = pieFormat;
+        this.writeTitles = !this.hasOptional("--notitles");
+        this.writePlays = this.hasOptional("--plays");
+        this.isList = this.hasOptional("--list");
+        this.pieFormat = this.hasOptional("--pie");
     }
 
-    public ChartParameters(String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, MessageReceivedEvent e, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat) {
+    public ChartParameters(String[] message, String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, MessageReceivedEvent e) {
+        this(message, username, discordId, timeFrameEnum, x, y, e, new OptionalParameter("--notiles", 5),
+                new OptionalParameter("--plays", 6),
+                new OptionalParameter("--list", 7),
+                new OptionalParameter("--pie", 8));
+
+
+    }
+
+
+    public ChartParameters(String[] message, MessageReceivedEvent e, String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat, OptionalParameter... opts) {
+        super(message, e, opts);
         this.username = username;
         this.discordId = discordId;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
         this.y = y;
-        this.e = e;
         this.writeTitles = writeTitles;
         this.writePlays = writePlays;
         this.isList = isList;
         this.pieFormat = pieFormat;
     }
 
+    public ChartParameters(String[] message, String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, MessageReceivedEvent e, OptionalParameter... opts) {
+        super(message, e, opts);
+        this.username = username;
+        this.discordId = discordId;
+        this.timeFrameEnum = timeFrameEnum;
+        this.x = x;
+        this.y = y;
+        this.writeTitles = !this.hasOptional("--notitles");
+        this.writePlays = this.hasOptional("--plays");
+        this.isList = this.hasOptional("--list");
+        this.pieFormat = this.hasOptional("--pie");
+    }
+
+
     public static ChartParameters toListParams() {
-        return new ChartParameters(null, 0, null, 0, 0, null, true, true, true, false);
+        return new ChartParameters(null, null, "", -1L, null, 0, 0, true
+                , true, true, false);
     }
 
     public int makeCommand(ConcurrentLastFM lastFM, BlockingQueue<UrlCapsule> queue, TopEntity topEntity, BiFunction<JSONObject, Integer, UrlCapsule> parser) throws LastFmException {
@@ -88,9 +116,6 @@ public class ChartParameters {
         return y;
     }
 
-    public MessageReceivedEvent getE() {
-        return e;
-    }
 
     public boolean isWriteTitles() {
         return writeTitles;
@@ -110,7 +135,7 @@ public class ChartParameters {
 
 
     public EmbedBuilder initEmbed(String titleInit, EmbedBuilder embedBuilder, String footerText) {
-        DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
+        DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoConsideringGuildOrNot(getE(), discordId);
         return embedBuilder.setTitle(discordUserDisplay.getUsername() + titleInit + this.getTimeFrameEnum().getDisplayString())
                 .setFooter(CommandUtil.markdownLessString(discordUserDisplay.getUsername()) + footerText + this.getTimeFrameEnum().getDisplayString());
     }

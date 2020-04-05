@@ -37,8 +37,12 @@ class ChartParserAux {
         return message;
     }
 
-    NaturalTimeFrameEnum parseNaturalTimeFrame(NaturalTimeFrameEnum defaultTimeFrame) {
-        NaturalTimeFrameEnum timeFrame = defaultTimeFrame;
+    NaturalTimeFrameEnum parseNaturalTimeFrame() {
+        NaturalTimeFrameEnum timeFrame = null;
+        return getNaturalTimeFrameEnum(timeFrame);
+    }
+
+    private NaturalTimeFrameEnum getNaturalTimeFrameEnum(NaturalTimeFrameEnum timeFrame) {
         Stream<String> secondStream = Arrays.stream(message).filter(s -> naturalPattern.matcher(s).matches());
         Optional<String> opt2 = secondStream.findAny();
         if (opt2.isPresent()) {
@@ -54,6 +58,11 @@ class ChartParserAux {
             message = Arrays.stream(message).filter(s -> !s.equals(opt2.get())).toArray(String[]::new);
         }
         return timeFrame;
+    }
+
+    NaturalTimeFrameEnum parseNaturalTimeFrame(NaturalTimeFrameEnum defaultTimeFrame) {
+        NaturalTimeFrameEnum timeFrame = defaultTimeFrame;
+        return getNaturalTimeFrameEnum(timeFrame);
     }
 
     TimeFrameEnum parseTimeframe(TimeFrameEnum defaultTimeFrame) {
