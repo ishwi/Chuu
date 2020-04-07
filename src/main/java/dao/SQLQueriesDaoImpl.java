@@ -402,22 +402,22 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public long getArtistFrequencies(Connection connection, long guildID) {
+    public long getArtistFrequencies(Connection connection, Long guildID, long artistId) {
 
         @Language("MariaDB") String queryBody =
-                "FROM  (SELECT artist_id " +
-                "FROM scrobbled_artist a" +
-                " JOIN user b  " +
-                " ON a.lastfm_id = b.lastfm_id " +
-                " JOIN user_guild c " +
-                " ON b.discord_id = c.discord_id" +
-                " WHERE c.guild_id = ?) main" +
-                " JOIN artist b ON" +
-                " main.artist_id = b.id ";
+                "Select count(*) from  scrobbled_artist where artist_id = ? \n";
 
-        String countQuery = "Select count(*) " + queryBody;
-        try (PreparedStatement preparedStatement2 = connection.prepareStatement(countQuery)) {
-            preparedStatement2.setLong(1, guildID);
+        if (guildID != null) queryBody += "and lastfm_id in (\n" +
+                                          "(SELECT lastfm_id from user b \n" +
+                                          " JOIN user_guild c \n" +
+                                          " ON b.discord_id = c.discord_id\n" +
+                                          " WHERE c.guild_id = ?))";
+        else queryBody += "";
+
+        try (PreparedStatement preparedStatement2 = connection.prepareStatement(queryBody)) {
+            preparedStatement2.setLong(1, artistId);
+            if (guildID != null)
+                preparedStatement2.setLong(2, guildID);
 
             ResultSet resultSet = preparedStatement2.executeQuery();
             if (!resultSet.next()) {
@@ -426,6 +426,49 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             return resultSet.getLong(1);
 
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Override
+    public List<ScrobbledArtist> getRecommendations(Connection connection, long giverDiscordId, long receiverDiscordId, boolean doPast, int limit) {
+        @Language("MariaDB") String queryBody = "SELECT \n" +
+                                                "b.name,b.url,b.id,a.playnumber \n" +
+                                                "FROM scrobbled_artist a \n" +
+                                                "JOIN artist b ON a.artist_id = b.id \n" +
+                                                "JOIN user c ON a.lastfm_id = c.lastfm_id " +
+                                                "WHERE c.discord_id =  ? \n" +
+                                                " AND  (?  OR (a.artist_id NOT IN (SELECT r.artist_id FROM past_recommendations r WHERE receiver_id =  ? ))) " +
+                                                "AND a.artist_id NOT IN " +
+                                                "(SELECT in_b.artist_id FROM scrobbled_artist in_b " +
+                                                " JOIN user in_c ON in_b.lastfm_id = in_c.lastfm_id WHERE in_c.discord_id = ? ) ORDER BY a.playnumber DESC LIMIT ?";
+
+        List<ScrobbledArtist> scrobbledArtists = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
+            int i = 1;
+            preparedStatement.setLong(i++, giverDiscordId);
+            preparedStatement.setBoolean(i++, doPast);
+            preparedStatement.setLong(i++, receiverDiscordId);
+
+            preparedStatement.setLong(i++, receiverDiscordId);
+            preparedStatement.setInt(i, limit);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                String url = resultSet.getString("url");
+                long id = resultSet.getLong("id");
+                int playnumber = resultSet.getInt("playnumber");
+
+                ScrobbledArtist scrobbledArtist = new ScrobbledArtist(name, playnumber, url);
+                scrobbledArtist.setArtistId(id);
+                scrobbledArtists.add(scrobbledArtist);
+            }
+            return scrobbledArtists;
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
@@ -480,9 +523,9 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         }
     }
 
+
     @Override
-    public ResultWrapper<UserArtistComparison> similar(Connection connection, List<String> lastfMNames) {
-        int MAX_IN_DISPLAY = 10;
+    public ResultWrapper<UserArtistComparison> similar(Connection connection, List<String> lastfMNames, int limit) {
         String userA = lastfMNames.get(0);
         String userB = lastfMNames.get(1);
 
@@ -503,7 +546,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 "ON a.artist_id=b.artist_id " +
                 "JOIN artist c " +
                 "ON c.id=b.artist_id" +
-                " ORDER BY media DESC ";
+                " ORDER BY media DESC";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -525,7 +568,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             resultSet.beforeFirst();
             /* Get results. */
             int j = 0;
-            while (resultSet.next() && (j < MAX_IN_DISPLAY && j < rows)) {
+            while (resultSet.next() && (j < limit && j < rows)) {
                 j++;
                 String name = resultSet.getString("c.name");
                 int count_a = resultSet.getInt("a.playNumber");

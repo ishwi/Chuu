@@ -101,4 +101,8 @@ interface UpdaterDao {
     int getReportCount(Connection connection);
 
     void removeReport(Connection connection, long reportId);
+
+    void insertPastRecommendation(Connection connection, long secondDiscordID, long firstDiscordID, long artistId);
+
+
 }

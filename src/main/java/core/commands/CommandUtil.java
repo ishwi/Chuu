@@ -150,23 +150,23 @@ public class CommandUtil {
 
 
     public static String getLastFmArtistUrl(String artist) {
-        return "https://www.last.fm/music/" + cleanMarkdownCharacter(encodeUrl(artist));
+        return "https://www.last.fm/music/" + encodeUrl(artist);
     }
 
     public static String getLastFmArtistAlbumUrl(String artist, String album) {
-        return "https://www.last.fm/music/" + cleanMarkdownCharacter(encodeUrl(artist)) + "/" + cleanMarkdownCharacter(encodeUrl(album));
+        return "https://www.last.fm/music/" + encodeUrl(artist) + "/" + encodeUrl(album);
     }
 
     public static String getLastFmTagUrl(String tag) {
-        return "https://www.last.fm/tag/" + cleanMarkdownCharacter(encodeUrl(tag));
+        return "https://www.last.fm/tag/" + encodeUrl(tag);
     }
 
     public static String getLastFmArtistUserUrl(String artist, String username) {
-        return getLastFmUser(username) + "/library/music/" + cleanMarkdownCharacter(encodeUrl(artist));
+        return getLastFmUser(username) + "/library/music/" + encodeUrl(artist);
     }
 
     public static String getLastFmUser(String username) {
-        return "https://www.last.fm/user/" + cleanMarkdownCharacter(username);
+        return "https://www.last.fm/user/" + encodeUrl(username);
     }
 
     public static String singlePlural(int count, String singular, String plural) {

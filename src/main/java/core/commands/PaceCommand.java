@@ -70,13 +70,13 @@ public class PaceCommand extends ConcurrentCommand {
             if (parse[0] == null) {
                 // Both null we assume next 000 milestone and thats all
                 unitNumber = 1;
-                goal = (long) (Math.ceil(playCount / 10000.) * 10000);
+                goal = (long) (Math.ceil(playCount / 10_000.) * 10_000);
             } else {
                 // we only have one null
                 long s = Long.parseLong(parse[0]);
                 if (s < playCount) {
                     unitNumber = s;
-                    goal = (long) (Math.ceil(playCount / 10000.) * 10000);
+                    goal = (long) (Math.ceil(playCount / 10_000.) * 10_000);
                 } else {
                     goal = s;
                     unitNumber = 1;
@@ -154,7 +154,11 @@ public class PaceCommand extends ConcurrentCommand {
         String timeFrame = naturalTimeFrameEnum.equals(NaturalTimeFrameEnum.ALL) ? "overall" : ("over the last " + unitNumber + " " + (unitNumber == 1 ? naturalTimeFrameEnum.toString().toLowerCase() : naturalTimeFrameEnum.toString().toLowerCase() + "s"));
         String format = now.plus((long) remainingUnits, chronoUnits.get(i)).format(formatter);
         String unit = chronoUnits.get(i).name().toLowerCase();
-        String s = String.format("**%s** has a rate of **%s** scrobbles per %s %s, so they are on pace to hit **%d** scrobbles on **%s**.", userString, new DecimalFormat("#0.00").format(ratio), unit.substring(0, unit.length() - 1), timeFrame, goal, format);
+        String s = String.format("**%s** has a rate of **%s** scrobbles per %s %s, so they are on pace to hit **%d** scrobbles on **%s**.",
+                userString, new DecimalFormat("#0.00").format(ratio),
+                unit.substring(0, unit.length() - 1),
+                timeFrame, goal, format);
+
         sendMessageQueue(e, s);
     }
 }

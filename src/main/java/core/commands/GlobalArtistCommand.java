@@ -76,19 +76,32 @@ public class GlobalArtistCommand extends ConcurrentCommand {
                 if (position != 2) {
                     embedBuilder.addField("Plays for first position:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount())), true);
                 }
+                embedBuilder.addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), true);
+            } else {
+                embedBuilder.addBlankField(true);
+                embedBuilder.addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), true);
             }
-            embedBuilder.addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), false);
 
+        } else {
+            embedBuilder.addField("Plays for first position:", String.valueOf((globalArtistRanking.get(0).getPlaycount())), false);
         }
-        embedBuilder.addField("Total Plays:", String.valueOf(totalPlays), true);
         if (e.isFromGuild()) {
+            StringBuilder serverStats = new StringBuilder();
+            long artistFrequencies = getService().getArtistFrequencies(e.getGuild().getIdLong(), validable.getArtistId());
+            serverStats.append(String.format("**%d** listeners\n", artistFrequencies));
             long serverArtistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), validable.getArtistId());
-            embedBuilder.addField("Server Plays:", String.valueOf(serverArtistPlays), true);
+            serverStats.append(String.format("**%d** plays\n", serverArtistPlays));
+            embedBuilder.
+                    addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), serverStats.toString(), true);
         }
-        embedBuilder.addField("Total Listeners:", String.valueOf(totalPeople), false);
 
+        String globalStats = String.format("**%d** listeners\n", totalPeople) +
+                             String.format("**%d** plays\n", totalPlays);
+        embedBuilder
+                .addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName())), globalStats, true);
 
-        embedBuilder.setThumbnail(validable.getUrl().isEmpty() ? null : validable.getUrl());
+        String url = validable.getUrl().isEmpty() ? null : validable.getUrl();
+        embedBuilder.setImage(url);
         embedBuilder.setTitle("Who knows " + artist + " globally?");
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 

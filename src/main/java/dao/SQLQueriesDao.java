@@ -8,10 +8,12 @@ import java.util.List;
 interface SQLQueriesDao {
 
 
+    List<ScrobbledArtist> getRecommendations(Connection connection, long discordID, long giverDiscordId, boolean ignorePast, int limit);
+
     UniqueWrapper<ArtistPlays> getUniqueArtist(Connection connection, Long guildID, String lastFMID);
 
 
-    ResultWrapper<UserArtistComparison> similar(Connection connection, List<String> lastfMNames);
+    ResultWrapper<UserArtistComparison> similar(Connection connection, List<String> lastfMNames, int limit);
 
     WrapperReturnNowPlaying knows(Connection connection, long artistId, long guildId, int limit);
 
@@ -74,5 +76,8 @@ interface SQLQueriesDao {
 
     long getArtistPlays(Connection connection, Long guildID, long artistId);
 
-    long getArtistFrequencies(Connection connection, long guildID);
+
+    long getArtistFrequencies(Connection connection, Long guildID, long artistId);
+
+
 }

@@ -62,6 +62,7 @@ public class SummaryArtistCommand extends ConcurrentCommand {
         ArtistSummary summary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data.getName());
         ArtistMusicBrainzDetails artistDetails = mb.getArtistDetails(new ArtistInfo(null, summary.getArtistname(), summary.getMbid()));
         long globalArtistPlays = getService().getGlobalArtistPlays(scrobbledArtist.getArtistId());
+        long globalArtistFrequencies = getService().getGlobalArtistFrequencies(scrobbledArtist.getArtistId());
 
         String username = getUserString(e, whom, data.getName());
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -79,22 +80,31 @@ public class SummaryArtistCommand extends ConcurrentCommand {
                         .collect(Collectors.joining(" - "));
 
         MessageBuilder messageBuilder = new MessageBuilder();
-        embedBuilder.setTitle("Information about " + CommandUtil.cleanMarkdownCharacter(summary.getArtistname()), CommandUtil.getLastFmArtistUrl(scrobbledArtist.getArtist()))
-                .addField(username + "'s plays:", String.valueOf(summary.getUserPlayCount()), true)
-                .addField("Listeners:", String.valueOf(summary.getListeners()), true)
-                .addField("Scrobbles:", String.valueOf(summary.getPlaycount()), true)
-                .addField(String.format("Listeners within %s: ", e.getJDA().getSelfUser().getName()), String.valueOf(globalArtistPlays), true)
-                .addField(String.format("Scrobbles within %s: ", e.getJDA().getSelfUser().getName()), String.valueOf(globalArtistPlays), true);
+        embedBuilder.setTitle("Information about " + CommandUtil.cleanMarkdownCharacter(summary.getArtistname()), CommandUtil.getLastFmArtistUrl(scrobbledArtist.getArtist()));
 
         if (e.isFromGuild()) {
+            StringBuilder serverStats = new StringBuilder();
+            long artistFrequencies = getService().getArtistFrequencies(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
+            serverStats.append(String.format("**%d** listeners\n", artistFrequencies));
             long serverArtistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
-            long artistFrequencies = getService().getArtistFrequencies(e.getGuild().getIdLong());
-            embedBuilder.addField(String.format("Listeners in %s", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), String.valueOf(artistFrequencies), true);
-            embedBuilder.addField(String.format("Scrobbles in %s", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), String.valueOf(serverArtistPlays), true);
+            serverStats.append(String.format("**%d** plays\n", serverArtistPlays));
+            embedBuilder.
+                    addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), serverStats.toString(), true);
         }
+        String lastFMStats = String.format("**%d** listeners\n", summary.getListeners()) +
+                             String.format("**%d** plays\n", summary.getPlaycount());
+        String globalStats = String.format("**%d** listeners\n", globalArtistFrequencies) +
+                             String.format("**%d** plays\n", globalArtistPlays);
+        embedBuilder
+                .addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName())), globalStats, true)
+                .addField("Last.FM stats", lastFMStats, true)
+                .addField(username + "'s plays:", "**" + summary.getUserPlayCount() + "** plays", false);
         if (artistDetails != null) {
             if (artistDetails.getGender() != null) {
                 embedBuilder.addField("Gender:", artistDetails.getGender(), true);
+                if (artistDetails.getCountryCode() != null)
+                    embedBuilder.addBlankField(true);
+
             }
             if (artistDetails.getCountryCode() != null) {
                 embedBuilder.addField("Country:", ":flag_" + artistDetails.getCountryCode().toLowerCase() + ":", true);

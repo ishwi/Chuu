@@ -31,7 +31,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 new StringBuilder("INSERT INTO  scrobbled_artist" +
                                   "                  (artist_id,lastfm_id,playnumber) VALUES (?, ?, ?) ");
 
-        mySql.append(", (?,?,?)".repeat(Math.max(0, scrobbledArtists.size() - 1)));
+        mySql.append(", (?,?,?)" .repeat(Math.max(0, scrobbledArtists.size() - 1)));
         mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  VALUES(playnumber) + playnumber");
 
         try {
@@ -115,7 +115,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 new StringBuilder("INSERT INTO  scrobbled_artist" +
                                   "                (artist_id,lastfm_id,playnumber) VALUES (?, ?, ?) ");
 
-        mySql.append(", (?,?,?)".repeat(Math.max(0, scrobbledArtists.size() - 1)));
+        mySql.append(", (?,?,?)" .repeat(Math.max(0, scrobbledArtists.size() - 1)));
         mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  playnumber + VALUES(playnumber)");
 
         try {
@@ -171,7 +171,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
                                                       + " (name,url,correction_status)  VALUES (?, ?,?) ");
 
 
-        queryString.append(", (?,?,?)".repeat(Math.max(0, scrobbledArtists.size() - 1)));
+        queryString.append(", (?,?,?)" .repeat(Math.max(0, scrobbledArtists.size() - 1)));
         queryString.append(" ON DUPLICATE KEY UPDATE url= values(url) ,correction_status = values(correction_status)");
 
         try {
@@ -623,7 +623,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
         StringBuilder mySql =
                 new StringBuilder("INSERT INTO artist (name,url,url_status) VALUES (?,?,?)");
 
-        mySql.append(",(?,?,?)".repeat(Math.max(0, nonExistingId.size() - 1)));
+        mySql.append(",(?,?,?)" .repeat(Math.max(0, nonExistingId.size() - 1)));
         mySql.append(" on duplicate key update correction_status = correction_status  returning id,name ");
 
         try {
@@ -906,6 +906,21 @@ public class UpdaterDaoImpl implements UpdaterDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void insertPastRecommendation(Connection connection, long secondDiscordID, long firstDiscordID, long artistId) {
+        String queryString = "INSERT IGNORE INTO past_recommendations ( artist_id,receiver_id,giver_id)   VALUES (?, ?,?)  ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i++, artistId);
+            preparedStatement.setLong(i++, firstDiscordID);
+            preparedStatement.setLong(i, secondDiscordID);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
 

@@ -8,6 +8,7 @@ import org.imgscalr.Scalr;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -224,14 +225,14 @@ public class GraphicUtils {
             Random rand = new Random();
             assert files != null;
             File file = files[rand.nextInt(files.length)];
-            bim = ImageIO.read(file);
-            bim = cropImage(bim, SIZE_X, SIZE_Y);
+            BufferedImage temp = ImageIO.read(file);
+            bim = cropImage(temp, SIZE_X, SIZE_Y);
+            temp.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
         g.drawImage(bim, new GaussianFilter(90), 0, 0);
-
+        bim.flush();
 
     }
 
@@ -243,7 +244,7 @@ public class GraphicUtils {
         int limity = height - SOURCE_Y;
         int limitx = width - SOURCE_X;
         if (limity <= 0 || limitx <= 0) {
-            return Scalr.resize(src, SOURCE_X, SOURCE_Y);
+            return Scalr.resize(src, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.AUTOMATIC, SOURCE_X, SOURCE_Y, Scalr.OP_ANTIALIAS);
         }
 
         int y = rand.nextInt(limity);
@@ -260,14 +261,14 @@ public class GraphicUtils {
      * @param minFontSize Min font Size allowd
      * @return the width of the string on the current font
      */
-    public static int fitString(String stringed, Graphics2D g, int maxWidth, float minFontSize) {
+    public static Rectangle2D fitAndGetBounds(String stringed, Graphics2D g, int maxWidth, float minFontSize) {
         Font ogFont = g.getFont();
         float sizeFont = ogFont.getSize();
         int width;
         while ((width = g.getFontMetrics(g.getFont()).stringWidth(stringed)) > maxWidth && sizeFont > minFontSize) {
             g.setFont(g.getFont().deriveFont(sizeFont -= 2));
         }
-        return width;
+        return g.getFontMetrics().getStringBounds(stringed, g);
     }
 
 }

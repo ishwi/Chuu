@@ -9,7 +9,7 @@ public class ChartGroupParameters extends ChartParameters {
 
     public ChartGroupParameters(String[] message, MessageReceivedEvent e) {
         super(message, e, new OptionalParameter("--notime", 9));
-        this.showTime = hasOptional("--time");
+        this.showTime = !hasOptional("--notime");
     }
 
 

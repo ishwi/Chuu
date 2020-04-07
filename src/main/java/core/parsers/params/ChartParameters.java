@@ -33,7 +33,7 @@ public class ChartParameters extends CommandParameters {
     }
 
     public ChartParameters(String[] returned, MessageReceivedEvent e) {
-        super(returned, e, new OptionalParameter("--notiles", 5),
+        super(returned, e, new OptionalParameter("--notitles", 5),
                 new OptionalParameter("--plays", 6),
                 new OptionalParameter("--list", 7),
                 new OptionalParameter("--pie", 8));

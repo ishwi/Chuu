@@ -226,3 +226,17 @@ CREATE TABLE log_reported
     CONSTRAINT log_reported_fk_user FOREIGN KEY (reported) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT log_mod_fk_user FOREIGN KEY (modded) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+CREATE TABLE past_recommendations
+(
+    id          BIGINT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    artist_id   BIGINT(20) NOT NULL,
+    receiver_id BIGINT(20) NOT NULL,
+    giver_id    BIGINT(20) NOT NULL,
+    rec_date    DATETIME   NOT NULL DEFAULT NOW(),
+    rating      INTEGER,
+    UNIQUE (artist_id, giver_id, receiver_id),
+    CONSTRAINT past_recommendations_fk_rec FOREIGN KEY (receiver_id) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT past_recommendations_fk_giv FOREIGN KEY (giver_id) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT past_recommendations_fk_artist FOREIGN KEY (artist_id) REFERENCES artist (id) ON DELETE CASCADE ON UPDATE CASCADE
+
+)

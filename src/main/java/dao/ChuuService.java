@@ -4,6 +4,7 @@ import core.Chuu;
 import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
+import dao.musicbrainz.AffinityDao;
 import org.apache.commons.collections4.MultiValuedMap;
 
 import javax.annotation.Nullable;
@@ -13,15 +14,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalLong;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ChuuService {
     private final SimpleDataSource dataSource;
     private final SQLQueriesDao queriesDao;
+    private final AffinityDao affinityDao;
+
     private final UpdaterDao updaterDao;
     private final UserGuildDao userGuildDao;
 
@@ -30,6 +30,7 @@ public class ChuuService {
         this.dataSource = dataSource;
         this.queriesDao = new SQLQueriesDaoImpl();
         this.userGuildDao = new UserGuildDaoImpl();
+        this.affinityDao = new AffinityDaoImpl();
 
         this.updaterDao = new UpdaterDaoImpl();
     }
@@ -38,6 +39,7 @@ public class ChuuService {
 
         this.dataSource = new SimpleDataSource(true);
         this.queriesDao = new SQLQueriesDaoImpl();
+        this.affinityDao = new AffinityDaoImpl();
         this.userGuildDao = new UserGuildDaoImpl();
         this.updaterDao = new UpdaterDaoImpl();
 
@@ -192,13 +194,17 @@ public class ChuuService {
         }
     }
 
-    public ResultWrapper<UserArtistComparison> getSimilarities(List<String> lastFmNames) {
+    public ResultWrapper<UserArtistComparison> getSimilarities(List<String> lastFmNames, int limit) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.similar(connection, lastFmNames);
+            return queriesDao.similar(connection, lastFmNames, limit);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public ResultWrapper<UserArtistComparison> getSimilarities(List<String> lastfMNames) {
+        return getSimilarities(lastfMNames, 10);
     }
 
     public WrapperReturnNowPlaying whoKnows(long artistId, long guildId) {
@@ -757,15 +763,23 @@ public class ChuuService {
         }
     }
 
-    public long getArtistFrequencies(long guildID) {
+    public long getArtistFrequencies(long guildID, long artistId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getArtistFrequencies(connection, guildID);
+            return queriesDao.getArtistFrequencies(connection, guildID, artistId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
+    public long getGlobalArtistFrequencies(long artistId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getArtistFrequencies(connection, null, artistId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public ResultWrapper<ArtistPlays> getArtistsFrequenciesGlobal() {
         try (Connection connection = dataSource.getConnection()) {
@@ -974,6 +988,64 @@ public class ChuuService {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+    }
+
+    public Affinity getAffinity(String ogLastFmID, String receiverLastfmID, int threshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            affinityDao.initTempTable(connection, ogLastFmID, receiverLastfmID, threshold);
+            Affinity affinity = affinityDao.getPercentageStats(connection, ogLastFmID, receiverLastfmID, threshold);
+            String[] recs = affinityDao.doRecommendations(connection, ogLastFmID, receiverLastfmID);
+            affinity.setReceivingRec(recs[0]);
+            affinity.setOgRec(recs[1]);
+            ResultWrapper<UserArtistComparison> similar = queriesDao.similar(connection, List.of(ogLastFmID, receiverLastfmID), 5);
+            affinity.addMatchings(similar.getResultList());
+            affinityDao.cleanUp(connection, false);
+            return affinity;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+
+        }
+
+    }
+
+    public List<Affinity> getServerAffinity(String ogLastFmID, long guildId, int threshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            affinityDao.setServerTempTable(connection, guildId, ogLastFmID, threshold);
+            List<Affinity> affinityList = affinityDao.doServerAffinity(connection, ogLastFmID, threshold);
+            affinityDao.cleanUp(connection, true);
+            return affinityList;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+
+        }
+    }
+
+    public Optional<ScrobbledArtist> getRecommendation(long discordID, long giverDiscordId, boolean ignorePast) {
+        List<ScrobbledArtist> recommendation = getRecommendation(discordID, giverDiscordId, ignorePast, 1);
+        if (recommendation.isEmpty())
+            return Optional.empty();
+        return Optional.of(recommendation.get(0));
+    }
+
+    public List<ScrobbledArtist> getRecommendation(long giverDiscordId, long receiverDiscordId, boolean ignorePast, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getRecommendations(connection, giverDiscordId, receiverDiscordId, ignorePast, limit);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+
+        }
+    }
+
+    public void insertRecommendation(long secondDiscordID, long firstDiscordID, long artistId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(false);
+            updaterDao.insertPastRecommendation(connection, secondDiscordID, firstDiscordID, artistId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+
+        }
+
 
     }
 }
