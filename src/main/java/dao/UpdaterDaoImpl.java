@@ -730,7 +730,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 long aliasId = resultSet.getLong(1);
                 String alias = resultSet.getString(2);
                 long artistId = resultSet.getLong(3);
-                long discordID = resultSet.getLong(4);
+                Long discordID = resultSet.getLong(4);
                 Timestamp date = resultSet.getTimestamp(5);
                 String artistName = resultSet.getString(6);
                 return new AliasEntity(aliasId, alias, artistId, discordID, date.toLocalDateTime(), artistName);

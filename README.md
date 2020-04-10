@@ -38,7 +38,7 @@ In order to do that you need:<br><br>
  - TY_API
 
 Then you should set all those properties in the file [all.properties](https://github.com/ishwi/discordBot/blob/master/src/main/resources/all.properties)
-In MariaDB you should run the [following SQL script](https://github.com/ishwi/discordBot/blob/master/src/main/resources/MariaDBCreateTables.sql) and adjust the [datasource.properties](https://github.com/ishwi/discordBot/blob/master/src/main/resources/datasource.properties) with the corresponding properties.
+In MariaDB you should run the [following SQL script](https://github.com/ishwi/discordBot/blob/master/src/main/resources/MariaDBNew.sql) and adjust the [datasource.properties](https://github.com/ishwi/discordBot/blob/master/src/main/resources/datasource.properties) with the corresponding properties.
 
 For postgresql I would recommend you to use [mbdata](https://pypi.org/project/mbdata/) to set up the musicbrainz database.
 Then adjust the [mbiz.properties](https://github.com/ishwi/discordBot/blob/master/src/main/resources/mbiz.properties) with the corresponding properties.

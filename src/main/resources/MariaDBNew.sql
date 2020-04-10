@@ -95,14 +95,12 @@ CREATE TABLE queued_alias
     id         INT(11)      NOT NULL AUTO_INCREMENT,
     alias      VARCHAR(255) NOT NULL,
     artist_id  BIGINT(20)   NOT NULL,
-    discord_id BIGINT(20)   NOT NULL,
+    discord_id BIGINT(20),
     added_date DATETIME     NOT NULL DEFAULT NOW(),
     PRIMARY KEY (id),
     CONSTRAINT queuedalias_fk_artsit FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT queuedalias_fk_discordid FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE CASCADE
-) ROW_FORMAT = DYNAMIC;
-
-
+);
 CREATE TABLE alt_url
 (
     id         BIGINT(20)                            NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -112,6 +110,7 @@ CREATE TABLE alt_url
     added_date DATETIME                              NOT NULL DEFAULT NOW(),
     score      INT                                   NOT NULL DEFAULT 0,
     CONSTRAINT alt_urls_fk_artist FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT alt_urls_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE SET NULL,
     CONSTRAINT uc_url UNIQUE (artist_id, url)
 );
 

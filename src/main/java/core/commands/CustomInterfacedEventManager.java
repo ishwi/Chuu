@@ -59,7 +59,14 @@ public class CustomInterfacedEventManager implements IEventManager {
             for (String alias : aliases) {
                 commandListeners.remove(alias);
             }
-
+        }
+        if (listener instanceof ReactionListener) {
+            ReactionListener reactionListener = (ReactionListener) listener;
+            ScheduledFuture<?> scheduledFuture = this.reactionaries.remove(reactionListener);
+            if (scheduledFuture != null) {
+                scheduledFuture.cancel(true);
+            }
+            reactionListener.dispose();
         }
         listeners.remove(listener);
     }

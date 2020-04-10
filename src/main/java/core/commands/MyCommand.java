@@ -137,7 +137,7 @@ public abstract class MyCommand extends ListenerAdapter {
         try {
             return CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId).getUsername();
         } catch (Exception ex) {
-            return replacement;
+            return replacement != null ? replacement : "Unknown";
         }
 
     }

@@ -75,7 +75,7 @@ public class AliasReviewCommand extends ConcurrentCommand {
                     r.getJDA().retrieveUserById(aliasEntity.getDiscorId())
                             .queue(user -> user.openPrivateChannel()
                                     .flatMap(privateChannel -> privateChannel.sendMessage("Your alias: " + aliasEntity.getAlias() + " has been approved!"))
-                                    .queue());
+                                    .queue(), throwable -> Chuu.getLogger().warn(throwable.getMessage(), throwable));
                 } catch (DuplicateInstanceException | InstanceNotFoundException ignored) {
                     try {
                         getService().deleteAliasById(aliasEntity.getId());

@@ -232,7 +232,8 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new ScrobblesSinceCommand(dao)))
                 .addEventListeners(help.registerCommand(new UserResumeCommand(dao)))
                 .addEventListeners(help.registerCommand(new AffinityCommand(dao)))
-                .addEventListeners(help.registerCommand(new RecommendationCommand(dao)));
+                .addEventListeners(help.registerCommand(new RecommendationCommand(dao)))
+                .addEventListeners(help.registerCommand(new UnsetCommand(dao)));
 
 
         try {

@@ -47,9 +47,14 @@ public abstract class ReactionListener implements EventListener {
         }
     }
 
-    private void register() {
+    void register() {
         jda.getEventManager().register(this);
     }
+
+    void unregister() {
+        jda.getEventManager().unregister(this);
+    }
+
 
     public void refresh(JDA jda) {
         IEventManager eventManager = jda.getEventManager();
