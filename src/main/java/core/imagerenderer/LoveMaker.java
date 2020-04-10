@@ -15,7 +15,6 @@ import java.net.URL;
 import java.util.List;
 
 public class LoveMaker {
-    private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.BOLD, (int) DESC_SIZE);
 
     private final static int X_SIZE = 1400;
     private final static int Y_SIZE = 350;
@@ -28,6 +27,7 @@ public class LoveMaker {
     private static final float DESC_SIZE = 26;
     private static final int BAR_SIZE = X_SIZE - (X_MARGIN + IMAGE_SIZE + IMAGE_MARGIN) * 2;
     private static final Font NORMAL_FONT = new Font("Noto Sans", Font.BOLD, (int) DESC_SIZE);
+    private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.BOLD, (int) DESC_SIZE);
     private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.BOLD, (int) DESC_SIZE);
     private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, (int) DESC_SIZE);
 
@@ -84,13 +84,13 @@ public class LoveMaker {
             g.setColor(Color.GREEN);
         }
         g.setColor(GraphicUtils.makeMoreTransparent(g.getColor(), 0.7f));
-        g.fillRect(X_MARGIN + IMAGE_MARGIN + IMAGE_SIZE, Y_MARGIN + (IMAGE_SIZE / 2), (int) (affinity.getAffinity() * (BAR_SIZE)), (IMAGE_SIZE / 2));
+        g.fillRect(X_MARGIN + IMAGE_MARGIN + IMAGE_SIZE, Y_MARGIN + (IMAGE_SIZE / 2), (int) (Math.min(affinity.getAffinity(), 1f) * (BAR_SIZE)), (IMAGE_SIZE / 2));
         g.setColor(Color.BLACK);
         g.drawRect(X_MARGIN + IMAGE_MARGIN + IMAGE_SIZE, Y_MARGIN + (IMAGE_SIZE / 2), BAR_SIZE, (IMAGE_SIZE / 2) - 1);
-        g.drawRect(X_MARGIN + IMAGE_MARGIN + IMAGE_SIZE, Y_MARGIN + (IMAGE_SIZE / 2), (int) (affinity.getAffinity() * (BAR_SIZE)), (IMAGE_SIZE / 2) - 1);
+        g.drawRect(X_MARGIN + IMAGE_MARGIN + IMAGE_SIZE, Y_MARGIN + (IMAGE_SIZE / 2), (int) (Math.min(affinity.getAffinity(), 1f) * (BAR_SIZE)), (IMAGE_SIZE / 2) - 1);
         String format;
         if (affinity.getAffinity() > 1) {
-            format = "COMPATIBILITY: 100%%+";
+            format = "COMPATIBILITY: 100%+";
         } else {
             format = String.format("COMPATIBILITY: %.0f%%", affinity.getAffinity() * 100);
         }

@@ -95,7 +95,7 @@ public class AffinityCommand extends ConcurrentCommand {
                 .setThumbnail(e.getGuild().getIconUrl());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                new Reactionary<>(collect, message1, embedBuilder));
+                new Reactionary<>(string, message1, embedBuilder));
     }
 
 }
