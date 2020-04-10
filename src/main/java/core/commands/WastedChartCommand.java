@@ -1,13 +1,9 @@
 package core.commands;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.TrackDurationArtistChart;
 import core.apis.last.queues.GroupingQueue;
 import core.apis.last.queues.TrackGroupArtistQueue;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartGroupParameters;
 import core.parsers.params.ChartParameters;
@@ -21,13 +17,10 @@ import org.knowm.xchart.PieChart;
 import java.util.List;
 
 public class WastedChartCommand extends GroupingChartCommand {
-    final DiscogsApi discogsApi;
-    final Spotify spotifyApi;
+
 
     public WastedChartCommand(ChuuService dao) {
         super(dao);
-        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotifyApi = SpotifySingleton.getInstanceUsingDoubleLocking();
     }
 
 

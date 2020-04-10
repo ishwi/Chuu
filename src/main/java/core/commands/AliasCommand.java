@@ -69,6 +69,7 @@ public class AliasCommand extends ConcurrentCommand {
                     return;
                 }
             } catch (LastFmEntityNotFoundException ignored) {
+                //We know it doesnt exists on last
             }
         }
 

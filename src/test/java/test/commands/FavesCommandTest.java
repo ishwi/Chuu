@@ -48,7 +48,7 @@ public class FavesCommandTest extends CommandTest {
 	public void edgeCasesParser() throws LastFmException {
 		ConcurrentLastFM newInstance = LastFMFactory.getNewInstance();
 		DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-		Spotify spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+		Spotify spotify = SpotifySingleton.getInstance();
 		NowPlayingArtist np = newInstance.getNowPlayingInfo("pablopita");
 		String artistUrl = CommandUtil
 				.getArtistImageUrl(TestResources.dao, np.getArtistName(), newInstance, discogsApi, spotify);

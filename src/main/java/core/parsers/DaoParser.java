@@ -16,18 +16,18 @@ public abstract class DaoParser extends Parser {
         this.dao = dao;
     }
 
-    LastFMData getLastFmUsername1input(String[] message, Long id, MessageReceivedEvent event) throws InstanceNotFoundException {
+    LastFMData getLastFmUsername1input(Long id, MessageReceivedEvent event) throws InstanceNotFoundException {
         if (event.isFromGuild()) {
             LastFMData data;
             List<User> list = event.getMessage().getMentionedUsers();
             data = list.isEmpty()
                     ? this.dao.findLastFMData((id))
-						: this.dao.findLastFMData(list.get(0).getIdLong());
+                    : this.dao.findLastFMData(list.get(0).getIdLong());
 
-				return data;
-			} else {
-				return dao.findLastFMData((id));
-			}
+            return data;
+        } else {
+            return dao.findLastFMData((id));
+        }
 
 	}
 

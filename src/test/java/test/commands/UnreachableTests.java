@@ -1,6 +1,6 @@
 package test.commands;
 
-import core.apis.last.ExceptionEntity;
+import core.apis.last.exceptions.ExceptionEntity;
 import core.commands.NPSpotifyCommand;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;

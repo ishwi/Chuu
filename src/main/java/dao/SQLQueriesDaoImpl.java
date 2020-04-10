@@ -1,6 +1,7 @@
 package dao;
 
 import core.Chuu;
+import core.exceptions.ChuuServiceException;
 import dao.entities.*;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +15,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
     @Override
     public void getGlobalRank(Connection connection, String lastfmId) {
-
+        // TODO ONE DAY
     }
 
     @Override
@@ -63,7 +64,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
 
@@ -101,11 +102,11 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             resultSet.beforeFirst();
             /* Get results. */
 
-            while (resultSet.next()) { //&& (j < 10 && j < rows)) {
+            while (resultSet.next()) {
                 String name = resultSet.getString("a.name");
-                int count_a = resultSet.getInt("temp.playNumber");
+                int countA = resultSet.getInt("temp.playNumber");
 
-                returnList.add(new ArtistPlays(name, count_a));
+                returnList.add(new ArtistPlays(name, countA));
 
             }
             return new UniqueWrapper<>(rows, discordId, lastfmId, returnList);
@@ -142,7 +143,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
             ResultSet resultSet = preparedStatement2.executeQuery();
             if (!resultSet.next()) {
-                throw new RuntimeException();
+                throw new ChuuServiceException();
             }
             int rows = resultSet.getInt(1);
             try (PreparedStatement preparedStatement = connection.prepareStatement(normalQuery)) {
@@ -151,7 +152,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -210,7 +211,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
             ResultSet resultSet = preparedStatement2.executeQuery();
             if (!resultSet.next()) {
-                throw new RuntimeException();
+                throw new ChuuServiceException();
             }
             rows = resultSet.getInt(1);
             try (PreparedStatement preparedStatement = connection.prepareStatement(normalQuery)) {
@@ -220,7 +221,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -256,7 +257,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 scrobbledArtists.add(new ScrobbledArtist(artistName, artistUrl, plays));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return scrobbledArtists;
     }
@@ -302,17 +303,17 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             return returnedList;
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException((e));
+            throw new ChuuServiceException((e));
         }
     }
 
     @Override
-    public List<VotingEntity> getAllArtistImages(Connection connection, long artist_id) {
+    public List<VotingEntity> getAllArtistImages(Connection connection, long artistId) {
         List<VotingEntity> returnedList = new ArrayList<>();
         String queryString = " Select a.id,a.url,a.score,a.discord_id,a.added_date,b.name,b.id,(select count(*) from vote where alt_id = a.id) as totalVotes from alt_url a join artist b on a.artist_id = b.id  where a.artist_id = ? order by a.score desc , added_date asc ";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setLong(1, artist_id);
+            preparedStatement.setLong(1, artistId);
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -320,7 +321,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 String artistName = resultSet.getString("b.name");
                 String artistUrl = resultSet.getString("a.url");
                 long owner = resultSet.getLong("a.discord_id");
-                long artistId = resultSet.getLong("b.id");
+                artistId = resultSet.getLong("b.id");
                 long urlId = resultSet.getLong("a.id");
 
                 int votes = resultSet.getInt("a.score");
@@ -329,17 +330,17 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 returnedList.add(new VotingEntity(artistName, artistUrl, date.toLocalDateTime(), owner, artistId, votes, totalVotes, urlId));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return returnedList;
     }
 
     @Override
-    public Boolean hasUserVotedImage(Connection connection, long url_id, long discord_id) {
+    public Boolean hasUserVotedImage(Connection connection, long urlId, long discordId) {
         String queryString = "Select ispositive from vote where alt_id = ? and discord_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setLong(1, url_id);
-            preparedStatement.setLong(2, discord_id);
+            preparedStatement.setLong(1, urlId);
+            preparedStatement.setLong(2, discordId);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getBoolean(1);
@@ -347,7 +348,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             return null;
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -369,7 +370,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
 
@@ -397,7 +398,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             }
             return 0;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -426,7 +427,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             return resultSet.getLong(1);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -469,7 +470,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             return scrobbledArtists;
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -507,11 +508,11 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             resultSet.beforeFirst();
             /* Get results. */
 
-            while (resultSet.next()) { //&& (j < 10 && j < rows)) {
+            while (resultSet.next()) {
                 String name = resultSet.getString("temp.name");
-                int count_a = resultSet.getInt("temp.playNumber");
+                int countA = resultSet.getInt("temp.playNumber");
 
-                returnList.add(new ArtistPlays(name, count_a));
+                returnList.add(new ArtistPlays(name, countA));
 
             }
             return new UniqueWrapper<>(rows, discordId, lastfmId, returnList);
@@ -519,7 +520,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -571,16 +572,16 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             while (resultSet.next() && (j < limit && j < rows)) {
                 j++;
                 String name = resultSet.getString("c.name");
-                int count_a = resultSet.getInt("a.playNumber");
-                int count_b = resultSet.getInt("b.playNumber");
+                int countA = resultSet.getInt("a.playNumber");
+                int countB = resultSet.getInt("b.playNumber");
                 String url = resultSet.getString("c.url");
-                returnList.add(new UserArtistComparison(count_a, count_b, name, userA, userB, url));
+                returnList.add(new UserArtistComparison(countA, countB, name, userA, userB, url));
             }
 
             return new ResultWrapper<>(rows, returnList);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -643,7 +644,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             return new WrapperReturnNowPlaying(returnList, rows, url, artistName);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -697,7 +698,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
     }
@@ -705,7 +706,6 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public ResultWrapper<ScrobbledArtist> getGuildTop(Connection connection, Long guildID, int limit,
                                                       boolean doCount) {
-        //TODO LIMIT
         @Language("MariaDB") String normalQUery = "SELECT d.name, sum(playnumber) AS orden ,url  ";
 
         String countQuery = "Select count(*) as orden ";
@@ -757,7 +757,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return new ResultWrapper<>(count, list);
     }
@@ -785,7 +785,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -865,7 +865,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -985,15 +985,15 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             if (!resultSet.next())
                 return null;
 
-            String artist_id = resultSet.getString("name");
+            String artistName = resultSet.getString("name");
             String url = resultSet.getString("url");
 
             long summa = resultSet.getLong("summa");
             long discordId = resultSet.getLong("discord_id");
-            return new PresenceInfo(artist_id, url, summa, discordId);
+            return new PresenceInfo(artistName, url, summa, discordId);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -1077,7 +1077,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         //Ids will be 0 if returnlist is empty;
         return new StolenCrownWrapper(discordid, discordid2, returnList);
@@ -1116,9 +1116,9 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 String name = resultSet.getString("name");
                 String album = resultSet.getString("album");
 
-                int count_a = resultSet.getInt("plays");
+                int countA = resultSet.getInt("plays");
 
-                returnList.add(new ArtistPlays(name + " - " + album, count_a));
+                returnList.add(new ArtistPlays(name + " - " + album, countA));
 
             }
             return new UniqueWrapper<>(rows, discordId, lastfmId, returnList);
@@ -1193,11 +1193,11 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             }
 
             int totalPlays = resultSet.getInt("b");
-            int other_plays_on_my_artists = resultSet.getInt("other_plays_on_my_artists");
-            int unique_coefficient = resultSet.getInt("unique_coefficient");
+            int otherPlaysOnMyArtists = resultSet.getInt("other_plays_on_my_artists");
+            int uniqueCoefficient = resultSet.getInt("unique_coefficient");
             int total = resultSet.getInt("total");
 
-            return new ObscuritySummary(totalPlays, other_plays_on_my_artists, unique_coefficient, total);
+            return new ObscuritySummary(totalPlays, otherPlaysOnMyArtists, uniqueCoefficient, total);
 
 
         } catch (SQLException e) {
@@ -1229,7 +1229,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
         } catch (SQLException e) {
             Chuu.getLogger().error(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -1250,8 +1250,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             int j = 1;
-            while (resultSet.next()) { //&& (j < 10 && j < rows)) {
-
+            while (resultSet.next()) {
 
                 String lastfmId = resultSet.getString("lastfm_id");
                 long discordId = resultSet.getLong("discord_id");
@@ -1262,19 +1261,19 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             return returnedList;
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException((e));
+            throw new ChuuServiceException((e));
         }
     }
 
     //TriFunction is not the simplest approach but i felt like using it so :D
     @NotNull
     private List<LbEntry> getLbEntries(Connection connection, long guildId, String
-            queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needs_reSet) {
+            queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needsReSet) {
         List<LbEntry> returnedList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(i, guildId);
-            if (needs_reSet)
+            if (needsReSet)
                 preparedStatement.setLong(++i, guildId);
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -1290,7 +1289,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             return returnedList;
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException((e));
+            throw new ChuuServiceException((e));
         }
     }
 }

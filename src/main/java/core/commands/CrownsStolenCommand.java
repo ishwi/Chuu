@@ -62,7 +62,6 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, ogDiscordID);
         String userName = userInformation.getUsername();
-        String userUrl = userInformation.getUrlImage();
 
         DiscordUserDisplay userInformation2 = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordId);
         String userName2 = userInformation2.getUsername();
@@ -90,7 +89,7 @@ public class CrownsStolenCommand extends ConcurrentCommand {
                 .setThumbnail(userUrl2)
                 .setFooter(CommandUtil.markdownLessUserString(userName2, resultWrapper.getQuriedId(), e) + " has stolen " + rows + " crowns!\n", null);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
-                executor.execute(() -> new Reactionary<>(resultWrapper.getList(), m, embedBuilder)));
+                new Reactionary<>(resultWrapper.getList(), m, embedBuilder));
 
     }
 

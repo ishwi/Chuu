@@ -37,16 +37,16 @@ public class ChartParameters extends CommandParameters {
                 new OptionalParameter("--plays", 6),
                 new OptionalParameter("--list", 7),
                 new OptionalParameter("--pie", 8));
-        int x = Integer.parseInt(returned[0]);
-        int y = Integer.parseInt(returned[1]);
-        long discordId = Long.parseLong(returned[2]);
-        String username = returned[3];
+        int tempX = Integer.parseInt(returned[0]);
+        int tempY = Integer.parseInt(returned[1]);
+        long tempDiscordId = Long.parseLong(returned[2]);
+        String tempUsername = returned[3];
         String time = returned[4];
-        this.username = username;
-        this.discordId = discordId;
+        this.username = tempUsername;
+        this.discordId = tempDiscordId;
         this.timeFrameEnum = TimeFrameEnum.fromCompletePeriod(time);
-        this.x = x;
-        this.y = y;
+        this.x = tempX;
+        this.y = tempY;
         this.writeTitles = !this.hasOptional("--notitles");
         this.writePlays = this.hasOptional("--plays");
         this.isList = this.hasOptional("--list");

@@ -15,12 +15,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static core.parsers.ExtraParser.LIMIT_ERROR;
+
 public class RecentListCommand extends ConcurrentCommand {
 
     public RecentListCommand(ChuuService dao) {
         super(dao);
         Map<Integer, String> map = new HashMap<>(1);
-        map.put(NumberParser.LIMIT_ERROR, "The number introduced must be lower than 15");
+        map.put(LIMIT_ERROR, "The number introduced must be lower than 15");
         String s = "You can also introduce a number to vary the number of songs shown, defaults to" + 5 + " , max " + 15;
         this.parser = new NumberParser<>(new OnlyUsernameParser(getService()),
                 5L,
@@ -60,7 +62,7 @@ public class RecentListCommand extends ConcurrentCommand {
 
         int counter = 1;
         for (NowPlayingArtist nowPlayingArtist : list) {
-            embedBuilder.addField("Track #" + counter++ + ":", String.format("**%s** - %s | %s\n", CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getSongName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getArtistName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist
+            embedBuilder.addField("Track #" + counter++ + ":", String.format("**%s** - %s | %s%n", CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getSongName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getArtistName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist
                     .getAlbumName())), false);
         }
 

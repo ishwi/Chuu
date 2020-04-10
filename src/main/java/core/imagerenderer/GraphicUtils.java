@@ -1,5 +1,7 @@
 package core.imagerenderer;
 
+import core.Chuu;
+import core.exceptions.ChuuServiceException;
 import core.imagerenderer.stealing.GaussianFilter;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
@@ -19,7 +21,10 @@ import java.util.Properties;
 import java.util.Random;
 
 public class GraphicUtils {
+    static final Random ran = new Random();
 
+    private GraphicUtils() {
+    }
 
     static final BufferedImage noArtistImage;
 
@@ -38,7 +43,7 @@ public class GraphicUtils {
                 g.drawImage(image, 10, 750 - 110, null);
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            Chuu.getLogger().warn(ex.getMessage(), ex);
         }
     }
 
@@ -112,44 +117,44 @@ public class GraphicUtils {
 
     }
 
-    static void doChart(Graphics2D g, int x, int y_counter, int width, int height, int max_rows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, Font font) {
-        doChart(g, x, y_counter, width, height, max_rows, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, true, font);
+    static void doChart(Graphics2D g, int x, int yCounter, int width, int height, int maxRows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, Font font) {
+        doChart(g, x, yCounter, width, height, maxRows, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, true, font);
     }
 
-    public static void doChart(Graphics2D g, int x, int y_counter, int width, int row_height, int max_rows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, boolean doNumber, Font font) {
+    public static void doChart(Graphics2D g, int x, int yCounter, int width, int rowHeight, int maxRows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, boolean doNumber, Font font) {
 
         Font ogFont = g.getFont();
         Color ogColor = g.getColor();
         g.setColor(colorB1.brighter());
-        g.fillRect(x, y_counter, width, row_height * max_rows);
+        g.fillRect(x, yCounter, width, rowHeight * maxRows);
         g.setColor(colorB);
 
-        int row_content = (int) (row_height * 0.9);
-        int margin = (int) (row_height * 0.1);
+        int rowContent = (int) (rowHeight * 0.9);
+        int margin = (int) (rowHeight * 0.1);
 
-        g.fillRect(x, y_counter, width, row_height * max_rows);
+        g.fillRect(x, yCounter, width, rowHeight * maxRows);
         FontMetrics metrics;
         g.setFont(font);
-        float initial_size = g.getFont().getSize();
+        float initialSize = g.getFont().getSize();
         metrics = g.getFontMetrics(g.getFont());
         List<ReturnNowPlaying> nowPlayingArtistList = wrapperReturnNowPlaying.getReturnNowPlayings();
-        y_counter += metrics.getAscent() + metrics.getDescent();
+        yCounter += metrics.getAscent() + metrics.getDescent();
         for (int i = 0; i < nowPlayingArtistList.size() && i < 10; i++) {
             g.setColor(colorB1);
 
-            g.fillRect(x, y_counter - metrics.getAscent() - metrics.getDescent(), width, row_content);
+            g.fillRect(x, yCounter - metrics.getAscent() - metrics.getDescent(), width, rowContent);
 
             g.setColor(GraphicUtils.getBetter(colorB1));
 
-            float size = initial_size;
+            float size = initialSize;
             String name = nowPlayingArtistList.get(i).getDiscordName();
             Font tempFont = g.getFont();
 
-            int start_name = x;
+            int startName = x;
             if (doNumber) {
                 String strNumber = "#" + (i + 1) + " ";
-                g.drawString(strNumber, x, y_counter + (margin - metrics.getAscent() / 2));
-                start_name += g.getFontMetrics().stringWidth(strNumber);
+                g.drawString(strNumber, x, yCounter + (margin - metrics.getAscent() / 2));
+                startName += g.getFontMetrics().stringWidth(strNumber);
             }
 
             if (g.getFont().canDisplayUpTo(name) != -1 && WhoKnowsMaker.EMOJI_FONT.canDisplayUpTo(name) == -1)
@@ -158,18 +163,18 @@ public class GraphicUtils {
             while (g.getFontMetrics(g.getFont()).stringWidth(name) > (width * 0.55) && size > 14f)
                 g.setFont(g.getFont().deriveFont(size -= 2));
 
-            g.drawString(name, start_name, y_counter + (margin - metrics.getAscent() / 2));
+            g.drawString(name, startName, yCounter + (margin - metrics.getAscent() / 2));
 
-            size = initial_size;
+            size = initialSize;
             g.setFont(tempFont.deriveFont(size));
             String plays = String.valueOf(nowPlayingArtistList.get(i).getPlayNumber());
             int stringWidth = metrics.stringWidth(plays);
-            int playPos = x + width - (row_height + stringWidth);
+            int playPos = x + width - (rowHeight + stringWidth);
             int playEnd = playPos + stringWidth;
-            g.drawString(plays, x + width - (row_height + metrics.stringWidth(plays)), y_counter + (margin - metrics
-                                                                                                                     .getAscent() / 2));
-            g.drawImage(lastFmLogo, playEnd + 9, (int) (y_counter - metrics.getAscent() * 0.85), null);
-            y_counter += row_height;
+            g.drawString(plays, x + width - (rowHeight + metrics.stringWidth(plays)), yCounter + (margin - metrics
+                                                                                                                   .getAscent() / 2));
+            g.drawImage(lastFmLogo, playEnd + 9, (int) (yCounter - metrics.getAscent() * 0.85), null);
+            yCounter += rowHeight;
 
 
         }
@@ -195,14 +200,13 @@ public class GraphicUtils {
                 , y));
         Color col2 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 1, x + length / 2), y));
         Color col3 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 1, x + length), y));
-//		g.setColor(Color.WHITE);
         g.setColor(getBetter(col1, col2, col3));
         g.drawString(string, x, y);
         g.setColor(temp);
 
     }
 
-    static void drawStringChartly(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
+    static void drawStringChartly(Graphics2D g, String string, int x, int y) {
         Color temp = g.getColor();
         g.setColor(Color.BLACK);
         g.drawString(string, x, y);
@@ -229,7 +233,7 @@ public class GraphicUtils {
             bim = cropImage(temp, SIZE_X, SIZE_Y);
             temp.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         g.drawImage(bim, new GaussianFilter(90), 0, 0);
         bim.flush();
@@ -237,7 +241,6 @@ public class GraphicUtils {
     }
 
     private static BufferedImage cropImage(final BufferedImage src, final int SOURCE_X, final int SOURCE_Y) {
-        Random rand = new Random();
 
         int height = src.getTileHeight();
         int width = src.getTileWidth();
@@ -247,8 +250,8 @@ public class GraphicUtils {
             return Scalr.resize(src, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.AUTOMATIC, SOURCE_X, SOURCE_Y, Scalr.OP_ANTIALIAS);
         }
 
-        int y = rand.nextInt(limity);
-        int x = rand.nextInt(limitx);
+        int y = ran.nextInt(limity);
+        int x = ran.nextInt(limitx);
         return (src.getSubimage(x, y, SOURCE_X, SOURCE_Y));
 
 
@@ -264,8 +267,7 @@ public class GraphicUtils {
     public static Rectangle2D fitAndGetBounds(String stringed, Graphics2D g, int maxWidth, float minFontSize) {
         Font ogFont = g.getFont();
         float sizeFont = ogFont.getSize();
-        int width;
-        while ((width = g.getFontMetrics(g.getFont()).stringWidth(stringed)) > maxWidth && sizeFont > minFontSize) {
+        while (g.getFontMetrics(g.getFont()).stringWidth(stringed) > maxWidth && sizeFont > minFontSize) {
             g.setFont(g.getFont().deriveFont(sizeFont -= 2));
         }
         return g.getFontMetrics().getStringBounds(stringed, g);

@@ -31,10 +31,10 @@ public class ParserAux {
         if (message.length == 1 && list.size() == 1) {
             datas[1] = dao.findLastFMData(list.get(0).getIdLong());
             datas[0] = dao.findLastFMData(e.getAuthor().getIdLong());
-        } else if (message.length == 1 && list.size() == 0) {
+        } else if (message.length == 1 && list.isEmpty()) {
             datas[1] = handleRawMessage(message[0], e, dao);
             datas[0] = dao.findLastFMData(e.getAuthor().getIdLong());
-        } else if (message.length == 2 & list.size() == 1) {
+        } else if (message.length == 2 && list.size() == 1) {
             User sample = list.get(0);
             if (message[0].equals(sample.getAsMention()) || message[0].equals("<@!" + sample.getAsMention().substring(2))) {
                 datas[0] = dao.findLastFMData(sample.getIdLong());
@@ -43,10 +43,10 @@ public class ParserAux {
                 datas[0] = handleRawMessage(message[0], e, dao);
                 datas[1] = dao.findLastFMData(sample.getIdLong());
             }
-        } else if (message.length == 2 & list.size() == 2) {
+        } else if (message.length == 2 && list.size() == 2) {
             datas[0] = dao.findLastFMData(list.get(0).getIdLong());
             datas[1] = dao.findLastFMData(list.get(1).getIdLong());
-        } else if (message.length == 2 & list.size() == 0) {
+        } else if (message.length == 2 && list.isEmpty()) {
             datas[0] = handleRawMessage(message[0], e, dao);
             datas[1] = handleRawMessage(message[1], e, dao);
         } else {
@@ -66,7 +66,7 @@ public class ParserAux {
     LastFMData handleRawMessage(String message, MessageReceivedEvent e, ChuuService dao) throws InstanceNotFoundException {
 
         List<UsersWrapper> all = dao.getAll(e.getGuild().getIdLong());
-        Predicate<Member> biPredicate = (member) -> all.stream().anyMatch(x -> member != null && x.getDiscordID() == member.getIdLong());
+        Predicate<Member> biPredicate = member -> all.stream().anyMatch(x -> member != null && x.getDiscordID() == member.getIdLong());
         if (user.matcher(message).matches()) {
             Member memberByTag = e.getGuild().getMemberByTag(message);
             if (!biPredicate.test(memberByTag) && memberByTag != null) {

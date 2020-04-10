@@ -1,6 +1,7 @@
 package dao;
 
 import core.Chuu;
+import core.exceptions.ChuuServiceException;
 import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
@@ -31,7 +32,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 new StringBuilder("INSERT INTO  scrobbled_artist" +
                                   "                  (artist_id,lastfm_id,playnumber) VALUES (?, ?, ?) ");
 
-        mySql.append(", (?,?,?)" .repeat(Math.max(0, scrobbledArtists.size() - 1)));
+        mySql.append(", (?,?,?)".repeat(Math.max(0, scrobbledArtists.size() - 1)));
         mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  VALUES(playnumber) + playnumber");
 
         try {
@@ -44,7 +45,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             }
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -72,7 +73,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
                         .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()), role);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return null;
     }
@@ -105,7 +106,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             /* Execute query. */
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -115,7 +116,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 new StringBuilder("INSERT INTO  scrobbled_artist" +
                                   "                (artist_id,lastfm_id,playnumber) VALUES (?, ?, ?) ");
 
-        mySql.append(", (?,?,?)" .repeat(Math.max(0, scrobbledArtists.size() - 1)));
+        mySql.append(", (?,?,?)".repeat(Math.max(0, scrobbledArtists.size() - 1)));
         mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  playnumber + VALUES(playnumber)");
 
         try {
@@ -128,25 +129,25 @@ public class UpdaterDaoImpl implements UpdaterDao {
             }
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
     @Override
-    public long upsertUrl(Connection con, String url, long artist_id, long discord_id) {
+    public long upsertUrl(Connection con, String url, long artistId, long discordId) {
         /* Create "queryString". */
         String queryString = "INSERT ignore INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?)  ";
-        return insertArtistInfo(con, url, artist_id, discord_id, queryString);
+        return insertArtistInfo(con, url, artistId, discordId, queryString);
     }
 
-    private long insertArtistInfo(Connection con, String url, long artist_id, long discord_id, String queryString) {
+    private long insertArtistInfo(Connection con, String url, long artistId, long discordId, String queryString) {
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS)) {
 
             /* Fill "preparedStatement". */
             int i = 1;
-            preparedStatement.setLong(i++, artist_id);
+            preparedStatement.setLong(i++, artistId);
             preparedStatement.setString(i++, url);
-            preparedStatement.setLong(i, discord_id);
+            preparedStatement.setLong(i, discordId);
 
 
             /* Execute query. */
@@ -157,10 +158,10 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 return rs.getLong(1);
             }
             /* Get generated identifier. */
-            throw new RuntimeException();
+            throw new ChuuServiceException();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }/**/
 
@@ -171,7 +172,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
                                                       + " (name,url,correction_status)  VALUES (?, ?,?) ");
 
 
-        queryString.append(", (?,?,?)" .repeat(Math.max(0, scrobbledArtists.size() - 1)));
+        queryString.append(", (?,?,?)".repeat(Math.max(0, scrobbledArtists.size() - 1)));
         queryString.append(" ON DUPLICATE KEY UPDATE url= values(url) ,correction_status = values(correction_status)");
 
         try {
@@ -183,7 +184,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             }
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -204,7 +205,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return null;
     }
@@ -236,10 +237,10 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
-    public void upsertSpotify(Connection con, String url, long artist_id, long discord_id) {
+    public void upsertSpotify(Connection con, String url, long artist_id, long discordId) {
         /* Create "queryString". */
         String queryString = "INSERT ignore INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?) ";
-        insertArtistInfo(con, url, artist_id, discord_id, queryString);
+        insertArtistInfo(con, url, artist_id, discordId, queryString);
     }
 
     @Override
@@ -261,7 +262,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             throw new InstanceNotFoundException(artist);
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -280,7 +281,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -295,7 +296,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -314,7 +315,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return null;
     }
@@ -332,7 +333,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -349,7 +350,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -370,7 +371,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             return rows != 0;
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -392,7 +393,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             return new RandomUrlEntity(url, discordID, guildId);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -415,7 +416,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             return new RandomUrlEntity(url, discordID, guildId);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -460,7 +461,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             /* Return booking. */
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
 
@@ -486,7 +487,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
             return returnedMap;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -503,7 +504,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -524,7 +525,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -538,14 +539,14 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
     @Override
     public void fillIds(Connection connection, List<ScrobbledArtist> list) {
         String queryString = "SELECT id, name FROM  artist WHERE name IN (%s)  ";
-        String sql = String.format(queryString, list.size() == 0 ? null : preparePlaceHolders(list.size()));
+        String sql = String.format(queryString, list.isEmpty() ? null : preparePlaceHolders(list.size()));
 
         sql += " ORDER BY  name";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -581,7 +582,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             }
             collect = null;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -599,7 +600,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
             preparedStatement.execute();
 
             ResultSet ids = preparedStatement.getResultSet();
-            int counter = 0;
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 nonExistingId.setArtistId(generatedKeys.getLong("GENERATED_KEY"));
@@ -613,7 +613,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             }
         } catch (
                 SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -623,7 +623,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
         StringBuilder mySql =
                 new StringBuilder("INSERT INTO artist (name,url,url_status) VALUES (?,?,?)");
 
-        mySql.append(",(?,?,?)" .repeat(Math.max(0, nonExistingId.size() - 1)));
+        mySql.append(",(?,?,?)".repeat(Math.max(0, nonExistingId.size() - 1)));
         mySql.append(" on duplicate key update correction_status = correction_status  returning id,name ");
 
         try {
@@ -642,7 +642,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 nonExistingId.get(counter++).setArtistId(aLong);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -658,7 +658,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             }
             throw new InstanceNotFoundException(artistName);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -688,7 +688,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
                         .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()), role);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         throw new InstanceNotFoundException(discordId);
     }
@@ -716,7 +716,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             preparedStatement.setLong(3, whom);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -737,7 +737,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             }
             return null;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -753,14 +753,13 @@ public class UpdaterDaoImpl implements UpdaterDao {
                              "WHERE a.report_date < ? " +
                              "" + "GROUP BY a.alt_id ORDER BY l DESC LIMIT 1";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            int i = 0;
             preparedStatement.setTimestamp(1, Timestamp.from(localDateTime.atOffset(ZoneOffset.UTC).toInstant()));
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                long alt_url_id = resultSet.getLong(1);
+                long altUrlId = resultSet.getLong(1);
                 int reportCount = resultSet.getInt(2);
                 int score = resultSet.getInt(3);
-                Timestamp first_report = resultSet.getTimestamp(4);
+                Timestamp firstReport = resultSet.getTimestamp(4);
                 Timestamp imageDate = resultSet.getTimestamp(5);
                 long imageOwner = resultSet.getLong(6);
                 String artistName = resultSet.getString(7);
@@ -768,12 +767,12 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 int userReportCount = resultSet.getInt(9);
                 long artistId = resultSet.getInt(10);
                 return new ReportEntity(url, imageOwner, artistId,
-                        alt_url_id, first_report.toLocalDateTime(), artistName,
+                        altUrlId, firstReport.toLocalDateTime(), artistName,
                         imageDate.toLocalDateTime(), score, reportCount, userReportCount);
             }
             return null;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -785,18 +784,18 @@ public class UpdaterDaoImpl implements UpdaterDao {
             preparedStatement.setLong(1, aliasId);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
     @Override
-    public void updateUrlStatus(Connection con, long artist_id) {
+    public void updateUrlStatus(Connection con, long artistId) {
         String queryString = "UPDATE artist SET url_status = 0 WHERE id = ?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
-            preparedStatement.setLong(1, artist_id);
+            preparedStatement.setLong(1, artistId);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -813,34 +812,34 @@ public class UpdaterDaoImpl implements UpdaterDao {
             }
             return OptionalLong.empty();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
     @Override
-    public void removeVote(Connection con, long url_id, long discord_id) {
+    public void removeVote(Connection con, long urlId, long discordId) {
         String queryString = "DELETE FROM vote WHERE discord_id = ? AND alt_id = ? ";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
-            preparedStatement.setLong(1, discord_id);
-            preparedStatement.setLong(2, url_id);
+            preparedStatement.setLong(1, discordId);
+            preparedStatement.setLong(2, urlId);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
     @Override
-    public boolean castVote(Connection con, long url_id, long discord_id, boolean isPositive) {
+    public boolean castVote(Connection con, long urlId, long discordId, boolean isPositive) {
         String queryString = "INSERT IGNORE INTO vote(alt_id,discord_id,ispositive) VALUES (?,?,?) ON DUPLICATE KEY UPDATE  ispositive = ?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             int i = 1;
-            preparedStatement.setLong(i++, url_id);
-            preparedStatement.setLong(i++, discord_id);
+            preparedStatement.setLong(i++, urlId);
+            preparedStatement.setLong(i++, discordId);
             preparedStatement.setBoolean(i++, isPositive);
             preparedStatement.setBoolean(i, isPositive);
             return preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -854,32 +853,32 @@ public class UpdaterDaoImpl implements UpdaterDao {
             preparedStatement.setLong(i, userIdLong);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
 
     @Override
-    public void removeImage(Connection connection, long alt_id) {
+    public void removeImage(Connection connection, long altId) {
         String queryString = "DELETE FROM alt_url WHERE id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setLong(1, alt_id);
+            preparedStatement.setLong(1, altId);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
     @Override
-    public void logRemovedImage(Connection connection, long image_owner, long mod_id) {
+    public void logRemovedImage(Connection connection, long imageOwner, long modId) {
         String queryString = "INSERT  INTO log_reported(reported,modded) VALUES (?,?) ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
-            preparedStatement.setLong(i++, image_owner);
-            preparedStatement.setLong(i, mod_id);
+            preparedStatement.setLong(i++, imageOwner);
+            preparedStatement.setLong(i, modId);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -893,18 +892,18 @@ public class UpdaterDaoImpl implements UpdaterDao {
             }
             return 0;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
     @Override
-    public void removeReport(Connection connection, long alt_id) {
+    public void removeReport(Connection connection, long altId) {
         String queryString = "DELETE FROM reported WHERE alt_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setLong(1, alt_id);
+            preparedStatement.setLong(1, altId);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -918,7 +917,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             preparedStatement.setLong(i, secondDiscordID);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }

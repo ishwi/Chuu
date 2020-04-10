@@ -32,7 +32,7 @@ public class UpdateCommand extends ConcurrentCommand {
         super(dao);
         parser = new OnlyUsernameParser(dao, new OptionalEntity("--force", "Does a full heavy update"));
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotifyApi = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotifyApi = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -83,7 +83,7 @@ public class UpdateCommand extends ConcurrentCommand {
                     try {
                         CommandUtil.validate(getService(), datum, lastFM, discogsApi, spotifyApi);
                     } catch (LastFmEntityNotFoundException ex) {
-                        Chuu.getLogger().error("WTF ARTIST DELETED" + datum.getArtist());
+                        Chuu.getLogger().error("WTF ARTIST DELETED {} ", datum.getArtist());
                         iterator.remove();
                     }
                 }

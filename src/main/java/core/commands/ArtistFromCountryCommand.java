@@ -94,6 +94,6 @@ public class ArtistFromCountryCommand extends ConcurrentCommand {
                 .setTitle(title)
                 .setDescription(a);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(mes ->
-                executor.execute(() -> new Reactionary<>(list, mes, embedBuilder)));
+                new Reactionary<>(list, mes, embedBuilder));
     }
 }

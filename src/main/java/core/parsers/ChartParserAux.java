@@ -1,10 +1,10 @@
 package core.parsers;
 
-import com.sun.istack.Nullable;
 import core.parsers.exceptions.InvalidChartValuesException;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.TimeFrameEnum;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.time.Year;
 import java.util.Arrays;
@@ -14,12 +14,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 class ChartParserAux {
-    private final static Pattern pattern = Pattern.compile("(:?[yqsmwa]|(:?year(:?ly)?|month(:?ly)?|quarter(:?ly)?|semester(:?ly)?|week(:?ly)?|alltime|all))");
-    private final static Pattern naturalPattern = Pattern.compile("(:?[yqsmwadh']|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(:?ly)?(:?lies)?|day(:?s)?|" +
+    private static final Pattern pattern = Pattern.compile("(:?[yqsmwa]|(:?year(:?ly)?|month(:?ly)?|quarter(:?ly)?|semester(:?ly)?|week(:?ly)?|alltime|all))");
+    private static final Pattern naturalPattern = Pattern.compile("(:?[yqsmwadh']|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(:?ly)?(:?lies)?|day(:?s)?|" +
                                                                   "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))");
 
-    private final static Pattern nonPermissivePattern = Pattern.compile("[yqsmwa]");
-    private final static Pattern chartSizePattern = Pattern.compile("\\d+[xX]\\d+");
+    private static final Pattern nonPermissivePattern = Pattern.compile("[yqsmwa]");
+    private static final Pattern chartSizePattern = Pattern.compile("\\d+[xX]\\d+");
     private final boolean permissive;
     private String[] message;
 

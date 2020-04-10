@@ -67,7 +67,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
         list =
                 list.stream().peek(albumInfo -> {
                     try {
-                        albumInfo.setPlays(lastFM.getPlaysAlbum_Artist(username, artist, albumInfo.getAlbum())
+                        albumInfo.setPlays(lastFM.getPlaysAlbumArtist(username, artist, albumInfo.getAlbum())
                                 .getPlays());
 
                     } catch (LastFmException ex) {
@@ -94,7 +94,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
             return;
         }
         if (ap.hasOptional("--pie")) {
-            doPie(ap, np, ai, plays, logo);
+            doPie(ap, np, ai, logo);
             return;
         }
         doImage(ap, np, ai, plays, logo);
@@ -117,18 +117,17 @@ public class BandInfoCommand extends WhoKnowsCommand {
         List<AlbumUserPlays> list = ai.getAlbumList();
         for (int i = 0; i < list.size(); i++) {
             AlbumUserPlays albumUserPlays = list.get(i);
-            str.append(String.format("%d. [%s](%s) - %d plays\n", i + 1, albumUserPlays.getAlbum(), CommandUtil
+            str.append(String.format("%d. [%s](%s) - %d plays%n", i + 1, albumUserPlays.getAlbum(), CommandUtil
                     .getLastFmArtistAlbumUrl(ai.getArtist(), albumUserPlays.getAlbum()), albumUserPlays.getPlays()));
         }
         embedBuilder.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.cleanMarkdownCharacter(ai.getArtist()) + " albums").
                 setThumbnail(CommandUtil.noImageUrl(ap.getScrobbledArtist().getUrl())).setDescription(str)
                 .setColor(CommandUtil.randomColor());
-        //.setFooter("Command invoked by " + event.getMember().getLastFmId().getDiscriminator() + "" + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toApiFormat(), );
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel())
                 .queue();
     }
 
-    private void doPie(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo) {
+    private void doPie(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, BufferedImage logo) {
         PieChart pieChart = this.pie.doPie(ap, ai.getAlbumList());
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getDiscordId());
 

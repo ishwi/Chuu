@@ -45,8 +45,8 @@ public class ScrobblesSinceCommand extends ConcurrentCommand {
         OffsetDateTime date = parameters.getDate();
         int i = lastFM.scrobblesSince(lastFMData.getName(), date);
         String username = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId()).getUsername();
-        String mmmm_dd = date.format(DateTimeFormatter.ofPattern("MMMM d"));
-        sendMessageQueue(e, String.format("%s has a total of %d scrobbles since %s%s %d %s", username, i, mmmm_dd, getDayNumberSuffix(date.getDayOfMonth()),
+        String mmmmD = date.format(DateTimeFormatter.ofPattern("MMMM d"));
+        sendMessageQueue(e, String.format("%s has a total of %d scrobbles since %s%s %d %s", username, i, mmmmD, getDayNumberSuffix(date.getDayOfMonth()),
                 date.getYear(), date.getMinute() == 0 && date.getHour() == 0 && date.getSecond() == 0
                         ? "" : date.format(DateTimeFormatter.ofPattern("HH:mm x"))));
     }

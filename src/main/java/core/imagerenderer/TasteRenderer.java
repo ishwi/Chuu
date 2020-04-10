@@ -12,21 +12,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TasteRenderer {
-    private static final int PROFILE_IMAGE_SIZE = 100;
-    private static final int x_MAX = 600;
-    private static final int y_MAX = 500;
+    private static final int X_MAX = 600;
 
+    private static final int PROFILE_IMAGE_SIZE = 100;
+    private static final int Y_MAX = 500;
+
+    private TasteRenderer() {
+    }
 
     public static BufferedImage generateTasteImage(ResultWrapper<UserArtistComparison> resultWrapper, List<UserInfo> userInfoLiust) {
 
-        BufferedImage canvas = new BufferedImage(x_MAX, y_MAX, BufferedImage.TYPE_INT_RGB);
+        BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
 
         List<BufferedImage> imageList = new ArrayList<>();
 
         Graphics2D g = canvas.createGraphics();
         GraphicUtils.setQuality(g);
 
-        GraphicUtils.initRandomImageBlurredBackground(g, x_MAX, y_MAX);
+        GraphicUtils.initRandomImageBlurredBackground(g, X_MAX, Y_MAX);
 
         //Gets Profile Images
         for (UserInfo userInfo : userInfoLiust) {
@@ -51,14 +54,12 @@ public class TasteRenderer {
 
         int x = 0;
         int y = 20;
-        int image1StartPosition, image2StartPosition;
-        image1StartPosition = 20;
-        image2StartPosition = canvas.getWidth() - PROFILE_IMAGE_SIZE - 20;
+        int image1StartPosition = 20;
+        int image2StartPosition = canvas.getWidth() - PROFILE_IMAGE_SIZE - 20;
         g.setColor(Color.WHITE);
-        //int rectangle_start_x = image1StartPosition + PROFILE_IMAGE_SIZE + 4;
-        int rectangle_start_y = y + PROFILE_IMAGE_SIZE - 20;
-        int rectangle_height = g.getFontMetrics().getHeight();
-        int rectangle_width = image2StartPosition - image1StartPosition - PROFILE_IMAGE_SIZE - 8;
+        int rectangleStartY = y + PROFILE_IMAGE_SIZE - 20;
+        int rectangleHeight = g.getFontMetrics().getHeight();
+        int rectangleWidth = image2StartPosition - image1StartPosition - PROFILE_IMAGE_SIZE - 8;
 
         float[] rgb1 = new float[3];
         Color.ORANGE.getRGBColorComponents(rgb1);
@@ -74,7 +75,7 @@ public class TasteRenderer {
         int widht1 = g.getFontMetrics().stringWidth(userInfoLiust.get(0).getUsername());
         int width2 = g.getFontMetrics().stringWidth(userInfoLiust.get(1).getUsername());
         int totalwidth = widht1 + width2 + 4;
-        int disponibleSize = rectangle_width + 8;
+        int disponibleSize = rectangleWidth + 8;
 
         while (totalwidth >= disponibleSize) {
             startFont -= 2;
@@ -108,33 +109,33 @@ public class TasteRenderer {
                 color = colorB.brighter();
                 countStringPosition = image2StartPosition - g.getFontMetrics()
                         .stringWidth(String.valueOf(userInfo.getPlayCount())) - 5;
-                rectanglePosition = (int) (image2StartPosition - percentage * rectangle_width) - 4;
+                rectanglePosition = (int) (image2StartPosition - percentage * rectangleWidth) - 4;
             }
             g.setColor(color);
             g.drawImage(image, drawx, y, 100, 100, null);
-            g.fillRect(rectanglePosition, rectangle_start_y, (int) (rectangle_width * percentage), rectangle_height);
+            g.fillRect(rectanglePosition, rectangleStartY, (int) (rectangleWidth * percentage), rectangleHeight);
             g.setColor(Color.WHITE);
             g.setFont(usernameFont);
             GraphicUtils.drawStringNicely(g, userInfo
                     .getUsername(), nameStringPosition, 20 + PROFILE_IMAGE_SIZE / 2, canvas);
             g.setFont(scrobbleFont);
             GraphicUtils.drawStringNicely(g, "" + userInfo
-                    .getPlayCount(), countStringPosition, rectangle_start_y + rectangle_height - 1, canvas);
+                    .getPlayCount(), countStringPosition, rectangleStartY + rectangleHeight - 1, canvas);
             x++;
 
         }
 
         //Draws Common Artists
-        y = rectangle_start_y + 64 + 20;
+        y = rectangleStartY + 64 + 20;
         String a = String.valueOf(resultWrapper.getRows());
 
         g.setFont(titleFont);
         int length = g.getFontMetrics().stringWidth(a);
-        GraphicUtils.drawStringNicely(g, "" + resultWrapper.getRows(), x_MAX / 2 - length / 2, y - 30, canvas);
+        GraphicUtils.drawStringNicely(g, "" + resultWrapper.getRows(), X_MAX / 2 - length / 2, y - 30, canvas);
 
         g.setFont(subtitle);
 
-        GraphicUtils.drawStringNicely(g, "common artists", x_MAX / 2 + length / 2 + 4, y - 30, canvas);
+        GraphicUtils.drawStringNicely(g, "common artists", X_MAX / 2 + length / 2 + 4, y - 30, canvas);
 
         //Draws Top 10
 
@@ -144,13 +145,13 @@ public class TasteRenderer {
             int countA = item.getCountA();
             int countB = item.getCountB();
 
-            int halfDistance = x_MAX - 200;
+            int halfDistance = X_MAX - 200;
             int ac = Math.round((float) countA / (float) (countA + countB) * halfDistance);
             int bc = Math.round((float) countB / (float) (countA + countB) * halfDistance);
             g.setColor(colorA1);
-            g.fillRect(x_MAX / 2 - ac / 2, y + 3, ac / 2, 5);
+            g.fillRect(X_MAX / 2 - ac / 2, y + 3, ac / 2, 5);
             g.setColor(colorB1);
-            g.fillRect(x_MAX / 2, y + 3, bc / 2, 5);
+            g.fillRect(X_MAX / 2, y + 3, bc / 2, 5);
 
             g.setColor(Color.WHITE);
             g.setFont(numberFont);
@@ -158,7 +159,7 @@ public class TasteRenderer {
 
             int widthB = g.getFontMetrics().stringWidth(strCountBString);
 
-            int countBStart = x_MAX - 100 - widthB;
+            int countBStart = X_MAX - 100 - widthB;
             GraphicUtils.drawStringNicely(g, "" + countA, 100, y, canvas);
             GraphicUtils.drawStringNicely(g, "" + countB, countBStart, y, canvas);
             g.setFont(artistFont);
@@ -169,7 +170,7 @@ public class TasteRenderer {
                 g.setFont(fontToUse);
             }
             int widthStr = g.getFontMetrics().stringWidth(item.getArtistID());
-            GraphicUtils.drawStringNicely(g, artistID, x_MAX / 2 - (widthStr / 2), y, canvas);
+            GraphicUtils.drawStringNicely(g, artistID, X_MAX / 2 - (widthStr / 2), y, canvas);
             y += g.getFontMetrics().getHeight() + 5;
         }
         g.dispose();

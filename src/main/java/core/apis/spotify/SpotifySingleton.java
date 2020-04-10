@@ -1,27 +1,25 @@
 package core.apis.spotify;
 
 public class SpotifySingleton {
+    private static Spotify instance;
+    private static String secret;
+    private static String clientID;
 
-	private static volatile Spotify instance;
-	private static String secret;
-	private static String clientID;
+    private SpotifySingleton() {
+    }
 
-	//Not pretty
-	public SpotifySingleton(String secret2, String clientID2) {
-		secret = secret2;
-		clientID = clientID2;
-	}
+    //Not pretty
+    public static void init(String secret2, String clientID2) {
+        secret = secret2;
+        clientID = clientID2;
+    }
 
 
-	public static Spotify getInstanceUsingDoubleLocking() {
-		if (instance == null) {
-			synchronized (core.apis.spotify.SpotifySingleton.class) {
-				if (instance == null) {
-					instance = new Spotify(secret, clientID);
-				}
-			}
-		}
-		return instance;
-	}
+    public static synchronized Spotify getInstance() {
+        if (instance == null) {
+            instance = new Spotify(secret, clientID);
+        }
+        return instance;
+    }
 
 }

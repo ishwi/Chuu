@@ -28,7 +28,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
         respondInPrivate = true;
         this.parser = new ArtistTimeFrameParser(dao, lastFM);
         this.discogs = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstance();
     }
 
     @Override

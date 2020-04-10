@@ -1,6 +1,7 @@
 package core.commands;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
@@ -59,7 +60,7 @@ public class UserExportCommand extends ConcurrentCommand {
                             "users_" + e.getGuild().getName() + LocalDateTime.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME) + ".json"))
                     .queue();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            Chuu.getLogger().warn(ex.getMessage(), ex);
         }
     }
 }

@@ -34,12 +34,13 @@ public class UpdaterThread implements Runnable {
     private final Spotify spotify;
     private final boolean isIncremental;
     private final DiscogsApi discogsApi;
+    private final Random r = new Random();
 
 
     public UpdaterThread(ChuuService dao, boolean isIncremental) {
         this.dao = dao;
         lastFM = LastFMFactory.getNewInstance();
-        spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        spotify = SpotifySingleton.getInstance();
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.isIncremental = isIncremental;
     }
@@ -49,7 +50,6 @@ public class UpdaterThread implements Runnable {
         try {
             System.out.println("THREAD WORKING ) + " + LocalDateTime.now().toString());
             UpdaterUserWrapper userWork;
-            Random r = new Random();
             float chance = r.nextFloat();
             userWork = dao.getLessUpdated();
 
@@ -75,14 +75,14 @@ public class UpdaterThread implements Runnable {
                     dao.incrementalUpdate(artistDataLinkedList, userWork.getLastFMName());
 
                     System.out.println("Updated Info Incrementally of " + userWork.getLastFMName()
-                            + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+                                       + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
                     System.out.println(" Number of rows updated :" + artistDataLinkedList.getWrapped().size());
                 } else {
 
                     List<ScrobbledArtist> scrobbledArtistLinkedList = lastFM.getAllArtists(userWork.getLastFMName(), TimeFrameEnum.ALL.toApiFormat());
                     dao.insertArtistDataList(scrobbledArtistLinkedList, userWork.getLastFMName());
                     System.out.println("Updated Info Normally  of " + userWork.getLastFMName()
-                            + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+                                       + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
                     System.out.println(" Number of rows updated :" + scrobbledArtistLinkedList.size());
                 }
             } catch (LastFMNoPlaysException e) {
@@ -90,7 +90,7 @@ public class UpdaterThread implements Runnable {
                 dao.updateUserTimeStamp(userWork.getLastFMName(), userWork.getTimestamp(),
                         (int) (Instant.now().getEpochSecond() + 4000));
                 System.out.println("No plays " + userWork.getLastFMName()
-                        + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+                                   + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
             } catch (LastFmEntityNotFoundException e) {
                 dao.removeUserCompletely(userWork.getDiscordID());
             }

@@ -61,7 +61,7 @@ public class CrownLeaderboardCommand extends ListCommand<LbEntry> {
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setFooter(e.getGuild().getName() + " has " + list.size() + " registered users!\n", null);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
-                executor.execute(() -> new Reactionary<>(list, message, embedBuilder)));
+                new Reactionary<>(list, message, embedBuilder));
     }
 
 

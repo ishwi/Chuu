@@ -29,7 +29,7 @@ public class ArtistCommand extends ChartableCommand {
     public ArtistCommand(ChuuService dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotifyApi = SpotifySingleton.getInstanceUsingDoubleLocking();
+        spotifyApi = SpotifySingleton.getInstance();
     }
 
     @Override

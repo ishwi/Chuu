@@ -21,8 +21,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class DateParser extends DaoParser {
-    private static BiFunction<String, DateTimeFormatter[], Optional<OffsetDateTime>> eval = (s, dateTimeFormatters) ->
-            Arrays.stream(dateTimeFormatters).map(x -> {
+    private static BiFunction<String, DateTimeFormatter[], Optional<OffsetDateTime>> eval = (s, formatArray) ->
+            Arrays.stream(formatArray).map(x -> {
                 try {
                     TemporalAccessor parse = x.parse(s);
                     int year;
@@ -176,6 +176,7 @@ public class DateParser extends DaoParser {
                 try {
                     count = Integer.parseInt(words[0]);
                 } catch (NumberFormatException ignored) {
+                    //It wasnt a number
                 }
             }
             localDate = naturalTimeFrameEnum.toLocalDate(count).atOffset(ZoneOffset.UTC);

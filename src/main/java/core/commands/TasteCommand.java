@@ -60,7 +60,7 @@ public class TasteCommand extends ConcurrentCommand {
 
         if (isList) {
             StringBuilder stringBuilder = new StringBuilder();
-            List<String> strings = resultWrapper.getResultList().stream().map(x -> String.format(". [%s](%s) - %d vs %d plays\n",
+            List<String> strings = resultWrapper.getResultList().stream().map(x -> String.format(". [%s](%s) - %d vs %d plays%n",
                     x.getArtistID(),
                     CommandUtil.getLastFmArtistUrl(x.getArtistID()),
                     x.getCountA(), x.getCountB())).collect(Collectors.toList());
@@ -78,7 +78,7 @@ public class TasteCommand extends ConcurrentCommand {
                     .setThumbnail(uinfo1.getUrlImage());
             MessageBuilder mes = new MessageBuilder();
             e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                    executor.execute(() -> new Reactionary<>(strings, message1, embedBuilder)));
+                    new Reactionary<>(strings, message1, embedBuilder));
         } else {
             java.util.List<String> users = new ArrayList<>();
             users.add(resultWrapper.getResultList().get(0).getUserA());

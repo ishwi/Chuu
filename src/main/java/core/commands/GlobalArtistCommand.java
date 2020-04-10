@@ -25,7 +25,7 @@ public class GlobalArtistCommand extends ConcurrentCommand {
     public GlobalArtistCommand(ChuuService dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstance();
         this.parser = new ArtistParser(dao, lastFM);
     }
 
@@ -88,15 +88,15 @@ public class GlobalArtistCommand extends ConcurrentCommand {
         if (e.isFromGuild()) {
             StringBuilder serverStats = new StringBuilder();
             long artistFrequencies = getService().getArtistFrequencies(e.getGuild().getIdLong(), validable.getArtistId());
-            serverStats.append(String.format("**%d** listeners\n", artistFrequencies));
+            serverStats.append(String.format("**%d** listeners%n", artistFrequencies));
             long serverArtistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), validable.getArtistId());
-            serverStats.append(String.format("**%d** plays\n", serverArtistPlays));
+            serverStats.append(String.format("**%d** plays%n", serverArtistPlays));
             embedBuilder.
                     addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), serverStats.toString(), true);
         }
 
-        String globalStats = String.format("**%d** listeners\n", totalPeople) +
-                             String.format("**%d** plays\n", totalPlays);
+        String globalStats = String.format("**%d** listeners%n", totalPeople) +
+                             String.format("**%d** plays%n", totalPlays);
         embedBuilder
                 .addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName())), globalStats, true);
 

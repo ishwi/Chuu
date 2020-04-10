@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ArtistTimeFrameParser extends ArtistParser {
-    private final TimeFrameEnum defaultTFE = TimeFrameEnum.ALL;
+    private final static TimeFrameEnum defaultTFE = TimeFrameEnum.ALL;
 
     public ArtistTimeFrameParser(ChuuService dao, ConcurrentLastFM lastFM) {
         super(dao, lastFM);

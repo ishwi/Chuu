@@ -108,7 +108,7 @@ public class WeeklyCommand extends ConcurrentCommand {
                 .setColor(CommandUtil.randomColor())
                 .setTitle(usableName + "'s week", CommandUtil.getLastFmUser(lastFmName))
                 .setThumbnail(url.isEmpty() ? null : url)
-                .setFooter(String.format("%s has listen to %d distinct tracks (%d total tracks)\n for a total of %s", CommandUtil.markdownLessUserString(usableName, discordID, e), durationsFromWeek.size(), totalTracks.get(),
+                .setFooter(String.format("%s has listen to %d distinct tracks (%d total tracks)%n for a total of %s", CommandUtil.markdownLessUserString(usableName, discordID, e), durationsFromWeek.size(), totalTracks.get(),
                         String.format("%d %s and %02d %s ", minutesWastedOnMusicDaily.getHours(), CommandUtil.singlePlural(minutesWastedOnMusicDaily.getHours(), "hour", "hours"),
                                 minutesWastedOnMusicDaily.getRemainingMinutes(), CommandUtil.singlePlural(minutesWastedOnMusicDaily.getMinutes(), "minute", "minutes"))));
         MessageBuilder mes = new MessageBuilder();

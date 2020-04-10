@@ -25,7 +25,7 @@ public class AliasesCommand extends ConcurrentCommand {
     public AliasesCommand(ChuuService dao) {
         super(dao);
         this.parser = new ArtistParser(dao, lastFM);
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstance();
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
     }
 
@@ -60,7 +60,7 @@ public class AliasesCommand extends ConcurrentCommand {
         String correctedArtist = CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist());
         List<String> artistAliases = getService().getArtistAliases(scrobbledArtist.getArtistId())
                 .stream().map(x -> ". **" + CommandUtil.cleanMarkdownCharacter(x) + "**\n").collect(Collectors.toList());
-        if (artistAliases.size() == 0) {
+        if (artistAliases.isEmpty()) {
             sendMessageQueue(e, correctedArtist + " doesn't have any correction:");
             return;
         }
@@ -79,7 +79,7 @@ public class AliasesCommand extends ConcurrentCommand {
         embedBuilder.setThumbnail(scrobbledArtist.getUrl());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                executor.execute(() -> new Reactionary<>(artistAliases, message1, embedBuilder)));
+                new Reactionary<>(artistAliases, message1, embedBuilder));
     }
 
 }

@@ -30,7 +30,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 public class CommandUtil {
-    private final static Pattern markdownStripper = Pattern.compile("((?<!\\\\)[*_~|`>\\[()\\]])");
+
+    private static final Pattern markdownStripper = Pattern.compile("((?<!\\\\)[*_~|`>\\[()\\]])");
+    private static final Random rand = new Random();
+
+    private CommandUtil() {
+    }
 
     static String noImageUrl(String artist) {
         return artist == null || artist
@@ -38,16 +43,12 @@ public class CommandUtil {
     }
 
     public static Color randomColor() {
-        Random rand = new Random();
         double r = rand.nextFloat() / 2f + 0.5;
         double g = rand.nextFloat() / 2f + 0.5;
         double b = rand.nextFloat() / 2f + 0.5;
         return new Color((float) r, (float) g, (float) b);
     }
 
-//	static CompletableFuture<String> getDiscogsUrlAync(DiscogsApi discogsApi, String artist, DaoImplementation dao) {
-//		return CompletableFuture.supplyAsync(() -> updateUrl(discogsApi, artist, dao));
-//	}
 
     static BufferedImage getLogo(ChuuService dao, MessageReceivedEvent e) {
         try (InputStream stream = dao.findLogo(e.getGuild().getIdLong())) {
@@ -58,7 +59,6 @@ public class CommandUtil {
         }
         return null;
     }
-
 
     public static String updateUrl(DiscogsApi discogsApi, ScrobbledArtist scrobbledArtist, ChuuService dao, Spotify spotify) {
         String newUrl = null;
@@ -77,7 +77,7 @@ public class CommandUtil {
                 }
             }
         } catch (DiscogsServiceException ignored) {
-
+            //Do nothing
         }
         return newUrl;
     }
@@ -230,7 +230,7 @@ public class CommandUtil {
     }
 
     public static String sanitizeUserString(String message) {
-        return message.replaceAll("@", "@\u200E");
+        return message.replace("@", "@\u200E");
     }
 
     public static String getLastFMArtistTrack(String artist, String track) {

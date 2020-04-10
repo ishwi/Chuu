@@ -30,7 +30,7 @@ public class SummaryArtistCommand extends ConcurrentCommand {
         this.parser = new ArtistParser(dao, lastFM);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.mb = MusicBrainzServiceSingleton.getInstance();
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -85,16 +85,16 @@ public class SummaryArtistCommand extends ConcurrentCommand {
         if (e.isFromGuild()) {
             StringBuilder serverStats = new StringBuilder();
             long artistFrequencies = getService().getArtistFrequencies(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
-            serverStats.append(String.format("**%d** listeners\n", artistFrequencies));
+            serverStats.append(String.format("**%d** listeners%n", artistFrequencies));
             long serverArtistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
-            serverStats.append(String.format("**%d** plays\n", serverArtistPlays));
+            serverStats.append(String.format("**%d** plays%n", serverArtistPlays));
             embedBuilder.
                     addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), serverStats.toString(), true);
         }
-        String lastFMStats = String.format("**%d** listeners\n", summary.getListeners()) +
-                             String.format("**%d** plays\n", summary.getPlaycount());
-        String globalStats = String.format("**%d** listeners\n", globalArtistFrequencies) +
-                             String.format("**%d** plays\n", globalArtistPlays);
+        String lastFMStats = String.format("**%d** listeners%n", summary.getListeners()) +
+                             String.format("**%d** plays%n", summary.getPlaycount());
+        String globalStats = String.format("**%d** listeners%n", globalArtistFrequencies) +
+                             String.format("**%d** plays%n", globalArtistPlays);
         embedBuilder
                 .addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName())), globalStats, true)
                 .addField("Last.FM stats", lastFMStats, true)

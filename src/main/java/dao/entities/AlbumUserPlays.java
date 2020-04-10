@@ -1,45 +1,45 @@
 package dao.entities;
 
 public class AlbumUserPlays {
-	private String album;
-	private String album_url;
-	private int plays;
-	private String artist;
+    private String album;
+    private String albumUrl;
+    private int plays;
+    private String artist;
 
-	public AlbumUserPlays(String album, String album_url) {
-		this.album = album;
-		this.album_url = album_url;
-	}
+    public AlbumUserPlays(String album, String albumUrl) {
+        this.album = album;
+        this.albumUrl = albumUrl;
+    }
 
-	public String getArtist() {
-		return artist;
-	}
+    public String getArtist() {
+        return artist;
+    }
 
-	public void setArtist(String artist) {
-		this.artist = artist;
-	}
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
 
-	public String getAlbum() {
-		return album;
-	}
+    public String getAlbum() {
+        return album;
+    }
 
-	public void setAlbum(String album) {
-		this.album = album;
-	}
+    public void setAlbum(String album) {
+        this.album = album;
+    }
 
-	public String getAlbum_url() {
-		return album_url;
-	}
+    public String getAlbumUrl() {
+        return albumUrl;
+    }
 
-	public void setAlbum_url(String album_url) {
-		this.album_url = album_url;
-	}
+    public void setAlbumUrl(String albumUrl) {
+        this.albumUrl = albumUrl;
+    }
 
-	public int getPlays() {
-		return plays;
-	}
+    public int getPlays() {
+        return plays;
+    }
 
-	public void setPlays(int plays) {
-		this.plays = plays;
-	}
+    public void setPlays(int plays) {
+        this.plays = plays;
+    }
 }

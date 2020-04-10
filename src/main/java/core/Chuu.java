@@ -3,16 +3,22 @@ package core;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.*;
+import core.exceptions.ChuuServiceException;
 import core.scheduledtasks.ImageUpdaterThread;
 import core.scheduledtasks.SpotifyUpdaterThread;
 import core.scheduledtasks.UpdaterThread;
 import dao.ChuuService;
-import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.priv.react.PrivateMessageReactionAddEvent;
 import net.dv8tion.jda.api.managers.Presence;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -34,6 +42,12 @@ public class Chuu {
     private static Map<Long, Character> prefixMap;
     private static JDA jda;
     private static Logger logger;
+
+    private static ScheduledExecutorService scheduledExecutorService;
+
+    public static ScheduledExecutorService getScheduledExecutorService() {
+        return scheduledExecutorService;
+    }
 
     public static void addGuildPrefix(long guildId, Character prefix) {
         Character replace = prefixMap.replace(guildId, prefix);
@@ -111,30 +125,33 @@ public class Chuu {
         // using the proper System path formatting.
     }
 
+    private static Collection<GatewayIntent> getIntents() {
+        return GatewayIntent.fromEvents(GuildMemberRemoveEvent.class,
+                GuildMessageReactionAddEvent.class,
+                PrivateMessageReactionAddEvent.class,
+                MessageReceivedEvent.class
+        );
+    }
+
     public static void setupBot(boolean isTest) {
         logger = LoggerFactory.getLogger(Chuu.class);
         Properties properties = readToken();
         ChuuService dao = new ChuuService();
         prefixMap = initPrefixMap(dao);
-        new DiscogsSingleton(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
-        new SpotifySingleton(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
+        DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
+        SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
 
         // Needs these three references
         HelpCommand help = new HelpCommand(dao);
         AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
         PrefixCommand prefixCommand = new PrefixCommand(dao);
 
-        ScheduledExecutorService scheduledManager = Executors.newScheduledThreadPool(2);
-        if (!isTest) {
-            scheduledManager.scheduleAtFixedRate(
-                    new UpdaterThread(dao, true), 0, 120,
-                    TimeUnit.SECONDS);
-            scheduledManager.scheduleAtFixedRate(new ImageUpdaterThread(dao), 10, 20, TimeUnit.MINUTES);
-            scheduledManager.scheduleAtFixedRate(
-                    new SpotifyUpdaterThread(dao), 20, 20,
-                    TimeUnit.MINUTES);
-        }
-        JDABuilder builder = new JDABuilder(AccountType.BOT)
+        scheduledExecutorService = Executors.newScheduledThreadPool(4);
+
+
+        JDABuilder builder = JDABuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL)
+                .disableCache(EnumSet.allOf(CacheFlag.class))
+                .setBulkDeleteSplittingEnabled(false)
                 .setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
                 .setEventManager(new CustomInterfacedEventManager()).addEventListeners(help)
                 .addEventListeners(help.registerCommand(commandAdministrator))
@@ -172,7 +189,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new CountryCommand(dao)))
                 .addEventListeners(help.registerCommand(new AlbumTracksDistributionCommand(dao)))
                 .addEventListeners(help.registerCommand(new ObscurityLeaderboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new FeaturedCommand(dao, scheduledManager)))
+                .addEventListeners(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)))
                 .addEventListeners(help.registerCommand(new RandomAlbumCommand(dao)))
                 .addEventListeners(help.registerCommand(new WhoKnowsSongCommand(dao)))
                 .addEventListeners(help.registerCommand(new CrownsStolenCommand(dao)))
@@ -222,11 +239,20 @@ public class Chuu {
             jda = builder.build().awaitReady();
             commandAdministrator.onStartup(jda);
             prefixCommand.onStartup(jda);
-
+            if (!isTest) {
+                scheduledExecutorService.scheduleAtFixedRate(
+                        new UpdaterThread(dao, true), 0, 120,
+                        TimeUnit.SECONDS);
+                scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 10, 20, TimeUnit.MINUTES);
+                scheduledExecutorService.scheduleAtFixedRate(
+                        new SpotifyUpdaterThread(dao), 20, 20,
+                        TimeUnit.MINUTES);
+            }
             updatePresence("Chuu");
 
         } catch (LoginException | InterruptedException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -238,14 +264,14 @@ public class Chuu {
         return (dao.getGuildPrefixes());
     }
 
-    static private Properties readToken() {
+    private static Properties readToken() {
 
         Properties properties = new Properties();
         try (InputStream in = Chuu.class.getResourceAsStream("/all.properties")) {
             properties.load(in);
             return properties;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 

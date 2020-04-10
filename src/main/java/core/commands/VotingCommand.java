@@ -74,102 +74,102 @@ public class VotingCommand extends ConcurrentCommand {
         String preCorrectionArtist = parse[0];
         ScrobbledArtist artist = CommandUtil.onlyCorrection(getService(), preCorrectionArtist, lastFM);
         List<VotingEntity> allArtistImages = getService().getAllArtistImages(artist.getArtistId());
-        if (allArtistImages.size() == 0) {
+        if (allArtistImages.isEmpty()) {
             sendMessageQueue(e, artist.getArtist() + " doesn't have any image");
             return;
         }
-        String corrected_artist = CommandUtil.cleanMarkdownCharacter(allArtistImages.get(0).getArtist());
+        String correctedArtist = CommandUtil.cleanMarkdownCharacter(allArtistImages.get(0).getArtist());
         EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setTitle(corrected_artist + " Images");
-        this.executor.submit(() -> {
-            AtomicInteger counter = new AtomicInteger(0);
-            HashMap<String, BiFunction<VotingEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
-            List<Long> guildList = e.isFromGuild()
-                    ? getService().getAll(e.getGuild().getIdLong()).stream().filter(u -> !u.getRole().equals(Role.IMAGE_BLOCKED)).map(UsersWrapper::getDiscordID).collect(Collectors.toList())
-                    : List.of(e.getAuthor().getIdLong());
+                .setTitle(correctedArtist + " Images");
 
-            actionMap.put(REPORT, (a, r) -> {
-                if (guildList.contains(r.getUserIdLong())) {
-                    getService().report(a.getUrlId(), r.getUserIdLong());
-                }
-                return false;
-            });
-            actionMap.put(UP_VOTE, (a, r) -> {
-                if (guildList.contains(r.getUserIdLong())) {
-                    VoteStatus voteStatus = getService().castVote(a.getUrlId(), r.getUserIdLong(), true);
-                    if (voteStatus.equals(VoteStatus.CHANGE_VALUE)) {
-                        a.changeToAPositive();
-                    } else if (voteStatus.equals(VoteStatus.NEW_VOTE)) {
-                        a.add();
-                        a.incrementTotalVotes();
-                    }
-                }
-                return false;
-            });
-            actionMap.put(DOWN_VOTE, (a, r) -> {
-                if (guildList.contains(r.getUserIdLong())) {
-                    VoteStatus voteStatus = getService().castVote(a.getUrlId(), r.getUserIdLong(), false);
-                    if (voteStatus.equals(VoteStatus.CHANGE_VALUE)) {
-                        a.changeToANegative();
-                    } else if (voteStatus.equals(VoteStatus.NEW_VOTE)) {
-                        a.decrement();
-                        a.incrementTotalVotes();
-                    }
-                }
-                return false;
-            });
-            if (allArtistImages.size() > 1) {
-                actionMap.put(LEFT_ARROW, (aliasEntity, r) -> {
-                    int i = counter.decrementAndGet();
-                    if (i == 0) {
-                        r.getReaction().clearReactions().complete();
-                    }
-                    if (i == allArtistImages.size() - 2) {
-                        r.getChannel().addReactionById(r.getMessageIdLong(), RIGHT_ARROW).queue();
-                    }
-                    return false;
-                });
-                actionMap.put(RIGHT_ARROW, (a, r) -> {
-                    int i = counter.incrementAndGet();
-                    if (i == allArtistImages.size() - 1) {
-                        r.getReaction().clearReactions().queue();
-                    }
-                    if (i == 1) {
-                        r.getChannel().addReactionById(r.getMessageIdLong(), LEFT_ARROW).queue();
-                    }
-                    return false;
-                });
+        AtomicInteger counter = new AtomicInteger(0);
+        HashMap<String, BiFunction<VotingEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
+        List<Long> guildList = e.isFromGuild()
+                ? getService().getAll(e.getGuild().getIdLong()).stream().filter(u -> !u.getRole().equals(Role.IMAGE_BLOCKED)).map(UsersWrapper::getDiscordID).collect(Collectors.toList())
+                : List.of(e.getAuthor().getIdLong());
+
+        actionMap.put(REPORT, (a, r) -> {
+            if (guildList.contains(r.getUserIdLong())) {
+                getService().report(a.getUrlId(), r.getUserIdLong());
             }
-
-            new Validator<>(
-                    (finalEmbed) -> {
-                        VotingEntity first = allArtistImages.stream().max(Comparator.comparingLong(VotingEntity::getVotes)).orElse(allArtistImages.get(0));
-                        String description = "Submitted by: " + CommandUtil.getGlobalUsername(e.getJDA(), first.getOwner()) + "\n\n";
-                        if (first != allArtistImages.get(0)) {
-                            description += "The artist image for " + CommandUtil.cleanMarkdownCharacter(first.getArtist()) + " has changed to:";
-                        } else {
-                            description += "The top voted image for " + CommandUtil.cleanMarkdownCharacter(first.getArtist()) + " is:";
-                        }
-                        return finalEmbed.setTitle("Voting Timed Out")
-                                .setImage(first.getUrl())
-                                .clearFields()
-                                .setDescription(description)
-                                .setFooter(String.format("Has %d %s with %d%s", first.getVotes(), CommandUtil.singlePlural(first.getVotes(), "point", "points"), first.getTotalVotes(),
-                                        CommandUtil.singlePlural(first.getTotalVotes(), " vote", " votes")))
-                                .setColor(CommandUtil.randomColor());
-                    },
-                    () -> {
-                        if (counter.get() >= allArtistImages.size() - 1) {
-                            counter.set(allArtistImages.size() - 1);
-                        }
-                        if (counter.get() < 0) {
-                            counter.set(0);
-                        }
-                        return allArtistImages.get(counter.get());
-                    },
-                    builder.apply(e.getJDA(), allArtistImages.size())
-                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, true, true);
+            return false;
         });
+        actionMap.put(UP_VOTE, (a, r) -> {
+            if (guildList.contains(r.getUserIdLong())) {
+                VoteStatus voteStatus = getService().castVote(a.getUrlId(), r.getUserIdLong(), true);
+                if (voteStatus.equals(VoteStatus.CHANGE_VALUE)) {
+                    a.changeToAPositive();
+                } else if (voteStatus.equals(VoteStatus.NEW_VOTE)) {
+                    a.add();
+                    a.incrementTotalVotes();
+                }
+            }
+            return false;
+        });
+        actionMap.put(DOWN_VOTE, (a, r) -> {
+            if (guildList.contains(r.getUserIdLong())) {
+                VoteStatus voteStatus = getService().castVote(a.getUrlId(), r.getUserIdLong(), false);
+                if (voteStatus.equals(VoteStatus.CHANGE_VALUE)) {
+                    a.changeToANegative();
+                } else if (voteStatus.equals(VoteStatus.NEW_VOTE)) {
+                    a.decrement();
+                    a.incrementTotalVotes();
+                }
+            }
+            return false;
+        });
+        if (allArtistImages.size() > 1) {
+            actionMap.put(LEFT_ARROW, (aliasEntity, r) -> {
+                int i = counter.decrementAndGet();
+                if (i == 0) {
+                    r.getReaction().clearReactions().complete();
+                }
+                if (i == allArtistImages.size() - 2) {
+                    r.getChannel().addReactionById(r.getMessageIdLong(), RIGHT_ARROW).queue();
+                }
+                return false;
+            });
+            actionMap.put(RIGHT_ARROW, (a, r) -> {
+                int i = counter.incrementAndGet();
+                if (i == allArtistImages.size() - 1) {
+                    r.getReaction().clearReactions().queue();
+                }
+                if (i == 1) {
+                    r.getChannel().addReactionById(r.getMessageIdLong(), LEFT_ARROW).queue();
+                }
+                return false;
+            });
+        }
+
+        new Validator<>(
+                finalEmbed -> {
+                    VotingEntity first = allArtistImages.stream().max(Comparator.comparingLong(VotingEntity::getVotes)).orElse(allArtistImages.get(0));
+                    String description = "Submitted by: " + CommandUtil.getGlobalUsername(e.getJDA(), first.getOwner()) + "\n\n";
+                    if (first != allArtistImages.get(0)) {
+                        description += "The artist image for " + CommandUtil.cleanMarkdownCharacter(first.getArtist()) + " has changed to:";
+                    } else {
+                        description += "The top voted image for " + CommandUtil.cleanMarkdownCharacter(first.getArtist()) + " is:";
+                    }
+                    return finalEmbed.setTitle("Voting Timed Out")
+                            .setImage(first.getUrl())
+                            .clearFields()
+                            .setDescription(description)
+                            .setFooter(String.format("Has %d %s with %d%s", first.getVotes(), CommandUtil.singlePlural(first.getVotes(), "point", "points"), first.getTotalVotes(),
+                                    CommandUtil.singlePlural(first.getTotalVotes(), " vote", " votes")))
+                            .setColor(CommandUtil.randomColor());
+                },
+                () -> {
+                    if (counter.get() >= allArtistImages.size() - 1) {
+                        counter.set(allArtistImages.size() - 1);
+                    }
+                    if (counter.get() < 0) {
+                        counter.set(0);
+                    }
+                    return allArtistImages.get(counter.get());
+                },
+                builder.apply(e.getJDA(), allArtistImages.size())
+                , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, true, true);
+
     }
 }
 

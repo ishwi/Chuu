@@ -1,6 +1,7 @@
 package dao.musicbrainz;
 
 import com.neovisionaries.i18n.CountryCode;
+import core.exceptions.ChuuServiceException;
 import dao.SimpleDataSource;
 import dao.entities.*;
 
@@ -32,7 +33,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             }
             return mbizQueriesDao.getYearAlbums(connection, mbiz, year);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -51,7 +52,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
 
             return mbizQueriesDao.getYearAlbumsByReleaseName(connection, releaseInfo, year);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -61,7 +62,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             connection.setReadOnly(true);
             return mbizQueriesDao.getYearAlbumsByReleaseNameLowerCase(connection, releaseInfo, year);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -76,7 +77,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             connection.setReadOnly(true);
             return mbizQueriesDao.genreCount(connection, releaseInfo);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -87,7 +88,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             connection.setReadOnly(true);
             return mbizQueriesDao.countryCount(connection, artistInfo);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -109,7 +110,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             return queue.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty() && artistFromCountry.contains(u.getMbid()))
                     .map(x -> new ArtistUserPlays(x.getArtistName(), x.getPlays(), discordId)).collect(Collectors.toList());
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -120,7 +121,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             connection.setReadOnly(true);
             return mbizQueriesDao.getAlbumTrackListMbid(connection, mbid);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -130,7 +131,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             connection.setReadOnly(true);
             return mbizQueriesDao.getAlbumTrackList(connection, artist, album);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -140,7 +141,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             connection.setReadOnly(true);
             return mbizQueriesDao.getAlbumTrackListLower(connection, artist, album);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -150,7 +151,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             connection.setReadOnly(true);
             return mbizQueriesDao.getArtistInfo(connection, artist);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -161,7 +162,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             return mbizQueriesDao.getAlbumInfoByName(connection, urlCapsules);
         } catch (
                 SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -172,7 +173,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             mbizQueriesDao.getAlbumInfoByMbid(connection, urlCapsules);
         } catch (
                 SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 }

@@ -1,10 +1,6 @@
 package core.commands;
 
 import com.google.common.collect.Multimaps;
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
@@ -24,14 +20,11 @@ import java.util.stream.Collectors;
 
 public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
     private final MusicBrainzService mb;
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
+
 
     public AlbumTracksDistributionCommand(ChuuService dao) {
 
         super(dao);
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
         mb = MusicBrainzServiceSingleton.getInstance();
     }
 
@@ -135,7 +128,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
         }
 
         fullAlbumEntity.setArtistUrl(artistUrl);
-        BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity, false);
+        BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity);
         sendImage(bufferedImage, e);
     }
 }

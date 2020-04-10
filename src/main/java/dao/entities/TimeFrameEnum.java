@@ -99,7 +99,7 @@ public enum TimeFrameEnum {
                 localDate = LocalDateTime.now().minus(count, ChronoUnit.YEARS);
                 break;
             case QUARTER:
-                localDate = LocalDateTime.now().minus(3 * count, ChronoUnit.MONTHS);
+                localDate = LocalDateTime.now().minus(3L * count, ChronoUnit.MONTHS);
                 break;
             case MONTH:
                 localDate = LocalDateTime.now().minus(count, ChronoUnit.MONTHS);
@@ -108,10 +108,10 @@ public enum TimeFrameEnum {
                 localDate = PaceParser.LASTFM_CREATION_DATE.atStartOfDay();
                 break;
             case SEMESTER:
-                localDate = LocalDateTime.now().minus(6 * count, ChronoUnit.MONTHS);
+                localDate = LocalDateTime.now().minus(6L * count, ChronoUnit.MONTHS);
                 break;
             case WEEK:
-                localDate = LocalDateTime.now().minus(7 * count, ChronoUnit.DAYS);
+                localDate = LocalDateTime.now().minus(7L * count, ChronoUnit.DAYS);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + this);

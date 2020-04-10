@@ -1,34 +1,32 @@
 package core.exceptions;
 
-import core.apis.last.ExceptionEntity;
+import core.apis.last.exceptions.AlbumException;
+import core.apis.last.exceptions.ArtistException;
+import core.apis.last.exceptions.ExceptionEntity;
+import core.apis.last.exceptions.TrackException;
 import core.commands.CommandUtil;
 
 public class LastFmEntityNotFoundException extends LastFmException {
-    private ExceptionEntity exceptionCause;
+    private final transient ExceptionEntity exceptionCause;
 
     public LastFmEntityNotFoundException(ExceptionEntity cause) {
         super("");
         this.exceptionCause = cause;
     }
 
-    public ExceptionEntity getExceptionCause() {
-        return exceptionCause;
-    }
-
-    public void setExceptionCause(ExceptionEntity exceptionCause) {
-        this.exceptionCause = exceptionCause;
-    }
-
     public String toMessage() {
-        if (exceptionCause.getArtistName() == null) {
-            return "The user " + CommandUtil.cleanMarkdownCharacter(exceptionCause.getUserName()) + " doesn't exist on last.fm";
+        if (exceptionCause instanceof ArtistException) {
+            return String.format("The artist %s doesn't exist on last.fm", CommandUtil.cleanMarkdownCharacter(((ArtistException) exceptionCause).getArtist()));
         }
-        if (exceptionCause.getAlbumName() == null) {
-            return "The artist " + CommandUtil.cleanMarkdownCharacter(exceptionCause.getArtistName()) + " doesn't exist on last.fm";
+        if (exceptionCause instanceof AlbumException) {
+            AlbumException mew = (AlbumException) this.exceptionCause;
+            return String.format("The album %s doesn't exist on last.fm", CommandUtil.cleanMarkdownCharacter(mew.getAlbum() + " by " + mew.getArtist()));
+        }
+        if (exceptionCause instanceof TrackException) {
+            TrackException mew = (TrackException) this.exceptionCause;
+            return String.format("The album %s doesn't exist on last.fm", CommandUtil.cleanMarkdownCharacter(mew.getSong() + " by " + mew.getArtist()));
         } else
-            return "The entity " + CommandUtil.cleanMarkdownCharacter(exceptionCause.getArtistName()) + " - " + CommandUtil.cleanMarkdownCharacter(exceptionCause
-                    .getAlbumName()) + " doesn't exist on last.fm";
-
+            return "The user " + CommandUtil.cleanMarkdownCharacter(exceptionCause.getUserName()) + " doesn't exist on last.fm";
     }
 
     @Override

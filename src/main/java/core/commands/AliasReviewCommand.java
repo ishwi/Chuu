@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 
 public class AliasReviewCommand extends ConcurrentCommand {
-    public AtomicBoolean isActive = new AtomicBoolean(false);
+    private final AtomicBoolean isActive = new AtomicBoolean(false);
     private BiFunction<AliasEntity, EmbedBuilder, EmbedBuilder> builder = (aliasEntity, embedBuilder) ->
             embedBuilder.clearFields()
                     .addField("Alias:", aliasEntity.getAlias(), false)
@@ -64,48 +64,47 @@ public class AliasReviewCommand extends ConcurrentCommand {
         }
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        this.executor.submit(() -> {
-            try {
 
-                HashMap<String, BiFunction<AliasEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
-                actionMap.put("U+2714", (aliasEntity, r) -> {
+        try {
+
+            HashMap<String, BiFunction<AliasEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
+            actionMap.put("U+2714", (aliasEntity, r) -> {
+                try {
+                    getService().addAlias(aliasEntity.getAlias(), aliasEntity.getArtistId());
+                    getService().deleteAliasById(aliasEntity.getId());
+                    r.getJDA().retrieveUserById(aliasEntity.getDiscorId())
+                            .queue(user -> user.openPrivateChannel()
+                                    .flatMap(privateChannel -> privateChannel.sendMessage("Your alias: " + aliasEntity.getAlias() + " has been approved!"))
+                                    .queue());
+                } catch (DuplicateInstanceException | InstanceNotFoundException ignored) {
                     try {
-                        getService().addAlias(aliasEntity.getAlias(), aliasEntity.getArtistId());
                         getService().deleteAliasById(aliasEntity.getId());
-                        r.getJDA().retrieveUserById(aliasEntity.getDiscorId())
-                                .queue(user -> user.openPrivateChannel()
-                                        .flatMap(privateChannel -> privateChannel.sendMessage("Your alias: " + aliasEntity.getAlias() + " has been approved!"))
-                                        .queue());
-                    } catch (DuplicateInstanceException | InstanceNotFoundException ignored) {
-                        try {
-                            getService().deleteAliasById(aliasEntity.getId());
-                        } catch (InstanceNotFoundException ignored1) {
-
-                        }
+                    } catch (InstanceNotFoundException ignored1) {
+                        //Doesnt exists on the server
                     }
-                    return true;
+                }
+                return true;
 
-                });
-                actionMap.put("U+274c", (a, r) -> {
-                    try {
-                        getService().deleteAliasById(a.getId());
-                    } catch (InstanceNotFoundException e1) {
-                        Chuu.getLogger().error(e1.getMessage());
-                    }
-                    return true;
-                });
-                new Validator<>(
-                        (embedBuilder1) -> embedBuilder.setTitle("No more  Aliases to Review").clearFields(),
-                        () -> getService().getNextInAliasQueue(),
-                        builder
-                        , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, false);
-            } catch (Throwable ex) {
-                Chuu.getLogger().warn(ex.getMessage());
-            } finally {
-                this.isActive.set(false);
-            }
+            });
+            actionMap.put("U+274c", (a, r) -> {
+                try {
+                    getService().deleteAliasById(a.getId());
+                } catch (InstanceNotFoundException e1) {
+                    Chuu.getLogger().error(e1.getMessage());
+                }
+                return true;
+            });
+            new Validator<>(
+                    embedBuilder1 -> embedBuilder.setTitle("No more  Aliases to Review").clearFields(),
+                    () -> getService().getNextInAliasQueue(),
+                    builder
+                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, false);
+        } catch (Exception ex) {
+            Chuu.getLogger().warn(ex.getMessage());
+        } finally {
+            this.isActive.set(false);
+        }
 
-        });
 
     }
 }

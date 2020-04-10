@@ -51,15 +51,15 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
 
         List<ArtistPlays> resultList = list.getResultList();
 
-        List<String> collect = resultList.stream().map(x -> String.format(". [%s](%s) - %d plays\n",
+        List<String> collect = resultList.stream().map(x -> String.format(". [%s](%s) - %d plays%n",
                 CommandUtil.cleanMarkdownCharacter(x.getArtistName()), CommandUtil.getLastFmArtistUrl(x.getArtistName()), x.getCount())).collect(Collectors.toList());
         EmbedBuilder embedBuilder = initList(collect)
                 .setTitle("Most Played Artists")
-                .setFooter(String.format("%s has stored %d plays!\n", e.getJDA().getSelfUser().getName(), list.getRows()), null)
+                .setFooter(String.format("%s has stored %d plays!%n", e.getJDA().getSelfUser().getName(), list.getRows()), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                executor.execute(() -> new Reactionary<>(collect, message1, embedBuilder)));
+                new Reactionary<>(collect, message1, embedBuilder));
     }
 
     @Override

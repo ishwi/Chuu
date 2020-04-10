@@ -12,8 +12,8 @@ public class TrackExtended extends Track {
     private final String albumName;
 
 
-    public TrackExtended(String re_artist, String re_trackName, int userplaycount, boolean userloved, int duration, List<String> tags, int totalPlayCount, int listeners, String albumName) {
-        super(re_artist, re_trackName, userplaycount, userloved, duration);
+    public TrackExtended(String reArtist, String reTrackName, int userplaycount, boolean userloved, int duration, List<String> tags, int totalPlayCount, int listeners, String albumName) {
+        super(reArtist, reTrackName, userplaycount, userloved, duration);
         this.tags = tags;
         this.totalPlayCount = totalPlayCount;
         this.listeners = listeners;

@@ -65,12 +65,12 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
                 .setDescription(a)
                 .setColor(CommandUtil.randomColor())
                 .setTitle(String.format("%s's album crowns", name), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
-                .setFooter(String.format("%s has %d album crowns!!\n", CommandUtil.markdownLessUserString(name, discordID, e), resultWrapper.size()), null)
+                .setFooter(String.format("%s has %d album crowns!!%n", CommandUtil.markdownLessUserString(name, discordID, e), resultWrapper.size()), null)
                 .setThumbnail(url);
 
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                executor.execute(() -> new Reactionary<>(resultWrapper, message1, embedBuilder)));
+                new Reactionary<>(resultWrapper, message1, embedBuilder));
     }
 
 }

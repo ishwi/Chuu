@@ -1,9 +1,7 @@
 package core.otherlisteners;
 
-import core.Chuu;
 import core.commands.CommandUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
@@ -19,6 +17,7 @@ public class Reactionary<T> extends ReactionListener {
     private final List<T> list;
     private int counter = 0;
     private final boolean numberedEntries;
+
 
     public Reactionary(List<T> list, Message message, EmbedBuilder who) {
         this(list, message, 10, who);
@@ -38,23 +37,20 @@ public class Reactionary<T> extends ReactionListener {
         this.list = list;
         this.pageSize = pageSize;
         this.numberedEntries = numberedEntries;
-        initReactionary(messageToReact, list, messageToReact.getJDA());
-
+        init();
     }
 
-    private void initReactionary(Message message, List<T> list, JDA jda) {
+
+    @Override
+    public void init() {
         if (list.size() <= 10)
             return;
         message.addReaction("U+2B05").submit();
         message.addReaction("U+27A1").submit();
+    }
 
-        jda.addEventListener(this);
-        try {
-            Thread.sleep(40000);
-        } catch (InterruptedException ex) {
-            Chuu.getLogger().warn(ex.getMessage(), ex);
-        }
-        jda.removeEventListener(this);
+    @Override
+    public void dispose() {
         clearReacts();
         StringBuilder a = new StringBuilder();
         if (counter < pageSize)
@@ -69,7 +65,6 @@ public class Reactionary<T> extends ReactionListener {
         who.setDescription(a);
         who.setColor(CommandUtil.randomColor());
         message.editMessage(who.build()).queue();
-
     }
 
     @Override

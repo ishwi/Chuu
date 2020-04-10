@@ -18,7 +18,7 @@ public class SpotifyUpdaterThread implements Runnable {
 
     public SpotifyUpdaterThread(ChuuService dao) {
         this.dao = dao;
-        this.spotifyApi = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotifyApi = SpotifySingleton.getInstance();
 
     }
 

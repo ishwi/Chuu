@@ -42,7 +42,7 @@ public class GlobalArtistCommand extends CommandTest {
     public void setUp() throws Exception {
         ConcurrentLastFM newInstance = LastFMFactory.getNewInstance();
         DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        Spotify spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        Spotify spotify = SpotifySingleton.getInstance();
         this.commonArtist = TestResources.commonArtist;
         artistUrl = CommandUtil
                 .getArtistImageUrl(TestResources.dao, TestResources.commonArtist, newInstance, discogsApi, spotify);

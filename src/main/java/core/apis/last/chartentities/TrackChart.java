@@ -30,8 +30,8 @@ public class TrackChart extends UrlCapsule {
         return (trackObj, size) -> {
             String name = trackObj.getString("name");
             int frequency = trackObj.getInt("playcount");
-            String artist_name = trackObj.getJSONObject("artist").getString("name");
-            return new TrackChart(null, size, name, artist_name, null, frequency, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
+            String artistName = trackObj.getJSONObject("artist").getString("name");
+            return new TrackChart(null, size, name, artistName, null, frequency, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
         };
     }
 
@@ -50,7 +50,7 @@ public class TrackChart extends UrlCapsule {
 
     @Override
     public String toEmbedDisplay() {
-        return String.format(". **[%s - %s](%s)** - **%d** %s\n",
+        return String.format(". **[%s - %s](%s)** - **%d** %s%n",
                 CommandUtil.cleanMarkdownCharacter(getArtistName())
                 , CommandUtil.cleanMarkdownCharacter(getAlbumName()),
                 CommandUtil.getLastFMArtistTrack(getArtistName(), getAlbumName()),

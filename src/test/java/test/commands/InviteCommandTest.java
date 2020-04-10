@@ -27,8 +27,8 @@ public class InviteCommandTest extends CommandTest {
 		try (InputStream in = Chuu.class.getResourceAsStream("/all.properties")) {
 			properties.load(in);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+            throw new ChuuServiceException(e);
+        }
 		Pattern pattern = Pattern.compile("Using the following link you can invite me to your server:\n" +
 				"https://discordapp\\.com/oauth2/authorize\\?scope=bot&client_id=(\\d+){18}&permissions=(?:\\d+)");
 

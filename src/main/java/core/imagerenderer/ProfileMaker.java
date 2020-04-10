@@ -7,21 +7,21 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class ProfileMaker {
+    private ProfileMaker() {
+
+    }
+
     private static final int X_SIZE = 1920;
     private static final int Y_SIZE = 1080;
     private static final int TEXT_END = 450 + 45;
 
     private static final int IMAGE_START = X_SIZE - TEXT_END + 55;
     private static final int ARTIST_IMAGES_SIZE = 300;
-    //private static final int CROWN_IMAGE_Y = 250;
-    //private static final int UNIQUE_IMAGE_Y = 250;
     private static final int AVATAR_SIZE = 250;
 
     private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 44);
 
     private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP Regular", Font.PLAIN, 44);
-
-    //private static final int RIGHT_MARGIN = 55;
 
 
     public static BufferedImage makeProfile(ProfileEntity entity) {
@@ -120,11 +120,11 @@ public class ProfileMaker {
 
     }
 
-    private static void makeDrawingStringProcess(String string, Graphics2D g, BufferedImage image, Font ogFont, int X_STARTING_POINT, int widthFit, int Y_STARTING_POINT) {
+    private static void makeDrawingStringProcess(String string, Graphics2D g, BufferedImage image, Font ogFont, int xStartingPoint, int widthFit, int ySTARTINGPOINT) {
         int width = (int) GraphicUtils.fitAndGetBounds(string, g, widthFit, 14f).getWidth();
         FontMetrics fontMetrics = g.getFontMetrics();
         GraphicUtils
-                .drawStringNicely(g, string, X_STARTING_POINT + (widthFit / 2) - width / 2, Y_STARTING_POINT + fontMetrics
+                .drawStringNicely(g, string, xStartingPoint + (widthFit / 2) - width / 2, ySTARTINGPOINT + fontMetrics
                         .getAscent(), image);
         g.setFont(ogFont);
     }

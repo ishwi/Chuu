@@ -6,21 +6,17 @@ import java.util.concurrent.Executors;
 public class ExecutorsSingleton {
 
 
-	private static ExecutorService instance;
+    private static ExecutorService instance;
 
-	private ExecutorsSingleton() {
-	}
+    private ExecutorsSingleton() {
+    }
 
 
-	public static ExecutorService getInstanceUsingDoubleLocking() {
-		if (instance == null) {
-			synchronized (ExecutorService.class) {
-				if (instance == null) {
-					instance = Executors.newCachedThreadPool();
-				}
-			}
-		}
-		return instance;
-	}
+    public static synchronized ExecutorService getInstance() {
+        if (instance == null) {
+            instance = Executors.newCachedThreadPool();
+        }
+        return instance;
+    }
 
 }

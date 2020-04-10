@@ -35,7 +35,7 @@ public class UserTopTrackCommand extends ChartableCommand {
         parser = new ChartParser(dao);
         parser.replaceOptional("--list", new OptionalEntity("--image", "show this with a chart instead of a list "));
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotifyApi = SpotifySingleton.getInstanceUsingDoubleLocking();
+        spotifyApi = SpotifySingleton.getInstance();
     }
 
     @Override

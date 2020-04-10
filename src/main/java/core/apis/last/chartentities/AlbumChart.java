@@ -51,7 +51,7 @@ public class AlbumChart extends UrlCapsule {
 
     @Override
     public String toEmbedDisplay() {
-        return String.format(". **[%s - %s](%s)** - **%d** %s\n",
+        return String.format(". **[%s - %s](%s)** - **%d** %s%n",
                 CommandUtil.cleanMarkdownCharacter(getArtistName())
                 , CommandUtil.cleanMarkdownCharacter(getAlbumName()),
                 CommandUtil.getLastFmArtistAlbumUrl(getArtistName(), getAlbumName()),
@@ -60,7 +60,7 @@ public class AlbumChart extends UrlCapsule {
 
     @Override
     public String toChartString() {
-        return String.format("%s - %s\n%d %s",
+        return String.format("%s - %s%n%d %s",
                 getArtistName(),
                 getAlbumName(), getPlays(), CommandUtil.singlePlural(getPlays(), "play", "plays"));
     }

@@ -1,5 +1,7 @@
 package core.apis.last;
 
+import core.exceptions.ChuuServiceException;
+
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -17,8 +19,8 @@ public class LastFMFactory {
 			String apikey = properties.getProperty("LASTFM_APIKEY");
 			return new ConcurrentLastFM(apikey);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+            throw new ChuuServiceException(e);
+        }
 
 	}
 }

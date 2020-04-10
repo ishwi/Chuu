@@ -59,7 +59,7 @@ public class ExtraParser<T extends Parser, J> extends Parser {
                        String fieldDescription,
                        BiPredicate<String[], J> innerPredicate,
                        boolean panicOnMultiple) {
-        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, toString, errorMessages, fieldName, fieldDescription, innerPredicate, (x) -> x.get(0), panicOnMultiple);
+        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, toString, errorMessages, fieldName, fieldDescription, innerPredicate, x -> x.get(0), panicOnMultiple);
     }
 
     public ExtraParser(T innerParser,
@@ -93,7 +93,7 @@ public class ExtraParser<T extends Parser, J> extends Parser {
 
     @Override
     protected void setUpErrorMessages() {
-
+        //Ovverriding
     }
 
     @Override
@@ -102,7 +102,7 @@ public class ExtraParser<T extends Parser, J> extends Parser {
         List<J> first = collect.get(true).stream().map(fromString).collect(Collectors.toList());
         List<String> returning = collect.get(false);
         J item;
-        if (first.size() == 0) {
+        if (first.isEmpty()) {
             item = def;
         } else if (first.size() > 1) {
             if (panicOnMultiple) {
@@ -135,7 +135,7 @@ public class ExtraParser<T extends Parser, J> extends Parser {
     @Override
     public String getUsageLogic(String commandName) {
         String usageLogic = innerParser.getUsageLogic(commandName);
-        int i = usageLogic.indexOf("\n");
+        int i = usageLogic.indexOf('\n');
         String substring1 = usageLogic.substring(0, i - 1);
         String substring2 = usageLogic.substring(i);
 

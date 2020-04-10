@@ -2,7 +2,6 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.parsers.NumberParser;
 import core.parsers.PaceParser;
 import dao.ChuuService;
 import dao.entities.NaturalTimeFrameEnum;
@@ -21,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+import static core.parsers.ExtraParser.INNER_ERROR;
+import static core.parsers.ExtraParser.LIMIT_ERROR;
+
 /**
  * Credits: to lfmwhoknows bot owner for the idea
  */
@@ -28,8 +30,8 @@ public class PaceCommand extends ConcurrentCommand {
     public PaceCommand(ChuuService dao) {
         super(dao);
         Map<Integer, String> map = new HashMap<>(1);
-        map.put(NumberParser.INNER_ERROR, "The number introduced must be lower");
-        map.put(NumberParser.LIMIT_ERROR, "You introduced a real big number");
+        map.put(INNER_ERROR, "The number introduced must be lower");
+        map.put(LIMIT_ERROR, "You introduced a real big number");
         this.parser = new PaceParser(dao,
                 map);
     }
@@ -99,7 +101,7 @@ public class PaceCommand extends ConcurrentCommand {
                 timestamp = (int) now.minus(unitNumber / 4, ChronoUnit.YEARS).toInstant().getEpochSecond();
                 break;
             case MONTH:
-                timestamp = (int) (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+                timestamp = (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant().getEpochSecond();
                 break;
             case ALL:
                 timestamp = 0;
@@ -151,7 +153,10 @@ public class PaceCommand extends ConcurrentCommand {
         }
         double ratio = ((double) totalScrobbles) / totalUnits;
         double remainingUnits = (goal - playCount) / ratio;
-        String timeFrame = naturalTimeFrameEnum.equals(NaturalTimeFrameEnum.ALL) ? "overall" : ("over the last " + unitNumber + " " + (unitNumber == 1 ? naturalTimeFrameEnum.toString().toLowerCase() : naturalTimeFrameEnum.toString().toLowerCase() + "s"));
+        String timeFrame;
+        if (naturalTimeFrameEnum.equals(NaturalTimeFrameEnum.ALL)) timeFrame = "overall";
+        else
+            timeFrame = "over the last " + unitNumber + " " + (unitNumber == 1 ? naturalTimeFrameEnum.toString().toLowerCase() : naturalTimeFrameEnum.toString().toLowerCase() + "s");
         String format = now.plus((long) remainingUnits, chronoUnits.get(i)).format(formatter);
         String unit = chronoUnits.get(i).name().toLowerCase();
         String s = String.format("**%s** has a rate of **%s** scrobbles per %s %s, so they are on pace to hit **%d** scrobbles on **%s**.",

@@ -63,13 +63,11 @@ public class ImportCommand extends ConcurrentCommand {
 
         List<UsersWrapper> list = getService().getAllALL();
         Optional<UsersWrapper> globalName = (list.stream().filter(user -> user.getLastFMName().equals(lastfmid)).findFirst());
-        if (globalName.isPresent()) {
-            if (globalName.get().getDiscordID() != userId) {
-                m.append(error).append(" That last.fm id was already taken\"}\n");
-                errorCounter[0]++;
+        if (globalName.isPresent() && globalName.get().getDiscordID() != userId) {
+            m.append(error).append(" That last.fm id was already taken\"}\n");
+            errorCounter[0]++;
 
-                return;
-            }
+            return;
         }
 
         Optional<UsersWrapper> name = (guildlist.stream().filter(user -> user.getLastFMName().equals(lastfmid)).findFirst());
@@ -204,7 +202,6 @@ public class ImportCommand extends ConcurrentCommand {
             String lastfmid = jsonObject.getString("lastFMUsername");
             LastFMData lastFMData = new LastFMData(lastfmid, userId, guildID);
             queue.add(consumer.executeCallback(lastFMData, stringBuilder, complete, embedBuilder, e.getAuthor(), i, counter));
-//        }
 
         }
         Callback call;

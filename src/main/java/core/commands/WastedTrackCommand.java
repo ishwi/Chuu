@@ -29,7 +29,7 @@ public class WastedTrackCommand extends ChartableCommand {
     public WastedTrackCommand(ChuuService dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotifyApi = SpotifySingleton.getInstanceUsingDoubleLocking();
+        spotifyApi = SpotifySingleton.getInstance();
         this.parser.addOptional(new OptionalEntity("--notime", "dont display time spent"));
     }
 

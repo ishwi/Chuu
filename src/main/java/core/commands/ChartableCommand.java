@@ -76,7 +76,6 @@ public abstract class ChartableCommand extends ConcurrentCommand {
         int size = queue.size();
         ChartQuality chartQuality = ChartQuality.PNG_BIG;
         int minx = (int) Math.ceil((double) size / x);
-        //int miny = (int) Math.ceil((double) size / y);
         if (minx == 1)
             x = size;
         if (size > 45 && size < 400)
@@ -114,7 +113,7 @@ public abstract class ChartableCommand extends ConcurrentCommand {
                 .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage()), params, count);
         MessageBuilder mes = new MessageBuilder();
         params.getE().getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                executor.execute(() -> new Reactionary<>(urlCapsules, message1, embedBuilder)));
+                new Reactionary<>(urlCapsules, message1, embedBuilder));
     }
 
     public void doPie(PieChart pieChart, ChartParameters chartParameters, int count) {

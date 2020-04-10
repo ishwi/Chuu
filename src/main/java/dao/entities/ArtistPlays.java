@@ -6,9 +6,9 @@ public class ArtistPlays {
     private final int count;
     private final String artistName;
 
-    public ArtistPlays(String name, int count_a) {
+    public ArtistPlays(String name, int countA) {
         this.artistName = name;
-        this.count = count_a;
+        this.count = countA;
     }
 
     @Override

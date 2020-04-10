@@ -27,7 +27,7 @@ public class FileParser extends Parser {
         List<Message.Attachment> attachments = e.getMessage().getAttachments();
 
         String url;
-        if (attachments.size() == 0) {
+        if (attachments.isEmpty()) {
             if (words.length < 1) {
                 sendError(getErrorMessage(1), e);
                 return null;
@@ -49,7 +49,7 @@ public class FileParser extends Parser {
             sendError(getErrorMessage(2), e);
             return null;
         }
-        int i = url.lastIndexOf(".");
+        int i = url.lastIndexOf('.');
         if (i == -1 || i == url.length() - 1) {
             sendError(getErrorMessage(3), e);
             return null;

@@ -44,7 +44,7 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand {
         this.pie = new PieableKnows(this.parser);
 
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -103,9 +103,9 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand {
 
         Map<UsersWrapper, Integer> userMapPlays = fillPlayCounter(userList, artist.getArtist(), ap.getAlbum(), urlContainter);
 
-        String corrected_album = urlContainter.getAlbum() == null || urlContainter.getAlbum().isEmpty() ? ap.getAlbum()
+        String correctedAlbum = urlContainter.getAlbum() == null || urlContainter.getAlbum().isEmpty() ? ap.getAlbum()
                 : urlContainter.getAlbum();
-        String corrected_artist = urlContainter.getArtist() == null || urlContainter.getArtist().isEmpty() ? artist.getArtist()
+        String correctedArtist = urlContainter.getArtist() == null || urlContainter.getArtist().isEmpty() ? artist.getArtist()
                 : urlContainter.getArtist();
 
         // Manipulate data in order to pass it to the image Maker
@@ -115,20 +115,20 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand {
 
         List<ReturnNowPlaying> list2 = list.stream().sequential().limit(ap.hasOptional("--pie") || ap.hasOptional("--list") ? Integer.MAX_VALUE : 10).map(t -> {
             long id2 = t.getKey().getDiscordID();
-            ReturnNowPlaying np = new ReturnNowPlaying(id2, t.getKey().getLastFMName(), corrected_artist, t.getValue());
+            ReturnNowPlaying np = new ReturnNowPlaying(id2, t.getKey().getLastFMName(), correctedArtist, t.getValue());
             np.setDiscordName(CommandUtil.getUserInfoNotStripped(e, id2).getUsername());
             return np;
         }).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
         if (list2.isEmpty()) {
-            sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.cleanMarkdownCharacter(corrected_artist), CommandUtil.cleanMarkdownCharacter(corrected_album)));
+            sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.cleanMarkdownCharacter(correctedArtist), CommandUtil.cleanMarkdownCharacter(correctedAlbum)));
             return;
         }
 
 
-        doExtraThings(list2, id, artist.getArtistId(), corrected_album);
+        doExtraThings(list2, id, artist.getArtistId(), correctedAlbum);
 
-        WrapperReturnNowPlaying a = new WrapperReturnNowPlaying(list2, list.size(), urlContainter.getAlbum_url(),
-                corrected_artist + " - " + corrected_album);
+        WrapperReturnNowPlaying a = new WrapperReturnNowPlaying(list2, list.size(), urlContainter.getAlbumUrl(),
+                correctedArtist + " - " + correctedAlbum);
         if (ap.hasOptional("--pie")) {
             doPie(ap, a);
             return;
@@ -153,14 +153,14 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand {
         Map<UsersWrapper, Integer> userMapPlays = new HashMap<>();
 
         UsersWrapper usersWrapper = userList.get(0);
-        AlbumUserPlays temp = lastFM.getPlaysAlbum_Artist(usersWrapper.getLastFMName(), artist, album);
-        fillWithUrl.setAlbum_url(temp.getAlbum_url());
+        AlbumUserPlays temp = lastFM.getPlaysAlbumArtist(usersWrapper.getLastFMName(), artist, album);
+        fillWithUrl.setAlbumUrl(temp.getAlbumUrl());
         fillWithUrl.setAlbum(temp.getAlbum());
         fillWithUrl.setArtist(temp.getArtist());
         userMapPlays.put(usersWrapper, temp.getPlays());
         userList.stream().skip(1).forEach(u -> {
             try {
-                AlbumUserPlays albumUserPlays = lastFM.getPlaysAlbum_Artist(u.getLastFMName(), artist, album);
+                AlbumUserPlays albumUserPlays = lastFM.getPlaysAlbumArtist(u.getLastFMName(), artist, album);
                 userMapPlays.put(u, albumUserPlays.getPlays());
             } catch (LastFmException ex) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);
@@ -187,11 +187,10 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand {
         embedBuilder.setTitle("Who knows " + CommandUtil.cleanMarkdownCharacter(ap.getScrobbledArtist().getArtist()) + " - " + ap.getAlbum() + " in " + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "?").
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
                 .setColor(CommandUtil.randomColor());
-        //.setFooter("Command invoked by " + event.getMember().getLastFmId().getDiscriminator() + "" + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toApiFormat(), );
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel())
                 .queue(message1 ->
-                        executor.execute(() -> new Reactionary<>(wrapperReturnNowPlaying
-                                .getReturnNowPlayings(), message1, embedBuilder)));
+                        new Reactionary<>(wrapperReturnNowPlaying
+                                .getReturnNowPlayings(), message1, embedBuilder));
     }
 
     private void doPie(ArtistAlbumParameters ap, WrapperReturnNowPlaying returnNowPlaying) {

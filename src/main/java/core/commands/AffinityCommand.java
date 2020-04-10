@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * Credits: to lfmwhoknows bot owner for the idea
  */
 public class AffinityCommand extends ConcurrentCommand {
-    public static int DEFAULT_THRESHOLD = 30;
+    public static final int DEFAULT_THRESHOLD = 30;
 
     public AffinityCommand(ChuuService dao) {
         super(dao);
@@ -42,8 +42,6 @@ public class AffinityCommand extends ConcurrentCommand {
         return List.of("affinity", "aff", "soulmate");
     }
 
-    // TODO Chart not titles
-    // TODO uknown user in two users parser
     @Override
     public String getName() {
         return "Affinity";
@@ -63,7 +61,7 @@ public class AffinityCommand extends ConcurrentCommand {
         }
     }
 
-    private void doIndividual(AffinityParameters ap) throws InstanceNotFoundException, LastFmException {
+    private void doIndividual(AffinityParameters ap) throws LastFmException {
         MessageReceivedEvent e = ap.getE();
 
         Affinity affinity = getService().getAffinity(ap.getFirstLastfmId(), ap.getSecondLastfmId(), ap.getThreshold());
@@ -81,7 +79,7 @@ public class AffinityCommand extends ConcurrentCommand {
         List<Affinity> collect = serverAffinity.stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).collect(Collectors.toList());
 
         StringBuilder stringBuilder = new StringBuilder();
-        List<String> string = collect.stream().map(x -> String.format(". [%s](%s) - %.2f%%%s matching\n", getUserString(e, x.getDiscordId()),
+        List<String> string = collect.stream().map(x -> String.format(". [%s](%s) - %.2f%%%s matching%n", getUserString(e, x.getDiscordId()),
                 CommandUtil.getLastFmUser(x.getReceivingLastFmId()),
                 (x.getAffinity() > 1 ? 1 : x.getAffinity()) * 100, x.getAffinity() > 1 ? "+" : "")).collect(Collectors.toList());
         for (int i = 0, size = collect.size(); i < 10 && i < size; i++) {
@@ -93,11 +91,11 @@ public class AffinityCommand extends ConcurrentCommand {
                 .setDescription(stringBuilder)
                 .setTitle(uinfo.getUsername() + "'s soulmates in " + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()))
                 .setColor(CommandUtil.randomColor())
-                .setFooter(String.format("%s's affinity using a threshold of %d plays!\n", CommandUtil.markdownLessString(uinfo.getUsername()), ap.getThreshold()), null)
+                .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uinfo.getUsername()), ap.getThreshold()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                executor.execute(() -> new Reactionary<>(collect, message1, embedBuilder)));
+                new Reactionary<>(collect, message1, embedBuilder));
     }
 
 }

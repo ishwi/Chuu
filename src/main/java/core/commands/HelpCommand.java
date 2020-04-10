@@ -106,8 +106,6 @@ public class HelpCommand extends ConcurrentCommand {
                     .append("\n")
                     .append("The following commands are supported by the bot\n");
 
-            boolean flagSeveralPages = false;
-
             for (MyCommand c : commands.values()) {
 
                 if (s.length() > 1800) {
@@ -153,12 +151,6 @@ public class HelpCommand extends ConcurrentCommand {
                         .append("**Usage:** ")
                         .append(prefix).append(usageInstructions)
                         .build()).queue();
-//				for (int i = 1; i < usageInstructions.size(); i++) {
-//					channel.sendMessage(new MessageBuilder().append("__").append(name).append(" Usage Cont. (")
-//							.append(String.valueOf(i + 1)).append(")__\n")
-//							.append(usageInstructions.get(i))
-//							.build()).queue();
-//				}
                 return;
             }
         }

@@ -1,14 +1,14 @@
 package dao.entities;
 
 public class UpdaterStatus {
-    private final boolean correction_status;
+    private final boolean correctionStatus;
     private String artistUrl;
     private long artistId;
 
     //Url -> null
-    public UpdaterStatus(String url, boolean correction_status, long artistId) {
+    public UpdaterStatus(String url, boolean correctionStatus, long artistId) {
         this.artistUrl = url;
-        this.correction_status = correction_status;
+        this.correctionStatus = correctionStatus;
         this.artistId = artistId;
     }
 
@@ -29,8 +29,8 @@ public class UpdaterStatus {
     }
 
 
-    public boolean isCorrection_status() {
-        return correction_status;
+    public boolean isCorrectionStatus() {
+        return correctionStatus;
     }
 
 }

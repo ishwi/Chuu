@@ -2,6 +2,7 @@ package core.imagerenderer;
 
 import core.Chuu;
 import core.apis.ExecutorsSingleton;
+import core.exceptions.ChuuServiceException;
 import dao.entities.UrlCapsule;
 
 import java.awt.*;
@@ -16,6 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class CollageMaker {
     private static final int DEFAULT_SIZE = 300;
+
+    private CollageMaker() {
+    }
 
     public static BufferedImage generateCollageThreaded(int x, int y, BlockingQueue<UrlCapsule> queue, ChartQuality chartQuality) {
         BufferedImage result;
@@ -45,7 +49,7 @@ public class CollageMaker {
         GraphicUtils.setQuality(g);
 
         AtomicInteger max = new AtomicInteger(queue.size());
-        ExecutorService es = ExecutorsSingleton.getInstanceUsingDoubleLocking();
+        ExecutorService es = ExecutorsSingleton.getInstance();
 
         List<Callable<Object>> calls = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
@@ -55,6 +59,7 @@ public class CollageMaker {
             es.invokeAll(calls);
         } catch (InterruptedException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
         }
 
         g.dispose();

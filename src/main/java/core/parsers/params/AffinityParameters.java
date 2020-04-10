@@ -51,6 +51,4 @@ public class AffinityParameters extends CommandParameters {
     public int getThreshold() {
         return threshold;
     }
-
-    ;
 }

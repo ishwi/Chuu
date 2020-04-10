@@ -16,7 +16,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand {
 
     public YoutubeSearchCommand(ChuuService dao) {
         super(dao);
-        youtubeSearch = SearchSingleton.getInstanceUsingDoubleLocking();
+        youtubeSearch = SearchSingleton.getInstance();
         this.parser = new UsernameAndNpQueryParser(dao, lastFM);
     }
 
@@ -38,7 +38,6 @@ public class YoutubeSearchCommand extends ConcurrentCommand {
             return;
         }
         String query = returned[0];
-        //long whom = Long.parseLong(returned[1]);
         String s = youtubeSearch.doSearch(query);
         s = s == null || s.isBlank() ? String.format("Couldn't find \"%s\" on youtube", CommandUtil.cleanMarkdownCharacter(query)) : s;
         sendMessageQueue(e, s);

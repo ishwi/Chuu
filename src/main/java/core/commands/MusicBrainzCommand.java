@@ -81,7 +81,6 @@ public class MusicBrainzCommand extends ChartableCommand {
         List<AlbumInfo> nonEmptyMbid = results.get(false);
         List<AlbumInfo> emptyMbid = results.get(true);
 
-        //List<AlbumInfo> nullYearList = new ArrayList<>();
         List<AlbumInfo> albumsMbizMatchingYear = mb.listOfYearReleases(nonEmptyMbid, year);
         List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(emptyMbid, year);
         emptyMbid.removeAll(mbFoundBYName);
@@ -98,13 +97,10 @@ public class MusicBrainzCommand extends ChartableCommand {
 
                     Year tempYear = (discogsApi.getYearRelease(albumInfo.getName(), albumInfo.getArtist()));
                     if (tempYear == null) {
-                        //nullYearList.add(albumInfo);
                         return false;
                     }
                     return tempYear.equals(year);
                 } catch (Exception ex) {
-                    //Chuu.getLogger().warn(e.getMessage(), e);
-                    //nullYearList.add(albumInfo);
                     return false;
                 }
             }).collect(Collectors.toList());

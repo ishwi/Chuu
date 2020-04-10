@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.time.Year;
 
 public class ChartFromYearParser extends ChartParser {
-    private final TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
+    private static final TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
 
     public ChartFromYearParser(ChuuService dao) {
         super(dao);
@@ -18,8 +18,6 @@ public class ChartFromYearParser extends ChartParser {
     @Override
     protected void setUpOptionals() {
         super.setUpOptionals();
-        ;
-
     }
 
     @Override
@@ -36,7 +34,7 @@ public class ChartFromYearParser extends ChartParser {
         timeFrame = chartParserAux.parseTimeframe(timeFrame);
         subMessage = chartParserAux.getMessage();
 
-        discordName = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
+        discordName = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
 
         if (Year.now().compareTo(Year.of(Integer.parseInt(year))) < 0) {
             sendError(getErrorMessage(6), e);

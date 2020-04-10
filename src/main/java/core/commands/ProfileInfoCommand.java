@@ -29,7 +29,7 @@ public class ProfileInfoCommand extends ConcurrentCommand {
         super(dao);
         this.parser = new OnlyUsernameParser(dao, new OptionalEntity("--image", "display in list format"));
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstance();
         this.respondInPrivate = false;
     }
 
@@ -47,7 +47,6 @@ public class ProfileInfoCommand extends ConcurrentCommand {
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] returned = parser.parse(e);
         String lastFmName = returned[0];
-        //long discordID = Long.parseLong(returned[1]);
         boolean isList = !Boolean.parseBoolean(returned[2]);
         UserInfo userInfo;
         int albumCount;

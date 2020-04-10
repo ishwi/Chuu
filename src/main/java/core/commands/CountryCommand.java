@@ -77,7 +77,6 @@ public class CountryCommand extends ConcurrentCommand {
 
         if (b.length < 8388608)
             e.getChannel().sendFile(b, "cat.png").queue();
-            //messageBuilder.sendTo(e.getChannel()).addFile(img, "cat.png").queue();
         else
             e.getChannel().sendMessage("Boot too big").queue();
 

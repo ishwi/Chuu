@@ -29,8 +29,8 @@ public class TrackDurationArtistChart extends TrackDurationChart {
             String name = trackObj.getString("name");
             int frequency = trackObj.getInt("playcount");
             duration = duration == 0 ? 200 : duration;
-            String artist_name = trackObj.getJSONObject("artist").getString("name");
-            return new TrackDurationArtistChart(null, size, name, artist_name, null, frequency, frequency * duration, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
+            String artistName = trackObj.getJSONObject("artist").getString("name");
+            return new TrackDurationArtistChart(null, size, name, artistName, null, frequency, frequency * duration, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
         };
     }
 
@@ -49,8 +49,9 @@ public class TrackDurationArtistChart extends TrackDurationChart {
         return list;
     }
 
+    @Override
     public String toEmbedDisplay() {
-        return String.format(". **[%s](%s)** - **%s** hours in **%d** %s\n",
+        return String.format(". **[%s](%s)** - **%s** hours in **%d** %s%n",
                 CommandUtil.cleanMarkdownCharacter(getArtistName()),
                 CommandUtil.getLastFmArtistUrl(getArtistName()),
                 String.format("%d:%02d", seconds / 3600, seconds / 60 % 60),

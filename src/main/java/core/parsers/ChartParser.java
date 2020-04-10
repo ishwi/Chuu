@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.awt.*;
 
 public class ChartParser extends DaoParser {
-    private final TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
+    private static final TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
 
     public ChartParser(ChuuService dao) {
         super(dao);
@@ -52,12 +52,13 @@ public class ChartParser extends DaoParser {
         timeFrame = chartParserAux.parseTimeframe(timeFrame);
         subMessage = chartParserAux.getMessage();
 
-        LastFMData data = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
+        LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
 
         return new String[]{x, y, String.valueOf(data.getDiscordId()), data.getName(), timeFrame.toApiFormat()};
     }
 
 
+    @Override
     public String getErrorMessage(int code) {
         return errorMessages.get(code);
     }

@@ -22,7 +22,7 @@ interface UpdaterDao {
     void upsertArtist(Connection con, List<ScrobbledArtist> scrobbledArtist);
 
 
-    long upsertUrl(Connection con, String url, long artistId, long discord_id);
+    long upsertUrl(Connection con, String url, long artistId, long discordId);
 
     void upsertArtistsDetails(Connection con, List<ScrobbledArtist> scrobbledArtists);
 
@@ -31,7 +31,7 @@ interface UpdaterDao {
     Set<ScrobbledArtist> selectNullUrls(Connection connection, boolean spotifyNull);
 
 
-    void upsertSpotify(Connection con, String url, long artistId, long discord_id);
+    void upsertSpotify(Connection con, String url, long artistId, long discordId);
 
     UpdaterStatus getUpdaterStatus(Connection connection, String artist) throws InstanceNotFoundException;
 
@@ -83,20 +83,20 @@ interface UpdaterDao {
 
     void deleteAliasById(Connection connection, long aliasId) throws InstanceNotFoundException;
 
-    void updateUrlStatus(Connection connection, long artist_id);
+    void updateUrlStatus(Connection connection, long artistId);
 
     OptionalLong checkArtistUrlExists(Connection connection, long artistId, String urlParsed);
 
-    void removeVote(Connection con, long url_id, long discord_id);
+    void removeVote(Connection con, long urlId, long discordId);
 
-    boolean castVote(Connection con, long url_id, long discord_id, boolean isPositive);
+    boolean castVote(Connection con, long urlId, long discordId, boolean isPositive);
 
     void reportImage(Connection connection, long urlId, long userIdLong);
 
 
-    void removeImage(Connection connection, long alt_id);
+    void removeImage(Connection connection, long altId);
 
-    void logRemovedImage(Connection connection, long image_owner, long mod_id);
+    void logRemovedImage(Connection connection, long imageOwner, long modId);
 
     int getReportCount(Connection connection);
 

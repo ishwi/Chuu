@@ -42,7 +42,6 @@ public class UniqueCommand extends ConcurrentCommand {
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] returned = parser.parse(e);
         String lastFmName = returned[0];
-        //long discordID = Long.parseLong(returned[1]);
 
         UniqueWrapper<ArtistPlays> resultWrapper = getList(e.getGuild().getIdLong(), lastFmName);
         int rows = resultWrapper.getUniqueData().size();
@@ -65,11 +64,11 @@ public class UniqueCommand extends ConcurrentCommand {
         embedBuilder.setDescription(a).setTitle(String.format("%s's Top 10%s unique artists", userInfo.getUsername(), isGlobal() ? " global" : ""), CommandUtil
                 .getLastFmUser(lastFmName))
                 .setThumbnail(userInfo.getUrlImage())
-                .setFooter(String.format("%s has %d%s unique artists!\n", CommandUtil.markdownLessUserString(userInfo.getUsername(), resultWrapper.getDiscordId(), e), rows, isGlobal() ? " global" : ""), null);
+                .setFooter(String.format("%s has %d%s unique artists!%n", CommandUtil.markdownLessUserString(userInfo.getUsername(), resultWrapper.getDiscordId(), e), rows, isGlobal() ? " global" : ""), null);
 
         MessageBuilder messageBuilder = new MessageBuilder();
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
-                executor.execute(() -> new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder)));
+                new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder));
 
     }
 

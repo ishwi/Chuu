@@ -21,7 +21,7 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand {
     public GuildArtistPlaysCommand(ChuuService dao) {
         super(dao);
         this.parser = new ArtistParser(dao, lastFM);
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstance();
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
     }
 

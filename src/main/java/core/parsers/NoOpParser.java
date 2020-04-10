@@ -9,6 +9,7 @@ public class NoOpParser extends Parser {
 
     @Override
     protected void setUpErrorMessages() {
+        //Cleaning previous
     }
 
     @Override

@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 
 public abstract class GroupingQueue extends ArtistQueue {
     public final int requested;
-    public Map<String, UrlCapsule> artistMap = new ConcurrentHashMap<>();
-    public AtomicInteger counter = new AtomicInteger(0);
+    public final transient Map<String, UrlCapsule> artistMap = new ConcurrentHashMap<>();
+    private final transient AtomicInteger counter = new AtomicInteger(0);
 
     public GroupingQueue(ChuuService dao, DiscogsApi discogsApi, Spotify spotify, int requested) {
         super(dao, discogsApi, spotify);

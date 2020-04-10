@@ -40,7 +40,7 @@ public class RandomAlbumCommand extends ConcurrentCommand {
                 sendMessageQueue(e, "The pool of urls was empty, add one first!");
                 return;
             }
-            String sb = String.format("%s, here's your random recommendation\n**Posted by:** %s\n**Link:** %s", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()), getUserString(e, randomUrl.getDiscordId()), randomUrl.getUrl());
+            String sb = String.format("%s, here's your random recommendation%n**Posted by:** %s%n**Link:** %s", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()), getUserString(e, randomUrl.getDiscordId()), randomUrl.getUrl());
             e.getChannel().sendMessage(sb).queue();
             return;
         }

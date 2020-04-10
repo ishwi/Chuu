@@ -16,10 +16,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
-    private final List<UrlCapsule> albumEntities;
+    private final transient List<UrlCapsule> albumEntities;
     MusicBrainzService mbiz;
 
     public TrackGroupAlbumQueue(ChuuService dao, DiscogsApi discogsApi, Spotify spotify, int requested, List<UrlCapsule> albumEntities) {
@@ -33,7 +34,7 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
         return urlCapsule -> urlCapsule.getArtistName() + urlCapsule.getAlbumName();
     }
 
-    private <T extends EntityInfo> void joinAlbumInfos(Function<UrlCapsule, T> mappingFunction, Function<T, T> obtainInfo, Function<List<UrlCapsule>, List<T>> function, List<UrlCapsule> listToJoin, BiConsumer<T, UrlCapsule> manipFunction) {
+    private <T extends EntityInfo> void joinAlbumInfos(Function<UrlCapsule, T> mappingFunction, UnaryOperator<T> obtainInfo, Function<List<UrlCapsule>, List<T>> function, List<UrlCapsule> listToJoin, BiConsumer<T, UrlCapsule> manipFunction) {
         List<T> albumInfos = function.apply(listToJoin);
         Map<T, UrlCapsule> collect = listToJoin.stream().collect(Collectors.toMap(mappingFunction, urlCapsule -> urlCapsule));
         albumInfos.forEach(y -> {
@@ -54,10 +55,8 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
             mbidGrouped = TrackDurationAlbumArtistChart.getGrouped(haveMbid);
         }
         // We assume if an album has tracks with mbid then the whole album should have tracks with mbid
-        Map<AlbumInfo, UrlCapsule> albumMap = this.albumEntities.stream().collect(Collectors.toMap(o -> {
-            AlbumInfo albumInfo = new AlbumInfo(o.getAlbumName(), o.getArtistName());
-            return albumInfo;
-        }, o -> o));
+        Map<AlbumInfo, UrlCapsule> albumMap = this.albumEntities.stream().collect(Collectors.toMap(o ->
+                new AlbumInfo(o.getAlbumName(), o.getArtistName()), o -> o));
         cleanGrouped(noMbid, albumMap, mbidGrouped, false);
         List<UrlCapsule> mbGroupedByName;
         List<UrlCapsule> notFound = new ArrayList<>();

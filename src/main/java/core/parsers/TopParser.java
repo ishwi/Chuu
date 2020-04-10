@@ -14,11 +14,8 @@ public class TopParser extends ChartParser {
         super(dao);
     }
 
-    @Override
-    protected void setUpOptionals() {
-        super.setUpOptionals();
-    }
 
+    @Override
     public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
         TimeFrameEnum timeFrame = TimeFrameEnum.ALL;
         String x = "5";
@@ -43,7 +40,7 @@ public class TopParser extends ChartParser {
         }
         subMessage = chartParserAux.getMessage();
 
-        LastFMData data = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
+        LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
 
         return new String[]{x, y, String.valueOf(data.getDiscordId()), data.getName(), timeFrame.toApiFormat()};
     }

@@ -66,7 +66,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
         }).map(x -> {
                     UsersWrapper usersWrapper = x.getKey();
                     NowPlayingArtist value = x.getValue().get(); //Checked previous filter
-                    String username = getUserString(e, usersWrapper.getDiscordID(), usersWrapper.getLastFMName());// ;
+                    String username = getUserString(e, usersWrapper.getDiscordID(), usersWrapper.getLastFMName());
                     String started = !showFresh && value.isNowPlaying() ? "#" : "+";
                     return started + " [" +
                            username + "](" +
@@ -77,7 +77,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
                                                               " | " + value.getAlbumName() + "\n");
                 }
         ).collect(Collectors.toList());
-        if (result.size() == 0) {
+        if (result.isEmpty()) {
             sendMessageQueue(e, "None is listening to music at the moment UwU");
             return;
         }
@@ -94,7 +94,7 @@ public class AllPlayingCommand extends ConcurrentCommand {
         MessageBuilder mes = new MessageBuilder();
         embedBuilder.setDescription(a);
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                executor.execute(() -> new Reactionary<>(result, message1, pageSize, embedBuilder, false)));
+                new Reactionary<>(result, message1, pageSize, embedBuilder, false));
 
     }
 

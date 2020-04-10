@@ -1,6 +1,5 @@
 package core.apis.last.chartentities;
 
-import com.sun.istack.NotNull;
 import core.commands.CommandUtil;
 import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartGroupParameters;
@@ -9,6 +8,7 @@ import dao.entities.UrlCapsule;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +56,7 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
             String name = trackObj.getString("name");
             int frequency = trackObj.getInt("playcount");
             duration = duration == 0 ? 200 : duration;
-            String artist_name = trackObj.getJSONObject("artist").getString("name");
+            String artistName = trackObj.getJSONObject("artist").getString("name");
             String mbid = trackObj.getString("mbid");
             String url = null;
             if (trackObj.has("album")) {
@@ -67,7 +67,7 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
                     url = ar.getJSONObject(ar.length() - 1).getString("#text");
                 }
             }
-            return new TrackDurationAlbumArtistChart(url, size, name, artist_name, mbid, frequency, frequency * duration, parameters.isWriteTitles(), parameters.isWritePlays(), parameters.isShowTime());
+            return new TrackDurationAlbumArtistChart(url, size, name, artistName, mbid, frequency, frequency * duration, parameters.isWriteTitles(), parameters.isWritePlays(), parameters.isShowTime());
         };
     }
 
@@ -88,8 +88,9 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
         return list;
     }
 
+    @Override
     public String toEmbedDisplay() {
-        return String.format(". **[%s - %s](%s)** - **%s hours** in **%d** %s\n",
+        return String.format(". **[%s - %s](%s)** - **%s hours** in **%d** %s%n",
                 CommandUtil.cleanMarkdownCharacter(getArtistName()),
                 CommandUtil.cleanMarkdownCharacter(getAlbumName()),
                 CommandUtil.getLastFmArtistAlbumUrl(getArtistName(), getAlbumName()),

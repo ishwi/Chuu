@@ -75,8 +75,6 @@ public class ArtistAlbumParser extends DaoParser {
         String regex = "(?<!\\\\)" + ("\\s*-\\s*");
         String[] content = s.split(regex);
 
-        //String[] content = s.split("\\s*-\\s*");
-
         if (content.length < 2) {
             sendError(this.getErrorMessage(5), e);
             return null;

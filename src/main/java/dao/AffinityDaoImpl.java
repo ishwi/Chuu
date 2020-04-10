@@ -1,5 +1,6 @@
 package dao;
 
+import core.exceptions.ChuuServiceException;
 import dao.entities.Affinity;
 import dao.musicbrainz.AffinityDao;
 import org.intellij.lang.annotations.Language;
@@ -39,7 +40,7 @@ public class AffinityDaoImpl implements AffinityDao {
             preparedStatement.setInt(i, threshold);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -77,9 +78,9 @@ public class AffinityDaoImpl implements AffinityDao {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
-        throw new RuntimeException();
+        throw new ChuuServiceException();
 
     }
 
@@ -116,7 +117,7 @@ public class AffinityDaoImpl implements AffinityDao {
             return artistRecs;
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -151,7 +152,7 @@ public class AffinityDaoImpl implements AffinityDao {
             preparedStatement.setInt(i, threshold);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -191,7 +192,7 @@ public class AffinityDaoImpl implements AffinityDao {
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 String lastfmid = resultSet.getString("lastfmid");
-                long discord_id = resultSet.getLong("discord_id");
+                long discordId = resultSet.getLong("discord_id");
                 long matchingCount = resultSet.getLong("matchingcount");
 
                 long minSize = resultSet.getLong("minsize");
@@ -199,13 +200,13 @@ public class AffinityDaoImpl implements AffinityDao {
 
                 long trueMatching = resultSet.getLong("trueMatching");
                 Affinity affinity = new Affinity(threshold, matchingCount, closeMatch, trueMatching, minSize, ogLastfmId, lastfmid);
-                affinity.setDiscordId(discord_id);
+                affinity.setDiscordId(discordId);
                 affinityList.add(affinity);
             }
             return affinityList;
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -215,7 +216,7 @@ public class AffinityDaoImpl implements AffinityDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }

@@ -89,7 +89,7 @@ public class TestResourcesSingleton extends ExternalResource {
             try (InputStream in = Chuu.class.getResourceAsStream("/tester.properties")) {
                 properties.load(in);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new ChuuServiceException(e);
             }
             developerId = Long.parseLong(properties.getProperty("DEVELOPER_ID"));
 

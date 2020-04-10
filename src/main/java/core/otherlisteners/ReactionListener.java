@@ -1,24 +1,68 @@
 package core.otherlisteners;
 
+import core.Chuu;
+import core.commands.CustomInterfacedEventManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.hooks.IEventManager;
 
 import javax.annotation.Nonnull;
 
-public abstract class ReactionListener extends ListenerAdapter {
-    private final static String PERMS_MES = "Don't have permissions to clear reactions :(\nYou can still manually remove the reaction\n";
-    private final static String DMs_MES = "Can't clear reactions on dm's, please manually remove the reaction\n";
+public abstract class ReactionListener implements EventListener {
+    private static final String PERMS_MES = "Don't have permissions to clear reactions :(\nYou can still manually remove the reaction\n";
+    private static final String DMS_MES = "Can't clear reactions on dm's, please manually remove the reaction\n";
     public final EmbedBuilder who;
     public Message message;
+    private final long activeSeconds;
+    public JDA jda;
 
     public ReactionListener(EmbedBuilder who, Message message) {
+        this(who, message, 30);
+    }
+
+    public ReactionListener(EmbedBuilder who, Message message, long activeSeconds, JDA jda) {
         this.who = who;
         this.message = message;
+        this.activeSeconds = activeSeconds;
+        this.jda = jda;
+        register();
     }
+
+    public ReactionListener(EmbedBuilder who, Message message, long activeSeconds) {
+        this(who, message, activeSeconds, message.getJDA());
+
+    }
+
+
+    @Override
+    public void onEvent(@Nonnull GenericEvent event) {
+        if (event instanceof MessageReactionAddEvent) {
+            onMessageReactionAdd(((MessageReactionAddEvent) event));
+        }
+    }
+
+    private void register() {
+        jda.getEventManager().register(this);
+    }
+
+    public void refresh(JDA jda) {
+        IEventManager eventManager = jda.getEventManager();
+        if (!(eventManager instanceof CustomInterfacedEventManager)) {
+            Chuu.getLogger().error("Wrong type on Interface, You must have forgot about this thing");
+            return;
+        }
+        ((CustomInterfacedEventManager) eventManager).refreshReactionay(this, getActiveSeconds());
+    }
+
+    public abstract void init();
+
+    public abstract void dispose();
 
     public abstract void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event);
 
@@ -51,7 +95,11 @@ public abstract class ReactionListener extends ListenerAdapter {
             }
         } else {
             MessageEmbed.Footer footer = message.getEmbeds().get(0).getFooter();
-            message.editMessage(who.setFooter(DMs_MES + (footer != null ? footer.getText() : "")).build()).queue();
+            message.editMessage(who.setFooter(DMS_MES + (footer != null ? footer.getText() : "")).build()).queue();
         }
+    }
+
+    public long getActiveSeconds() {
+        return activeSeconds;
     }
 }

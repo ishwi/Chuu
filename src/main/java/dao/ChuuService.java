@@ -1,6 +1,7 @@
 package dao;
 
 import core.Chuu;
+import core.exceptions.ChuuServiceException;
 import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
@@ -49,7 +50,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.setUpdatedTime(connection, lastFmName, timestamp, timestampControl);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -70,9 +71,8 @@ public class ChuuService {
 
                     Map<Boolean, List<ScrobbledArtist>> map = list.stream().peek(x -> x.setDiscordID(id)).collect(Collectors.partitioningBy(scrobbledArtist -> scrobbledArtist.getArtistId() == -1));
                     List<ScrobbledArtist> nonExistingId = map.get(true);
-                    if (nonExistingId.size() > 0) {
+                    if (!nonExistingId.isEmpty()) {
                         nonExistingId.forEach(x -> updaterDao.insertArtistSad(connection, x));
-                        //updaterDao.insertArtists(connection, nonExistingId);
                         //updaterDao.insertArtists(connection, nonExistingId);
                     }
                     List<ScrobbledArtist> scrobbledArtists = map.get(false);
@@ -83,14 +83,14 @@ public class ChuuService {
                 connection.commit();
             } catch (SQLException e) {
                 connection.rollback();
-                throw new RuntimeException(e);
-            } catch (RuntimeException | Error e) {
+                throw new ChuuServiceException(e);
+            } catch (Exception e) {
                 connection.rollback();
                 throw e;
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -110,14 +110,11 @@ public class ChuuService {
 
             } catch (SQLException e) {
                 connection.rollback();
-                throw new RuntimeException(e);
-            } catch (RuntimeException | Error e) {
-                connection.rollback();
-                throw e;
+                throw new ChuuServiceException(e);
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -125,7 +122,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.addGuild(connection, userID, guildID);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -143,16 +140,17 @@ public class ChuuService {
 
             } catch (SQLException e) {
                 connection.rollback();
-                throw new RuntimeException(e);
-            } catch (RuntimeException | Error e) {
+                throw new ChuuServiceException(e);
+            } catch (RuntimeException e) {
                 connection.rollback();
                 throw e;
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
+
 
     @Deprecated
     public void updateLastFmData(long discordID, String lastFMID) {
@@ -173,7 +171,7 @@ public class ChuuService {
 
             } catch (SQLException e) {
                 connection.rollback();
-                throw new RuntimeException(e);
+                throw new ChuuServiceException(e);
             } catch (RuntimeException | Error e) {
                 connection.rollback();
                 throw e;
@@ -182,7 +180,7 @@ public class ChuuService {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -190,7 +188,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return userGuildDao.findLastFmData(connection, discordID);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -199,7 +197,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.similar(connection, lastFmNames, limit);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -218,7 +216,7 @@ public class ChuuService {
                 limit = 10;
             return queriesDao.knows(connection, artistId, guildId, limit);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -227,7 +225,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return updaterDao.getLessUpdated(connection);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -236,7 +234,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return userGuildDao.getAll(connection, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -245,7 +243,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return userGuildDao.getAll(connection);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -254,7 +252,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getUniqueArtist(connection, guildID, lastFmId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -263,7 +261,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return userGuildDao.guildsFromUser(connection, userId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -272,7 +270,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getGuildTop(connection, guildID, limit, doCount);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -281,7 +279,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getCrowns(connection, lastFmID, guildID);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -290,7 +288,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return updaterDao.selectNullUrls(connection, false);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -299,7 +297,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return updaterDao.selectNullUrls(connection, true);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -308,56 +306,56 @@ public class ChuuService {
             connection.setReadOnly(true);
             return updaterDao.getArtistUrl(connection, url);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
     }
 
-    public void upsertUrl(String url, long artist_id) {
-        upsertUrl(url, artist_id, Chuu.getPresence().getJDA().getSelfUser().getIdLong());
+    public void upsertUrl(String url, long artistId) {
+        upsertUrl(url, artistId, Chuu.getPresence().getJDA().getSelfUser().getIdLong());
     }
 
-    public void userInsertUrl(String url, long artist_id, long discord_id) {
+    public void userInsertUrl(String url, long artistId, long discordId) {
         try (Connection connection = dataSource.getConnection()) {
-            long url_id = updaterDao.upsertUrl(connection, url, artist_id, discord_id);
-            updaterDao.castVote(connection, url_id, discord_id, true);
+            long urlId = updaterDao.upsertUrl(connection, url, artistId, discordId);
+            updaterDao.castVote(connection, urlId, discordId, true);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
 
     }
 
-    private void upsertUrl(String url, long artist_id, long discord_id) {
+    private void upsertUrl(String url, long artistId, long discordId) {
         try (Connection connection = dataSource.getConnection()) {
-            updaterDao.upsertUrl(connection, url, artist_id, discord_id);
+            updaterDao.upsertUrl(connection, url, artistId, discordId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
 
     }
 
-    public void upsertSpotify(String url, long artist_Id, long discord_id) {
+    public void upsertSpotify(String url, long artistId, long discordId) {
         try (Connection connection = dataSource.getConnection()) {
-            updaterDao.updateUrlStatus(connection, artist_Id);
+            updaterDao.updateUrlStatus(connection, artistId);
             if (url != null && !url.isBlank()) {
-                updaterDao.upsertSpotify(connection, url, artist_Id, discord_id);
+                updaterDao.upsertSpotify(connection, url, artistId, discordId);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
-    public void upsertSpotify(String url, long artist_id) {
-        this.upsertSpotify(url, artist_id, Chuu.getPresence().getJDA().getSelfUser().getIdLong());
+    public void upsertSpotify(String url, long artistId) {
+        this.upsertSpotify(url, artistId, Chuu.getPresence().getJDA().getSelfUser().getIdLong());
     }
 
     public void addLogo(long guildId, BufferedImage in) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.addLogo(connection, guildId, in);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
 
@@ -367,7 +365,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.removeLogo(connection, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
 
@@ -377,7 +375,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return userGuildDao.findLogo(connection, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
 
@@ -388,7 +386,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return userGuildDao.getDiscordIdFromLastFm(connection, lasFmName, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
     }
@@ -398,7 +396,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.userPlays(connection, artistId, whom);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
     }
@@ -409,7 +407,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.crownsLeaderboard(connection, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
     }
@@ -418,7 +416,7 @@ public class ChuuService {
         removeFromGuild(discordID, guildID);
         MultiValuedMap<Long, Long> map = getMapGuildUsers();
         if (!map.containsValue(discordID)) {
-
+            Chuu.getLogger().info("No longer sharing any server with user {} : %n removing user", discordID);
             removeUserCompletely(discordID);
         }
     }
@@ -434,17 +432,16 @@ public class ChuuService {
                 userGuildDao.removeUser(connection, discordID);
                 /* Commit. */
                 connection.commit();
-                Chuu.getLogger().info("Deleted User " + discordID + " :At " + LocalDateTime.now()
-                        .format(DateTimeFormatter.ISO_DATE));
+                Chuu.getLogger().info("Deleted User {} :At  {} ", discordID, LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
             } catch (SQLException e) {
                 connection.rollback();
-                throw new RuntimeException(e);
-            } catch (RuntimeException | Error e) {
+                throw new ChuuServiceException(e);
+            } catch (RuntimeException e) {
                 connection.rollback();
                 throw e;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -462,22 +459,22 @@ public class ChuuService {
 
             } catch (SQLException e) {
                 connection.rollback();
-                throw new RuntimeException(e);
+                throw new ChuuServiceException(e);
             } catch (RuntimeException | Error e) {
                 connection.rollback();
                 throw e;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
     public MultiValuedMap<Long, Long> getMapGuildUsers() {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return userGuildDao.getWholeUser_Guild(connection);
+            return userGuildDao.getWholeUserGuild(connection);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
     }
@@ -488,7 +485,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return updaterDao.getUpdaterStatus(connection, artist);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
 
@@ -498,7 +495,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.updateStatusBit(connection, artistId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -508,7 +505,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.insertCorrection(connection, artistId, correction);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -516,7 +513,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return updaterDao.findCorrection(connection, artist_id);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
     }
@@ -528,7 +525,7 @@ public class ChuuService {
             updaterDao.updateMetric(connection, 3, value3);
             updaterDao.updateMetric(connection, 4, value4);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
     }
@@ -538,7 +535,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.uniqueLeaderboard(connection, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
     }
@@ -548,7 +545,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.userArtistCount(connection, lastfmId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -557,7 +554,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.artistLeaderboard(connection, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
     }
@@ -567,7 +564,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.obscurityLeaderboard(connection, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -576,7 +573,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getRandomArtistWithUrl(connection);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -585,7 +582,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return (queriesDao.getRandomCount(connection, userId));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -593,7 +590,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return (updaterDao.findRandomUrlById(connection, url) != null);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -607,7 +604,7 @@ public class ChuuService {
             }
             return false;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -616,7 +613,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return updaterDao.getRandomUrl(connection);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -625,7 +622,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getCrownsStolenBy(connection, ogUser, queriedUser, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -634,7 +631,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getUserAlbumCrowns(connection, lastfmId, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -643,7 +640,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.albumCrownsLeaderboard(connection, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -651,7 +648,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.insertAlbumCrown(connection, artistId, album, discordID, guildId, plays);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -659,7 +656,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.deleteAlbumCrown(connection, artist, album, discordID, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -667,7 +664,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return updaterDao.getGuildPrefixes(connection);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -675,7 +672,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.upsertGuildPrefix(connection, guildID, prefix);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -683,7 +680,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getUserObscuritPoints(connection, lastfmid);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -692,7 +689,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.truncateRandomPool(connection);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -700,7 +697,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getGlobalKnows(connection, artistId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -708,7 +705,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getGlobalUniques(connection, lastfmid);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -717,7 +714,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getGlobalCrowns(connection, lastfmid);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -726,7 +723,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.createGuild(connection, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -741,7 +738,7 @@ public class ChuuService {
                 return scrobbledArtist.getArtistId();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -750,7 +747,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return updaterDao.getUserUpdateStatus(connection, discordId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -759,7 +756,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getArtistsFrequencies(connection, guildID);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -768,7 +765,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getArtistFrequencies(connection, guildID, artistId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -777,7 +774,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getArtistFrequencies(connection, null, artistId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -786,7 +783,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getGlobalArtistFrequencies((connection));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -795,7 +792,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getArtistPlays(connection, null, artistId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -804,7 +801,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getArtistPlays(connection, guildID, artistId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -814,7 +811,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getArtistPlayCount(connection, guildID);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -823,7 +820,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getGlobalArtistPlayCount((connection));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -832,7 +829,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.getAllUsersArtist(connection, discordId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -848,7 +845,7 @@ public class ChuuService {
             lastFmData.setName(lastFmID);
             userGuildDao.updateLastFmData(connection, lastFmData);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -858,7 +855,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             return queriesDao.matchingArtistCount(connection, userId, guildId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -866,7 +863,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.addAlias(connection, alias, toArtist);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -874,7 +871,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.queueAlias(connection, alias, toArtist, whom);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -882,7 +879,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return updaterDao.getNextInAliasQueue(connection);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -890,7 +887,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.deleteAliasById(connection, aliasId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -898,7 +895,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return updaterDao.getArtistId(connection, artist);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -906,21 +903,21 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return updaterDao.checkArtistUrlExists(connection, artistId, urlParsed);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
 
-    public VoteStatus castVote(long url_id, long discord_id, boolean isPositive) {
+    public VoteStatus castVote(long urlId, long discordId, boolean isPositive) {
         try (Connection connection = dataSource.getConnection()) {
-            Boolean hasVotedBefore = queriesDao.hasUserVotedImage(connection, url_id, discord_id);
-            updaterDao.castVote(connection, url_id, discord_id, isPositive);
+            Boolean hasVotedBefore = queriesDao.hasUserVotedImage(connection, urlId, discordId);
+            updaterDao.castVote(connection, urlId, discordId, isPositive);
             if (hasVotedBefore == null) {
                 return VoteStatus.NEW_VOTE;
             }
             return hasVotedBefore == isPositive ? VoteStatus.SAME_VALUE : VoteStatus.CHANGE_VALUE;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -929,7 +926,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getAllArtistImages(connection, artist_id);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -937,7 +934,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.reportImage(connection, urlId, userIdLong);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -945,7 +942,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getArtistAliases(connection, artistId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -953,7 +950,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.insertArtistSad(connection, scrobbledArtist);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -962,7 +959,7 @@ public class ChuuService {
             updaterDao.removeImage(connection, alt_id);
             updaterDao.logRemovedImage(connection, image_owner, mod_id);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -970,7 +967,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return updaterDao.getReportCount(connection);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -978,7 +975,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.removeReport(connection, altId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -986,7 +983,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return updaterDao.getReportEntity(connection, localDateTime);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -1003,7 +1000,7 @@ public class ChuuService {
             affinityDao.cleanUp(connection, false);
             return affinity;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
 
@@ -1016,7 +1013,7 @@ public class ChuuService {
             affinityDao.cleanUp(connection, true);
             return affinityList;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
     }
@@ -1032,7 +1029,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getRecommendations(connection, giverDiscordId, receiverDiscordId, ignorePast, limit);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
     }
@@ -1042,7 +1039,7 @@ public class ChuuService {
             connection.setReadOnly(false);
             updaterDao.insertPastRecommendation(connection, secondDiscordID, firstDiscordID, artistId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
 
         }
 

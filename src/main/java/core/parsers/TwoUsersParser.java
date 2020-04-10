@@ -29,7 +29,7 @@ public class TwoUsersParser extends DaoParser {
         }
         ParserAux parserAux = new ParserAux(words);
         LastFMData[] datas = parserAux.getTwoUsers(dao, words, e);
-        words = parserAux.getMessage();
+        // words = parserAux.getMessage();
         if (datas == null) {
             sendError("Couldn't get two users", e);
             return null;

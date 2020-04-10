@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class PaceParser extends NumberParser<ExtraParser<NaturalTimeFrameParser, Long>> {
 
-    public final static LocalDate LASTFM_CREATION_DATE = LocalDate.of(2002, 2, 20);
+    public static final LocalDate LASTFM_CREATION_DATE = LocalDate.of(2002, 2, 20);
 
     // Dont ask
     public PaceParser(ChuuService dao, Map<Integer, String> errorMessages) {
@@ -18,7 +18,7 @@ public class PaceParser extends NumberParser<ExtraParser<NaturalTimeFrameParser,
                         new NaturalTimeFrameParser(dao, NaturalTimeFrameEnum.ALL),
                         null,
                         NumberParser.predicate,
-                        (x) -> false,
+                        x -> false,
                         Long::parseLong,
                         String::valueOf,
                         errorMessages,
@@ -52,7 +52,7 @@ public class PaceParser extends NumberParser<ExtraParser<NaturalTimeFrameParser,
                                     throw new IllegalArgumentException();
                             }
                         })
-                , null, Long.MAX_VALUE, new HashMap<>(), "Number represents the number of periods of the specified timeframe", false, (list) -> list.stream().mapToLong(Long::longValue).max().getAsLong());
+                , null, Long.MAX_VALUE, new HashMap<>(), "Number represents the number of periods of the specified timeframe", false, list -> list.stream().mapToLong(Long::longValue).max().getAsLong());
     }
     // [0] -> NumberParserResult [1] -> ExtraParser of Natural
     //

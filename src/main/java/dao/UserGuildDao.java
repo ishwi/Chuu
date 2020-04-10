@@ -20,7 +20,7 @@ interface UserGuildDao {
 
     List<Long> guildsFromUser(Connection connection, long userId);
 
-    MultiValuedMap<Long, Long> getWholeUser_Guild(Connection connection);
+    MultiValuedMap<Long, Long> getWholeUserGuild(Connection connection);
 
     void updateLastFmData(Connection con, LastFMData lastFMData);
 

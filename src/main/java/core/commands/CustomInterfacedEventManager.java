@@ -1,8 +1,9 @@
 package core.commands;
 
 import core.Chuu;
+import core.otherlisteners.ReactionListener;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -12,14 +13,17 @@ import net.dv8tion.jda.internal.JDAImpl;
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class CustomInterfacedEventManager implements IEventManager {
 
     private final CopyOnWriteArrayList<EventListener> listeners = new CopyOnWriteArrayList<>();
     private final Map<String, MyCommand> commandListeners = new HashMap<>();
+    private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new HashMap<>();
 
     public CustomInterfacedEventManager() {
-
+        //Default constructor
     }
 
     @Override
@@ -33,6 +37,16 @@ public class CustomInterfacedEventManager implements IEventManager {
                 commandListeners.put(alias, myCommand);
             }
 
+        }
+        if (listener instanceof ReactionListener) {
+            ReactionListener reactionListener = (ReactionListener) listener;
+            long activeSeconds = reactionListener.getActiveSeconds();
+            ScheduledFuture<?> schedule = Chuu.getScheduledExecutorService().schedule((() -> {
+                reactionaries.remove(reactionListener);
+                listeners.remove(listener);
+                reactionListener.dispose();
+            }), activeSeconds, TimeUnit.SECONDS);
+            reactionaries.put(reactionListener, schedule);
         }
         listeners.add(((EventListener) listener));
     }
@@ -77,11 +91,10 @@ public class CustomInterfacedEventManager implements IEventManager {
                 } catch (Throwable throwable) {
                     JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
                 }
-                return;
             }
             return;
         }
-        if (event instanceof GuildMemberLeaveEvent || event instanceof MessageReactionAddEvent) {
+        if (event instanceof GuildMemberRemoveEvent || event instanceof MessageReactionAddEvent) {
 
             for (EventListener listener : listeners) {
                 try {
@@ -97,5 +110,16 @@ public class CustomInterfacedEventManager implements IEventManager {
     @Override
     public List<Object> getRegisteredListeners() {
         return Collections.unmodifiableList(new LinkedList<>(listeners));
+    }
+
+    public void refreshReactionay(ReactionListener reactionListener, long seconds) {
+        ScheduledFuture<?> scheduledFuture = this.reactionaries.get(reactionListener);
+        if (scheduledFuture != null && scheduledFuture.cancel(false)) {
+            this.reactionaries.put(reactionListener, Chuu.getScheduledExecutorService().schedule((() -> {
+                reactionaries.remove(reactionListener);
+                listeners.remove(reactionListener);
+                reactionListener.dispose();
+            }), seconds, TimeUnit.SECONDS));
+        }
     }
 }

@@ -98,39 +98,38 @@ public enum NaturalTimeFrameEnum {
         }
     }
 
-    public LocalDateTime toLocalDate(int count) {
-
+    public LocalDateTime toLocalDate(int intCount) {
         LocalDateTime localDate;
         switch (this) {
             case YEAR:
-                localDate = LocalDateTime.now().minus(count, ChronoUnit.YEARS);
+                localDate = LocalDateTime.now().minus(intCount, ChronoUnit.YEARS);
                 break;
             case QUARTER:
-                localDate = LocalDateTime.now().minus(3 * count, ChronoUnit.MONTHS);
+                localDate = LocalDateTime.now().minus(3 * (long) intCount, ChronoUnit.MONTHS);
                 break;
             case MONTH:
-                localDate = LocalDateTime.now().minus(count, ChronoUnit.MONTHS);
+                localDate = LocalDateTime.now().minus(intCount, ChronoUnit.MONTHS);
                 break;
             case ALL:
                 localDate = PaceParser.LASTFM_CREATION_DATE.atStartOfDay();
                 break;
             case SEMESTER:
-                localDate = LocalDateTime.now().minus(6 * count, ChronoUnit.MONTHS);
+                localDate = LocalDateTime.now().minus(6 * (long) intCount, ChronoUnit.MONTHS);
                 break;
             case WEEK:
-                localDate = LocalDateTime.now().minus(7 * count, ChronoUnit.DAYS);
+                localDate = LocalDateTime.now().minus(7 * (long) intCount, ChronoUnit.DAYS);
                 break;
             case DAY:
-                localDate = LocalDateTime.now().minus(count, ChronoUnit.DAYS);
+                localDate = LocalDateTime.now().minus(intCount, ChronoUnit.DAYS);
                 break;
             case HOUR:
-                localDate = LocalDateTime.now().minus(count, ChronoUnit.HOURS);
+                localDate = LocalDateTime.now().minus(intCount, ChronoUnit.HOURS);
                 break;
             case MINUTE:
-                localDate = LocalDateTime.now().minus(count, ChronoUnit.MINUTES);
+                localDate = LocalDateTime.now().minus(intCount, ChronoUnit.MINUTES);
                 break;
             case SECOND:
-                localDate = LocalDateTime.now().minus(count, ChronoUnit.SECONDS);
+                localDate = LocalDateTime.now().minus(intCount, ChronoUnit.SECONDS);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + this);

@@ -49,7 +49,7 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
     @Override
     public void printList(ResultWrapper<ArtistPlays> wrapper, MessageReceivedEvent e, CommandParameters commandParameters) {
         List<ArtistPlays> list = wrapper.getResultList();
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             sendMessageQueue(e, "No one has played any artist yet!");
         }
 
@@ -60,11 +60,11 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
                                                       " listeners \n").collect(Collectors.toList());
         EmbedBuilder embedBuilder = initList(collect);
         embedBuilder.setTitle("Artist's frequencies");
-        embedBuilder.setFooter(String.format("%s has %d different artists!\n", e.getGuild().getName(), wrapper.getRows()), null);
+        embedBuilder.setFooter(String.format("%s has %d different artists!%n", e.getGuild().getName(), wrapper.getRows()), null);
         embedBuilder.setThumbnail(e.getGuild().getIconUrl());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                executor.execute(() -> new Reactionary<>(collect, message1, embedBuilder)));
+                new Reactionary<>(collect, message1, embedBuilder));
     }
 
     @Override

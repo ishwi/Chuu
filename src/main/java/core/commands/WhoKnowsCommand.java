@@ -42,7 +42,7 @@ public class WhoKnowsCommand extends ConcurrentCommand {
     public WhoKnowsCommand(ChuuService dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstance();
         this.parser = new ArtistParser(dao, lastFM,
                 new OptionalEntity("--list", "display in list format"));
         this.pie = new PieableKnows(this.parser);
@@ -104,11 +104,10 @@ public class WhoKnowsCommand extends ConcurrentCommand {
         embedBuilder.setTitle("Who knows " + CommandUtil.cleanMarkdownCharacter(ap.getScrobbledArtist().getArtist()) + " in " + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "?").
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
                 .setColor(CommandUtil.randomColor());
-        //.setFooter("Command invoked by " + event.getMember().getLastFmId().getDiscriminator() + "" + LocalDateTime.now().format(DateTimeFormatter.ISO_WEEK_DATE).toApiFormat(), );
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel())
                 .queue(message1 ->
-                        executor.execute(() -> new Reactionary<>(wrapperReturnNowPlaying
-                                .getReturnNowPlayings(), message1, embedBuilder)));
+                        new Reactionary<>(wrapperReturnNowPlaying
+                                .getReturnNowPlayings(), message1, embedBuilder));
     }
 
     private void doPie(ArtistParameters ap, WrapperReturnNowPlaying returnNowPlaying) {

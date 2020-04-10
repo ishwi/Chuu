@@ -59,17 +59,17 @@ public class SetCommand extends ConcurrentCommand {
 
         List<UsersWrapper> list = getService().getAllALL();
         Optional<UsersWrapper> globalName = (list.stream().filter(user -> user.getLastFMName().equals(lastFmID)).findFirst());
-        if (globalName.isPresent()) {
-            if (globalName.get().getDiscordID() != userId) {
-                sendMessageQueue(e, "That username is already registered, if you think this is a mistake, please contact the bot developers");
-            }
+        String repeatedMessage = "That username is already registered, if you think this is a mistake, please contact the bot developers";
+        if (globalName.isPresent() && (globalName.get().getDiscordID() != userId)) {
+            sendMessageQueue(e, repeatedMessage);
+            return;
         }
 
         Optional<UsersWrapper> name = (guildlist.stream().filter(user -> user.getLastFMName().equals(lastFmID)).findFirst());
         //If name is already registered in this server
         if (name.isPresent()) {
             if (name.get().getDiscordID() != userId)
-                sendMessageQueue(e, "That username is already registered, if you think this is a mistake, please contact the bot developers");
+                sendMessageQueue(e, repeatedMessage);
             else
                 sendMessageQueue(e, String.format("%s, you are good to go!", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName())));
             return;
@@ -84,7 +84,7 @@ public class SetCommand extends ConcurrentCommand {
                 try {
                     getService().changeLastFMName(userId, lastFmID);
                 } catch (DuplicateInstanceException ex) {
-                    sendMessageQueue(e, "That username is already registered, if you think this is a mistake, please contact the bot developers");
+                    sendMessageQueue(e, repeatedMessage);
                     return;
                 }
             } else {
@@ -105,12 +105,23 @@ public class SetCommand extends ConcurrentCommand {
 
         //Never registered before
         mes.setContent("**" + CommandUtil.cleanMarkdownCharacter(e.getAuthor()
-                .getName()) + "** has set their last FM name \n Updating your library, wait a moment");
-        mes.sendTo(e.getChannel()).queue(t -> e.getChannel().sendTyping().queue());
+                .
+
+                        getName()) + "** has set their last FM name \n Updating your library, wait a moment");
+        mes.sendTo(e.getChannel()).
+
+                queue(t -> e.getChannel().
+
+                        sendTyping().
+
+                        queue());
 
         LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER);
         lastFMData.setGuildID(guildID);
-        getService().insertNewUser(lastFMData);
+
+        getService().
+
+                insertNewUser(lastFMData);
 
         try {
 
@@ -120,11 +131,13 @@ public class SetCommand extends ConcurrentCommand {
         } catch (
                 LastFMNoPlaysException ex) {
             sendMessageQueue(e, "Finished updating " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + "'s library, you are good to go!");
-        } catch (LastFmEntityNotFoundException ex) {
+        } catch (
+                LastFmEntityNotFoundException ex) {
             getService().removeUserCompletely(userId);
             Chuu.getLogger().warn(ex.getMessage(), ex);
             sendMessageQueue(e, "The provided username doesn't exist anymore on last.fm, please re-set your account");
-        } catch (Throwable ex) {
+        } catch (
+                Throwable ex) {
             System.out.println("Error while updating " + lastFmID + LocalDateTime.now()
                     .format(DateTimeFormatter.ISO_DATE));
             Chuu.getLogger().warn(ex.getMessage(), ex);
@@ -132,6 +145,7 @@ public class SetCommand extends ConcurrentCommand {
             sendMessageQueue(e, String.format("Error downloading %s's library, try to run !update, try again later or contact bot admins if the error persists", CommandUtil.cleanMarkdownCharacter(e.getAuthor()
                     .getName())));
         }
+
     }
 
     @Override

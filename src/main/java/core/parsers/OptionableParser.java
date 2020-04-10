@@ -12,7 +12,8 @@ public class OptionableParser extends Parser {
 
 	@Override
 	protected void setUpErrorMessages() {
-	}
+        //Overriding default
+    }
 
 	@Override
 	public String[] parseLogic(MessageReceivedEvent e, String[] words) {

@@ -14,11 +14,7 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-//
-//BufferedImage result = new BufferedImage(
-//        1500   ,1500, //work these out
-//        BufferedImage.TYPE_INT_RGB);
-//        Graphics g = result.getGraphics();
+
 class ThreadQueue implements Runnable {
     private final BlockingQueue<UrlCapsule> queue;
     private final Graphics2D g;
@@ -27,7 +23,6 @@ class ThreadQueue implements Runnable {
     private final AtomicInteger iterations;
     private final Font START_FONT;
     private int START_FONT_SIZE = 24;
-    private final Font TitleFont = new Font("Noto Sans", Font.PLAIN, START_FONT_SIZE);
     private final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, START_FONT_SIZE);
     private final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, START_FONT_SIZE);
 
@@ -87,10 +82,8 @@ class ThreadQueue implements Runnable {
                     drawImage(image, capsule);
                     g.drawImage(image, x * imageSize, y * imageSize, null);
 
-                    //g.drawImage(image, x * imageSize, y * imageSize, x * imageSize + imageSize, y * imageSize + imageSize, 0, 0, image.getWidth(), image.getHeight(), null);
 
                 } catch (Exception e) {
-                    //Chuu.getLogger().warn(e.getMessage(), e);
                     Color temp = g.getColor();
                     g.setColor(Color.WHITE);
                     g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
@@ -110,11 +103,8 @@ class ThreadQueue implements Runnable {
     }
 
     private void drawImage(BufferedImage image, UrlCapsule capsule) {
-        int a = image.getRGB(0, 0);
-        Color myColor = new Color(a);
         Graphics2D gTemp = image.createGraphics();
         GraphicUtils.setQuality(gTemp);
-        gTemp.setColor(getBetter(myColor));
 
         drawNames(capsule, 0, 0, gTemp, image.getWidth(), image);
         gTemp.dispose();
@@ -168,7 +158,7 @@ class ThreadQueue implements Runnable {
             g.setFont(font);
             FontMetrics metric = g.getFontMetrics();
             int nextIncrease = metric.getAscent() - metric.getDescent() + 7;
-            int x_offset = chartLine.getType().equals(ChartLine.Type.TITLE) ? 5 : 5;
+            int xOffset = 5;
             String line = chartLine.getLine();
             int artistWidth = g.getFontMetrics().stringWidth(line);
             while (artistWidth > (imageWidth - 5) && fontSize-- > lowerLimitStringSize) {
@@ -179,12 +169,10 @@ class ThreadQueue implements Runnable {
             accum += nextIncrease;
             if (image != null) {
                 g.setColor(Color.WHITE);
-                //g.drawString(line, x_offset, accum);
-                GraphicUtils.drawStringChartly(g, line, x_offset, accum, image);
-                //  GraphicUtils.drawStringNicely(g, line, 0, accum, image);
+                GraphicUtils.drawStringChartly(g, line, xOffset, accum);
             } else {
                 g.setColor(Color.BLACK);
-                g.drawString(line, x * imageSize + x_offset, y * imageSize + accum);
+                g.drawString(line, x * imageSize + xOffset, y * imageSize + accum);
             }
         }
     }

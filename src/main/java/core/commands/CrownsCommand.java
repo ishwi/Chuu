@@ -68,13 +68,13 @@ public class CrownsCommand extends ConcurrentCommand {
         embedBuilder.setDescription(a);
         embedBuilder.setColor(CommandUtil.randomColor());
         embedBuilder.setTitle(String.format("%s's %scrowns", userName, isGlobal() ? "global " : ""), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
-        embedBuilder.setFooter(String.format("%s has %d%s crowns!!\n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), isGlobal() ? " global" : ""), null);
+        embedBuilder.setFooter(String.format("%s has %d%s crowns!!%n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), isGlobal() ? " global" : ""), null);
         embedBuilder.setThumbnail(userUrl);
 
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
 
-                executor.execute(() -> new Reactionary<>(resultWrapper, message1, embedBuilder)));
+                new Reactionary<>(resultWrapper, message1, embedBuilder));
     }
 
     @Override

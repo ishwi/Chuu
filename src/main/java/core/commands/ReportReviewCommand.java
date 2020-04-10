@@ -34,7 +34,7 @@ public class ReportReviewCommand extends ConcurrentCommand {
                     .addField("Image score:", String.valueOf(reportEntity.getCurrentScore()), false)
                     .addField("Number of reports on this image:", String.valueOf(reportEntity.getReportCount()), true)
                     .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(reportEntity.getArtistName()), CommandUtil.getLastFmArtistUrl(reportEntity.getArtistName())), false)
-                    .setFooter(String.format("%d/%d\nUse \uD83D\uDC69\u200D\u2696\ufe0f to remove this image", pos.get() + 1, integer))
+                    .setFooter(String.format("%d/%d%nUse \uD83D\uDC69\u200D\u2696\ufe0f to remove this image", pos.get() + 1, integer))
                     .setImage(CommandUtil.noImageUrl(reportEntity.getUrl()))
                     .setColor(CommandUtil.randomColor());
 
@@ -74,53 +74,51 @@ public class ReportReviewCommand extends ConcurrentCommand {
         AtomicInteger statIgnore = new AtomicInteger(0);
         EmbedBuilder embedBuilder = new EmbedBuilder().setTitle("Reports Review");
         LocalDateTime localDateTime = LocalDateTime.now();
-        this.executor.submit(() -> {
-            try {
-                int totalReports = getService().getReportCount();
-                HashMap<String, BiFunction<ReportEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
-                actionMap.put(DELETE, (reportEntity, r) -> {
-                    getService().removeReportedImage(reportEntity.getImageReported(), reportEntity.getWhoGotReported(), idLong);
-                    statBan.getAndIncrement();
-                    navigationCounter.incrementAndGet();
-                    return false;
+        try {
+            int totalReports = getService().getReportCount();
+            HashMap<String, BiFunction<ReportEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
+            actionMap.put(DELETE, (reportEntity, r) -> {
+                getService().removeReportedImage(reportEntity.getImageReported(), reportEntity.getWhoGotReported(), idLong);
+                statBan.getAndIncrement();
+                navigationCounter.incrementAndGet();
+                return false;
 
-                });
-                actionMap.put(ACCEPT, (a, r) -> {
-                    getService().ignoreReportedImage(a.getImageReported());
-                    statIgnore.getAndIncrement();
-                    navigationCounter.incrementAndGet();
-                    return false;
-                });
+            });
+            actionMap.put(ACCEPT, (a, r) -> {
+                getService().ignoreReportedImage(a.getImageReported());
+                statIgnore.getAndIncrement();
+                navigationCounter.incrementAndGet();
+                return false;
+            });
 
 
-                new Validator<>(
-                        (finalEmbed) -> {
-                            int reportCount = getService().getReportCount();
-                            String description = (navigationCounter.get() == 0) ? null : String.format("You have seen %d %s and decided to delete %d %s and to ignore %d", navigationCounter.get(), CommandUtil.singlePlural(navigationCounter.get(), "image", "images"), statBan.get(), CommandUtil.singlePlural(statBan.get(), "image", "images"), statIgnore.get());
-                            String title;
-                            if (navigationCounter.get() == 0) {
-                                title = "There are no reported images";
-                            } else if (navigationCounter.get() == totalReports) {
-                                title = "There are no more reported images";
-                            } else {
-                                title = "Timed Out";
-                            }
-                            return finalEmbed.setTitle(title)
-                                    .setImage(null)
-                                    .clearFields()
-                                    .setDescription(description)
-                                    .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
-                                    .setColor(CommandUtil.randomColor());
-                        },
-                        () -> getService().getNextReport(localDateTime),
-                        builder.apply(e.getJDA(), totalReports, navigationCounter::get)
-                        , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
-            } catch (Throwable ex) {
-                Chuu.getLogger().warn(ex.getMessage());
-            } finally {
-                this.isActive.set(false);
-            }
-        });
+            new Validator<>(
+                    finalEmbed -> {
+                        int reportCount = getService().getReportCount();
+                        String description = (navigationCounter.get() == 0) ? null : String.format("You have seen %d %s and decided to delete %d %s and to ignore %d", navigationCounter.get(), CommandUtil.singlePlural(navigationCounter.get(), "image", "images"), statBan.get(), CommandUtil.singlePlural(statBan.get(), "image", "images"), statIgnore.get());
+                        String title;
+                        if (navigationCounter.get() == 0) {
+                            title = "There are no reported images";
+                        } else if (navigationCounter.get() == totalReports) {
+                            title = "There are no more reported images";
+                        } else {
+                            title = "Timed Out";
+                        }
+                        return finalEmbed.setTitle(title)
+                                .setImage(null)
+                                .clearFields()
+                                .setDescription(description)
+                                .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
+                                .setColor(CommandUtil.randomColor());
+                    },
+                    () -> getService().getNextReport(localDateTime),
+                    builder.apply(e.getJDA(), totalReports, navigationCounter::get)
+                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
+        } catch (Throwable ex) {
+            Chuu.getLogger().warn(ex.getMessage(), ex);
+        } finally {
+            this.isActive.set(false);
+        }
 
     }
 }

@@ -15,7 +15,7 @@ public class NPSpotifyCommand extends NpCommand {
 
     public NPSpotifyCommand(ChuuService dao) {
         super(dao);
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstance();
 
 
     }

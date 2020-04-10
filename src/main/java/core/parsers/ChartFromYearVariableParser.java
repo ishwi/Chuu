@@ -46,7 +46,7 @@ public class ChartFromYearVariableParser extends DaoParser {
 
         } catch (InvalidChartValuesException ex) {
             sendError(getErrorMessage(8), e);
-            ex.printStackTrace();
+            return null;
         }
         if (chartSize != null) {
             boolean conflictFlag = e.getMessage().getContentRaw().contains("--nolimit");
@@ -60,7 +60,7 @@ public class ChartFromYearVariableParser extends DaoParser {
         String year = chartParserAux.parseYear();
         words = chartParserAux.getMessage();
 
-        discordName = getLastFmUsername1input(words, e.getAuthor().getIdLong(), e);
+        discordName = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
         if (Year.now().compareTo(Year.of(Integer.parseInt(year))) < 0) {
             sendError(getErrorMessage(6), e);
             return null;

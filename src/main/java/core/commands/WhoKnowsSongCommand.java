@@ -26,7 +26,7 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
     public WhoKnowsSongCommand(ChuuService dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstance();
         this.parser = new ArtistSongParser(dao, lastFM, new OptionalEntity("--list", "display in list format")
                 , new OptionalEntity("--pie", "display it as a chart pie"));
     }
@@ -37,10 +37,10 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
         UsersWrapper usersWrapper = userList.get(0);
         Track temp = lastFM.getTrackInfo(usersWrapper.getLastFMName(), artist, track);
         userMapPlays.put(usersWrapper, temp.getPlays());
-        fillWithUrl.setAlbum_url(temp.getImageUrl());
+        fillWithUrl.setAlbumUrl(temp.getImageUrl());
 
         fillWithUrl.setAlbum(temp.getName());
-        fillWithUrl.setAlbum_url(CommandUtil.getArtistImageUrl(getService(), artist, lastFM, discogsApi, spotify));
+        fillWithUrl.setAlbumUrl(CommandUtil.getArtistImageUrl(getService(), artist, lastFM, discogsApi, spotify));
         userList.stream().skip(1).forEach(u -> {
             try {
                 Track trackInfo = lastFM.getTrackInfo(u.getLastFMName(), artist, track);
@@ -54,6 +54,7 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
 
     @Override
     void doExtraThings(List<ReturnNowPlaying> list2, long id, long artistId, String album) {
+        // Does nothing
     }
 
     @Override

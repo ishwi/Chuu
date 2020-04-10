@@ -56,7 +56,7 @@ public class StreakCommand extends ConcurrentCommand {
         StreakEntity combo = lastFM.getCombo(lastfmId);
 
         ScrobbledArtist artist = new ScrobbledArtist(combo.getCurrentArtist(), 0, "");
-        CommandUtil.validate(getService(), artist, lastFM, DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstanceUsingDoubleLocking());
+        CommandUtil.validate(getService(), artist, lastFM, DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstance());
         int artistPlays = getService().getArtistPlays(artist.getArtistId(), lastfmId);
         String aString = CommandUtil.cleanMarkdownCharacter(artist.getArtist());
         StringBuilder description = new StringBuilder();

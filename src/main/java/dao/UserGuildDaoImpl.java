@@ -1,5 +1,6 @@
 package dao;
 
+import core.exceptions.ChuuServiceException;
 import core.exceptions.InstanceNotFoundException;
 import dao.entities.LastFMData;
 import dao.entities.Role;
@@ -38,7 +39,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             /* Get generated identifier. */
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -63,7 +64,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             /* Get generated identifier. */
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -96,7 +97,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             return new LastFMData(lastFmID, resDiscordID, role);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -123,12 +124,12 @@ public class UserGuildDaoImpl implements UserGuildDao {
             }
             return returnList;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
     @Override
-    public MultiValuedMap<Long, Long> getWholeUser_Guild(Connection connection) {
+    public MultiValuedMap<Long, Long> getWholeUserGuild(Connection connection) {
         @Language("MariaDB") String queryString = "SELECT discord_id,guild_id  FROM user_guild ";
 
         MultiValuedMap<Long, Long> map = new ArrayListValuedHashMap<>();
@@ -146,7 +147,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return map;
     }
@@ -168,11 +169,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
             int updatedRows = preparedStatement.executeUpdate();
 
             if (updatedRows == 0) {
-                throw new RuntimeException("E");
+                throw new ChuuServiceException("E");
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -200,7 +201,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -225,7 +226,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -240,7 +241,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             preparedStatement.setLong(1, guildId);
             return getUsersWrappers(preparedStatement);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -281,7 +282,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             /* Return booking. */
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -303,7 +304,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
 
         } catch (SQLException | IOException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -339,7 +340,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -370,7 +371,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             return resultSet.getLong(1);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
     }
@@ -401,7 +402,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             return new LastFMData(string, aLong, role);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -415,7 +416,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             /* Execute query. */
             return getUsersWrappers(preparedStatement);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
     }
 

@@ -11,7 +11,7 @@ public class NpParser extends DaoParser {
     }
 
     public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
-        LastFMData data = getLastFmUsername1input(subMessage, e.getAuthor().getIdLong(), e);
+        LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
         return new String[]{data.getName(), String.valueOf(data.getDiscordId())};
     }
 

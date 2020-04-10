@@ -19,10 +19,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
     private static final long serialVersionUID = 1L;
-    private transient final ChuuService dao;
-    private transient final DiscogsApi discogsApi;
-    private transient final Spotify spotifyApi;
-    protected transient final LinkedBlockingQueue<CompletableFuture<UrlCapsule>> wrapper;
+    protected final transient LinkedBlockingQueue<CompletableFuture<UrlCapsule>> wrapper;
+    private final transient ChuuService dao;
+    private final transient DiscogsApi discogsApi;
+    private final transient Spotify spotifyApi;
     private final boolean needsImages;
 
     public ArtistQueue(ChuuService dao, DiscogsApi discogsApi, Spotify spotify) {
@@ -43,6 +43,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
         return this.wrapper.size();
     }
 
+    @Override
     public boolean offer(@NotNull UrlCapsule item) {
         CompletableFuture<UrlCapsule> future = CompletableFuture.supplyAsync(() -> {
             if (needsImages) {
@@ -66,11 +67,12 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
             }
             item.setUrl(url);
         } catch (InstanceNotFoundException e) {
-            e.printStackTrace();
+            //What can we do
         }
     }
 
     @NotNull
+    @Override
     public UrlCapsule take() throws InterruptedException {
         try {
             return wrapper.take().get();

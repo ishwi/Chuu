@@ -70,7 +70,6 @@ public abstract class MyCommand extends ListenerAdapter {
     }
 
     public abstract String getName();
-    //}
 
     void handleCommand(MessageReceivedEvent e) {
         try {
@@ -82,7 +81,7 @@ public abstract class MyCommand extends ListenerAdapter {
                     long discordIdFromLastfm = dao.getDiscordIdFromLastfm(ex.getUsername(), e.getGuild().getIdLong());
                     username = getUserString(e, discordIdFromLastfm, username);
                 } catch (InstanceNotFoundException ignored) {
-
+                    // We left the inital value
                 }
             } else {
                 username = CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName());
@@ -167,7 +166,6 @@ public abstract class MyCommand extends ListenerAdapter {
     }
 
     void sendImage(BufferedImage image, MessageReceivedEvent e, ChartQuality chartQuality) {
-        //MessageBuilder messageBuilder = new MessageBuilder();
         if (image == null) {
             sendMessageQueue(e, "Ish Pc Bad");
             return;
@@ -183,10 +181,8 @@ public abstract class MyCommand extends ListenerAdapter {
             byte[] img = b.toByteArray();
             if (img.length < 8388608)
                 e.getChannel().sendFile(img, "cat." + format).queue();
-                //messageBuilder.sendTo(e.getChannel()).addFile(img, "cat.png").queue();
             else
                 e.getChannel().sendMessage("File was real big").queue();
-            //messageBuilder.setContent("Boot to big").sendTo(e.getChannel()).queue();
 
         } catch (IOException ex) {
             sendMessageQueue(e, "Ish Pc Bad");

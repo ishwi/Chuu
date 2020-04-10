@@ -15,6 +15,8 @@ import java.net.URL;
 import java.util.List;
 
 public class LoveMaker {
+    private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.BOLD, (int) DESC_SIZE);
+
     private final static int X_SIZE = 1400;
     private final static int Y_SIZE = 350;
     private final static int X_MARGIN = 100;
@@ -26,8 +28,11 @@ public class LoveMaker {
     private static final float DESC_SIZE = 26;
     private static final int BAR_SIZE = X_SIZE - (X_MARGIN + IMAGE_SIZE + IMAGE_MARGIN) * 2;
     private static final Font NORMAL_FONT = new Font("Noto Sans", Font.BOLD, (int) DESC_SIZE);
-    private final static Font JAPANESE_FONT = new Font("Yu Gothic", Font.BOLD, (int) DESC_SIZE);
-    private final static Font KOREAN_FONT = new Font("Malgun Gothic", Font.BOLD, (int) DESC_SIZE);
+    private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.BOLD, (int) DESC_SIZE);
+    private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, (int) DESC_SIZE);
+
+    private LoveMaker() {
+    }
 
     public static BufferedImage calculateLove(Affinity affinity, DiscordUserDisplay firstUser, String firstImage, String secondImage, DiscordUserDisplay secondUser) {
 
@@ -47,9 +52,9 @@ public class LoveMaker {
         if (first.getHeight() > IMAGE_SIZE || first.getWidth() > IMAGE_SIZE)
             first = Scalr.resize(first, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.AUTOMATIC, IMAGE_SIZE, Scalr.OP_ANTIALIAS);
         assert first.getWidth() <= IMAGE_SIZE && first.getHeight() <= IMAGE_SIZE;
-        int x_image_starter = X_MARGIN + (IMAGE_SIZE - first.getWidth()) / 2;
-        int y_image_starter = Y_MARGIN + (IMAGE_SIZE - first.getHeight()) / 2;
-        g.drawImage(first, x_image_starter, y_image_starter, null);
+        int xImageStarter = X_MARGIN + (IMAGE_SIZE - first.getWidth()) / 2;
+        int yImageStarter = Y_MARGIN + (IMAGE_SIZE - first.getHeight()) / 2;
+        g.drawImage(first, xImageStarter, yImageStarter, null);
 
         BufferedImage second;
 
@@ -63,9 +68,9 @@ public class LoveMaker {
             second = Scalr.resize(second, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.AUTOMATIC, IMAGE_SIZE, Scalr.OP_ANTIALIAS);
 
         assert second.getWidth() <= IMAGE_SIZE && second.getHeight() <= IMAGE_SIZE;
-        x_image_starter = X_SIZE - X_MARGIN - (IMAGE_SIZE + second.getWidth()) / 2;
-        y_image_starter = Y_MARGIN + (IMAGE_SIZE - second.getHeight()) / 2;
-        g.drawImage(second, x_image_starter, y_image_starter, null);
+        xImageStarter = X_SIZE - X_MARGIN - (IMAGE_SIZE + second.getWidth()) / 2;
+        yImageStarter = Y_MARGIN + (IMAGE_SIZE - second.getHeight()) / 2;
+        g.drawImage(second, xImageStarter, yImageStarter, null);
         g.setColor(GraphicUtils.makeMoreTransparent(Color.GRAY, 0.7f));
 
         g.fillRect(X_MARGIN + IMAGE_MARGIN + IMAGE_SIZE, Y_MARGIN + (IMAGE_SIZE / 2), BAR_SIZE, (IMAGE_SIZE / 2));
@@ -91,7 +96,7 @@ public class LoveMaker {
         }
         g.setFont(NORMAL_FONT.deriveFont(Font.BOLD, TITLE_SIZE));
         Rectangle2D titleBound = g.getFontMetrics().getStringBounds(format, g);
-        GraphicUtils.drawStringNicely(g, format, (X_SIZE / 2 - ((int) titleBound.getWidth() / 2)), (int) (Y_MARGIN + (IMAGE_SIZE / 2) - 25), canvas);
+        GraphicUtils.drawStringNicely(g, format, (X_SIZE / 2 - ((int) titleBound.getWidth() / 2)), Y_MARGIN + (IMAGE_SIZE / 2) - 25, canvas);
 
 
         g.setFont(NORMAL_FONT.deriveFont(SUBTITLE_IMAGE_SIZE));
@@ -188,7 +193,7 @@ public class LoveMaker {
             if (font.canDisplayUpTo(string) != -1) {
                 font = KOREAN_FONT;
                 if (font.canDisplayUpTo(string) != -1) {
-                    font = NORMAL_FONT;
+                    font = EMOJI_FONT;
                 }
             }
         }

@@ -23,7 +23,7 @@ public class NaturalTimeFrameParser extends DaoParser {
         timeFrame = auxiliar.parseNaturalTimeFrame(timeFrame);
         message = auxiliar.getMessage();
 
-        LastFMData data = getLastFmUsername1input(message, e.getAuthor().getIdLong(), e);
+        LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
 
         return new String[]{data.getName(), String.valueOf(data.getDiscordId()), timeFrame.toApiFormat()};
     }

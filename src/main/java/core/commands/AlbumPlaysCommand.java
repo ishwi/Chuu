@@ -24,7 +24,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
         super(dao);
         this.parser = new ArtistAlbumParser(dao, lastFM);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -61,7 +61,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 
         LastFMData data = getService().findLastFMData(who);
 
-        int a = lastFM.getPlaysAlbum_Artist(data.getName(), artist.getArtist(), album).getPlays();
+        int a = lastFM.getPlaysAlbumArtist(data.getName(), artist.getArtist(), album).getPlays();
         String usernameString = data.getName();
 
         usernameString = getUserString(e, who, usernameString);

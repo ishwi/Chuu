@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 
 
 abstract class ConcurrentCommand extends MyCommand {
-    final ExecutorService executor = ExecutorsSingleton.getInstanceUsingDoubleLocking();
+    final ExecutorService executor = ExecutorsSingleton.getInstance();
 
 
     public ConcurrentCommand(ChuuService dao) {

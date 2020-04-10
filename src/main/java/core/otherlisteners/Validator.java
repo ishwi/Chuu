@@ -1,6 +1,5 @@
 package core.otherlisteners;
 
-import core.Chuu;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
@@ -14,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public class Validator<T> extends ReactionListener {
 
@@ -28,8 +28,8 @@ public class Validator<T> extends ReactionListener {
     private final boolean allowOtherUsers;
     private final boolean renderInSameElement;
 
-    public Validator(Function<EmbedBuilder, EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, MessageChannel channel, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap, boolean allowOtherUsers, boolean renderInSameElement) {
-        super(who, null);
+    public Validator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, MessageChannel channel, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap, boolean allowOtherUsers, boolean renderInSameElement) {
+        super(who, null, 30, channel.getJDA());
         this.getLastMessage = getLastMessage;
         this.elementFetcher = elementFetcher;
         this.fillBuilder = fillBuilder;
@@ -38,12 +38,9 @@ public class Validator<T> extends ReactionListener {
         this.actionMap = actionMap;
         this.allowOtherUsers = allowOtherUsers;
         this.renderInSameElement = renderInSameElement;
-        try {
-            initReactionary();
-        } catch (Throwable e) {
-            Chuu.getLogger().warn(e.getMessage());
-        }
+        init();
     }
+
 
     private void endItAll(JDA jda) {
         jda.removeEventListener(this);
@@ -78,26 +75,21 @@ public class Validator<T> extends ReactionListener {
         return this.message.editMessage(apply.build());
     }
 
-    private void initReactionary() {
+
+    @Override
+    public void init() {
         MessageAction messageAction = doTheThing(messageChannel.getJDA(), true);
         if (messageAction == null) {
             return;
         }
         this.message = messageAction.complete();
         initEmotes();
-        message.getJDA().addEventListener(this);
-        while (true) {
-            int prevCounter = counter;
-            try {
-                Thread.sleep(30000);
-            } catch (InterruptedException ex) {
-                Chuu.getLogger().warn(ex.getMessage(), ex);
-            }
-            if (this.counter == prevCounter) {
-                noMoreElements(messageChannel.getJDA());
-                break;
-            }
-        }
+    }
+
+    @Override
+    public void dispose() {
+        noMoreElements(messageChannel.getJDA());
+
     }
 
     @Override
@@ -111,7 +103,7 @@ public class Validator<T> extends ReactionListener {
         MessageAction messageAction = this.doTheThing(event.getJDA(), apply);
         counter++;
         if (messageAction != null) {
-            if (apply) {
+            if (Boolean.TRUE.equals(apply)) {
                 messageAction.queue(this::accept);
             } else if (event.getUser() != null) {
                 clearOneReact(event);
@@ -122,6 +114,7 @@ public class Validator<T> extends ReactionListener {
                 messageAction.queue();
             }
         }
+        refresh(event.getJDA());
     }
 
     private void accept(Message mes) {

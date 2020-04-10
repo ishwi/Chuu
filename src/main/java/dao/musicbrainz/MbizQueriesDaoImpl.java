@@ -2,6 +2,7 @@ package dao.musicbrainz;
 
 import com.neovisionaries.i18n.CountryCode;
 import core.Chuu;
+import core.exceptions.ChuuServiceException;
 import dao.entities.*;
 
 import java.sql.Connection;
@@ -20,7 +21,6 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
     @Override
     public List<AlbumInfo> getYearAlbums(Connection con, List<AlbumInfo> albumInfos, Year year) {
         List<AlbumInfo> returnList = new ArrayList<>();
-        long discordID;
 
         StringBuilder queryString = new StringBuilder("SELECT \n" +
                                                       "a.name as albumname,a.gid as mbid,b.name artistName\n" +
@@ -33,7 +33,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
                                                       "    musicbrainz.release_group_meta d ON c.id = d.id" +
                                                       " Where d.first_release_date_year = ? and " +
                                                       "    a.gid in (");
-        for (AlbumInfo albumInfo : albumInfos) {
+        for (AlbumInfo ignored : albumInfos) {
             queryString.append(" ? ,");
         }
         queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
@@ -57,7 +57,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return returnList;
     }
@@ -99,7 +99,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             prepareRealeaseYearStatement(releaseInfo, year, returnList, preparedStatement);
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return returnList;
     }
@@ -146,7 +146,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return list.stream().collect(Collectors.toMap(genre -> genre, genre -> returnMap.getOrDefault(genre, 0), Integer::sum));
 
@@ -192,7 +192,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return returnMap;
 
@@ -280,7 +280,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             prepareRealeaseYearStatement(releaseInfo, year, returnList, preparedStatement);
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return returnList;
     }
@@ -321,7 +321,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return mbidList;
 
@@ -381,7 +381,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return list;
 
@@ -390,7 +390,6 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
     @Override
     public void getAlbumInfoByMbid(Connection connection, List<UrlCapsule> urlCapsules) {
-        List<AlbumInfo> list = new ArrayList<>();
         Map<String, UrlCapsule> collect = urlCapsules.stream().collect(Collectors.toMap(UrlCapsule::getMbid, t -> t));
         String tempTable = "CREATE temp TABLE IF NOT EXISTS frequencies( mbid uuid) ON COMMIT DELETE ROWS;";
         try (PreparedStatement preparedStatement = connection.prepareStatement(tempTable)) {
@@ -398,10 +397,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             StringBuilder append = new StringBuilder().append("insert into frequencies(mbid) values (?)")
                     .append((",(?)").repeat(Math.max(0, urlCapsules.size() - 1)));
             PreparedStatement preparedStatement1 = connection.prepareStatement(append.toString());
-            ;
             for (int i = 0; i < urlCapsules.size(); i++) {
                 preparedStatement1.setObject(i + 1, java.util.UUID.fromString(urlCapsules.get(i).getMbid()));
-                ;
             }
             preparedStatement1.execute();
 
@@ -414,7 +411,6 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             while (resultSet.next()) {
                 String mbid = resultSet.getString("mbid");
                 String string = resultSet.getString("albumName");
-                String name = resultSet.getString("artistaName");
                 String almbid = resultSet.getString("ambid");
                 UrlCapsule urlCapsule = collect.get(mbid);
                 urlCapsule.setAlbumName(string);
@@ -422,7 +418,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
 
 
@@ -463,7 +459,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return returnList;
 
@@ -489,7 +485,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return returnList;
 
@@ -532,7 +528,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new ChuuServiceException(e);
         }
         return null;
     }

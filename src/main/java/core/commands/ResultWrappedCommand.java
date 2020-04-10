@@ -37,13 +37,13 @@ public abstract class ResultWrappedCommand<T, Y extends CommandParameters> exten
         }
         Y parameters = getParameters(e, parse);
         if (parameters.hasOptional("--pie")) {
-            doPie(getList(parse, e), e, parameters);
+            doPie(getList(parse, e), parameters);
             return;
         }
         printList(getList(parse, e), e, parameters);
     }
 
-    private void doPie(ResultWrapper<T> list, MessageReceivedEvent e, Y parameters) {
+    private void doPie(ResultWrapper<T> list, Y parameters) {
         PieChart pieChart = this.pie.doPie(parameters, list.getResultList());
         doPie(pieChart, parameters, list.getRows());
 

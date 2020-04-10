@@ -8,7 +8,7 @@ import dao.ChuuService;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.imgscalr.Scalr;
@@ -32,30 +32,34 @@ public class AdministrativeCommand extends ConcurrentCommand {
     }
 
     @Override
-    public void onGuildMemberLeave(@Nonnull GuildMemberLeaveEvent event) {
+    public void onGuildMemberRemove(@Nonnull GuildMemberRemoveEvent event) {
 
-        System.out.println("USER LEFT");
+        long idLong = event.getUser().getIdLong();
+        Chuu.getLogger().info("USER LEFT {}", idLong);
         Executors.newSingleThreadExecutor()
                 .execute(() -> {
 
                     try {
-                        getService().findLastFMData(event.getUser().getIdLong());
-                        Member member = event.getMember();
+                        getService().findLastFMData(idLong);
                         Guild guild = event.getJDA().getGuildById(event.getGuild().getIdLong());
+                        Chuu.getLogger().info("USER was a registered user {} ", idLong);
+
 
                         // Making sure they really left?
                         if (guild != null && guild.getMember(event.getUser()) == null)
                             getService()
-                                    .removeUserFromOneGuildConsequent(member.getIdLong(), event.getGuild().getIdLong());
+                                    .removeUserFromOneGuildConsequent(idLong, event.getGuild().getIdLong())
+                                    ;
 
                     } catch (InstanceNotFoundException ignored) {
+
                     }
                 });
     }
 
     public void onStartup(JDA jda) {
         MultiValuedMap<Long, Long> map = getService().getMapGuildUsers();
-        map.mapIterator().forEachRemaining((key) -> {
+        map.mapIterator().forEachRemaining(key -> {
             List<Long> usersToDelete;
             //Users in guild key
             List<Long> user = (List<Long>) map.get(key);
@@ -71,14 +75,13 @@ public class AdministrativeCommand extends ConcurrentCommand {
                 usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser))
                         .collect(Collectors.toList());
                 usersToDelete.forEach(u -> getService().removeUserFromOneGuildConsequent(u, key));
-                Chuu.getLogger().info("Deleted Users :" + usersToDelete.size());
+                Chuu.getLogger().info("Deleted Users: {}", usersToDelete.size());
 
 
             } else {
                 user.forEach(u -> getService().removeUserFromOneGuildConsequent(u, key));
             }
         });
-
     }
 
     @Override

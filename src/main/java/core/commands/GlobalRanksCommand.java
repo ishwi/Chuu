@@ -30,6 +30,6 @@ public class GlobalRanksCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-
+        // TODO someday
     }
 }

@@ -31,7 +31,7 @@ public class AffinityParser extends DaoParser {
             threshold = Integer.valueOf(opt2.get());
             if (threshold < 1) {
                 sendError("The threshold must be 1 or bigger", e);
-                return null;
+                return new String[]{};
             }
             words = Arrays.stream(words).filter(s -> !s.matches("\\d+")).toArray(String[]::new);
         }
@@ -45,7 +45,7 @@ public class AffinityParser extends DaoParser {
         } else {
             if (datas[0].getDiscordId().equals(datas[1].getDiscordId())) {
                 e.getChannel().sendMessage("Dont't use the same person twice\n").queue();
-                return null;
+                return new String[]{};
             }
         }
         String s = threshold == null ? null : String.valueOf(threshold);
