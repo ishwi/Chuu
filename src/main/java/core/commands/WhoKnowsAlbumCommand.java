@@ -95,12 +95,14 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
                 .map(ReturnNowPlaying::getDiscordId)
                 .collect(Collectors.toList());
 
+
+        userList = userList.stream().filter(x -> usersThatKnow.contains(x.getDiscordID())).collect(Collectors.toList());
+
         if (!usersThatKnow.contains(ap.getUser().getIdLong()))
             usersThatKnow.add(ap.getUser().getIdLong());
         if (!usersThatKnow.contains(e.getAuthor().getIdLong()))
             usersThatKnow.add(e.getAuthor().getIdLong());
 
-        userList = userList.stream().filter(x -> usersThatKnow.contains(x.getDiscordID())).collect(Collectors.toList());
 
         Map<UsersWrapper, Integer> userMapPlays = fillPlayCounter(userList, artist.getArtist(), ap.getAlbum(), urlContainter);
 

@@ -7,12 +7,16 @@ import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
 import dao.ChuuService;
 import dao.entities.Affinity;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class RecommendationCommand extends ConcurrentCommand<RecommendationsParams> {
     public RecommendationCommand(ChuuService dao) {
@@ -52,29 +56,57 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
             LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
             List<Affinity> serverAffinity = getService().getServerAffinity(lastFMData.getName(), e.getGuild().getIdLong(), AffinityCommand.DEFAULT_THRESHOLD);
             if (serverAffinity.isEmpty()) {
-                sendMessage(e, "Couldn't get you any recommendation :(");
+                sendMessageQueue(e, "Couldn't get you any recommendation :(");
+                return;
+
+            }
+            TreeMap<Float, Affinity> integerAffinityTreeMap = new TreeMap<>();
+            float counter = 1;
+            double v = CommandUtil.rand.nextDouble();
+            for (Affinity affinity : serverAffinity) {
+                integerAffinityTreeMap.put(counter, affinity);
+                counter += affinity.getAffinity() + 0.001f;
+            }
+            Map.Entry<Float, Affinity> floatAffinityEntry = integerAffinityTreeMap.floorEntry((float) (v * counter));
+            if (floatAffinityEntry == null) {
+                sendMessageQueue(e, "Couldn't get you any recommendation :(");
                 return;
             }
-            Affinity affinity = serverAffinity.get(0);
+            Affinity affinity = floatAffinityEntry.getValue();
             firstDiscordID = e.getAuthor().getIdLong();
             secondDiscordID = affinity.getDiscordId();
         } else {
             firstDiscordID = rp.getSecondUser().getDiscordId();
             secondDiscordID = rp.getSecondUser().getDiscordId();
         }
-        Optional<ScrobbledArtist> recommendation = getService().getRecommendation(secondDiscordID, firstDiscordID, rp.isShowRepeated());
+        List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, rp.isShowRepeated(), Math.toIntExact(rp.getRecCount()));
 
         String receiver = "you";
         if (firstDiscordID != e.getAuthor().getIdLong()) {
             receiver = getUserString(e, firstDiscordID);
         }
-        String giver = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordID).getUsername();
+        DiscordUserDisplay giverUI = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordID);
+        String giver = giverUI.getUsername();
 
-        if (recommendation.isEmpty()) {
-            sendMessage(e, String.format("Couldn't get %s any recommendation from %s", receiver, giver));
+        if (recs.isEmpty()) {
+            sendMessageQueue(e, String.format("Couldn't get %s any recommendation from %s", receiver, giver));
         } else {
-            sendMessageQueue(e, String.format("**%s** has recommended %s to listen to **%s** (they have %d plays)", giver, receiver, CommandUtil.cleanMarkdownCharacter(recommendation.get().getArtist()), recommendation.get().getCount()));
-            getService().insertRecommendation(secondDiscordID, firstDiscordID, recommendation.get().getArtistId());
+            if (recs.size() == 1) {
+                sendMessageQueue(e, String.format("**%s** has recommended %s to listen to **%s** (they have %d plays)",
+                        giver, receiver, CommandUtil.cleanMarkdownCharacter(recs.get(0).getArtist()), recs.get(0).getCount()));
+                getService().insertRecommendation(secondDiscordID, firstDiscordID, recs.get(0).getArtistId());
+            } else {
+                StringBuilder s = new StringBuilder();
+                for (ScrobbledArtist rec : recs) {
+                    s.append((String.format("# [%s](%s): %d plays%n", CommandUtil.cleanMarkdownCharacter(rec.getArtist()), CommandUtil.getLastFmArtistUrl(rec.getArtist()), rec.getCount())));
+                }
+                EmbedBuilder embedBuilder = new EmbedBuilder();
+
+                embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
+                        .setImage(giverUI.getUrlImage())
+                        .setDescription(s);
+                new MessageBuilder(embedBuilder.build()).sendTo(e.getChannel()).queue();
+            }
         }
     }
 }

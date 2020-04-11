@@ -6,6 +6,10 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 public class RecommendationParser extends DaoParser<RecommendationsParams> {
     public RecommendationParser(ChuuService dao) {
         super(dao);
@@ -24,6 +28,19 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
     @Override
     public RecommendationsParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
 
+        Stream<String> secondStream = Arrays.stream(words).filter(s -> s.matches("\\d+"));
+        Optional<String> opt2 = secondStream.findAny();
+        int recCount = 1;
+
+        if (opt2.isPresent()) {
+            recCount = Integer.parseInt(opt2.get());
+            if (recCount < 1 || recCount > 15) {
+                sendError("The recommendation count must be between 1 and 15", e);
+                return null;
+            }
+            words = Arrays.stream(words).filter(s -> !s.matches("\\d+")).toArray(String[]::new);
+        }
+
         ParserAux parserAux = new ParserAux(words);
         LastFMData[] datas = parserAux.getTwoUsers(dao, words, e);
         boolean noUserFlag = false;
@@ -34,9 +51,9 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
             return null;
         }
         if (noUserFlag) {
-            return new RecommendationsParams(e, null, null, true);
+            return new RecommendationsParams(e, null, null, true, recCount);
         } else {
-            return new RecommendationsParams(e, datas[0], datas[1], false);
+            return new RecommendationsParams(e, datas[0], datas[1], false, recCount);
         }
 
     }

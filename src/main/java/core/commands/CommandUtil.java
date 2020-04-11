@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 public class CommandUtil {
 
     private static final Pattern markdownStripper = Pattern.compile("((?<!\\\\)[*_~|`>\\[()\\]])");
-    private static final Random rand = new Random();
+    static final Random rand = new Random();
 
     private CommandUtil() {
     }

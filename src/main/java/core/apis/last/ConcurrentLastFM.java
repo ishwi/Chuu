@@ -704,12 +704,15 @@ public class ConcurrentLastFM {//implements LastFMService {
         ExceptionEntity exceptionEntity = new TrackException(artist, trackName);
         JSONObject obj = doMethod(method, exceptionEntity);
         obj = obj.getJSONObject("track");
-        if (!obj.has("userplaycount")) {
-            throw new LastFmEntityNotFoundException(new ExceptionEntity(username));
+        int userplaycount = 0;
+        if (obj.has("userplaycount")) {
+            userplaycount = obj.getInt("userplaycount");
         }
-        int userplaycount = obj.getInt("userplaycount");
         String reTrackName = obj.getString("name");
-        boolean userloved = obj.getInt("userloved") != 0;
+        boolean userloved = false;
+        if (obj.has("userloved")) {
+            userloved = obj.getInt("userloved") != 0;
+        }
         int duration = obj.getInt("duration");
         String reArtist = obj.getJSONObject("artist").getString("name");
 
