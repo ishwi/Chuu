@@ -35,9 +35,8 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
         ChartParserAux chartParserAux = new ChartParserAux(subMessage);
         Year year = chartParserAux.parseYear();
         timeFrame = chartParserAux.parseTimeframe(timeFrame);
-
-        discordName = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
-
+        subMessage = chartParserAux.getMessage();
+        discordName = atTheEndOneUser(e, subMessage);
         if (Year.now().compareTo(year) < 0) {
             sendError(getErrorMessage(6), e);
             return null;

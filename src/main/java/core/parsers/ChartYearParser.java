@@ -56,13 +56,12 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
         }
         Year year = chartParserAux.parseYear();
         words = chartParserAux.getMessage();
-
-        discordName = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
         if (Year.now().compareTo(year) < 0) {
             sendError(getErrorMessage(6), e);
             return null;
         }
         TimeFrameEnum timeFrameEnum = calculateTimeFrame(year);
+        discordName = atTheEndOneUser(e, words);
         return new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrameEnum, x, y, year);
     }
 

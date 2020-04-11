@@ -23,7 +23,7 @@ public class NaturalTimeFrameParser extends DaoParser<NaturalTimeParams> {
         ChartParserAux auxiliar = new ChartParserAux(message);
         timeFrame = auxiliar.parseNaturalTimeFrame(timeFrame);
         message = auxiliar.getMessage();
-        LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
+        LastFMData data = atTheEndOneUser(e, message);
 
         return new NaturalTimeParams(e, data, timeFrame);
     }

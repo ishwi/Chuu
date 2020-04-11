@@ -1,7 +1,5 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
 import core.parsers.params.TimezoneParams;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -28,7 +26,7 @@ public class TimezoneParser extends Parser<TimezoneParams> {
     }
 
     @Override
-    protected TimezoneParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected TimezoneParams parseLogic(MessageReceivedEvent e, String[] words) {
         String join = String.join(" ", words);
         if (gmtBased.test(join)) {
             join = "GMT" + join;

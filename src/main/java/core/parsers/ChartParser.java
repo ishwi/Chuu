@@ -26,11 +26,6 @@ public class ChartParser extends ChartableParser<ChartParameters> {
         int x = 5;
         int y = 5;
 
-        if (subMessage.length > 3) {
-            sendError(getErrorMessage(5), e);
-            return null;
-        }
-
 
         ChartParserAux chartParserAux = new ChartParserAux(subMessage);
         try {
@@ -45,7 +40,8 @@ public class ChartParser extends ChartableParser<ChartParameters> {
             return null;
         }
         timeFrame = chartParserAux.parseTimeframe(timeFrame);
-        LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
+        subMessage = chartParserAux.getMessage();
+        LastFMData data = atTheEndOneUser(e, subMessage);
         return new ChartParameters(e, data.getName(), data.getDiscordId(), timeFrame, x, y);
     }
 }

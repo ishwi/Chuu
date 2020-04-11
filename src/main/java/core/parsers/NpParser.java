@@ -18,7 +18,7 @@ public class NpParser extends DaoParser<NowPlayingParameters> {
     }
 
     public NowPlayingParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
-        LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
+        LastFMData data = atTheEndOneUser(e, subMessage);
         NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(data.getName());
         return new NowPlayingParameters(e, data, nowPlayingArtist);
     }

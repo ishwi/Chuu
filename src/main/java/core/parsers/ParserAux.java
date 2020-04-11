@@ -31,7 +31,10 @@ public class ParserAux {
                 sample = members.get(0).getUser();
                 message = Arrays.stream(message).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
             } else {
-                Member memberByTag = e.getGuild().getMemberByTag(join);
+                Member memberByTag = null;
+                if (user.matcher(join).matches()) {
+                    memberByTag = e.getGuild().getMemberByTag(join);
+                }
                 if (memberByTag == null) {
                     List<Member> membersByEffectiveName = e.getGuild().getMembersByEffectiveName(join, true);
                     if (membersByEffectiveName.isEmpty()) {
@@ -73,34 +76,46 @@ public class ParserAux {
     }
 
     LastFMData[] getTwoUsers(ChuuService dao, String[] message, MessageReceivedEvent e) throws InstanceNotFoundException {
-        if (message.length == 0 || message.length > 2) {
+        if (message.length == 0) {
             return null;
         }
-        List<User> list = e.getMessage().getMentionedUsers();
         LastFMData[] datas = new LastFMData[]{null, null};
-        if (message.length == 1 && list.size() == 1) {
-            datas[1] = dao.findLastFMData(list.get(0).getIdLong());
+        if (message.length > 2) {
+            String join = String.join(" ", message);
             datas[0] = dao.findLastFMData(e.getAuthor().getIdLong());
-        } else if (message.length == 1 && list.isEmpty()) {
-            datas[1] = handleRawMessage(message[0], e, dao);
-            datas[0] = dao.findLastFMData(e.getAuthor().getIdLong());
-        } else if (message.length == 2 && list.size() == 1) {
-            User sample = list.get(0);
-            if (message[0].equals(sample.getAsMention()) || message[0].equals("<@!" + sample.getAsMention().substring(2))) {
-                datas[0] = dao.findLastFMData(sample.getIdLong());
-                datas[1] = handleRawMessage(message[1], e, dao);
-            } else {
-                datas[0] = handleRawMessage(message[0], e, dao);
-                datas[1] = dao.findLastFMData(sample.getIdLong());
-            }
-        } else if (message.length == 2 && list.size() == 2) {
-            datas[0] = dao.findLastFMData(list.get(0).getIdLong());
-            datas[1] = dao.findLastFMData(list.get(1).getIdLong());
-        } else if (message.length == 2 && list.isEmpty()) {
-            datas[0] = handleRawMessage(message[0], e, dao);
-            datas[1] = handleRawMessage(message[1], e, dao);
+            datas[1] = handleRawMessage(join, e, dao);
         } else {
-            return null;
+            List<User> list = e.getMessage().getMentionedUsers();
+            if (message.length == 1 && list.size() == 1) {
+                datas[1] = dao.findLastFMData(list.get(0).getIdLong());
+                datas[0] = dao.findLastFMData(e.getAuthor().getIdLong());
+            } else if (message.length == 1 && list.isEmpty()) {
+                datas[1] = handleRawMessage(message[0], e, dao);
+                datas[0] = dao.findLastFMData(e.getAuthor().getIdLong());
+            } else if (message.length == 2 && list.size() == 1) {
+                User sample = list.get(0);
+                if (message[0].equals(sample.getAsMention()) || message[0].equals("<@!" + sample.getAsMention().substring(2))) {
+                    datas[0] = dao.findLastFMData(sample.getIdLong());
+                    datas[1] = handleRawMessage(message[1], e, dao);
+                } else {
+                    datas[0] = handleRawMessage(message[0], e, dao);
+                    datas[1] = dao.findLastFMData(sample.getIdLong());
+                }
+            } else if (message.length == 2 && list.size() == 2) {
+                datas[0] = dao.findLastFMData(list.get(0).getIdLong());
+                datas[1] = dao.findLastFMData(list.get(1).getIdLong());
+            } else if (message.length == 2 && list.isEmpty()) {
+                try {
+                    datas[1] = handleRawMessage(String.join(" ", message), e, dao);
+                    datas[0] = dao.findLastFMData(e.getAuthor().getIdLong());
+                } catch (InstanceNotFoundException ex) {
+                    datas[0] = handleRawMessage(message[0], e, dao);
+                    datas[1] = handleRawMessage(message[1], e, dao);
+                }
+
+            } else {
+                return null;
+            }
         }
         return datas;
     }

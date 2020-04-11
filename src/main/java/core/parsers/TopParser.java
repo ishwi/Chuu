@@ -21,11 +21,6 @@ public class TopParser extends ChartableParser<TopParameters> {
         int x = 5;
         int y = 5;
 
-        if (subMessage.length > 3) {
-            sendError(getErrorMessage(5), e);
-            return null;
-        }
-
 
         ChartParserAux chartParserAux = new ChartParserAux(subMessage);
         try {
@@ -40,7 +35,7 @@ public class TopParser extends ChartableParser<TopParameters> {
         }
         subMessage = chartParserAux.getMessage();
 
-        LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
+        LastFMData data = atTheEndOneUser(e, subMessage);
         return new TopParameters(e, data.getName(), data.getDiscordId(), defaultTFE, x, y);
     }
 

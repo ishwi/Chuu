@@ -23,7 +23,7 @@ public class OnlyUsernameParser extends DaoParser<ChuuDataParams> {
 
     @Override
     public ChuuDataParams parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
-        LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
+        LastFMData data = atTheEndOneUser(e, subMessage);
         return new ChuuDataParams(e, data);
     }
 

@@ -23,8 +23,7 @@ public class TimerFrameParser extends DaoParser<TimeFrameParameters> {
         ChartParserAux auxiliar = new ChartParserAux(message);
         timeFrame = auxiliar.parseTimeframe(timeFrame);
         message = auxiliar.getMessage();
-
-        LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
+        LastFMData data = atTheEndOneUser(e, message);
         return new TimeFrameParameters(e, data, timeFrame);
     }
 
