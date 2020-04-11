@@ -1,5 +1,7 @@
 package core.commands;
 
+import core.parsers.NoOpParser;
+import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
@@ -7,10 +9,20 @@ import dao.entities.LbEntry;
 import java.util.Collections;
 import java.util.List;
 
-public class ArtistCountLeaderboard extends CrownLeaderboardCommand {
+public class ArtistCountLeaderboard extends LeaderboardCommand<CommandParameters> {
     public ArtistCountLeaderboard(ChuuService dao) {
         super(dao);
-        this.entryName = "artist";
+    }
+
+
+    @Override
+    public Parser<CommandParameters> getParser() {
+        return new NoOpParser();
+    }
+
+    @Override
+    public String getEntryName() {
+        return "artist";
     }
 
     @Override

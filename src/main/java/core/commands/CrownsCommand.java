@@ -3,9 +3,11 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
+import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
@@ -15,25 +17,42 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class CrownsCommand extends ConcurrentCommand<ChuuDataParams> {
+import static core.parsers.ExtraParser.LIMIT_ERROR;
+
+public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
     public CrownsCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
     }
 
     @Override
-    public Parser<ChuuDataParams> getParser() {
-        return new OnlyUsernameParser(getService());
+    public Parser<NumberParameters<ChuuDataParams>> getParser() {
+        Map<Integer, String> map = new HashMap<>(2);
+        map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
+        String s = "You can also introduce a number to vary the number of plays to award a crown, " +
+                   "defaults to whatever the guild has configured (0 if not configured)";
+        return new NumberParser<>(new OnlyUsernameParser(getService()),
+                null,
+                Integer.MAX_VALUE,
+                map, s, false, true, true);
     }
 
     public boolean isGlobal() {
         return false;
     }
 
-    public UniqueWrapper<ArtistPlays> getList(long guildId, String lastFmName) {
-        return getService().getCrowns(lastFmName, guildId);
+    public UniqueWrapper<ArtistPlays> getList(NumberParameters<ChuuDataParams> params) {
+        Long threshold = params.getExtraParam();
+        long idLong = params.getE().getGuild().getIdLong();
+
+        if (threshold == null) {
+            threshold = (long) getService().getGuildCrownThreshold(idLong);
+        }
+        return getService().getCrowns(params.getInnerParams().getLastFMData().getName(), idLong, Math.toIntExact(threshold));
     }
 
     @Override
@@ -48,10 +67,13 @@ public class CrownsCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ChuuDataParams params = parser.parse(e);
-
-        UniqueWrapper<ArtistPlays> uniqueDataUniqueWrapper = getList(e.getGuild().getIdLong(), params.getLastFMData().getName());
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, uniqueDataUniqueWrapper.getDiscordId());
+        NumberParameters<ChuuDataParams> outer = parser.parse(e);
+        if (outer == null) {
+            return;
+        }
+        ChuuDataParams params = outer.getInnerParams();
+        UniqueWrapper<ArtistPlays> uniqueDataUniqueWrapper = getList(outer);
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
         List<ArtistPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();

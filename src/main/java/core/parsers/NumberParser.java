@@ -16,8 +16,11 @@ import java.util.regex.Pattern;
  **/
 public class NumberParser<K extends CommandParameters, T extends Parser<K>> extends ExtraParser<NumberParameters<K>, K, T, Long> {
     public static final Pattern compile = Pattern.compile("[1-9]([0-9]+)?");
+    public static final Pattern allow0 = Pattern.compile("[0-9]+");
+
     public static final Predicate<String> predicate = compile.asMatchPredicate();
 
+    //TODO Builder
     public NumberParser(T innerParser,
                         Long defaultItem,
                         long max,
@@ -58,6 +61,29 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                         new NumberParameters<>(k.getE(), k, aLong));
     }
 
+    public NumberParser(T innerParser,
+                        Long defaultItem,
+                        long max,
+                        Map<Integer, String> errorMessages,
+                        String description,
+                        boolean panicOnFailure,
+                        boolean catchFirst
+    ) {
+        super(innerParser,
+                defaultItem,
+                predicate,
+                number -> number > max || number < 0,
+                Long::parseLong,
+                String::valueOf,
+                errorMessages,
+                "number",
+                description,
+                null,
+                null,
+                panicOnFailure,
+                catchFirst, (k, aLong) ->
+                        new NumberParameters<>(k.getE(), k, aLong));
+    }
 
     public NumberParser(T innerParser,
                         Long defaultItem,
@@ -78,7 +104,33 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 null,
                 accum,
                 panicOnFailure,
-                (k, aLong) ->
+                false, (k, aLong) ->
                         new NumberParameters<>(k.getE(), k, aLong));
     }
+
+    public NumberParser(T innerParser,
+                        Long defaultItem,
+                        long max,
+                        Map<Integer, String> errorMessages,
+                        String description,
+                        boolean panicOnFailure,
+                        boolean catchFirst,
+                        boolean allow0
+    ) {
+        super(innerParser,
+                defaultItem,
+                allow0 ? NumberParser.allow0.asMatchPredicate() : predicate,
+                number -> number > max || number < 0,
+                Long::parseLong,
+                String::valueOf,
+                errorMessages,
+                "number",
+                description,
+                null,
+                null,
+                panicOnFailure,
+                catchFirst, (k, aLong) ->
+                        new NumberParameters<>(k.getE(), k, aLong));
+    }
+
 }

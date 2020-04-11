@@ -921,6 +921,20 @@ public class UpdaterDaoImpl implements UpdaterDao {
         }
 
     }
+
+    @Override
+    public void updateGuildCrownThreshold(Connection connection, long guildId, int newThreshold) {
+        String queryString = "UPDATE guild SET crown_threshold = ? WHERE guild_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setInt(i++, newThreshold);
+            preparedStatement.setLong(i, guildId);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
 }
 
 

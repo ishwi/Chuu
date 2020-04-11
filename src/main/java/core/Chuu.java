@@ -234,7 +234,8 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new AffinityCommand(dao)))
                 .addEventListeners(help.registerCommand(new RecommendationCommand(dao)))
                 .addEventListeners(help.registerCommand(new UnsetCommand(dao)))
-                .addEventListeners(help.registerCommand(new TimezoneCommand(dao)));
+                .addEventListeners(help.registerCommand(new TimezoneCommand(dao)))
+                .addEventListeners(help.registerCommand(new GuildConfigCommand(dao)));
 
 
         try {

@@ -11,15 +11,11 @@ public class NoOpParser extends Parser<CommandParameters> {
         //Cleaning previous
     }
 
-    @Override
-    public CommandParameters parse(MessageReceivedEvent e) {
-        throw new UnsupportedOperationException();
-    }
 
     @Override
 
     public CommandParameters parseLogic(MessageReceivedEvent e, String[] subMessage) {
-        throw new UnsupportedOperationException();
+        return new CommandParameters(e);
     }
 
     @Override

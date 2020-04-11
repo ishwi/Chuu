@@ -60,8 +60,10 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
         userInfo = lastFM.getUserInfo(Collections.singletonList(lastFmName)).get(0);
         albumCount = lastFM.getTotalAlbumCount(lastFmName);
 
-        UniqueWrapper<ArtistPlays> crowns = getService().getCrowns(lastFmName, e.getGuild().getIdLong());
-        UniqueWrapper<ArtistPlays> unique = getService().getUniqueArtist(e.getGuild().getIdLong(), lastFmName);
+        long guildId = e.getGuild().getIdLong();
+        int guildCrownThreshold = getService().getGuildCrownThreshold(guildId);
+        UniqueWrapper<ArtistPlays> crowns = getService().getCrowns(lastFmName, guildId, guildCrownThreshold);
+        UniqueWrapper<ArtistPlays> unique = getService().getUniqueArtist(guildId, lastFmName);
 
         int totalUnique = unique.getRows();
         int totalCrowns = crowns.getRows();

@@ -3,8 +3,10 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
+import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.TwoUsersParser;
+import core.parsers.params.NumberParameters;
 import core.parsers.params.TwoUsersParamaters;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
@@ -15,17 +17,28 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class CrownsStolenCommand extends ConcurrentCommand<TwoUsersParamaters> {
+import static core.parsers.ExtraParser.LIMIT_ERROR;
+
+public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoUsersParamaters>> {
     public CrownsStolenCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
     }
 
     @Override
-    public Parser<TwoUsersParamaters> getParser() {
-        return new TwoUsersParser(getService());
+    public Parser<NumberParameters<TwoUsersParamaters>> getParser() {
+        Map<Integer, String> map = new HashMap<>(2);
+        map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
+        String s = "You can also introduce a number to vary the number of plays to award a crown, " +
+                   "defaults to whatever the guild has configured (0 if not configured)";
+        return new NumberParser<>(new TwoUsersParser(getService()),
+                null,
+                Integer.MAX_VALUE,
+                map, s, false, true, true);
     }
 
     @Override
@@ -45,10 +58,10 @@ public class CrownsStolenCommand extends ConcurrentCommand<TwoUsersParamaters> {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        TwoUsersParamaters params = parser.parse(e);
-        if (params == null)
+        NumberParameters<TwoUsersParamaters> outer = parser.parse(e);
+        if (outer == null)
             return;
-
+        TwoUsersParamaters params = outer.getInnerParams();
         long ogDiscordID = params.getFirstUser().getDiscordId();
         String ogLastFmId = params.getFirstUser().getName();
         long secondDiscordId = params.getSecondUser().getDiscordId();
@@ -59,8 +72,14 @@ public class CrownsStolenCommand extends ConcurrentCommand<TwoUsersParamaters> {
             return;
         }
 
+        Long threshold = outer.getExtraParam();
+        long idLong = params.getE().getGuild().getIdLong();
+
+        if (threshold == null) {
+            threshold = (long) getService().getGuildCrownThreshold(idLong);
+        }
         StolenCrownWrapper resultWrapper = getService()
-                .getCrownsStolenBy(ogLastFmId, secondlastFmId, e.getGuild().getIdLong());
+                .getCrownsStolenBy(ogLastFmId, secondlastFmId, e.getGuild().getIdLong(), Math.toIntExact(threshold));
 
         int rows = resultWrapper.getList().size();
 

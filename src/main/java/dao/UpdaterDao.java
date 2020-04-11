@@ -105,4 +105,7 @@ interface UpdaterDao {
     void insertPastRecommendation(Connection connection, long secondDiscordID, long firstDiscordID, long artistId);
 
 
+    void updateGuildCrownThreshold(Connection connection, long guildId, int newThreshold);
+
+
 }

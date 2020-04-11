@@ -19,7 +19,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public UniqueWrapper<ArtistPlays> getGlobalCrowns(Connection connection, String lastfmId) {
+    public UniqueWrapper<ArtistPlays> getGlobalCrowns(Connection connection, String lastfmId, int threshold) {
         List<ArtistPlays> returnList = new ArrayList<>();
         long discordId;
 
@@ -29,7 +29,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                                                   " JOIN artist c ON " +
                                                   " a.artist_id = c.id" +
                                                   " WHERE  a.lastfm_id = ?" +
-                                                  " AND playnumber > 0" +
+                                                  " AND playnumber >= ?" +
                                                   " AND  playnumber >= ALL" +
                                                   "       (SELECT max(b.playnumber) " +
                                                   " FROM " +
@@ -45,6 +45,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, lastfmId);
+            preparedStatement.setInt(2, threshold);
+
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -431,6 +433,21 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         }
     }
 
+    @Override
+    public int getGuildCrownThreshold(Connection connection, long guildID) {
+        @Language("MariaDB") String queryBody = "SELECT crown_threshold FROM guild WHERE guild_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
+            preparedStatement.setLong(1, guildID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            return 0;
+        } catch (SQLException ex) {
+            throw new ChuuServiceException(ex);
+        }
+    }
+
 
     @Override
     public List<ScrobbledArtist> getRecommendations(Connection connection, long giverDiscordId, long receiverDiscordId, boolean doPast, int limit) {
@@ -649,7 +666,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public UniqueWrapper<ArtistPlays> getCrowns(Connection connection, String lastfmId, long guildID) {
+    public UniqueWrapper<ArtistPlays> getCrowns(Connection connection, String lastfmId, long guildID, int crownThreshold) {
         List<ArtistPlays> returnList = new ArrayList<>();
         long discordId;
 
@@ -658,7 +675,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                                                   " JOIN user b ON a.lastfm_id = b.lastfm_id " +
                                                   " JOIN artist a2 ON a.artist_id = a2.id " +
                                                   " WHERE  b.lastfm_id = ?" +
-                                                  " AND playnumber > 0" +
+                                                  " AND playnumber >= ? " +
                                                   " AND  playnumber >= ALL" +
                                                   "       (SELECT max(b.playnumber) " +
                                                   " FROM " +
@@ -678,6 +695,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, lastfmId);
+            preparedStatement.setInt(i++, crownThreshold);
             preparedStatement.setLong(i, guildID);
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -790,7 +808,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public List<LbEntry> crownsLeaderboard(Connection connection, long guildID) {
+    public List<LbEntry> crownsLeaderboard(Connection connection, long guildID, int threshold) {
         @Language("MariaDB") String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
                                                   "FROM " +
                                                   "( " +
@@ -817,11 +835,16 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                                                   "        user_guild t4  " +
                                                   "            ON t3.discord_id = t4.discord_id  " +
                                                   "    WHERE " +
-                                                  "        t4.guild_id = ?  " +
-                                                  "  GROUP BY t2.lastfm_id,t3.discord_id " +
-                                                  "  ORDER BY ord DESC";
+                                                  "        t4.guild_id = ?  ";
+        if (threshold != 0) {
+            queryString += " and t2.playnumber > ? ";
+        }
 
-        return getLbEntries(connection, guildID, queryString, CrownsLbEntry::new, true);
+
+        queryString += "  GROUP BY t2.lastfm_id,t3.discord_id " +
+                       "  ORDER BY ord DESC";
+
+        return getLbEntries(connection, guildID, queryString, CrownsLbEntry::new, true, threshold);
 
 
     }
@@ -845,7 +868,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                                                   "GROUP BY lastfm_id " +
                                                   "ORDER BY ord DESC";
 
-        return getLbEntries(connection, guildId, queryString, UniqueLbEntry::new, false);
+        return getLbEntries(connection, guildId, queryString, UniqueLbEntry::new, false, 0);
     }
 
 
@@ -882,7 +905,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                                                   " GROUP BY a.lastfm_id,c.discord_id " +
                                                   "    ORDER BY ord DESC    )";
 
-        return getLbEntries(con, guildID, queryString, ArtistLbEntry::new, false);
+        return getLbEntries(con, guildID, queryString, ArtistLbEntry::new, false, 0);
     }
 
     @Override
@@ -942,7 +965,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                                                   "WHERE c.guild_id = ?" +
                                                   " ORDER BY ord DESC";
 
-        return getLbEntries(connection, guildId, queryString, ObscurityEntry::new, false);
+        return getLbEntries(connection, guildId, queryString, ObscurityEntry::new, false, 0);
     }
 
     @Override
@@ -999,7 +1022,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
     @Override
     public StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser,
-                                                long guildId) {
+                                                long guildId, int threshold) {
         List<StolenCrown> returnList = new ArrayList<>();
         long discordid;
         long discordid2;
@@ -1046,9 +1069,14 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                                                   "            guild_id = ?\n" +
                                                   "                AND artist_id = inn.artist_id\n" +
                                                   "        ORDER BY in_a.playnumber DESC\n" +
-                                                  "        LIMIT 1 , 1)\n" +
-                                                  "ORDER BY inn.orden DESC , inn2.orden DESC\n" +
-                                                  "        \n";
+                                                  "        LIMIT 1 , 1)\n";
+
+        if (threshold != 0) {
+            queryString += " and inn.playnumber >= ? && inn2.playnumber >= ? ";
+        }
+
+
+        queryString += " ORDER BY inn.orden DESC , inn2.orden DESC\n";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -1056,8 +1084,11 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             preparedStatement.setString(i++, queriedUser);
 
             preparedStatement.setLong(i++, guildId);
-            preparedStatement.setLong(i, guildId);
-
+            preparedStatement.setLong(i++, guildId);
+            if (threshold != 0) {
+                preparedStatement.setInt(i++, threshold);
+                preparedStatement.setInt(i, threshold);
+            }
             ResultSet resultSet = preparedStatement.executeQuery();
             if (!resultSet.next()) {
                 return new StolenCrownWrapper(0, 0, returnList);
@@ -1144,7 +1175,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                                                   "GROUP BY a.discordid , b.lastfm_id\n" +
                                                   "ORDER BY ord DESC ;";
 
-        return getLbEntries(con, guildID, queryString, AlbumCrownLbEntry::new, false);
+        return getLbEntries(con, guildID, queryString, AlbumCrownLbEntry::new, false, 0);
     }
 
     @Override
@@ -1268,14 +1299,16 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     //TriFunction is not the simplest approach but i felt like using it so :D
     @NotNull
     private List<LbEntry> getLbEntries(Connection connection, long guildId, String
-            queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needsReSet) {
+            queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needsReSet, int resetThreshold) {
         List<LbEntry> returnedList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(i, guildId);
-            if (needsReSet)
+            if (needsReSet) {
                 preparedStatement.setLong(++i, guildId);
-
+                if (resetThreshold != 0)
+                    preparedStatement.setLong(++i, resetThreshold);
+            }
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) { //&& (j < 10 && j < rows)) {
                 String lastfmId = resultSet.getString("lastfm_id");

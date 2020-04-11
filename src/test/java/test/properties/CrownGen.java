@@ -15,7 +15,7 @@ public class CrownGen extends Generator<ArtistPlays> {
     public CrownGen() {
         super(ArtistPlays.class);
         long idLong = TestResources.channelWorker.getGuild().getIdLong();
-        UniqueWrapper<ArtistPlays> wrapper = TestResources.dao.getCrowns("pablopita", idLong);
+        UniqueWrapper<ArtistPlays> wrapper = TestResources.dao.getCrowns("pablopita", idLong, );
         poolOfArtist = wrapper.getUniqueData();
     }
 

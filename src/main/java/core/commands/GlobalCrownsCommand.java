@@ -1,5 +1,7 @@
 package core.commands;
 
+import core.parsers.params.ChuuDataParams;
+import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.UniqueWrapper;
@@ -19,8 +21,18 @@ public class GlobalCrownsCommand extends CrownsCommand {
     }
 
     @Override
-    public UniqueWrapper<ArtistPlays> getList(long ignored, String lastFmName) {
-        return getService().getGlobalCrowns(lastFmName);
+    public UniqueWrapper<ArtistPlays> getList(NumberParameters<ChuuDataParams> params) {
+        Long threshold = params.getExtraParam();
+        long idLong = params.getE().getGuild().getIdLong();
+
+        if (threshold == null) {
+            if (params.getE().isFromGuild()) {
+                threshold = (long) getService().getGuildCrownThreshold(idLong);
+            } else {
+                threshold = 0L;
+            }
+        }
+        return getService().getGlobalCrowns(params.getInnerParams().getLastFMData().getName(), Math.toIntExact(threshold));
     }
 
     @Override

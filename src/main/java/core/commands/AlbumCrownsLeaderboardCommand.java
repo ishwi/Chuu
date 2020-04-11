@@ -1,5 +1,7 @@
 package core.commands;
 
+import core.parsers.NoOpParser;
+import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
@@ -7,11 +9,19 @@ import dao.entities.LbEntry;
 import java.util.Arrays;
 import java.util.List;
 
-public class AlbumCrownsLeaderboardCommand extends CrownLeaderboardCommand {
+public class AlbumCrownsLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
     public AlbumCrownsLeaderboardCommand(ChuuService dao) {
         super(dao);
-        this.entryName = "Album Crowns";
+    }
 
+    @Override
+    public Parser<CommandParameters> getParser() {
+        return new NoOpParser();
+    }
+
+    @Override
+    public String getEntryName() {
+        return "Album Crowns";
     }
 
     @Override

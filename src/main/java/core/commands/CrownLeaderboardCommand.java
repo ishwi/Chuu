@@ -1,20 +1,21 @@
 package core.commands;
 
-import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
+import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class CrownLeaderboardCommand extends ListCommand<LbEntry, CommandParameters> {
-    String entryName = "Crowns";
+import static core.parsers.ExtraParser.LIMIT_ERROR;
+
+public class CrownLeaderboardCommand extends LeaderboardCommand<NumberParameters<CommandParameters>> {
 
     public CrownLeaderboardCommand(ChuuService dao) {
         super(dao);
@@ -23,14 +24,33 @@ public class CrownLeaderboardCommand extends ListCommand<LbEntry, CommandParamet
     }
 
     @Override
-    public Parser<CommandParameters> getParser() {
-        return new NoOpParser();
+    public String getEntryName() {
+        return "Crowns";
     }
 
     @Override
-    public List<LbEntry> getList(CommandParameters params) {
-        return getService().getGuildCrownLb(params.getE().getGuild().getIdLong());
+    public Parser<NumberParameters<CommandParameters>> getParser() {
+        Map<Integer, String> map = new HashMap<>(2);
+        map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
+        String s = "You can also introduce a number to vary the number of plays to award a crown, " +
+                   "defaults to whatever the guild has configured (0 if not configured)";
+        return new NumberParser<>(new NoOpParser(),
+                null,
+                Integer.MAX_VALUE,
+                map, s, false, true, true);
     }
+
+    @Override
+    public List<LbEntry> getList(NumberParameters<CommandParameters> params) {
+        Long threshold = params.getExtraParam();
+        long idLong = params.getE().getGuild().getIdLong();
+
+        if (threshold == null) {
+            threshold = (long) getService().getGuildCrownThreshold(idLong);
+        }
+        return getService().getGuildCrownLb(params.getE().getGuild().getIdLong(), Math.toIntExact(threshold));
+    }
+
 
     @Override
     public String getDescription() {
@@ -45,32 +65,6 @@ public class CrownLeaderboardCommand extends ListCommand<LbEntry, CommandParamet
     @Override
     public String getName() {
         return "Crown Leaderboard";
-    }
-
-
-    @Override
-    public void printList(List<LbEntry> list, CommandParameters params) {
-        MessageReceivedEvent e = params.getE();
-        list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
-        MessageBuilder messageBuilder = new MessageBuilder();
-
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
-                .setThumbnail(e.getGuild().getIconUrl());
-        StringBuilder a = new StringBuilder();
-
-        if (list.isEmpty()) {
-            sendMessageQueue(e, "This guild has no registered users:(");
-            return;
-        }
-
-        for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i).toString());
-        }
-        embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "'s " + entryName + " leaderboard")
-                .setThumbnail(e.getGuild().getIconUrl())
-                .setFooter(e.getGuild().getName() + " has " + list.size() + " registered users!\n", null);
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
-                new Reactionary<>(list, message, embedBuilder));
     }
 
 

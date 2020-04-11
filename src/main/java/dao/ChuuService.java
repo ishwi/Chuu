@@ -274,10 +274,19 @@ public class ChuuService {
         }
     }
 
-    public UniqueWrapper<ArtistPlays> getCrowns(String lastFmID, long guildID) {
+    public UniqueWrapper<ArtistPlays> getCrowns(String lastFmID, long guildID, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getCrowns(connection, lastFmID, guildID);
+            return queriesDao.getCrowns(connection, lastFmID, guildID, threshold);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public int getGuildCrownThreshold(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getGuildCrownThreshold(connection, guildId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -401,11 +410,11 @@ public class ChuuService {
         }
     }
 
-    public List<LbEntry> getGuildCrownLb(long guildId) {
+    public List<LbEntry> getGuildCrownLb(long guildId, int threshold) {
 
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.crownsLeaderboard(connection, guildId);
+            return queriesDao.crownsLeaderboard(connection, guildId, threshold);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
 
@@ -617,10 +626,10 @@ public class ChuuService {
         }
     }
 
-    public StolenCrownWrapper getCrownsStolenBy(String ogUser, String queriedUser, long guildId) {
+    public StolenCrownWrapper getCrownsStolenBy(String ogUser, String queriedUser, long guildId, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getCrownsStolenBy(connection, ogUser, queriedUser, guildId);
+            return queriesDao.getCrownsStolenBy(connection, ogUser, queriedUser, guildId, threshold);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -710,9 +719,9 @@ public class ChuuService {
 
     }
 
-    public UniqueWrapper<ArtistPlays> getGlobalCrowns(String lastfmid) {
+    public UniqueWrapper<ArtistPlays> getGlobalCrowns(String lastfmid, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.getGlobalCrowns(connection, lastfmid);
+            return queriesDao.getGlobalCrowns(connection, lastfmid, threshold);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1043,6 +1052,14 @@ public class ChuuService {
 
         }
 
+    }
 
+    public void updateGuildCrownThreshold(long guildId, int newThreshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(false);
+            updaterDao.updateGuildCrownThreshold(connection, guildId, newThreshold);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 }

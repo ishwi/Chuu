@@ -12,9 +12,10 @@ CREATE TABLE user
 
 CREATE TABLE guild
 (
-    guild_id BIGINT(20)                                         NOT NULL,
-    logo     BLOB                                                        DEFAULT NULL,
-    prefix   CHAR(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '!',
+    guild_id        BIGINT(20)                                         NOT NULL,
+    logo            BLOB                                                        DEFAULT NULL,
+    prefix          CHAR(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '!',
+    crown_threshold INT                                                NOT NULL DEFAULT 0,
     PRIMARY KEY (guild_id)
 );
 

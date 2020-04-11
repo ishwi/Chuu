@@ -31,6 +31,9 @@ public class ParserAux {
                 sample = members.get(0).getUser();
                 message = Arrays.stream(message).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
             } else {
+                if (join.isBlank()) {
+                    return e.getAuthor();
+                }
                 Member memberByTag = null;
                 if (user.matcher(join).matches()) {
                     memberByTag = e.getGuild().getMemberByTag(join);

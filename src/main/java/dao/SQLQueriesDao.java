@@ -18,13 +18,13 @@ interface SQLQueriesDao {
     WrapperReturnNowPlaying knows(Connection connection, long artistId, long guildId, int limit);
 
 
-    UniqueWrapper<ArtistPlays> getCrowns(Connection connection, String lastFmId, long guildID);
+    UniqueWrapper<ArtistPlays> getCrowns(Connection connection, String lastFmId, long guildID, int crownThreshold);
 
     ResultWrapper<ScrobbledArtist> getGuildTop(Connection connection, Long guildID, int limit, boolean doCount);
 
     int userPlays(Connection con, long artistId, String whom);
 
-    List<LbEntry> crownsLeaderboard(Connection con, long guildID);
+    List<LbEntry> crownsLeaderboard(Connection con, long guildID, int threshold);
 
     List<LbEntry> uniqueLeaderboard(Connection connection, long guildId);
 
@@ -37,7 +37,7 @@ interface SQLQueriesDao {
     PresenceInfo getRandomArtistWithUrl(Connection connection);
 
 
-    StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser, long guildId);
+    StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser, long guildId, int threshold);
 
     UniqueWrapper<ArtistPlays> getUserAlbumCrowns(Connection connection, String lastfmID, long guildId);
 
@@ -51,7 +51,7 @@ interface SQLQueriesDao {
 
     void getGlobalRank(Connection connection, String lastfmid);
 
-    UniqueWrapper<ArtistPlays> getGlobalCrowns(Connection connection, String lastFmId);
+    UniqueWrapper<ArtistPlays> getGlobalCrowns(Connection connection, String lastFmId, int threshold);
 
     UniqueWrapper<ArtistPlays> getGlobalUniques(Connection connection, String lastfmId);
 
@@ -78,6 +78,9 @@ interface SQLQueriesDao {
 
 
     long getArtistFrequencies(Connection connection, Long guildID, long artistId);
+
+
+    int getGuildCrownThreshold(Connection connection, long guildID);
 
 
 }

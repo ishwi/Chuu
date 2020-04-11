@@ -34,7 +34,7 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
         return new NumberParser<>(new OnlyUsernameParser(getService()),
                 5L,
                 15L,
-                map, s);
+                map, s, false, true);
     }
 
     @Override

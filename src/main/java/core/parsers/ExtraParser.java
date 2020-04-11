@@ -37,6 +37,8 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
     private final String fieldDescription;
     private Function<J, String> toString;
     private final boolean panicOnMultiple;
+    private final boolean catchFirst;
+
     private final BiPredicate<Y, J> innerPredicate;
     private final BiFunction<Y, J, Z> finalReducer;
 
@@ -64,7 +66,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
                        String fieldName,
                        String fieldDescription,
                        BiPredicate<Y, J> innerPredicate, BiFunction<Y, J, Z> finalReducer) {
-        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, toString, errorMessages, fieldName, fieldDescription, innerPredicate, null, true, finalReducer);
+        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, toString, errorMessages, fieldName, fieldDescription, innerPredicate, null, true, false, finalReducer);
     }
 
 
@@ -79,7 +81,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
                        String fieldDescription,
                        BiPredicate<Y, J> innerPredicate,
                        Function<List<J>, J> chooserPredicate,
-                       boolean panicOnMultiple, BiFunction<Y, J, Z> finalReducer) {
+                       boolean panicOnMultiple, boolean catchFirst, BiFunction<Y, J, Z> finalReducer) {
         super();
         this.innerParser = innerParser;
         def = defaultItem;
@@ -90,6 +92,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
         this.fieldName = fieldName;
         this.fieldDescription = fieldDescription;
         this.innerPredicate = innerPredicate;
+        this.catchFirst = catchFirst;
         this.finalReducer = finalReducer;
         this.opts.addAll(innerParser.opts);
         this.errorMessages.putAll(innerParser.errorMessages);
@@ -116,8 +119,12 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
                 this.sendError("You introduced too many things", e);
                 return null;
             }
-            item = chooserPredicate.apply(first);
-            collect.get(true).stream().filter(x -> !fromString.apply(x).equals(item)).forEach(returning::add);
+            if (catchFirst) {
+                item = first.get(0);
+            } else {
+                item = chooserPredicate.apply(first);
+                collect.get(true).stream().filter(x -> !fromString.apply(x).equals(item)).forEach(returning::add);
+            }
         } else {
             item = first.get(0);
             if (checkPredicate.test(item)) {

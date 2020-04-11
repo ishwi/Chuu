@@ -29,7 +29,7 @@ public class OnlyUsernameParser extends DaoParser<ChuuDataParams> {
 
     @Override
     public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *username*** \n" +
+        return "**" + commandName + " *username***\n" +
                "\t If the username is not specified it defaults to author's account\n";
     }
 }
