@@ -99,11 +99,18 @@ public class LoveMaker {
         GraphicUtils.drawStringNicely(g, format, (X_SIZE / 2 - ((int) titleBound.getWidth() / 2)), Y_MARGIN + (IMAGE_SIZE / 2) - 25, canvas);
 
 
-        g.setFont(NORMAL_FONT.deriveFont(SUBTITLE_IMAGE_SIZE));
+        Font firstUserFont = chooseFont(firstUser.getUsername());
+        g.setFont(firstUserFont.deriveFont(SUBTITLE_IMAGE_SIZE));
         Rectangle2D f = GraphicUtils.fitAndGetBounds(firstUser.getUsername(), g, IMAGE_SIZE, 18f);
+
+        Font secondUserFont = chooseFont(firstUser.getUsername());
+        g.setFont(secondUserFont.deriveFont(SUBTITLE_IMAGE_SIZE));
         Rectangle2D n = GraphicUtils.fitAndGetBounds(secondUser.getUsername(), g, IMAGE_SIZE, 18f);
+
         int baseline = (int) Math.max(f.getHeight(), n.getHeight());
+        g.setFont(firstUserFont);
         GraphicUtils.drawStringNicely(g, firstUser.getUsername(), X_MARGIN + (IMAGE_SIZE - (int) f.getWidth()) / 2, Y_MARGIN + IMAGE_SIZE + baseline, canvas);
+        g.setFont(secondUserFont);
         GraphicUtils.drawStringNicely(g, secondUser.getUsername(), X_SIZE - X_MARGIN - (IMAGE_SIZE + (int) n.getWidth()) / 2, Y_MARGIN + IMAGE_SIZE + baseline, canvas);
 
 
@@ -164,16 +171,23 @@ public class LoveMaker {
 
     public static int drawRecommendation(String artist, DiscordUserDisplay secondUser, BufferedImage canvas, Graphics2D g, int yAccum) {
         if (artist != null) {
-            String secondLinePart = String.format("Recommendation from %s: ", secondUser.getUsername());
-            g.setFont(NORMAL_FONT.deriveFont(DESC_SIZE));
-            Rectangle2D secondPartBounds = g.getFontMetrics().getStringBounds(secondLinePart + artist, g);
+            String headerLine = String.format("Recommendation from %s: ", secondUser.getUsername());
+            Font font = chooseFont(headerLine);
+            g.setFont(font.deriveFont(DESC_SIZE));
+            Rectangle2D secondPartBounds = g.getFontMetrics().getStringBounds(headerLine + artist, g);
+
+            Rectangle2D realFirstPartBounds = g.getFontMetrics().getStringBounds(headerLine + " ", g);
+
             int secondPartStart = (int) ((X_SIZE - secondPartBounds.getWidth()) / 2);
             int secondPartBaseline = Y_MARGIN + IMAGE_SIZE + Y_MARGIN * 2;
-            GraphicUtils.drawStringNicely(g, secondLinePart, secondPartStart, secondPartBaseline + yAccum, canvas);
+            GraphicUtils.drawStringNicely(g, headerLine, secondPartStart, secondPartBaseline + yAccum, canvas);
+
             Font secondFont = chooseFont(artist);
             secondFont.deriveFont((float) g.getFont().getSize());
-            secondPartBounds = g.getFontMetrics().getStringBounds(secondLinePart, g);
-            GraphicUtils.drawStringNicely(g, artist, (int) (secondPartStart + secondPartBounds.getWidth()), secondPartBaseline + yAccum, canvas);
+            g.setFont(secondFont);
+            Rectangle2D textBounds = g.getFontMetrics().getStringBounds(artist, g);
+
+            GraphicUtils.drawStringNicely(g, artist, (int) (secondPartStart + realFirstPartBounds.getWidth()), secondPartBaseline + yAccum, canvas);
             return (int) secondPartBounds.getHeight();
         } else {
             String title = secondUser.getUsername() + " couldn't give a reccomendation :( ";

@@ -18,7 +18,7 @@ public class ProfileMaker {
     private static final int IMAGE_START = X_SIZE - TEXT_END + 55;
     private static final int ARTIST_IMAGES_SIZE = 300;
     private static final int AVATAR_SIZE = 250;
-
+    private static final int DEFAULT_FONT = 44;
     private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 44);
 
     private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP Regular", Font.PLAIN, 44);
@@ -32,14 +32,8 @@ public class ProfileMaker {
         GraphicUtils.initRandomImageBlurredBackground(g, X_SIZE, Y_SIZE);
         BufferedImage imageToDraw;
 
-        Font fonttoUse = NORMAL_FONT;
-        if (NORMAL_FONT.canDisplayUpTo(entity.getUniqueArtist()) != -1 || NORMAL_FONT
-                                                                                  .canDisplayUpTo(entity.getCrownArtist()) != -1) {
-            fonttoUse = JAPANESE_FONT;
-        }
-        g.setFont(fonttoUse);
-
-        final Font ogFont = g.getFont();
+        Font font = GraphicUtils.chooseFont(" ");
+        final Font ogFont = font.deriveFont((float) DEFAULT_FONT);
 
         //CrownImage
         imageToDraw = GraphicUtils.getImageFromUrl(entity.getCrownUrl(), GraphicUtils.noArtistImage);
@@ -68,7 +62,7 @@ public class ProfileMaker {
 
         g.drawImage(Scalr.resize(imageToDraw, AVATAR_SIZE), (X_SIZE - AVATAR_SIZE) / 2 - 350, 50, null);
 
-        g.setFont(fonttoUse.deriveFont(64f));
+        g.setFont(ogFont.deriveFont(64f));
 
         GraphicUtils.drawStringNicely(g, entity
                 .getUsername(), (X_SIZE - AVATAR_SIZE) / 2 - 350 + AVATAR_SIZE + 20, 50 + ((AVATAR_SIZE + g
@@ -121,6 +115,8 @@ public class ProfileMaker {
     }
 
     private static void makeDrawingStringProcess(String string, Graphics2D g, BufferedImage image, Font ogFont, int xStartingPoint, int widthFit, int ySTARTINGPOINT) {
+        Font font = GraphicUtils.chooseFont(string);
+        g.setFont(font.deriveFont((float) DEFAULT_FONT));
         int width = (int) GraphicUtils.fitAndGetBounds(string, g, widthFit, 14f).getWidth();
         FontMetrics fontMetrics = g.getFontMetrics();
         GraphicUtils

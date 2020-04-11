@@ -1,5 +1,6 @@
 package core.parsers.params;
 
+import core.commands.AffinityCommand;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class AffinityParameters extends CommandParameters {
@@ -19,7 +20,7 @@ public class AffinityParameters extends CommandParameters {
 
         this.firstDiscordID = firstDiscordID;
         this.secondDiscordID = secondDiscordID;
-        this.threshold = threshold;
+        this.threshold = threshold == null ? AffinityCommand.DEFAULT_THRESHOLD : threshold;
     }
 
     public boolean isDoServer() {

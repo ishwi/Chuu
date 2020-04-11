@@ -22,8 +22,26 @@ import java.util.Random;
 
 public class GraphicUtils {
     static final Random ran = new Random();
+    private static final Font NORMAL_FONT = new Font("Noto Sans", Font.BOLD, 14);
+    private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.BOLD, 14);
+    private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.BOLD, 14);
+    private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 14);
 
     private GraphicUtils() {
+    }
+
+    public static Font chooseFont(String string) {
+        Font font = NORMAL_FONT;
+        if (font.canDisplayUpTo(string) != -1) {
+            font = JAPANESE_FONT;
+            if (font.canDisplayUpTo(string) != -1) {
+                font = KOREAN_FONT;
+                if (font.canDisplayUpTo(string) != -1) {
+                    font = EMOJI_FONT;
+                }
+            }
+        }
+        return font;
     }
 
     static final BufferedImage noArtistImage;
