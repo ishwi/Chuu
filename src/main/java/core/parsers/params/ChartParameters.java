@@ -4,6 +4,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.last.TopEntity;
 import core.commands.CommandUtil;
 import core.exceptions.LastFmException;
+import core.parsers.OptionalEntity;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
@@ -15,93 +16,49 @@ import java.util.concurrent.BlockingQueue;
 import java.util.function.BiFunction;
 
 public class ChartParameters extends CommandParameters {
-    private final String username;
+    private final String lastfmID;
     private final long discordId;
     private final TimeFrameEnum timeFrameEnum;
     private final int x;
     private final int y;
-    private final boolean writeTitles;
-    private final boolean writePlays;
-    private final boolean isList;
 
 
-    private final boolean pieFormat;
-
-    public ChartParameters(String[] message, MessageReceivedEvent e, OptionalParameter... opts) {
-        this(message, e);
-        handleOptParameters(message, opts);
-    }
-
-    public ChartParameters(String[] returned, MessageReceivedEvent e) {
-        super(returned, e, new OptionalParameter("--notitles", 5),
-                new OptionalParameter("--plays", 6),
-                new OptionalParameter("--list", 7),
-                new OptionalParameter("--pie", 8));
-        int tempX = Integer.parseInt(returned[0]);
-        int tempY = Integer.parseInt(returned[1]);
-        long tempDiscordId = Long.parseLong(returned[2]);
-        String tempUsername = returned[3];
-        String time = returned[4];
-        this.username = tempUsername;
-        this.discordId = tempDiscordId;
-        this.timeFrameEnum = TimeFrameEnum.fromCompletePeriod(time);
-        this.x = tempX;
-        this.y = tempY;
-        this.writeTitles = !this.hasOptional("--notitles");
-        this.writePlays = this.hasOptional("--plays");
-        this.isList = this.hasOptional("--list");
-        this.pieFormat = this.hasOptional("--pie");
-    }
-
-    public ChartParameters(String[] message, String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, MessageReceivedEvent e) {
-        this(message, username, discordId, timeFrameEnum, x, y, e, new OptionalParameter("--notiles", 5),
-                new OptionalParameter("--plays", 6),
-                new OptionalParameter("--list", 7),
-                new OptionalParameter("--pie", 8));
-
-
-    }
-
-
-    public ChartParameters(String[] message, MessageReceivedEvent e, String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat, OptionalParameter... opts) {
-        super(message, e, opts);
-        this.username = username;
+    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, OptionalEntity... extraOpts) {
+        super(e);
+        this.lastfmID = lastfmID;
         this.discordId = discordId;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
         this.y = y;
-        this.writeTitles = writeTitles;
-        this.writePlays = writePlays;
-        this.isList = isList;
-        this.pieFormat = pieFormat;
     }
 
-    public ChartParameters(String[] message, String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, MessageReceivedEvent e, OptionalParameter... opts) {
-        super(message, e, opts);
-        this.username = username;
+    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat) {
+        super(e);
+        this.lastfmID = lastfmID;
         this.discordId = discordId;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
         this.y = y;
-        this.writeTitles = !this.hasOptional("--notitles");
-        this.writePlays = this.hasOptional("--plays");
-        this.isList = this.hasOptional("--list");
-        this.pieFormat = this.hasOptional("--pie");
+        this.optionals.put(new OptionalEntity("--notitles", ""), !writeTitles);
+        this.optionals.put(new OptionalEntity("--notitles", ""), writePlays);
+        this.optionals.put(new OptionalEntity("--list", ""), isList);
+        this.optionals.put(new OptionalEntity("--pie", ""), isPieFormat());
+
     }
 
 
     public static ChartParameters toListParams() {
-        return new ChartParameters(null, null, "", -1L, null, 0, 0, true
+        return new ChartParameters(null, "", -1L, null, 0, 0, true
                 , true, true, false);
     }
 
     public int makeCommand(ConcurrentLastFM lastFM, BlockingQueue<UrlCapsule> queue, TopEntity topEntity, BiFunction<JSONObject, Integer, UrlCapsule> parser) throws LastFmException {
-        return lastFM.getChart(username, timeFrameEnum.toApiFormat(), x, y, topEntity, parser, queue);
+        return lastFM.getChart(lastfmID, timeFrameEnum.toApiFormat(), x, y, topEntity, parser, queue);
     }
 
 
-    public String getUsername() {
-        return username;
+    public String getLastfmID() {
+        return lastfmID;
     }
 
     public TimeFrameEnum getTimeFrameEnum() {
@@ -118,15 +75,16 @@ public class ChartParameters extends CommandParameters {
 
 
     public boolean isWriteTitles() {
-        return writeTitles;
+        return !hasOptional("--notitles");
     }
 
+
     public boolean isWritePlays() {
-        return writePlays;
+        return hasOptional("--plays");
     }
 
     public boolean isList() {
-        return isList;
+        return hasOptional("--list");
     }
 
     public long getDiscordId() {
@@ -142,6 +100,6 @@ public class ChartParameters extends CommandParameters {
 
 
     public boolean isPieFormat() {
-        return pieFormat;
+        return hasOptional("--pie");
     }
 }

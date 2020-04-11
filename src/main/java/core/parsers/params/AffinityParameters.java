@@ -8,24 +8,18 @@ public class AffinityParameters extends CommandParameters {
     private final String secondLastfmId;
     private final Long firstDiscordID;
     private final Long secondDiscordID;
-    private final int threshold;
+    private final Integer threshold;
 
 
-    public AffinityParameters(String[] parse, MessageReceivedEvent e, int defaultThreshold) {
-        super(parse, e);
-        this.doServer = Boolean.parseBoolean(parse[4]);
-        if (doServer) {
-            secondDiscordID = null;
-            firstDiscordID = null;
-            firstLastfmId = null;
-            secondLastfmId = null;
-        } else {
-            firstDiscordID = Long.valueOf(parse[0]);
-            secondDiscordID = Long.valueOf(parse[2]);
-            firstLastfmId = parse[1];
-            secondLastfmId = parse[3];
-        }
-        this.threshold = parse[5] == null ? defaultThreshold : Integer.parseInt(parse[2]);
+    public AffinityParameters(MessageReceivedEvent e, boolean doServer, String firstLastfmId, String secondLastfmId, Long firstDiscordID, Long secondDiscordID, Integer threshold) {
+        super(e);
+        this.doServer = doServer;
+        this.firstLastfmId = firstLastfmId;
+        this.secondLastfmId = secondLastfmId;
+
+        this.firstDiscordID = firstDiscordID;
+        this.secondDiscordID = secondDiscordID;
+        this.threshold = threshold;
     }
 
     public boolean isDoServer() {
@@ -48,7 +42,7 @@ public class AffinityParameters extends CommandParameters {
         return secondDiscordID;
     }
 
-    public int getThreshold() {
+    public Integer getThreshold() {
         return threshold;
     }
 }

@@ -5,6 +5,8 @@ import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.FileParser;
+import core.parsers.Parser;
+import core.parsers.params.UrlParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -29,7 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 
-public class ImportCommand extends ConcurrentCommand {
+public class ImportCommand extends ConcurrentCommand<UrlParameters> {
     private final ImportFunctional consumer = (u, m, message, embedBuilder, author, pos, errorCounter) -> () -> {
         embedBuilder.setDescription("Processing user #" + pos);
         message.editMessage(embedBuilder.build()).queue();
@@ -87,7 +89,7 @@ public class ImportCommand extends ConcurrentCommand {
                     errorCounter[0]++;
                 m.append(error).append(" This user is already registered with another last.fm name. Won't do anything\"}\n");
             } else {
-                //If it was registered in at least other  guild theres no need to update
+                //If it was registered in at least other  guild there's no need to update
                 if (getService().getGuildList(userId).stream().anyMatch(s -> s != guildID)) {
                     //Adds the user to the guild
                     getService().addGuildUser(userId, guildID);
@@ -130,7 +132,11 @@ public class ImportCommand extends ConcurrentCommand {
     public ImportCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
-        this.parser = new FileParser("json");
+    }
+
+    @Override
+    public Parser<UrlParameters> getParser() {
+        return new FileParser("json");
     }
 
     @Override
@@ -157,14 +163,14 @@ public class ImportCommand extends ConcurrentCommand {
             sendMessageQueue(e, "Only an admin can export the data");
             return;
         }
-        String[] parse = parser.parse(e);
+        UrlParameters parse = parser.parse(e);
         if (parse == null) {
             return;
         }
         long guildID = e.getGuild().getIdLong();
 
 
-        String url = parse[0];
+        String url = parse.getUrl();
         JSONArray arr;
         try (InputStream in = new URL(url).openStream()) {
             BufferedReader bR = new BufferedReader(new InputStreamReader(in));

@@ -4,6 +4,8 @@ import core.apis.last.TrackExtended;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
+import core.parsers.Parser;
+import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -17,7 +19,11 @@ import java.util.stream.Collectors;
 public class TrackInfoCommand extends AlbumPlaysCommand {
     public TrackInfoCommand(ChuuService dao) {
         super(dao);
-        this.parser = new ArtistSongParser(dao, lastFM);
+    }
+
+    @Override
+    public Parser<ArtistAlbumParameters> getParser() {
+        return new ArtistSongParser(getService(), lastFM);
     }
 
     @Override

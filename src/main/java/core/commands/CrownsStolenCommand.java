@@ -3,7 +3,9 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
+import core.parsers.Parser;
 import core.parsers.TwoUsersParser;
+import core.parsers.params.TwoUsersParamaters;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.StolenCrown;
@@ -15,12 +17,15 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Collections;
 import java.util.List;
 
-public class CrownsStolenCommand extends ConcurrentCommand {
+public class CrownsStolenCommand extends ConcurrentCommand<TwoUsersParamaters> {
     public CrownsStolenCommand(ChuuService dao) {
         super(dao);
-        parser = new TwoUsersParser(dao);
         this.respondInPrivate = false;
+    }
 
+    @Override
+    public Parser<TwoUsersParamaters> getParser() {
+        return new TwoUsersParser(getService());
     }
 
     @Override
@@ -40,15 +45,14 @@ public class CrownsStolenCommand extends ConcurrentCommand {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] message;
-        message = parser.parse(e);
-        if (message == null)
+        TwoUsersParamaters params = parser.parse(e);
+        if (params == null)
             return;
 
-        long ogDiscordID = Long.parseLong(message[0]);
-        String ogLastFmId = message[1];
-        long secondDiscordId = Long.parseLong(message[2]);
-        String secondlastFmId = message[3];
+        long ogDiscordID = params.getFirstUser().getDiscordId();
+        String ogLastFmId = params.getFirstUser().getName();
+        long secondDiscordId = params.getSecondUser().getDiscordId();
+        String secondlastFmId = params.getSecondUser().getName();
 
         if (ogLastFmId.equals(secondlastFmId) || ogDiscordID == secondDiscordId) {
             sendMessageQueue(e, "Sis, dont use the same person twice");

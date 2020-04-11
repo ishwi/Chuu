@@ -2,31 +2,34 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.parsers.NoOpParser;
+import core.parsers.Parser;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-public abstract class ListCommand<T> extends ConcurrentCommand {
+public abstract class ListCommand<T, Y extends CommandParameters> extends ConcurrentCommand<Y> {
 
 
     public ListCommand(ChuuService dao) {
         super(dao);
-        this.parser = new NoOpParser();
     }
 
     @Override
+    public abstract Parser<Y> getParser();
+
+    @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] parse = parser.parse(e);
+        Y parse = parser.parse(e);
         if (parse == null) {
             return;
         }
-        List<T> list = getList(parse, e);
-        printList(list, e);
+        List<T> list = getList(parse);
+        printList(list, parse);
     }
 
-    public abstract List<T> getList(String[] message, MessageReceivedEvent e) throws LastFmException;
+    public abstract List<T> getList(Y params) throws LastFmException;
 
-    public abstract void printList(List<T> list, MessageReceivedEvent e);
+    public abstract void printList(List<T> list, Y params);
 }

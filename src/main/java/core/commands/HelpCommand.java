@@ -16,6 +16,8 @@
 package core.commands;
 
 import core.Chuu;
+import core.parsers.Parser;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -26,12 +28,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
-public class HelpCommand extends ConcurrentCommand {
+public class HelpCommand extends ConcurrentCommand<CommandParameters> {
     private static final String NO_NAME = "No name provided for this command. Sorry!";
     private static final String NO_DESCRIPTION = "No description has been provided for this command. Sorry!";
     private static final String NO_USAGE = "No usage instructions have been provided for this command. Sorry!";
 
-    private final TreeMap<String, MyCommand> commands;
+    private final TreeMap<String, MyCommand<?>> commands;
 
     public HelpCommand(ChuuService dao) {
         super(dao);
@@ -40,7 +42,12 @@ public class HelpCommand extends ConcurrentCommand {
         commands.put(this.getAliases().get(0), this);
     }
 
-    public MyCommand registerCommand(MyCommand command) {
+    @Override
+    public Parser<CommandParameters> getParser() {
+        return null;
+    }
+
+    public MyCommand<?> registerCommand(MyCommand<?> command) {
         commands.put(command.getAliases().get(0), command);
         return command;
     }
@@ -106,7 +113,7 @@ public class HelpCommand extends ConcurrentCommand {
                     .append("\n")
                     .append("The following commands are supported by the bot\n");
 
-            for (MyCommand c : commands.values()) {
+            for (MyCommand<?> c : commands.values()) {
 
                 if (s.length() > 1800) {
                     channel.sendMessage(new MessageBuilder()
@@ -132,7 +139,7 @@ public class HelpCommand extends ConcurrentCommand {
     private void doSend(String[] args, MessageChannel channel, Character prefix) {
         String command = args[1]
                                  .charAt(0) == prefix ? args[1] : "" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
-        for (MyCommand c : commands.values()) {
+        for (MyCommand<?> c : commands.values()) {
             if (c.getAliases().contains(command)) {
                 String name = c.getName();
                 String description = c.getDescription();
@@ -146,7 +153,7 @@ public class HelpCommand extends ConcurrentCommand {
                 //TODO: Replace with a PrivateMessage
                 channel.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n")
                         .append("**Description:** ").append(description).append("\n")
-                        .append("**Alliases:** ").append(String.valueOf(prefix))
+                        .append("**Aliases:** ").append(String.valueOf(prefix))
                         .append(String.join(", " + prefix, c.getAliases())).append("\n")
                         .append("**Usage:** ")
                         .append(prefix).append(usageInstructions)

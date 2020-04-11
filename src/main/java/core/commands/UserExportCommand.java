@@ -5,6 +5,8 @@ import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
+import core.parsers.Parser;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.Permission;
@@ -18,12 +20,16 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class UserExportCommand extends ConcurrentCommand {
+public class UserExportCommand extends ConcurrentCommand<CommandParameters> {
 
     public UserExportCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
-        this.parser = new NoOpParser();
+    }
+
+    @Override
+    public Parser<CommandParameters> getParser() {
+        return new NoOpParser();
     }
 
     @Override

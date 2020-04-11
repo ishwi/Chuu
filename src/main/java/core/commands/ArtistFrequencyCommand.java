@@ -2,8 +2,9 @@ package core.commands;
 
 import core.commands.util.PieableResultWrapper;
 import core.otherlisteners.Reactionary;
+import core.parsers.NoOpParser;
+import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import core.parsers.params.OptionalParameter;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
@@ -21,7 +22,7 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
     public ArtistFrequencyCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
-        this.pie = new PieableResultWrapper<>(
+        this.pie = new PieableResultWrapper<>(this.parser,
                 ArtistPlays::getArtistName,
                 ArtistPlays::getCount);
 
@@ -29,8 +30,8 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
     }
 
     @Override
-    public CommandParameters getParameters(MessageReceivedEvent e, String[] message) {
-        return new CommandParameters(message, e, new OptionalParameter("--pie", 0));
+    public Parser<CommandParameters> getParser() {
+        return new NoOpParser();
     }
 
     @Override
@@ -42,13 +43,14 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
 
 
     @Override
-    public ResultWrapper<ArtistPlays> getList(String[] message, MessageReceivedEvent e) {
-        return getService().getArtistsFrequencies(e.getGuild().getIdLong());
+    public ResultWrapper<ArtistPlays> getList(CommandParameters parmas) {
+        return getService().getArtistsFrequencies(parmas.getE().getGuild().getIdLong());
     }
 
     @Override
-    public void printList(ResultWrapper<ArtistPlays> wrapper, MessageReceivedEvent e, CommandParameters commandParameters) {
+    public void printList(ResultWrapper<ArtistPlays> wrapper, CommandParameters params) {
         List<ArtistPlays> list = wrapper.getResultList();
+        MessageReceivedEvent e = params.getE();
         if (list.isEmpty()) {
             sendMessageQueue(e, "No one has played any artist yet!");
         }

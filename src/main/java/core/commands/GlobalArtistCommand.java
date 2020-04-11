@@ -7,6 +7,8 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
+import core.parsers.Parser;
+import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.GlobalCrown;
 import dao.entities.ScrobbledArtist;
@@ -18,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class GlobalArtistCommand extends ConcurrentCommand {
+public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
@@ -26,7 +28,11 @@ public class GlobalArtistCommand extends ConcurrentCommand {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
-        this.parser = new ArtistParser(dao, lastFM);
+    }
+
+    @Override
+    public Parser<ArtistParameters> getParser() {
+        return new ArtistParser(getService(), lastFM);
     }
 
     @Override
@@ -46,13 +52,13 @@ public class GlobalArtistCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned;
-        returned = parser.parse(e);
+        ArtistParameters returned = parser.parse(e);
         if (returned == null)
             return;
-        long userId = Long.parseLong(returned[1]);
-        ScrobbledArtist validable = new ScrobbledArtist(returned[0], 0, "");
+        long userId = returned.getUser().getIdLong();
+        ScrobbledArtist validable = new ScrobbledArtist(returned.getArtist(), 0, "");
         CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
+        returned.setScrobbledArtist(validable);
         List<GlobalCrown> globalArtistRanking = getService().getGlobalArtistRanking(validable.getArtistId());
         String artist = CommandUtil.cleanMarkdownCharacter(validable.getArtist());
         if (globalArtistRanking.isEmpty()) {

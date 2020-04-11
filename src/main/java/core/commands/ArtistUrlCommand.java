@@ -4,6 +4,8 @@ import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistUrlParser;
+import core.parsers.Parser;
+import core.parsers.params.ArtistUrlParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.Role;
@@ -19,10 +21,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.OptionalLong;
 
-public class ArtistUrlCommand extends ConcurrentCommand {
+public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
     public ArtistUrlCommand(ChuuService dao) {
         super(dao);
         this.parser = new ArtistUrlParser();
+    }
+
+    @Override
+    public Parser<ArtistUrlParameters> getParser() {
+        return new ArtistUrlParser();
     }
 
     @Override
@@ -44,12 +51,12 @@ public class ArtistUrlCommand extends ConcurrentCommand {
             sendMessageQueue(e, "You don't have enough permissions to add an image!");
             return;
         }
-        String[] message = parser.parse(e);
-        if (message == null)
+        ArtistUrlParameters params = parser.parse(e);
+        if (params == null)
             return;
-        urlParsed = message[1];
+        urlParsed = params.getUrl();
 
-        artist = message[0];
+        artist = params.getArtist();
         try (InputStream in = new URL(urlParsed).openStream()) {
             BufferedImage image = ImageIO.read(in);
             if (image == null) {

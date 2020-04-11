@@ -14,8 +14,8 @@ import core.imagerenderer.WhoKnowsMaker;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
+import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import core.parsers.params.OptionalParameter;
 import dao.ChuuService;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.ScrobbledArtist;
@@ -34,7 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class WhoKnowsCommand extends ConcurrentCommand {
+public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
     private IPieable<ReturnNowPlaying, ArtistParameters> pie;
@@ -43,11 +43,14 @@ public class WhoKnowsCommand extends ConcurrentCommand {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
-        this.parser = new ArtistParser(dao, lastFM,
-                new OptionalEntity("--list", "display in list format"));
         this.pie = new PieableKnows(this.parser);
         this.respondInPrivate = false;
 
+    }
+
+    @Override
+    public Parser<ArtistParameters> getParser() {
+        return new ArtistParser(getService(), lastFM, new OptionalEntity("--list", "display in list format"));
     }
 
     @Override
@@ -62,13 +65,9 @@ public class WhoKnowsCommand extends ConcurrentCommand {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned;
-        returned = parser.parse(e);
-        if (returned == null)
+        ArtistParameters artistParameters = parser.parse(e);
+        if (artistParameters == null)
             return;
-        ArtistParameters artistParameters = new ArtistParameters(returned, e,
-                new OptionalParameter("--list", 2),
-                new OptionalParameter("--pie", 3));
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistParameters.getArtist(), 0, null);
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
         artistParameters.setScrobbledArtist(scrobbledArtist);

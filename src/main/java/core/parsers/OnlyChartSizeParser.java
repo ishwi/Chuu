@@ -1,13 +1,16 @@
 package core.parsers;
 
 import core.parsers.exceptions.InvalidChartValuesException;
+import core.parsers.params.ChartSizeParameters;
+import dao.ChuuService;
+import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 
-public class OnlyChartSizeParser extends OptionableParser {
-    public OnlyChartSizeParser(OptionalEntity... optionalEntity) {
-        super(optionalEntity);
+public class OnlyChartSizeParser extends ChartableParser<ChartSizeParameters> {
+    public OnlyChartSizeParser(ChuuService dao, TimeFrameEnum defaultT, OptionalEntity... optionalEntity) {
+        super(dao, defaultT, optionalEntity);
     }
 
     @Override
@@ -26,24 +29,23 @@ public class OnlyChartSizeParser extends OptionableParser {
 
 
     @Override
-    public String[] parseLogic(MessageReceivedEvent e, String[] words) {
+    public ChartSizeParameters parseLogic(MessageReceivedEvent e, String[] words) {
 
         ChartParserAux chartParserAux = new ChartParserAux(words);
-        String x = "5";
-        String y = "5";
+        int x = 5;
+        int y = 5;
 
         try {
             Point chartSize = chartParserAux.getChartSize();
             if (chartSize != null) {
-                x = String.valueOf(chartSize.x);
-                y = String.valueOf(chartSize.y);
+                x = chartSize.x;
+                y = chartSize.y;
             }
         } catch (InvalidChartValuesException ex) {
             this.sendError(getErrorMessage(1), e);
             return null;
         }
-        return new String[]{x, y};
-
+        return new ChartSizeParameters(e, x, y);
     }
 
     @Override

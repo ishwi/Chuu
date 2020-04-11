@@ -3,7 +3,9 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
+import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
+import core.parsers.params.TimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.AlbumInfo;
 import dao.entities.DiscordUserDisplay;
@@ -24,13 +26,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class GenreCommand extends ConcurrentCommand {
+public class GenreCommand extends ConcurrentCommand<TimeFrameParameters> {
     private final MusicBrainzService musicBrainz;
 
     public GenreCommand(ChuuService dao) {
         super(dao);
-        this.parser = new TimerFrameParser(dao, TimeFrameEnum.YEAR);
         this.musicBrainz = MusicBrainzServiceSingleton.getInstance();
+    }
+
+    @Override
+    public Parser<TimeFrameParameters> getParser() {
+        return new TimerFrameParser(getService(), TimeFrameEnum.YEAR);
     }
 
     @Override
@@ -51,15 +57,15 @@ public class GenreCommand extends ConcurrentCommand {
     @Override
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
-        String[] returned = parser.parse(e);
-        String username = returned[0];
-        long discordId = Long.parseLong(returned[1]);
+        TimeFrameParameters returned = parser.parse(e);
+        String username = returned.getLastFMData().getName();
+        long discordId = returned.getLastFMData().getDiscordId();
 
-        String timeframe = returned[2];
+        TimeFrameEnum timeframe = returned.getTime();
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
         String usableString = userInfo.getUsername();
         String urlImage = userInfo.getUrlImage();
-        List<AlbumInfo> albumInfos = lastFM.getTopAlbums(username, timeframe, 2000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
+        List<AlbumInfo> albumInfos = lastFM.getTopAlbums(username, timeframe.toApiFormat(), 2000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
         Map<Genre, Integer> map = musicBrainz.genreCount(albumInfos);
         if (map.isEmpty()) {
@@ -71,8 +77,7 @@ public class GenreCommand extends ConcurrentCommand {
                 new PieChartBuilder()
                         .width(1000)
                         .height(750)
-                        .title("Top 10 Genres from " + usableString + TimeFrameEnum
-                                .fromCompletePeriod(timeframe).getDisplayString())
+                        .title("Top 10 Genres from " + usableString + timeframe.getDisplayString())
                         .theme(Styler.ChartTheme.GGPlot2)
                         .build();
         pieChart.getStyler().setLegendVisible(false);

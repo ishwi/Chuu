@@ -1,11 +1,12 @@
 package core.parsers;
 
+import core.parsers.params.UrlParameters;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-public class FileParser extends Parser {
+public class FileParser extends Parser<UrlParameters> {
     private final String fileExtension;
 
     public FileParser(String fileExtension) {
@@ -23,7 +24,7 @@ public class FileParser extends Parser {
     }
 
     @Override
-    protected String[] parseLogic(MessageReceivedEvent e, String[] words) {
+    protected UrlParameters parseLogic(MessageReceivedEvent e, String[] words) {
         List<Message.Attachment> attachments = e.getMessage().getAttachments();
 
         String url;
@@ -60,7 +61,7 @@ public class FileParser extends Parser {
             sendError(getErrorMessage(3), e);
             return null;
         }
-        return new String[]{url};
+        return new UrlParameters(e, url);
     }
 
     @Override

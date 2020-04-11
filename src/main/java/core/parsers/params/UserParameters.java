@@ -1,24 +1,20 @@
 package core.parsers.params;
 
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class UserParameters
-        extends CommandParameters {
-    private final long discordID;
+        extends DiscordParameters {
     private final String lastFMId;
 
 
-    public UserParameters(String[] message, MessageReceivedEvent e, OptionalParameter... opts) {
-        super(message, e, opts);
-        this.lastFMId = message[0];
-        this.discordID = Long.parseLong(message[1]);
+    public UserParameters(MessageReceivedEvent e, User user, String lastFMId) {
+        super(e, user);
+        this.lastFMId = lastFMId;
     }
 
     public String getLastFMId() {
         return lastFMId;
     }
 
-    public long getDiscordID() {
-        return discordID;
-    }
 }

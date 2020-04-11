@@ -1,29 +1,24 @@
 package core.parsers.params;
 
 import dao.entities.ScrobbledArtist;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class ArtistAlbumParameters extends CommandParameters {
+public class ArtistAlbumParameters extends DiscordParameters {
     private final String artist;
     private final String album;
-    private final long discordId;
     private ScrobbledArtist scrobbledArtist;
 
-    public ArtistAlbumParameters(String[] message, MessageReceivedEvent e, OptionalParameter... opts) {
-        super(message, e, opts);
-        this.artist = message[0];
-        this.album = message[1];
-        this.discordId = Long.parseLong(message[2]);
+    public ArtistAlbumParameters(MessageReceivedEvent e, String artist, String album, User user) {
+        super(e, user);
+        this.artist = artist;
+        this.album = album;
     }
-
 
     public String getArtist() {
         return artist;
     }
 
-    public long getDiscordId() {
-        return discordId;
-    }
 
     public ScrobbledArtist getScrobbledArtist() {
         return scrobbledArtist;

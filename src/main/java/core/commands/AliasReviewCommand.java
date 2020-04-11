@@ -6,6 +6,8 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
+import core.parsers.Parser;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.AliasEntity;
 import dao.entities.LastFMData;
@@ -21,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 
-public class AliasReviewCommand extends ConcurrentCommand {
+public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
     private final AtomicBoolean isActive = new AtomicBoolean(false);
     private BiFunction<AliasEntity, EmbedBuilder, EmbedBuilder> builder = (aliasEntity, embedBuilder) ->
             embedBuilder.clearFields()
@@ -32,7 +34,11 @@ public class AliasReviewCommand extends ConcurrentCommand {
 
     public AliasReviewCommand(ChuuService dao) {
         super(dao);
-        this.parser = new NoOpParser();
+    }
+
+    @Override
+    public Parser<CommandParameters> getParser() {
+        return new NoOpParser();
     }
 
     @Override

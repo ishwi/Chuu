@@ -3,16 +3,23 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
+import core.parsers.Parser;
+import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
 
-public class TotalArtistNumberCommand extends ConcurrentCommand {
+public class TotalArtistNumberCommand extends ConcurrentCommand<ChuuDataParams> {
     public TotalArtistNumberCommand(ChuuService dao) {
         super(dao);
         this.parser = new OnlyUsernameParser(dao);
+    }
+
+    @Override
+    public Parser<ChuuDataParams> getParser() {
+        return new OnlyUsernameParser(getService());
     }
 
     @Override
@@ -27,9 +34,9 @@ public class TotalArtistNumberCommand extends ConcurrentCommand {
 
     @Override
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned = parser.parse(e);
-        String lastFmName = returned[0];
-        long discordID = Long.parseLong(returned[1]);
+        ChuuDataParams params = parser.parse(e);
+        String lastFmName = params.getLastFMData().getName();
+        long discordID = params.getLastFMData().getDiscordId();
         String username = getUserString(e, discordID, lastFmName);
 
         int plays = getService().getUserArtistCount(lastFmName);

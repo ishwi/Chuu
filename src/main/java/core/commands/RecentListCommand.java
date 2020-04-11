@@ -4,6 +4,9 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
+import core.parsers.Parser;
+import core.parsers.params.ChuuDataParams;
+import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,14 +20,18 @@ import java.util.Map;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
-public class RecentListCommand extends ConcurrentCommand {
+public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
 
     public RecentListCommand(ChuuService dao) {
         super(dao);
+    }
+
+    @Override
+    public Parser<NumberParameters<ChuuDataParams>> getParser() {
         Map<Integer, String> map = new HashMap<>(1);
         map.put(LIMIT_ERROR, "The number introduced must be lower than 15");
-        String s = "You can also introduce a number to vary the number of songs shown, defaults to" + 5 + " , max " + 15;
-        this.parser = new NumberParser<>(new OnlyUsernameParser(getService()),
+        String s = "You can also introduce a number to vary the number of songs shown, defaults to " + 5 + ", max " + 15;
+        return new NumberParser<>(new OnlyUsernameParser(getService()),
                 5L,
                 15L,
                 map, s);
@@ -42,13 +49,14 @@ public class RecentListCommand extends ConcurrentCommand {
 
     @Override
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned = parser.parse(e);
-        if (returned == null) {
+        NumberParameters<ChuuDataParams> params = parser.parse(e);
+        if (params == null) {
             return;
         }
-        long limit = Integer.parseInt(returned[0]);
-        String lastFmName = returned[1];
-        long discordID = Long.parseLong(returned[2]);
+        long limit = params.getExtraParam();
+        ChuuDataParams innerParams = params.getInnerParams();
+        String lastFmName = innerParams.getLastFMData().getName();
+        long discordID = innerParams.getLastFMData().getDiscordId();
         String usable = getUserString(e, discordID, lastFmName);
 
         List<NowPlayingArtist> list = lastFM.getRecent(lastFmName, (int) limit);

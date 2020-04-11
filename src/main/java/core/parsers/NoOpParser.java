@@ -1,10 +1,9 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
+import core.parsers.params.CommandParameters;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class NoOpParser extends Parser {
+public class NoOpParser extends Parser<CommandParameters> {
 
 
     @Override
@@ -13,13 +12,13 @@ public class NoOpParser extends Parser {
     }
 
     @Override
-    public String[] parse(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        return new String[]{};
+    public CommandParameters parse(MessageReceivedEvent e) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
 
-    public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
+    public CommandParameters parseLogic(MessageReceivedEvent e, String[] subMessage) {
         throw new UnsupportedOperationException();
     }
 

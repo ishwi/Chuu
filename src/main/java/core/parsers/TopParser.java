@@ -2,6 +2,7 @@ package core.parsers;
 
 import core.exceptions.InstanceNotFoundException;
 import core.parsers.exceptions.InvalidChartValuesException;
+import core.parsers.params.TopParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -9,17 +10,16 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 
-public class TopParser extends ChartParser {
+public class TopParser extends ChartableParser<TopParameters> {
     public TopParser(ChuuService dao) {
-        super(dao);
+        super(dao, TimeFrameEnum.ALL);
     }
 
 
     @Override
-    public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
-        TimeFrameEnum timeFrame = TimeFrameEnum.ALL;
-        String x = "5";
-        String y = "5";
+    public TopParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+        int x = 5;
+        int y = 5;
 
         if (subMessage.length > 3) {
             sendError(getErrorMessage(5), e);
@@ -31,8 +31,8 @@ public class TopParser extends ChartParser {
         try {
             Point chartSize = chartParserAux.getChartSize();
             if (chartSize != null) {
-                x = String.valueOf(chartSize.x);
-                y = String.valueOf(chartSize.y);
+                x = chartSize.x;
+                y = chartSize.y;
             }
         } catch (InvalidChartValuesException ex) {
             this.sendError(getErrorMessage(6), e);
@@ -41,8 +41,7 @@ public class TopParser extends ChartParser {
         subMessage = chartParserAux.getMessage();
 
         LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
-
-        return new String[]{x, y, String.valueOf(data.getDiscordId()), data.getName(), timeFrame.toApiFormat()};
+        return new TopParameters(e, data.getName(), data.getDiscordId(), defaultTFE, x, y);
     }
 
 

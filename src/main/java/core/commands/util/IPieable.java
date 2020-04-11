@@ -7,10 +7,8 @@ import org.knowm.xchart.style.PieStyler;
 import org.knowm.xchart.style.Styler;
 
 import java.awt.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -52,7 +50,7 @@ public interface IPieable<T, Y extends CommandParameters> {
 
     default void fillSeries(PieChart pieChart, Function<T, String> keyMapping, ToIntFunction<T> valueMapping, Predicate<T> partitioner, List<T> data) {
         Map<Boolean, Map<String, Integer>> parted = getData(data, keyMapping, valueMapping, partitioner);
-        AtomicInteger counter = new AtomicInteger(0);
+        AtomicInteger counter = new AtomicInteger(1);
         Map<String, Integer> entries = parted.get(true);
         int sum = parted.get(false).values().stream().mapToInt(i -> i).sum();
         entries.entrySet().stream().sorted((x, y) -> y.getValue().compareTo(x.getValue()))
@@ -60,7 +58,7 @@ public interface IPieable<T, Y extends CommandParameters> {
                     int i = counter.incrementAndGet();
                     String key = entry.getKey();
                     try {
-                        pieChart.addSeries(key.isBlank() ? UUID.randomUUID().toString() : key, entry.getValue());
+                        pieChart.addSeries(key.isBlank() ? "\u200B" : key, entry.getValue());
                     } catch (IllegalArgumentException ex) {
                         pieChart.addSeries("\u200B".repeat(i) + key, entry.getValue());
                     }
@@ -82,11 +80,19 @@ public interface IPieable<T, Y extends CommandParameters> {
         parted.put(true, new HashMap<>());
         parted.put(false, new HashMap<>());
         var entries = parted.get(true);
+        Set<String> values = new HashSet<>();
+        AtomicInteger counter = new AtomicInteger(1);
         data.forEach(x -> {
-            if (partitioner.test(x)) {
-                entries.put(keyMapping.apply(x), valueMapping.applyAsInt(x));
+            String newTitles = keyMapping.apply(x);
+            if (values.contains(newTitles)) {
+                newTitles += "\u200B".repeat(counter.getAndIncrement());
             } else {
-                parted.get(false).put(keyMapping.apply(x), valueMapping.applyAsInt(x));
+                values.add(newTitles);
+            }
+            if (partitioner.test(x)) {
+                entries.put(newTitles, valueMapping.applyAsInt(x));
+            } else {
+                parted.get(false).put(newTitles, valueMapping.applyAsInt(x));
             }
         });
         return parted;

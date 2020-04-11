@@ -5,6 +5,7 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.LoveMaker;
 import core.otherlisteners.Reactionary;
 import core.parsers.AffinityParser;
+import core.parsers.Parser;
 import core.parsers.params.AffinityParameters;
 import dao.ChuuService;
 import dao.entities.Affinity;
@@ -23,13 +24,17 @@ import java.util.stream.Collectors;
 /**
  * Credits: to lfmwhoknows bot owner for the idea
  */
-public class AffinityCommand extends ConcurrentCommand {
+public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     public static final int DEFAULT_THRESHOLD = 30;
 
     public AffinityCommand(ChuuService dao) {
         super(dao);
-        this.parser = new AffinityParser(dao);
         this.respondInPrivate = false;
+    }
+
+    @Override
+    public Parser<AffinityParameters> getParser() {
+        return new AffinityParser(getService());
     }
 
     @Override
@@ -49,11 +54,10 @@ public class AffinityCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] parse = this.parser.parse(e);
-        if (parse == null) {
+        AffinityParameters ap = parser.parse(e);
+        if (ap == null) {
             return;
         }
-        AffinityParameters ap = new AffinityParameters(parse, e, DEFAULT_THRESHOLD);
         if (ap.isDoServer()) {
             doGuild(ap);
         } else {

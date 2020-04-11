@@ -2,7 +2,9 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
+import core.parsers.params.TimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
@@ -10,11 +12,16 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
-public class TimeSpentCommand extends ConcurrentCommand {
+public class TimeSpentCommand extends ConcurrentCommand<TimeFrameParameters> {
     public TimeSpentCommand(ChuuService dao) {
         super(dao);
-        this.parser = new TimerFrameParser(dao, TimeFrameEnum.WEEK);
+    }
+
+    @Override
+    public Parser<TimeFrameParameters> getParser() {
+        return new TimerFrameParser(getService(), TimeFrameEnum.WEEK);
     }
 
     @Override
@@ -29,18 +36,17 @@ public class TimeSpentCommand extends ConcurrentCommand {
 
     @Override
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] message;
-        message = parser.parse(e);
-        String username = message[0];
-        long discordId = Long.parseLong(message[1]);
-        String timeframe = message[2];
+        TimeFrameParameters params = parser.parse(e);
+        String username = params.getLastFMData().getName();
+        long discordId = params.getLastFMData().getDiscordId();
+        TimeFrameEnum timeframe = params.getTime();
         String usableString = getUserString(e, discordId, username);
-        if (!timeframe.equals("7day") && !timeframe.equals("1month") && !timeframe.equals("3month")) {
+        if (Stream.of(TimeFrameEnum.WEEK, TimeFrameEnum.MONTH, TimeFrameEnum.QUARTER).noneMatch(timeframe::equals)) {
             sendMessageQueue(e, "Only [w]eek,[m]onth and [q]uarter are supported at the moment , sorry :'(");
             return;
         }
 
-        SecondsTimeFrameCount wastedOnMusic = lastFM.getMinutesWastedOnMusic(username, timeframe);
+        SecondsTimeFrameCount wastedOnMusic = lastFM.getMinutesWastedOnMusic(username, timeframe.toApiFormat());
         sendMessageQueue(e, String.format("**%s** played %d minutes of music, %s%s), listening to %d different tracks in the last %s", usableString, wastedOnMusic.getMinutes(), String
                         .format("(%d:%02d ", wastedOnMusic.getHours(),
                                 wastedOnMusic.getRemainingMinutes()),

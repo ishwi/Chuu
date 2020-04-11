@@ -1,5 +1,6 @@
 package core.commands.util;
 
+import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import org.knowm.xchart.PieChart;
 
@@ -9,15 +10,15 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
-public class PieableResultWrapper<T, Y extends CommandParameters> implements IPieable<T, Y> {
+public class PieableResultWrapper<T, Y extends CommandParameters> extends OptionalPie implements IPieable<T, Y> {
 
     private final Function<T, String> keyMapper;
     private final ToIntFunction<T> valueMapper;
     Predicate<T> parted;
 
-    public PieableResultWrapper(Function<T, String> keyMapper, ToIntFunction<T> valueMapper) {
+    public PieableResultWrapper(Parser<Y> parser, Function<T, String> keyMapper, ToIntFunction<T> valueMapper) {
 
-        this(keyMapper, valueMapper, null);
+        this(parser, keyMapper, valueMapper, null);
         AtomicInteger acceptedCount = new AtomicInteger(0);
 
         this.parted = x -> {
@@ -32,11 +33,13 @@ public class PieableResultWrapper<T, Y extends CommandParameters> implements IPi
 
     }
 
-    public PieableResultWrapper(Function<T, String> keyMapper, ToIntFunction<T> valueMapper, Predicate<T> parted) {
+    public PieableResultWrapper(Parser<Y> parser, Function<T, String> keyMapper, ToIntFunction<T> valueMapper, Predicate<T> parted) {
+        super(parser);
         this.keyMapper = keyMapper;
         this.valueMapper = valueMapper;
         this.parted = parted;
     }
+
 
     @Override
     public PieChart fillPie(PieChart chart, Y params, List<T> data) {

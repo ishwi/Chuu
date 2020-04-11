@@ -6,6 +6,7 @@ import core.apis.last.chartentities.ArtistChart;
 import core.apis.last.chartentities.TrackChart;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.TimeFrameParameters;
@@ -23,10 +24,14 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class UserResumeCommand extends ConcurrentCommand {
+public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
     public UserResumeCommand(ChuuService dao) {
         super(dao);
-        this.parser = new TimerFrameParser(dao, TimeFrameEnum.WEEK);
+    }
+
+    @Override
+    public Parser<TimeFrameParameters> getParser() {
+        return new TimerFrameParser(getService(), TimeFrameEnum.WEEK);
     }
 
     @Override
@@ -46,20 +51,20 @@ public class UserResumeCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] parse = parser.parse(e);
-        if (parse == null) {
+        TimeFrameParameters tfP = parser.parse(e);
+        if (tfP == null) {
             return;
         }
-        TimeFrameParameters tfP = new TimeFrameParameters(parse, e);
+        String name = tfP.getLastFMData().getName();
         BlockingQueue<UrlCapsule> capsules = new LinkedBlockingQueue<>();
         TimeFrameEnum time = tfP.getTime();
-        int albumCount = lastFM.getChart(tfP.getLastFMId(), time.toApiFormat(), 1, 1, TopEntity.ALBUM, AlbumChart.getAlbumParser(ChartParameters.toListParams()), capsules);
-        int artistCount = lastFM.getChart(tfP.getLastFMId(), time.toApiFormat(), 1, 1, TopEntity.ARTIST, ArtistChart.getArtistParser(ChartParameters.toListParams()), capsules);
-        int trackCount = lastFM.getChart(tfP.getLastFMId(), time.toApiFormat(), 1, 1, TopEntity.TRACK, TrackChart.getTrackParser(ChartParameters.toListParams()), capsules);
+        int albumCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.ALBUM, AlbumChart.getAlbumParser(ChartParameters.toListParams()), capsules);
+        int artistCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.ARTIST, ArtistChart.getArtistParser(ChartParameters.toListParams()), capsules);
+        int trackCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.TRACK, TrackChart.getTrackParser(ChartParameters.toListParams()), capsules);
         LocalDateTime localDateTime = time.toLocalDate(1);
-        int i = lastFM.scrobblesSince(tfP.getLastFMId(), localDateTime.atOffset(ZoneOffset.UTC));
+        int i = lastFM.scrobblesSince(name, localDateTime.atOffset(ZoneOffset.UTC));
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        DiscordUserDisplay info = CommandUtil.getUserInfoConsideringGuildOrNot(e, tfP.getDiscordID());
+        DiscordUserDisplay info = CommandUtil.getUserInfoConsideringGuildOrNot(e, tfP.getLastFMData().getDiscordId());
         embedBuilder.setTitle(info.getUsername() + "'s summary" + time.getDisplayString())
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(info.getUrlImage())

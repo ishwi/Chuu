@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class CustomInterfacedEventManager implements IEventManager {
 
     private final CopyOnWriteArrayList<EventListener> listeners = new CopyOnWriteArrayList<>();
-    private final Map<String, MyCommand> commandListeners = new HashMap<>();
+    private final Map<String, MyCommand<?>> commandListeners = new HashMap<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new HashMap<>();
 
     public CustomInterfacedEventManager() {
@@ -31,7 +31,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         if (!(listener instanceof EventListener))
             throw new IllegalArgumentException("Listener must implement EventListener");
         if ((listener instanceof MyCommand)) {
-            MyCommand myCommand = (MyCommand) listener;
+            MyCommand<?> myCommand = (MyCommand<?>) listener;
             List<String> aliases = myCommand.getAliases();
             for (String alias : aliases) {
                 commandListeners.put(alias, myCommand);
@@ -54,7 +54,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     @Override
     public void unregister(@Nonnull Object listener) {
         if ((listener instanceof MyCommand)) {
-            MyCommand myCommand = (MyCommand) listener;
+            MyCommand<?> myCommand = (MyCommand<?>) listener;
             List<String> aliases = myCommand.getAliases();
             for (String alias : aliases) {
                 commandListeners.remove(alias);
@@ -91,7 +91,7 @@ public class CustomInterfacedEventManager implements IEventManager {
             if (contentRaw.length() <= 1 || contentRaw.charAt(0) != correspondingPrefix)
                 return;
             String substring = contentRaw.substring(1).split("\\s+")[0];
-            MyCommand myCommand = commandListeners.get(substring.toLowerCase());
+            MyCommand<?> myCommand = commandListeners.get(substring.toLowerCase());
             if (myCommand != null) {
                 try {
                     myCommand.onMessageReceived(mes);

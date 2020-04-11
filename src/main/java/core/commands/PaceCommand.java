@@ -3,6 +3,9 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.PaceParser;
+import core.parsers.Parser;
+import core.parsers.params.NaturalTimeParams;
+import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.UserInfo;
@@ -26,14 +29,19 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 /**
  * Credits: to lfmwhoknows bot owner for the idea
  */
-public class PaceCommand extends ConcurrentCommand {
+public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParameters<NaturalTimeParams>>> {
     public PaceCommand(ChuuService dao) {
         super(dao);
-        Map<Integer, String> map = new HashMap<>(1);
+
+    }
+
+    @Override
+    //XD
+    public Parser<NumberParameters<NumberParameters<NaturalTimeParams>>> getParser() {
+        Map<Integer, String> map = new HashMap<>(2);
         map.put(INNER_ERROR, "The number introduced must be lower");
         map.put(LIMIT_ERROR, "You introduced a real big number");
-        this.parser = new PaceParser(dao,
-                map);
+        return new PaceParser(getService(), map);
     }
 
     @Override
@@ -53,29 +61,35 @@ public class PaceCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] parse = parser.parse(e);
-        if (parse == null) {
+        NumberParameters<NumberParameters<NaturalTimeParams>> hopefullyNoOneSeesThis = parser.parse(e);
+
+        if (hopefullyNoOneSeesThis == null) {
             return;
         }
+        NumberParameters<NaturalTimeParams> unitCount = hopefullyNoOneSeesThis.getInnerParams();
+        NaturalTimeParams naturalTimeParams = unitCount.getInnerParams();
+        String lastfmId = naturalTimeParams.getLastFMData().getName();
+        long discordId = naturalTimeParams.getLastFMData().getDiscordId();
+        NaturalTimeFrameEnum naturalTimeFrameEnum = naturalTimeParams.getTime();
 
-        String lastfmId = parse[2];
-        long discordId = Long.parseLong(parse[3]);
-        String timeframe = parse[4];
+
         List<UserInfo> holder = lastFM.getUserInfo(List.of(lastfmId));
         UserInfo mainUser = holder.get(0);
         int playCount = mainUser.getPlayCount();
         String userString = getUserString(e, discordId, lastfmId);
-
         long unitNumber;
         long goal;
-        if (parse[1] == null) {
-            if (parse[0] == null) {
+        Long tempS = hopefullyNoOneSeesThis.getExtraParam();
+        Long tempU = unitCount.getExtraParam();
+
+        if (tempU == null) {
+            if (tempS == null) {
                 // Both null we assume next 000 milestone and thats all
                 unitNumber = 1;
                 goal = (long) (Math.ceil(playCount / 10_000.) * 10_000);
             } else {
                 // we only have one null
-                long s = Long.parseLong(parse[0]);
+                long s = tempS;
                 if (s < playCount) {
                     unitNumber = s;
                     goal = (long) (Math.ceil(playCount / 10_000.) * 10_000);
@@ -85,11 +99,10 @@ public class PaceCommand extends ConcurrentCommand {
                 }
             }
         } else {
-            unitNumber = Long.parseLong(parse[1]);
-            goal = Long.parseLong(parse[0]);
+            unitNumber = tempU;
+            goal = tempS;
         }
 
-        NaturalTimeFrameEnum naturalTimeFrameEnum = NaturalTimeFrameEnum.fromCompletePeriod(timeframe);
         // UTC was not working with last.fm smh
         ZonedDateTime now = LocalDateTime.now().atZone(ZoneOffset.ofHours(1));
         int timestamp;

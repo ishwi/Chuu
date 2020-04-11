@@ -5,6 +5,8 @@ import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.OptionableParser;
 import core.parsers.OptionalEntity;
+import core.parsers.Parser;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.NowPlayingArtist;
 import dao.entities.UsersWrapper;
@@ -18,13 +20,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class AllPlayingCommand extends ConcurrentCommand {
+public class AllPlayingCommand extends ConcurrentCommand<CommandParameters> {
     public AllPlayingCommand(ChuuService dao) {
         super(dao);
 
-        this.parser = new OptionableParser(new OptionalEntity("--recent", "show last song from ALL users"));
         this.respondInPrivate = false;
 
+    }
+
+    @Override
+    public Parser<CommandParameters> getParser() {
+        return new OptionableParser(new OptionalEntity("--recent", "show last song from ALL users"));
     }
 
     @Override
@@ -40,8 +46,8 @@ public class AllPlayingCommand extends ConcurrentCommand {
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
-        String[] message = parser.parse(e);
-        boolean showFresh = !Boolean.parseBoolean(message[0]);
+        CommandParameters parameters = parser.parse(e);
+        boolean showFresh = !parameters.hasOptional("--recent");
 
         List<UsersWrapper> list = getService().getAll(e.getGuild().getIdLong());
 

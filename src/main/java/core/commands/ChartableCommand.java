@@ -8,7 +8,7 @@ import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
 import core.imagerenderer.GraphicUtils;
 import core.otherlisteners.Reactionary;
-import core.parsers.ChartParser;
+import core.parsers.ChartableParser;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
@@ -28,27 +28,21 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 
-public abstract class ChartableCommand extends ConcurrentCommand {
+public abstract class ChartableCommand<T extends ChartParameters> extends ConcurrentCommand<T> {
     public IPieable<UrlCapsule, ChartParameters> pie;
-
     public ChartableCommand(ChuuService dao) {
         super(dao);
-        this.parser = new ChartParser(getService());
         pie = new PieableChart(this.parser);
     }
 
-    public ChartParameters getParameters(String[] message, MessageReceivedEvent e) {
-        return new ChartParameters(message, e);
 
-    }
+    public abstract ChartableParser<T> getParser();
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned;
-        returned = parser.parse(e);
-        if (returned == null)
+        T chartParameters = parser.parse(e);
+        if (chartParameters == null)
             return;
-        ChartParameters chartParameters = getParameters(returned, e);
         CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(chartParameters);
         BlockingQueue<UrlCapsule> urlCapsules = countWrapper.getResult();
         if (urlCapsules.isEmpty()) {
@@ -70,7 +64,8 @@ public abstract class ChartableCommand extends ConcurrentCommand {
     }
 
 
-    public abstract CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters params) throws LastFmException;
+    public abstract CountWrapper<BlockingQueue<UrlCapsule>> processQueue(T params) throws
+            LastFmException;
 
     void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e) {
         int size = queue.size();
@@ -88,7 +83,7 @@ public abstract class ChartableCommand extends ConcurrentCommand {
     }
 
 
-    public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, ChartParameters parameters) {
+    public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, T parameters) {
         CompletableFuture<Message> future = null;
         MessageReceivedEvent e = parameters.getE();
         if (x * y > 100) {
@@ -99,7 +94,7 @@ public abstract class ChartableCommand extends ConcurrentCommand {
     }
 
 
-    public void doList(List<UrlCapsule> urlCapsules, ChartParameters params, int count) {
+    public void doList(List<UrlCapsule> urlCapsules, T params, int count) {
 
         StringBuilder a = new StringBuilder();
         for (int i = 0; i < 10 && i < urlCapsules.size(); i++) {
@@ -116,7 +111,7 @@ public abstract class ChartableCommand extends ConcurrentCommand {
                 new Reactionary<>(urlCapsules, message1, embedBuilder));
     }
 
-    public void doPie(PieChart pieChart, ChartParameters chartParameters, int count) {
+    public void doPie(PieChart pieChart, T chartParameters, int count) {
         DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoNotStripped(chartParameters.getE(), chartParameters.getDiscordId());
         String subtitle = configPieChart(pieChart, chartParameters, count, userInfoNotStripped.getUsername());
         String urlImage = userInfoNotStripped.getUrlImage();
@@ -133,12 +128,12 @@ public abstract class ChartableCommand extends ConcurrentCommand {
     }
 
 
-    public abstract EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count);
+    public abstract EmbedBuilder configEmbed(EmbedBuilder embedBuilder, T params, int count);
 
-    public abstract String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle);
+    public abstract String configPieChart(PieChart pieChart, T params, int count, String initTitle);
 
 
-    public abstract void noElementsMessage(MessageReceivedEvent e, ChartParameters parameters);
+    public abstract void noElementsMessage(MessageReceivedEvent e, T parameters);
 
 
 }

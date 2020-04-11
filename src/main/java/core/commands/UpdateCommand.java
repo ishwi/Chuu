@@ -11,6 +11,8 @@ import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
+import core.parsers.Parser;
+import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
@@ -23,7 +25,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class UpdateCommand extends ConcurrentCommand {
+public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     private final DiscogsApi discogsApi;
     private final Spotify spotifyApi;
 
@@ -33,6 +35,11 @@ public class UpdateCommand extends ConcurrentCommand {
         parser = new OnlyUsernameParser(dao, new OptionalEntity("--force", "Does a full heavy update"));
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotifyApi = SpotifySingleton.getInstance();
+    }
+
+    @Override
+    public Parser<ChuuDataParams> getParser() {
+        return new OnlyUsernameParser(getService(), new OptionalEntity("--force", "Does a full heavy update"));
     }
 
     @Override
@@ -47,10 +54,10 @@ public class UpdateCommand extends ConcurrentCommand {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned = parser.parse(e);
-        String lastFmName = returned[0];
-        long discordID = Long.parseLong(returned[1]);
-        boolean force = Boolean.parseBoolean(returned[2]);
+        ChuuDataParams params = parser.parse(e);
+        String lastFmName = params.getLastFMData().getName();
+        long discordID = params.getLastFMData().getDiscordId();
+        boolean force = params.hasOptional("--force");
         String userString = getUserString(e, discordID, lastFmName);
         if (e.isFromGuild()) {
             if (getService().getAll(e.getGuild().getIdLong()).stream()

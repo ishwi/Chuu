@@ -1,13 +1,11 @@
 package core.parsers;
 
 import com.neovisionaries.i18n.CountryCode;
-import core.apis.last.ConcurrentLastFM;
 import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
+import core.parsers.params.CountryParameters;
 import dao.ChuuService;
-import dao.entities.*;
-import dao.musicbrainz.MusicBrainzService;
-import net.dv8tion.jda.api.entities.Member;
+import dao.entities.LastFMData;
+import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -17,60 +15,32 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class CountryParser extends DaoParser {
-    private final ConcurrentLastFM lastFM;
-    private final MusicBrainzService musicBrainzService;
+public class CountryParser extends DaoParser<CountryParameters> {
 
-    public CountryParser(ChuuService dao, ConcurrentLastFM lastFM, MusicBrainzService musicBrainzService) {
+    public CountryParser(ChuuService dao) {
         super(dao);
-        this.lastFM = lastFM;
-        this.musicBrainzService = musicBrainzService;
     }
 
     @Override
     protected void setUpErrorMessages() {
-        errorMessages.put(5, "Couldn't get a country from your now playing artist. You can try the full country name or the 2/3 ISO code");
+        errorMessages.put(5, "You didn't introduce anything. You can try the full country name or the 2/3 ISO code");
         errorMessages.put(6, "Could not find any country named like that");
 
     }
 
     @Override
-    protected String[] parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
-        User sample;
-
-        if (e.isFromGuild()) {
-            List<Member> members = e.getMessage().getMentionedMembers();
-            if (!members.isEmpty()) {
-                if (members.size() != 1) {
-                    sendError("Only one user pls", e);
-                    return null;
-                }
-                sample = members.get(0).getUser();
-                words = Arrays.stream(words).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
-            } else {
-                sample = e.getMember().getUser();
-            }
-        } else
-            sample = e.getAuthor();
+    protected CountryParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+        ParserAux parserAux = new ParserAux(words);
+        User sample = parserAux.getOneUser(e);
+        words = parserAux.getMessage();
         LastFMData lastFMData = dao.findLastFMData(sample.getIdLong());
-
         ChartParserAux chartParserAux = new ChartParserAux(words);
         TimeFrameEnum timeFrameEnum = chartParserAux.parseTimeframe(TimeFrameEnum.ALL);
         words = chartParserAux.getMessage();
         String countryCode;
         if (words.length == 0) {
-            try {
-                NowPlayingArtist nowPlayingInfo = lastFM.getNowPlayingInfo(lastFMData.getName());
-                ArtistSummary artistSummary = lastFM.getArtistSummary(nowPlayingInfo.getArtistName(), lastFMData.getName());
-                ArtistMusicBrainzDetails artistDetails = musicBrainzService.getArtistDetails(new ArtistInfo(null, artistSummary.getArtistname(), artistSummary.getMbid()));
-                countryCode = artistDetails.getCountryCode();
-                if (countryCode == null || countryCode.isBlank()) {
-                    countryCode = String.join(" ", words);
-                }
-            } catch (LastFmException ex) {
-                sendError(getErrorMessage(5), e);
-                return null;
-            }
+            sendError(getErrorMessage(5), e);
+            return null;
         } else {
             countryCode = String.join(" ", words);
         }
@@ -106,7 +76,7 @@ public class CountryParser extends DaoParser {
             // No political statement at all, just bugfixing
             country = CountryCode.PS;
         }
-        return new String[]{lastFMData.getName(), String.valueOf(sample.getIdLong()), country.getAlpha2(), timeFrameEnum.toApiFormat()};
+        return new CountryParameters(e, lastFMData, country, timeFrameEnum);
     }
 
     @Override

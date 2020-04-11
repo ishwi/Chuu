@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -15,12 +16,61 @@ import java.util.regex.Pattern;
 
 public class ParserAux {
     private String[] message;
-    private Pattern user = Pattern.compile("(.{2,32})#(\\d{4})");
+    private static final Pattern user = Pattern.compile("(.{2,32})#(\\d{4})");
 
     public ParserAux(String[] message) {
         this.message = message;
     }
 
+    User getOneUserPermissive(MessageReceivedEvent e) {
+        User sample;
+        String join = String.join(" ", message);
+        if (e.isFromGuild()) {
+            List<Member> members = e.getMessage().getMentionedMembers();
+            if (!members.isEmpty()) {
+                sample = members.get(0).getUser();
+                message = Arrays.stream(message).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
+            } else {
+                Member memberByTag = e.getGuild().getMemberByTag(join);
+                if (memberByTag == null) {
+                    List<Member> membersByEffectiveName = e.getGuild().getMembersByEffectiveName(join, true);
+                    if (membersByEffectiveName.isEmpty()) {
+                        List<Member> membersByName = e.getGuild().getMembersByName(join, true);
+                        if (membersByName.isEmpty()) {
+                            List<Member> membersByNickname = e.getGuild().getMembersByNickname(join, true);
+                            if (membersByNickname.isEmpty()) {
+                                return e.getAuthor();
+                            }
+                            return membersByEffectiveName.get(0).getUser();
+                        }
+                        return membersByName.get(0).getUser();
+                    }
+                    return membersByEffectiveName.get(0).getUser();
+                }
+                return memberByTag.getUser();
+            }
+        } else
+            sample = e.getAuthor();
+        return sample;
+    }
+
+    User getOneUser(MessageReceivedEvent e) {
+        User sample;
+        if (e.isFromGuild()) {
+            List<Member> members = e.getMessage().getMentionedMembers();
+            if (!members.isEmpty()) {
+                if (members.size() != 1) {
+                    return null;
+                }
+                sample = members.get(0).getUser();
+                message = Arrays.stream(message).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
+            } else {
+                sample = e.getAuthor();
+            }
+        } else
+            sample = e.getAuthor();
+        return sample;
+    }
 
     LastFMData[] getTwoUsers(ChuuService dao, String[] message, MessageReceivedEvent e) throws InstanceNotFoundException {
         if (message.length == 0 || message.length > 2) {

@@ -2,32 +2,30 @@ package core.parsers;
 
 import core.exceptions.InstanceNotFoundException;
 import core.parsers.exceptions.InvalidChartValuesException;
+import core.parsers.params.ChartYearParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
+import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
+import java.time.LocalDateTime;
 import java.time.Year;
 
-public class ChartFromYearVariableParser extends DaoParser {
-    public ChartFromYearVariableParser(ChuuService dao) {
-        super(dao);
+public class ChartYearParser extends ChartableParser<ChartYearParameters> {
+    public ChartYearParser(ChuuService dao) {
+        super(dao, TimeFrameEnum.WEEK);
     }
 
 
     @Override
     void setUpOptionals() {
-        opts.add(new OptionalEntity("--notitles", "dont display titles"));
-        opts.add(new OptionalEntity("--plays", "display play count"));
-        opts.add(new OptionalEntity("--list", "display it on list form"));
-        opts.add(new OptionalEntity("--pie", "display it as a chart pie"));
+        super.setUpOptionals();
         opts.add(new OptionalEntity("--nolimit", "makes the chart as big as possible"));
-
-
     }
 
     @Override
-    protected String[] parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    public ChartYearParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
         LastFMData discordName;
 
         if (words.length > 3) {
@@ -35,38 +33,61 @@ public class ChartFromYearVariableParser extends DaoParser {
             return null;
         }
 
-        String x = "5";
-        String y = "5";
-
+        int x = 5;
+        int y = 5;
 
         ChartParserAux chartParserAux = new ChartParserAux(words);
-        Point chartSize = null;
+        Point chartSize;
         try {
             chartSize = chartParserAux.getChartSize();
-
         } catch (InvalidChartValuesException ex) {
             sendError(getErrorMessage(8), e);
             return null;
         }
+
         if (chartSize != null) {
             boolean conflictFlag = e.getMessage().getContentRaw().contains("--nolimit");
             if (conflictFlag) {
                 sendError(getErrorMessage(7), e);
                 return null;
             }
-            x = String.valueOf(chartSize.x);
-            y = String.valueOf(chartSize.y);
+            x = chartSize.x;
+            y = chartSize.y;
         }
-        String year = chartParserAux.parseYear();
+        Year year = chartParserAux.parseYear();
         words = chartParserAux.getMessage();
 
         discordName = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
-        if (Year.now().compareTo(Year.of(Integer.parseInt(year))) < 0) {
+        if (Year.now().compareTo(year) < 0) {
             sendError(getErrorMessage(6), e);
             return null;
         }
-        return new String[]{x, y, year, discordName.getName(), String.valueOf(discordName.getDiscordId())};
+        TimeFrameEnum timeFrameEnum = calculateTimeFrame(year);
+        return new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrameEnum, x, y, year);
     }
+
+    private static TimeFrameEnum calculateTimeFrame(Year year) {
+        TimeFrameEnum timeframe;
+        LocalDateTime time = LocalDateTime.now();
+        if (year.isBefore(Year.of(time.getYear()))) {
+            timeframe = TimeFrameEnum.ALL;
+        } else {
+            int monthValue = time.getMonthValue();
+            if (monthValue == 1 && time.getDayOfMonth() < 8) {
+                timeframe = TimeFrameEnum.WEEK;
+            } else if (monthValue < 2) {
+                timeframe = TimeFrameEnum.MONTH;
+            } else if (monthValue < 4) {
+                timeframe = TimeFrameEnum.QUARTER;
+            } else if (monthValue < 7)
+                timeframe = TimeFrameEnum.SEMESTER;
+            else {
+                timeframe = TimeFrameEnum.YEAR;
+            }
+        }
+        return timeframe;
+    }
+
 
     @Override
     public String getUsageLogic(String commandName) {

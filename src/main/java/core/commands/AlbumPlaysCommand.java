@@ -7,6 +7,8 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistAlbumParser;
+import core.parsers.Parser;
+import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -16,16 +18,21 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class AlbumPlaysCommand extends ConcurrentCommand {
+public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
     public AlbumPlaysCommand(ChuuService dao) {
         super(dao);
-        this.parser = new ArtistAlbumParser(dao, lastFM);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
     }
+
+    @Override
+    public Parser<ArtistAlbumParameters> getParser() {
+        return new ArtistAlbumParser(getService(), lastFM);
+    }
+
 
     @Override
     public String getDescription() {
@@ -44,16 +51,13 @@ public class AlbumPlaysCommand extends ConcurrentCommand {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] parsed;
-        parsed = parser.parse(e);
-        if (parsed == null || parsed.length != 3)
+        ArtistAlbumParameters parsed = parser.parse(e);
+        if (parsed == null)
             return;
-        String artist = parsed[0];
-        String album = parsed[1];
-        long whom = Long.parseLong(parsed[2]);
-        ScrobbledArtist validable = new ScrobbledArtist(artist, 0, "");
+        ScrobbledArtist validable = new ScrobbledArtist(parsed.getArtist(), 0, "");
         CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
-        doSomethingWithAlbumArtist(validable, album, e, whom);
+        parsed.setScrobbledArtist(validable);
+        doSomethingWithAlbumArtist(validable, parsed.getAlbum(), e, parsed.getUser().getIdLong());
 
     }
 

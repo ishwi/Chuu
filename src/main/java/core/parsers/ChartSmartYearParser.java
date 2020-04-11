@@ -1,6 +1,7 @@
 package core.parsers;
 
 import core.exceptions.InstanceNotFoundException;
+import core.parsers.params.ChartYearParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -8,20 +9,22 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Year;
 
-public class ChartFromYearParser extends ChartParser {
-    private static final TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
+public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
+    private final int searchSpace;
 
-    public ChartFromYearParser(ChuuService dao) {
-        super(dao);
+    public ChartSmartYearParser(ChuuService dao, int searchSpace) {
+        super(dao, TimeFrameEnum.WEEK);
+        this.searchSpace = searchSpace;
     }
 
     @Override
     protected void setUpOptionals() {
         super.setUpOptionals();
+        opts.add(new OptionalEntity("--nolimit", "makes the chart as big as possible"));
     }
 
     @Override
-    public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public ChartYearParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
         TimeFrameEnum timeFrame = defaultTFE;
         LastFMData discordName;
 
@@ -30,18 +33,17 @@ public class ChartFromYearParser extends ChartParser {
             return null;
         }
         ChartParserAux chartParserAux = new ChartParserAux(subMessage);
-        String year = chartParserAux.parseYear();
+        Year year = chartParserAux.parseYear();
         timeFrame = chartParserAux.parseTimeframe(timeFrame);
-        subMessage = chartParserAux.getMessage();
 
         discordName = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
 
-        if (Year.now().compareTo(Year.of(Integer.parseInt(year))) < 0) {
+        if (Year.now().compareTo(year) < 0) {
             sendError(getErrorMessage(6), e);
             return null;
         }
-
-        return new String[]{year, String.valueOf(discordName.getDiscordId()), discordName.getName(), timeFrame.toApiFormat(), Boolean.toString(true)};
+        int x = (int) Math.sqrt(searchSpace);
+        return new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrame, x, x, year);
 
     }
 

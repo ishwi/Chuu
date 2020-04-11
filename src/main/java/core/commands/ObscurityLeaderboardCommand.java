@@ -1,8 +1,8 @@
 package core.commands;
 
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,9 +25,11 @@ public class ObscurityLeaderboardCommand extends CrownLeaderboardCommand {
     }
 
     @Override
-    public List<LbEntry> getList(String[] message, MessageReceivedEvent e) {
-        return getService().getObscurityRankings(e.getGuild().getIdLong());
+    public List<LbEntry> getList(CommandParameters params) {
+        return getService().getObscurityRankings(params.getE().getGuild().getIdLong());
+
     }
+
 
     @Override
     public String getName() {

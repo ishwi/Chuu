@@ -2,6 +2,7 @@ package core.parsers;
 
 import core.exceptions.InstanceNotFoundException;
 import core.parsers.exceptions.InvalidChartValuesException;
+import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -9,27 +10,21 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 
-public class ChartParser extends DaoParser {
-    private static final TimeFrameEnum defaultTFE = TimeFrameEnum.WEEK;
+public class ChartParser extends ChartableParser<ChartParameters> {
+
+    public ChartParser(ChuuService dao, TimeFrameEnum defaultTFE) {
+        super(dao, defaultTFE);
+    }
 
     public ChartParser(ChuuService dao) {
-        super(dao);
+        super(dao, TimeFrameEnum.WEEK);
     }
 
     @Override
-    protected void setUpOptionals() {
-        opts.add(new OptionalEntity("--notitles", "dont display titles"));
-        opts.add(new OptionalEntity("--plays", "display play count"));
-        opts.add(new OptionalEntity("--list", "display it as an embed"));
-        opts.add(new OptionalEntity("--pie", "display it as a chart pie"));
-
-    }
-
-    @Override
-    public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
-        TimeFrameEnum timeFrame = defaultTFE;
-        String x = "5";
-        String y = "5";
+    public ChartParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+        TimeFrameEnum timeFrame = this.defaultTFE;
+        int x = 5;
+        int y = 5;
 
         if (subMessage.length > 3) {
             sendError(getErrorMessage(5), e);
@@ -41,8 +36,8 @@ public class ChartParser extends DaoParser {
         try {
             Point chartSize = chartParserAux.getChartSize();
             if (chartSize != null) {
-                x = String.valueOf(chartSize.x);
-                y = String.valueOf(chartSize.y);
+                x = chartSize.x;
+                y = chartSize.y;
 
             }
         } catch (InvalidChartValuesException ex) {
@@ -50,33 +45,7 @@ public class ChartParser extends DaoParser {
             return null;
         }
         timeFrame = chartParserAux.parseTimeframe(timeFrame);
-        subMessage = chartParserAux.getMessage();
-
         LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
-
-        return new String[]{x, y, String.valueOf(data.getDiscordId()), data.getName(), timeFrame.toApiFormat()};
+        return new ChartParameters(e, data.getName(), data.getDiscordId(), timeFrame, x, y);
     }
-
-
-    @Override
-    public String getErrorMessage(int code) {
-        return errorMessages.get(code);
-    }
-
-    @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *[w,m,q,s,y,a]* *sizeXsize*  *Username* ** \n" +
-               "\tIf time is not specified defaults to " + this.defaultTFE.name().toLowerCase() + "\n" +
-               "\tIf username is not specified defaults to authors account \n" +
-               "\tIf Size not specified it defaults to 5x5\n";
-    }
-
-    @Override
-    protected void setUpErrorMessages() {
-        super.setUpErrorMessages();
-        errorMessages.put(5, "You Introduced too many words");
-        errorMessages.put(6, "Invalid number for the size of the chart!");
-        errorMessages.put(7, "Can't introduce a size if you are doing list mode");
-    }
-
 }

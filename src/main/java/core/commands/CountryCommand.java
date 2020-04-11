@@ -3,7 +3,9 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.WorldMapRenderer;
+import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
+import core.parsers.params.TimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.ArtistInfo;
 import dao.entities.Country;
@@ -19,14 +21,18 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class CountryCommand extends ConcurrentCommand {
+public class CountryCommand extends ConcurrentCommand<TimeFrameParameters> {
     private final MusicBrainzService musicBrainz;
 
     public CountryCommand(ChuuService dao) {
         super(dao);
-        this.parser = new TimerFrameParser(dao, TimeFrameEnum.ALL);
         this.musicBrainz = MusicBrainzServiceSingleton.getInstance();
 
+    }
+
+    @Override
+    public Parser<TimeFrameParameters> getParser() {
+        return new TimerFrameParser(getService(), TimeFrameEnum.ALL);
     }
 
     @Override
@@ -46,17 +52,17 @@ public class CountryCommand extends ConcurrentCommand {
 
     @Override
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned = parser.parse(e);
+        TimeFrameParameters returned = parser.parse(e);
 
-        String username = returned[0];
-        long discordId = Long.parseLong(returned[1]);
-        String timeframe = returned[2];
+        String username = returned.getLastFMData().getName();
+        long discordId = returned.getLastFMData().getDiscordId();
         CompletableFuture<Message> future = null;
-        if (timeframe.equals(TimeFrameEnum.SEMESTER.toApiFormat()) || timeframe.equals(TimeFrameEnum.ALL.toApiFormat())) {
+        TimeFrameEnum time = returned.getTime();
+        if (time.equals(TimeFrameEnum.SEMESTER) || time.equals(TimeFrameEnum.ALL)) {
             future = sendMessage(e, "Going to take a while ").submit();
         }
 
-        List<ArtistInfo> topAlbums = lastFM.getTopArtists(username, timeframe, 10000).stream()
+        List<ArtistInfo> topAlbums = lastFM.getTopArtists(username, time.toApiFormat(), 10000).stream()
                 .filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
 

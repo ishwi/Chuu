@@ -5,6 +5,7 @@ import core.apis.last.chartentities.AlbumChart;
 import core.apis.last.chartentities.ArtistChart;
 import core.apis.last.queues.ArtistQueue;
 import core.exceptions.LastFmException;
+import core.parsers.ChartableParser;
 import core.parsers.OptionalEntity;
 import core.parsers.TopParser;
 import core.parsers.params.ChartParameters;
@@ -13,7 +14,6 @@ import dao.ChuuService;
 import dao.entities.CountWrapper;
 import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.Collections;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class TopCommand extends ArtistCommand {
+public class TopCommand extends ArtistAbleCommand<TopParameters> {
     public TopCommand(ChuuService dao) {
         super(dao);
         this.parser = new TopParser(dao);
@@ -30,38 +30,38 @@ public class TopCommand extends ArtistCommand {
     }
 
     @Override
-    public ChartParameters getParameters(String[] message, MessageReceivedEvent e) {
-        return new TopParameters(message, e);
+    public ChartableParser<TopParameters> getParser() {
+        return new TopParser(getService());
     }
 
     @Override
-    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters params) throws LastFmException {
-        TopParameters top = (TopParameters) params;
+    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(TopParameters params) throws LastFmException {
         BlockingQueue<UrlCapsule> queue;
         int count;
-        if (top.isDoArtist()) {
-            queue = new ArrayBlockingQueue<>(top.getX() * top.getY());
-            count = lastFM.getChart(top.getUsername(), "overall", top.getX(), top.getY(), TopEntity.ALBUM, AlbumChart.getAlbumParser(ChartParameters.toListParams()), queue);
+        if (params.isDoArtist()) {
+            queue = new ArrayBlockingQueue<>(params.getX() * params.getY());
+            count = lastFM.getChart(params.getLastfmID(), "overall", params.getX(), params.getY(), TopEntity.ALBUM, AlbumChart.getAlbumParser(ChartParameters.toListParams()), queue);
         } else {
-            queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !top.isList());
-            count = lastFM.getChart(params.getUsername(), "overall", top.getX(), top.getY(), TopEntity.ARTIST, ArtistChart.getArtistParser(ChartParameters.toListParams()), queue);
+            queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !params.isList());
+            count = lastFM.getChart(params.getLastfmID(), "overall", params.getX(), params.getY(), TopEntity.ARTIST, ArtistChart.getArtistParser(ChartParameters.toListParams()), queue);
         }
         return new CountWrapper<>(count, queue);
     }
 
     @Override
-    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
-        String s = ((TopParameters) params).isDoArtist() ? "artists" : "albums";
+    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, TopParameters params, int count) {
+        String s = params.isDoArtist() ? "artists" : "albums";
         return params.initEmbed(String.format("'s top %s", s), embedBuilder, " has listened to " + count + " " + s);
     }
 
     @Override
-    public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
-        String s = ((TopParameters) params).isDoArtist() ? "artists" : "albums";
+    public String configPieChart(PieChart pieChart, TopParameters params, int count, String initTitle) {
+        String s = params.isDoArtist() ? "artists" : "albums";
         String time = params.getTimeFrameEnum().getDisplayString();
         pieChart.setTitle(String.format("%s's top %s%s", initTitle, s, time));
         return String.format("%s has listened to %d %s%s (showing top %d)", initTitle, count, time, s, params.getX() * params.getY());
     }
+
 
     @Override
     public String getDescription() {

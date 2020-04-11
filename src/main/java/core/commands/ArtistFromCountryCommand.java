@@ -7,11 +7,12 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.CountryParser;
+import core.parsers.Parser;
 import core.parsers.params.ChartParameters;
+import core.parsers.params.CountryParameters;
 import dao.ChuuService;
 import dao.entities.ArtistUserPlays;
 import dao.entities.DiscordUserDisplay;
-import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class ArtistFromCountryCommand extends ConcurrentCommand {
+public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameters> {
 
 
     private final MusicBrainzService mb;
@@ -32,7 +33,11 @@ public class ArtistFromCountryCommand extends ConcurrentCommand {
     public ArtistFromCountryCommand(ChuuService dao) {
         super(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
-        this.parser = new CountryParser(dao, lastFM, mb);
+    }
+
+    @Override
+    public Parser<CountryParameters> getParser() {
+        return new CountryParser(getService());
     }
 
     @Override
@@ -52,29 +57,22 @@ public class ArtistFromCountryCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] message = parser.parse(e);
-        if (message == null) {
+        CountryParameters parameters = parser.parse(e);
+        if (parameters == null) {
             return;
         }
 
-        long discordId = Long.parseLong(message[1]);
-
-        String countryCode = message[2];
-        String timeframe = message[3];
-
-        CountryCode country = CountryCode.getByAlpha2Code(countryCode);
+        CountryCode country = parameters.getCode();
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(1500);
-        lastFM.getChart(message[0], timeframe, 1500, 1, TopEntity.ARTIST, ArtistChart.getArtistParser(ChartParameters.toListParams()), queue);
+        lastFM.getChart(parameters.getLastFMData().getName(), parameters.getTimeFrame().toApiFormat(), 1500, 1, TopEntity.ARTIST, ArtistChart.getArtistParser(ChartParameters.toListParams()), queue);
 
+        Long discordId = parameters.getLastFMData().getDiscordId();
         List<ArtistUserPlays> list = this.mb.getArtistFromCountry(country, queue, discordId);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
 
-        String usableTime = timeframe
-                .equals("overall")
-                ? ""
-                : ("in the last " + TimeFrameEnum.fromCompletePeriod(timeframe).toString().toLowerCase());
+        String usableTime = parameters.getTimeFrame().getDisplayString();
         if (list.isEmpty()) {
             sendMessageQueue(e, userName + " doesnt have any artist from " + ":flag_" + country.getAlpha2().toLowerCase() + ": " + usableTime);
             return;

@@ -8,11 +8,12 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.parsers.OptionalEntity;
+import core.parsers.ChartGroupParser;
+import core.parsers.ChartableParser;
 import core.parsers.params.ChartGroupParameters;
-import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
+import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
@@ -20,7 +21,7 @@ import org.knowm.xchart.PieChart;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-public abstract class GroupingChartCommand extends ChartableCommand {
+public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupParameters> {
     final DiscogsApi discogsApi;
     final Spotify spotifyApi;
 
@@ -28,26 +29,24 @@ public abstract class GroupingChartCommand extends ChartableCommand {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotifyApi = SpotifySingleton.getInstance();
-        this.parser.addOptional(new OptionalEntity("--notime", "dont display time spent"));
     }
 
     @Override
-    public ChartParameters getParameters(String[] message, MessageReceivedEvent e) {
-        return new ChartGroupParameters(message, e);
+    public ChartableParser<ChartGroupParameters> getParser() {
+        return new ChartGroupParser(getService(), TimeFrameEnum.WEEK);
     }
 
     @Override
-    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters params) {
+    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartGroupParameters params) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned;
-        returned = parser.parse(e);
-        if (returned == null)
+        ChartGroupParameters chartGroupParameters = parser.parse(e);
+        if (chartGroupParameters == null) {
             return;
-        ChartGroupParameters chartGroupParameters = new ChartGroupParameters(returned, e);
+        }
         CountWrapper<GroupingQueue> countWrapper = processGroupedQueue(chartGroupParameters);
         if (countWrapper.getResult().isEmpty()) {
             noElementsMessage(e, chartGroupParameters);

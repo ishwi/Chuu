@@ -4,8 +4,6 @@ import core.commands.util.PieableResultWrapper;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
-import core.parsers.OptionableParser;
-import core.parsers.OptionalEntity;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.ResultWrapper;
@@ -18,29 +16,23 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-public abstract class ResultWrappedCommand<T, Y extends CommandParameters> extends ConcurrentCommand {
+public abstract class ResultWrappedCommand<T, Y extends CommandParameters> extends ConcurrentCommand<Y> {
     public PieableResultWrapper<T, Y> pie;
 
     ResultWrappedCommand(ChuuService dao) {
         super(dao);
-        this.parser = new OptionableParser(new OptionalEntity("--pie", "display it as a chart pie"));
         this.pie = null;
     }
 
-    public abstract Y getParameters(MessageReceivedEvent e, String[] message);
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] parse = this.parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        Y parameters = getParameters(e, parse);
+        Y parameters = parser.parse(e);
         if (parameters.hasOptional("--pie")) {
-            doPie(getList(parse, e), parameters);
+            doPie(getList(parameters), parameters);
             return;
         }
-        printList(getList(parse, e), e, parameters);
+        printList(getList(parameters), parameters);
     }
 
     private void doPie(ResultWrapper<T> list, Y parameters) {
@@ -78,8 +70,8 @@ public abstract class ResultWrappedCommand<T, Y extends CommandParameters> exten
 
     protected abstract String fillPie(PieChart pieChart, Y params, int count);
 
-    public abstract ResultWrapper<T> getList(String[] message, MessageReceivedEvent e) throws LastFmException;
+    public abstract ResultWrapper<T> getList(Y parmas) throws LastFmException;
 
-    public abstract void printList(ResultWrapper<T> list, MessageReceivedEvent e, CommandParameters commandParameters);
+    public abstract void printList(ResultWrapper<T> list, Y params);
 
 }

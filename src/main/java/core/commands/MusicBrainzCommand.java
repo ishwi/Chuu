@@ -5,11 +5,14 @@ import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.AlbumChart;
 import core.exceptions.LastFmException;
-import core.parsers.ChartFromYearParser;
-import core.parsers.params.ChartParameters;
+import core.parsers.ChartSmartYearParser;
+import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearParameters;
 import dao.ChuuService;
-import dao.entities.*;
+import dao.entities.AlbumInfo;
+import dao.entities.CountWrapper;
+import dao.entities.DiscordUserDisplay;
+import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -26,7 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class MusicBrainzCommand extends ChartableCommand {
+public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
     private final DiscogsApi discogsApi;
     private final MusicBrainzService mb;
     public int searchSpace = 100;
@@ -34,10 +37,15 @@ public class MusicBrainzCommand extends ChartableCommand {
 
     public MusicBrainzCommand(ChuuService dao) {
         super(dao);
-        this.parser = new ChartFromYearParser(dao);//
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         mb = MusicBrainzServiceSingleton.getInstance();
     }
+
+    @Override
+    public ChartableParser<ChartYearParameters> getParser() {
+        return new ChartSmartYearParser(getService(), searchSpace);
+    }
+
 
     @Override
     public String getName() {
@@ -54,23 +62,12 @@ public class MusicBrainzCommand extends ChartableCommand {
         return Collections.singletonList("releaseyear");
     }
 
-    @Override
-    public ChartParameters getParameters(String[] returned, MessageReceivedEvent e) {
-        Year year = Year.of(Integer.parseInt(returned[0]));
-        long discordId = Long.parseLong(returned[1]);
-        String username = returned[2];
-        String time = returned[3];
-        int x = (int) Math.sqrt(searchSpace);
-        return new ChartYearParameters(returned, username, discordId, TimeFrameEnum.fromCompletePeriod(time), x, x, e, year);
-    }
-
 
     @Override
-    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters params) throws LastFmException {
+    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartYearParameters params) throws LastFmException {
         BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
-        lastFM.getChart(params.getUsername(), params.getTimeFrameEnum().toApiFormat(), searchSpace, 1, TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
-        ChartYearParameters chartYearParameters = (ChartYearParameters) params;
-        Year year = chartYearParameters.getYear();
+        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), searchSpace, 1, TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
+        Year year = params.getYear();
         //List of obtained elements
         Map<Boolean, List<AlbumInfo>> results =
                 queue.stream()
@@ -122,37 +119,35 @@ public class MusicBrainzCommand extends ChartableCommand {
             return true;
         });
         getService().updateMetrics(discogsMetrics, mbFoundBYName.size(), albumsMbizMatchingYear
-                .size(), ((long) chartYearParameters.getX()) * chartYearParameters.getX());
+                .size(), ((long) params.getX()) * params.getX());
 
         return new CountWrapper<>(albumsMbizMatchingYear.size(), queue);
     }
 
 
     @Override
-    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
-        Year year = ((ChartYearParameters) params).getYear();
+    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartYearParameters params, int count) {
+        Year year = params.getYear();
         return params.initEmbed("s top albums from " + year.toString(), embedBuilder, " has " + count + " albums from " + year.toString() + " in their top " + searchSpace + " albums");
     }
 
     @Override
-    public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
-        Year year = ((ChartYearParameters) params).getYear();
+    public String configPieChart(PieChart pieChart, ChartYearParameters params, int count, String initTitle) {
+        Year year = params.getYear();
         String time = params.getTimeFrameEnum().getDisplayString();
         pieChart.setTitle(String.format("%ss top albums from %s%s", initTitle, year.toString(), time));
         return String.format("%s has %d albums from %s in their top %d albums%s (showing top %d)", initTitle, count, year.toString(), searchSpace, time, params.getX() * params.getY());
     }
 
     @Override
-    public void noElementsMessage(MessageReceivedEvent e, ChartParameters parameters) {
+    public void noElementsMessage(MessageReceivedEvent e, ChartYearParameters parameters) {
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
-        ChartYearParameters parmas = (ChartYearParameters) parameters;
-        sendMessageQueue(e, String.format("Couldn't find any %s album in %s top %d albums%s!", parmas.getYear().toString(), ingo.getUsername(), searchSpace, parameters.getTimeFrameEnum().getDisplayString()));
+        sendMessageQueue(e, String.format("Couldn't find any %s album in %s top %d albums%s!", parameters.getYear().toString(), ingo.getUsername(), searchSpace, parameters.getTimeFrameEnum().getDisplayString()));
     }
 
     @Override
-    public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, ChartParameters parameters) {
-        ChartYearParameters yearParameters = (ChartYearParameters) parameters;
-        if (!yearParameters.isCareAboutSized()) {
+    public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, ChartYearParameters parameters) {
+        if (!parameters.isCareAboutSized()) {
             int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
             super.doImage(queue, imageSize, imageSize, parameters);
         } else {

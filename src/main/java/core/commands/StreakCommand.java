@@ -5,6 +5,8 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
+import core.parsers.Parser;
+import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
@@ -19,10 +21,15 @@ import java.util.List;
 /**
  * Credits: to lfmwhoknows bot owner for the idea
  */
-public class StreakCommand extends ConcurrentCommand {
+public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
     public StreakCommand(ChuuService dao) {
         super(dao);
         this.parser = new OnlyUsernameParser(dao);
+    }
+
+    @Override
+    public Parser<ChuuDataParams> getParser() {
+        return new OnlyUsernameParser(getService());
     }
 
     @Override
@@ -42,12 +49,12 @@ public class StreakCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] parse = parser.parse(e);
-        if (parse == null) {
+        ChuuDataParams params = parser.parse(e);
+        if (params == null) {
             return;
         }
-        String lastfmId = parse[0];
-        long discordID = Long.parseLong(parse[1]);
+        String lastfmId = params.getLastFMData().getName();
+        long discordID = params.getLastFMData().getDiscordId();
 
 
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);

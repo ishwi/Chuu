@@ -1,14 +1,15 @@
 package core.parsers.params;
 
+import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class TimeFrameParameters extends UserParameters {
+public class TimeFrameParameters extends ChuuDataParams {
     private final TimeFrameEnum time;
 
-    public TimeFrameParameters(String[] message, MessageReceivedEvent e, OptionalParameter... opts) {
-        super(message, e, opts);
-        this.time = TimeFrameEnum.fromCompletePeriod(message[2]);
+    public TimeFrameParameters(MessageReceivedEvent e, LastFMData lastFMData, TimeFrameEnum time) {
+        super(e, lastFMData);
+        this.time = time;
     }
 
     public TimeFrameEnum getTime() {

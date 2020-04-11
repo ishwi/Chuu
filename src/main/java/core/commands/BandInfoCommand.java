@@ -49,14 +49,15 @@ public class BandInfoCommand extends WhoKnowsCommand {
     void whoKnowsLogic(ArtistParameters ap) throws InstanceNotFoundException, LastFmException {
         ArtistAlbums ai;
 
-        final String username = getService().findLastFMData(ap.getDiscordId()).getName();
+        long idLong = ap.getUser().getIdLong();
+        final String username = getService().findLastFMData(idLong).getName();
 
 
         ScrobbledArtist who = ap.getScrobbledArtist();
         int plays = getService().getArtistPlays(who.getArtistId(), username);
         MessageReceivedEvent e = ap.getE();
         if (plays == 0) {
-            String username1 = CommandUtil.getUserInfoConsideringGuildOrNot(e, ap.getDiscordId()).getUsername();
+            String username1 = CommandUtil.getUserInfoConsideringGuildOrNot(e, idLong).getUsername();
             parser.sendError(String.format("%s still hasn't listened to %s", username1, CommandUtil.cleanMarkdownCharacter(who.getArtist())), e);
             return;
         }
@@ -104,13 +105,13 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
     private void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo) {
         BufferedImage returnedImage = BandRendered
-                .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getDiscordId()).getUsername());
+                .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getUser().getIdLong()).getUsername());
         sendImage(returnedImage, ap.getE());
     }
 
     private void doList(ArtistParameters ap, ArtistAlbums ai) {
         MessageReceivedEvent e = ap.getE();
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ap.getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ap.getUser().getIdLong());
         StringBuilder str = new StringBuilder();
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -129,7 +130,7 @@ public class BandInfoCommand extends WhoKnowsCommand {
 
     private void doPie(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, BufferedImage logo) {
         PieChart pieChart = this.pie.doPie(ap, ai.getAlbumList());
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getUser().getIdLong());
 
         pieChart.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.cleanMarkdownCharacter(ap.getScrobbledArtist().getArtist()) + " album ");
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);

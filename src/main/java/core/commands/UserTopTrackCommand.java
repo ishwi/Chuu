@@ -9,9 +9,9 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
 import core.parsers.ChartParser;
+import core.parsers.ChartableParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.ChartParameters;
-import core.parsers.params.ChartTrackParameters;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-public class UserTopTrackCommand extends ChartableCommand {
+public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
 
     private final DiscogsApi discogsApi;
     private final Spotify spotifyApi;
@@ -39,9 +39,13 @@ public class UserTopTrackCommand extends ChartableCommand {
     }
 
     @Override
-    public ChartParameters getParameters(String[] message, MessageReceivedEvent e) {
-        return new ChartTrackParameters(message, e);
+    public ChartableParser<ChartParameters> getParser() {
+        ChartParser chartParser = new ChartParser(getService());
+        chartParser.replaceOptional("--list", new OptionalEntity("--image", "show this with a chart instead of a list "));
+        chartParser.addOptional(new OptionalEntity("--list", "show this with a chart instead of a list ", true, "--image"));
+        return chartParser;
     }
+
 
     @Override
     public String getDescription() {
@@ -61,8 +65,7 @@ public class UserTopTrackCommand extends ChartableCommand {
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters params) throws LastFmException {
-        ChartTrackParameters params1 = (ChartTrackParameters) params;
-        ArtistQueue queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !params1.isList());
+        ArtistQueue queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !params.isList());
         int i = params.makeCommand(lastFM, queue, TopEntity.TRACK, TrackChart.getTrackParser(params));
         return new CountWrapper<>(i, queue);
     }

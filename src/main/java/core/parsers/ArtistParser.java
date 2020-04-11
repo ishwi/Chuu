@@ -1,6 +1,9 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
+import core.exceptions.InstanceNotFoundException;
+import core.exceptions.LastFmException;
+import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.entities.User;
@@ -8,35 +11,38 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 
-public class ArtistParser extends ArtistAlbumParser {
+public class ArtistParser extends DaoParser<ArtistParameters> {
+    final ConcurrentLastFM lastFM;
 
-    public ArtistParser(ChuuService dao, ConcurrentLastFM lastFM) {
-        super(dao, lastFM);
-    }
 
     public ArtistParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... strings) {
-        super(dao, lastFM);
+        super(dao);
+        this.lastFM = lastFM;
         opts.addAll(Arrays.asList(strings));
     }
 
     @Override
-    String[] doSomethingWithNp(NowPlayingArtist np, User sample, MessageReceivedEvent e) {
-        //With the ping you get only the np from that person
-        return new String[]{np.getArtistName(), String.valueOf(e.getAuthor().getIdLong())};
+    protected ArtistParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+        ParserAux parserAux = new ParserAux(words);
+        User oneUser = parserAux.getOneUser(e);
+        words = parserAux.getMessage();
+
+        if (words.length == 0) {
+            NowPlayingArtist np;
+            String userName = dao.findLastFMData(oneUser.getIdLong()).getName();
+            np = lastFM.getNowPlayingInfo(userName);
+            return new ArtistParameters(e, np.getArtistName(), oneUser);
+        } else {
+            return new ArtistParameters(e, String.join(" ", words), oneUser);
+        }
     }
 
-	@Override
-	String[] doSomethingWithString(String[] subMessage, User sample, MessageReceivedEvent e) {
-		//With the ping you get the stringed artsit and the user who you pongedf
-		return new String[]{artistMultipleWords(subMessage), String.valueOf(sample.getIdLong())};
-	}
+    @Override
+    public String getUsageLogic(String commandName) {
 
-	@Override
-	public String getUsageLogic(String commandName) {
+        return "**" + commandName + " *artist*** \n";
 
-		return "**" + commandName + " *artist*** \n";
-
-	}
+    }
 
 
 }

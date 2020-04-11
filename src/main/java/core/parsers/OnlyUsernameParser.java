@@ -1,6 +1,7 @@
 package core.parsers;
 
 import core.exceptions.InstanceNotFoundException;
+import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -10,7 +11,7 @@ import java.util.Arrays;
 /**
  * returns: []; in 0 -> lastfmid, 1 -> discordId, 2... -> opts
  */
-public class OnlyUsernameParser extends DaoParser {
+public class OnlyUsernameParser extends DaoParser<ChuuDataParams> {
     public OnlyUsernameParser(ChuuService dao) {
         super(dao);
     }
@@ -20,10 +21,10 @@ public class OnlyUsernameParser extends DaoParser {
         opts.addAll(Arrays.asList(strings));
     }
 
-    public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
-
+    @Override
+    public ChuuDataParams parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
         LastFMData data = getLastFmUsername1input(e.getAuthor().getIdLong(), e);
-        return new String[]{data.getName(), String.valueOf(data.getDiscordId())};
+        return new ChuuDataParams(e, data);
     }
 
     @Override

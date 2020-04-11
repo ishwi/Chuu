@@ -2,7 +2,11 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.imagerenderer.BarChartMaker;
 import core.parsers.OnlyUsernameParser;
+import core.parsers.OptionalEntity;
+import core.parsers.Parser;
+import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -11,17 +15,23 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
+import java.awt.image.BufferedImage;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class WeeklyCommand extends ConcurrentCommand {
+public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
 
     public WeeklyCommand(ChuuService dao) {
         super(dao);
-        parser = new OnlyUsernameParser(dao);
     }
+
+    @Override
+    public Parser<ChuuDataParams> getParser() {
+        return new OnlyUsernameParser(getService(), new OptionalEntity("--image", "displays it as a bar chart"));
+    }
+
 
     @Override
     public String getDescription() {
@@ -40,9 +50,11 @@ public class WeeklyCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned = parser.parse(e);
-        String lastFmName = returned[0];
-        long discordID = Long.parseLong(returned[1]);
+        ChuuDataParams returned = parser.parse(e);
+
+        String lastFmName = returned.getLastFMData().getName();
+        long discordID = returned.getLastFMData().getDiscordId();
+        boolean isBarChart = returned.hasOptional("--image");
 
         Map<Track, Integer> durationsFromWeek = lastFM.getTrackDurations(lastFmName, TimeFrameEnum.WEEK);
 
@@ -53,7 +65,6 @@ public class WeeklyCommand extends ConcurrentCommand {
         ZonedDateTime zdtPrevious7Days = zdtStart.plusDays(-7);
         Instant from = Instant.from(zdtPrevious7Days);
         Instant to = Instant.from(zdtStart);
-
         MultiValuedMap<LocalDateTime, Map.Entry<Integer, Integer>> map = new HashSetValuedHashMap<>();
 
         List<TimestampWrapper<Track>> tracksAndTimestamps = lastFM
@@ -73,6 +84,7 @@ public class WeeklyCommand extends ConcurrentCommand {
             map.put(tempZdt.toLocalDateTime(), Map.entry(tracksAndTimestamp.getTimestamp(), seconds));
         }
         StringBuilder s = new StringBuilder();
+        Map<LocalDate, Integer> imageMap = new HashMap<>();
         map.asMap().entrySet().stream().sorted((x, y) -> {
                     LocalDateTime key = x.getKey();
                     LocalDateTime key1 = y.getKey();
@@ -81,38 +93,46 @@ public class WeeklyCommand extends ConcurrentCommand {
         ).forEach(x -> {
             LocalDateTime time = x.getKey();
             Collection<Map.Entry<Integer, Integer>> value = x.getValue();
-
             int seconds = value.stream().mapToInt(Map.Entry::getValue).sum();
-            totalSeconds.addAndGet(seconds);
-            totalTracks.addAndGet(x.getValue().size());
-            minutesWastedOnMusicDaily.setSeconds(seconds);
-            minutesWastedOnMusicDaily.setCount(value.size());
+            if (isBarChart) {
+                imageMap.put(time.toLocalDate(), x.getValue().size());
+            } else {
+                totalSeconds.addAndGet(seconds);
+                totalTracks.addAndGet(x.getValue().size());
+                minutesWastedOnMusicDaily.setSeconds(seconds);
+                minutesWastedOnMusicDaily.setCount(value.size());
 
-            s.append("**")
-                    .append(time.format(dtf))
-                    .append("** ")
-                    .append(minutesWastedOnMusicDaily.getMinutes()).append(" minutes, ")
-                    .append(String
-                            .format("(%d:%02dh)", minutesWastedOnMusicDaily.getHours(),
-                                    minutesWastedOnMusicDaily.getRemainingMinutes()))
+                s.append("**")
+                        .append(time.format(dtf))
+                        .append("** ")
+                        .append(minutesWastedOnMusicDaily.getMinutes()).append(" minutes, ")
+                        .append(String
+                                .format("(%d:%02dh)", minutesWastedOnMusicDaily.getHours(),
+                                        minutesWastedOnMusicDaily.getRemainingMinutes()))
 
-                    .append(" on ").append(minutesWastedOnMusicDaily.getCount())
-                    .append(" tracks\n");
+                        .append(" on ").append(minutesWastedOnMusicDaily.getCount())
+                        .append(" tracks\n");
+            }
         });
 
-        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
-        String url = userInfo.getUrlImage();
-        String usableName = userInfo.getUsername();
-        minutesWastedOnMusicDaily.setSeconds(totalSeconds.get());
-        EmbedBuilder embedBuilder = new EmbedBuilder().setDescription(s)
-                .setColor(CommandUtil.randomColor())
-                .setTitle(usableName + "'s week", CommandUtil.getLastFmUser(lastFmName))
-                .setThumbnail(url.isEmpty() ? null : url)
-                .setFooter(String.format("%s has listen to %d distinct tracks (%d total tracks)%n for a total of %s", CommandUtil.markdownLessUserString(usableName, discordID, e), durationsFromWeek.size(), totalTracks.get(),
-                        String.format("%d %s and %02d %s ", minutesWastedOnMusicDaily.getHours(), CommandUtil.singlePlural(minutesWastedOnMusicDaily.getHours(), "hour", "hours"),
-                                minutesWastedOnMusicDaily.getRemainingMinutes(), CommandUtil.singlePlural(minutesWastedOnMusicDaily.getMinutes(), "minute", "minutes"))));
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
 
+        if (isBarChart) {
+            BufferedImage bufferedImage = BarChartMaker.makeBarChart(imageMap);
+            sendImage(bufferedImage, e);
+        } else {
+            DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
+            String url = userInfo.getUrlImage();
+            String usableName = userInfo.getUsername();
+            minutesWastedOnMusicDaily.setSeconds(totalSeconds.get());
+            EmbedBuilder embedBuilder = new EmbedBuilder().setDescription(s)
+                    .setColor(CommandUtil.randomColor())
+                    .setTitle(usableName + "'s week", CommandUtil.getLastFmUser(lastFmName))
+                    .setThumbnail(url.isEmpty() ? null : url)
+                    .setFooter(String.format("%s has listen to %d distinct tracks (%d total tracks)%n for a total of %s", CommandUtil.markdownLessUserString(usableName, discordID, e), durationsFromWeek.size(), totalTracks.get(),
+                            String.format("%d %s and %02d %s ", minutesWastedOnMusicDaily.getHours(), CommandUtil.singlePlural(minutesWastedOnMusicDaily.getHours(), "hour", "hours"),
+                                    minutesWastedOnMusicDaily.getRemainingMinutes(), CommandUtil.singlePlural(minutesWastedOnMusicDaily.getMinutes(), "minute", "minutes"))));
+            MessageBuilder mes = new MessageBuilder();
+            e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
+        }
     }
 }

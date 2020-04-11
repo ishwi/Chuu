@@ -390,7 +390,13 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
     @Override
     public void getAlbumInfoByMbid(Connection connection, List<UrlCapsule> urlCapsules) {
-        Map<String, UrlCapsule> collect = urlCapsules.stream().collect(Collectors.toMap(UrlCapsule::getMbid, t -> t));
+        Map<String, UrlCapsule> collect = urlCapsules.stream().collect(Collectors.toMap(UrlCapsule::getMbid, t -> t,
+                (t, t2) -> {
+                    t.setAlbumName(t.getAlbumName().length() > t2.getAlbumName().length() ? t2.getAlbumName() : t.getAlbumName());
+                    t.setArtistName(t.getArtistName().length() > t2.getArtistName().length() ? t2.getArtistName() : t.getArtistName());
+                    t.setPlays(t.getPlays() + t2.getPlays());
+                    return t;
+                }));
         String tempTable = "CREATE temp TABLE IF NOT EXISTS frequencies( mbid uuid) ON COMMIT DELETE ROWS;";
         try (PreparedStatement preparedStatement = connection.prepareStatement(tempTable)) {
             preparedStatement.execute();

@@ -5,7 +5,9 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.TasteRenderer;
 import core.otherlisteners.Reactionary;
 import core.parsers.OptionalEntity;
+import core.parsers.Parser;
 import core.parsers.TwoUsersParser;
+import core.parsers.params.TwoUsersParamaters;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ResultWrapper;
@@ -21,10 +23,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TasteCommand extends ConcurrentCommand {
+public class TasteCommand extends ConcurrentCommand<TwoUsersParamaters> {
     public TasteCommand(ChuuService dao) {
         super(dao);
-        parser = new TwoUsersParser(dao, new OptionalEntity("--list", "display in a list format"));
+    }
+
+    @Override
+    public Parser<TwoUsersParamaters> getParser() {
+        return new TwoUsersParser(getService(), new OptionalEntity("--list", "display in a list format"));
     }
 
     @Override
@@ -41,14 +47,15 @@ public class TasteCommand extends ConcurrentCommand {
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         List<String> lastfMNames;
 
-        String[] message = parser.parse(e);
-        if (message == null)
+        TwoUsersParamaters params = parser.parse(e);
+        if (params == null)
             return;
-        long ogDiscordID = Long.parseLong(message[0]);
-        String ogLastFmId = message[1];
-        long secondDiscordId = Long.parseLong(message[2]);
-        String secondlastFmId = message[3];
-        boolean isList = Boolean.parseBoolean(message[4]);
+        long ogDiscordID = params.getFirstUser().getDiscordId();
+        String ogLastFmId = params.getFirstUser().getName();
+        long secondDiscordId = params.getSecondUser().getDiscordId();
+        String secondlastFmId = params.getSecondUser().getName();
+        boolean isList = params.hasOptional("--list");
+
         lastfMNames = Arrays.asList(ogLastFmId, secondlastFmId);
 
         ResultWrapper<UserArtistComparison> resultWrapper = getService().getSimilarities(lastfMNames);

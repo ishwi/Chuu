@@ -4,6 +4,8 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
+import core.parsers.Parser;
+import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
@@ -15,12 +17,15 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Collections;
 import java.util.List;
 
-public class CrownsCommand extends ConcurrentCommand {
+public class CrownsCommand extends ConcurrentCommand<ChuuDataParams> {
     public CrownsCommand(ChuuService dao) {
         super(dao);
-        parser = new OnlyUsernameParser(dao);
         this.respondInPrivate = false;
+    }
 
+    @Override
+    public Parser<ChuuDataParams> getParser() {
+        return new OnlyUsernameParser(getService());
     }
 
     public boolean isGlobal() {
@@ -43,9 +48,9 @@ public class CrownsCommand extends ConcurrentCommand {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned = parser.parse(e);
-        String lastFmName = returned[0];
-        UniqueWrapper<ArtistPlays> uniqueDataUniqueWrapper = getList(e.getGuild().getIdLong(), lastFmName);
+        ChuuDataParams params = parser.parse(e);
+
+        UniqueWrapper<ArtistPlays> uniqueDataUniqueWrapper = getList(e.getGuild().getIdLong(), params.getLastFMData().getName());
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, uniqueDataUniqueWrapper.getDiscordId());
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();

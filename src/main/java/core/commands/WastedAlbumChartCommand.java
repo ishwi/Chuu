@@ -26,10 +26,11 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
         super(dao);
     }
 
+
     @Override
     public CountWrapper<GroupingQueue> processGroupedQueue(ChartGroupParameters params) throws LastFmException {
         BlockingQueue<UrlCapsule> albumQueu = new LinkedBlockingDeque<>();
-        int albumsQueried = lastFM.getChart(params.getUsername(), params.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.ALBUM, AlbumChart.getAlbumParser(ChartParameters.toListParams()), albumQueu);
+        int albumsQueried = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.ALBUM, AlbumChart.getAlbumParser(ChartParameters.toListParams()), albumQueu);
         List<UrlCapsule> albumList = new ArrayList<>(albumQueu.size());
         albumQueu.drainTo(albumList);
         GroupingQueue queue;
@@ -38,19 +39,19 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
         } else {
             queue = new TrackGroupAlbumQueue(getService(), discogsApi, spotifyApi, params.getX() * params.getY(), albumList);
         }
-        lastFM.getChart(params.getUsername(), params.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.TRACK, TrackDurationAlbumArtistChart.getParser(params), queue);
+        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.TRACK, TrackDurationAlbumArtistChart.getParser(params), queue);
         return new CountWrapper<>(albumsQueried, queue);
     }
 
 
     @Override
-    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
+    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartGroupParameters params, int count) {
         return params.initEmbed("'s most listened albums", embedBuilder,
                 String.format(" has listened albums for %s", String.format("%d:%02d hours", count / 3600, count / 60 % 60)));
     }
 
     @Override
-    public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+    public String configPieChart(PieChart pieChart, ChartGroupParameters params, int count, String initTitle) {
         String time = params.getTimeFrameEnum().getDisplayString();
         pieChart.setTitle(initTitle + "'s most listened albums" + time);
 
@@ -60,7 +61,7 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
     }
 
     @Override
-    public void noElementsMessage(MessageReceivedEvent e, ChartParameters parameters) {
+    public void noElementsMessage(MessageReceivedEvent e, ChartGroupParameters parameters) {
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s didn't listen to any album%s!", ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
     }

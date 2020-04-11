@@ -1,9 +1,9 @@
 package core.parsers;
 
+import core.parsers.params.DateParameters;
 import dao.ChuuService;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.TriFunction;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.set.ListOrderedSet;
@@ -20,8 +20,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class DateParser extends DaoParser {
-    private static BiFunction<String, DateTimeFormatter[], Optional<OffsetDateTime>> eval = (s, formatArray) ->
+public class DateParser extends DaoParser<DateParameters> {
+    private static final BiFunction<String, DateTimeFormatter[], Optional<OffsetDateTime>> eval = (s, formatArray) ->
             Arrays.stream(formatArray).map(x -> {
                 try {
                     TemporalAccessor parse = x.parse(s);
@@ -29,14 +29,14 @@ public class DateParser extends DaoParser {
                     int month;
                     int day;
                     boolean previousFlag = false;
-                    boolean posibleError = false;
+                    boolean possibleError = false;
                     try {
                         month = parse.get(ChronoField.MONTH_OF_YEAR);
                         if (month > LocalDate.now().getMonthValue()) {
                             previousFlag = true;
                         }
                     } catch (DateTimeException possibleFormatError) {
-                        posibleError = true;
+                        possibleError = true;
                         month = 1;
                     } catch (Exception exception) {
                         month = 1;
@@ -53,7 +53,7 @@ public class DateParser extends DaoParser {
                     }
                     try {
                         day = parse.get(ChronoField.DAY_OF_MONTH);
-                        if (day > 12 && posibleError) {
+                        if (day > 12 && possibleError) {
                             return null;
                         }
                     } catch (Exception ignored) {
@@ -65,7 +65,7 @@ public class DateParser extends DaoParser {
                     return null;
                 }
             }).filter(Objects::nonNull).findFirst();
-    private static DateTimeFormatter[] dateTimeFormatters;
+    private static final DateTimeFormatter[] dateTimeFormatters;
 
     static {
         Function<String, DateTimeFormatter> build = s ->
@@ -148,23 +148,12 @@ public class DateParser extends DaoParser {
     }
 
     @Override
-    protected String[] parseLogic(MessageReceivedEvent e, String[] words) {
-        User sample;
+    protected DateParameters parseLogic(MessageReceivedEvent e, String[] words) {
 
-        if (e.isFromGuild()) {
-            List<Member> members = e.getMessage().getMentionedMembers();
-            if (!members.isEmpty()) {
-                if (members.size() != 1) {
-                    sendError("Only one user pls", e);
-                    return null;
-                }
-                sample = members.get(0).getUser();
-                words = Arrays.stream(words).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
-            } else {
-                sample = e.getMember().getUser();
-            }
-        } else
-            sample = e.getAuthor();
+        ParserAux parserAux = new ParserAux(words);
+        User sample = parserAux.getOneUser(e);
+        words = parserAux.getMessage();
+
         ChartParserAux chartParserAux = new ChartParserAux(words);
         NaturalTimeFrameEnum naturalTimeFrameEnum = chartParserAux.parseNaturalTimeFrame();
         words = chartParserAux.getMessage();
@@ -176,7 +165,7 @@ public class DateParser extends DaoParser {
                 try {
                     count = Integer.parseInt(words[0]);
                 } catch (NumberFormatException ignored) {
-                    //It wasnt a number
+                    //It wasn't a number
                 }
             }
             localDate = naturalTimeFrameEnum.toLocalDate(count).atOffset(ZoneOffset.UTC);
@@ -199,7 +188,7 @@ public class DateParser extends DaoParser {
                 sendError(getErrorMessage(6), e);
                 return null;
             }
-            return new String[]{sample.getId(), localDate.format(DateTimeFormatter.ISO_DATE_TIME)};
+            return new DateParameters(e, sample, localDate);
         }
 
     }
@@ -208,7 +197,7 @@ public class DateParser extends DaoParser {
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *username* *time*** \n" +
                "\t time can be one of the following: \n" +
-               "\t\t One of Year,Quarter,Month,All,Semester,Week,Day,Hour,Minute,Second with plural forms and abbreviations included followed or prececed by a number (number of periods)\n " +
+               "\t\t One of Year,Quarter,Month,All,Semester,Week,Day,Hour,Minute,Second with plural forms and abbreviations included followed or preceded by a number (number of periods)\n " +
                "\t\t A Date on a whole lot of different formats,if what you want doesnt match what the bot reads you can always default to `Year/Month/Day`\n" +
                "\t If the username is not specified it defaults to author's account\n";
     }

@@ -3,64 +3,40 @@ package core.parsers;
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.params.ArtistTimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.NowPlayingArtist;
 import dao.entities.TimeFrameEnum;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.Arrays;
-import java.util.List;
-
-public class ArtistTimeFrameParser extends ArtistParser {
+public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> {
     private final static TimeFrameEnum defaultTFE = TimeFrameEnum.ALL;
+    private final ConcurrentLastFM lastFM;
 
-    public ArtistTimeFrameParser(ChuuService dao, ConcurrentLastFM lastFM) {
-        super(dao, lastFM);
+    public ArtistTimeFrameParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... otps) {
+        super(dao, otps);
+        this.lastFM = lastFM;
     }
 
     @Override
-    public String[] parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
-        User sample;
+    public ArtistTimeFrameParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
         TimeFrameEnum timeFrame = defaultTFE;
 
         ChartParserAux chartParserAux = new ChartParserAux(words, false);
         timeFrame = chartParserAux.parseTimeframe(timeFrame);
         words = chartParserAux.getMessage();
-        String[] strings;
-        if (e.isFromGuild()) {
-            List<Member> members = e.getMessage().getMentionedMembers();
-            if (!members.isEmpty()) {
-                if (members.size() != 1) {
-                    sendError("Only one user pls", e);
-                    return null;
-                }
-                sample = members.get(0).getUser();
-                words = Arrays.stream(words).filter(s -> !s.equals(sample.getAsMention()) && !s
-                        .equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
-            } else {
-                sample = e.getMember().getUser();
-            }
-        } else
-            sample = e.getAuthor();
+        ParserAux parserAux = new ParserAux(words);
+        User sample = parserAux.getOneUser(e);
+        words = parserAux.getMessage();
 
         if (words.length == 0) {
-
-            NowPlayingArtist np;
-
             String userName = dao.findLastFMData(sample.getIdLong()).getName();
-            np = lastFM.getNowPlayingInfo(userName);
-
-            strings = doSomethingWithNp(np, sample, e);
-
+            NowPlayingArtist np = lastFM.getNowPlayingInfo(userName);
+            return new ArtistTimeFrameParameters(e, np.getArtistName(), sample, timeFrame);
         } else {
-
-            strings = doSomethingWithString(words, sample, e);
+            return new ArtistTimeFrameParameters(e, String.join(" ", words), sample, timeFrame);
         }
-        return ArrayUtils.add(strings, timeFrame.toApiFormat());
-
     }
 
     @Override

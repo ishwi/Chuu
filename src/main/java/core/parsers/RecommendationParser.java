@@ -1,11 +1,12 @@
 package core.parsers;
 
 import core.exceptions.InstanceNotFoundException;
+import core.parsers.params.RecommendationsParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class RecommendationParser extends DaoParser {
+public class RecommendationParser extends DaoParser<RecommendationsParams> {
     public RecommendationParser(ChuuService dao) {
         super(dao);
     }
@@ -21,7 +22,7 @@ public class RecommendationParser extends DaoParser {
     }
 
     @Override
-    public String[] parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    public RecommendationsParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
 
         ParserAux parserAux = new ParserAux(words);
         LastFMData[] datas = parserAux.getTwoUsers(dao, words, e);
@@ -33,11 +34,9 @@ public class RecommendationParser extends DaoParser {
             return null;
         }
         if (noUserFlag) {
-            return new String[]{
-                    "true", null, null, null, null};
+            return new RecommendationsParams(e, null, null, true);
         } else {
-            return new String[]{"false", String.valueOf(datas[0].getDiscordId()),
-                    datas[0].getName(), String.valueOf(datas[1].getDiscordId()), datas[1].getName()};
+            return new RecommendationsParams(e, datas[0], datas[1], false);
         }
 
     }

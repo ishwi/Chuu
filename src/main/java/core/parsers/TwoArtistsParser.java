@@ -1,11 +1,12 @@
 package core.parsers;
 
+import core.parsers.params.TwoArtistParams;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TwoArtistsParser extends Parser {
+public class TwoArtistsParser extends Parser<TwoArtistParams> {
     private static final Pattern twoArtists = Pattern.compile("(.+) (?:to:)(.+)");
 
     @Override
@@ -14,7 +15,7 @@ public class TwoArtistsParser extends Parser {
     }
 
     @Override
-    protected String[] parseLogic(MessageReceivedEvent e, String[] words) {
+    protected TwoArtistParams parseLogic(MessageReceivedEvent e, String[] words) {
         String first;
         String second;
 
@@ -24,12 +25,11 @@ public class TwoArtistsParser extends Parser {
         if (matcher.matches()) {
             first = matcher.group(1).trim();
             second = matcher.group(2).trim();
-            return new String[]{first, second};
+            return new TwoArtistParams(e, first, second);
         } else if (words.length == 2) {
             first = words[0];
             second = words[1];
-            return new String[]{first, second};
-
+            return new TwoArtistParams(e, first, second);
         } else {
             sendError(getErrorMessage(1), e);
             return null;

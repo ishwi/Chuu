@@ -4,6 +4,9 @@ import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Validator;
+import core.parsers.NoOpParser;
+import core.parsers.Parser;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ReportEntity;
@@ -22,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public class ReportReviewCommand extends ConcurrentCommand {
+public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
     private static final String ACCEPT = "U+2714";
     private static final String DELETE = "U+1f469U+200dU+2696U+fe0f";
     private final AtomicBoolean isActive = new AtomicBoolean(false);
@@ -40,6 +43,11 @@ public class ReportReviewCommand extends ConcurrentCommand {
 
     public ReportReviewCommand(ChuuService dao) {
         super(dao);
+    }
+
+    @Override
+    public Parser<CommandParameters> getParser() {
+        return new NoOpParser();
     }
 
     @Override

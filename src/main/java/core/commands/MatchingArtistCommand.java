@@ -4,6 +4,8 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
+import core.parsers.Parser;
+import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LbEntry;
@@ -13,13 +15,17 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-public class MatchingArtistCommand extends ConcurrentCommand {
+public class MatchingArtistCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
     public MatchingArtistCommand(ChuuService dao) {
         super(dao);
-        this.parser = new OnlyUsernameParser(dao);
         this.respondInPrivate = false;
+    }
+
+    @Override
+    public Parser<ChuuDataParams> getParser() {
+        return new OnlyUsernameParser(getService());
     }
 
     @Override
@@ -39,12 +45,12 @@ public class MatchingArtistCommand extends ConcurrentCommand {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] message = parser.parse(e);
+        ChuuDataParams message = parser.parse(e);
         if (message == null) {
             return;
         }
 
-        long discordId = Long.parseLong(message[1]);
+        long discordId = message.getLastFMData().getDiscordId();
         List<LbEntry> list = getService().matchingArtistsCount(discordId, e.getGuild().getIdLong());
         list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
         MessageBuilder messageBuilder = new MessageBuilder();
@@ -66,7 +72,7 @@ public class MatchingArtistCommand extends ConcurrentCommand {
             a.append(i + 1).append(list.get(i).toString());
         }
         embedBuilder.setDescription(a).setTitle("Matching artists with " + usableName)
-                .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService().getUserArtistCount(message[0])), null);
+                .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService().getUserArtistCount(message.getLastFMData().getName())), null);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(mes ->
                 new Reactionary<>(list, mes, embedBuilder));
     }

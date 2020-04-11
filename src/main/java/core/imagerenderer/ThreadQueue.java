@@ -7,6 +7,7 @@ import org.imgscalr.Scalr;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +72,6 @@ class ThreadQueue implements Runnable {
                 int x = pos % this.x;
 
                 try {
-
                     url = new URL(capsule.getUrl());
                     image = ImageIO.read(url);
                     if (image.getHeight() != imageSize || image.getWidth() != imageSize) {
@@ -82,18 +82,14 @@ class ThreadQueue implements Runnable {
                     drawImage(image, capsule);
                     g.drawImage(image, x * imageSize, y * imageSize, null);
 
-
-                } catch (Exception e) {
+                } catch (IOException e) {
                     Color temp = g.getColor();
                     g.setColor(Color.WHITE);
                     g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
                     g.setColor(Color.BLACK);
                     drawNames(capsule, y, x, g, imageSize, null);
                     g.setColor(temp);
-                    Chuu.getLogger().warn(e.getMessage(), e);
                 }
-
-
             } catch (Exception e) {
                 Chuu.getLogger().warn(e.getMessage(), e);
             }

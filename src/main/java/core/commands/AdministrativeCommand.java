@@ -3,7 +3,9 @@ package core.commands;
 import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.Parser;
 import core.parsers.UrlParser;
+import core.parsers.params.UrlParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -24,12 +26,17 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class AdministrativeCommand extends ConcurrentCommand {
+public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
 
     public AdministrativeCommand(ChuuService dao) {
         super(dao);
-        parser = new UrlParser();
     }
+
+    @Override
+    public Parser<UrlParameters> getParser() {
+        return new UrlParser();
+    }
+
 
     @Override
     public void onGuildMemberRemove(@Nonnull GuildMemberRemoveEvent event) {
@@ -102,16 +109,17 @@ public class AdministrativeCommand extends ConcurrentCommand {
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
-        String[] urlParsed = parser.parse(e);
-        if (urlParsed == null)
+        UrlParameters urlParameters = parser.parse(e);
+        if (urlParameters == null)
             return;
 
-        if (urlParsed.length == 0) {
+        String url = urlParameters.getUrl();
+        if (url.length() == 0) {
             getService().removeLogo(e.getGuild().getIdLong());
             sendMessageQueue(e, "Removed logo from the server");
         } else {
 
-            try (InputStream in = new URL(urlParsed[0]).openStream()) {
+            try (InputStream in = new URL(url).openStream()) {
                 BufferedImage image = ImageIO.read(in);
                 if (image == null) {
                     sendMessageQueue(e, "Couldn't get an image from the supplied link");
@@ -128,6 +136,4 @@ public class AdministrativeCommand extends ConcurrentCommand {
 
         }
     }
-
-
 }

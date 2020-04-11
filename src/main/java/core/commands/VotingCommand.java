@@ -4,6 +4,8 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Validator;
 import core.parsers.ArtistParser;
+import core.parsers.Parser;
+import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -20,18 +22,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-public class VotingCommand extends ConcurrentCommand {
+public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
     private static final String RIGHT_ARROW = "U+27a1";
     private static final String LEFT_ARROW = "U+2b05";
     private static final String UP_VOTE = "U+1f44d";
     private static final String DOWN_VOTE = "U+1f44e";
     private static final String REPORT = "U+1f6ab";
 
-    private BiFunction<JDA, Integer, BiFunction<VotingEntity, EmbedBuilder, EmbedBuilder>> builder = (jda, integer) -> (votingEntity, embedBuilder) ->
+    private final BiFunction<JDA, Integer, BiFunction<VotingEntity, EmbedBuilder, EmbedBuilder>> builder = (jda, integer) -> (votingEntity, embedBuilder) ->
             embedBuilder.clearFields()
                     .addField("Added by", CommandUtil.getGlobalUsername(jda, votingEntity.getOwner()), true)
                     .addBlankField(true)
-                    .addField("Submitted:", votingEntity.getDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("YYYY MM dd HH:mm ")), true)
+                    .addField("Submitted:", votingEntity.getDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy MM dd HH:mm ")), true)
                     .addField("Points:", String.valueOf(votingEntity.getVotes()), true)
                     .addBlankField(true)
                     .addField("Vote Count:", String.valueOf(votingEntity.getTotalVotes()), true)
@@ -41,7 +43,11 @@ public class VotingCommand extends ConcurrentCommand {
 
     public VotingCommand(ChuuService dao) {
         super(dao);
-        this.parser = new ArtistParser(dao, lastFM);
+    }
+
+    @Override
+    public Parser<ArtistParameters> getParser() {
+        return new ArtistParser(getService(), lastFM);
     }
 
     @Override
@@ -61,8 +67,8 @@ public class VotingCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] parse = parser.parse(e);
-        if (parse == null) {
+        ArtistParameters params = parser.parse(e);
+        if (params == null) {
             return;
         }
         long idLong = e.getAuthor().getIdLong();
@@ -71,7 +77,7 @@ public class VotingCommand extends ConcurrentCommand {
             sendMessageQueue(e, "You don't have enough permissions to vote for images");
             return;
         }
-        String preCorrectionArtist = parse[0];
+        String preCorrectionArtist = params.getArtist();
         ScrobbledArtist artist = CommandUtil.onlyCorrection(getService(), preCorrectionArtist, lastFM);
         List<VotingEntity> allArtistImages = getService().getAllArtistImages(artist.getArtistId());
         if (allArtistImages.isEmpty()) {
@@ -122,7 +128,7 @@ public class VotingCommand extends ConcurrentCommand {
             actionMap.put(LEFT_ARROW, (aliasEntity, r) -> {
                 int i = counter.decrementAndGet();
                 if (i == 0) {
-                    r.getReaction().clearReactions().complete();
+                    r.getReaction().clearReactions();
                 }
                 if (i == allArtistImages.size() - 2) {
                     r.getChannel().addReactionById(r.getMessageIdLong(), RIGHT_ARROW).queue();

@@ -1,6 +1,7 @@
 package core.parsers;
 
 import core.exceptions.InstanceNotFoundException;
+import core.parsers.params.AffinityParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -9,7 +10,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class AffinityParser extends DaoParser {
+public class AffinityParser extends DaoParser<AffinityParameters> {
 
     public AffinityParser(ChuuService dao) {
         super(dao);
@@ -22,7 +23,7 @@ public class AffinityParser extends DaoParser {
     }
 
     @Override
-    public String[] parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    public AffinityParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
         Stream<String> secondStream = Arrays.stream(words).filter(s -> s.matches("\\d+"));
         Optional<String> opt2 = secondStream.findAny();
         Integer threshold = null;
@@ -31,7 +32,7 @@ public class AffinityParser extends DaoParser {
             threshold = Integer.valueOf(opt2.get());
             if (threshold < 1) {
                 sendError("The threshold must be 1 or bigger", e);
-                return new String[]{};
+                return null;
             }
             words = Arrays.stream(words).filter(s -> !s.matches("\\d+")).toArray(String[]::new);
         }
@@ -45,18 +46,14 @@ public class AffinityParser extends DaoParser {
         } else {
             if (datas[0].getDiscordId().equals(datas[1].getDiscordId())) {
                 e.getChannel().sendMessage("Dont't use the same person twice\n").queue();
-                return new String[]{};
+                return null;
             }
         }
-        String s = threshold == null ? null : String.valueOf(threshold);
         if (doServer) {
-            return new String[]{
-                    null, null, null, null, "true", s};
+            return new AffinityParameters(e, true, null, null, null, null, threshold);
         } else {
-            return new String[]{
-                    String.valueOf(datas[0].getDiscordId()), datas[0].getName(), String.valueOf(datas[1].getDiscordId()), datas[1].getName(), "false", s};
+            return new AffinityParameters(e, false, datas[0].getName(), datas[1].getName(), datas[0].getDiscordId(), datas[1].getDiscordId(), threshold);
         }
-
     }
 
 

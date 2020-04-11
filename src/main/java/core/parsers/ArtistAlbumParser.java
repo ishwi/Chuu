@@ -3,22 +3,17 @@ package core.parsers;
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.NowPlayingArtist;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
-import java.util.List;
 
-public class ArtistAlbumParser extends DaoParser {
+public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
     final ConcurrentLastFM lastFM;
 
-    public ArtistAlbumParser(ChuuService dao, ConcurrentLastFM lastFM) {
-        super(dao);
-        this.lastFM = lastFM;
-    }
 
     public ArtistAlbumParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... o) {
         super(dao);
@@ -28,24 +23,11 @@ public class ArtistAlbumParser extends DaoParser {
 
 
     @Override
-    public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
-        User sample;
+    public ArtistAlbumParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
 
-        if (e.isFromGuild()) {
-            List<Member> members = e.getMessage().getMentionedMembers();
-            if (!members.isEmpty()) {
-                if (members.size() != 1) {
-                    sendError("Only one user pls", e);
-                    return null;
-                }
-                sample = members.get(0).getUser();
-                subMessage = Arrays.stream(subMessage).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
-            } else {
-                sample = e.getMember().getUser();
-            }
-        } else
-            sample = e.getAuthor();
-
+        ParserAux parserAux = new ParserAux(subMessage);
+        User sample = parserAux.getOneUser(e);
+        subMessage = parserAux.getMessage();
         if (subMessage.length == 0) {
 
             NowPlayingArtist np;
@@ -61,11 +43,11 @@ public class ArtistAlbumParser extends DaoParser {
     }
 
 
-    String[] doSomethingWithNp(NowPlayingArtist np, User ignored, MessageReceivedEvent e) {
-        return new String[]{np.getArtistName(), np.getAlbumName(), String.valueOf(e.getAuthor().getIdLong())};
+    ArtistAlbumParameters doSomethingWithNp(NowPlayingArtist np, User ignored, MessageReceivedEvent e) {
+        return new ArtistAlbumParameters(e, np.getArtistName(), np.getAlbumName(), e.getAuthor());
     }
 
-    String[] doSomethingWithString(String[] subMessage, User sample, MessageReceivedEvent e) {
+    ArtistAlbumParameters doSomethingWithString(String[] subMessage, User sample, MessageReceivedEvent e) {
         StringBuilder builder = new StringBuilder();
         for (String s : subMessage) {
             builder.append(s).append(" ");
@@ -86,8 +68,7 @@ public class ArtistAlbumParser extends DaoParser {
 
         String artist = content[0].trim().replaceAll("\\\\-", "-");
         String album = content[1].trim().replaceAll("\\\\-", "-");
-
-        return new String[]{artist, album, String.valueOf(sample.getIdLong())};
+        return new ArtistAlbumParameters(e, artist, album, sample);
     }
 
     @Override

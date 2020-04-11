@@ -7,6 +7,8 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
+import core.parsers.Parser;
+import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -14,15 +16,19 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-public class GuildArtistPlaysCommand extends ConcurrentCommand {
+public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
     public GuildArtistPlaysCommand(ChuuService dao) {
         super(dao);
-        this.parser = new ArtistParser(dao, lastFM);
         this.spotify = SpotifySingleton.getInstance();
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+    }
+
+    @Override
+    public Parser<ArtistParameters> getParser() {
+        return new ArtistParser(getService(), lastFM);
     }
 
     @Override
@@ -42,15 +48,16 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned = parser.parse(e);
+        ArtistParameters returned = parser.parse(e);
         if (returned == null) {
             return;
         }
-        String artist = returned[0];
-        long whom = Long.parseLong(returned[1]);
+        String artist = returned.getArtist();
+        long whom = returned.getUser().getIdLong();
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
+        
         long artistPlays;
         if (e.isFromGuild()) {
             artistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());

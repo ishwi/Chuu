@@ -1,13 +1,14 @@
 package core.parsers;
 
 import core.exceptions.InstanceNotFoundException;
+import core.parsers.params.TwoUsersParamaters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 
-public class TwoUsersParser extends DaoParser {
+public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
     public TwoUsersParser(ChuuService dao) {
         super(dao);
     }
@@ -17,7 +18,7 @@ public class TwoUsersParser extends DaoParser {
         this.opts.addAll(Arrays.asList(opts));
     }
 
-    public String[] parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    public TwoUsersParamaters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
         String[] message = getSubMessage(e.getMessage());
         if (!e.isFromGuild()) {
             sendError("Can't get two different users on DM's", e);
@@ -34,7 +35,7 @@ public class TwoUsersParser extends DaoParser {
             sendError("Couldn't get two users", e);
             return null;
         }
-        return new String[]{String.valueOf(datas[0].getDiscordId()), datas[0].getName(), String.valueOf(datas[1].getDiscordId()), datas[1].getName()};
+        return new TwoUsersParamaters(e, datas[0], datas[1]);
     }
 
 

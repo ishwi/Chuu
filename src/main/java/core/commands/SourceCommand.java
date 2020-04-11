@@ -3,19 +3,24 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
+import core.parsers.Parser;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
 
-public class SourceCommand extends ConcurrentCommand {
+public class SourceCommand extends ConcurrentCommand<CommandParameters> {
     private static final String REPO_URL = "https://github.com/ishwi/discordBot";
 
     public SourceCommand(ChuuService dao) {
         super(dao);
-        this.parser = new NoOpParser();
+    }
 
+    @Override
+    public Parser<CommandParameters> getParser() {
+        return new NoOpParser();
     }
 
     @Override

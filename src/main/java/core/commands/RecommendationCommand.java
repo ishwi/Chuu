@@ -2,6 +2,7 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.Parser;
 import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
 import dao.ChuuService;
@@ -13,11 +14,15 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.List;
 import java.util.Optional;
 
-public class RecommendationCommand extends ConcurrentCommand {
+public class RecommendationCommand extends ConcurrentCommand<RecommendationsParams> {
     public RecommendationCommand(ChuuService dao) {
         super(dao);
-        this.parser = new RecommendationParser(dao);
         this.respondInPrivate = false;
+    }
+
+    @Override
+    public Parser<RecommendationsParams> getParser() {
+        return new RecommendationParser(getService());
     }
 
     @Override
@@ -37,11 +42,10 @@ public class RecommendationCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] parse = parser.parse(e);
-        if (parse == null) {
+        RecommendationsParams rp = parser.parse(e);
+        if (rp == null) {
             return;
         }
-        RecommendationsParams rp = new RecommendationsParams(parse, e);
         long firstDiscordID;
         long secondDiscordID;
         if (rp.isNoUser()) {
@@ -55,8 +59,8 @@ public class RecommendationCommand extends ConcurrentCommand {
             firstDiscordID = e.getAuthor().getIdLong();
             secondDiscordID = affinity.getDiscordId();
         } else {
-            firstDiscordID = rp.getFirstDiscordID();
-            secondDiscordID = rp.getSecondDiscordID();
+            firstDiscordID = rp.getSecondUser().getDiscordId();
+            secondDiscordID = rp.getSecondUser().getDiscordId();
         }
         Optional<ScrobbledArtist> recommendation = getService().getRecommendation(secondDiscordID, firstDiscordID, rp.isShowRepeated());
 

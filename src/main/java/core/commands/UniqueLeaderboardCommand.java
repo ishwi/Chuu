@@ -1,8 +1,8 @@
 package core.commands;
 
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,8 +24,8 @@ public class UniqueLeaderboardCommand extends CrownLeaderboardCommand {
     }
 
     @Override
-    public List<LbEntry> getList(String[] message, MessageReceivedEvent e) {
-        return getService().getUniqueLeaderboard(e.getGuild().getIdLong());
+    public List<LbEntry> getList(CommandParameters parameters) {
+        return getService().getUniqueLeaderboard(parameters.getE().getGuild().getIdLong());
     }
 
     @Override

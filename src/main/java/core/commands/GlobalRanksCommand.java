@@ -2,15 +2,22 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.Parser;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
 
-public class GlobalRanksCommand extends ConcurrentCommand {
+public class GlobalRanksCommand extends ConcurrentCommand<CommandParameters> {
     GlobalRanksCommand(ChuuService dao) {
         super(dao);
+    }
+
+    @Override
+    public Parser<CommandParameters> getParser() {
+        return null;
     }
 
     @Override

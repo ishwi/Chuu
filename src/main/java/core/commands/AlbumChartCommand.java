@@ -3,6 +3,8 @@ package core.commands;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.AlbumChart;
 import core.exceptions.LastFmException;
+import core.parsers.ChartParser;
+import core.parsers.ChartableParser;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
@@ -16,12 +18,15 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class AlbumChartCommand extends ChartableCommand {
+public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
 
     public AlbumChartCommand(ChuuService dao) {
-
         super(dao);
+    }
 
+    @Override
+    public ChartableParser<ChartParameters> getParser() {
+        return new ChartParser(getService());
     }
 
     @Override

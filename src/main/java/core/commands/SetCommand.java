@@ -2,7 +2,9 @@ package core.commands;
 
 import core.Chuu;
 import core.exceptions.*;
+import core.parsers.Parser;
 import core.parsers.SetParser;
+import core.parsers.params.WordParameter;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -14,12 +16,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class SetCommand extends ConcurrentCommand {
+public class SetCommand extends ConcurrentCommand<WordParameter> {
     public SetCommand(ChuuService dao) {
         super(dao);
         parser = new SetParser();
         this.respondInPrivate = false;
 
+    }
+
+    @Override
+    public Parser<WordParameter> getParser() {
+        return new SetParser();
     }
 
     @Override
@@ -34,14 +41,13 @@ public class SetCommand extends ConcurrentCommand {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned;
 
-        returned = parser.parse(e);
+        WordParameter returned = parser.parse(e);
         if (returned == null)
             return;
 
         MessageBuilder mes = new MessageBuilder();
-        String lastFmID = returned[0];
+        String lastFmID = returned.getWord();
         long guildID = e.getGuild().getIdLong();
         long userId = e.getAuthor().getIdLong();
         //Gets all users in this server

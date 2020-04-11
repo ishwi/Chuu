@@ -2,7 +2,9 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
+import core.parsers.params.UrlParameters;
 import dao.ChuuService;
 import dao.entities.RandomUrlEntity;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -10,10 +12,14 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Collections;
 import java.util.List;
 
-public class RandomAlbumCommand extends ConcurrentCommand {
+public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
     public RandomAlbumCommand(ChuuService dao) {
         super(dao);
-        this.parser = new RandomAlbumParser();
+    }
+
+    @Override
+    public Parser<UrlParameters> getParser() {
+        return new RandomAlbumParser();
     }
 
     @Override
@@ -28,12 +34,12 @@ public class RandomAlbumCommand extends ConcurrentCommand {
 
     @Override
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned;
 
-        returned = parser.parse(e);
-        if (returned == null)
+        UrlParameters params = parser.parse(e);
+        if (params == null)
             return;
-        if (returned.length == 0) {
+        String url = params.getUrl();
+        if (url.length() == 0) {
             //get randomurl
             RandomUrlEntity randomUrl = getService().getRandomUrl();
             if (randomUrl == null) {
@@ -47,8 +53,8 @@ public class RandomAlbumCommand extends ConcurrentCommand {
         //add url
         Long guildId = CommandUtil.getGuildIdConsideringPrivateChannel(e);
 
-        if (!getService().addToRandomPool(new RandomUrlEntity(returned[0], e.getAuthor().getIdLong(), guildId))) {
-            sendMessageQueue(e, String.format("The provided url: %s was already on the pool", returned[0]));
+        if (!getService().addToRandomPool(new RandomUrlEntity(url, e.getAuthor().getIdLong(), guildId))) {
+            sendMessageQueue(e, String.format("The provided url: %s was already on the pool", url));
             return;
         }
         sendMessageQueue(e, String.format("Successfully added %s's link to the pool", getUserString(e, e.getAuthor().getIdLong(), CommandUtil.cleanMarkdownCharacter(e.getAuthor()

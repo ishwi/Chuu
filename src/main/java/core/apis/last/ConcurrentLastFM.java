@@ -5,10 +5,7 @@ import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ArtistException;
 import core.apis.last.exceptions.ExceptionEntity;
 import core.apis.last.exceptions.TrackException;
-import core.exceptions.LastFMNoPlaysException;
-import core.exceptions.LastFMServiceException;
-import core.exceptions.LastFmEntityNotFoundException;
-import core.exceptions.LastFmException;
+import core.exceptions.*;
 import dao.entities.*;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -122,6 +119,9 @@ public class ConcurrentLastFM {//implements LastFMService {
                 if (responseCode == 404) {
                     throw new LastFmEntityNotFoundException(new ExceptionEntity("Whatever"));
                 }
+                if (Math.floor((float) responseCode / 100) == 4) {
+                    throw new UnknownLastFmException(jsonObject.toString(), responseCode);
+                }
                 return jsonObject;
 
             } catch (IOException | LastFMServiceException e) {
@@ -145,11 +145,11 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     }
 
-    private void parseResponse(JSONObject jsonObject, ExceptionEntity exceptionEntity) throws LastFmEntityNotFoundException {
+    private void parseResponse(JSONObject jsonObject, ExceptionEntity exceptionEntity) throws LastFmEntityNotFoundException, UnknownLastFmException {
         int code = jsonObject.getInt("error");
         if (code == 6) {
             throw new LastFmEntityNotFoundException(exceptionEntity);
-        }
+        } else throw new UnknownLastFmException(jsonObject.toString(), code);
     }
 
     private HttpMethodBase createMethod(String url) {

@@ -18,10 +18,6 @@ public class TrackDurationArtistChart extends TrackDurationChart {
 
     }
 
-    public TrackDurationArtistChart(String url, int pos, String trackName, String albumName, String mbid, boolean drawTitles, boolean drawPlays, boolean showDuration, int seconds) {
-        super(url, pos, trackName, albumName, mbid, drawTitles, drawPlays, showDuration, seconds);
-    }
-
     public static BiFunction<JSONObject, Integer, UrlCapsule> getTrackDurationArtistParser(ChartGroupParameters params) {
 
         return (trackObj, size) -> {

@@ -4,7 +4,9 @@ import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.Parser;
 import core.parsers.TwoArtistsParser;
+import core.parsers.params.TwoArtistParams;
 import dao.ChuuService;
 import dao.entities.ArtistSummary;
 import dao.entities.LastFMData;
@@ -13,11 +15,15 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-public class AliasCommand extends ConcurrentCommand {
+public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
 
     public AliasCommand(ChuuService dao) {
         super(dao);
-        this.parser = new TwoArtistsParser();
+    }
+
+    @Override
+    public Parser<TwoArtistParams> getParser() {
+        return new TwoArtistsParser();
     }
 
     @Override
@@ -37,14 +43,14 @@ public class AliasCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] message = parser.parse(e);
+        TwoArtistParams message = parser.parse(e);
         if (message == null) {
             return;
         }
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = getService().findLastFMData(idLong);
-        String alias = message[0];
-        String to = message[1];
+        String alias = message.getFirstArtist();
+        String to = message.getSecondArtist();
         long artistId;
         String corrected = getService().findCorrection(alias);
         if (corrected != null) {
@@ -80,7 +86,7 @@ public class AliasCommand extends ConcurrentCommand {
         } else {
             try {
                 getService().addAlias(alias, artistId);
-                sendMessageQueue(e, "Succesfully aliased " + alias + " to " + to);
+                sendMessageQueue(e, "Successfully aliased " + alias + " to " + to);
             } catch (DuplicateInstanceException ex) {
                 sendMessageQueue(e, "The alias: " + alias + " is an already existing alias within the bot");
             }

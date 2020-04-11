@@ -81,12 +81,12 @@ class ChartParserAux {
     }
 
 
-    String parseYear() {
-        String year = Year.now().toString();
+    Year parseYear() {
+        Year year = Year.now();
         Stream<String> firstStream = Arrays.stream(message).filter(s -> s.matches("\\d{4}"));
         Optional<String> opt1 = firstStream.findAny();
         if (opt1.isPresent()) {
-            year = opt1.get();
+            year = Year.of(Integer.parseInt(opt1.get()));
             message = Arrays.stream(message).filter(s -> !s.equals(opt1.get().trim())).toArray(String[]::new);
 
         }

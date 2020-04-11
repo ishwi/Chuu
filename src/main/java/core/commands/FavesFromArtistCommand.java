@@ -7,6 +7,8 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistTimeFrameParser;
+import core.parsers.Parser;
+import core.parsers.params.ArtistTimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
@@ -18,7 +20,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Arrays;
 import java.util.List;
 
-public class FavesFromArtistCommand extends ConcurrentCommand {
+public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFrameParameters> {
 
     private final DiscogsApi discogs;
     private final Spotify spotify;
@@ -26,9 +28,13 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
     public FavesFromArtistCommand(ChuuService dao) {
         super(dao);
         respondInPrivate = true;
-        this.parser = new ArtistTimeFrameParser(dao, lastFM);
         this.discogs = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
+    }
+
+    @Override
+    public Parser<ArtistTimeFrameParameters> getParser() {
+        return new ArtistTimeFrameParser(getService(), lastFM);
     }
 
     @Override
@@ -49,26 +55,23 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned;
-        returned = parser.parse(e);
+        ArtistTimeFrameParameters returned = parser.parse(e);
         if (returned == null)
             return;
-        long userId = Long.parseLong(returned[1]);
-        String timeframew = returned[2];
-        String artist = returned[0];
+        long userId = returned.getUser().getIdLong();
+        TimeFrameEnum timeframew = returned.getTimeFrame();
+        String artist = returned.getArtist();
         ScrobbledArtist who = new ScrobbledArtist(artist, 0, "");
         CommandUtil.validate(getService(), who, lastFM, discogs, spotify);
         List<Track> ai;
         String lastFmName;
         lastFmName = getService().findLastFMData(userId).getName();
 
-        ai = lastFM.getTopArtistTracks(lastFmName, who.getArtist(), timeframew);
+        ai = lastFM.getTopArtistTracks(lastFmName, who.getArtist(), timeframew.toApiFormat());
 
         final String userString = getUserString(e, userId, lastFmName);
         if (ai.isEmpty()) {
-            sendMessageQueue(e, ("Coudnt't find your fav tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + (timeframew
-                    .equals("overall") ? "" : " in the last " + TimeFrameEnum
-                    .fromCompletePeriod(timeframew).toString().toLowerCase() + "!")));
+            sendMessageQueue(e, ("Couldn't find your fav tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString() + "!"));
             return;
         }
 
@@ -85,9 +88,8 @@ public class FavesFromArtistCommand extends ConcurrentCommand {
         embedBuilder.setColor(CommandUtil.randomColor());
 
         embedBuilder
-                .setTitle(userString + "'s Top " + who.getArtist() + " Tracks in " + TimeFrameEnum
-                        .fromCompletePeriod(timeframew).toString(), CommandUtil.getLastFmUser(lastFmName));
-        embedBuilder.setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
+                .setTitle(userString + "'s Top " + who.getArtist() + " Tracks in " + timeframew.getDisplayString(), CommandUtil.getLastFmUser(lastFmName))
+                .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
 
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
     }

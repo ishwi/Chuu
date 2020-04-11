@@ -1,6 +1,9 @@
 package core.commands;
 
 import core.otherlisteners.Reactionary;
+import core.parsers.NoOpParser;
+import core.parsers.Parser;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -10,13 +13,23 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Collections;
 import java.util.List;
 
-public class CrownLeaderboardCommand extends ListCommand<LbEntry> {
+public class CrownLeaderboardCommand extends ListCommand<LbEntry, CommandParameters> {
     String entryName = "Crowns";
 
     public CrownLeaderboardCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
 
+    }
+
+    @Override
+    public Parser<CommandParameters> getParser() {
+        return new NoOpParser();
+    }
+
+    @Override
+    public List<LbEntry> getList(CommandParameters params) {
+        return getService().getGuildCrownLb(params.getE().getGuild().getIdLong());
     }
 
     @Override
@@ -36,12 +49,8 @@ public class CrownLeaderboardCommand extends ListCommand<LbEntry> {
 
 
     @Override
-    public List<LbEntry> getList(String[] message, MessageReceivedEvent e) {
-        return getService().getGuildCrownLb(e.getGuild().getIdLong());
-    }
-
-    @Override
-    public void printList(List<LbEntry> list, MessageReceivedEvent e) {
+    public void printList(List<LbEntry> list, CommandParameters params) {
+        MessageReceivedEvent e = params.getE();
         list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
         MessageBuilder messageBuilder = new MessageBuilder();
 

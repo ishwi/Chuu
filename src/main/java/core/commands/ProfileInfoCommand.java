@@ -9,6 +9,8 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.ProfileMaker;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
+import core.parsers.Parser;
+import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -21,16 +23,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
-public class ProfileInfoCommand extends ConcurrentCommand {
+public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
     private final Spotify spotify;
     private final DiscogsApi discogsApi;
 
     public ProfileInfoCommand(ChuuService dao) {
         super(dao);
-        this.parser = new OnlyUsernameParser(dao, new OptionalEntity("--image", "display in list format"));
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
         this.respondInPrivate = false;
+    }
+
+    @Override
+    public Parser<ChuuDataParams> getParser() {
+        return new OnlyUsernameParser(getService(), new OptionalEntity("--image", "display in list format"));
     }
 
     @Override
@@ -45,9 +51,9 @@ public class ProfileInfoCommand extends ConcurrentCommand {
 
     @Override
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned = parser.parse(e);
-        String lastFmName = returned[0];
-        boolean isList = !Boolean.parseBoolean(returned[2]);
+        ChuuDataParams params = parser.parse(e);
+        String lastFmName = params.getLastFMData().getName();
+        boolean isList = !params.hasOptional("--image");
         UserInfo userInfo;
         int albumCount;
 

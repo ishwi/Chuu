@@ -6,6 +6,7 @@ import core.apis.last.LastFMFactory;
 import core.exceptions.*;
 import core.imagerenderer.ChartQuality;
 import core.parsers.Parser;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -21,16 +22,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-public abstract class MyCommand extends ListenerAdapter {
+public abstract class MyCommand<T extends CommandParameters> extends ListenerAdapter {
     final ConcurrentLastFM lastFM;
     private final ChuuService dao;
     boolean respondInPrivate = true;
-    Parser parser;
+    Parser<T> parser;
 
     MyCommand(ChuuService dao) {
         this.dao = dao;
         lastFM = LastFMFactory.getNewInstance();
+        this.parser = getParser();
     }
+
+    public abstract Parser<T> getParser();
 
     ChuuService getService() {
         return dao;
@@ -94,6 +98,10 @@ public abstract class MyCommand extends ListenerAdapter {
             parser.sendError(username + " " + init, e);
         } catch (LastFmEntityNotFoundException ex) {
             parser.sendError(ex.toMessage(), e);
+        } catch (UnknownLastFmException ex) {
+            parser.sendError("Unknown last.fm exception found", e);
+            Chuu.getLogger().warn(ex.getMessage(), ex);
+            Chuu.getLogger().warn(String.valueOf(ex.getCode()));
         } catch (InstanceNotFoundException ex) {
             String instanceNotFoundTemplate = InstanceNotFoundException.getInstanceNotFoundTemplate();
 

@@ -3,21 +3,29 @@ package core.parsers;
 import core.commands.CommandUtil;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.params.CommandParameters;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-public abstract class Parser {
+public abstract class Parser<T extends CommandParameters> {
     final Map<Integer, String> errorMessages = new HashMap<>(10);
-    final List<OptionalEntity> opts = new ArrayList<>();
+    final Set<OptionalEntity> opts = new HashSet<>();
 
 
     Parser() {
         setUpErrorMessages();
         setUpOptionals();
     }
+
+    Parser(OptionalEntity... opts) {
+        this();
+        this.opts.addAll(Arrays.asList(opts));
+    }
+
 
     void setUpOptionals() {
         //Do nothing
@@ -26,7 +34,7 @@ public abstract class Parser {
     protected abstract void setUpErrorMessages();
 
 
-    public String[] parse(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    public T parse(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] subMessage = getSubMessage(e.getMessage());
         List<String> subMessageBuilding = new ArrayList<>();
         List<String> optionals = new ArrayList<>();
@@ -39,20 +47,24 @@ public abstract class Parser {
             } else {
                 subMessageBuilding.add(s);
             }
+
         }
 
-        String[] preOptionaledMessage = parseLogic(e, subMessageBuilding.toArray(new String[0]));
-        if (preOptionaledMessage == null)
-            return null;
-        String[] withFlags = Arrays.copyOf(preOptionaledMessage, opts.size() + preOptionaledMessage.length);
-        int counter = preOptionaledMessage.length;
-        for (OptionalEntity opt : opts) {
-            withFlags[counter++] = String.valueOf(optionals.contains(opt.getValue()));
+        Set<OptionalEntity> defaults = opts.stream().filter(OptionalEntity::isEnabledByDefault).collect(Collectors.toSet());
+        for (OptionalEntity aDefault : defaults) {
+            if (!optionals.contains(aDefault.getBlockedBy())) {
+                optionals.add(aDefault.getValue());
+            }
         }
-        return withFlags;
+
+        T preParams = parseLogic(e, subMessageBuilding.toArray(new String[0]));
+        if (preParams != null) {
+            preParams.initParams(optionals);
+        }
+        return preParams;
     }
 
-    protected abstract String[] parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException;
+    protected abstract T parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException;
 
     String[] getSubMessage(Message message) {
         return getSubMessage(message.getContentRaw());
@@ -67,21 +79,6 @@ public abstract class Parser {
 
     public String getErrorMessage(int code) {
         return errorMessages.get(code);
-    }
-
-
-    String artistMultipleWords(String[] message) {
-        String artist;
-        if (message.length > 1) {
-            StringBuilder a = new StringBuilder();
-            for (String s : message) {
-                a.append(s).append(" ");
-            }
-            artist = a.toString().trim();
-        } else {
-            artist = message[0];
-        }
-        return artist;
     }
 
 
@@ -111,13 +108,8 @@ public abstract class Parser {
     }
 
     public void replaceOptional(String previousOptional, OptionalEntity optionalEntity) {
-        int i = opts.indexOf(new OptionalEntity(previousOptional, null));
-        if (i != -1) {
-            opts.remove(i);
-            opts.add(i, optionalEntity);
-        } else {
-            opts.add(optionalEntity);
-        }
+        opts.remove(new OptionalEntity(previousOptional, null));
+        opts.add(optionalEntity);
     }
 
     public void addOptional(OptionalEntity... optionalEntity) {

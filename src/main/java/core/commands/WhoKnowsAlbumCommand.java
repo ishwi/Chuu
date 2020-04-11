@@ -14,9 +14,9 @@ import core.imagerenderer.WhoKnowsMaker;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.OptionalEntity;
+import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.params.ArtistParameters;
-import core.parsers.params.OptionalParameter;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -32,19 +32,22 @@ import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class WhoKnowsAlbumCommand extends ConcurrentCommand {
+public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameters> {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
-    private IPieable<ReturnNowPlaying, ArtistParameters> pie;
+    private final IPieable<ReturnNowPlaying, ArtistParameters> pie;
 
     public WhoKnowsAlbumCommand(ChuuService dao) {
         super(dao);
         respondInPrivate = false;
-        this.parser = new ArtistAlbumParser(dao, lastFM, new OptionalEntity("--list", "display in list format"));
         this.pie = new PieableKnows(this.parser);
-
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
+    }
+
+    @Override
+    public Parser<ArtistAlbumParameters> getParser() {
+        return new ArtistAlbumParser(getService(), lastFM, new OptionalEntity("--list", "display in list format"));
     }
 
     @Override
@@ -64,12 +67,10 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] parsed;
-        parsed = parser.parse(e);
-        if (parsed == null) {
+        ArtistAlbumParameters ap = parser.parse(e);
+        if (ap == null) {
             return;
         }
-        ArtistAlbumParameters ap = new ArtistAlbumParameters(parsed, e, new OptionalParameter("--list", 3), new OptionalParameter("--pie", 4));
         ScrobbledArtist validable = new ScrobbledArtist(ap.getArtist(), 0, "");
         CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
         ap.setScrobbledArtist(validable);
@@ -94,8 +95,8 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand {
                 .map(ReturnNowPlaying::getDiscordId)
                 .collect(Collectors.toList());
 
-        if (!usersThatKnow.contains(ap.getDiscordId()))
-            usersThatKnow.add(ap.getDiscordId());
+        if (!usersThatKnow.contains(ap.getUser().getIdLong()))
+            usersThatKnow.add(ap.getUser().getIdLong());
         if (!usersThatKnow.contains(e.getAuthor().getIdLong()))
             usersThatKnow.add(e.getAuthor().getIdLong());
 

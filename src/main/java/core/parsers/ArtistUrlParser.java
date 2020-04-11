@@ -1,9 +1,10 @@
 package core.parsers;
 
+import core.parsers.params.ArtistUrlParameters;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class ArtistUrlParser extends Parser {
+public class ArtistUrlParser extends Parser<ArtistUrlParameters> {
     @Override
     public void setUpErrorMessages() {
         errorMessages.put(0, "You need to specify the artist and the url!!");
@@ -14,7 +15,7 @@ public class ArtistUrlParser extends Parser {
     }
 
     @Override
-    public String[] parseLogic(MessageReceivedEvent e, String[] subMessage) {
+    public ArtistUrlParameters parseLogic(MessageReceivedEvent e, String[] subMessage) {
 
         boolean noUrl = true;
 
@@ -46,7 +47,7 @@ public class ArtistUrlParser extends Parser {
                 url = attachment.getUrl();
             }
         }
-        return new String[]{artist, url};
+        return new ArtistUrlParameters(e, artist, e.getAuthor(), url);
     }
 
     @Override

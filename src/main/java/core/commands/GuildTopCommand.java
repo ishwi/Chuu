@@ -2,15 +2,12 @@ package core.commands;
 
 import core.apis.last.chartentities.ArtistChart;
 import core.imagerenderer.GraphicUtils;
+import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
 import core.parsers.OptionalEntity;
-import core.parsers.params.ChartParameters;
-import core.parsers.params.GuildParameters;
+import core.parsers.params.ChartSizeParameters;
 import dao.ChuuService;
-import dao.entities.CountWrapper;
-import dao.entities.ResultWrapper;
-import dao.entities.ScrobbledArtist;
-import dao.entities.UrlCapsule;
+import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
@@ -26,17 +23,21 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class GuildTopCommand extends ChartableCommand {
+public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
 
     public GuildTopCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
-        this.parser = new OnlyChartSizeParser(
-                new OptionalEntity("--global", " show artist from all bot users instead of only from this server"));
-        parser.replaceOptional("--plays", new OptionalEntity("--noplays", "don't display plays"));
-
-
     }
+
+    @Override
+    public ChartableParser<ChartSizeParameters> getParser() {
+        OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(getService(), TimeFrameEnum.ALL,
+                new OptionalEntity("--global", " show artist from all bot users instead of only from this server"));
+        onlyChartSizeParser.replaceOptional("--plays", new OptionalEntity("--noplays", "don't display plays"));
+        return onlyChartSizeParser;
+    }
+
 
     @Override
     public String getDescription() {
@@ -48,40 +49,34 @@ public class GuildTopCommand extends ChartableCommand {
         return Arrays.asList("server", "guild", "general");
     }
 
-    @Override
-    public ChartParameters getParameters(String[] message, MessageReceivedEvent e) {
-        return new GuildParameters(message, e, Integer.parseInt(message[0]), Integer.parseInt(message[1]));
-    }
 
     @Override
-    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters params) {
-        GuildParameters gp = (GuildParameters) params;
-        ResultWrapper<ScrobbledArtist> guildTop = getService().getGuildTop(gp.isGlobal() ? null : gp.getE().getGuild().getIdLong(), gp.getX() * gp.getY(), (gp.isList() || gp.isPieFormat()));
+    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartSizeParameters gp) {
+        ResultWrapper<ScrobbledArtist> guildTop = getService().getGuildTop(gp.hasOptional("--gp") ? null : gp.getE().getGuild().getIdLong(), gp.getX() * gp.getY(), (gp.isList() || gp.isPieFormat()));
         AtomicInteger counter = new AtomicInteger(0);
         BlockingQueue<UrlCapsule> collect = guildTop.getResultList().stream().sorted(Comparator.comparingInt(ScrobbledArtist::getCount).reversed()).
                 map(x ->
-                        new ArtistChart(x.getUrl(), counter.getAndIncrement(), x.getArtist(), null, x.getCount(), params.isWriteTitles(), params.isWritePlays())
+                        new ArtistChart(x.getUrl(), counter.getAndIncrement(), x.getArtist(), null, x.getCount(), gp.isWriteTitles(), gp.isWritePlays())
                 ).collect(Collectors.toCollection(LinkedBlockingDeque::new));
         return new CountWrapper<>(guildTop.getRows(), collect);
     }
 
     @Override
-    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
+    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartSizeParameters params, int count) {
         return params.initEmbed("'s top artists", embedBuilder, " has listened to " + count + " artists");
     }
 
     @Override
-    public void doPie(PieChart pieChart, ChartParameters params, int count) {
-        GuildParameters gp = (GuildParameters) params;
+    public void doPie(PieChart pieChart, ChartSizeParameters gp, int count) {
         String urlImage;
         String subtitle;
-        if (gp.isGlobal()) {
-            subtitle = configPieChart(pieChart, params, count, params.getE().getJDA().getSelfUser().getName());
-            urlImage = params.getE().getJDA().getSelfUser().getAvatarUrl();
+        if (gp.hasOptional("--global")) {
+            subtitle = configPieChart(pieChart, gp, count, gp.getE().getJDA().getSelfUser().getName());
+            urlImage = gp.getE().getJDA().getSelfUser().getAvatarUrl();
 
         } else {
-            subtitle = configPieChart(pieChart, params, count, params.getE().getGuild().getName());
-            urlImage = params.getE().getGuild().getIconUrl();
+            subtitle = configPieChart(pieChart, gp, count, gp.getE().getGuild().getName());
+            urlImage = gp.getE().getGuild().getIconUrl();
         }
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = bufferedImage.createGraphics();
@@ -92,20 +87,19 @@ public class GuildTopCommand extends ChartableCommand {
         Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(subtitle, g);
         g.drawString(subtitle, 1000 - 10 - (int) stringBounds.getWidth(), 740 - 2);
         GraphicUtils.inserArtistImage(urlImage, g);
-        sendImage(bufferedImage, params.getE());
+        sendImage(bufferedImage, gp.getE());
     }
 
 
     @Override
-    public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
+    public String configPieChart(PieChart pieChart, ChartSizeParameters params, int count, String initTitle) {
         pieChart.setTitle(initTitle + "'s top artists");
         return String.format("%s has listened to %d artists (showing top %d)", initTitle, count, params.getX() * params.getY());
     }
 
     @Override
-    public void noElementsMessage(MessageReceivedEvent e, ChartParameters params) {
-        GuildParameters gp = (GuildParameters) params;
-        if (gp.isGlobal()) {
+    public void noElementsMessage(MessageReceivedEvent e, ChartSizeParameters gp) {
+        if (gp.hasOptional("--global")) {
             sendMessageQueue(e, "No one has listened a single artist in the whole bot");
         } else {
             sendMessageQueue(e, "No one has listened a single artist in this server");

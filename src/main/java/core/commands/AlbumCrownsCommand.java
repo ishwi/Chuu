@@ -4,6 +4,8 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
+import core.parsers.Parser;
+import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
@@ -15,11 +17,15 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Arrays;
 import java.util.List;
 
-public class AlbumCrownsCommand extends ConcurrentCommand {
+public class AlbumCrownsCommand extends ConcurrentCommand<ChuuDataParams> {
     public AlbumCrownsCommand(ChuuService dao) {
         super(dao);
-        parser = new OnlyUsernameParser(dao);
         this.respondInPrivate = false;
+    }
+
+    @Override
+    public Parser<ChuuDataParams> getParser() {
+        return new OnlyUsernameParser(getService());
     }
 
     @Override
@@ -39,15 +45,13 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned = parser.parse(e);
-        String lastFmName = returned[0];
-        long discordID = Long.parseLong(returned[1]);
-        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
+        ChuuDataParams params = parser.parse(e);
+        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         String name = userInfo.getUsername();
         String url = userInfo.getUrlImage();
 
         UniqueWrapper<ArtistPlays> uniqueDataUniqueWrapper = getService()
-                .getUserAlbumCrowns(lastFmName, e.getGuild().getIdLong());
+                .getUserAlbumCrowns(params.getLastFMData().getName(), e.getGuild().getIdLong());
         List<ArtistPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 
         int rows = resultWrapper.size();
@@ -65,7 +69,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand {
                 .setDescription(a)
                 .setColor(CommandUtil.randomColor())
                 .setTitle(String.format("%s's album crowns", name), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
-                .setFooter(String.format("%s has %d album crowns!!%n", CommandUtil.markdownLessUserString(name, discordID, e), resultWrapper.size()), null)
+                .setFooter(String.format("%s has %d album crowns!!%n", CommandUtil.markdownLessUserString(name, params.getLastFMData().getDiscordId(), e), resultWrapper.size()), null)
                 .setThumbnail(url);
 
         MessageBuilder mes = new MessageBuilder();

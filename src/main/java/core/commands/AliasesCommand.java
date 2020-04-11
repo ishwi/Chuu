@@ -8,6 +8,8 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
+import core.parsers.Parser;
+import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,7 +19,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AliasesCommand extends ConcurrentCommand {
+public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
 
     private final Spotify spotify;
     private final DiscogsApi discogsApi;
@@ -27,6 +29,11 @@ public class AliasesCommand extends ConcurrentCommand {
         this.parser = new ArtistParser(dao, lastFM);
         this.spotify = SpotifySingleton.getInstance();
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+    }
+
+    @Override
+    public Parser<ArtistParameters> getParser() {
+        return new ArtistParser(getService(), lastFM);
     }
 
 
@@ -47,14 +54,14 @@ public class AliasesCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] parse = this.parser.parse(e);
+        ArtistParameters parse = this.parser.parse(e);
         if (parse == null) {
             return;
         }
-        String s = parse[0];
+        String artist = parse.getArtist();
         char prefix = CommandUtil.getMessagePrefix(e);
 
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(s, 0, null);
+        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
 
         String correctedArtist = CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist());

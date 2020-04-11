@@ -4,6 +4,8 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
+import core.parsers.Parser;
+import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
@@ -15,12 +17,16 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Collections;
 import java.util.List;
 
-public class UniqueCommand extends ConcurrentCommand {
+public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
     public UniqueCommand(ChuuService dao) {
         super(dao);
-        parser = new OnlyUsernameParser(dao);
         this.respondInPrivate = false;
 
+    }
+
+    @Override
+    public Parser<ChuuDataParams> getParser() {
+        return new OnlyUsernameParser(getService());
     }
 
     @Override
@@ -40,8 +46,8 @@ public class UniqueCommand extends ConcurrentCommand {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned = parser.parse(e);
-        String lastFmName = returned[0];
+        ChuuDataParams returned = parser.parse(e);
+        String lastFmName = returned.getLastFMData().getName();
 
         UniqueWrapper<ArtistPlays> resultWrapper = getList(e.getGuild().getIdLong(), lastFmName);
         int rows = resultWrapper.getUniqueData().size();

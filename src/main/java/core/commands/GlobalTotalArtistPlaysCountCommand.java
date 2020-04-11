@@ -2,8 +2,9 @@ package core.commands;
 
 import core.commands.util.PieableResultWrapper;
 import core.otherlisteners.Reactionary;
+import core.parsers.NoOpParser;
+import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import core.parsers.params.OptionalParameter;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
@@ -19,16 +20,16 @@ import java.util.stream.Collectors;
 public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
     public GlobalTotalArtistPlaysCountCommand(ChuuService dao) {
         super(dao);
-        this.pie = new PieableResultWrapper<>(
+        this.pie = new PieableResultWrapper<>(getParser(),
                 ArtistPlays::getArtistName,
                 ArtistPlays::getCount);
     }
 
     @Override
-    public CommandParameters getParameters(MessageReceivedEvent e, String[] message) {
-        return new CommandParameters(message, e, new OptionalParameter("--pie", 0));
-
+    public Parser<CommandParameters> getParser() {
+        return new NoOpParser();
     }
+
 
     @Override
     protected String fillPie(PieChart pieChart, CommandParameters params, int count) {
@@ -38,12 +39,13 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
     }
 
     @Override
-    public ResultWrapper<ArtistPlays> getList(String[] message, MessageReceivedEvent e) {
+    public ResultWrapper<ArtistPlays> getList(CommandParameters params) {
         return getService().getArtistPlayCountGlobal();
     }
 
     @Override
-    public void printList(ResultWrapper<ArtistPlays> list, MessageReceivedEvent e, CommandParameters commandParameters) {
+    public void printList(ResultWrapper<ArtistPlays> list, CommandParameters params) {
+        MessageReceivedEvent e = params.getE();
         if (list.getRows() == 0) {
             sendMessageQueue(e, "No one has ever played any artist!");
             return;

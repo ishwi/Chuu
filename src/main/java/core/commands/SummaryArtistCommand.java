@@ -7,6 +7,8 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
+import core.parsers.Parser;
+import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
@@ -19,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SummaryArtistCommand extends ConcurrentCommand {
+public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
     private final Spotify spotify;
     private final DiscogsApi discogsApi;
@@ -27,10 +29,14 @@ public class SummaryArtistCommand extends ConcurrentCommand {
 
     public SummaryArtistCommand(ChuuService dao) {
         super(dao);
-        this.parser = new ArtistParser(dao, lastFM);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.mb = MusicBrainzServiceSingleton.getInstance();
         this.spotify = SpotifySingleton.getInstance();
+    }
+
+    @Override
+    public Parser<ArtistParameters> getParser() {
+        return new ArtistParser(getService(), lastFM);
     }
 
     @Override
@@ -50,14 +56,13 @@ public class SummaryArtistCommand extends ConcurrentCommand {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] returned;
-        returned = parser.parse(e);
-        if (returned == null)
+        ArtistParameters params = parser.parse(e);
+        if (params == null)
             return;
 
-        final ScrobbledArtist scrobbledArtist = new ScrobbledArtist(returned[0], 0, null);
+        final ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
-        long whom = Long.parseLong(returned[1]);
+        long whom = params.getUser().getIdLong();
         LastFMData data = getService().findLastFMData(whom);
         ArtistSummary summary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data.getName());
         ArtistMusicBrainzDetails artistDetails = mb.getArtistDetails(new ArtistInfo(null, summary.getArtistname(), summary.getMbid()));

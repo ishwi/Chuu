@@ -1,10 +1,9 @@
 package core.commands;
 
-import core.parsers.ChartFromYearVariableParser;
-import core.parsers.params.ChartParameters;
+import core.parsers.ChartYearParser;
+import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,8 +13,12 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
 
     public MbizThisYearCommand(ChuuService dao) {
         super(dao);
-        this.parser = new ChartFromYearVariableParser(dao);
         this.searchSpace = 1500;
+    }
+
+    @Override
+    public ChartableParser<ChartYearParameters> getParser() {
+        return new ChartYearParser(getService());
     }
 
     @Override
@@ -39,11 +42,4 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
     public String getName() {
         return "Albums Of The Year!";
     }
-
-    @Override
-    public ChartParameters getParameters(String[] message, MessageReceivedEvent e) {
-        return new ChartYearParameters(message, e);
-    }
-
-
 }

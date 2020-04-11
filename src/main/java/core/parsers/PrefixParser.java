@@ -1,12 +1,13 @@
 package core.parsers;
 
+import core.parsers.params.CharacterParser;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class PrefixParser extends Parser {
+public class PrefixParser extends Parser<CharacterParser> {
     private static final List<Character> acceptecChars = (Arrays
             .asList('!', '@', '#', '$', '%', '^', '_', '.', ',', ';', ':', '~'));
 
@@ -21,7 +22,7 @@ public class PrefixParser extends Parser {
     }
 
     @Override
-    protected String[] parseLogic(MessageReceivedEvent e, String[] words) {
+    protected CharacterParser parseLogic(MessageReceivedEvent e, String[] words) {
         if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
             sendError(getErrorMessage(2), e);
             return null;
@@ -30,12 +31,13 @@ public class PrefixParser extends Parser {
             sendError(this.getErrorMessage(0), e);
             return null;
         }
+
         String expectedChar = words[0];
         if (expectedChar.length() != 1 || !acceptecChars.contains(expectedChar.charAt(0))) {
             sendError(this.getErrorMessage(1), e);
             return null;
         }
-        return new String[]{expectedChar};
+        return new CharacterParser(e, expectedChar.charAt(0));
     }
 
     @Override

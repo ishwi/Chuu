@@ -8,6 +8,8 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.OptionalEntity;
+import core.parsers.Parser;
+import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ReturnNowPlaying;
@@ -27,7 +29,11 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
-        this.parser = new ArtistSongParser(dao, lastFM, new OptionalEntity("--list", "display in list format")
+    }
+
+    @Override
+    public Parser<ArtistAlbumParameters> getParser() {
+        return new ArtistSongParser(getService(), lastFM, new OptionalEntity("--list", "display in list format")
                 , new OptionalEntity("--pie", "display it as a chart pie"));
     }
 
