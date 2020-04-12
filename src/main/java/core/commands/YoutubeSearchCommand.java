@@ -21,7 +21,6 @@ public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<Word
     public YoutubeSearchCommand(ChuuService dao) {
         super(dao);
         youtubeSearch = SearchSingleton.getInstance();
-        this.parser = new UsernameAndNpQueryParser(dao, lastFM);
     }
 
     @Override

@@ -32,8 +32,6 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
 
     public UserTopTrackCommand(ChuuService dao) {
         super(dao);
-        parser = new ChartParser(dao);
-        parser.replaceOptional("--list", new OptionalEntity("--image", "show this with a chart instead of a list "));
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotifyApi = SpotifySingleton.getInstance();
     }
@@ -42,7 +40,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
     public ChartableParser<ChartParameters> getParser() {
         ChartParser chartParser = new ChartParser(getService());
         chartParser.replaceOptional("--list", new OptionalEntity("--image", "show this with a chart instead of a list "));
-        chartParser.addOptional(new OptionalEntity("--list", "show this with a chart instead of a list ", true, "--image"));
+        chartParser.addOptional(new OptionalEntity("--list", "shows this in list mode", true, "--image"));
         return chartParser;
     }
 

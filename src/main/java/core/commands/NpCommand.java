@@ -14,8 +14,6 @@ abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> {
 
     NpCommand(ChuuService dao) {
         super(dao);
-        this.parser = new NpParser(getService(), lastFM);
-
     }
 
     @Override

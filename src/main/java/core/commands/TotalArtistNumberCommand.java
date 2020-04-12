@@ -14,7 +14,6 @@ import java.util.List;
 public class TotalArtistNumberCommand extends ConcurrentCommand<ChuuDataParams> {
     public TotalArtistNumberCommand(ChuuService dao) {
         super(dao);
-        this.parser = new OnlyUsernameParser(dao);
     }
 
     @Override

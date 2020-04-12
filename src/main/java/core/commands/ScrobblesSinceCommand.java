@@ -17,7 +17,6 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
 
     public ScrobblesSinceCommand(ChuuService dao) {
         super(dao);
-        this.parser = new DateParser(dao);
     }
 
     @Override

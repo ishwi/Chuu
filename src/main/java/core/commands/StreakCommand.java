@@ -24,7 +24,6 @@ import java.util.List;
 public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
     public StreakCommand(ChuuService dao) {
         super(dao);
-        this.parser = new OnlyUsernameParser(dao);
     }
 
     @Override

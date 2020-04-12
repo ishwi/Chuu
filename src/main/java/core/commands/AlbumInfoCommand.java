@@ -2,7 +2,6 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.parsers.ArtistAlbumParser;
 import dao.ChuuService;
 import dao.entities.FullAlbumEntityExtended;
 import dao.entities.LastFMData;
@@ -18,7 +17,6 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
 
     public AlbumInfoCommand(ChuuService dao) {
         super(dao);
-        this.parser = new ArtistAlbumParser(dao, lastFM);
     }
 
     @Override

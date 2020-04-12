@@ -26,7 +26,6 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
 
     public AliasesCommand(ChuuService dao) {
         super(dao);
-        this.parser = new ArtistParser(dao, lastFM);
         this.spotify = SpotifySingleton.getInstance();
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
     }

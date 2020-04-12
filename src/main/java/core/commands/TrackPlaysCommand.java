@@ -31,7 +31,7 @@ public class TrackPlaysCommand extends AlbumPlaysCommand {
 
     @Override
     public List<String> getAliases() {
-        return List.of("track", "t");
+        return List.of("track");
     }
 
     @Override

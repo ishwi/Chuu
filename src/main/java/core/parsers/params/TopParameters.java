@@ -13,10 +13,10 @@ public class TopParameters extends ChartParameters {
 
     @Override
     public boolean isWritePlays() {
-        return !super.isWritePlays();
+        return !hasOptional("--noplays");
     }
 
-    public boolean isDoArtist() {
-        return hasOptional("--artist");
+    public boolean isDoAlbum() {
+        return hasOptional("--album");
     }
 }

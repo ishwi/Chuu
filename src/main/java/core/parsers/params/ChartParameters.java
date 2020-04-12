@@ -23,7 +23,7 @@ public class ChartParameters extends CommandParameters {
     private final int y;
 
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, OptionalEntity... extraOpts) {
+    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y) {
         super(e);
         this.lastfmID = lastfmID;
         this.discordId = discordId;
@@ -40,7 +40,7 @@ public class ChartParameters extends CommandParameters {
         this.x = x;
         this.y = y;
         this.optionals.put(new OptionalEntity("--notitles", ""), !writeTitles);
-        this.optionals.put(new OptionalEntity("--notitles", ""), writePlays);
+        this.optionals.put(new OptionalEntity("--plays", ""), writePlays);
         this.optionals.put(new OptionalEntity("--list", ""), isList);
         this.optionals.put(new OptionalEntity("--pie", ""), isPieFormat());
 

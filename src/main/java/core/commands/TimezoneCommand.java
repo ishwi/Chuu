@@ -12,11 +12,9 @@ import java.util.List;
 
 public class TimezoneCommand extends ConcurrentCommand<TimezoneParams> {
 
-    TimezoneParser parser;
 
     public TimezoneCommand(ChuuService dao) {
         super(dao);
-        this.parser = new TimezoneParser();
     }
 
     @Override

@@ -24,7 +24,6 @@ import java.util.OptionalLong;
 public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
     public ArtistUrlCommand(ChuuService dao) {
         super(dao);
-        this.parser = new ArtistUrlParser();
     }
 
     @Override

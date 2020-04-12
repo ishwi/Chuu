@@ -35,6 +35,8 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
         OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(getService(), TimeFrameEnum.ALL,
                 new OptionalEntity("--global", " show artist from all bot users instead of only from this server"));
         onlyChartSizeParser.replaceOptional("--plays", new OptionalEntity("--noplays", "don't display plays"));
+        onlyChartSizeParser.addOptional(new OptionalEntity("--plays", "shows this with plays", true, "--noplays"));
+
         return onlyChartSizeParser;
     }
 

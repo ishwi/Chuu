@@ -17,7 +17,6 @@ import java.util.List;
 public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
     public UnsetCommand(ChuuService dao) {
         super(dao);
-        this.parser = new NoOpParser();
     }
 
     @Override
