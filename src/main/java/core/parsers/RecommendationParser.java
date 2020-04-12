@@ -34,8 +34,8 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
 
         if (opt2.isPresent()) {
             recCount = Integer.parseInt(opt2.get());
-            if (recCount < 1 || recCount > 15) {
-                sendError("The recommendation count must be between 1 and 15", e);
+            if (recCount < 1 || recCount > 25) {
+                sendError("The recommendation count must be between 1 and 25", e);
                 return null;
             }
             words = Arrays.stream(words).filter(s -> !s.matches("\\d+")).toArray(String[]::new);

@@ -78,16 +78,24 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
             embedBuilder.addField("Position:", position + "/" + totalPeople, true);
             //It means we have someone ahead of us
             if (position != 1) {
-                embedBuilder.addField("Plays to rank up:", String.valueOf((globalArtistRanking.get(position - 2).getPlaycount() - globalCrown.getPlaycount())), true);
-                if (position != 2) {
-                    embedBuilder.addField("Plays for first position:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount())), true);
+                if (position == 2) {
+                    embedBuilder.addField("Plays for global crown:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true);
+                    embedBuilder.addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), true);
+
+                } else {
+                    embedBuilder.addField("Plays to rank up:", String.valueOf((globalArtistRanking.get(position - 2).getPlaycount() - globalCrown.getPlaycount() + 1)), true);
+                    embedBuilder.addField("Plays for first position:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true);
+                    embedBuilder.addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), false);
+                }
+
+            } else {
+                if (globalArtistRanking.size() > 1) {
+                    embedBuilder.addField("Ahead of second:", (globalCrown.getPlaycount() - globalArtistRanking.get(2).getPlaycount()) + " plays", true);
+                } else {
+                    embedBuilder.addBlankField(true);
                 }
                 embedBuilder.addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), true);
-            } else {
-                embedBuilder.addBlankField(true);
-                embedBuilder.addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), true);
             }
-
         } else {
             embedBuilder.addField("Plays for first position:", String.valueOf((globalArtistRanking.get(0).getPlaycount())), false);
         }

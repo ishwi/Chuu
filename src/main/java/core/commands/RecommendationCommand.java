@@ -76,7 +76,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
             firstDiscordID = e.getAuthor().getIdLong();
             secondDiscordID = affinity.getDiscordId();
         } else {
-            firstDiscordID = rp.getSecondUser().getDiscordId();
+            firstDiscordID = rp.getFirstUser().getDiscordId();
             secondDiscordID = rp.getSecondUser().getDiscordId();
         }
         List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, rp.isShowRepeated(), Math.toIntExact(rp.getRecCount()));
@@ -103,7 +103,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
                 EmbedBuilder embedBuilder = new EmbedBuilder();
 
                 embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
-                        .setImage(giverUI.getUrlImage())
+                        .setThumbnail(giverUI.getUrlImage())
                         .setDescription(s);
                 new MessageBuilder(embedBuilder.build()).sendTo(e.getChannel()).queue();
             }
