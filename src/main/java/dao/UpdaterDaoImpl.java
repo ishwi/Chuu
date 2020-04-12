@@ -743,17 +743,24 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 
     @Override
-    public ReportEntity getReportEntity(Connection connection, LocalDateTime localDateTime) {
+    public ReportEntity getReportEntity(Connection connection, LocalDateTime localDateTime, Set<Long> skippedIds) {
 
         String queryString = "SELECT b.id,count(*) AS reportcount,b.score,\n" +
                              "min(a.report_date) AS l,b.added_date,b.discord_id,c.name,b.url,(SELECT count(*) FROM log_reported WHERE reported = b.discord_id),b.artist_id\n" +
                              "FROM reported a JOIN \n" +
                              "alt_url b ON a.alt_id = b.id JOIN\n" +
                              "artist c ON b.artist_id = c.id\n" +
-                             "WHERE a.report_date < ? " +
-                             "" + "GROUP BY a.alt_id ORDER BY l DESC LIMIT 1";
+                             "WHERE a.report_date < ?";
+        if (!skippedIds.isEmpty()) {
+            queryString += " and a.alt_id not in (" + "?,".repeat(skippedIds.size() - 1) + "?)";
+        }
+        queryString += "GROUP BY a.alt_id ORDER BY l DESC LIMIT 1";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setTimestamp(1, Timestamp.from(localDateTime.atOffset(ZoneOffset.UTC).toInstant()));
+            int i = 2;
+            for (Long skippedId : skippedIds) {
+                preparedStatement.setLong(i++, skippedId);
+            }
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 long altUrlId = resultSet.getLong(1);

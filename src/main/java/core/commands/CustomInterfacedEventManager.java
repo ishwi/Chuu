@@ -65,8 +65,8 @@ public class CustomInterfacedEventManager implements IEventManager {
             ScheduledFuture<?> scheduledFuture = this.reactionaries.remove(reactionListener);
             if (scheduledFuture != null) {
                 scheduledFuture.cancel(true);
+                reactionListener.dispose();
             }
-            reactionListener.dispose();
         }
         listeners.remove(listener);
     }

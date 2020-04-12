@@ -265,7 +265,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public List<LbEntry> matchingArtistCount(Connection connection, long userId, long guildId) {
+    public List<LbEntry> matchingArtistCount(Connection connection, long userId, long guildId, Long threshold) {
 
         String queryString = "        select discord_id,lastfm_id,count(*) as orden\n" +
                              "        from\n" +

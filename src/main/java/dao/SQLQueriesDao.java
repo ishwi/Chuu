@@ -65,7 +65,7 @@ interface SQLQueriesDao {
 
     List<ScrobbledArtist> getAllUsersArtist(Connection connection, long discordId);
 
-    List<LbEntry> matchingArtistCount(Connection connection, long userId, long guildId);
+    List<LbEntry> matchingArtistCount(Connection connection, long userId, long guildId, Long threshold);
 
     List<VotingEntity> getAllArtistImages(Connection connection, long artist_id);
 

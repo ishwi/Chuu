@@ -79,7 +79,7 @@ interface UpdaterDao {
 
     AliasEntity getNextInAliasQueue(Connection connection);
 
-    ReportEntity getReportEntity(Connection connection, LocalDateTime localDateTime);
+    ReportEntity getReportEntity(Connection connection, LocalDateTime localDateTime, Set<Long> skippedIds);
 
     void deleteAliasById(Connection connection, long aliasId) throws InstanceNotFoundException;
 

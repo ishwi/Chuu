@@ -2,6 +2,8 @@ package dao;
 
 import core.exceptions.ChuuServiceException;
 import dao.entities.Affinity;
+import dao.entities.ArtistLbEntry;
+import dao.entities.LbEntry;
 import dao.musicbrainz.AffinityDao;
 import org.intellij.lang.annotations.Language;
 
@@ -155,6 +157,31 @@ public class AffinityDaoImpl implements AffinityDao {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    @Override
+    public List<LbEntry> getMatchingCount(Connection connection) {
+        List<LbEntry> affinityList = new ArrayList<>();
+        @Language("MariaDB") String queryBody = "SELECT u.discord_id ,l1 AS lastfmid,Count(*) AS matchingcount  \n" +
+                                                "   FROM server_affinity main " +
+                                                "      JOIN user u ON main.l1 = u.lastfm_id\n" +
+                                                "   GROUP BY main.l1,u.lastfm_id";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String lastfmid = resultSet.getString("lastfmid");
+                long discordId = resultSet.getLong("discord_id");
+                long matchingCount = resultSet.getLong("matchingcount");
+
+                ArtistLbEntry artistLbEntry = new ArtistLbEntry(lastfmid, discordId, Math.toIntExact(matchingCount));
+                affinityList.add(artistLbEntry);
+            }
+            return affinityList;
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 
     @Override

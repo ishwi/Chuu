@@ -15,7 +15,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.OptionalLong;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ChuuService {
@@ -859,10 +862,12 @@ public class ChuuService {
 
     }
 
-    public List<LbEntry> matchingArtistsCount(long userId, long guildId) {
+    public List<LbEntry> matchingArtistsCount(String lastFmId, long guildId, int extraParam) {
         try (Connection connection = dataSource.getConnection()) {
-            connection.setReadOnly(true);
-            return queriesDao.matchingArtistCount(connection, userId, guildId);
+            affinityDao.setServerTempTable(connection, guildId, lastFmId, extraParam);
+            List<LbEntry> matchingCount = affinityDao.getMatchingCount(connection);
+            affinityDao.cleanUp(connection, true);
+            return matchingCount;
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -988,9 +993,9 @@ public class ChuuService {
         }
     }
 
-    public ReportEntity getNextReport(LocalDateTime localDateTime) {
+    public ReportEntity getNextReport(LocalDateTime localDateTime, Set<Long> skippedIds) {
         try (Connection connection = dataSource.getConnection()) {
-            return updaterDao.getReportEntity(connection, localDateTime);
+            return updaterDao.getReportEntity(connection, localDateTime, skippedIds);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1025,13 +1030,6 @@ public class ChuuService {
             throw new ChuuServiceException(e);
 
         }
-    }
-
-    public Optional<ScrobbledArtist> getRecommendation(long discordID, long giverDiscordId, boolean ignorePast) {
-        List<ScrobbledArtist> recommendation = getRecommendation(discordID, giverDiscordId, ignorePast, 1);
-        if (recommendation.isEmpty())
-            return Optional.empty();
-        return Optional.of(recommendation.get(0));
     }
 
     public List<ScrobbledArtist> getRecommendation(long giverDiscordId, long receiverDiscordId, boolean ignorePast, int limit) {

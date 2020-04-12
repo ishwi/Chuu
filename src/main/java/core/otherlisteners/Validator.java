@@ -1,7 +1,6 @@
 package core.otherlisteners;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -10,6 +9,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -24,9 +24,10 @@ public class Validator<T> extends ReactionListener {
     private final MessageChannel messageChannel;
     private final Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap;
     private T currentElement;
-    private int counter = 0;
     private final boolean allowOtherUsers;
     private final boolean renderInSameElement;
+
+    private final AtomicBoolean hasCleaned = new AtomicBoolean(false);
 
     public Validator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, MessageChannel channel, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap, boolean allowOtherUsers, boolean renderInSameElement) {
         super(who, null, 30, channel.getJDA());
@@ -42,17 +43,16 @@ public class Validator<T> extends ReactionListener {
     }
 
 
-    private void endItAll(JDA jda) {
-        jda.removeEventListener(this);
-        clearReacts();
-    }
-
-    private void noMoreElements(JDA jda) {
-        if (message == null) {
-            this.message = messageChannel.sendMessage(getLastMessage.apply(who).build()).complete();
-        } else
-            message.editMessage(getLastMessage.apply(who).build()).complete();
-        endItAll(jda);
+    private void noMoreElements() {
+        if (!hasCleaned.get()) {
+            if (message == null) {
+                this.message = messageChannel.sendMessage(getLastMessage.apply(who).build()).complete();
+            } else
+                message.editMessage(getLastMessage.apply(who).build()).complete();
+            clearReacts();
+            hasCleaned.set(true);
+            this.unregister();
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -61,10 +61,10 @@ public class Validator<T> extends ReactionListener {
         CompletableFuture.allOf(completableFutures1).join();
     }
 
-    private MessageAction doTheThing(JDA jda, boolean newElement) {
+    private MessageAction doTheThing(boolean newElement) {
         T t = elementFetcher.get();
         if (t == null) {
-            noMoreElements(jda);
+            noMoreElements();
             return null;
         }
         this.currentElement = t;
@@ -78,7 +78,7 @@ public class Validator<T> extends ReactionListener {
 
     @Override
     public void init() {
-        MessageAction messageAction = doTheThing(messageChannel.getJDA(), true);
+        MessageAction messageAction = doTheThing(true);
         if (messageAction == null) {
             return;
         }
@@ -88,8 +88,7 @@ public class Validator<T> extends ReactionListener {
 
     @Override
     public void dispose() {
-        noMoreElements(messageChannel.getJDA());
-
+        noMoreElements();
     }
 
     @Override
@@ -100,8 +99,7 @@ public class Validator<T> extends ReactionListener {
         if (action == null)
             return;
         Boolean apply = action.apply(currentElement, event);
-        MessageAction messageAction = this.doTheThing(event.getJDA(), apply);
-        counter++;
+        MessageAction messageAction = this.doTheThing(apply);
         if (messageAction != null) {
             if (Boolean.TRUE.equals(apply)) {
                 messageAction.queue(this::accept);

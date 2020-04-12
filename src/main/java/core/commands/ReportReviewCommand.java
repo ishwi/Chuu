@@ -19,7 +19,9 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -28,9 +30,10 @@ import java.util.function.Supplier;
 public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
     private static final String ACCEPT = "U+2714";
     private static final String DELETE = "U+1f469U+200dU+2696U+fe0f";
+    private static final String RIGHT_ARROW = "U+27a1";
     private final AtomicBoolean isActive = new AtomicBoolean(false);
 
-    private TriFunction<JDA, Integer, Supplier<Integer>, BiFunction<ReportEntity, EmbedBuilder, EmbedBuilder>> builder = (jda, integer, pos) -> (reportEntity, embedBuilder) ->
+    private final TriFunction<JDA, Integer, Supplier<Integer>, BiFunction<ReportEntity, EmbedBuilder, EmbedBuilder>> builder = (jda, integer, pos) -> (reportEntity, embedBuilder) ->
             embedBuilder.clearFields()
                     .addField("Author", CommandUtil.getGlobalUsername(jda, reportEntity.getWhoGotReported()), true)
                     .addField("#Times user got reported:", String.valueOf(reportEntity.getUserTotalReports()), true)
@@ -82,6 +85,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         AtomicInteger statIgnore = new AtomicInteger(0);
         EmbedBuilder embedBuilder = new EmbedBuilder().setTitle("Reports Review");
         LocalDateTime localDateTime = LocalDateTime.now();
+        Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = getService().getReportCount();
             HashMap<String, BiFunction<ReportEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
@@ -95,6 +99,11 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
             actionMap.put(ACCEPT, (a, r) -> {
                 getService().ignoreReportedImage(a.getImageReported());
                 statIgnore.getAndIncrement();
+                navigationCounter.incrementAndGet();
+                return false;
+            });
+            actionMap.put(RIGHT_ARROW, (a, r) -> {
+                skippedIds.add(a.getImageReported());
                 navigationCounter.incrementAndGet();
                 return false;
             });
@@ -119,7 +128,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                                 .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
                                 .setColor(CommandUtil.randomColor());
                     },
-                    () -> getService().getNextReport(localDateTime),
+                    () -> getService().getNextReport(localDateTime, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
                     , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
         } catch (Throwable ex) {

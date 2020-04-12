@@ -1,6 +1,7 @@
 package dao.musicbrainz;
 
 import dao.entities.Affinity;
+import dao.entities.LbEntry;
 
 import java.sql.Connection;
 import java.util.List;
@@ -14,6 +15,8 @@ public interface AffinityDao {
 
 
     void setServerTempTable(Connection connection, long guildId, String ogLastfmID, int threshold);
+
+    List<LbEntry> getMatchingCount(Connection connection);
 
     List<Affinity> doServerAffinity(Connection connection, String ogLastfmId, int threshold);
 
