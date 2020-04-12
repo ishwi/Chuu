@@ -15,10 +15,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalLong;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ChuuService {
@@ -866,6 +863,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             affinityDao.setServerTempTable(connection, guildId, lastFmId, extraParam);
             List<LbEntry> matchingCount = affinityDao.getMatchingCount(connection);
+            matchingCount.sort(Comparator.comparingInt(LbEntry::getEntryCount).reversed());
             affinityDao.cleanUp(connection, true);
             return matchingCount;
         } catch (SQLException e) {
