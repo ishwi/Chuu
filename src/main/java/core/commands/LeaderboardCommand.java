@@ -14,6 +14,7 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
 
     public LeaderboardCommand(ChuuService dao) {
         super(dao);
+        this.respondInPrivate = false;
     }
 
     public abstract String getEntryName();

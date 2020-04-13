@@ -1041,7 +1041,6 @@ public class ChuuService {
 
     public void insertRecommendation(long secondDiscordID, long firstDiscordID, long artistId) {
         try (Connection connection = dataSource.getConnection()) {
-            connection.setReadOnly(false);
             updaterDao.insertPastRecommendation(connection, secondDiscordID, firstDiscordID, artistId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1052,8 +1051,16 @@ public class ChuuService {
 
     public void updateGuildCrownThreshold(long guildId, int newThreshold) {
         try (Connection connection = dataSource.getConnection()) {
-            connection.setReadOnly(false);
             updaterDao.updateGuildCrownThreshold(connection, guildId, newThreshold);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<LbEntry> getScrobblesLeaderboard(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getScrobblesLeaderboard(connection, guildId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

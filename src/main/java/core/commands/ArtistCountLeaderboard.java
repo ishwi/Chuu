@@ -6,7 +6,6 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
 
-import java.util.Collections;
 import java.util.List;
 
 public class ArtistCountLeaderboard extends LeaderboardCommand<CommandParameters> {
@@ -27,7 +26,7 @@ public class ArtistCountLeaderboard extends LeaderboardCommand<CommandParameters
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("scrobbledlb");
+        return List.of("artistslb", "arlb");
     }
 
     @Override

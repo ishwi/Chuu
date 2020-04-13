@@ -83,4 +83,5 @@ interface SQLQueriesDao {
     int getGuildCrownThreshold(Connection connection, long guildID);
 
 
+    List<LbEntry> getScrobblesLeaderboard(Connection connection, long guildId);
 }

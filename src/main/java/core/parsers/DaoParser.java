@@ -25,6 +25,7 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
 
     }
 
+
     LastFMData getLastFmUsername1input(Long id, MessageReceivedEvent event) throws InstanceNotFoundException {
         if (event.isFromGuild()) {
             LastFMData data;

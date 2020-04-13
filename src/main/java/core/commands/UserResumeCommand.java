@@ -41,7 +41,7 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("summary", "stats");
+        return List.of("summary", "stats", "scrobbled");
     }
 
     @Override

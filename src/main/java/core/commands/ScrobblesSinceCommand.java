@@ -26,7 +26,7 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
 
     @Override
     public String getDescription() {
-        return null;
+        return "The number of scrobbles from a really flexible date";
     }
 
     @Override
@@ -36,7 +36,7 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
 
     @Override
     public String getName() {
-        return "";
+        return "Since";
     }
 
     @Override

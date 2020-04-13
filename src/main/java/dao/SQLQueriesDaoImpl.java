@@ -448,6 +448,17 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         }
     }
 
+    @Override
+    public List<LbEntry> getScrobblesLeaderboard(Connection connection, long guildId) {
+        @Language("MariaDB") String queryBody = "SELECT b.lastfm_id,b.discord_id, sum(a.playnumber) AS ord " +
+                                                "FROM scrobbled_artist a JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                                                "JOIN user_guild ug ON b.discord_id = ug.discord_id " +
+                                                "WHERE ug.guild_id = ? " +
+                                                "GROUP BY b.discord_id,b.lastfm_id " +
+                                                "ORDER BY ord DESC ";
+        return getLbEntries(connection, guildId, queryBody, ScrobbleLbEntry::new, false, -1);
+    }
+
 
     @Override
     public List<ScrobbledArtist> getRecommendations(Connection connection, long giverDiscordId, long receiverDiscordId, boolean doPast, int limit) {
@@ -549,7 +560,10 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
         @Language("MariaDB") String queryString =
                 "SELECT c.name  , a.playnumber,b.playnumber ," +
-                "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1)* ((a.playnumber + b.playnumber))*2.5) media ," +
+                "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
+                " exp(((a.playnumber + b.playnumber)) * 2.5) * " +
+                " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
+                "media ," +
                 " c.url " +
                 "FROM " +
                 "(SELECT artist_id,playnumber " +

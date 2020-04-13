@@ -8,7 +8,6 @@ import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Collections;
 import java.util.List;
 
 public class TotalArtistNumberCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -28,7 +27,7 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<ChuuDataParams> 
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("scrobbled");
+        return List.of("artists", "ar");
     }
 
     @Override
