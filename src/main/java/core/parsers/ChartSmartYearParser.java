@@ -20,7 +20,7 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
     @Override
     protected void setUpOptionals() {
         super.setUpOptionals();
-        opts.add(new OptionalEntity("--nolimit", "makes the chart as big as possible"));
+        opts.add(new OptionalEntity("--nolimit", "make the chart as big as possible"));
     }
 
     @Override

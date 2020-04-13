@@ -18,6 +18,58 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MbizQueriesDaoImpl implements MbizQueriesDao {
+
+
+    @Override
+    public List<CountWrapper<AlbumInfo>> getYearAverage(Connection con, List<AlbumInfo> albumInfos, Year year) {
+        List<CountWrapper<AlbumInfo>> returnList = new ArrayList<>();
+
+        StringBuilder queryString = new StringBuilder("SELECT \n" +
+                                                      "a.name as albumname,a.gid as mbid,b.name artistName,(sum(e.length) / count(*)) as av \n" +
+                                                      "FROM\n" +
+                                                      "    musicbrainz.release a\n" +
+                                                      "     join musicbrainz.artist_credit b ON a.artist_credit = b.id\n" +
+                                                      "       JOIN\n" +
+                                                      "    musicbrainz.release_group c ON a.release_group = c.id\n" +
+                                                      "        join musicbrainz.medium f on f.release = a.id \n" +
+                                                      "\t\tjoin musicbrainz.track e on f.id = e.medium\n" +
+                                                      "\t\tJOIN\n" +
+                                                      "    musicbrainz.release_group_meta d ON c.id = d.id\n" +
+                                                      "\t\n" +
+                                                      " Where d.first_release_date_year = ? and " +
+                                                      "    a.gid in (");
+        for (AlbumInfo ignored : albumInfos) {
+            queryString.append(" ? ,");
+        }
+        queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + " ) group by a.gid,a.name,b.name");
+
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString.toString())) {
+            int i = 1;
+            preparedStatement.setInt(i++, year.get(ChronoField.YEAR));
+
+            for (AlbumInfo albumInfo : albumInfos) {
+                preparedStatement.setObject(i++, java.util.UUID.fromString(albumInfo.getMbid()));
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                String mbid = resultSet.getString("mbid");
+                String artist = resultSet.getString("artistName");
+                String albumName = resultSet.getString("albumname");
+                int average = resultSet.getInt("av");
+
+                AlbumInfo ai = new AlbumInfo(mbid, albumName, artist);
+                returnList.add(new CountWrapper<>(average, ai));
+            }
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return returnList;
+    }
+
+
     @Override
     public List<AlbumInfo> getYearAlbums(Connection con, List<AlbumInfo> albumInfos, Year year) {
         List<AlbumInfo> returnList = new ArrayList<>();
@@ -28,7 +80,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
                                                       "    musicbrainz.release a\n" +
                                                       "     join musicbrainz.artist_credit b ON a.artist_credit = b.id\n" +
                                                       "       JOIN\n" +
-                                                      "    musicbrainz.release_group c ON a.release_group = c.id\n" +
+                                                      "    musicbrainz.release_group c ON a.release_group = c.id" +
+                                                      "        join mediumn\n" +
                                                       "        JOIN\n" +
                                                       "    musicbrainz.release_group_meta d ON c.id = d.id" +
                                                       " Where d.first_release_date_year = ? and " +
@@ -537,6 +590,120 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             throw new ChuuServiceException(e);
         }
         return null;
+    }
+
+    @Override
+    public List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameLowerCaseAverage(Connection con, List<AlbumInfo> releaseInfo, Year year) {
+        String queryString = "SELECT DISTINCT\n" +
+                             "    (a.name) as artistname, b.name as albumname, (sum(e.length) / count(*)) as av \n" +
+                             "FROM\n" +
+                             "    musicbrainz.artist_credit a\n" +
+                             "        JOIN\n" +
+                             "    musicbrainz.release b ON a.id = b.artist_credit\n" +
+                             "        JOIN\n" +
+                             "    musicbrainz.release_group c ON b.release_group = c.id\n" +
+                             "        JOIN\n" +
+
+                             "    musicbrainz.release_group_meta d ON c.id = d.id " +
+                             "        join musicbrainz.medium f on f.release = a.id \n" +
+                             "\t\tjoin musicbrainz.track e on f.id = e.medium\n";
+        String whereSentence;
+
+        StringBuilder artistWhere = new StringBuilder("where lower(a.name) in (");
+        StringBuilder albumWhere = new StringBuilder("and lower(b.name) in  (");
+        for (AlbumInfo ignored : releaseInfo) {
+            artistWhere.append(" ? ,");
+            albumWhere.append(" ? ,");
+        }
+        whereSentence = artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
+        whereSentence += albumWhere.toString().substring(0, albumWhere.length() - 1) + ") ";
+        whereSentence += "and d.first_release_date_year = ?";
+        whereSentence += " group by a.name ,b.name";
+
+
+        List<CountWrapper<AlbumInfo>> returnList = new ArrayList<>();
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString + whereSentence)) {
+            int i = 1;
+
+            for (AlbumInfo albumInfo : releaseInfo) {
+
+                preparedStatement.setString(i, albumInfo.getName().toLowerCase());
+                preparedStatement.setString(i + releaseInfo.size(), albumInfo.getName().toLowerCase());
+                i++;
+            }
+
+            prepareRealeaseYearStatementAverage(releaseInfo, year, returnList, preparedStatement);
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return returnList;
+    }
+
+    @Override
+    public List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameAverage(Connection connection, List<AlbumInfo> releaseInfo, Year year) {
+        String queryString = "SELECT DISTINCT\n" +
+                             "    (a.name) as artistname, b.name as albumname, (sum(e.length) / count(*)) as av  \n" +
+                             "FROM\n" +
+                             "    musicbrainz.artist_credit a\n" +
+                             "        JOIN\n" +
+                             "    musicbrainz.release b ON a.id = b.artist_credit\n" +
+                             "        JOIN\n" +
+                             "    musicbrainz.release_group c ON b.release_group = c.id\n" +
+                             "        JOIN\n" +
+                             "    musicbrainz.release_group_meta d ON c.id = d.id " +
+                             "        join musicbrainz.medium f on f.release = a.id \n" +
+                             "\t\tjoin musicbrainz.track e on f.id = e.medium\n";
+
+        String whereSentence;
+        StringBuilder artistWhere = new StringBuilder("where a.name in (");
+        StringBuilder albumWhere = new StringBuilder("and b.name in (");
+        for (AlbumInfo ignored : releaseInfo) {
+            artistWhere.append(" ? ,");
+            albumWhere.append(" ? ,");
+        }
+        whereSentence = artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
+        whereSentence += albumWhere.toString().substring(0, albumWhere.length() - 1) + ") ";
+        whereSentence += "and d.first_release_date_year = ?";
+        whereSentence += " group by a.name,b.name";
+
+
+        List<CountWrapper<AlbumInfo>> returnList = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString + whereSentence)) {
+            int i = 1;
+
+            for (AlbumInfo albumInfo : releaseInfo) {
+
+                preparedStatement.setString(i, albumInfo.getName());
+                preparedStatement.setString(i + releaseInfo.size(), albumInfo.getName());
+                i++;
+            }
+
+            prepareRealeaseYearStatementAverage(releaseInfo, year, returnList, preparedStatement);
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return returnList;
+
+
+    }
+
+    private void prepareRealeaseYearStatementAverage(List<AlbumInfo> releaseInfo, Year year, List<CountWrapper<AlbumInfo>> returnList, PreparedStatement preparedStatement) throws SQLException {
+        preparedStatement.setInt(1 + releaseInfo.size() * 2, year.get(ChronoField.YEAR));
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+
+            String artist = resultSet.getString("artistname");
+            String album = resultSet.getString("albumname");
+            int average = resultSet.getInt("av");
+
+            AlbumInfo ai = new AlbumInfo("", album, artist);
+            returnList.add(new CountWrapper<>(average, ai));
+            returnList.add(new CountWrapper<>(average, ai));
+        }
     }
 
 }
