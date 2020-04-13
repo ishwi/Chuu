@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.AlbumChart;
+import core.apis.last.chartentities.TrackDurationAlbumArtistChart;
 import core.exceptions.LastFmException;
 import core.parsers.ChartSmartYearParser;
 import core.parsers.ChartableParser;
@@ -20,9 +21,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.time.Year;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -66,7 +65,10 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartYearParameters params) throws LastFmException {
         BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
-        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), searchSpace, 1, TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
+        boolean isByTime = params.isByTime();
+
+
+        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), searchSpace, 1, TopEntity.ALBUM, isByTime ? TrackDurationAlbumArtistChart.getAlbumParser(params) : AlbumChart.getAlbumParser(params), queue);
         Year year = params.getYear();
         //List of obtained elements
         Map<Boolean, List<AlbumInfo>> results =
@@ -78,14 +80,14 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
         List<AlbumInfo> nonEmptyMbid = results.get(false);
         List<AlbumInfo> emptyMbid = results.get(true);
 
-        List<AlbumInfo> albumsMbizMatchingYear = mb.listOfYearReleases(nonEmptyMbid, year);
+
+        List<AlbumInfo> albumsMbizMatchingYear;
+        if (isByTime) {
+            return handleTimedChart(params, nonEmptyMbid, emptyMbid, queue);
+        }
+        albumsMbizMatchingYear = mb.listOfYearReleases(nonEmptyMbid, year);
         List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(emptyMbid, year);
         emptyMbid.removeAll(mbFoundBYName);
-        List<AlbumInfo> artistByReleaseLower = mb.findArtistByRelease(emptyMbid, year);
-        emptyMbid.removeAll(artistByReleaseLower);
-
-        albumsMbizMatchingYear.addAll(mbFoundBYName);
-        albumsMbizMatchingYear.addAll(artistByReleaseLower);
 
         int discogsMetrics = 0;
         if (doDiscogs()) {
@@ -120,7 +122,6 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
         });
         getService().updateMetrics(discogsMetrics, mbFoundBYName.size(), albumsMbizMatchingYear
                 .size(), ((long) params.getX()) * params.getX());
-
         return new CountWrapper<>(albumsMbizMatchingYear.size(), queue);
     }
 
@@ -161,6 +162,44 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
     boolean doDiscogs() {
         return true;
 
+    }
+
+    private CountWrapper<BlockingQueue<UrlCapsule>> handleTimedChart(ChartYearParameters parameters, List<AlbumInfo> nonEmptyMbid, List<AlbumInfo> emptyMbid, BlockingQueue<UrlCapsule> queue) {
+        List<AlbumInfo> albumsMbizMatchingYear;
+        Year year = parameters.getYear();
+
+        List<CountWrapper<AlbumInfo>> accum = mb.listOfYearReleasesWithAverage(nonEmptyMbid, year);
+        List<CountWrapper<AlbumInfo>> mbFoundBYName = mb.findArtistByReleaseWithAverage(emptyMbid, year);
+        emptyMbid.removeAll(mbFoundBYName.stream().map(CountWrapper::getResult).collect(Collectors.toList()));
+
+
+        albumsMbizMatchingYear = accum.stream().map(CountWrapper::getResult).collect(Collectors.toList());
+        accum.addAll(mbFoundBYName);
+        albumsMbizMatchingYear.addAll(mbFoundBYName.stream().map(CountWrapper::getResult).collect(Collectors.toList()));
+
+        List<UrlCapsule> b = new ArrayList<>();
+        queue.drainTo(b);
+
+        b.removeIf(urlCapsule -> {
+            for (CountWrapper<AlbumInfo> t : accum) {
+                AlbumInfo albumInfo = t.getResult();
+
+                if ((!albumInfo.getMbid().isEmpty() && albumInfo.getMbid().equals(urlCapsule.getMbid())) || urlCapsule.getAlbumName().equalsIgnoreCase(albumInfo.getName()) && urlCapsule.getArtistName()
+                        .equalsIgnoreCase(albumInfo.getArtist())) {
+                    TrackDurationAlbumArtistChart urlCapsule1 = (TrackDurationAlbumArtistChart) urlCapsule;
+                    urlCapsule1.setSeconds((t.getRows() / 1000) * urlCapsule.getPlays());
+                    return false;
+                }
+            }
+            return true;
+        });
+        AtomicInteger asdasdasd = new AtomicInteger(0);
+
+        LinkedBlockingDeque<UrlCapsule> collect = b.stream().sorted(Comparator.comparing(x -> (
+                ((TrackDurationAlbumArtistChart) x).getSeconds()
+        )).reversed()).peek(x -> x.setPos(asdasdasd.getAndIncrement()))
+                .collect(Collectors.toCollection(LinkedBlockingDeque::new));
+        return new CountWrapper<>(albumsMbizMatchingYear.size(), collect);
     }
 
 

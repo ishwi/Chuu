@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 interface MbizQueriesDao {
+    List<CountWrapper<AlbumInfo>> getYearAverage(Connection con, List<AlbumInfo> albumInfos, Year year);
+
     List<AlbumInfo> getYearAlbums(Connection con, List<AlbumInfo> mbizList, Year year);
 
     List<AlbumInfo> getYearAlbumsByReleaseName(Connection con, List<AlbumInfo> releaseInfo, Year year);
@@ -32,4 +34,8 @@ interface MbizQueriesDao {
     void getAlbumInfoByMbid(Connection connection, List<UrlCapsule> urlCapsules);
 
     ArtistMusicBrainzDetails getArtistInfo(Connection connection, ArtistInfo artistInfo);
+
+    List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameLowerCaseAverage(Connection connection, List<AlbumInfo> emptyMbid, Year year);
+
+    List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameAverage(Connection connection, List<AlbumInfo> releaseInfo, Year year);
 }

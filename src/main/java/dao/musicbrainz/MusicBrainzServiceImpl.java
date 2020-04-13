@@ -38,6 +38,19 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
     }
 
     @Override
+    public List<CountWrapper<AlbumInfo>> listOfYearReleasesWithAverage(List<AlbumInfo> mbiz, Year year) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (mbiz.isEmpty()) {
+                return new ArrayList<>();
+            }
+            return mbizQueriesDao.getYearAverage(connection, mbiz, year);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public List<AlbumInfo> listOfCurrentYear(List<AlbumInfo> mbiz) {
         return this.listOfYearReleases(mbiz, Year.now());
     }
@@ -173,6 +186,32 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             mbizQueriesDao.getAlbumInfoByMbid(connection, urlCapsules);
         } catch (
                 SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
+    @Override
+    public List<CountWrapper<AlbumInfo>> findArtistByReleaseLowerCaseWithAverage(List<AlbumInfo> emptyMbid, Year year) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return mbizQueriesDao.getYearAlbumsByReleaseNameLowerCaseAverage(connection, emptyMbid, year);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public List<CountWrapper<AlbumInfo>> findArtistByReleaseWithAverage(List<AlbumInfo> releaseInfo, Year year) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (releaseInfo.isEmpty()) {
+                return new ArrayList<>();
+            }
+
+            return mbizQueriesDao.getYearAlbumsByReleaseNameAverage(connection, releaseInfo, year);
+        } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
     }
