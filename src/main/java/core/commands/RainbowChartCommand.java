@@ -1,10 +1,7 @@
 package core.commands;
 
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.AlbumChart;
-import core.apis.last.chartentities.ArtistChart;
-import core.apis.last.chartentities.PreComputedByBrightness;
-import core.apis.last.chartentities.PreComputedChartEntity;
+import core.apis.last.chartentities.*;
 import core.apis.last.queues.ArtistQueue;
 import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
@@ -102,7 +99,9 @@ public class RainbowChartCommand extends ArtistAbleCommand<RainbowParams> {
             try {
                 URL url = new URL(x.getUrl());
                 image = ImageIO.read(url);
-            } catch (IOException e) {
+
+            } catch (IOException | ArrayIndexOutOfBoundsException ex) {
+                // https://bugs.openjdk.java.net/browse/JDK-7132728
                 image = null;
             }
             if (param.isColor()) {
@@ -118,7 +117,12 @@ public class RainbowChartCommand extends ArtistAbleCommand<RainbowParams> {
                     preComputed.setPos(j * cols + i);
                 }
             }
-        } else if (!param.isLinear()) {
+        } else if (param.isLinear()) {
+            int t = 0;
+            for (PreComputedChartEntity preComputedChartEntity : collect) {
+                preComputedChartEntity.setPos(t++);
+            }
+        } else {
             int j;
             int i;
             int counter = 0;

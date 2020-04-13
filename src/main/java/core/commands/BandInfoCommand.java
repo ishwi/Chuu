@@ -1,11 +1,11 @@
 package core.commands;
 
 import core.Chuu;
-import core.commands.util.PieableBand;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.BandRendered;
 import core.imagerenderer.GraphicUtils;
+import core.imagerenderer.util.PieableBand;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.*;

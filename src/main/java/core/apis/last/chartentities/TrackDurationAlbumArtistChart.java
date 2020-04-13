@@ -3,6 +3,7 @@ package core.apis.last.chartentities;
 import core.commands.CommandUtil;
 import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartGroupParameters;
+import core.parsers.params.ChartParameters;
 import dao.entities.AlbumInfo;
 import dao.entities.UrlCapsule;
 import org.json.JSONArray;
@@ -70,6 +71,21 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
             return new TrackDurationAlbumArtistChart(url, size, name, artistName, mbid, frequency, frequency * duration, parameters.isWriteTitles(), parameters.isWritePlays(), parameters.isShowTime());
         };
     }
+
+    public static BiFunction<JSONObject, Integer, UrlCapsule> getAlbumParser(ChartParameters params) {
+        return (albumObj, size) ->
+        {
+            JSONObject artistObj = albumObj.getJSONObject("artist");
+            String albumName = albumObj.getString("name");
+            String artistName = artistObj.getString("name");
+            JSONArray image = albumObj.getJSONArray("image");
+            String mbid = albumObj.getString("mbid");
+            int plays = albumObj.getInt("playcount");
+            JSONObject bigImage = image.getJSONObject(image.length() - 1);
+            return new TrackDurationAlbumArtistChart(bigImage.getString("#text"), size, albumName, artistName, mbid, plays, plays, params.isWriteTitles(), params.isWritePlays(), true);
+        };
+    }
+
 
     @Override
     public List<ChartLine> getLines() {

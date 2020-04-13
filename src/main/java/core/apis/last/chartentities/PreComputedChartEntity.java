@@ -22,7 +22,12 @@ public abstract class PreComputedChartEntity extends UrlCapsule implements Compa
         setPlays(inner.getPlays());
         this.inner = inner;
         this.image = image;
-        this.colorToCompare = image == null ? null : GraphicUtils.averageColor(image);
+        this.colorToCompare = getCompareColor(image);
+    }
+
+    public Color getCompareColor(BufferedImage image) {
+        return image == null ? null : GraphicUtils.averageColor(image);
+
     }
 
     public abstract int compareTo(@NotNull PreComputedChartEntity o);

@@ -1,12 +1,12 @@
 package core.commands;
 
-import core.commands.util.IPieable;
-import core.commands.util.PieableChart;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
 import core.imagerenderer.GraphicUtils;
+import core.imagerenderer.util.IPieable;
+import core.imagerenderer.util.PieableChart;
 import core.otherlisteners.Reactionary;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartParameters;

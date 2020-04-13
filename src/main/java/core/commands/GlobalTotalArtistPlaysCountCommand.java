@@ -1,6 +1,6 @@
 package core.commands;
 
-import core.commands.util.PieableResultWrapper;
+import core.imagerenderer.util.PieableResultWrapper;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;

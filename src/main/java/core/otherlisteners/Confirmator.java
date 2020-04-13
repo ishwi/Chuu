@@ -54,7 +54,7 @@ public class Confirmator extends ReactionListener {
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
-        if (event.getMessageIdLong() != message.getIdLong() || (event.getUser() != null && event.getUser().isBot() || event.getUserIdLong() != author))
+        if (event.getMessageIdLong() != message.getIdLong() || (event.getUser() != null && event.getUser().isBot() || event.getUserIdLong() != author) || !event.getReaction().getReactionEmote().isEmoji())
             return;
         switch (event.getReaction().getReactionEmote().getAsCodepoints()) {
             case ACCEPT:

@@ -1086,7 +1086,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                                                   "        LIMIT 1 , 1)\n";
 
         if (threshold != 0) {
-            queryString += " and inn.playnumber >= ? && inn2.playnumber >= ? ";
+            queryString += " and inn.orden >= ? && inn2.orden >= ? ";
         }
 
 

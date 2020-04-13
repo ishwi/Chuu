@@ -1,4 +1,4 @@
-package core.commands.util;
+package core.imagerenderer.util;
 
 import core.imagerenderer.ChartLine;
 import core.parsers.Parser;

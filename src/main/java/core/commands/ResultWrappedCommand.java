@@ -1,9 +1,9 @@
 package core.commands;
 
-import core.commands.util.PieableResultWrapper;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
+import core.imagerenderer.util.PieableResultWrapper;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.ResultWrapper;
