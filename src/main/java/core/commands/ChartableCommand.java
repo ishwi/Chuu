@@ -30,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class ChartableCommand<T extends ChartParameters> extends ConcurrentCommand<T> {
     public IPieable<UrlCapsule, ChartParameters> pie;
+
     public ChartableCommand(ChuuService dao) {
         super(dao);
         pie = new PieableChart(this.parser);
@@ -46,7 +47,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(chartParameters);
         BlockingQueue<UrlCapsule> urlCapsules = countWrapper.getResult();
         if (urlCapsules.isEmpty()) {
-            this.noElementsMessage(e, chartParameters);
+            this.noElementsMessage(chartParameters);
             return;
         }
         if (chartParameters.isList() || chartParameters.isPieFormat()) {
@@ -132,8 +133,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
 
     public abstract String configPieChart(PieChart pieChart, T params, int count, String initTitle);
 
-
-    public abstract void noElementsMessage(MessageReceivedEvent e, T parameters);
+    public abstract void noElementsMessage(T parameters);
 
 
 }

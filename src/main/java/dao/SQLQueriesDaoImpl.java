@@ -561,7 +561,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         @Language("MariaDB") String queryString =
                 "SELECT c.name  , a.playnumber,b.playnumber ," +
                 "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
-                " exp(((a.playnumber + b.playnumber)) * 2.5) * " +
+                " (((a.playnumber + b.playnumber)) * 2.5) * " +
                 " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
                 "media ," +
                 " c.url " +

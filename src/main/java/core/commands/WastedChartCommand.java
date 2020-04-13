@@ -70,7 +70,8 @@ public class WastedChartCommand extends GroupingChartCommand {
     }
 
     @Override
-    public void noElementsMessage(MessageReceivedEvent e, ChartGroupParameters parameters) {
+    public void noElementsMessage(ChartGroupParameters parameters) {
+        MessageReceivedEvent e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s didn't listen to any artist%s!", ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
     }

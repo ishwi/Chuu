@@ -10,8 +10,10 @@ import core.parsers.TopParser;
 import core.parsers.params.TopParameters;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.Collections;
@@ -57,6 +59,13 @@ public class TopCommand extends ArtistAbleCommand<TopParameters> {
         return String.format("%s has listened to %d %s%s (showing top %d)", initTitle, count, time, s, params.getX() * params.getY());
     }
 
+    @Override
+    public void noElementsMessage(TopParameters parameters) {
+        String s = parameters.isDoAlbum() ? "albums" : "artists";
+        MessageReceivedEvent e = parameters.getE();
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        sendMessageQueue(e, String.format("%s didn't listen to any %s%s!", ingo.getUsername(), s, parameters.getTimeFrameEnum().getDisplayString()));
+    }
 
     @Override
     public String getDescription() {

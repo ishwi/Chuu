@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class PieableChart extends OptionalPie implements IPieable<UrlCapsule, ChartParameters> {
 
 
-    public PieableChart(Parser parser) {
+    public PieableChart(Parser<?> parser) {
         super(parser);
     }
 

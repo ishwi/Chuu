@@ -49,7 +49,7 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
         }
         CountWrapper<GroupingQueue> countWrapper = processGroupedQueue(chartGroupParameters);
         if (countWrapper.getResult().isEmpty()) {
-            noElementsMessage(e, chartGroupParameters);
+            noElementsMessage(chartGroupParameters);
             return;
         }
         GroupingQueue queue = countWrapper.getResult();

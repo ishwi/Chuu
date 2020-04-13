@@ -1,6 +1,7 @@
 package core.imagerenderer;
 
 import core.Chuu;
+import core.apis.last.chartentities.PreComputedChartEntity;
 import dao.entities.UrlCapsule;
 import org.imgscalr.Scalr;
 
@@ -17,29 +18,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 class ThreadQueue implements Runnable {
-    private final BlockingQueue<UrlCapsule> queue;
-    private final Graphics2D g;
-    private final int y;
-    private final int x;
-    private final AtomicInteger iterations;
-    private final Font START_FONT;
-    private int START_FONT_SIZE = 24;
-    private final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, START_FONT_SIZE);
-    private final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, START_FONT_SIZE);
+    final BlockingQueue<UrlCapsule> queue;
+    final Graphics2D g;
+    final int y;
+    final int x;
+    final AtomicInteger iterations;
+    final Font START_FONT;
+    int START_FONT_SIZE = 24;
+    final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, START_FONT_SIZE);
+    final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, START_FONT_SIZE);
 
 
-    private int lowerLimitStringSize = 14;
-    private int imageSize = 300;
-
-    ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations) {
-        this.queue = queue;
-        this.g = g;
-        this.x = x;
-        this.y = y;
-        this.iterations = iterations;
-        START_FONT = new Font("Noto Sans", Font.PLAIN, START_FONT_SIZE);
-
-    }
+    int lowerLimitStringSize = 14;
+    int imageSize = 300;
 
     ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations, boolean makeSmaller) {
         this.queue = queue;
@@ -55,6 +46,57 @@ class ThreadQueue implements Runnable {
         START_FONT = new Font("Noto Sans", Font.PLAIN, START_FONT_SIZE);
     }
 
+    final void drawImage(BufferedImage image, UrlCapsule capsule, int x, int y) {
+        if (image.getHeight() != imageSize || image.getWidth() != imageSize) {
+            image = Scalr.resize(image, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, imageSize,
+                    imageSize, Scalr.OP_ANTIALIAS);
+        }
+        drawImage(image, capsule);
+        g.drawImage(image, x * imageSize, y * imageSize, null);
+    }
+
+    public void handleInvalidImage(UrlCapsule capsule, int x, int y) {
+        Color temp = g.getColor();
+        g.setColor(Color.WHITE);
+        g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
+        g.setColor(Color.BLACK);
+        drawNames(capsule, y, x, g, imageSize, null);
+        g.setColor(temp);
+    }
+
+    public void handleCapsule(UrlCapsule capsule, int x, int y) {
+        try {
+            URL url = new URL(capsule.getUrl());
+            BufferedImage image = ImageIO.read(url);
+            drawImage(image, capsule, x, y);
+            image.flush();
+        } catch (IOException e) {
+            handleInvalidImage(capsule, x, y);
+        }
+    }
+
+    public void handlePreComputedCapsule(PreComputedChartEntity capsule, int x, int y) {
+        BufferedImage image = capsule.getImage();
+        if (image != null) {
+            drawImage(image, capsule, x, y);
+            image.flush();
+        } else {
+            handleInvalidPrecomputedImage(capsule, x, y);
+        }
+    }
+
+    public void handleInvalidPrecomputedImage(PreComputedChartEntity capsule, int x, int y) {
+        Color temp = g.getColor();
+        if (capsule.isDarkToWhite()) {
+            g.setColor(Color.WHITE);
+            g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
+        } else {
+            g.setColor(Color.BLACK);
+            g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
+        }
+        drawNames(capsule, y, x, g, imageSize, null);
+        g.setColor(temp);
+    }
 
     @Override
     public void run() {
@@ -65,31 +107,15 @@ class ThreadQueue implements Runnable {
 
             try {
                 UrlCapsule capsule = queue.take();
-                BufferedImage image;
-                URL url;
                 int pos = capsule.getPos();
                 int y = (pos / this.x);
                 int x = pos % this.x;
-
-                try {
-                    url = new URL(capsule.getUrl());
-                    image = ImageIO.read(url);
-                    if (image.getHeight() != imageSize || image.getWidth() != imageSize) {
-
-                        image = Scalr.resize(image, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, imageSize,
-                                imageSize, Scalr.OP_ANTIALIAS);
-                    }
-                    drawImage(image, capsule);
-                    g.drawImage(image, x * imageSize, y * imageSize, null);
-
-                } catch (IOException e) {
-                    Color temp = g.getColor();
-                    g.setColor(Color.WHITE);
-                    g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
-                    g.setColor(Color.BLACK);
-                    drawNames(capsule, y, x, g, imageSize, null);
-                    g.setColor(temp);
+                if (capsule instanceof PreComputedChartEntity) {
+                    handlePreComputedCapsule((PreComputedChartEntity) capsule, x, y);
+                } else {
+                    handleCapsule(capsule, x, y);
                 }
+
             } catch (Exception e) {
                 Chuu.getLogger().warn(e.getMessage(), e);
             }
@@ -98,7 +124,7 @@ class ThreadQueue implements Runnable {
 
     }
 
-    private void drawImage(BufferedImage image, UrlCapsule capsule) {
+    void drawImage(BufferedImage image, UrlCapsule capsule) {
         Graphics2D gTemp = image.createGraphics();
         GraphicUtils.setQuality(gTemp);
 
@@ -167,16 +193,14 @@ class ThreadQueue implements Runnable {
                 g.setColor(Color.WHITE);
                 GraphicUtils.drawStringChartly(g, line, xOffset, accum);
             } else {
-                g.setColor(Color.BLACK);
+                if (capsule instanceof PreComputedChartEntity) {
+                    g.setColor(((PreComputedChartEntity) capsule).isDarkToWhite() ? Color.WHITE : Color.BLACK);
+                } else {
+                    g.setColor(Color.BLACK);
+                }
                 g.drawString(line, x * imageSize + xOffset, y * imageSize + accum);
             }
         }
-    }
-
-    private Color getBetter(Color color) {
-        double y = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
-        return y < 128 ? Color.WHITE : Color.BLACK;
-
     }
 
 }

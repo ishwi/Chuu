@@ -189,7 +189,6 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new CountryCommand(dao)))
                 .addEventListeners(help.registerCommand(new AlbumTracksDistributionCommand(dao)))
                 .addEventListeners(help.registerCommand(new ObscurityLeaderboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)))
                 .addEventListeners(help.registerCommand(new RandomAlbumCommand(dao)))
                 .addEventListeners(help.registerCommand(new WhoKnowsSongCommand(dao)))
                 .addEventListeners(help.registerCommand(new CrownsStolenCommand(dao)))
@@ -237,13 +236,16 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new TimezoneCommand(dao)))
                 .addEventListeners(help.registerCommand(new GuildConfigCommand(dao)))
                 .addEventListeners(help.registerCommand(new ScrobblesLbCommand(dao)))
-                .addEventListeners(help.registerCommand(new ScrobblesCommand(dao)));
+                .addEventListeners(help.registerCommand(new ScrobblesCommand(dao)))
+                .addEventListeners(help.registerCommand(new RainbowChartCommand(dao)));
 
 
         try {
             jda = builder.build().awaitReady();
             commandAdministrator.onStartup(jda);
             prefixCommand.onStartup(jda);
+            jda.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
+
             if (!isTest) {
                 scheduledExecutorService.scheduleAtFixedRate(
                         new UpdaterThread(dao, true), 0, 120,

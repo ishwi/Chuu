@@ -282,10 +282,10 @@ public class ConcurrentLastFM {//implements LastFMService {
         int page = 1;
         if (requestedSize >= 1000)
             url += "&limit=1000";
-        if (requestedSize > 700)
+        if (requestedSize > 500)
             url += "&limit=500";
-        else if (requestedSize > 150)
-            url += "&limit=200";
+        else
+            url += "&limit=" + requestedSize;
 
         int limit = requestedSize;
         while (size < requestedSize && size < limit) {

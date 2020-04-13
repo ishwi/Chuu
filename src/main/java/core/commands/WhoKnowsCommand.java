@@ -37,7 +37,7 @@ import java.util.List;
 public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
-    private IPieable<ReturnNowPlaying, ArtistParameters> pie;
+    private final IPieable<ReturnNowPlaying, ArtistParameters> pie;
 
     public WhoKnowsCommand(ChuuService dao) {
         super(dao);
@@ -131,7 +131,7 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
 
         ScrobbledArtist who = ap.getScrobbledArtist();
         long artistId = who.getArtistId();
-        boolean isList = ap.hasOptional("--list");
+        boolean isList = ap.hasOptional("--list") || ap.hasOptional("--pie");
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 isList
                         ? this.getService().whoKnows(artistId, ap.getE().getGuild().getIdLong(), Integer.MAX_VALUE)

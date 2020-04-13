@@ -30,6 +30,22 @@ public class GraphicUtils {
     private GraphicUtils() {
     }
 
+    public static Color averageColor(BufferedImage bi) {
+        long sumr = 0, sumg = 0, sumb = 0;
+        int width = bi.getWidth();
+        int height = bi.getHeight();
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Color pixel = new Color(bi.getRGB(x, y));
+                sumr += pixel.getRed();
+                sumg += pixel.getGreen();
+                sumb += pixel.getBlue();
+            }
+        }
+        int num = width * height;
+        return new Color((int) sumr / num, (int) sumg / num, (int) sumb / num);
+    }
+
     public static Font chooseFont(String string) {
         Font font = NORMAL_FONT;
         if (font.canDisplayUpTo(string) != -1) {
@@ -200,7 +216,14 @@ public class GraphicUtils {
         g.setColor(ogColor);
     }
 
-    static Color getBetter(Color... color) {
+    public static boolean isWhiter(Color col, Color col2) {
+        double accum1 = 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
+        double accum2 = 0.2126 * col2.getRed() + 0.7152 * col2.getGreen() + 0.0722 * col2.getBlue();
+        return accum1 >= accum2;
+
+    }
+
+    public static Color getBetter(Color... color) {
         double accum = 0;
         for (Color col : color) {
             accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();

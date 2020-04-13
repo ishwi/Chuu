@@ -79,7 +79,8 @@ public class WastedTrackCommand extends ChartableCommand<ChartGroupParameters> {
     }
 
     @Override
-    public void noElementsMessage(MessageReceivedEvent e, ChartGroupParameters parameters) {
+    public void noElementsMessage(ChartGroupParameters parameters) {
+        MessageReceivedEvent e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s didn't listen to any track%s!", ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
     }

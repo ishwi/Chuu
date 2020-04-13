@@ -140,7 +140,8 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
     }
 
     @Override
-    public void noElementsMessage(MessageReceivedEvent e, ChartYearParameters parameters) {
+    public void noElementsMessage(ChartYearParameters parameters) {
+        MessageReceivedEvent e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("Couldn't find any %s album in %s top %d albums%s!", parameters.getYear().toString(), ingo.getUsername(), searchSpace, parameters.getTimeFrameEnum().getDisplayString()));
     }

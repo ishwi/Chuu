@@ -65,7 +65,8 @@ public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
 
 
     @Override
-    public void noElementsMessage(MessageReceivedEvent e, ChartParameters parameters) {
+    public void noElementsMessage(ChartParameters parameters) {
+        MessageReceivedEvent e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s didn't listen to any album%s!", ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
     }

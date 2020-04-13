@@ -101,7 +101,9 @@ public abstract class Parser<T extends CommandParameters> {
     public String getUsage(String commandName) {
         StringBuilder s = new StringBuilder();
         for (OptionalEntity opt : opts) {
-            s.append(opt.getDefinition());
+            if (!opt.isEnabledByDefault()) {
+                s.append(opt.getDefinition());
+            }
         }
         return getUsageLogic(commandName) + s;
 
@@ -114,6 +116,10 @@ public abstract class Parser<T extends CommandParameters> {
 
     public void addOptional(OptionalEntity... optionalEntity) {
         this.opts.addAll(Arrays.asList(optionalEntity));
+    }
+
+    public void removeOptional(String previousOptional) {
+        opts.remove(new OptionalEntity(previousOptional, null));
     }
 
     public abstract String getUsageLogic(String commandName);
