@@ -28,6 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+// Credits to http://thechurchofkoen.com/ for the idea and allowing me to do this command
 public class RainbowChartCommand extends ArtistAbleCommand<RainbowParams> {
     private final AtomicInteger maxConcurrency = new AtomicInteger(3);
 
