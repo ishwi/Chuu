@@ -143,7 +143,7 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername()));
         wrapperReturnNowPlaying.setUrl(who.getUrl());
-        if (isList) {
+        if (ap.hasOptional("--list")) {
             doList(ap, wrapperReturnNowPlaying);
             return;
         }

@@ -70,11 +70,13 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setAuthor(String.format("%s 's current listening streak", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
                 .setThumbnail(CommandUtil.noImageUrl(artist.getUrl()))
                 .setDescription("");
-        description.append("**Artist**: ")
-                .append(combo.getaCounter()).append(combo.getaCounter() >= 1000 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ")
-                .append("**[").append(aString).append("](").append(CommandUtil.getLastFmArtistUrl(combo.getCurrentArtist())).append(")**").append("\n");
 
-        if (combo.getAlbCounter() > 0) {
+        if (combo.getaCounter() > 1) {
+            description.append("**Artist**: ")
+                    .append(combo.getaCounter()).append(combo.getaCounter() >= 1000 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ")
+                    .append("**[").append(aString).append("](").append(CommandUtil.getLastFmArtistUrl(combo.getCurrentArtist())).append(")**").append("\n");
+        }
+        if (combo.getAlbCounter() > 1) {
             description.append("**Album**: ")
                     .append(combo.getAlbCounter())
                     .append(combo.getAlbCounter() >= 1000 ? "+" : "")
@@ -83,7 +85,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                     .append(CommandUtil.getLastFmArtistAlbumUrl(combo.getCurrentArtist(), combo.getCurrentAlbum())).append(")**")
                     .append("\n");
         }
-        if (combo.gettCounter() > 0) {
+        if (combo.gettCounter() > 1) {
             description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 1000 ? "+" : "")
                     .append(combo.gettCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
                     .append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentSong())).append("](").append(CommandUtil.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");

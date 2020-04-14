@@ -1,4 +1,4 @@
-package core.imagerenderer.stealing;
+package core.imagerenderer.stealing.blur;
 
 /*
  ** Copyright 2005 Huxtable.com. All rights reserved.

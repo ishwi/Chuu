@@ -140,7 +140,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
         String command = args[1]
                                  .charAt(0) == prefix ? args[1] : "" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
         for (MyCommand<?> c : commands.values()) {
-            if (c.getAliases().contains(command)) {
+            if (c.getAliases().contains(command.toLowerCase())) {
                 String name = c.getName();
                 String description = c.getDescription();
                 String usageInstructions = c.getUsageInstructions();

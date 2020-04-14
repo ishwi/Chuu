@@ -1,5 +1,6 @@
 package core.apis.last;
 
+import core.Chuu;
 import core.apis.ClientSingleton;
 import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ArtistException;
@@ -291,6 +292,13 @@ public class ConcurrentLastFM {//implements LastFMService {
         while (size < requestedSize && size < limit) {
 
             String urlPage = url + "&page=" + page;
+            if (page == 3) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    Chuu.getLogger().warn(e.getMessage(), e);
+                }
+            }
             HttpMethodBase method = createMethod(urlPage);
 
             ++page;
@@ -453,6 +461,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         int tCounter = 0;
         boolean inited = false;
         boolean stopAlbCounter = false;
+        boolean stopArtistCounter = false;
         boolean stopTCounter = false;
         boolean cont = true;
         while (cont) {
@@ -475,18 +484,20 @@ public class ConcurrentLastFM {//implements LastFMService {
                 } else {
                     stopAlbCounter = true;
                 }
-
                 if (inited) {
-                    if (currentArtist.equals(artistName)) {
+                    if (!stopArtistCounter && currentArtist.equals(artistName)) {
                         aCounter++;
                     } else {
-                        cont = false;
-                        break;
+                        stopArtistCounter = true;
                     }
-                    if (!stopAlbCounter && currentAlbum.equals(albumString))
+                    if (!stopAlbCounter && currentAlbum.equals(albumString)) {
                         albCounter++;
-                    else {
+                    } else {
                         stopAlbCounter = true;
+                        if (stopArtistCounter) {
+                            cont = false;
+                            break;
+                        }
                     }
                     if (!stopTCounter && currentSong.equals(trackName))
                         tCounter++;
@@ -497,6 +508,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                         albCounter++;
                         currentAlbum = albumString;
                     }
+
                     currentArtist = artistName;
                     currentSong = trackName;
                     aCounter++;

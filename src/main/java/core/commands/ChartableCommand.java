@@ -33,9 +33,8 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
 
     public ChartableCommand(ChuuService dao) {
         super(dao);
-        pie = new PieableChart(this.parser);
+        this.pie = getPie();
     }
-
 
     public abstract ChartableParser<T> getParser();
 
@@ -134,6 +133,10 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     public abstract String configPieChart(PieChart pieChart, T params, int count, String initTitle);
 
     public abstract void noElementsMessage(T parameters);
+
+    public IPieable<UrlCapsule, ChartParameters> getPie() {
+        return new PieableChart(this.parser);
+    }
 
 
 }

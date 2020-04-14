@@ -1,6 +1,6 @@
 package core.imagerenderer;
 
-import core.imagerenderer.stealing.GaussianFilter;
+import core.imagerenderer.stealing.blur.GaussianFilter;
 import dao.entities.WrapperReturnNowPlaying;
 import org.imgscalr.Scalr;
 

@@ -1,8 +1,13 @@
 package core.commands;
 
+import core.Chuu;
+import core.apis.discogs.DiscogsApi;
+import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.*;
 import core.apis.last.queues.ArtistQueue;
+import core.apis.spotify.Spotify;
+import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
 import core.parsers.RainbowParser;
@@ -12,9 +17,7 @@ import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.knowm.xchart.PieChart;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -29,16 +32,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 // Credits to http://thechurchofkoen.com/ for the idea and allowing me to do this command
-public class RainbowChartCommand extends ArtistAbleCommand<RainbowParams> {
+public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
     private final AtomicInteger maxConcurrency = new AtomicInteger(3);
+    private final DiscogsApi discogsApi;
+    private final Spotify spotifyApi;
 
     public RainbowChartCommand(ChuuService dao) {
         super(dao);
+        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+        spotifyApi = SpotifySingleton.getInstance();
+
     }
 
     @Override
     public ChartableParser<RainbowParams> getParser() {
         return new RainbowParser(getService(), TimeFrameEnum.ALL);
+
     }
 
     @Override
@@ -50,6 +59,8 @@ public class RainbowChartCommand extends ArtistAbleCommand<RainbowParams> {
             try {
                 super.handleCommand(e);
             } catch (Throwable ex) {
+                Chuu.getLogger().warn(ex.getMessage(), ex);
+            } finally {
                 maxConcurrency.incrementAndGet();
             }
         }
@@ -121,49 +132,12 @@ public class RainbowChartCommand extends ArtistAbleCommand<RainbowParams> {
                     preComputed.setPos(j * cols + i);
                 }
             }
-        } else if (param.isLinear()) {
-            int t = 0;
-            for (PreComputedChartEntity preComputedChartEntity : collect) {
-                preComputedChartEntity.setPos(t++);
-            }
-        } else {
-            int j;
-            int i;
-            int counter = 0;
-            for (int k = 0; k < rows; k++) {
-                i = k;
-                j = 0;
-                while (i >= 0 && j < cols) {
-                    collect.get(counter++).setPos(i * rows + j);
-                    i--;
-                    j++;
-                }
-            }
-            for (int k = 1; k < cols; k++) {
-                i = cols - 1;
-                j = k;
-                while (j <= cols - 1) {
-                    collect.get(counter++).setPos(i * rows + j);
-                    i--;
-                    j++;
-                }
-            }
-        }
+        } else ColorChartCommand.diagonalSort(rows, cols, collect, param.isLinear());
         queue = new LinkedBlockingQueue<>(cols * rows);
         queue.addAll(collect);
         return new CountWrapper<>(count, queue);
     }
 
-    @Override
-    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, RainbowParams params, int count) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String configPieChart(PieChart pieChart, RainbowParams params, int count, String initTitle) {
-        throw new UnsupportedOperationException();
-
-    }
 
     @Override
     public void noElementsMessage(RainbowParams parameters) {

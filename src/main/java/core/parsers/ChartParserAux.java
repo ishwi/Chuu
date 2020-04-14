@@ -61,8 +61,7 @@ class ChartParserAux {
     }
 
     NaturalTimeFrameEnum parseNaturalTimeFrame(NaturalTimeFrameEnum defaultTimeFrame) {
-        NaturalTimeFrameEnum timeFrame = defaultTimeFrame;
-        return getNaturalTimeFrameEnum(timeFrame);
+        return getNaturalTimeFrameEnum(defaultTimeFrame);
     }
 
     TimeFrameEnum parseTimeframe(TimeFrameEnum defaultTimeFrame) {
@@ -103,7 +102,12 @@ class ChartParserAux {
             if (x.equals("0") || y.equals("0")) {
                 throw new InvalidChartValuesException(x);
             }
-            return new Point(Integer.parseInt(x), Integer.parseInt(y));
+            int x1 = Integer.parseInt(x);
+            int y1 = Integer.parseInt(y);
+            if (x1 * y1 > 900) {
+                throw new InvalidChartValuesException(x);
+            }
+            return new Point(x1, y1);
         }
         return null;
 

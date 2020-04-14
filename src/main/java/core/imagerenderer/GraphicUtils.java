@@ -2,7 +2,7 @@ package core.imagerenderer;
 
 import core.Chuu;
 import core.exceptions.ChuuServiceException;
-import core.imagerenderer.stealing.GaussianFilter;
+import core.imagerenderer.stealing.blur.GaussianFilter;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
 import org.imgscalr.Scalr;
@@ -44,6 +44,28 @@ public class GraphicUtils {
         }
         int num = width * height;
         return new Color((int) sumr / num, (int) sumg / num, (int) sumb / num);
+    }
+
+    public static double getDistance(Color first, Color second) {
+
+
+        float[] f = first.getRGBComponents(null);
+        float[] s = second.getRGBComponents(null);
+        float rr1 = f[0];
+        float gg1 = f[1];
+        float bb1 = f[2];
+        float aa1 = f[3];
+        float rr2 = s[0];
+        float gg2 = s[1];
+        float bb2 = s[2];
+        float aa2 = s[3];
+        float deltaR = rr1 - rr2;
+        float deltaG = gg1 - gg2;
+        float deltaB = bb1 - bb2;
+        float deltaAlpha = aa1 - aa2;
+        double rgbDistanceSquared = (deltaR * deltaR + deltaG * deltaG + deltaB * deltaB) / 3.;
+        return deltaAlpha * deltaAlpha / 2.0 + rgbDistanceSquared * aa1 * aa2 / (255 * 255);
+
     }
 
     public static Font chooseFont(String string) {

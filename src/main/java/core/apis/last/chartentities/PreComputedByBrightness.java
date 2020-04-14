@@ -12,10 +12,28 @@ public class PreComputedByBrightness extends PreComputedChartEntity {
         super(inner, image, isDarkToWhite);
     }
 
+    public PreComputedByBrightness(UrlCapsule inner, BufferedImage image, boolean isDarkToWhite, ImageComparison comparison) {
+        super(inner, image, isDarkToWhite, comparison);
+    }
+
     @Override
     public int compareTo(@NotNull PreComputedChartEntity o) {
-        Color thisColor = this.getColorToCompare();
-        Color colorToCompare = o.getColorToCompare();
+        switch (getComparisonType()) {
+            case ONLY_AVERAGE:
+                return compareTwoByColor(this.getAverageColor(), o.getAverageColor());
+            case AVERAGE_AND_DOMINANT:
+            case AVERAGE_AND_DOMINANT_PALETTE:
+            case ONLY_DOMINANT:
+            case ONLY_DOMINANT_PALETTE:
+                return compareTwoByColor(this.getDominantColor() == null || this.getDominantColor().isEmpty() ? null : this.getDominantColor().get(0),
+                        o.getDominantColor() == null || o.getDominantColor().isEmpty() ? null : o.getDominantColor().get(0));
+            default:
+                throw new UnsupportedOperationException();
+
+        }
+    }
+
+    private int compareTwoByColor(Color thisColor, Color colorToCompare) {
         if (thisColor == null && colorToCompare == null)
             return 0;
         if (thisColor == null) {
@@ -26,7 +44,5 @@ public class PreComputedByBrightness extends PreComputedChartEntity {
         }
         if (GraphicUtils.isWhiter(thisColor, colorToCompare)) return !isDarkToWhite() ? -1 : +1;
         else return isDarkToWhite() ? -1 : +1;
-
-
     }
 }

@@ -12,7 +12,6 @@ public class RainbowParser extends ChartableParser<RainbowParams> {
 
     public RainbowParser(ChuuService dao, TimeFrameEnum defaultTFE, OptionalEntity... opts) {
         super(dao, defaultTFE, opts);
-
         inner = new ChartParser(dao, defaultTFE);
     }
 
