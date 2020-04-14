@@ -18,7 +18,6 @@ public class RainbowParser extends ChartableParser<RainbowParams> {
 
     @Override
     public void replaceOptional(String previousOptional, OptionalEntity optionalEntity) {
-        return;
     }
 
     @Override
@@ -36,5 +35,11 @@ public class RainbowParser extends ChartableParser<RainbowParams> {
     public RainbowParams parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
         ChartParameters chartParameters = inner.parseLogic(e, subMessage);
         return new RainbowParams(e, chartParameters.getLastfmID(), chartParameters.getDiscordId(), chartParameters.getTimeFrameEnum(), chartParameters.getX(), chartParameters.getY());
+    }
+
+    @Override
+    public String getUsageLogic(String commandName) {
+        return super.getUsageLogic(commandName) +
+               "\tOriginal tool: http://thechurchofkoen.com/\n";
     }
 }

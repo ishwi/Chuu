@@ -80,8 +80,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
                                                       "    musicbrainz.release a\n" +
                                                       "     join musicbrainz.artist_credit b ON a.artist_credit = b.id\n" +
                                                       "       JOIN\n" +
-                                                      "    musicbrainz.release_group c ON a.release_group = c.id" +
-                                                      "        join mediumn\n" +
+                                                      "    musicbrainz.release_group c ON a.release_group = c.id\n" +
                                                       "        JOIN\n" +
                                                       "    musicbrainz.release_group_meta d ON c.id = d.id" +
                                                       " Where d.first_release_date_year = ? and " +

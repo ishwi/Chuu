@@ -47,8 +47,11 @@ public class RainbowChartCommand extends ArtistAbleCommand<RainbowParams> {
             sendMessageQueue(e, "There are a lot of people executing this command right now, try again later :(");
             maxConcurrency.incrementAndGet();
         } else {
-            super.handleCommand(e);
-            maxConcurrency.incrementAndGet();
+            try {
+                super.handleCommand(e);
+            } catch (Throwable ex) {
+                maxConcurrency.incrementAndGet();
+            }
         }
     }
 

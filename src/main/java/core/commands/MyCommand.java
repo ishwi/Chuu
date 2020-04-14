@@ -99,7 +99,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
         } catch (LastFmEntityNotFoundException ex) {
             parser.sendError(ex.toMessage(), e);
         } catch (UnknownLastFmException ex) {
-            parser.sendError("Unknown last.fm exception found", e);
+            parser.sendError("Unknown last.fm exception found:\n" + ex.getSentMessage(), e);
             Chuu.getLogger().warn(ex.getMessage(), ex);
             Chuu.getLogger().warn(String.valueOf(ex.getCode()));
         } catch (InstanceNotFoundException ex) {

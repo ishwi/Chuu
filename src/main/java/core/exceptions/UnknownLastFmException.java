@@ -25,4 +25,10 @@ public class UnknownLastFmException extends LastFmException {
     public int getCode() {
         return code;
     }
+
+    public String getSentMessage() {
+        if (code == 17) {
+            return "Maybe you still need to activate your account on last.fm?";
+        } else return getMessage();
+    }
 }
