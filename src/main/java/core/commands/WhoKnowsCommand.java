@@ -119,7 +119,7 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
         pieChart.paint(g, 1000, 750);
         try {
             java.net.URL url = new java.net.URL(returnNowPlaying.getUrl());
-            BufferedImage backgroundImage = Scalr.resize(ImageIO.read(url), 300);
+            BufferedImage backgroundImage = Scalr.resize(ImageIO.read(url), 150);
             g.drawImage(backgroundImage, 10, 750 - 10 - backgroundImage.getHeight(), null);
         } catch (IOException ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);

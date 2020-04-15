@@ -69,6 +69,9 @@ public class Reactionary<T> extends ReactionListener {
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
+        if (message == null) {
+            return;
+        }
         if (event.getMessageIdLong() != message.getIdLong() || (event.getUser() != null && event.getUser().isBot() || !event.getReaction().getReactionEmote().isEmoji()))
             return;
         int start;

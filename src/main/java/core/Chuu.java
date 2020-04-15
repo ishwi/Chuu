@@ -272,7 +272,7 @@ public class Chuu {
         return (dao.getGuildPrefixes());
     }
 
-    private static Properties readToken() {
+    public static Properties readToken() {
 
         Properties properties = new Properties();
         try (InputStream in = Chuu.class.getResourceAsStream("/all.properties")) {

@@ -153,7 +153,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
 
         RandomAlbumParser randomAlbumParser = new RandomAlbumParser();
         try {
-            String[] received = randomAlbumParser.parseLogic(null, new String[]{peek});
+            //String[] received = randomAlbumParser.parseLogic(null, new String[]{peek});
             formatQueue.poll();
             formatQueue.add(received[0]);
             isMessageValid = true;

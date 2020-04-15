@@ -12,7 +12,7 @@ public class PreComputedByColor extends PreComputedChartEntity {
         super(inner, image, isDarkToWhite);
     }
 
-    protected PreComputedByColor(UrlCapsule inner, BufferedImage image, boolean isDarkToWhite, ImageComparison comparison) {
+    public PreComputedByColor(UrlCapsule inner, BufferedImage image, boolean isDarkToWhite, ImageComparison comparison) {
         super(inner, image, isDarkToWhite, comparison);
     }
 

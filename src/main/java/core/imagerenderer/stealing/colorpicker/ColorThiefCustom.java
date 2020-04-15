@@ -82,7 +82,7 @@ public class ColorThiefCustom {
             return Pair.of(null, cmap.getRight());
         }
         int[][] palette = cmap.getKey().palette();
-        List<Color> collect = Arrays.stream(palette).map(ints -> new Color(ints[0], ints[1], ints[2])).collect(Collectors.toList());
+        List<Color> collect = Arrays.stream(palette).map(ints -> new Color(Math.min(255, ints[0]), Math.min(255, ints[1]), Math.min(255, ints[2]))).collect(Collectors.toList());
         return Pair.of(collect, cmap.getRight());
     }
 

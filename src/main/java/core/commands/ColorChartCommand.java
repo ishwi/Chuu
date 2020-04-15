@@ -1,5 +1,6 @@
 package core.commands;
 
+import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
@@ -16,27 +17,34 @@ import dao.ChuuService;
 import dao.entities.CountWrapper;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
+import org.beryx.awt.color.ColorFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
-    private final double DISTANCE_THRESHOLD = (4.0e-7);
-    private final double STRICT_THRESHOLD = (8.0e-8);
+    private final AtomicInteger maxConcurrency = new AtomicInteger(4);
 
-    private final double ERROR_MATCHING = (9.0e-7);
-    private final double STRICT_ERROR = (2.0e-7);
+    private final double DISTANCE_THRESHOLD = (18);
+    private final double STRICT_THRESHOLD = (14);
+
+    private final double ERROR_MATCHING = (12);
+    private final double STRICT_ERROR = (6);
     private final DiscogsApi discogsApi;
     private final Spotify spotifyApi;
 
@@ -92,23 +100,39 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
     }
 
     @Override
+    void handleCommand(MessageReceivedEvent e) {
+        if (maxConcurrency.decrementAndGet() == 0) {
+            sendMessageQueue(e, "There are a lot of people executing this command right now, try again later :(");
+            maxConcurrency.incrementAndGet();
+        } else {
+            try {
+                super.handleCommand(e);
+            } catch (Throwable ex) {
+                Chuu.getLogger().warn(ex.getMessage(), ex);
+            } finally {
+                maxConcurrency.incrementAndGet();
+            }
+        }
+    }
+
+    @Override
     public ChartableParser<ColorChartParams> getParser() {
-        return new ColorChartParser(getService(), TimeFrameEnum.ALL);
+        return new ColorChartParser(getService(), TimeFrameEnum.MONTH);
     }
 
     @Override
     public String getDescription() {
-        return null;
+        return "Your artists/albums which their cover is of a specific colour";
     }
 
     @Override
     public List<String> getAliases() {
-        return List.of("color");
+        return List.of("colour", "color");
     }
 
     @Override
     public String getName() {
-        return null;
+        return "Coloured Chart";
     }
 
     @Override
@@ -129,13 +153,13 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
                     }
                     PreComputedChartEntity.ImageComparison comparison = params.getColors().size() > 1 ?
                             PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT_PALETTE :
-                            PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT;
+                            PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT_PALETTE;
                     boolean isDarkToWhite = params.isInverse();
                     if (params.isSorted()) {
                         return new PreComputedPlays(capsule, image, isDarkToWhite, comparison);
                     }
                     if (params.isColor()) {
-                        return new PreComputedPlays(capsule, image, isDarkToWhite, comparison);
+                        return new PreComputedByColor(capsule, image, isDarkToWhite, comparison);
                     }
                     return new PreComputedByBrightness(capsule, image, isDarkToWhite, comparison);
                 };
@@ -181,6 +205,17 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
 
     @Override
     public void noElementsMessage(ColorChartParams parameters) {
-        sendMessageQueue(parameters.getE(), "Nuthing");
+
+        Message message = parameters.getE().getMessage();
+        String collect = Arrays.stream(message.getContentRaw().split("\\s+")).filter(x ->
+        {
+            try {
+                ColorFactory.valueOf(x);
+                return true;
+            } catch (IllegalArgumentException ex) {
+                return false;
+            }
+        }).collect(Collectors.joining(", "));
+        sendMessageQueue(parameters.getE(), "Couldn't get any image searching by " + collect);
     }
 }

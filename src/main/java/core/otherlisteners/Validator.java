@@ -8,7 +8,9 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -26,7 +28,7 @@ public class Validator<T> extends ReactionListener {
     private T currentElement;
     private final boolean allowOtherUsers;
     private final boolean renderInSameElement;
-
+    private final Queue<MessageReactionAddEvent> tbp = new LinkedBlockingDeque<>();
     private final AtomicBoolean hasCleaned = new AtomicBoolean(false);
 
     public Validator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, MessageChannel channel, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap, boolean allowOtherUsers, boolean renderInSameElement) {
@@ -39,6 +41,7 @@ public class Validator<T> extends ReactionListener {
         this.actionMap = actionMap;
         this.allowOtherUsers = allowOtherUsers;
         this.renderInSameElement = renderInSameElement;
+
         init();
     }
 
@@ -83,6 +86,10 @@ public class Validator<T> extends ReactionListener {
             return;
         }
         this.message = messageAction.complete();
+        while (!tbp.isEmpty()) {
+            MessageReactionAddEvent poll = tbp.poll();
+            onMessageReactionAdd(poll);
+        }
         initEmotes();
     }
 
@@ -93,6 +100,9 @@ public class Validator<T> extends ReactionListener {
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
+        if (this.message == null) {
+            return;
+        }
         if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUserIdLong() != whom) ||
             event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong() || !event.getReaction().getReactionEmote().isEmoji())
             return;

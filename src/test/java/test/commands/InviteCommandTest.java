@@ -1,6 +1,7 @@
 package test.commands;
 
 import core.Chuu;
+import core.exceptions.ChuuServiceException;
 import org.junit.Test;
 import test.commands.utils.CommandTest;
 import test.commands.utils.OneLineUtils;

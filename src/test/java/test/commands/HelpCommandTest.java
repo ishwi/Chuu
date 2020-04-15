@@ -112,7 +112,7 @@ public class HelpCommandTest extends CommandTest {
 		for (Object registeredListener : TestResources.ogJDA.getRegisteredListeners()) {
 			if (registeredListener instanceof MyCommand) {
 				MyCommand command = (MyCommand) registeredListener;
-				String alias = command.getAliases().get(0);
+				//String alias = command.getAliases().get(0);
 				helpCommand
 						.sendPrivate(TestResources.ogJDA.getTextChannelById(TestResources.channelWorker.getId()), new String[]{"help", alias}, '!');
 				long finalId = id;

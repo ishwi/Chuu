@@ -42,7 +42,7 @@ public class OnlyChartSizeParser extends ChartableParser<ChartSizeParameters> {
                 y = chartSize.y;
             }
         } catch (InvalidChartValuesException ex) {
-            this.sendError(getErrorMessage(1), e);
+            this.sendError(getErrorMessage(6), e);
             return null;
         }
         return new ChartSizeParameters(e, x, y);

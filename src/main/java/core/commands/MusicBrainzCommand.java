@@ -150,7 +150,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
     @Override
     public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, ChartYearParameters parameters) {
         if (!parameters.isCareAboutSized()) {
-            int imageSize = (int) Math.ceil(Math.sqrt(queue.size()));
+            int imageSize = Math.max((int) Math.ceil(Math.sqrt(queue.size())), 1);
             super.doImage(queue, imageSize, imageSize, parameters);
         } else {
             BlockingQueue<UrlCapsule> tempQueuenew = new LinkedBlockingDeque<>();
