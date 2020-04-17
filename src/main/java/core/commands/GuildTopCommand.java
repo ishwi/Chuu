@@ -54,7 +54,8 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartSizeParameters gp) {
-        ResultWrapper<ScrobbledArtist> guildTop = getService().getGuildTop(gp.hasOptional("--global") ? null : gp.getE().getGuild().getIdLong(), gp.getX() * gp.getY(), (gp.isList() || gp.isPieFormat()));
+        ResultWrapper<ScrobbledArtist> guildTop = getService().getGuildTop(gp.hasOptional("--global") ? null : gp.getE().getGuild().getIdLong(),
+                gp.getX() * gp.getY(), (gp.isList() || gp.isPieFormat()));
         AtomicInteger counter = new AtomicInteger(0);
         BlockingQueue<UrlCapsule> collect = guildTop.getResultList().stream().sorted(Comparator.comparingInt(ScrobbledArtist::getCount).reversed()).
                 map(x ->

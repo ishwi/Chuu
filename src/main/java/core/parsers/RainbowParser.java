@@ -33,6 +33,9 @@ public class RainbowParser extends ChartableParser<RainbowParams> {
     @Override
     public RainbowParams parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
         ChartParameters chartParameters = inner.parseLogic(e, subMessage);
+        if (chartParameters == null) {
+            return null;
+        }
         return new RainbowParams(e, chartParameters.getLastfmID(), chartParameters.getDiscordId(), chartParameters.getTimeFrameEnum(), chartParameters.getX(), chartParameters.getY());
     }
 

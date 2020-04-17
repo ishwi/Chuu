@@ -17,6 +17,6 @@ public class TopParameters extends ChartParameters {
     }
 
     public boolean isDoAlbum() {
-        return hasOptional("--artist");
+        return hasOptional("--album");
     }
 }

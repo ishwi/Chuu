@@ -47,13 +47,13 @@ public class TopCommand extends ArtistAbleCommand<TopParameters> {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, TopParameters params, int count) {
-        String s = params.isDoAlbum() ? "artists" : "albums";
+        String s = params.isDoAlbum() ? "albums" : "artists";
         return params.initEmbed(String.format("'s top %s", s), embedBuilder, " has listened to " + count + " " + s);
     }
 
     @Override
     public String configPieChart(PieChart pieChart, TopParameters params, int count, String initTitle) {
-        String s = params.isDoAlbum() ? "artists" : "albums";
+        String s = params.isDoAlbum() ? "albums" : "artists";
         String time = params.getTimeFrameEnum().getDisplayString();
         pieChart.setTitle(String.format("%s's top %s%s", initTitle, s, time));
         return String.format("%s has listened to %d %s%s (showing top %d)", initTitle, count, time, s, params.getX() * params.getY());

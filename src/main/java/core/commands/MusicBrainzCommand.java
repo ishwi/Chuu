@@ -6,7 +6,7 @@ import core.apis.last.TopEntity;
 import core.apis.last.chartentities.AlbumChart;
 import core.apis.last.chartentities.TrackDurationAlbumArtistChart;
 import core.exceptions.LastFmException;
-import core.parsers.ChartSmartYearParser;
+import core.parsers.ChartYearParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearParameters;
 import dao.ChuuService;
@@ -42,7 +42,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
 
     @Override
     public ChartableParser<ChartYearParameters> getParser() {
-        return new ChartSmartYearParser(getService(), searchSpace);
+        return new ChartYearParser(getService(), searchSpace);
     }
 
 
@@ -68,7 +68,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
         boolean isByTime = params.isByTime();
 
 
-        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), searchSpace, 1, TopEntity.ALBUM, isByTime ? TrackDurationAlbumArtistChart.getAlbumParser(params) : AlbumChart.getAlbumParser(params), queue);
+        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), this.searchSpace, 1, TopEntity.ALBUM, isByTime ? TrackDurationAlbumArtistChart.getAlbumParser(params) : AlbumChart.getAlbumParser(params), queue);
         Year year = params.getYear();
         //List of obtained elements
         Map<Boolean, List<AlbumInfo>> results =

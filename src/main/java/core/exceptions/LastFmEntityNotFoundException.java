@@ -24,7 +24,7 @@ public class LastFmEntityNotFoundException extends LastFmException {
         }
         if (exceptionCause instanceof TrackException) {
             TrackException mew = (TrackException) this.exceptionCause;
-            return String.format("The album %s doesn't exist on last.fm", CommandUtil.cleanMarkdownCharacter(mew.getSong() + " by " + mew.getArtist()));
+            return String.format("The song %s doesn't exist on last.fm", CommandUtil.cleanMarkdownCharacter(mew.getSong() + " by " + mew.getArtist()));
         } else
             return "The user " + CommandUtil.cleanMarkdownCharacter(exceptionCause.getUserName()) + " doesn't exist on last.fm";
     }
