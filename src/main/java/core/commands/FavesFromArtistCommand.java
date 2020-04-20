@@ -88,7 +88,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         embedBuilder.setColor(CommandUtil.randomColor());
 
         embedBuilder
-                .setTitle(userString + "'s Top " + who.getArtist() + " Tracks in " + timeframew.getDisplayString(), CommandUtil.getLastFmUser(lastFmName))
+                .setTitle(String.format("%s's Top %s Tracks %s", userString, who.getArtist(), timeframew.getDisplayString()), CommandUtil.getLastFmUser(lastFmName))
                 .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
 
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();

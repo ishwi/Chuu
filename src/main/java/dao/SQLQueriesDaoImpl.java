@@ -459,9 +459,113 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         return getLbEntries(connection, guildId, queryBody, ScrobbleLbEntry::new, false, -1);
     }
 
+    @Override
+    public List<CrownableArtist> getCrownable(Connection connection, Long discordId, Long guildId, boolean skipCrowns) {
+        List<CrownableArtist> list = new ArrayList<>();
+        String guildQuery;
+        if (guildId != null) {
+            guildQuery = "SELECT * \n" +
+                         "FROM   (SELECT temp_2.name                                    AS name, \n" +
+                         "               temp_2.artist_id                               AS artist, \n" +
+                         "               temp_2.playnumber                              AS plays, \n" +
+                         "               Max(inn.playnumber)                            AS maxPlays, \n" +
+                         "               (SELECT Count(*) \n" +
+                         "                FROM   scrobbled_artist b \n" +
+                         "                       JOIN user d \n" +
+                         "                         ON b.lastfm_id = d.lastfm_id \n" +
+                         "                       JOIN user_guild c \n" +
+                         "                         ON d.discord_id = c.discord_id \n" +
+                         "                WHERE  c.guild_id = ? \n" +
+                         "                       AND artist_id = temp_2.artist_id \n" +
+                         "                       AND temp_2.playnumber <= b.playnumber) rank, \n" +
+                         "               Count(*)                                       AS total \n" +
+                         "        FROM   (SELECT b.* \n" +
+                         "                FROM   scrobbled_artist b \n" +
+                         "                       JOIN user d \n" +
+                         "                         ON b.lastfm_id = d.lastfm_id \n" +
+                         "                       JOIN user_guild c \n" +
+                         "                         ON d.discord_id = c.discord_id \n" +
+                         "                WHERE  c.guild_id = ?) inn \n" +
+                         "               JOIN (SELECT artist_id, \n" +
+                         "                            inn_c.name AS name, \n" +
+                         "                            playnumber \n" +
+                         "                     FROM   scrobbled_artist inn_a \n" +
+                         "                            JOIN artist inn_c \n" +
+                         "                              ON inn_a.artist_id = inn_c.id \n" +
+                         "                            JOIN user inn_b \n" +
+                         "                              ON inn_a.lastfm_id = inn_b.lastfm_id \n" +
+                         "                            JOIN user_guild c \n" +
+                         "                              ON inn_b.discord_id = c.discord_id \n" +
+                         "                     WHERE  c.guild_id = ? \n" +
+                         "                            AND inn_b.discord_id = ?) temp_2 \n" +
+                         "                 ON temp_2.artist_id = inn.artist_id \n" +
+                         "        GROUP  BY temp_2.artist_id \n" +
+                         "        ORDER  BY temp_2.playnumber DESC) main \n" +
+                         "WHERE  rank != 1 \n" +
+                         "        or not ? \n" +
+                         "LIMIT  500 ";
+        } else {
+            guildQuery = "Select * from (SELECT temp_2.name as name, temp_2.artist_id as artist , \n" +
+                         "       temp_2.playnumber as plays, \n" +
+                         "       Max(inn.playnumber) as maxPlays, \n" +
+                         "       (SELECT Count(*) \n" +
+                         "        FROM   scrobbled_artist b \n" +
+                         "        WHERE  artist_id = temp_2.artist_id \n" +
+                         "               AND temp_2.playnumber <= b.playnumber) as rank, count(*) as total\n" +
+                         "FROM   scrobbled_artist inn \n" +
+                         "       JOIN (SELECT artist_id,inn_c.name as name,\n" +
+                         "                    playnumber \n" +
+                         "             FROM   scrobbled_artist inn_a \n" +
+                         "                      join artist inn_c on inn_a.artist_id = inn_c.id                     \n" +
+                         "                       JOIN user inn_b \n" +
+                         "                      ON inn_a.lastfm_id = inn_b.lastfm_id \n" +
+                         "             WHERE  inn_b.discord_id = ?) temp_2 \n" +
+                         "         ON temp_2.artist_id = inn.artist_id \n" +
+                         "GROUP  BY temp_2.artist_id \n" +
+                         "ORDER  BY temp_2.playnumber DESC \n" +
+                         ") main " +
+                         " where rank != 1 or not ? " +
+                         "limit 500;";
+        }
+
+
+        int count = 0;
+        int i = 1;
+        try (PreparedStatement preparedStatement1 = connection.prepareStatement(guildQuery)) {
+            if (guildId != null) {
+                preparedStatement1.setLong(i++, guildId);
+                preparedStatement1.setLong(i++, guildId);
+                preparedStatement1.setLong(i++, guildId);
+            }
+            preparedStatement1.setLong(i++, discordId);
+            preparedStatement1.setBoolean(i++, skipCrowns);
+
+
+            ResultSet resultSet1 = preparedStatement1.executeQuery();
+
+            while (resultSet1.next()) {
+                String artist = resultSet1.getString("name");
+
+                int plays = resultSet1.getInt("plays");
+                int rank = resultSet1.getInt("rank");
+                int total = resultSet1.getInt("total");
+                int maxPlays = resultSet1.getInt("maxPlays");
+
+                CrownableArtist who = new CrownableArtist(artist, plays, maxPlays, rank, total);
+                list.add(who);
+            }
+
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return list;
+    }
+
 
     @Override
-    public List<ScrobbledArtist> getRecommendations(Connection connection, long giverDiscordId, long receiverDiscordId, boolean doPast, int limit) {
+    public List<ScrobbledArtist> getRecommendations(Connection connection, long giverDiscordId,
+                                                    long receiverDiscordId, boolean doPast, int limit) {
         @Language("MariaDB") String queryBody = "SELECT \n" +
                                                 "b.name,b.url,b.id,a.playnumber \n" +
                                                 "FROM scrobbled_artist a \n" +
@@ -680,7 +784,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public UniqueWrapper<ArtistPlays> getCrowns(Connection connection, String lastfmId, long guildID, int crownThreshold) {
+    public UniqueWrapper<ArtistPlays> getCrowns(Connection connection, String lastfmId, long guildID,
+                                                int crownThreshold) {
         List<ArtistPlays> returnList = new ArrayList<>();
         long discordId;
 

@@ -238,7 +238,8 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new ScrobblesLbCommand(dao)))
                 .addEventListeners(help.registerCommand(new ScrobblesCommand(dao)))
                 .addEventListeners(help.registerCommand(new RainbowChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new ColorChartCommand(dao)));
+                .addEventListeners(help.registerCommand(new ColorChartCommand(dao)))
+                .addEventListeners(help.registerCommand(new CrownableCommand(dao)));
 
 
         try {

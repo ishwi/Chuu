@@ -60,7 +60,7 @@ public class AffinityParser extends DaoParser<AffinityParameters> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *user1* *threshold***\n" +
-               "\t If user is not specified if will display your affinity with all users from this server, otherwise your affinity with that user" +
+               "\t If user is not specified if will display your affinity with all users from this server, otherwise your affinity with that user\n" +
                "\t Alternatively you could also mention two different users" +
                "\t If a threshold is set it means that the artists below that threshold will be discarded for the comparison\n\n";
 
