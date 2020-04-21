@@ -141,9 +141,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
     @Override
     public String getDescription() {
-        return "Import a user list from a file such that the file must be a JSON with at least the following fields:\n" +
-               "\tdiscordUserID: which is the id of the discord user\n" +
-               "\tlastFMUsername: which is the lastfm name of the discord user\n";
+        return "Import a user list from a JSON file, Compatible with .fmbot import/export";
     }
 
     @Override

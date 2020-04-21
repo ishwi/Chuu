@@ -33,24 +33,23 @@ public class CrownableCommand extends ListCommand<CrownableArtist, ChuuDataParam
     @Override
     public List<CrownableArtist> getList(ChuuDataParams params) {
         Long guildId = params.getE().isFromGuild() ? params.hasOptional("--server") ? params.getE().getGuild().getIdLong() : null : null;
-        return getService().getCrownable(params.getLastFMData().getDiscordId(), guildId, params.hasOptional("--todo"));
+        return getService().getCrownable(params.getLastFMData().getDiscordId(), guildId, params.hasOptional("--nofirst"));
     }
 
     @Override
     public void printList(List<CrownableArtist> list, ChuuDataParams params) {
-        boolean isServer = params.hasOptional("--server");
-
         MessageReceivedEvent e = params.getE();
+        if (list.isEmpty()) {
+            sendMessageQueue(e, "Found no users :(");
+            return;
+        }
+        boolean isServer = params.hasOptional("--server") && e.isFromGuild();
+
         MessageBuilder messageBuilder = new MessageBuilder();
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
-                .setThumbnail(e.getGuild().getIconUrl());
+                .setThumbnail(isServer ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl());
         StringBuilder a = new StringBuilder();
-
-        if (list.isEmpty()) {
-            sendMessageQueue(e, "Found no registered users :(");
-            return;
-        }
         List<String> collect = list.stream().map(x ->
                 String.format(". [%s](%s) - **%d**/**%d** with **%d plays** %s%n",
                         CommandUtil.cleanMarkdownCharacter(x.getArtistName()),
@@ -70,9 +69,9 @@ public class CrownableCommand extends ListCommand<CrownableArtist, ChuuDataParam
             s = params.getE().getJDA().getSelfUser().getName();
         }
         String thumbnail = isServer && e.isFromGuild() ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl();
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), params.getLastFMData().getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(params.getE(), params.getLastFMData().getDiscordId());
         embedBuilder.setDescription(a)
-                .setAuthor(String.format("%s's crown resume in %s", uInfo.getUsername(), s), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
+                .setAuthor(String.format("%s's artist resume in %s", (uInfo.getUsername()), s), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
                 .setThumbnail(thumbnail);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
                 new Reactionary<>(collect, message, embedBuilder));

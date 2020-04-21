@@ -3,6 +3,7 @@ package dao.entities;
 import core.imagerenderer.ChartLine;
 
 import java.util.List;
+import java.util.Objects;
 
 public abstract class UrlCapsule {
 
@@ -90,4 +91,19 @@ public abstract class UrlCapsule {
     public abstract String toChartString();
 
     public abstract int getChartValue();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UrlCapsule)) return false;
+        UrlCapsule that = (UrlCapsule) o;
+        return
+                Objects.equals(getArtistName(), that.getArtistName()) &&
+                Objects.equals(getAlbumName(), that.getAlbumName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getArtistName(), getAlbumName());
+    }
 }

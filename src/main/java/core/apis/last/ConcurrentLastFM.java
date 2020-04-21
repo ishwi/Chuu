@@ -2,11 +2,14 @@ package core.apis.last;
 
 import core.Chuu;
 import core.apis.ClientSingleton;
+import core.apis.last.chartentities.ChartUtil;
+import core.apis.last.chartentities.TrackDurationChart;
 import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ArtistException;
 import core.apis.last.exceptions.ExceptionEntity;
 import core.apis.last.exceptions.TrackException;
 import core.exceptions.*;
+import core.parsers.params.ChartParameters;
 import dao.entities.*;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -22,9 +25,14 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -182,6 +190,10 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     public List<ArtistInfo> getTopArtists(String userName, String weekly, int requestedSize) throws LastFmException {
         List<ArtistInfo> returnList = new ArrayList<>();
+
+        if (weekly.equals("day")) {
+            return getDailyT(TopEntity.ARTIST, userName, capsule -> new ArtistInfo(null, capsule.getArtistName(), capsule.getMbid()), requestedSize);
+        }
         int size = 0;
         String url = BASE + GET_ARTIST + userName + apiKey + ENDING + "&period=" + weekly;
         int page = 1;
@@ -224,8 +236,21 @@ public class ConcurrentLastFM {//implements LastFMService {
         return returnList;
     }
 
+    private <X> List<X> getDailyT(TopEntity topEntity, String username, Function<UrlCapsule, X> mapper, int requestedSize) throws LastFmException {
+        BlockingQueue<UrlCapsule> objects = new LinkedBlockingDeque<>();
+        int sqrt = (int) Math.floor(Math.sqrt(requestedSize));
+        getDailyChart(username, objects, ChartUtil.getParser(TimeFrameEnum.DAY, topEntity, ChartParameters.toListParams(), this, username), sqrt, sqrt);
+        ArrayList<UrlCapsule> urlCapsules = new ArrayList<>();
+        int i = objects.drainTo(urlCapsules);
+        return urlCapsules.stream().sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed()).map(mapper).limit(requestedSize).collect(Collectors.toList());
+    }
+
     public List<AlbumInfo> getTopAlbums(String userName, String weekly, int requestedSize) throws LastFmException {
         List<AlbumInfo> returnList = new ArrayList<>();
+
+        if (weekly.equals("day")) {
+            return getDailyT(TopEntity.ALBUM, userName, capsule -> new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()), requestedSize);
+        }
         int size = 0;
         String url = BASE + GET_ALBUMS + userName + apiKey + ENDING + "&period=" + weekly;
         int page = 1;
@@ -268,17 +293,67 @@ public class ConcurrentLastFM {//implements LastFMService {
         return returnList;
     }
 
+    private int getDailyChart(String username, BlockingQueue<UrlCapsule> queue, BiFunction<JSONObject, Integer, UrlCapsule> parser, int x, int y) throws LastFmException {
+        String url = BASE + GET_ALL + username + apiKey + ENDING;
+        long time = OffsetDateTime.now().atZoneSameInstant(ZoneOffset.UTC).minus(1, ChronoUnit.DAYS).toEpochSecond();
+
+        url += "&from=" + (time + 1);
+
+        int page = 0;
+        int total = 1;
+        int count = 0;
+        List<UrlCapsule> list = new ArrayList<>();
+        while (count < total) {
+            String urlPage = url + "&page=" + ++page;
+            JSONObject obj = initGetRecentTracks(username, urlPage, TimeFrameEnum.DAY);
+
+            JSONObject attrObj = obj.getJSONObject("@attr");
+            total = attrObj.getInt("total");
+            JSONArray arr = obj.getJSONArray("track");
+            for (int i = 0; i < arr.length(); i++) {
+
+                JSONObject trackObj = arr.getJSONObject(i);
+                if (trackObj.has("@attr"))
+                    continue;
+                UrlCapsule apply = parser.apply(trackObj, 0);
+                list.add(apply);
+                count++;
+            }
+        }
+        Map<UrlCapsule, Long> collect = list.stream().collect(Collectors.groupingBy(z -> z, Collectors.counting()));
+        for (Map.Entry<UrlCapsule, Long> urlCapsuleLongEntry : collect.entrySet()) {
+            UrlCapsule key = urlCapsuleLongEntry.getKey();
+            if (key instanceof TrackDurationChart) {
+                TrackDurationChart trackDuratio = (TrackDurationChart) key;
+                trackDuratio.setSeconds(Math.toIntExact(trackDuratio.getSeconds() * urlCapsuleLongEntry.getValue()));
+            }
+            key.setPlays(Math.toIntExact(urlCapsuleLongEntry.getValue()));
+        }
+        AtomicInteger integer = new AtomicInteger(0);
+        List<UrlCapsule> finalList = new ArrayList<>(collect.keySet()).stream().sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
+                .takeWhile(t -> {
+                    int i = integer.getAndIncrement();
+                    t.setPos(i);
+                    return (i < x * y);
+                }).collect(Collectors.toList());
+        queue.addAll(finalList);
+        return collect.entrySet().size();
+
+
+    }
 
     public int getChart(String userName, String weekly, int x, int y, TopEntity entity, BiFunction<JSONObject, Integer, UrlCapsule> parser, BlockingQueue<UrlCapsule> queue) throws
             LastFmException {
 
+        if (weekly.equals("day")) {
+            return getDailyChart(userName, queue, parser, x, y);
+        }
+        int requestedSize = x * y;
         String apiMethod = entity.getApiMethod();
         String leadingObject = entity.getLeadingObject();
         String arrayObject = entity.getArrayObject();
 
         String url = BASE + apiMethod + userName + apiKey + ENDING + "&period=" + weekly;
-
-        int requestedSize = x * y;
         int size = 0;
         int page = 1;
         if (requestedSize >= 1000)
@@ -331,7 +406,18 @@ public class ConcurrentLastFM {//implements LastFMService {
         int SONG_AVERAGE_LENGTH_SECONDS = 200;
         int page = 1;
         int total = 1;
-        SecondsTimeFrameCount returned = new SecondsTimeFrameCount(TimeFrameEnum.fromCompletePeriod(period));
+        TimeFrameEnum timeFrame = TimeFrameEnum.fromCompletePeriod(period);
+        SecondsTimeFrameCount returned = new SecondsTimeFrameCount(timeFrame);
+        if (timeFrame.equals(TimeFrameEnum.DAY)) {
+            List<Track> listTopTrack = getListTopTrack(username, TimeFrameEnum.DAY.toApiFormat());
+            int secondCounter = 0;
+            for (Track track : listTopTrack) {
+                secondCounter += track.getDuration() == 0 ? SONG_AVERAGE_LENGTH_SECONDS * track.getPlays() : track.getDuration() * track.getPlays();
+            }
+            returned.setCount(listTopTrack.size());
+            returned.setSeconds(secondCounter);
+            return returned;
+        }
         int count = 0;
         int seconds = 0;
         while (page <= total) {
@@ -799,8 +885,8 @@ public class ConcurrentLastFM {//implements LastFMService {
 
         url = BASE + GET_TOP_TRACKS + username +
               apiKey + "&limit=" + 1000 + ENDING + "&period=" + weekly;
-        if (weekly.equalsIgnoreCase(TimeFrameEnum.WEEK.toApiFormat()) || weekly
-                .equalsIgnoreCase(TimeFrameEnum.MONTH.toApiFormat())) {
+        TimeFrameEnum timeFrameEnum = TimeFrameEnum.fromCompletePeriod(weekly);
+        if (List.of(TimeFrameEnum.DAY, TimeFrameEnum.WEEK, TimeFrameEnum.MONTH).contains(timeFrameEnum)) {
             dontdoAll = false;
         }
 
@@ -934,17 +1020,20 @@ public class ConcurrentLastFM {//implements LastFMService {
         return list;
     }
 
-    public List<Track> getListTopTrack(String username, String timeframe) throws LastFmException {
+    public List<Track> getListTopTrack(String userName, String timeframe) throws LastFmException {
 
+        if (timeframe.equals("day")) {
+            return getDailyT(TopEntity.ARTIST, userName, capsule -> new Track(capsule.getArtistName(), capsule.getAlbumName(), capsule.getPlays(), false, 200), Integer.MAX_VALUE);
+        }
         List<Track> trackList = new ArrayList<>();
-        String url = BASE + GET_TOP_TRACKS + username + apiKey + ENDING + "&period=" + timeframe + "&limit=200";
+        String url = BASE + GET_TOP_TRACKS + userName + apiKey + ENDING + "&period=" + timeframe + "&limit=200";
         HttpMethodBase method = createMethod(url);
         // Execute the method.
-        JSONObject obj = doMethod(method, new ExceptionEntity(username));
+        JSONObject obj = doMethod(method, new ExceptionEntity(userName));
 
         obj = obj.getJSONObject("toptracks");
         if (obj.getJSONObject("@attr").getInt("totalPages") == 0)
-            throw new LastFMNoPlaysException(username, timeframe);
+            throw new LastFMNoPlaysException(userName, timeframe);
 
         JSONArray arr = obj.getJSONArray("track");
         for (int i = 0; i < arr.length(); i++) {

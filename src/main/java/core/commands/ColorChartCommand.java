@@ -166,9 +166,15 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
 
         queue = new DiscardableQueue(getService(), discogsApi, spotifyApi, discardGenerator.apply(params), factoryFunction, params.getX() * params.getY());
         if (params.isArtist()) {
-            count = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1500, 1, TopEntity.ARTIST, ArtistChart.getArtistParser(params), queue);
+            count = lastFM.getChart(params.getLastfmID(),
+                    params.getTimeFrameEnum().toApiFormat(),
+                    1500,
+                    1,
+                    TopEntity.ARTIST,
+                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getLastfmID()),
+                    queue);
         } else {
-            count = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1500, 1, TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
+            count = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1500, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getLastfmID()), queue);
         }
 
         List<UrlCapsule> holding = new ArrayList<>();

@@ -1,7 +1,7 @@
 package core.commands;
 
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.AlbumChart;
+import core.apis.last.chartentities.ChartUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartParser;
 import core.parsers.ChartableParser;
@@ -47,7 +47,7 @@ public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters param) throws LastFmException {
         BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
-        int i = param.makeCommand(lastFM, queue, TopEntity.ALBUM, AlbumChart.getAlbumParser(param));
+        int i = param.makeCommand(lastFM, queue, TopEntity.ALBUM, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID()));
         return new CountWrapper<>(i, queue);
     }
 

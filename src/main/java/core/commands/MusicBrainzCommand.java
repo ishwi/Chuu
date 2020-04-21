@@ -4,20 +4,19 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.AlbumChart;
+import core.apis.last.chartentities.ChartUtil;
 import core.apis.last.chartentities.TrackDurationAlbumArtistChart;
 import core.exceptions.LastFmException;
 import core.parsers.ChartYearParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearParameters;
 import dao.ChuuService;
-import dao.entities.AlbumInfo;
-import dao.entities.CountWrapper;
-import dao.entities.DiscordUserDisplay;
-import dao.entities.UrlCapsule;
+import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.json.JSONObject;
 import org.knowm.xchart.PieChart;
 
 import java.time.Year;
@@ -26,6 +25,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
@@ -63,13 +63,23 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
 
 
     @Override
-    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartYearParameters params) throws LastFmException {
+    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartYearParameters param) throws LastFmException {
         BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
-        boolean isByTime = params.isByTime();
+        boolean isByTime = param.isByTime();
 
+        BiFunction<JSONObject, Integer, UrlCapsule> parser;
+        if (param.getTimeFrameEnum().equals(TimeFrameEnum.DAY)) {
+            if (isByTime)
+                parser = TrackDurationAlbumArtistChart.getDailyArtistAlbumDurationParser(param, lastFM.getTrackDurations(param.getLastfmID(), TimeFrameEnum.WEEK));
+            else {
+                parser = AlbumChart.getDailyAlbumParser(param);
+            }
+        } else {
+            parser = ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID());
+        }
 
-        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), this.searchSpace, 1, TopEntity.ALBUM, isByTime ? TrackDurationAlbumArtistChart.getAlbumParser(params) : AlbumChart.getAlbumParser(params), queue);
-        Year year = params.getYear();
+        lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum().toApiFormat(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
+        Year year = param.getYear();
         //List of obtained elements
         Map<Boolean, List<AlbumInfo>> results =
                 queue.stream()
@@ -83,7 +93,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
 
         List<AlbumInfo> albumsMbizMatchingYear;
         if (isByTime) {
-            return handleTimedChart(params, nonEmptyMbid, emptyMbid, queue);
+            return handleTimedChart(param, nonEmptyMbid, emptyMbid, queue);
         }
         albumsMbizMatchingYear = mb.listOfYearReleases(nonEmptyMbid, year);
         List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(emptyMbid, year);
@@ -121,7 +131,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
             return true;
         });
         getService().updateMetrics(discogsMetrics, mbFoundBYName.size(), albumsMbizMatchingYear
-                .size(), ((long) params.getX()) * params.getX());
+                .size(), ((long) param.getX()) * param.getX());
         return new CountWrapper<>(albumsMbizMatchingYear.size(), queue);
     }
 

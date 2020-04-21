@@ -1,13 +1,17 @@
 package core.apis.last.chartentities;
 
+import core.apis.last.TopEntity;
 import core.commands.CommandUtil;
 import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartGroupParameters;
+import dao.entities.NowPlayingArtist;
+import dao.entities.Track;
 import dao.entities.UrlCapsule;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 public class TrackDurationChart extends TrackChart {
@@ -37,6 +41,18 @@ public class TrackDurationChart extends TrackChart {
             return new TrackDurationChart(null, size, name, artistName, null, frequency, frequency * duration, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
         };
     }
+
+    public static BiFunction<JSONObject, Integer, UrlCapsule> getDailyTrackParser(ChartGroupParameters params, Map<Track, Integer> durationsFromPeriod) {
+        return (jsonObject, ignored) ->
+        {
+            NowPlayingArtist x = AlbumChart.fromRecentTrack(jsonObject, TopEntity.TRACK);
+            Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.getArtistName(), x.getSongName(), 1, false, 0), 200);
+            return new TrackDurationChart(null, 0, x.getSongName(), x.getArtistName(), x.getMbid(),
+                    1
+                    , orDefault, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
+        };
+    }
+
 
     public boolean isShowDuration() {
         return showDuration;
@@ -89,4 +105,6 @@ public class TrackDurationChart extends TrackChart {
     public int getChartValue() {
         return getSeconds();
     }
+
+
 }

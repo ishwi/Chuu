@@ -72,18 +72,19 @@ public class CountryParser extends DaoParser<CountryParameters> {
             sendError(getErrorMessage(6), e);
             return null;
         }
-        if (country == CountryCode.IL) {
-            // No political statement at all, just bugfixing
-            country = CountryCode.PS;
-        }
+        // :pensive:
+//        if (country == CountryCode.IL) {
+//            // No political statement at all, just bugfixing
+//            country = CountryCode.PS;
+//        }
         return new CountryParameters(e, lastFMData, country, timeFrameEnum);
     }
 
     @Override
     public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *COUNTRY*  *timeframe* *username* " +
-               "\n\tif username its not specified it defaults to you" +
-               "\n\tif timeframe its not specified it defaults to all Time" +
+        return commandName + " *country* *[d,w,m,q,s,y,a]* *username*** " +
+               "\n\tIf username its not specified it defaults to you" +
+               "\n\tIf timeframe its not specified it defaults to All-Time" +
                "\n\tCountry must come in the full name format or in the ISO 3166-1 alpha-2/alpha-3" +
                " format ";
     }

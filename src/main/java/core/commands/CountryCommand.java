@@ -65,7 +65,11 @@ public class CountryCommand extends ConcurrentCommand<TimeFrameParameters> {
         List<ArtistInfo> topAlbums = lastFM.getTopArtists(username, time.toApiFormat(), 10000).stream()
                 .filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
+        if (topAlbums.isEmpty()) {
+            sendMessageQueue(e, "Was not able to find any country on " + getUserString(e, discordId, username) + " 's artists");
+            return;
 
+        }
         Map<Country, Integer> map = musicBrainz.countryCount(topAlbums);
 
         if (map.isEmpty()) {

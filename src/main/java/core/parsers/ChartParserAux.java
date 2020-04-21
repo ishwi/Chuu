@@ -14,11 +14,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 class ChartParserAux {
-    private static final Pattern pattern = Pattern.compile("(:?[yqsmwa]|(:?year(:?ly)?|month(:?ly)?|quarter(:?ly)?|semester(:?ly)?|week(:?ly)?|alltime|all))");
+    private static final Pattern pattern = Pattern.compile("(:?[yqsmwad]|(:?(:?day|daily)?)|(:?year(:?ly)?|month(:?ly)?|quarter(:?ly)?|semester(:?ly)?|week(:?ly)?|alltime|all))");
     private static final Pattern naturalPattern = Pattern.compile("(:?[yqsmwadh']|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(:?ly)?(:?lies)?|day(:?s)?|" +
                                                                   "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))");
 
-    private static final Pattern nonPermissivePattern = Pattern.compile("[yqsmwa]");
+    private static final Pattern nonPermissivePattern = Pattern.compile("[yqsmwad]");
     private static final Pattern chartSizePattern = Pattern.compile("\\d+[xX]\\d+");
     private final boolean permissive;
     private String[] message;

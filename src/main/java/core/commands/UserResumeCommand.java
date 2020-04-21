@@ -1,9 +1,7 @@
 package core.commands;
 
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.AlbumChart;
-import core.apis.last.chartentities.ArtistChart;
-import core.apis.last.chartentities.TrackChart;
+import core.apis.last.chartentities.ChartUtil;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.Parser;
@@ -58,9 +56,11 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
         String name = tfP.getLastFMData().getName();
         BlockingQueue<UrlCapsule> capsules = new LinkedBlockingQueue<>();
         TimeFrameEnum time = tfP.getTime();
-        int albumCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.ALBUM, AlbumChart.getAlbumParser(ChartParameters.toListParams()), capsules);
-        int artistCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.ARTIST, ArtistChart.getArtistParser(ChartParameters.toListParams()), capsules);
-        int trackCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.TRACK, TrackChart.getTrackParser(ChartParameters.toListParams()), capsules);
+
+
+        int albumCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.ALBUM, ChartUtil.getParser(time, TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, name), capsules);
+        int artistCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.ARTIST, ChartUtil.getParser(time, TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, name), capsules);
+        int trackCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.TRACK, ChartUtil.getParser(time, TopEntity.TRACK, ChartParameters.toListParams(), lastFM, name), capsules);
         LocalDateTime localDateTime = time.toLocalDate(1);
         int i = lastFM.scrobblesSince(name, localDateTime.atOffset(ZoneOffset.UTC));
         EmbedBuilder embedBuilder = new EmbedBuilder();

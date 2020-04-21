@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 public enum TimeFrameEnum {
 
-    YEAR("y"), QUARTER("q"), MONTH("m"), ALL("a"), SEMESTER("s"), WEEK("w");
+    YEAR("y"), QUARTER("q"), MONTH("m"), ALL("a"), SEMESTER("s"), WEEK("w"), DAY("d");
 
     private static final Map<String, TimeFrameEnum> ENUM_MAP;
 
@@ -38,6 +38,8 @@ public enum TimeFrameEnum {
                 return ALL;
             case "6month":
                 return SEMESTER;
+            case "day":
+                return DAY;
             default:
                 return WEEK;
         }
@@ -75,6 +77,10 @@ public enum TimeFrameEnum {
             case "semester":
             case "semesterly":
                 return "6month";
+            case "d":
+            case "day":
+            case "daily":
+                return "day";
             default:
                 return "7day";
         }
@@ -112,6 +118,10 @@ public enum TimeFrameEnum {
                 break;
             case WEEK:
                 localDate = LocalDateTime.now().minus(7L * count, ChronoUnit.DAYS);
+                break;
+            case DAY:
+                localDate = LocalDateTime.now().minus(count, ChronoUnit.DAYS);
+
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + this);

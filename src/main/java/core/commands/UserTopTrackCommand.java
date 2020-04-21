@@ -3,7 +3,7 @@ package core.commands;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.TrackChart;
+import core.apis.last.chartentities.ChartUtil;
 import core.apis.last.queues.ArtistQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -62,9 +62,9 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
 
 
     @Override
-    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters params) throws LastFmException {
-        ArtistQueue queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !params.isList());
-        int i = params.makeCommand(lastFM, queue, TopEntity.TRACK, TrackChart.getTrackParser(params));
+    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters param) throws LastFmException {
+        ArtistQueue queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !param.isList());
+        int i = param.makeCommand(lastFM, queue, TopEntity.TRACK, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.TRACK, param, lastFM, param.getLastfmID()));
         return new CountWrapper<>(i, queue);
     }
 

@@ -1,8 +1,10 @@
 package core.apis.last.chartentities;
 
+import core.apis.last.TopEntity;
 import core.commands.CommandUtil;
 import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartParameters;
+import dao.entities.NowPlayingArtist;
 import dao.entities.UrlCapsule;
 import org.json.JSONObject;
 
@@ -35,6 +37,17 @@ public class TrackChart extends UrlCapsule {
         };
     }
 
+    public static BiFunction<JSONObject, Integer, UrlCapsule> getDailyTrackParser(ChartParameters chartParameters) {
+        return (jsonObject, ignored) ->
+        {
+            NowPlayingArtist x = AlbumChart.fromRecentTrack(jsonObject, TopEntity.TRACK);
+            return new TrackChart(x.getUrl(), 0, x.getSongName(), x.getArtistName(), x.getMbid(), 1,
+                    chartParameters.isWriteTitles()
+                    , chartParameters.isWritePlays());
+        };
+    }
+
+
     @Override
     public List<ChartLine> getLines() {
         List<ChartLine> list = new ArrayList<>();
@@ -66,4 +79,6 @@ public class TrackChart extends UrlCapsule {
     public int getChartValue() {
         return getPlays();
     }
+
+
 }

@@ -1,13 +1,18 @@
 package core.apis.last.chartentities;
 
+import core.apis.last.TopEntity;
 import core.commands.CommandUtil;
 import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartGroupParameters;
+import dao.entities.NowPlayingArtist;
+import dao.entities.Track;
 import dao.entities.UrlCapsule;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 public class TrackDurationArtistChart extends TrackDurationChart {
@@ -29,6 +34,18 @@ public class TrackDurationArtistChart extends TrackDurationChart {
             return new TrackDurationArtistChart(null, size, name, artistName, null, frequency, frequency * duration, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
         };
     }
+
+    public static BiFunction<JSONObject, Integer, UrlCapsule> getDailyTrackDurationArtistParser(ChartGroupParameters params, Map<Track, Integer> durationsFromPeriod) {
+        return (jsonObject, ignored) ->
+        {
+            NowPlayingArtist x = AlbumChart.fromRecentTrack(jsonObject, TopEntity.ARTIST);
+            Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.getArtistName(), x.getSongName(), 1, false, 0), 200);
+            return new TrackDurationArtistChart(x.getUrl(), 0, x.getSongName(), x.getArtistName(), x.getMbid(),
+                    1
+                    , orDefault, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
+        };
+    }
+
 
     @Override
     public List<ChartLine> getLines() {
@@ -60,5 +77,19 @@ public class TrackDurationArtistChart extends TrackDurationChart {
         return String.format("%s %sh",
                 getArtistName(),
                 String.format("%d:%02d", seconds / 3600, seconds / 60 % 60));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TrackDurationArtistChart)) return false;
+        if (!super.equals(o)) return false;
+        TrackDurationArtistChart that = (TrackDurationArtistChart) o;
+        return this.getArtistName().equals(that.getArtistName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getArtistName());
     }
 }

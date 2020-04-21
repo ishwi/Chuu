@@ -4,7 +4,10 @@ import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.*;
+import core.apis.last.chartentities.ChartUtil;
+import core.apis.last.chartentities.PreComputedByBrightness;
+import core.apis.last.chartentities.PreComputedByColor;
+import core.apis.last.chartentities.PreComputedChartEntity;
 import core.apis.last.queues.ArtistQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -89,10 +92,12 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         int count;
         if (param.isArtist()) {
             queue = new ArtistQueue(getService(), discogsApi, spotifyApi, true);
-            count = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum().toApiFormat(), param.getX(), param.getY(), TopEntity.ARTIST, ArtistChart.getArtistParser(param), queue);
+            count = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum().toApiFormat(), param.getX(),
+                    param.getY(), TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getLastfmID()), queue);
         } else {
             queue = new ArrayBlockingQueue<>(param.getX() * param.getY());
-            count = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum().toApiFormat(), param.getX(), param.getY(), TopEntity.ALBUM, AlbumChart.getAlbumParser(param), queue);
+            count = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum().toApiFormat(), param.getX(), param.getY(), TopEntity.ALBUM,
+                    ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID()), queue);
         }
         boolean inverted = param.isInverse();
 

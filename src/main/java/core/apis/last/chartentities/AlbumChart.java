@@ -1,8 +1,10 @@
 package core.apis.last.chartentities;
 
+import core.apis.last.TopEntity;
 import core.commands.CommandUtil;
 import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartParameters;
+import dao.entities.NowPlayingArtist;
 import dao.entities.UrlCapsule;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,6 +36,41 @@ public class AlbumChart extends UrlCapsule {
             return new AlbumChart(bigImage.getString("#text"), size, albumName, artistName, mbid, plays, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
         };
 
+    }
+
+    public static NowPlayingArtist fromRecentTrack(JSONObject trackObj, TopEntity topEntity) {
+        JSONObject artistObj = trackObj.getJSONObject("artist");
+        String artistName = artistObj.getString("#text");
+        JSONObject album = trackObj.getJSONObject("album");
+        String mbid;
+        switch (topEntity) {
+            case ALBUM:
+                mbid = album.getString("mbid");
+                break;
+            case TRACK:
+                mbid = trackObj.getString("mbid");
+                break;
+            case ARTIST:
+                mbid = artistObj.getString("mbid");
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + topEntity);
+        }
+        JSONArray image = trackObj.getJSONArray("image");
+        JSONObject bigImage = image.getJSONObject(image.length() - 1);
+        String albumName = album.getString("#text");
+        String songName = trackObj.getString("name");
+        return new NowPlayingArtist(artistName, mbid, false, albumName, songName, bigImage.getString("#text"), null);
+    }
+
+    public static BiFunction<JSONObject, Integer, UrlCapsule> getDailyAlbumParser(ChartParameters chartParameters) {
+        return (jsonObject, ignored) ->
+        {
+            NowPlayingArtist x = fromRecentTrack(jsonObject, TopEntity.ALBUM);
+            return new AlbumChart(x.getUrl(), 0, x.getAlbumName(), x.getArtistName(), x.getMbid(), 1,
+                    chartParameters.isWriteTitles()
+                    , chartParameters.isWritePlays());
+        };
     }
 
     @Override

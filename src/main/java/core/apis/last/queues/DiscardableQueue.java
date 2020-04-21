@@ -180,7 +180,10 @@ public class DiscardableQueue implements BlockingQueue<UrlCapsule> {
 
     @Override
     public boolean addAll(@NotNull Collection<? extends UrlCapsule> c) {
-        return innerQueue.addAll(c);
+        for (UrlCapsule urlCapsule : c) {
+            this.offer(urlCapsule);
+        }
+        return true;
     }
 
     @Override

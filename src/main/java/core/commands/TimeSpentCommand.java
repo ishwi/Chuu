@@ -41,8 +41,8 @@ public class TimeSpentCommand extends ConcurrentCommand<TimeFrameParameters> {
         long discordId = params.getLastFMData().getDiscordId();
         TimeFrameEnum timeframe = params.getTime();
         String usableString = getUserString(e, discordId, username);
-        if (Stream.of(TimeFrameEnum.WEEK, TimeFrameEnum.MONTH, TimeFrameEnum.QUARTER).noneMatch(timeframe::equals)) {
-            sendMessageQueue(e, "Only [w]eek,[m]onth and [q]uarter are supported at the moment , sorry :'(");
+        if (Stream.of(TimeFrameEnum.WEEK, TimeFrameEnum.DAY, TimeFrameEnum.MONTH, TimeFrameEnum.QUARTER).noneMatch(timeframe::equals)) {
+            sendMessageQueue(e, "Only [d]ay, [w]eek,[m]onth and [q]uarter are supported at the moment, sorry :'(");
             return;
         }
 

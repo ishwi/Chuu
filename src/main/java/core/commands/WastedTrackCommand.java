@@ -3,7 +3,7 @@ package core.commands;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.TrackDurationChart;
+import core.apis.last.chartentities.ChartUtil;
 import core.apis.last.queues.TrackQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -43,7 +43,7 @@ public class WastedTrackCommand extends ChartableCommand<ChartGroupParameters> {
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartGroupParameters params) throws LastFmException {
         TrackQueue queue = new TrackQueue(getService(), discogsApi, spotifyApi, !params.isList());
         lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), params.getX() * 2, params.getY() * 2,
-                TopEntity.TRACK, TrackDurationChart.getTrackDurationParser(params), queue);
+                TopEntity.TRACK, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.TRACK, params, lastFM, params.getLastfmID()), queue);
         int i = queue.setUp(params.getX() * params.getY());
         return new CountWrapper<>(i, queue);
     }

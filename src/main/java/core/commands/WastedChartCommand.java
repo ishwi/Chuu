@@ -1,7 +1,7 @@
 package core.commands;
 
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.TrackDurationArtistChart;
+import core.apis.last.chartentities.ChartUtil;
 import core.apis.last.queues.GroupingQueue;
 import core.apis.last.queues.TrackGroupArtistQueue;
 import core.exceptions.LastFmException;
@@ -41,17 +41,18 @@ public class WastedChartCommand extends GroupingChartCommand {
 
 
     @Override
-    public CountWrapper<GroupingQueue> processGroupedQueue(ChartGroupParameters chartParameters) throws LastFmException {
+    public CountWrapper<GroupingQueue> processGroupedQueue(ChartGroupParameters params) throws LastFmException {
         GroupingQueue queue;
 
-        if (chartParameters.isList()) {
+        if (params.isList()) {
             queue = new TrackGroupArtistQueue(getService(), discogsApi, spotifyApi, 200);
-            lastFM.getChart(chartParameters.getLastfmID(), chartParameters.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.TRACK,
-                    TrackDurationArtistChart.getTrackDurationArtistParser(ChartGroupParameters.toListParams()), queue);
+
+            lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.TRACK,
+                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getLastfmID()), queue);
         } else {
-            queue = new TrackGroupArtistQueue(getService(), discogsApi, spotifyApi, chartParameters.getX() * chartParameters.getY());
-            lastFM.getChart(chartParameters.getLastfmID(), chartParameters.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.TRACK,
-                    TrackDurationArtistChart.getTrackDurationArtistParser(chartParameters), queue);
+            queue = new TrackGroupArtistQueue(getService(), discogsApi, spotifyApi, params.getX() * params.getY());
+            lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.TRACK,
+                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getLastfmID()), queue);
         }
         return new CountWrapper<>(-1, queue);
     }

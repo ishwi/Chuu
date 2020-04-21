@@ -2,6 +2,7 @@ package core.apis.last.queues;
 
 import core.apis.discogs.DiscogsApi;
 import core.apis.last.chartentities.TrackDurationAlbumArtistChart;
+import core.apis.last.chartentities.TrackDurationChart;
 import core.apis.spotify.Spotify;
 import dao.ChuuService;
 import dao.entities.AlbumInfo;
@@ -36,7 +37,15 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
 
     private <T extends EntityInfo> void joinAlbumInfos(Function<UrlCapsule, T> mappingFunction, UnaryOperator<T> obtainInfo, Function<List<UrlCapsule>, List<T>> function, List<UrlCapsule> listToJoin, BiConsumer<T, UrlCapsule> manipFunction) {
         List<T> albumInfos = function.apply(listToJoin);
-        Map<T, UrlCapsule> collect = listToJoin.stream().collect(Collectors.toMap(mappingFunction, urlCapsule -> urlCapsule));
+        Map<T, UrlCapsule> collect = listToJoin.stream().collect(Collectors.toMap(mappingFunction, urlCapsule -> urlCapsule, (t, t2) -> {
+            if ((t instanceof TrackDurationChart) && (t2 instanceof TrackDurationChart)) {
+                int seconds = ((TrackDurationChart) t).getSeconds();
+                int i = ((TrackDurationChart) t2).getSeconds();
+                ((TrackDurationChart) t).setSeconds(seconds + i);
+            }
+            t.setPlays(t.getPlays() + t2.getPlays());
+            return t;
+        }));
         albumInfos.forEach(y -> {
             UrlCapsule urlCapsule = collect.get(obtainInfo.apply(y));
             manipFunction.accept(y, urlCapsule);
@@ -135,7 +144,9 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
         return collect;
     }
 
-    private void cleanGrouped(List<UrlCapsule> notFound, Map<AlbumInfo, UrlCapsule> albumMap, List<UrlCapsule> groupedList, boolean doMbid) {
+    private void cleanGrouped
+            (List<UrlCapsule> notFound, Map<AlbumInfo, UrlCapsule> albumMap, List<UrlCapsule> groupedList,
+             boolean doMbid) {
         groupedList.removeIf(x -> {
             AlbumInfo albumInfo = new AlbumInfo(x.getAlbumName(), x.getArtistName());
             if (doMbid && !x.getMbid().isBlank()) {

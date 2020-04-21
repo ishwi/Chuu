@@ -1,8 +1,7 @@
 package core.commands;
 
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.AlbumChart;
-import core.apis.last.chartentities.TrackDurationAlbumArtistChart;
+import core.apis.last.chartentities.ChartUtil;
 import core.apis.last.queues.GroupingQueue;
 import core.apis.last.queues.TrackGroupAlbumQueue;
 import core.exceptions.LastFmException;
@@ -30,7 +29,7 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
     @Override
     public CountWrapper<GroupingQueue> processGroupedQueue(ChartGroupParameters params) throws LastFmException {
         BlockingQueue<UrlCapsule> albumQueu = new LinkedBlockingDeque<>();
-        int albumsQueried = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.ALBUM, AlbumChart.getAlbumParser(ChartParameters.toListParams()), albumQueu);
+        int albumsQueried = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, params.getLastfmID()), albumQueu);
         List<UrlCapsule> albumList = new ArrayList<>(albumQueu.size());
         albumQueu.drainTo(albumList);
         GroupingQueue queue;
@@ -39,7 +38,7 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
         } else {
             queue = new TrackGroupAlbumQueue(getService(), discogsApi, spotifyApi, params.getX() * params.getY(), albumList);
         }
-        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.TRACK, TrackDurationAlbumArtistChart.getParser(params), queue);
+        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.TRACK, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getLastfmID()), queue);
         return new CountWrapper<>(albumsQueried, queue);
     }
 

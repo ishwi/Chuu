@@ -1,10 +1,13 @@
 package core.apis.last.chartentities;
 
+import core.apis.last.TopEntity;
 import core.commands.CommandUtil;
 import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartGroupParameters;
 import core.parsers.params.ChartParameters;
 import dao.entities.AlbumInfo;
+import dao.entities.NowPlayingArtist;
+import dao.entities.Track;
 import dao.entities.UrlCapsule;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -70,9 +73,33 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
             }
             return new TrackDurationAlbumArtistChart(url, size, name, artistName, mbid, frequency, frequency * duration, parameters.isWriteTitles(), parameters.isWritePlays(), parameters.isShowTime());
         };
+
     }
 
-    public static BiFunction<JSONObject, Integer, UrlCapsule> getAlbumParser(ChartParameters params) {
+
+    public static BiFunction<JSONObject, Integer, UrlCapsule> getDailyArtistAlbumDurationParser(ChartGroupParameters params, Map<Track, Integer> durationsFromPeriod) {
+        return (jsonObject, ignored) ->
+        {
+            NowPlayingArtist x = AlbumChart.fromRecentTrack(jsonObject, TopEntity.ALBUM);
+            Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.getArtistName(), x.getSongName(), 1, false, 0), 200);
+            return new TrackDurationAlbumArtistChart(x.getUrl(), 0, x.getSongName(), x.getArtistName(), x.getMbid(),
+                    1
+                    , orDefault, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
+        };
+    }
+
+    public static BiFunction<JSONObject, Integer, UrlCapsule> getDailyArtistAlbumDurationParser(ChartParameters params, Map<Track, Integer> durationsFromPeriod) {
+        return (jsonObject, ignored) ->
+        {
+            NowPlayingArtist x = AlbumChart.fromRecentTrack(jsonObject, TopEntity.ALBUM);
+            Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.getArtistName(), x.getSongName(), 1, false, 0), 200);
+            return new TrackDurationAlbumArtistChart(x.getUrl(), 0, x.getSongName(), x.getArtistName(), x.getMbid(),
+                    1
+                    , orDefault, params.isWriteTitles(), params.isWritePlays(), true);
+        };
+    }
+
+    public static BiFunction<JSONObject, Integer, UrlCapsule> testing(ChartParameters params) {
         return (albumObj, size) ->
         {
             JSONObject artistObj = albumObj.getJSONObject("artist");

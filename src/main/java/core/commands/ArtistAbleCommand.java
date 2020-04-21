@@ -3,7 +3,7 @@ package core.commands;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.ArtistChart;
+import core.apis.last.chartentities.ChartUtil;
 import core.apis.last.queues.ArtistQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -31,7 +31,7 @@ public abstract class ArtistAbleCommand<T extends ChartParameters> extends Chart
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(T param) throws LastFmException {
         ArtistQueue queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !param.isList());
-        int i = param.makeCommand(lastFM, queue, TopEntity.ARTIST, ArtistChart.getArtistParser(param));
+        int i = param.makeCommand(lastFM, queue, TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getLastfmID()));
         return new CountWrapper<>(i, queue);
     }
 

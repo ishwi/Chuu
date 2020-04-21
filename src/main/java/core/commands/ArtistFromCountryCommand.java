@@ -2,7 +2,7 @@ package core.commands;
 
 import com.neovisionaries.i18n.CountryCode;
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.ArtistChart;
+import core.apis.last.chartentities.ChartUtil;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
@@ -64,17 +64,23 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
 
         CountryCode country = parameters.getCode();
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(1500);
-        lastFM.getChart(parameters.getLastFMData().getName(), parameters.getTimeFrame().toApiFormat(), 1500, 1, TopEntity.ARTIST, ArtistChart.getArtistParser(ChartParameters.toListParams()), queue);
+        String name = parameters.getLastFMData().getName();
+        lastFM.getChart(name, parameters.getTimeFrame().toApiFormat(), 1500, 1, TopEntity.ARTIST, ChartUtil.getParser(parameters.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, name), queue);
 
         Long discordId = parameters.getLastFMData().getDiscordId();
         List<ArtistUserPlays> list = this.mb.getArtistFromCountry(country, queue, discordId);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
-
+        String countryRep;
+        if (country.getAlpha2().equals("su")) {
+            countryRep = "☭";
+        } else {
+            countryRep = ":flag_" + country.getAlpha2().toLowerCase();
+        }
         String usableTime = parameters.getTimeFrame().getDisplayString();
         if (list.isEmpty()) {
-            sendMessageQueue(e, userName + " doesnt have any artist from " + ":flag_" + country.getAlpha2().toLowerCase() + ": " + usableTime);
+            sendMessageQueue(e, userName + " doesnt have any artist from " + countryRep + ": " + usableTime);
             return;
         }
         StringBuilder a = new StringBuilder();
@@ -83,7 +89,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
             a.append(i + 1).append(list.get(i).toString());
         }
 
-        String title = userName + ("'s top artists from  :flag_") + (country.getAlpha2().toLowerCase()) + (":");
+        String title = userName + "'s top artists from " + countryRep + (":");
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(userUrl)
