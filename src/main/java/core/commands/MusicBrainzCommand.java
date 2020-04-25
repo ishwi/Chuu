@@ -9,6 +9,7 @@ import core.apis.last.chartentities.TrackDurationAlbumArtistChart;
 import core.exceptions.LastFmException;
 import core.parsers.ChartYearParser;
 import core.parsers.ChartableParser;
+import core.parsers.OptionalEntity;
 import core.parsers.params.ChartYearParameters;
 import dao.ChuuService;
 import dao.entities.*;
@@ -42,7 +43,11 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
 
     @Override
     public ChartableParser<ChartYearParameters> getParser() {
-        return new ChartYearParser(getService(), searchSpace);
+        ChartYearParser chartYearParser = new ChartYearParser(getService(), searchSpace);
+        chartYearParser.addOptional(new OptionalEntity("--time", "make the chart to be sorted by duration (quite inaccurate)"));
+
+        return
+                chartYearParser;
     }
 
 
@@ -75,7 +80,11 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
                 parser = AlbumChart.getDailyAlbumParser(param);
             }
         } else {
-            parser = ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID());
+            if (isByTime)
+                parser = TrackDurationAlbumArtistChart.getTimedParser(param);
+            else {
+                parser = ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID());
+            }
         }
 
         lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum().toApiFormat(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
@@ -122,8 +131,8 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
         queue.removeIf(urlCapsule -> {
             for (AlbumInfo albumInfo : albumsMbizMatchingYear) {
                 if ((!albumInfo.getMbid().isEmpty() && albumInfo.getMbid().equals(urlCapsule.getMbid())) || urlCapsule
-                                                                                                                    .getAlbumName().equalsIgnoreCase(albumInfo.getName()) && urlCapsule.getArtistName()
-                                                                                                                    .equalsIgnoreCase(albumInfo.getArtist())) {
+                        .getAlbumName().equalsIgnoreCase(albumInfo.getName()) && urlCapsule.getArtistName()
+                        .equalsIgnoreCase(albumInfo.getArtist())) {
                     urlCapsule.setPos(counter2.getAndAdd(1));
                     return false;
                 }

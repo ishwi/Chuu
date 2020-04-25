@@ -19,8 +19,7 @@ public class UserExportSerializer extends StdSerializer<UsersWrapper> {
     @Override
     public void serialize(UsersWrapper value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         gen.writeStartObject();
-        gen.writeObjectField("discordUserID", value.getDiscordID());
-        gen.writeObjectField("discordUsername", "");
+        gen.writeObjectField("discordUserID", String.valueOf(value.getDiscordID()));
         gen.writeObjectField("lastFMUsername", value.getLastFMName());
         gen.writeEndObject();
     }

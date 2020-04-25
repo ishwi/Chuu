@@ -202,7 +202,8 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
                 stringBuilder.append("\n Item number:").append(i);
                 continue;
             }
-            long userId = jsonObject.getLong("discordUserID");
+
+            long userId = Long.parseLong(jsonObject.optString("discordUserID"));
             String lastfmid = jsonObject.getString("lastFMUsername");
             LastFMData lastFMData = new LastFMData(lastfmid, userId, guildID);
             queue.add(consumer.executeCallback(lastFMData, stringBuilder, complete, embedBuilder, e.getAuthor(), i, counter));

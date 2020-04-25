@@ -6,6 +6,7 @@ import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartParameters;
 import dao.entities.NowPlayingArtist;
 import dao.entities.UrlCapsule;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -33,7 +34,10 @@ public class TrackChart extends UrlCapsule {
             String name = trackObj.getString("name");
             int frequency = trackObj.getInt("playcount");
             String artistName = trackObj.getJSONObject("artist").getString("name");
-            return new TrackChart(null, size, name, artistName, null, frequency, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
+            JSONArray image = trackObj.getJSONArray("image");
+            JSONObject bigImage = image.getJSONObject(image.length() - 1);
+
+            return new TrackChart(bigImage.getString("#text"), size, name, artistName, null, frequency, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
         };
     }
 

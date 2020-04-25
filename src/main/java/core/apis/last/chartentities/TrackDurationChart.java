@@ -7,6 +7,7 @@ import core.parsers.params.ChartGroupParameters;
 import dao.entities.NowPlayingArtist;
 import dao.entities.Track;
 import dao.entities.UrlCapsule;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -38,7 +39,9 @@ public class TrackDurationChart extends TrackChart {
             int frequency = trackObj.getInt("playcount");
             duration = duration == 0 ? 200 : duration;
             String artistName = trackObj.getJSONObject("artist").getString("name");
-            return new TrackDurationChart(null, size, name, artistName, null, frequency, frequency * duration, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
+            JSONArray image = trackObj.getJSONArray("image");
+            JSONObject bigImage = image.getJSONObject(image.length() - 1);
+            return new TrackDurationChart(bigImage.getString("#text"), size, name, artistName, null, frequency, frequency * duration, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
         };
     }
 

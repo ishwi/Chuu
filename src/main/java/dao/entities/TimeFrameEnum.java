@@ -20,9 +20,15 @@ public enum TimeFrameEnum {
                 .collect(Collectors.toMap(TimeFrameEnum::getName, Function.identity()));
     }
 
+    private final int count;
     private final String name;
 
     TimeFrameEnum(String name) {
+        this(1, name);
+    }
+
+    TimeFrameEnum(int count, String name) {
+        this.count = count;
         this.name = name;
     }
 
@@ -128,6 +134,11 @@ public enum TimeFrameEnum {
         }
         return localDate;
 
+    }
+
+
+    public int getCount() {
+        return count;
     }
 }
 

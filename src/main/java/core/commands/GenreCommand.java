@@ -67,6 +67,10 @@ public class GenreCommand extends ConcurrentCommand<TimeFrameParameters> {
         String urlImage = userInfo.getUrlImage();
         List<AlbumInfo> albumInfos = lastFM.getTopAlbums(username, timeframe.toApiFormat(), 2000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
+        if (albumInfos.isEmpty()) {
+            sendMessageQueue(e, "Was not able to find any genre in  " + usableString + "'s artist");
+            return;
+        }
         Map<Genre, Integer> map = musicBrainz.genreCount(albumInfos);
         if (map.isEmpty()) {
             sendMessageQueue(e, "Was not able to find any genre in  " + usableString + "'s artist");

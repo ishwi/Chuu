@@ -11,6 +11,7 @@ import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.search.SearchItemRequest;
 import core.Chuu;
+import org.apache.hc.core5.http.ParseException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -42,7 +43,7 @@ public class Spotify {
             this.time = LocalDateTime.now().plusSeconds(clientCredentials.getExpiresIn() - 140L);
 
             System.out.println("Expires in: " + clientCredentials.getExpiresIn());
-        } catch (IOException | SpotifyWebApiException e) {
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -71,7 +72,7 @@ public class Spotify {
                 returned = "https://open.spotify.com/track/" + item.getUri().split("spotify:track:")[1];
             }
             return returned;
-        } catch (IOException | SpotifyWebApiException e) {
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
         }
         return returned;
@@ -95,7 +96,7 @@ public class Spotify {
                 if (images.length != 0)
                     returned = images[0].getUrl();
             }
-        } catch (IOException | SpotifyWebApiException e) {
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
         }
         return returned;

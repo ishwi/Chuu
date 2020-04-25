@@ -94,14 +94,14 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
         List<Long> usersThatKnow = getService().whoKnows(artist.getArtistId(), id, 25).getReturnNowPlayings().stream()
                 .map(ReturnNowPlaying::getDiscordId)
                 .collect(Collectors.toList());
-        if (!usersThatKnow.contains(ap.getUser().getIdLong()))
-            usersThatKnow.add(ap.getUser().getIdLong());
-        if (!usersThatKnow.contains(e.getAuthor().getIdLong()))
-            usersThatKnow.add(e.getAuthor().getIdLong());
 
-        userList = userList.stream().filter(x -> usersThatKnow.contains(x.getDiscordID())).collect(Collectors.toList());
+        userList = userList.stream().filter(x -> usersThatKnow.contains(x.getDiscordID()) || x.getDiscordID() == ap.getUser().getIdLong() || x.getDiscordID() == e.getAuthor().getIdLong()).collect(Collectors.toList());
+        if (userList.isEmpty()) {
+            Chuu.getLogger().error("Something went real wrong");
+            sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.cleanMarkdownCharacter(ap.getArtist()), CommandUtil.cleanMarkdownCharacter(ap.getAlbum())));
+            return;
 
-
+        }
         Map<UsersWrapper, Integer> userMapPlays = fillPlayCounter(userList, artist.getArtist(), ap.getAlbum(), urlContainter);
 
         String correctedAlbum = urlContainter.getAlbum() == null || urlContainter.getAlbum().isEmpty() ? ap.getAlbum()

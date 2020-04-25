@@ -8,6 +8,7 @@ import core.scheduledtasks.ImageUpdaterThread;
 import core.scheduledtasks.SpotifyUpdaterThread;
 import core.scheduledtasks.UpdaterThread;
 import dao.ChuuService;
+import dao.entities.Metrics;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -35,6 +36,7 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
 
 public class Chuu {
 
@@ -42,7 +44,7 @@ public class Chuu {
     private static Map<Long, Character> prefixMap;
     private static JDA jda;
     private static Logger logger;
-
+    private static final LongAdder lastFMMetric = new LongAdder();
     private static ScheduledExecutorService scheduledExecutorService;
 
     public static ScheduledExecutorService getScheduledExecutorService() {
@@ -71,7 +73,10 @@ public class Chuu {
 
     public static Presence getPresence() {
         return Chuu.jda.getPresence();
+    }
 
+    public static void incrementMetric() {
+        lastFMMetric.increment();
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -147,7 +152,13 @@ public class Chuu {
         PrefixCommand prefixCommand = new PrefixCommand(dao);
 
         scheduledExecutorService = Executors.newScheduledThreadPool(4);
-
+        // Logs every fime minutes the api calls
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+            long l = lastFMMetric.longValue();
+            dao.updateMetric(Metrics.LASTFM_PETITIONS, l);
+            lastFMMetric.reset();
+            logger.info("Made {} petitions in the last 5 minutes", l);
+        }, 5, 5, TimeUnit.MINUTES);
 
         JDABuilder builder = JDABuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL)
                 .disableCache(EnumSet.allOf(CacheFlag.class))

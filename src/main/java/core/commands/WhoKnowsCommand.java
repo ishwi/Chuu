@@ -50,7 +50,9 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> getParser() {
-        return new ArtistParser(getService(), lastFM, new OptionalEntity("--list", "display in list format"));
+        return new ArtistParser(getService(), lastFM,
+                new OptionalEntity("--list", "display in list format")
+                , new OptionalEntity("--noredirect", "not change the artist name for a correction automatically"));
     }
 
     @Override
@@ -71,6 +73,9 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistParameters.getArtist(), 0, null);
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
         artistParameters.setScrobbledArtist(scrobbledArtist);
+        if (artistParameters.hasOptional("--noredirect")) {
+            scrobbledArtist.setArtist(artistParameters.getArtist());
+        }
         whoKnowsLogic(artistParameters);
     }
 

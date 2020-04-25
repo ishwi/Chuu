@@ -5,7 +5,6 @@ CREATE TABLE user
     last_update       TIMESTAMP                             NULL     DEFAULT current_timestamp(),
     control_timestamp TIMESTAMP                             NULL     DEFAULT current_timestamp(),
     role              ENUM ('USER','IMAGE_BLOCKED','ADMIN') NOT NULL DEFAULT 'USER',
-    timezone          INT CHECK ( timezone BETWEEN -13 AND 13)       DEFAULT 0,
     PRIMARY KEY (discord_id),
     UNIQUE (lastfm_id)
 );

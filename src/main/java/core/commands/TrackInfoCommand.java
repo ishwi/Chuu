@@ -28,7 +28,7 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
 
     @Override
     public String getDescription() {
-        return "Information aobut a track";
+        return "Information about a track";
     }
 
     @Override

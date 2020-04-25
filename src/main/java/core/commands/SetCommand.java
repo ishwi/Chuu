@@ -54,7 +54,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
 
         try {
             lastFM.getUserInfo(List.of(lastFmID));
-        } catch (LastFmEntityNotFoundException ex) {
+        } catch (LastFmEntityNotFoundException | IllegalArgumentException ex) {
             sendMessageQueue(e, "The provided username doesn't exist on last.fm, choose another one");
             return;
         }

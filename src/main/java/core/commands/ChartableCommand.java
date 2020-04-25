@@ -73,10 +73,14 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         int minx = (int) Math.ceil((double) size / x);
         if (minx == 1)
             x = size;
-        if (size > 45 && size < 400)
-            chartQuality = ChartQuality.JPEG_BIG;
-        else if (size >= 400)
-            chartQuality = ChartQuality.JPEG_SMALL;
+        if (e.isFromGuild()) {
+            if ((e.isFromGuild() && e.getGuild().getMaxFileSize() == Message.MAX_FILE_SIZE) || !e.isFromGuild()) {
+                if (size > 45 && size < 400)
+                    chartQuality = ChartQuality.JPEG_BIG;
+                else if (size >= 400)
+                    chartQuality = ChartQuality.JPEG_SMALL;
+            }
+        }
         BufferedImage image = CollageMaker
                 .generateCollageThreaded(x, minx, queue, chartQuality);
         sendImage(image, e, chartQuality);

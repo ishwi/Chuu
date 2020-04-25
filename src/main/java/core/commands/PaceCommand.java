@@ -111,7 +111,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
                 timestamp = (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant().getEpochSecond();
                 break;
             case QUARTER:
-                timestamp = (int) now.minus(unitNumber / 4, ChronoUnit.YEARS).toInstant().getEpochSecond();
+                timestamp = (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toInstant().getEpochSecond();
                 break;
             case MONTH:
                 timestamp = (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant().getEpochSecond();
@@ -120,7 +120,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
                 timestamp = 0;
                 break;
             case SEMESTER:
-                timestamp = (int) now.minus(unitNumber / 2, ChronoUnit.YEARS).toInstant().getEpochSecond();
+                timestamp = (int) now.minus(unitNumber * 2, ChronoUnit.MONTHS).toInstant().getEpochSecond();
                 break;
             case WEEK:
                 timestamp = (int) now.minus(unitNumber, ChronoUnit.WEEKS).toInstant().getEpochSecond();
@@ -169,7 +169,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         String timeFrame;
         if (naturalTimeFrameEnum.equals(NaturalTimeFrameEnum.ALL)) timeFrame = "overall";
         else
-            timeFrame = "over the last " + unitNumber + " " + (unitNumber == 1 ? naturalTimeFrameEnum.toString().toLowerCase() : naturalTimeFrameEnum.toString().toLowerCase() + "s");
+            timeFrame = "over the last" + (unitNumber == 1 ? "" : " " + unitNumber) + " " + (unitNumber == 1 ? naturalTimeFrameEnum.toString().toLowerCase() : naturalTimeFrameEnum.toString().toLowerCase() + "s");
         String format = now.plus((long) remainingUnits, chronoUnits.get(i)).format(formatter);
         String unit = chronoUnits.get(i).name().toLowerCase();
         String s = String.format("**%s** has a rate of **%s** scrobbles per %s %s, so they are on pace to hit **%d** scrobbles on **%s**.",

@@ -527,12 +527,22 @@ public class ChuuService {
         }
     }
 
+
+    public void updateMetric(Metrics metrics, long incrementalNewValue) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.updateMetric(connection, metrics.getMetricId(), incrementalNewValue);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+
+        }
+    }
+
     public void updateMetrics(long value1, long value2, long value3, long value4) {
         try (Connection connection = dataSource.getConnection()) {
-            updaterDao.updateMetric(connection, 1, value1);
-            updaterDao.updateMetric(connection, 2, value2);
-            updaterDao.updateMetric(connection, 3, value3);
-            updaterDao.updateMetric(connection, 4, value4);
+            updaterDao.updateMetric(connection, Metrics.AOTY_DISCOGS.getMetricId(), value1);
+            updaterDao.updateMetric(connection, Metrics.AOTY_MB_NAME.getMetricId(), value2);
+            updaterDao.updateMetric(connection, Metrics.AOTY_TOTAL.getMetricId(), value3);
+            updaterDao.updateMetric(connection, Metrics.REQUESTED.getMetricId(), value4);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
 
@@ -679,6 +689,9 @@ public class ChuuService {
 
     public void addGuildPrefix(long guildID, Character prefix) {
         try (Connection connection = dataSource.getConnection()) {
+            if (Chuu.getPrefixMap().containsKey(guildID)) {
+                userGuildDao.createGuild(connection, guildID);
+            }
             updaterDao.upsertGuildPrefix(connection, guildID, prefix);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id "com.github.johnrengelman.shadow" version "5.2.0"
-    id 'info.solidsoft.pitest' version '1.4.8'
+    id 'info.solidsoft.pitest' version '1.4.9'
     id 'se.patrikerdes.use-latest-versions' version '0.2.13'
     id 'com.github.ben-manes.versions' version '0.28.0'
 }
@@ -37,7 +37,7 @@ compileJava.options.encoding = 'UTF-8'
 dependencies {
 // https://mvnrepository.com/artifact/org.knowm.xchart/xchart
     compile group: 'org.knowm.xchart', name: 'xchart', version: '3.6.2'
-    compile 'se.michaelthelin.spotify:spotify-web-api-java:4.3.0'
+    compile 'se.michaelthelin.spotify:spotify-web-api-java:5.0.4'
 
 // https://mvnrepository.com/artifact/com.mchange/c3p0
 // https://mvnrepository.com/artifact/se.michaelthelin.spotify/spotify-web-api-java
@@ -50,7 +50,7 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.13'
 
-    compile 'net.dv8tion:JDA:4.1.1_133'
+    compile 'net.dv8tion:JDA:4.1.1_137'
 
     compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
 // https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
@@ -65,7 +65,7 @@ dependencies {
 
     //For Youtube search api
     compile 'com.google.api-client:google-api-client:1.30.9'
-    compile 'com.google.apis:google-api-services-youtube:v3-rev20200320-1.30.9'
+    compile 'com.google.apis:google-api-services-youtube:v3-rev20200402-1.30.9'
     compile 'com.google.oauth-client:google-oauth-client-jetty:1.30.6'
     compile 'org.beryx:awt-color-factory:1.0.1'
 

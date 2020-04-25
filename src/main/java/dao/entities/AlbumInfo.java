@@ -37,7 +37,9 @@ public class AlbumInfo extends EntityInfo {
         if (getMbid() != null && !getMbid().isBlank() && albumInfo.getMbid() != null && !albumInfo.getMbid().isBlank()) {
             return super.equals(o);
         }
-        return Objects.equals(getName(), albumInfo.getName());
+        return (getName().equalsIgnoreCase(albumInfo.getName())
+                || getName().equalsIgnoreCase("S/T")
+                || albumInfo.getName().equalsIgnoreCase("S/T")) && getArtist().equalsIgnoreCase(albumInfo.getArtist());
     }
 
     @Override
@@ -45,6 +47,6 @@ public class AlbumInfo extends EntityInfo {
         if (getMbid() != null && !getMbid().isBlank()) {
             return Objects.hash(getMbid());
         }
-        return Objects.hash(getArtist(), getName());
+        return Objects.hash(getArtist().toLowerCase(), getName().toLowerCase());
     }
 }

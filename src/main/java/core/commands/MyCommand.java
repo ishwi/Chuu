@@ -56,7 +56,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
 
         e.getChannel().sendTyping().queue();
         System.out.println("We received a message from " +
-                           e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
+                e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
         if (!e.getChannelType().isGuild() && !respondInPrivate) {
             sendMessageQueue(e, "This command only works in a server");
             return;
@@ -110,6 +110,8 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
                             .getLastFMName()));
             s = s.replaceFirst("\\$\\{prefix}", String.valueOf(e.getMessage().getContentStripped().charAt(0)));
             parser.sendError(s, e);
+        } catch (LastFMConnectionException ex) {
+            parser.sendError("Last.fm is not working well or the bot might be overloaded :(", e);
         } catch (
                 Exception ex) {
             if (ex instanceof LastFMServiceException && ex.getMessage().equals("500")) {
@@ -175,7 +177,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
 
     void sendImage(BufferedImage image, MessageReceivedEvent e, ChartQuality chartQuality) {
         if (image == null) {
-            sendMessageQueue(e, "Ish Pc Bad");
+            sendMessageQueue(e, "Something went wrong generating the image");
             return;
         }
         ByteArrayOutputStream b = new ByteArrayOutputStream();
@@ -187,7 +189,8 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
             ImageIO.write(image, format, b);
 
             byte[] img = b.toByteArray();
-            if (img.length < 8388608)
+            long maxSize = e.isFromGuild() ? e.getGuild().getMaxFileSize() : Message.MAX_FILE_SIZE;
+            if (img.length < maxSize)
                 e.getChannel().sendFile(img, "cat." + format).queue();
             else
                 e.getChannel().sendMessage("File was real big").queue();

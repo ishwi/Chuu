@@ -12,6 +12,7 @@ import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 
 public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
     private final transient List<UrlCapsule> albumEntities;
+    private final String defaultTrackImage = "https://lastfm.freetls.fastly.net/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png";
     MusicBrainzService mbiz;
 
     public TrackGroupAlbumQueue(ChuuService dao, DiscogsApi discogsApi, Spotify spotify, int requested, List<UrlCapsule> albumEntities) {
@@ -32,7 +34,7 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
 
     @Override
     public Function<UrlCapsule, String> mappingFunction() {
-        return urlCapsule -> urlCapsule.getArtistName() + urlCapsule.getAlbumName();
+        return urlCapsule -> urlCapsule.getArtistName() + " - " + urlCapsule.getAlbumName();
     }
 
     private <T extends EntityInfo> void joinAlbumInfos(Function<UrlCapsule, T> mappingFunction, UnaryOperator<T> obtainInfo, Function<List<UrlCapsule>, List<T>> function, List<UrlCapsule> listToJoin, BiConsumer<T, UrlCapsule> manipFunction) {
@@ -54,18 +56,41 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
 
     @Override
     public List<UrlCapsule> setUp() {
+        // We assume if an album has tracks with mbid then the whole album should have tracks with mbid
+        Map<AlbumInfo, UrlCapsule> albumMap = this.albumEntities.stream().collect(Collectors.toMap(o ->
+                new AlbumInfo(o.getAlbumName(), o.getArtistName()), o -> o));
+        Map<String, UrlCapsule> urlMap = this.albumEntities.stream()
+                .filter(x -> !x.getUrl().isBlank() && !x.getUrl().equals(defaultTrackImage))
+                .collect(Collectors.toMap(UrlCapsule::getUrl, o -> o));
+        Map<String, List<UrlCapsule>> collect1 = artistMap.values()
+                .stream()
+                .filter(x -> !x.getUrl().isBlank() && !x.getUrl().equals(defaultTrackImage))
+                .collect(Collectors.groupingBy(UrlCapsule::getUrl));
+
+        List<UrlCapsule> mbidGrouped = new ArrayList<>();
+
+        for (List<UrlCapsule> value : collect1.values()) {
+            value.forEach(x -> x.setAlbumName(""));
+            List<UrlCapsule> albumsGruoped = TrackDurationAlbumArtistChart.getGrouped(value);
+            UrlCapsule urlCapsule = albumsGruoped.get(0);
+            UrlCapsule urlCapsule1 = urlMap.get(urlCapsule.getUrl());
+            albumsGruoped.forEach(x -> {
+                x.setAlbumName(urlCapsule1.getAlbumName());
+            });
+
+            mbidGrouped.addAll(albumsGruoped);
+        }
+        Set<UrlCapsule> tracksFoundByURL = collect1.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+        artistMap.entrySet().removeIf(x -> tracksFoundByURL.contains(x.getValue()));
+
         Map<Boolean, List<UrlCapsule>> partitioned = new ArrayList<>(artistMap.values()).stream().collect(Collectors.partitioningBy(x -> !x.getMbid().isBlank()));
         List<UrlCapsule> haveMbid = partitioned.get(true);
         List<UrlCapsule> noMbid = partitioned.get(false);
 
-        List<UrlCapsule> mbidGrouped = new ArrayList<>();
         if (haveMbid.size() != 0) {
             mbiz.getAlbumInfoByMbid(haveMbid);
             mbidGrouped = TrackDurationAlbumArtistChart.getGrouped(haveMbid);
         }
-        // We assume if an album has tracks with mbid then the whole album should have tracks with mbid
-        Map<AlbumInfo, UrlCapsule> albumMap = this.albumEntities.stream().collect(Collectors.toMap(o ->
-                new AlbumInfo(o.getAlbumName(), o.getArtistName()), o -> o));
         cleanGrouped(noMbid, albumMap, mbidGrouped, false);
         List<UrlCapsule> mbGroupedByName;
         List<UrlCapsule> notFound = new ArrayList<>();
@@ -134,7 +159,7 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
                 }).collect(Collectors.toList());
         collect.forEach(t -> wrapper.offer(CompletableFuture.supplyAsync(() ->
         {
-            if (t.getUrl() == null) {
+            if (t.getUrl() == null || t.getUrl().equals(defaultTrackImage)) {
                 getUrl(t);
             }
             return t;

@@ -62,16 +62,10 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
             duration = duration == 0 ? 200 : duration;
             String artistName = trackObj.getJSONObject("artist").getString("name");
             String mbid = trackObj.getString("mbid");
-            String url = null;
-            if (trackObj.has("album")) {
-                JSONObject album = trackObj.getJSONObject("album");
-                name = album.getString("name");
-                if (album.has("image")) {
-                    JSONArray ar = album.getJSONArray("image");
-                    url = ar.getJSONObject(ar.length() - 1).getString("#text");
-                }
-            }
-            return new TrackDurationAlbumArtistChart(url, size, name, artistName, mbid, frequency, frequency * duration, parameters.isWriteTitles(), parameters.isWritePlays(), parameters.isShowTime());
+            JSONArray image = trackObj.getJSONArray("image");
+            JSONObject bigImage = image.getJSONObject(image.length() - 1);
+
+            return new TrackDurationAlbumArtistChart(bigImage.getString("#text"), size, name, artistName, mbid, frequency, frequency * duration, parameters.isWriteTitles(), parameters.isWritePlays(), parameters.isShowTime());
         };
 
     }
@@ -99,7 +93,7 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
         };
     }
 
-    public static BiFunction<JSONObject, Integer, UrlCapsule> testing(ChartParameters params) {
+    public static BiFunction<JSONObject, Integer, UrlCapsule> getTimedParser(ChartParameters params) {
         return (albumObj, size) ->
         {
             JSONObject artistObj = albumObj.getJSONObject("artist");
