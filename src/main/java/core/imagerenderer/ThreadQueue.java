@@ -65,6 +65,10 @@ class ThreadQueue implements Runnable {
     }
 
     public void handleCapsule(UrlCapsule capsule, int x, int y) {
+        if (capsule.getUrl() == null || capsule.getUrl().isBlank()) {
+            handleInvalidImage(capsule, x, y);
+            return;
+        }
         BufferedImage image = GraphicUtils.getImage(capsule.getUrl());
         if (image == null) {
             handleInvalidImage(capsule, x, y);

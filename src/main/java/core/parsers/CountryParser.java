@@ -28,6 +28,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
 
     }
 
+
     @Override
     protected CountryParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(words);
@@ -51,20 +52,29 @@ public class CountryParser extends DaoParser<CountryParameters> {
             }
             country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
         } else if (countryCode.length() == 3) {
+            if (countryCode.equalsIgnoreCase("eng")) {
+                countryCode = "gb";
+            }
             country = CountryCode.getByAlpha3Code(countryCode.toUpperCase());
         } else {
-            String finalCountryCode = countryCode;
-            Optional<Locale> opt = Arrays.stream(Locale.getISOCountries()).map(x -> new Locale("en", x)).
-                    filter(y -> y.getDisplayCountry().equalsIgnoreCase(finalCountryCode))
-                    .findFirst();
-            if (opt.isPresent()) {
-                country = CountryCode.getByAlpha3Code(opt.get().getISO3Country());
+            if (countryCode.equalsIgnoreCase("england")) {
+                countryCode = "gb";
+                country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
+
             } else {
-                List<CountryCode> byName = CountryCode.findByName(Pattern.compile(".*" + countryCode + ".*"));
-                if (byName.isEmpty()) {
-                    country = null;
+                String finalCountryCode = countryCode;
+                Optional<Locale> opt = Arrays.stream(Locale.getISOCountries()).map(x -> new Locale("en", x)).
+                        filter(y -> y.getDisplayCountry().equalsIgnoreCase(finalCountryCode))
+                        .findFirst();
+                if (opt.isPresent()) {
+                    country = CountryCode.getByAlpha3Code(opt.get().getISO3Country());
                 } else {
-                    country = byName.get(0);
+                    List<CountryCode> byName = CountryCode.findByName(Pattern.compile(".*" + countryCode + ".*"));
+                    if (byName.isEmpty()) {
+                        country = null;
+                    } else {
+                        country = byName.get(0);
+                    }
                 }
             }
         }
@@ -82,10 +92,10 @@ public class CountryParser extends DaoParser<CountryParameters> {
 
     @Override
     public String getUsageLogic(String commandName) {
-        return commandName + " *country* *[d,w,m,q,s,y,a]* *username*** " +
-               "\n\tIf username its not specified it defaults to you" +
-               "\n\tIf timeframe its not specified it defaults to All-Time" +
-               "\n\tCountry must come in the full name format or in the ISO 3166-1 alpha-2/alpha-3" +
-               " format ";
+        return commandName + " *country* *[d,w,m,q,s,y,a]* *username*** \n" +
+                "\tIf the username it's not provided it defaults to authors account, only ping and tag format (user#number)" +
+                "\n\tIf the timeframe it's not specified it defaults to All-Time" +
+                "\n\tCountry must come in the full name format or in the ISO 3166-1 alpha-2/alpha-3" +
+                " format\n ";
     }
 }

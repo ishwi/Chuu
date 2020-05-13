@@ -14,6 +14,7 @@ import core.imagerenderer.BandRendered;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.PieableBand;
 import core.parsers.ArtistTimeFrameParser;
+import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.ArtistTimeFrameParameters;
@@ -54,7 +55,10 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistTimeFrameParameters
 
     @Override
     public Parser<ArtistTimeFrameParameters> getParser() {
-        return new ArtistTimeFrameParser(getService(), lastFM);
+        ArtistTimeFrameParser artistTimeFrameParser = new ArtistTimeFrameParser(getService(), lastFM);
+        artistTimeFrameParser.addOptional(new OptionalEntity("--list", "display in list format"));
+        artistTimeFrameParser.addOptional(new OptionalEntity("--noredirect", "not change the artist name for a correction automatically"));
+        return artistTimeFrameParser;
     }
 
     @Override

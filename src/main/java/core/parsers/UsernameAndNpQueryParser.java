@@ -38,7 +38,7 @@ public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordPara
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " [whatever you want to search for] **\n" +
-               "\tIf you don't introduce a query it takes your now playing song\n" +
-               "\tYou can add an username to use their now playing song\n";
+                "\tIf you don't introduce a query it takes your now playing song\n" +
+                "\tYou can add an username with only ping and tag format (user#number) to use their now playing song\n";
     }
 }

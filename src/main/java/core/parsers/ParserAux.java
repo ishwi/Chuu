@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -61,7 +62,24 @@ public class ParserAux {
     }
 
     User getOneUser(MessageReceivedEvent e) {
-        User sample;
+        User sample = null;
+        List<String> tempArray = new ArrayList<>();
+        boolean hasMatched = false;
+        for (String s : message) {
+            if (!hasMatched && user.matcher(s).matches()) {
+                User userByTag = e.getJDA().getUserByTag(s);
+                if (userByTag != null) {
+                    hasMatched = true;
+                    sample = userByTag;
+                }
+            } else {
+                tempArray.add(s);
+            }
+        }
+        this.message = tempArray.toArray(String[]::new);
+        if (sample != null) {
+            return sample;
+        }
         if (e.isFromGuild()) {
             List<Member> members = e.getMessage().getMentionedMembers();
             if (!members.isEmpty()) {
@@ -69,7 +87,8 @@ public class ParserAux {
                     return null;
                 }
                 sample = members.get(0).getUser();
-                message = Arrays.stream(message).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
+                User finalSample = sample;
+                this.message = Arrays.stream(this.message).filter(s -> !s.equals(finalSample.getAsMention()) && !s.equals("<@!" + finalSample.getAsMention().substring(2))).toArray(String[]::new);
             } else {
                 sample = e.getAuthor();
             }

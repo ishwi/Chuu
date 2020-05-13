@@ -196,10 +196,11 @@ public class DateParser extends DaoParser<DateParameters> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *username* *time*** \n" +
-               "\t time can be one of the following: \n" +
-               "\t\t One of Year,Quarter,Month,All,Semester,Week,Day,Hour,Minute,Second with plural forms and abbreviations included followed or preceded by a number (number of periods)\n " +
-               "\t\t A Date on a whole lot of different formats,if what you want doesnt match what the bot reads you can always default to `Year/Month/Day`\n" +
-               "\t If the username is not specified it defaults to author's account\n";
+                "\t time can be one of the following: \n" +
+                "\t\t One of Year,Quarter,Month,All,Semester,Week,Day,Hour,Minute,Second with plural forms and abbreviations included followed or preceded by a number (number of periods)\n " +
+                "\t\t A Date on a whole lot of different formats,if what you want doesnt match what the bot reads you can always default to `Year/Month/Day`\n" +
+                "\tIf an username it's not provided it defaults to authors account, only ping and tag format (user#number)\n ";
+
     }
 
     @Override

@@ -40,7 +40,8 @@ public class ArtistParser extends DaoParser<ArtistParameters> {
     @Override
     public String getUsageLogic(String commandName) {
 
-        return "**" + commandName + " *artist*** \n";
+        return "**" + commandName + " *artist* *username*** \n" +
+                "\tIf an username it's not provided it defaults to authors account, only ping and tag format (user#number)\n";
 
     }
 

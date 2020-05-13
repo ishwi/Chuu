@@ -334,8 +334,8 @@ public class GraphicUtils {
     }
 
     public static BufferedImage getImage(String url) {
-        String s = Base64.getEncoder().encodeToString(url.getBytes(StandardCharsets.UTF_8));
-        File file = new File(CacheDirectory, s);
+        String path  = url.replaceAll("[\\\\/:;]", "_");
+        File file = new File(CacheDirectory, path);
         if (file.exists()) {
             try {
                 return ImageIO.read(file);

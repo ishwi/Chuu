@@ -74,7 +74,8 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *artist-album** username* " +
-               "\n\tif username its not specified it defaults to yours";
+                "\n\tIf username it's not provided it defaults to authors account, only ping and tag format (user#number)\n ";
+
 
     }
 

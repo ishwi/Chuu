@@ -1,12 +1,24 @@
 package core.commands;
 
+import checkers.units.quals.A;
 import com.neovisionaries.i18n.CountryCode;
+import core.apis.discogs.DiscogsApi;
+import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
+import core.apis.last.chartentities.ArtistChart;
 import core.apis.last.chartentities.ChartUtil;
+import core.apis.last.queues.ArtistQueue;
+import core.apis.spotify.Spotify;
+import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.imagerenderer.ChartQuality;
+import core.imagerenderer.CollageMaker;
+import core.imagerenderer.GraphicUtils;
 import core.otherlisteners.Reactionary;
+import core.parsers.ArtistParser;
 import core.parsers.CountryParser;
+import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.CountryParameters;
@@ -20,24 +32,34 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameters> {
 
+    final DiscogsApi discogsApi;
+    final Spotify spotifyApi;
 
     private final MusicBrainzService mb;
 
     public ArtistFromCountryCommand(ChuuService dao) {
         super(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
+        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+        spotifyApi = SpotifySingleton.getInstance();
     }
 
     @Override
     public Parser<CountryParameters> getParser() {
-        return new CountryParser(getService());
+        CountryParser countryParser = new CountryParser(getService());
+        countryParser.addOptional(new OptionalEntity("--image", "show this with a chart instead of a list "));
+        return countryParser;
     }
 
     @Override
@@ -53,6 +75,32 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     @Override
     public String getName() {
         return "Artist from a country";
+    }
+
+    void doImage(List<ArtistUserPlays> list, BlockingQueue<UrlCapsule> ogQuee, CountryParameters countryParameters) {
+        AtomicInteger integer = new AtomicInteger(0);
+        List<UrlCapsule> collect = ogQuee.stream()
+                .filter(x -> list.stream().anyMatch(y -> y.getArtistName().equalsIgnoreCase(x.getArtistName())))
+                .takeWhile(x -> {
+                    x.setPos(integer.getAndIncrement());
+                    return x.getPos() < 25;
+                })
+                .peek(x -> {
+                    try {
+                        String artistImageUrl = CommandUtil.getArtistImageUrl(getService(), x.getArtistName(), lastFM, discogsApi, spotifyApi);
+                        x.setUrl(artistImageUrl);
+                    } catch (LastFmException ignored) {
+
+                    }
+                })
+                .collect(Collectors.toList());
+        int rows = (int) Math.floor(Math.sqrt(collect.size()));
+        rows = Math.min(rows, 5);
+        int cols = rows;
+
+        BufferedImage bufferedImage = CollageMaker.generateCollageThreaded(rows, cols, new LinkedBlockingDeque<>(collect), ChartQuality.PNG_BIG);
+        sendImage(bufferedImage, countryParameters.getE(), ChartQuality.PNG_BIG);
+
     }
 
     @Override
@@ -73,7 +121,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
         String countryRep;
-        if (country.getAlpha2().equals("su")) {
+        if (country.getAlpha2().equalsIgnoreCase("su")) {
             countryRep = "☭";
         } else {
             countryRep = ":flag_" + country.getAlpha2().toLowerCase();
@@ -81,6 +129,10 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         String usableTime = parameters.getTimeFrame().getDisplayString();
         if (list.isEmpty()) {
             sendMessageQueue(e, userName + " doesnt have any artist from " + countryRep + ": " + usableTime);
+            return;
+        }
+        if (parameters.hasOptional("--image")) {
+            doImage(list, queue, parameters);
             return;
         }
         StringBuilder a = new StringBuilder();
@@ -94,7 +146,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(userUrl)
                 .setFooter(CommandUtil.markdownLessUserString(userName, discordId, e) + " has " + list.size() +
-                           (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
+                        (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
                 .setTitle(title)
                 .setDescription(a);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(mes ->
