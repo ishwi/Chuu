@@ -53,13 +53,13 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
             params.getColors().stream().noneMatch(color -> {
                 double threshold = params.isStrict() ? STRICT_THRESHOLD : DISTANCE_THRESHOLD;
                 return preComputedChartEntity.getImage() != null &&
-                       (GraphicUtils.getDistance(color, preComputedChartEntity.getAverageColor()) < threshold ||
-                        preComputedChartEntity.getDominantColor().stream().anyMatch(palette -> GraphicUtils.getDistance(color, palette) < threshold))
-                       &&
-                       GraphicUtils.getDistance(preComputedChartEntity.getAverageColor(), preComputedChartEntity.getDominantColor().stream()
-                               .map(palette -> Pair.of(color, GraphicUtils.getDistance(color, palette)))
-                               .min(Comparator.comparingDouble(Pair::getRight)).map(Pair::getLeft).orElse(GraphicUtils.getBetter(preComputedChartEntity.getAverageColor())))
-                       < (params.isStrict() ? STRICT_ERROR : ERROR_MATCHING);
+                        (GraphicUtils.getDistance(color, preComputedChartEntity.getAverageColor()) < threshold ||
+                                preComputedChartEntity.getDominantColor().stream().anyMatch(palette -> GraphicUtils.getDistance(color, palette) < threshold))
+                        &&
+                        GraphicUtils.getDistance(preComputedChartEntity.getAverageColor(), preComputedChartEntity.getDominantColor().stream()
+                                .map(palette -> Pair.of(color, GraphicUtils.getDistance(color, palette)))
+                                .min(Comparator.comparingDouble(Pair::getRight)).map(Pair::getLeft).orElse(GraphicUtils.getBetter(preComputedChartEntity.getAverageColor())))
+                                < (params.isStrict() ? STRICT_ERROR : ERROR_MATCHING);
             });
 
     public ColorChartCommand(ChuuService dao) {
@@ -143,14 +143,7 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
         Function<UrlCapsule, PreComputedChartEntity> factoryFunction =
                 (capsule) ->
                 {
-                    BufferedImage image;
-                    try {
-                        URL url = new URL(capsule.getUrl());
-                        image = ImageIO.read(url);
-                    } catch (IOException | ArrayIndexOutOfBoundsException ex) {
-                        // https://bugs.openjdk.java.net/browse/JDK-7132728
-                        image = null;
-                    }
+                    BufferedImage image = GraphicUtils.getImage(capsule.getUrl());
                     PreComputedChartEntity.ImageComparison comparison = params.getColors().size() > 1 ?
                             PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT_PALETTE :
                             PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT_PALETTE;

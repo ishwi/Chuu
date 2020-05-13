@@ -71,7 +71,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
 
         final String userString = getUserString(e, userId, lastFmName);
         if (ai.isEmpty()) {
-            sendMessageQueue(e, ("Couldn't find your fav tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString() + "!"));
+            sendMessageQueue(e, ("Couldn't find your fav tracks in your top 5k songs (or you don't have any track with more than 3 plays) of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString() + "!"));
             return;
         }
 

@@ -33,14 +33,12 @@ public class TasteRenderer {
 
         //Gets Profile Images
         for (UserInfo userInfo : userInfoLiust) {
-            try {
-                java.net.URL url = new java.net.URL(userInfo.getImage());
-                imageList.add(ImageIO.read(url));
-            } catch (IndexOutOfBoundsException | IOException exception) {
-                //JDK error when reading a gif as png | other errors
+            BufferedImage image = GraphicUtils.getImage(userInfo.getImage());
+            if (image == null) {
                 imageList.add(GraphicUtils.noArtistImage);
+            } else {
+                imageList.add(image);
             }
-
         }
 
         //Init Of Variables

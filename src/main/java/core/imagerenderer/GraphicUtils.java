@@ -1,6 +1,9 @@
 package core.imagerenderer;
 
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.youtube.YouTube;
 import core.Chuu;
+import core.apis.youtube.Search;
 import core.exceptions.ChuuServiceException;
 import core.imagerenderer.stealing.blur.GaussianFilter;
 import core.imagerenderer.util.CIELab;
@@ -18,16 +21,24 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
 public class GraphicUtils {
+
     static final Random ran = new Random();
     private static final Font NORMAL_FONT = new Font("Noto Sans", Font.BOLD, 14);
     private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.BOLD, 14);
     private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.BOLD, 14);
     private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 14);
+    static final File CacheDirectory;
 
     private GraphicUtils() {
     }
@@ -52,9 +63,8 @@ public class GraphicUtils {
 
         float[] first1 = CIELab.getInstance().fromRGB(first.getColorComponents(null));
         float[] second1 = CIELab.getInstance().fromRGB(second.getColorComponents(null));
-        double v = D.doSomethin(first1, second1);
 
-        return v;
+        return D.doSomethin(first1, second1);
 
     }
 
@@ -75,7 +85,12 @@ public class GraphicUtils {
     static final BufferedImage noArtistImage;
 
     static {
-        try {
+        try (InputStream in = Search.class.getResourceAsStream("/" + "all.properties")) {
+            Properties properties = new Properties();
+            properties.load(in);
+            String cache_folder = properties.getProperty("CACHE_FOLDER");
+            CacheDirectory = new File(cache_folder);
+            assert CacheDirectory.isDirectory();
             noArtistImage = ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png"));
         } catch (IOException e) {
             throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
@@ -83,14 +98,12 @@ public class GraphicUtils {
     }
 
     public static void inserArtistImage(String urlImage, Graphics2D g) {
-        try {
-            if (urlImage != null && !urlImage.isBlank()) {
-                BufferedImage image = Scalr.resize(ImageIO.read(new URL(urlImage)), 100, 100);
-                g.drawImage(image, 10, 750 - 110, null);
-            }
-        } catch (IOException ex) {
-            Chuu.getLogger().warn(ex.getMessage(), ex);
+        BufferedImage read = GraphicUtils.getImage(urlImage);
+        if (read != null) {
+            BufferedImage image = Scalr.resize(read, 100, 100);
+            g.drawImage(image, 10, 750 - 110, null);
         }
+
     }
 
     static Graphics2D initArtistBackground(BufferedImage canvas, BufferedImage artistImage) {
@@ -149,17 +162,11 @@ public class GraphicUtils {
     }
 
     static BufferedImage getImageFromUrl(String urlImage, @Nullable BufferedImage replacement) {
-        BufferedImage backgroundImage;
-        try {
+        BufferedImage image = getImage(urlImage);
+        if (image == null)
+            return replacement;
 
-            java.net.URL url = new java.net.URL(urlImage);
-            backgroundImage = ImageIO.read(url);
-
-        } catch (IOException e) {
-
-            backgroundImage = replacement;
-        }
-        return backgroundImage;
+        return image;
 
     }
 
@@ -218,7 +225,7 @@ public class GraphicUtils {
             int playPos = x + width - (rowHeight + stringWidth);
             int playEnd = playPos + stringWidth;
             g.drawString(plays, x + width - (rowHeight + metrics.stringWidth(plays)), yCounter + (margin - metrics
-                                                                                                                   .getAscent() / 2));
+                    .getAscent() / 2));
             g.drawImage(lastFmLogo, playEnd + 9, (int) (yCounter - metrics.getAscent() * 0.85), null);
             yCounter += rowHeight;
 
@@ -324,6 +331,31 @@ public class GraphicUtils {
             g.setFont(g.getFont().deriveFont(sizeFont -= 2));
         }
         return g.getFontMetrics().getStringBounds(stringed, g);
+    }
+
+    public static BufferedImage getImage(String url) {
+        String s = Base64.getEncoder().encodeToString(url.getBytes(StandardCharsets.UTF_8));
+        File file = new File(CacheDirectory, s);
+        if (file.exists()) {
+            try {
+                return ImageIO.read(file);
+            } catch (IOException e) {
+                return downloadImage(url, file);
+            }
+        } else {
+            return downloadImage(url, file);
+        }
+    }
+
+    private static BufferedImage downloadImage(String url, File file) {
+        try {
+            URL uri = new URL(url);
+            BufferedImage read = ImageIO.read(uri);
+            ImageIO.write(read, "png", file);
+            return read;
+        } catch (IOException | ArrayIndexOutOfBoundsException ex) {
+            return null;
+        }
     }
 
 }

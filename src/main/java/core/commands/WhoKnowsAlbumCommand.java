@@ -202,13 +202,9 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
 
         GraphicUtils.setQuality(g);
         pieChart.paint(g, 1000, 750);
-        try {
-            java.net.URL url = new java.net.URL(returnNowPlaying.getUrl());
-            BufferedImage backgroundImage = ImageIO.read(url);
+        BufferedImage backgroundImage = GraphicUtils.getImage(returnNowPlaying.getUrl());
+        if (backgroundImage != null) {
             g.drawImage(backgroundImage, 10, 750 - 10 - backgroundImage.getHeight(), null);
-        } catch (IOException ex) {
-            Chuu.getLogger().warn(ex.getMessage(), ex);
-
         }
         sendImage(bufferedImage, ap.getE());
     }

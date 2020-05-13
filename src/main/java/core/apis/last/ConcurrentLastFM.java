@@ -520,8 +520,8 @@ public class ConcurrentLastFM {//implements LastFMService {
                 Integer duration;
                 if ((duration = trackList.get(track)) != null) {
                     seconds += duration;
-                    count++;
                 }
+                count++;
             }
 
         }
@@ -901,7 +901,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             obj = obj.getJSONObject("toptracks");
 //			if (page== 2)
 //				requestedSize = obj.getJSONObject("@attr").getInt("total");
-            limit = obj.getJSONObject("@attr").getInt("totalPages");
+            limit = Math.min(10, obj.getJSONObject("@attr").getInt("totalPages"));
             if (limit == 0) {
                 //TODO CHECK
                 return trackList;

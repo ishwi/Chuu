@@ -65,14 +65,13 @@ class ThreadQueue implements Runnable {
     }
 
     public void handleCapsule(UrlCapsule capsule, int x, int y) {
-        try {
-            URL url = new URL(capsule.getUrl());
-            BufferedImage image = ImageIO.read(url);
-            drawImage(image, capsule, x, y);
-            image.flush();
-        } catch (IOException e) {
+        BufferedImage image = GraphicUtils.getImage(capsule.getUrl());
+        if (image == null) {
             handleInvalidImage(capsule, x, y);
+            return;
         }
+        drawImage(image, capsule, x, y);
+        image.flush();
     }
 
     public void handlePreComputedCapsule(PreComputedChartEntity capsule, int x, int y) {

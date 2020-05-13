@@ -69,18 +69,12 @@ public class BandRendered {
         for (AlbumUserPlays albumUserPlays : albumUserPlaysList) {
             if (count++ == 4)
                 break;
-            try {
 
-                if (NORMAL_FONT.canDisplayUpTo(albumUserPlays.getAlbum()) != -1) {
-                    needsJapanese = true;
-                }
-
-                java.net.URL url = new java.net.URL(albumUserPlays.getAlbumUrl());
-                albumsImages.add(ImageIO.read(url));
-            } catch (IOException e) {
-                Chuu.getLogger().warn(e.getMessage(), e);
-                albumsImages.add(null);
+            if (NORMAL_FONT.canDisplayUpTo(albumUserPlays.getAlbum()) != -1) {
+                needsJapanese = true;
             }
+            BufferedImage image = GraphicUtils.getImage(albumUserPlays.getAlbumUrl());
+            albumsImages.add(image);
         }
 
         if (needsJapanese)

@@ -107,7 +107,7 @@ CREATE TABLE alt_url
     id         BIGINT(20)                            NOT NULL AUTO_INCREMENT PRIMARY KEY,
     artist_id  BIGINT(20)                            NOT NULL,
     url        VARCHAR(400) COLLATE ascii_general_ci NOT NULL,
-    discord_id BIGINT(20)                            NOT NULL,
+    discord_id BIGINT(20)                             NULL,
     added_date DATETIME                              NOT NULL DEFAULT NOW(),
     score      INT                                   NOT NULL DEFAULT 0,
     CONSTRAINT alt_urls_fk_artist FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,

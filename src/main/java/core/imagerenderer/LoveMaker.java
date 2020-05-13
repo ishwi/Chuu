@@ -42,13 +42,8 @@ public class LoveMaker {
         GraphicUtils.setQuality(g);
         GraphicUtils.initRandomImageBlurredBackground(g, X_SIZE, Y_SIZE);
 
-        BufferedImage first;
-        try {
-            first = ImageIO.read(new URL(firstImage));
+        BufferedImage first = GraphicUtils.getImageFromUrl(firstImage, GraphicUtils.noArtistImage);
 
-        } catch (IOException e) {
-            first = GraphicUtils.noArtistImage;
-        }
         if (first.getHeight() > IMAGE_SIZE || first.getWidth() > IMAGE_SIZE)
             first = Scalr.resize(first, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.AUTOMATIC, IMAGE_SIZE, Scalr.OP_ANTIALIAS);
         assert first.getWidth() <= IMAGE_SIZE && first.getHeight() <= IMAGE_SIZE;
@@ -56,14 +51,7 @@ public class LoveMaker {
         int yImageStarter = Y_MARGIN + (IMAGE_SIZE - first.getHeight()) / 2;
         g.drawImage(first, xImageStarter, yImageStarter, null);
 
-        BufferedImage second;
-
-        try {
-            second = ImageIO.read(new URL(secondImage));
-
-        } catch (IOException e) {
-            second = GraphicUtils.noArtistImage;
-        }
+        BufferedImage second = GraphicUtils.getImageFromUrl(secondImage, GraphicUtils.noArtistImage);
         if (second.getHeight() > IMAGE_SIZE || second.getWidth() > IMAGE_SIZE)
             second = Scalr.resize(second, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.AUTOMATIC, IMAGE_SIZE, Scalr.OP_ANTIALIAS);
 

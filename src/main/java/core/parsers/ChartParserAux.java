@@ -18,7 +18,7 @@ class ChartParserAux {
     private static final Pattern naturalPattern = Pattern.compile("(:?[yqsmwadh']|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(:?ly)?(:?lies)?|day(:?s)?|" +
                                                                   "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))");
 
-    private static final Pattern nonPermissivePattern = Pattern.compile("[yqsmwad]");
+    private static final Pattern nonPermissivePattern = Pattern.compile("[yqsmwd]");
     private static final Pattern chartSizePattern = Pattern.compile("\\d+[xX]\\d+");
     private final boolean permissive;
     private String[] message;

@@ -12,6 +12,7 @@ import core.apis.last.queues.ArtistQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
+import core.imagerenderer.GraphicUtils;
 import core.parsers.ChartableParser;
 import core.parsers.RainbowParser;
 import core.parsers.params.RainbowParams;
@@ -114,16 +115,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
 
         }
         List<PreComputedChartEntity> collect = temp.parallelStream().map(x -> {
-            BufferedImage image;
-
-            try {
-                URL url = new URL(x.getUrl());
-                image = ImageIO.read(url);
-
-            } catch (IOException | ArrayIndexOutOfBoundsException ex) {
-                // https://bugs.openjdk.java.net/browse/JDK-7132728
-                image = null;
-            }
+            BufferedImage image = GraphicUtils.getImage(x.getUrl());
             if (param.isColor()) {
                 return new PreComputedByColor(x, image, inverted);
             } else {

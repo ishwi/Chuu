@@ -122,17 +122,15 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
         GraphicUtils.setQuality(g);
 
         pieChart.paint(g, 1000, 750);
-        try {
-            java.net.URL url = new java.net.URL(returnNowPlaying.getUrl());
-            BufferedImage backgroundImage = Scalr.resize(ImageIO.read(url), 150);
+        BufferedImage image = GraphicUtils.getImage(returnNowPlaying.getUrl());
+        if (image != null) {
+            BufferedImage backgroundImage = Scalr.resize(image, 150);
             g.drawImage(backgroundImage, 10, 750 - 10 - backgroundImage.getHeight(), null);
-        } catch (IOException ex) {
-            Chuu.getLogger().warn(ex.getMessage(), ex);
         }
         sendImage(bufferedImage, ap.getE());
     }
 
-    void whoKnowsLogic(ArtistParameters ap) throws InstanceNotFoundException, LastFmException {
+    void whoKnowsLogic(ArtistParameters ap) {
 
         ScrobbledArtist who = ap.getScrobbledArtist();
         long artistId = who.getArtistId();

@@ -40,6 +40,10 @@ public class WhoKnowsMaker {
 
         Graphics2D g = canvas.createGraphics();
         GraphicUtils.setQuality(g);
+        backgroundImage = GraphicUtils.getImage(wrapperReturnNowPlaying.getUrl());
+        if (backgroundImage == null) {
+            backgroundImage = GraphicUtils.noArtistImage;
+        }
 
         try {
 
@@ -47,11 +51,7 @@ public class WhoKnowsMaker {
                     .getResourceAsStream("/images/logo2.png"));
             guildLogo = logo;
 
-            java.net.URL url = new java.net.URL(urlString);
-            backgroundImage = ImageIO.read(url);
-
-        } catch (IOException e) {
-            backgroundImage = GraphicUtils.noArtistImage;
+        } catch (IOException ignored) {
         }
 
         g.drawImage(backgroundImage, 0, 0, X_MAX, Y_MAX, 0, 0, backgroundImage.getWidth(), backgroundImage

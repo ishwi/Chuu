@@ -62,11 +62,16 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
             fullAlbumEntity = new FullAlbumEntity(artist, album, artistPlays, null, data.getName());
         }
 
-        List<Track> trackList = fullAlbumEntity.getTrackList();
+        Set<Track> trackList = new HashSet<>(fullAlbumEntity.getTrackList());
 
         if (trackList.isEmpty()) {
             if (fullAlbumEntity.getMbid() != null && !fullAlbumEntity.getMbid().isBlank()) {
-                mb.getAlbumTrackListMbid(fullAlbumEntity.getMbid()).stream().map(t ->
+                List<Track> albumTrackListMbid = mb.getAlbumTrackListMbid(fullAlbumEntity.getMbid());
+                if (albumTrackListMbid.size() > 50) {
+                    sendMessageQueue(e,"Track list is too big for me to calculate all the plays");
+                    return;
+                }
+                albumTrackListMbid.stream().map(t ->
                         {
                             try {
                                 return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
@@ -77,8 +82,12 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                 ).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
             }
             if (trackList.isEmpty()) {
-                mb.getAlbumTrackList(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum())
-                        .stream().map(t ->
+                List<Track> albumTrackList = mb.getAlbumTrackList(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum());
+                if (albumTrackList.size() > 50) {
+                    sendMessageQueue(e,"Track list is too big for me to calculate all the plays");
+                    return;
+                }
+                albumTrackList.stream().map(t ->
                         {
                             try {
                                 return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
@@ -90,8 +99,12 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 
                 if (trackList.isEmpty()) {
                     //Force it to lowerCase
-                    mb.getAlbumTrackListLowerCase(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum())
-                            .stream().map(t ->
+                    List<Track> albumTrackListLowerCase = mb.getAlbumTrackListLowerCase(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum());
+                    if (albumTrackListLowerCase.size() > 50) {
+                        sendMessageQueue(e,"Track list is too big for me to calculate all the plays");
+                        return;
+                    }
+                            albumTrackListLowerCase.stream().map(t ->
                             {
                                 try {
                                     return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
