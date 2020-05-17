@@ -1,5 +1,6 @@
 package core;
 
+import com.google.common.util.concurrent.RateLimiter;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.*;
@@ -29,14 +30,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.stream.Collectors;
 
 public class Chuu {
 
@@ -46,6 +45,7 @@ public class Chuu {
     private static Logger logger;
     private static final LongAdder lastFMMetric = new LongAdder();
     private static ScheduledExecutorService scheduledExecutorService;
+    private static Map<Long, RateLimiter> ratelimited;
 
     public static ScheduledExecutorService getScheduledExecutorService() {
         return scheduledExecutorService;
@@ -159,6 +159,7 @@ public class Chuu {
             lastFMMetric.reset();
             logger.info("Made {} petitions in the last 5 minutes", l);
         }, 5, 5, TimeUnit.MINUTES);
+        ratelimited = dao.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
 
         JDABuilder builder = JDABuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL)
                 .disableCache(EnumSet.allOf(CacheFlag.class))
@@ -249,7 +250,9 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new ScrobblesCommand(dao)))
                 .addEventListeners(help.registerCommand(new RainbowChartCommand(dao)))
                 .addEventListeners(help.registerCommand(new ColorChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new CrownableCommand(dao)));
+                .addEventListeners(help.registerCommand(new CrownableCommand(dao)))
+                .addEventListeners(help.registerCommand(new RateLimitCommand(dao)))
+                .addEventListeners(help.registerCommand(new AOTDCommand(dao)));
 
 
         try {
@@ -299,4 +302,7 @@ public class Chuu {
 
     }
 
+    public static Map<Long, RateLimiter> getRatelimited() {
+        return ratelimited;
+    }
 }

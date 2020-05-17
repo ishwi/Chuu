@@ -334,7 +334,7 @@ public class GraphicUtils {
     }
 
     public static BufferedImage getImage(String url) {
-        String path  = url.replaceAll("[\\\\/:;]", "_");
+        String path = url.replaceAll("[\\\\/:;]", "_").substring(0, 200);
         File file = new File(CacheDirectory, path);
         if (file.exists()) {
             try {
@@ -351,7 +351,9 @@ public class GraphicUtils {
         try {
             URL uri = new URL(url);
             BufferedImage read = ImageIO.read(uri);
-            ImageIO.write(read, "png", file);
+            if (read != null) {
+                ImageIO.write(read, "png", file);
+            }
             return read;
         } catch (IOException | ArrayIndexOutOfBoundsException ex) {
             return null;

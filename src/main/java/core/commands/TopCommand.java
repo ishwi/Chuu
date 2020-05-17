@@ -69,12 +69,12 @@ public class TopCommand extends ArtistAbleCommand<TopParameters> {
 
     @Override
     public String getDescription() {
-        return ("Your all time top albums!");
+        return ("Your all time top artists/albums!");
     }
 
     @Override
     public String getName() {
-        return "Top Albums Chart";
+        return "Top Artists/Albums Chart";
     }
 
     @Override

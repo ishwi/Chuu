@@ -38,6 +38,19 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
     }
 
     @Override
+    public List<AlbumInfo> listOfYearRangeReleases(List<AlbumInfo> mbiz, int baseYear, int numberOfYears) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (mbiz.isEmpty()) {
+                return new ArrayList<>();
+            }
+            return mbizQueriesDao.getDecadeAlbums(connection, mbiz, baseYear, numberOfYears);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public List<CountWrapper<AlbumInfo>> listOfYearReleasesWithAverage(List<AlbumInfo> mbiz, Year year) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
@@ -45,6 +58,19 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
                 return new ArrayList<>();
             }
             return mbizQueriesDao.getYearAverage(connection, mbiz, year);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<CountWrapper<AlbumInfo>> listOfRangeYearReleasesWithAverage(List<AlbumInfo> mbiz, int baseYear, int numberOfYears) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (mbiz.isEmpty()) {
+                return new ArrayList<>();
+            }
+            return mbizQueriesDao.getDecadeAverage(connection, mbiz, baseYear, numberOfYears);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -64,6 +90,20 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             }
 
             return mbizQueriesDao.getYearAlbumsByReleaseName(connection, releaseInfo, year);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<AlbumInfo> findArtistByReleaseRangeYear(List<AlbumInfo> releaseInfo, int baseYear, int numberOfYears) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (releaseInfo.isEmpty()) {
+                return new ArrayList<>();
+            }
+
+            return mbizQueriesDao.getDecadeAlbumsByReleaseName(connection, releaseInfo, baseYear, numberOfYears);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -211,6 +251,20 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             }
 
             return mbizQueriesDao.getYearAlbumsByReleaseNameAverage(connection, releaseInfo, year);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<CountWrapper<AlbumInfo>> findArtistByReleaseWithAverageRangeYears(List<AlbumInfo> emptyMbid, int baseYear, int numberOfYears) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (emptyMbid.isEmpty()) {
+                return new ArrayList<>();
+            }
+
+            return mbizQueriesDao.getYearAlbumsByReleaseNameAverageDecade(connection, emptyMbid, baseYear, numberOfYears);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

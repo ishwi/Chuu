@@ -218,6 +218,26 @@ END;
 //
 DELIMITER ;
 
+
+DELIMITER //
+
+CREATE TRIGGER vote_delete
+    AFTER DELETE
+    ON vote
+    FOR EACH ROW
+BEGIN
+    SET @new_value = 0;
+    IF (old.ispositive ) THEN
+        SET @new_value = -1;
+    ELSE
+        SET @new_value = 1;
+    END IF;
+    UPDATE alt_url SET score = score + @new_value WHERE id = old.alt_id;
+
+END;
+//
+DELIMITER ;
+
 CREATE TABLE log_reported
 (
     id       BIGINT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -239,4 +259,11 @@ CREATE TABLE past_recommendations
     CONSTRAINT past_recommendations_fk_giv FOREIGN KEY (giver_id) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT past_recommendations_fk_artist FOREIGN KEY (artist_id) REFERENCES artist (id) ON DELETE CASCADE ON UPDATE CASCADE
 
+)
+
+CREATE TABLE rate_limited
+(
+    discord_id BIGINT(20) NOT NULL PRIMARY KEY ,
+    queries_second float  NOT NULL ,
+    CONSTRAINT rate_limiteddiscord_id FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE
 )

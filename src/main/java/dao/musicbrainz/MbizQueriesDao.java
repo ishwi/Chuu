@@ -15,6 +15,8 @@ interface MbizQueriesDao {
 
     List<AlbumInfo> getYearAlbumsByReleaseName(Connection con, List<AlbumInfo> releaseInfo, Year year);
 
+    List<AlbumInfo> getDecadeAlbumsByReleaseName(Connection con, List<AlbumInfo> releaseInfo, int decade, int numberOfYears);
+
     Map<Genre, Integer> genreCount(Connection connection, List<AlbumInfo> releaseInfo);
 
     Map<Country, Integer> countryCount(Connection connection, List<ArtistInfo> releaseInfo);
@@ -38,4 +40,11 @@ interface MbizQueriesDao {
     List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameLowerCaseAverage(Connection connection, List<AlbumInfo> emptyMbid, Year year);
 
     List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameAverage(Connection connection, List<AlbumInfo> releaseInfo, Year year);
+
+    List<AlbumInfo> getDecadeAlbums(Connection connection, List<AlbumInfo> mbiz, int decade, int numberOfYears);
+
+    List<CountWrapper<AlbumInfo>> getDecadeAverage(Connection connection, List<AlbumInfo> mbiz, int decade, int numberOfYears);
+
+    List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameAverageDecade(Connection connection, List<AlbumInfo> emptyMbid, int decade, int numberOfYears);
+
 }

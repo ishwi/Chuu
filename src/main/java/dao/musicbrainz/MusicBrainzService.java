@@ -13,11 +13,19 @@ public interface MusicBrainzService {
 
     List<AlbumInfo> listOfYearReleases(List<AlbumInfo> mbiz, Year year);
 
+    List<AlbumInfo> listOfYearRangeReleases(List<AlbumInfo> mbiz, int baseYear, int numberOfYears);
+
+
     List<CountWrapper<AlbumInfo>> listOfYearReleasesWithAverage(List<AlbumInfo> mbiz, Year year);
+
+    List<CountWrapper<AlbumInfo>> listOfRangeYearReleasesWithAverage(List<AlbumInfo> mbiz, int baseYear, int numberOfYears);
 
     List<AlbumInfo> listOfCurrentYear(List<AlbumInfo> mbiz);
 
     List<AlbumInfo> findArtistByRelease(List<AlbumInfo> releaseInfo, Year year);
+
+    List<AlbumInfo> findArtistByReleaseRangeYear(List<AlbumInfo> releaseInfo, int baseYear, int numberOfYears);
+
 
     List<AlbumInfo> findArtistByReleaseLowerCase(List<AlbumInfo> releaseInfo, Year year);
 
@@ -46,5 +54,8 @@ public interface MusicBrainzService {
     List<CountWrapper<AlbumInfo>> findArtistByReleaseLowerCaseWithAverage(List<AlbumInfo> emptyMbid, Year year);
 
     List<CountWrapper<AlbumInfo>> findArtistByReleaseWithAverage(List<AlbumInfo> emptyMbid, Year year);
+
+    List<CountWrapper<AlbumInfo>> findArtistByReleaseWithAverageRangeYears(List<AlbumInfo> emptyMbid, int baseYear, int numberOfYears);
+
 }
 

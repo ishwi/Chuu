@@ -27,7 +27,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void createGuild(Connection con, long guildId) {
         String queryString = "INSERT IGNORE INTO  guild"
-                             + " (guild_id) " + " VALUES (?) ";
+                + " (guild_id) " + " VALUES (?) ";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -47,7 +47,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public void insertUserData(Connection con, LastFMData lastFMData) {
         /* Create "queryString". */
         String queryString = "INSERT INTO  user"
-                             + " (lastfm_id, discord_id) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE lastfm_id=" + "?";
+                + " (lastfm_id, discord_id) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE lastfm_id=" + "?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -264,7 +264,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public void addGuild(Connection con, long userId, long guildId) {
         /* Create "queryString". */
         String queryString = "INSERT IGNORE INTO  user_guild"
-                             + " ( discord_id,guild_id) " + " VALUES (?, ?) ";
+                + " ( discord_id,guild_id) " + " VALUES (?, ?) ";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -347,10 +347,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) throws InstanceNotFoundException {
         @Language("MariaDB") String queryString = "SELECT a.discord_id " +
-                                                  "FROM   user a" +
-                                                  " JOIN  user_guild  b " +
-                                                  "ON a.discord_id = b.discord_id " +
-                                                  " WHERE  a.lastfm_id = ? AND b.guild_id = ? ";
+                "FROM   user a" +
+                " JOIN  user_guild  b " +
+                "ON a.discord_id = b.discord_id " +
+                " WHERE  a.lastfm_id = ? AND b.guild_id = ? ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -379,8 +379,8 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException {
         @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role " +
-                                                  "FROM   user a" +
-                                                  " WHERE  a.lastfm_id = ? ";
+                "FROM   user a" +
+                " WHERE  a.lastfm_id = ? ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -415,6 +415,44 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
             /* Execute query. */
             return getUsersWrappers(preparedStatement);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void removeRateLimit(Connection connection, long discordId) {
+        String queryString = "DELETE from rate_limited where discord_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, discordId);
+            /* Fill "preparedStatement". */
+
+            /* Execute query. */
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void upsertRateLimit(Connection connection, long discordId, float queriesPerSecond) {
+        String queryString = "INSERT INTO  rate_limited"
+                + " (discord_id,queries_second) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE queries_second = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, discordId);
+            preparedStatement.setFloat(i++, queriesPerSecond);
+            preparedStatement.setFloat(i, queriesPerSecond);
+
+
+            /* Execute query. */
+            preparedStatement.executeUpdate();
+
+            /* Get generated identifier. */
+
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

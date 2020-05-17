@@ -4,6 +4,7 @@ import dao.entities.*;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 interface SQLQueriesDao {
 
@@ -86,4 +87,7 @@ interface SQLQueriesDao {
     List<LbEntry> getScrobblesLeaderboard(Connection connection, long guildId);
 
     List<CrownableArtist> getCrownable(Connection connection, Long discordId, Long guildId, boolean skipCrowns);
+
+    Map<Long, Float> getRateLimited(Connection connection);
+
 }

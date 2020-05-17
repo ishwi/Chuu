@@ -1087,4 +1087,29 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+
+    public Map<Long, Float> getRateLimited() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getRateLimited(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void removeRateLimit(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.removeRateLimit(connection, discordId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void addRateLimit(long discordId, float queries_second) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.upsertRateLimit(connection, discordId, queries_second);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }

@@ -93,7 +93,6 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistTimeFrameParameters
         List<UrlCapsule> albumsPlays = urlCapsules.stream().filter(x -> x.getArtistName().equalsIgnoreCase(who.getArtist())).collect(Collectors.toList());
         int sum = albumsPlays.stream().mapToInt(UrlCapsule::getPlays).sum();
         ArtistAlbums ai = new ArtistAlbums(who.getArtist(), albumsPlays.stream().map(x -> {
-
             AlbumUserPlays albumUserPlays = new AlbumUserPlays(x.getAlbumName(), x.getUrl());
             albumUserPlays.setPlays(x.getPlays());
             return albumUserPlays;
@@ -119,10 +118,10 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistTimeFrameParameters
                             .filter(a -> a.getPlays() > 0)
                             .collect(Collectors.toList());
             list.sort(Comparator.comparing(AlbumUserPlays::getPlays).reversed());
-            ai.setAlbumList(list);
             list.forEach(x -> x.setArtist(ai.getArtist()));
             ai.getAlbumList().addAll(list);
         }
+        ai.getAlbumList().forEach(x -> x.setArtist(ai.getArtist()));
         WrapperReturnNowPlaying np = getService().whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
         np.getReturnNowPlayings().forEach(element ->
                 element.setDiscordName(CommandUtil.getUserInfoNotStripped(e, element.getDiscordId()).getUsername())

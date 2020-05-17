@@ -46,4 +46,8 @@ interface UserGuildDao {
 
     List<UsersWrapper> getAll(Connection connection);
 
+    void removeRateLimit(Connection connection, long discordId);
+
+    void upsertRateLimit(Connection connection, long discordId, float queriesPerSecond);
+
 }

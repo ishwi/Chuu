@@ -104,7 +104,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         }
 
         // UTC was not working with last.fm smh
-        ZonedDateTime now = LocalDateTime.now().atZone(ZoneOffset.ofHours(1));
+        ZonedDateTime now = LocalDateTime.now().atZone(ZoneOffset.ofHours(2));
         int timestamp;
         switch (naturalTimeFrameEnum) {
             case YEAR:

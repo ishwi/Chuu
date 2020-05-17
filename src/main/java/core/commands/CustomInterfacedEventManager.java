@@ -1,5 +1,6 @@
 package core.commands;
 
+import com.google.common.util.concurrent.RateLimiter;
 import core.Chuu;
 import core.otherlisteners.ReactionListener;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -90,6 +91,14 @@ public class CustomInterfacedEventManager implements IEventManager {
             String contentRaw = mes.getMessage().getContentRaw();
             if (contentRaw.length() <= 1 || contentRaw.charAt(0) != correspondingPrefix)
                 return;
+            Map<Long, RateLimiter> ratelimited = Chuu.getRatelimited();
+            RateLimiter rateLimiter = ratelimited.get(mes.getAuthor().getIdLong());
+            if (rateLimiter != null) {
+                if (!rateLimiter.tryAcquire()) {
+                    mes.getChannel().sendMessage("You have been rate limited, try again later.").queue();
+                    return;
+                }
+            }
             String substring = contentRaw.substring(1).split("\\s+")[0];
             MyCommand<?> myCommand = commandListeners.get(substring.toLowerCase());
             if (myCommand != null) {
