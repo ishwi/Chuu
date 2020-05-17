@@ -334,7 +334,8 @@ public class GraphicUtils {
     }
 
     public static BufferedImage getImage(String url) {
-        String path = url.replaceAll("[\\\\/:;]", "_").substring(0, 200);
+        String path = url.replaceAll("[\\\\/:;]", "_");
+        path = path.substring(0, Math.min(path.length(), 150));
         File file = new File(CacheDirectory, path);
         if (file.exists()) {
             try {

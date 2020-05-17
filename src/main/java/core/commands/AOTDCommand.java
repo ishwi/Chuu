@@ -55,7 +55,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
 
     @Override
     public String getName() {
-        return null;
+        return "Album Of The Decade";
     }
 
     @Override
@@ -95,8 +95,8 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
         if (isByTime) {
             return handleTimedChart(param, nonEmptyMbid, emptyMbid, queue);
         }
-        albumsMbizMatchingYear = mb.listOfYearRangeReleases(nonEmptyMbid, baseYear,  param.getNumberOfYears());
-        List<AlbumInfo> mbFoundBYName = mb.findArtistByReleaseRangeYear(emptyMbid, baseYear,  param.getNumberOfYears());
+        albumsMbizMatchingYear = mb.listOfYearRangeReleases(nonEmptyMbid, baseYear, param.getNumberOfYears());
+        List<AlbumInfo> mbFoundBYName = mb.findArtistByReleaseRangeYear(emptyMbid, baseYear, param.getNumberOfYears());
         emptyMbid.removeAll(mbFoundBYName);
 
 
@@ -155,8 +155,8 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
         List<AlbumInfo> albumsMbizMatchingYear;
         int baseYear = parameters.getBaseYear().getValue();
 
-        List<CountWrapper<AlbumInfo>> accum = mb.listOfRangeYearReleasesWithAverage(nonEmptyMbid, baseYear,  parameters.getNumberOfYears());
-        List<CountWrapper<AlbumInfo>> mbFoundBYName = mb.findArtistByReleaseWithAverageRangeYears(emptyMbid, baseYear,  parameters.getNumberOfYears());
+        List<CountWrapper<AlbumInfo>> accum = mb.listOfRangeYearReleasesWithAverage(nonEmptyMbid, baseYear, parameters.getNumberOfYears());
+        List<CountWrapper<AlbumInfo>> mbFoundBYName = mb.findArtistByReleaseWithAverageRangeYears(emptyMbid, baseYear, parameters.getNumberOfYears());
         emptyMbid.removeAll(mbFoundBYName.stream().map(CountWrapper::getResult).collect(Collectors.toList()));
 
 
