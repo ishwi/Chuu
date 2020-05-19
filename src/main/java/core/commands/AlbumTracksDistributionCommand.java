@@ -68,51 +68,57 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
             if (fullAlbumEntity.getMbid() != null && !fullAlbumEntity.getMbid().isBlank()) {
                 List<Track> albumTrackListMbid = mb.getAlbumTrackListMbid(fullAlbumEntity.getMbid());
                 if (albumTrackListMbid.size() > 50) {
-                    sendMessageQueue(e,"Track list is too big for me to calculate all the plays");
+                    sendMessageQueue(e, "Track list is too big for me to calculate all the plays");
                     return;
                 }
                 albumTrackListMbid.stream().map(t ->
                         {
                             try {
-                                return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
+                                Track trackInfo = lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
+                                trackInfo.setPosition(t.getPosition());
+                                return trackInfo;
                             } catch (LastFmException ex) {
                                 return t;
                             }
                         }
-                ).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
+                ).sorted(Comparator.comparingInt(Track::getPosition)).forEach(trackList::add);
             }
             if (trackList.isEmpty()) {
                 List<Track> albumTrackList = mb.getAlbumTrackList(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum());
                 if (albumTrackList.size() > 50) {
-                    sendMessageQueue(e,"Track list is too big for me to calculate all the plays");
+                    sendMessageQueue(e, "Track list is too big for me to calculate all the plays");
                     return;
                 }
                 albumTrackList.stream().map(t ->
                         {
                             try {
-                                return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
+                                Track trackInfo = lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
+                                trackInfo.setPosition(t.getPosition());
+                                return trackInfo;
                             } catch (LastFmException ex) {
                                 return t;
                             }
                         }
-                ).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
+                ).forEach(trackList::add);
 
                 if (trackList.isEmpty()) {
                     //Force it to lowerCase
                     List<Track> albumTrackListLowerCase = mb.getAlbumTrackListLowerCase(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum());
                     if (albumTrackListLowerCase.size() > 50) {
-                        sendMessageQueue(e,"Track list is too big for me to calculate all the plays");
+                        sendMessageQueue(e, "Track list is too big for me to calculate all the plays");
                         return;
                     }
-                            albumTrackListLowerCase.stream().map(t ->
+                    albumTrackListLowerCase.stream().map(t ->
                             {
                                 try {
-                                    return lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
+                                    Track trackInfo = lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
+                                    trackInfo.setPosition(t.getPosition());
+                                    return trackInfo;
                                 } catch (LastFmException ex) {
                                     return t;
                                 }
                             }
-                    ).sorted(Comparator.comparingInt(Track::getPosition)).forEach(fullAlbumEntity::addTrack);
+                    ).forEach(trackList::add);
 
                     if (trackList.isEmpty()) {
                         //If is still empty well fuck it
@@ -127,6 +133,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
             }
 
         }
+        fullAlbumEntity.setTrackList(trackList.stream().sorted(Comparator.comparingInt(Track::getPosition)).collect(Collectors.toList()));
         List<Track> handler = new ArrayList<>(trackList);
 
         List<Track> collect = Multimaps.index(handler, Track::getPosition)

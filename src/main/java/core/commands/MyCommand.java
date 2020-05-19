@@ -21,6 +21,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public abstract class MyCommand<T extends CommandParameters> extends ListenerAdapter {
     final ConcurrentLastFM lastFM;
@@ -106,9 +107,9 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
             String instanceNotFoundTemplate = InstanceNotFoundException.getInstanceNotFoundTemplate();
 
             String s = instanceNotFoundTemplate
-                    .replaceFirst("\\$\\{user_to_replace}", getUserString(e, ex.getDiscordId(), ex
-                            .getLastFMName()));
-            s = s.replaceFirst("\\$\\{prefix}", String.valueOf(e.getMessage().getContentStripped().charAt(0)));
+                    .replaceFirst("user_to_be_used_yep_yep", Matcher.quoteReplacement(getUserString(e, ex.getDiscordId(), ex
+                            .getLastFMName())));
+            s = s.replaceFirst("prefix_to_be_used_yep_yep", Matcher.quoteReplacement(String.valueOf(e.getMessage().getContentStripped().charAt(0))));
             parser.sendError(s, e);
         } catch (LastFMConnectionException ex) {
             parser.sendError("Last.fm is not working well or the bot might be overloaded :(", e);

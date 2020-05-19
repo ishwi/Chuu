@@ -90,7 +90,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
             } else {
                 if (globalArtistRanking.size() > 1) {
-                    embedBuilder.addField("Ahead of second:", (globalCrown.getPlaycount() - globalArtistRanking.get(2).getPlaycount()) + " plays", true);
+                    embedBuilder.addField("Ahead of second:", (globalCrown.getPlaycount() - globalArtistRanking.get(1).getPlaycount()) + " plays", true);
                 } else {
                     embedBuilder.addBlankField(true);
                 }
@@ -110,7 +110,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         }
 
         String globalStats = String.format("**%d** listeners%n", totalPeople) +
-                             String.format("**%d** plays%n", totalPlays);
+                String.format("**%d** plays%n", totalPlays);
         embedBuilder
                 .addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName())), globalStats, true);
 

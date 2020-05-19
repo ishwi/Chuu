@@ -1112,4 +1112,11 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+    public void setPrivateUpdate(long discordId, boolean privateUpdate) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setPrivateUpdate(connection, discordId, privateUpdate);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }

@@ -50,4 +50,6 @@ interface UserGuildDao {
 
     void upsertRateLimit(Connection connection, long discordId, float queriesPerSecond);
 
+    void setPrivateUpdate(Connection connection, long discordId, boolean privateUpdate);
+
 }

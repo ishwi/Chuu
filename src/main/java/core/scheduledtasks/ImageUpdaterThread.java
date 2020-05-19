@@ -41,6 +41,7 @@ public class ImageUpdaterThread implements Runnable {
                         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistDatum.getArtist(), 0, null);
                         scrobbledArtist.setArtistId(scrobbledArtist.getArtistId());
                         scrobbledArtist.setUpdateBit(true);
+                        scrobbledArtist.setUrl("");
                         dao.upsertArtistSad(scrobbledArtist);
                     } else {
                         dao.upsertUrl(url, artistDatum.getArtistId());

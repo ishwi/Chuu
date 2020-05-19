@@ -286,17 +286,22 @@ public class GraphicUtils {
             String path = properties.getProperty("WALLPAPER_FOLDER");
             File dir = new File(path);
             File[] files = dir.listFiles();
-            Random rand = new Random();
+
             assert files != null;
-            File file = files[rand.nextInt(files.length)];
+            File file;
+            do {
+                file = files[GraphicUtils.ran.nextInt(files.length)];
+            } while (file.isDirectory());
             BufferedImage temp = ImageIO.read(file);
-            bim = cropImage(temp, SIZE_X, SIZE_Y);
-            temp.flush();
+            if (temp != null) {
+                bim = cropImage(temp, SIZE_X, SIZE_Y);
+                temp.flush();
+                g.drawImage(bim, new GaussianFilter(90), 0, 0);
+                bim.flush();
+            }
         } catch (IOException e) {
             throw new ChuuServiceException(e);
         }
-        g.drawImage(bim, new GaussianFilter(90), 0, 0);
-        bim.flush();
 
     }
 

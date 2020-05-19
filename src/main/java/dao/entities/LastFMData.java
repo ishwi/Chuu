@@ -6,17 +6,20 @@ public class LastFMData {
     private String name;
     private long guildID;
     private Role role;
+    private boolean privateUpdate;
 
-    public LastFMData(String name, Long discordId, long guildID) {
+    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate) {
         this.discordId = discordId;
         this.name = name;
         this.guildID = guildID;
+        this.privateUpdate = privateUpdate;
     }
 
-    public LastFMData(String lastFmID, long resDiscordID, Role role) {
+    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate) {
         this.name = lastFmID;
         this.discordId = resDiscordID;
         this.role = role;
+        this.privateUpdate = privateUpdate;
     }
 
 
@@ -51,5 +54,9 @@ public class LastFMData {
 
     public void setGuildID(long guildID) {
         this.guildID = guildID;
+    }
+
+    public boolean isPrivateUpdate() {
+        return privateUpdate;
     }
 }

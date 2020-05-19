@@ -64,7 +64,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                 .addField("Scrobbles:", String.valueOf(albumSummary.getTotalscrobbles()), true)
                 .addField("Tags:", tagsField, false);
         if (!albumSummary.getTrackList().isEmpty()) {
-            embedBuilder.addField("Track List:", trackList.toString().substring(0, 1000), false)
+            embedBuilder.addField("Track List:", trackList.toString().substring(0, Math.min(trackList.length(), 1000)), false)
                     .addField("Total Duration:",
                             (String.format("%02d:%02d minutes", albumSummary.getTotalDuration() / 60, albumSummary.getTotalDuration() % 60))
                             , true);

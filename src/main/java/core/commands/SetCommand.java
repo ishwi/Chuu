@@ -122,7 +122,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
 
                         queue());
 
-        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER);
+        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false);
         lastFMData.setGuildID(guildID);
 
         getService().

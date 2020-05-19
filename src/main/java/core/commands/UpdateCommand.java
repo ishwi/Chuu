@@ -14,10 +14,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
-import dao.entities.ScrobbledArtist;
-import dao.entities.TimeFrameEnum;
-import dao.entities.TimestampWrapper;
-import dao.entities.UpdaterUserWrapper;
+import dao.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Instant;
@@ -55,8 +52,14 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         ChuuDataParams params = parser.parse(e);
-        String lastFmName = params.getLastFMData().getName();
-        long discordID = params.getLastFMData().getDiscordId();
+        LastFMData lastFMData = params.getLastFMData();
+        String lastFmName = lastFMData.getName();
+        long discordID = lastFMData.getDiscordId();
+        if (lastFMData.isPrivateUpdate() && e.getAuthor().getIdLong() != discordID) {
+            sendMessageQueue(e, "This user cannot be updated by other users");
+            return;
+        }
+        getService().findLastFMData(discordID);
         boolean force = params.hasOptional("--force");
         String userString = getUserString(e, discordID, lastFmName);
         if (e.isFromGuild()) {

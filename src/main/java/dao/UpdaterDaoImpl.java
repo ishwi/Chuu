@@ -214,7 +214,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
     public Set<ScrobbledArtist> selectNullUrls(Connection connection, boolean doSpotifySearch) {
         Set<ScrobbledArtist> returnList = new HashSet<>();
 
-        String queryString = doSpotifySearch ? "SELECT name,id FROM artist where url = '' and  url_status = 1 or url is null limit 20" :
+        String queryString = doSpotifySearch ?
+                "SELECT name,id FROM artist where url = '' and  url_status = 1 or url is null limit 20" :
                 "SELECT name,id FROM artist where url is null limit 20";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             ResultSet resultSet = preparedStatement.executeQuery();

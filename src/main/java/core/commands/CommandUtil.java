@@ -139,6 +139,9 @@ public class CommandUtil {
             else {
                 scrobbledArtist.setUrl(status.getArtistUrl());
             }
+            if (scrobbledArtist.getUrl() == null || scrobbledArtist.getUrl().isBlank()) {
+                scrobbledArtist.setUrl(null);
+            }
         }
     }
 

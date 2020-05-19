@@ -1,5 +1,8 @@
 package core.parsers.params;
 
+import core.exceptions.InstanceNotFoundException;
+import dao.ChuuService;
+
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.function.Function;
@@ -10,6 +13,7 @@ import java.util.stream.Stream;
 
 public enum GuildConfigType {
     CROWNS_THRESHOLD("crowns");
+
     private static final Map<String, GuildConfigType> ENUM_MAP;
     private static final Pattern number = Pattern.compile("\\d+");
 
@@ -33,14 +37,6 @@ public enum GuildConfigType {
         return commandName;
     }
 
-    public String getParamType() {
-        switch (this) {
-            case CROWNS_THRESHOLD:
-                return Integer.class.getTypeName();
-            default:
-                return Object.class.getTypeName();
-        }
-    }
 
     public Predicate<String> getParser() {
         switch (this) {
@@ -58,5 +54,19 @@ public enum GuildConfigType {
             default:
                 return "";
         }
+    }
+
+    public static String list(ChuuService dao, long guildId) {
+        return ENUM_MAP.entrySet().stream().map(
+                x -> {
+                    String key = x.getKey();
+                    switch (x.getValue()) {
+                        case CROWNS_THRESHOLD:
+                            int guildCrownThreshold = dao.getGuildCrownThreshold(guildId);
+                            return String.format("**%s** -> %d", key, guildCrownThreshold);
+                    }
+                    return null;
+                }).collect(Collectors.joining("\n"));
+
     }
 }

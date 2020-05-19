@@ -19,7 +19,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
 
     @Override
     public Parser<GuildConfigParams> getParser() {
-        return new GuildConfigParser();
+        return new GuildConfigParser(getService());
     }
 
     @Override
@@ -29,7 +29,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("configuration", "config");
+        return List.of("serverconfiguration", "serverconfig", "sconfig");
     }
 
     @Override

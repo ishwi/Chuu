@@ -252,7 +252,8 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new ColorChartCommand(dao)))
                 .addEventListeners(help.registerCommand(new CrownableCommand(dao)))
                 .addEventListeners(help.registerCommand(new RateLimitCommand(dao)))
-                .addEventListeners(help.registerCommand(new AOTDCommand(dao)));
+                .addEventListeners(help.registerCommand(new AOTDCommand(dao)))
+                .addEventListeners(help.registerCommand(new UserConfigCommand(dao)));
 
 
         try {

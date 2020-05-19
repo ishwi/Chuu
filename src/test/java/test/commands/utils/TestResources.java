@@ -47,7 +47,7 @@ public class TestResources extends ExternalResource {
 
     public static void deleteCommonArtists() {
         dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong()));
+                .getGuild().getIdLong(), setUp));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
         dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -55,7 +55,7 @@ public class TestResources extends ExternalResource {
 
     public static void insertOnlyKnownSecond(String second, int plays) {
         dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong()));
+                .getGuild().getIdLong(), setUp));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         scrobbledArtistData.add(new ScrobbledArtist("guilleecs", second, plays));
         dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
@@ -64,7 +64,7 @@ public class TestResources extends ExternalResource {
 
     public static void deleteOnlyKnownSecond() {
         dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong()));
+                .getGuild().getIdLong(), setUp));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
         dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -81,7 +81,7 @@ public class TestResources extends ExternalResource {
 
 	public static void insertCommonArtistWithPlays(int plays) {
         dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong()));
+                .getGuild().getIdLong(), setUp));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         scrobbledArtistData.add(new ScrobbledArtist("guilleecs", commonArtist, plays));
         dao.insertArtistDataList(scrobbledArtistData, "guilleecs");

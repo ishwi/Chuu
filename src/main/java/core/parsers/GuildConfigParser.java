@@ -2,13 +2,19 @@ package core.parsers;
 
 import core.parsers.params.GuildConfigParams;
 import core.parsers.params.GuildConfigType;
+import core.parsers.params.UserConfigType;
+import dao.ChuuService;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class GuildConfigParser extends Parser<GuildConfigParams> {
+public class GuildConfigParser extends DaoParser<GuildConfigParams> {
+    public GuildConfigParser(ChuuService dao, OptionalEntity... opts) {
+        super(dao, opts);
+    }
+
     @Override
     protected GuildConfigParams parseLogic(MessageReceivedEvent e, String[] words) {
 
@@ -17,7 +23,9 @@ public class GuildConfigParser extends Parser<GuildConfigParams> {
             return null;
         }
         if (words.length != 2) {
-            sendError("The config format must be the following: **`Command`** **`Value`**\n do !help config for more info", e);
+            String prefix = e.getMessage().getContentRaw().substring(0, 1);
+            String list = GuildConfigType.list(dao, e.getAuthor().getIdLong());
+            sendError("The config format must be the following: **`Command`**  **`Value`**\n do " + prefix + "help sconfig for more info.\nCurrent Values:\n" + list, e);
             return null;
         }
         String command = words[0];
@@ -42,7 +50,7 @@ public class GuildConfigParser extends Parser<GuildConfigParams> {
     public String getUsageLogic(String commandName) {
         String collect = Arrays.stream(GuildConfigType.values()).map(x -> String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
         return "**" + commandName + " *command* *argument* ** \n" +
-               "Possible Values:\n" + collect;
+                "Possible Values:\n" + collect;
     }
 
     @Override

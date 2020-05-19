@@ -72,7 +72,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
         /* Create "queryString". */
-        String queryString = "SELECT   discord_id, lastfm_id,role FROM user WHERE discord_id = ?";
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update FROM user WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -92,9 +92,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
             i = 1;
             long resDiscordID = resultSet.getLong(i++);
             String lastFmID = resultSet.getString(i++);
-            Role role = Role.valueOf(resultSet.getString(i));
+            Role role = Role.valueOf(resultSet.getString(i++));
+            boolean privateUpdate = resultSet.getBoolean(i);
 
-            return new LastFMData(lastFmID, resDiscordID, role);
+
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -378,7 +380,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role " +
+        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update " +
                 "FROM   user a" +
                 " WHERE  a.lastfm_id = ? ";
 
@@ -396,10 +398,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
             long aLong = resultSet.getLong(1);
             String string = resultSet.getString(2);
             Role role = Role.valueOf(resultSet.getString(3));
+            boolean privateUpdate = resultSet.getBoolean(4);
 
             /* Get results. */
 
-            return new LastFMData(string, aLong, role);
+            return new LastFMData(string, aLong, role, privateUpdate);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -452,6 +455,24 @@ public class UserGuildDaoImpl implements UserGuildDao {
             preparedStatement.executeUpdate();
 
             /* Get generated identifier. */
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void setPrivateUpdate(Connection connection, long discordId, boolean privateUpdate) {
+        @Language("MariaDB") String queryString = "UPDATE  user SET  private_update = ? WHERE discord_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setBoolean(i++, privateUpdate);
+            preparedStatement.setLong(i, discordId);
+
+            preparedStatement.executeUpdate();
+
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
