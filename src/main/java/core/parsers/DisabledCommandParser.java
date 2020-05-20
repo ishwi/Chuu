@@ -8,6 +8,7 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.params.DisabledCommandParameters;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
@@ -32,6 +33,10 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> {
     @Override
     protected DisabledCommandParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
         List<Character> acceptecChars = PrefixParser.acceptecChars;
+        if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+            sendError("Only server admins can disable commands", e);
+            return null;
+        }
         if (words.length != 1) {
             sendError("Only introduce the alias of the command to be disabled", e);
             return null;

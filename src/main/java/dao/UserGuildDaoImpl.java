@@ -483,7 +483,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void insertServerDisabled(Connection connection, long discordId, String commandName) {
-        String queryString = "INSERT INTO  command_guild_disabled"
+        String queryString = "INSERT IGNORE INTO  command_guild_disabled"
                 + " (guild_id,command_name) VALUES (?, ?) ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -503,7 +503,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void insertChannelCommandStatus(Connection connection, long discordId, long channelId, String commandName, boolean enabled) {
-        String queryString = "INSERT INTO  command_guild_channel_disabled"
+        String queryString = "INSERT ignore INTO  command_guild_channel_disabled"
                 + " (guild_id,channel_id,command_name,enabled) VALUES (?, ?,? , ? ) ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {

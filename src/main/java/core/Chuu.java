@@ -331,11 +331,11 @@ public class Chuu {
 
             if (!isTest) {
                 scheduledExecutorService.scheduleAtFixedRate(
-                        new UpdaterThread(dao, true), 1111110, 120,
+                        new UpdaterThread(dao, true), 0, 60,
                         TimeUnit.SECONDS);
-                scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 0, 1, TimeUnit.MINUTES);
+                scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 20, 12, TimeUnit.MINUTES);
                 scheduledExecutorService.scheduleAtFixedRate(
-                        new SpotifyUpdaterThread(dao), 0, 1,
+                        new SpotifyUpdaterThread(dao), 20, 21,
                         TimeUnit.MINUTES);
             }
             updatePresence("Chuu");
