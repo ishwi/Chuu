@@ -36,11 +36,7 @@ public class ImageUpdaterThread implements Runnable {
                 url = discogsApi.findArtistImage(artistDatum.getArtist());
 
                 if (url == null || url.isEmpty()) {
-                    ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistDatum.getArtist(), 0, null);
-                    scrobbledArtist.setArtistId(scrobbledArtist.getArtistId());
-                    scrobbledArtist.setUpdateBit(true);
-                    scrobbledArtist.setUrl("");
-                    dao.upsertArtistSad(scrobbledArtist);
+                    dao.updateImageStatus(artistDatum.getArtistId(), "", true);
                 } else {
                     dao.upsertUrl(url, artistDatum.getArtistId());
                     System.out.println("Upserting buddy");

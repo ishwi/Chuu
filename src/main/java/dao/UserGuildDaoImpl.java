@@ -7,6 +7,8 @@ import dao.entities.Role;
 import dao.entities.UsersWrapper;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
+import org.apache.commons.lang3.tuple.Pair;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
@@ -477,6 +479,127 @@ public class UserGuildDaoImpl implements UserGuildDao {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+    }
+
+    @Override
+    public void insertServerDisabled(Connection connection, long discordId, String commandName) {
+        String queryString = "INSERT INTO  command_guild_disabled"
+                + " (guild_id,command_name) VALUES (?, ?) ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, discordId);
+            preparedStatement.setString(i, commandName);
+
+
+            /* Execute query. */
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void insertChannelCommandStatus(Connection connection, long discordId, long channelId, String commandName, boolean enabled) {
+        String queryString = "INSERT INTO  command_guild_channel_disabled"
+                + " (guild_id,channel_id,command_name,enabled) VALUES (?, ?,? , ? ) ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, discordId);
+            preparedStatement.setLong(i++, channelId);
+            preparedStatement.setString(i++, commandName);
+            preparedStatement.setBoolean(i, enabled);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void deleteChannelCommandStatus(Connection connection, long discordId, long channelId, String commandName) {
+        String queryString = "DELETE FROM command_guild_channel_disabled"
+                + " WHERE guild_id = ? and channel_id = ? and command_name = ? ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, discordId);
+            preparedStatement.setLong(i++, channelId);
+            preparedStatement.setString(i, commandName);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void deleteServerCommandStatus(Connection connection, long discordId, String commandName) {
+        String queryString = "DELETE FROM command_guild_disabled"
+                + " WHERE guild_id = ?  and command_name = ? ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, discordId);
+            preparedStatement.setString(i, commandName);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public MultiValuedMap<Long, String> initServerCommandStatuses(Connection connection) {
+        String queryString = "SELECT guild_id,command_name FROM command_guild_disabled";
+        MultiValuedMap<Long, String> map = new HashSetValuedHashMap<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                long guildId = resultSet.getLong("guild_id");
+                String commandName = resultSet.getString("command_name");
+
+                map.put(guildId, commandName);
+
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return map;
+    }
+
+    @Override
+    public MultiValuedMap<Pair<Long, Long>, String> initServerChannelsCommandStatuses(Connection connection, boolean enabled) {
+        String queryString = "SELECT guild_id,channel_id,command_name FROM command_guild_channel_disabled where enabled = ? ";
+        MultiValuedMap<Pair<Long, Long>, String> map = new HashSetValuedHashMap<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            preparedStatement.setBoolean(1, enabled);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                long guildId = resultSet.getLong("guild_id");
+                long channel_id = resultSet.getLong("channel_id");
+
+                String commandName = resultSet.getString("command_name");
+
+                map.put(Pair.of(guildId, channel_id), commandName);
+
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return map;
     }
 
 }

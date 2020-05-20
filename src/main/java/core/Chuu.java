@@ -21,6 +21,9 @@ import net.dv8tion.jda.api.managers.Presence;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,21 +43,82 @@ import java.util.stream.Collectors;
 public class Chuu {
 
     public static final Character DEFAULT_PREFIX = '!';
-    private static Map<Long, Character> prefixMap;
     private static JDA jda;
     private static Logger logger;
-    private static final LongAdder lastFMMetric = new LongAdder();
     private static ScheduledExecutorService scheduledExecutorService;
+    private static final LongAdder lastFMMetric = new LongAdder();
     private static Map<Long, RateLimiter> ratelimited;
+    private static Map<Long, Character> prefixMap;
+    public static final MultiValuedMap<Long, MyCommand<?>> disabledServersMap = new HashSetValuedHashMap<>();
+    public final static MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = new HashSetValuedHashMap<>();
+    public final static MultiValuedMap<Pair<Long, Long>, MyCommand<?>> enabledChannelsMap = new HashSetValuedHashMap<>();
+
 
     public static ScheduledExecutorService getScheduledExecutorService() {
         return scheduledExecutorService;
     }
 
     public static void addGuildPrefix(long guildId, Character prefix) {
-        Character replace = prefixMap.replace(guildId, prefix);
-        if (replace == null) {
-            prefixMap.put(guildId, prefix);
+        if (prefix.equals(DEFAULT_PREFIX)) {
+            prefixMap.remove(guildId);
+        } else {
+            Character replace = prefixMap.replace(guildId, prefix);
+            if (replace == null) {
+                prefixMap.put(guildId, prefix);
+            }
+        }
+    }
+
+    //Returns if its disabled or enabled now
+    public static void toggleCommandChannelDisabledness(MyCommand<?> myCommand, long guildId, long channelId, boolean expectedResult, ChuuService service) {
+        Pair<Long, Long> channel = Pair.of(guildId, channelId);
+        boolean serverSet = disabledServersMap.containsMapping(guildId, myCommand);
+        if (expectedResult) {
+            disabledServersMap.removeMapping(channel, myCommand);
+            service.deleteChannelCommandStatus(guildId, channelId, myCommand.getName());
+            if (serverSet) {
+                enabledChannelsMap.put(channel, myCommand);
+                service.insertChannelCommandStatus(guildId, channelId, myCommand.getName(), true);
+
+            }  //Do Nothing
+
+            // If this command was disabled server wide
+        } else {
+            enabledChannelsMap.removeMapping(channel, myCommand);
+            service.deleteChannelCommandStatus(guildId, channelId, myCommand.getName());
+            if (!serverSet) {
+                disabledChannelsMap.put(channel, myCommand);
+                service.insertChannelCommandStatus(guildId, channelId, myCommand.getName(), false);
+
+            }
+        }
+    }
+
+
+    public static boolean isMessageAllowed(MyCommand<?> command, MessageReceivedEvent e) {
+        if (!e.isFromGuild()) {
+            return true;
+        }
+        long guildId = e.getGuild().getIdLong();
+        long channelId = e.getChannel().getIdLong();
+        return (!(disabledServersMap.get(guildId).contains(command) || disabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command)))
+                || enabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command);
+    }
+
+    //Returns if its disabled or enabled now
+    public static void toggleCommandDisabledness(MyCommand<?> myCommand, long guildId, boolean expectedResult, ChuuService service) {
+        if (expectedResult) {
+            disabledServersMap.removeMapping(guildId, myCommand);
+            service.deleteServerCommandStatus(guildId, myCommand.getName());
+
+            Set<Long> collect = disabledChannelsMap.entries().stream().filter(x -> x.getKey().getLeft().equals(guildId)).map(x -> x.getKey().getRight()).collect(Collectors.toSet());
+            disabledChannelsMap.entries().removeIf(x -> x.getKey().getLeft().equals(guildId));
+            collect.forEach(y -> service.deleteChannelCommandStatus(guildId, y, myCommand.getName()));
+            service.deleteServerCommandStatus(guildId, myCommand.getName());
+
+        } else {
+            disabledServersMap.put(guildId, myCommand);
+            service.insertServerDisabled(guildId, myCommand.getName());
         }
     }
 
@@ -229,7 +293,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new AliasCommand(dao)))
                 .addEventListeners(help.registerCommand(new PaceCommand(dao)))
                 .addEventListeners(help.registerCommand(new StreakCommand(dao)))
-                .addEventListeners(new AliasReviewCommand(dao))
+                .addEventListeners(help.registerCommand(new AliasReviewCommand(dao)))
                 .addEventListeners(help.registerCommand(new UserExportCommand(dao)))
                 .addEventListeners(help.registerCommand(new ImportCommand(dao)))
                 .addEventListeners(help.registerCommand(new VotingCommand(dao)))
@@ -253,22 +317,25 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new CrownableCommand(dao)))
                 .addEventListeners(help.registerCommand(new RateLimitCommand(dao)))
                 .addEventListeners(help.registerCommand(new AOTDCommand(dao)))
-                .addEventListeners(help.registerCommand(new UserConfigCommand(dao)));
+                .addEventListeners(help.registerCommand(new UserConfigCommand(dao)))
+                .addEventListeners(help.registerCommand(new DisabledCommand(dao)))
+                .addEventListeners(help.registerCommand(new DisabledStatusCommand(dao)));
 
 
         try {
             jda = builder.build().awaitReady();
             commandAdministrator.onStartup(jda);
+            initDisabledCommands(dao, jda);
             prefixCommand.onStartup(jda);
             jda.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
 
             if (!isTest) {
                 scheduledExecutorService.scheduleAtFixedRate(
-                        new UpdaterThread(dao, true), 0, 120,
+                        new UpdaterThread(dao, true), 1111110, 120,
                         TimeUnit.SECONDS);
-                scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 10, 20, TimeUnit.MINUTES);
+                scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 0, 1, TimeUnit.MINUTES);
                 scheduledExecutorService.scheduleAtFixedRate(
-                        new SpotifyUpdaterThread(dao), 20, 20,
+                        new SpotifyUpdaterThread(dao), 0, 1,
                         TimeUnit.MINUTES);
             }
             updatePresence("Chuu");
@@ -277,6 +344,23 @@ public class Chuu {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }
+    }
+
+    private static void initDisabledCommands(ChuuService dao, JDA jda) {
+        Map<String, MyCommand<?>> commandsByName = jda.getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).collect(Collectors.toMap(MyCommand::getName, x -> x));
+        MultiValuedMap<Long, String> serverDisables = dao.initServerCommandStatuses();
+        serverDisables.entries().forEach(x -> {
+            Chuu.disabledServersMap.put(x.getKey(), commandsByName.get(x.getValue()));
+        });
+        MultiValuedMap<Pair<Long, Long>, String> channelDisables = dao.initServerChannelsCommandStatuses(false);
+        channelDisables.entries().forEach(x -> {
+            Chuu.disabledChannelsMap.put(x.getKey(), commandsByName.get(x.getValue()));
+        });
+        MultiValuedMap<Pair<Long, Long>, String> channelEnables = dao.initServerChannelsCommandStatuses(true);
+        channelEnables.entries().forEach(x -> {
+            Chuu.enabledChannelsMap.put(x.getKey(), commandsByName.get(x.getValue()));
+        });
+
     }
 
     public static Logger getLogger() {

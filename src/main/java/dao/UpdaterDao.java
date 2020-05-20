@@ -37,7 +37,7 @@ interface UpdaterDao {
 
     void insertCorrection(Connection connection, long artistId, String correction);
 
-    void updateStatusBit(Connection connection, long artistId);
+    void updateStatusBit(Connection connection, long artistId, boolean statusBit, String url);
 
     String findCorrection(Connection connection, String artist);
 

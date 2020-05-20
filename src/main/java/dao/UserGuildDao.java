@@ -4,6 +4,7 @@ import core.exceptions.InstanceNotFoundException;
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
 import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -52,4 +53,16 @@ interface UserGuildDao {
 
     void setPrivateUpdate(Connection connection, long discordId, boolean privateUpdate);
 
+    void insertServerDisabled(Connection connection, long discordId, String commandName);
+
+    void insertChannelCommandStatus(Connection connection, long discordId, long channelId, String commandName, boolean enabled);
+
+    void deleteChannelCommandStatus(Connection connection, long discordId, long channelId, String commandName);
+
+    void deleteServerCommandStatus(Connection connection, long discordId, String commandName);
+
+
+    MultiValuedMap<Long, String> initServerCommandStatuses(Connection connection);
+
+    MultiValuedMap<Pair<Long, Long>, String> initServerChannelsCommandStatuses(Connection connection, boolean enabled);
 }

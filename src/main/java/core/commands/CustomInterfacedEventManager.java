@@ -102,6 +102,10 @@ public class CustomInterfacedEventManager implements IEventManager {
             String substring = contentRaw.substring(1).split("\\s+")[0];
             MyCommand<?> myCommand = commandListeners.get(substring.toLowerCase());
             if (myCommand != null) {
+                if (!Chuu.isMessageAllowed(myCommand, mes)) {
+                    mes.getChannel().sendMessage("This command is disabled in this channel.").queue();
+                    return;
+                }
                 try {
                     myCommand.onMessageReceived(mes);
                 } catch (Throwable throwable) {

@@ -260,11 +260,31 @@ CREATE TABLE past_recommendations
     CONSTRAINT past_recommendations_fk_giv FOREIGN KEY (giver_id) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT past_recommendations_fk_artist FOREIGN KEY (artist_id) REFERENCES artist (id) ON DELETE CASCADE ON UPDATE CASCADE
 
-)
+);
 
 CREATE TABLE rate_limited
 (
     discord_id BIGINT(20) NOT NULL PRIMARY KEY ,
     queries_second float  NOT NULL ,
     CONSTRAINT rate_limiteddiscord_id FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE
-)
+);
+
+CREATE TABLE command_guild_disabled
+(
+    guild_id BIGINT(20) NOT NULL  ,
+    command_name VARCHAR(40) NOT NULL,
+    PRIMARY KEY (guild_id,command_name),
+    CONSTRAINT command_guild_disabled_fk_guild FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE command_guild_channel_disabled
+(
+    guild_id BIGINT(20) NOT NULL ,
+    channel_id BIGINT(20) NOT NULL ,
+    command_name VARCHAR(40) NOT NULL ,
+    enabled TINYINT(1) NOT NULL ,
+    PRIMARY KEY (guild_id,channel_id,command_name),
+    CONSTRAINT command_guild_channel_disabled_fk_guild FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+

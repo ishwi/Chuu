@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PrefixParser extends Parser<CharacterParser> {
-    private static final List<Character> acceptecChars = (Arrays
+    static final List<Character> acceptecChars = (Arrays
             .asList('!', '@', '#', '$', '%', '^', '_', '.', ',', ';', ':', '~'));
 
     @Override
@@ -43,6 +43,6 @@ public class PrefixParser extends Parser<CharacterParser> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *[!@#$%^_.,;:~]* " +
-               "\n\tOnly server admins can run this command";
+                "\n\tOnly server admins can run this command";
     }
 }

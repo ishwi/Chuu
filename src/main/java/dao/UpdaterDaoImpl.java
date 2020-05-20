@@ -30,7 +30,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
         StringBuilder mySql =
                 new StringBuilder("INSERT INTO  scrobbled_artist" +
-                                  "                  (artist_id,lastfm_id,playnumber) VALUES (?, ?, ?) ");
+                        "                  (artist_id,lastfm_id,playnumber) VALUES (?, ?, ?) ");
 
         mySql.append(", (?,?,?)".repeat(Math.max(0, scrobbledArtists.size() - 1)));
         mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  VALUES(playnumber) + playnumber");
@@ -53,8 +53,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
     public UpdaterUserWrapper getLessUpdated(Connection connection) {
         @Language("MariaDB") String queryString =
                 "SELECT a.discord_id,a.role, a.lastfm_id,(if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) controling " +
-                "FROM user a   " +
-                "ORDER BY  control_timestamp LIMIT 1";
+                        "FROM user a   " +
+                        "ORDER BY  control_timestamp LIMIT 1";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -81,7 +81,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public void setUpdatedTime(Connection connection, String id, Integer timestamp, Integer timestampControl) {
         String queryString = "UPDATE user  "
-                             + " SET last_update= ?, control_timestamp = ? WHERE user.lastfm_id = ?";
+                + " SET last_update= ?, control_timestamp = ? WHERE user.lastfm_id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             Timestamp timestamp1;
             if (timestamp == null) {
@@ -114,7 +114,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     public void upsertArtist(Connection con, List<ScrobbledArtist> scrobbledArtists) {
         StringBuilder mySql =
                 new StringBuilder("INSERT INTO  scrobbled_artist" +
-                                  "                (artist_id,lastfm_id,playnumber) VALUES (?, ?, ?) ");
+                        "                (artist_id,lastfm_id,playnumber) VALUES (?, ?, ?) ");
 
         mySql.append(", (?,?,?)".repeat(Math.max(0, scrobbledArtists.size() - 1)));
         mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  playnumber + VALUES(playnumber)");
@@ -169,7 +169,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     public void upsertArtistsDetails(Connection con, List<ScrobbledArtist> scrobbledArtists) {
         /* Create "queryString". */
         StringBuilder queryString = new StringBuilder("INSERT  INTO  artist "
-                                                      + " (name,url,correction_status)  VALUES (?, ?,?) ");
+                + " (name,url,correction_status)  VALUES (?, ?,?) ");
 
 
         queryString.append(", (?,?,?)".repeat(Math.max(0, scrobbledArtists.size() - 1)));
@@ -247,7 +247,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public UpdaterStatus getUpdaterStatus(Connection connection, String artist) throws InstanceNotFoundException {
         String queryString = "SELECT a.id,url,correction_status FROM artist a " +
-                             " WHERE a.name = ? ";
+                " WHERE a.name = ? ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, artist);
@@ -270,7 +270,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public void insertCorrection(Connection connection, long artistId, String correction) {
         @Language("MariaDB") String queryString = "INSERT INTO corrections"
-                                                  + " (alias,artist_id) VALUES (?, ?) ";
+                + " (alias,artist_id) VALUES (?, ?) ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -287,13 +287,17 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
-    public void updateStatusBit(Connection connection, long artistId) {
-        @Language("MariaDB") String queryString = "UPDATE artist SET correction_status = 1 WHERE id = ?";
+    public void updateStatusBit(Connection connection, long artistId, boolean statusBit, String url) {
+        @Language("MariaDB") String queryString = "UPDATE artist SET correction_status = ?, url = ? WHERE id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
+
             int i = 1;
+            preparedStatement.setBoolean(i++, statusBit);
+            preparedStatement.setString(i++, url);
             preparedStatement.setLong(i, artistId);
+
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
@@ -304,7 +308,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public String findCorrection(Connection connection, String artist) {
         @Language("MariaDB") String queryString = "SELECT  name  FROM corrections JOIN artist a ON corrections.artist_id = a.id" +
-                                                  " WHERE alias = ? ";
+                " WHERE alias = ? ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, artist);
@@ -358,7 +362,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public boolean insertRandomUrl(Connection con, String url, long discordId, Long guildId) {
         String queryString = "INSERT INTO  randomlinks"
-                             + " ( discord_id,url,guild_id) " + " VALUES (?,  ?, ?)";
+                + " ( discord_id,url,guild_id) " + " VALUES (?,  ?, ?)";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             int i = 1;
@@ -379,8 +383,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public RandomUrlEntity getRandomUrl(Connection con) {
         String queryString = "SELECT * FROM randomlinks WHERE discord_id IN \n" +
-                             "(SELECT discord_id FROM (SELECT discord_id,count(*)   ,log(count(*) + 1)  / log(1-rand())  AS ra FROM randomlinks GROUP BY discord_id ORDER BY ra LIMIT 1) t)  \n" +
-                             " ORDER BY rand() LIMIT 1;";
+                "(SELECT discord_id FROM (SELECT discord_id,count(*)   ,log(count(*) + 1)  / log(1-rand())  AS ra FROM randomlinks GROUP BY discord_id ORDER BY ra LIMIT 1) t)  \n" +
+                " ORDER BY rand() LIMIT 1;";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Execute query. */
@@ -401,8 +405,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public RandomUrlEntity findRandomUrlById(Connection con, String urlQ) {
         @Language("MariaDB") String queryString = "SELECT * " +
-                                                  "FROM randomlinks  " +
-                                                  "WHERE url = ?";
+                "FROM randomlinks  " +
+                "WHERE url = ?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             preparedStatement.setString(1, urlQ);
@@ -426,21 +430,21 @@ public class UpdaterDaoImpl implements UpdaterDao {
                                  long guildId,
                                  int plays) {
         String queryString = "INSERT INTO album_crowns\n" +
-                             "(artist_id,\n" +
-                             "discordid,\n" +
-                             "album,\n" +
-                             "plays,\n" +
-                             "guildid)\n" +
-                             "VALUES\n" +
-                             "(?,\n" +
-                             "?,\n" +
-                             "?,\n" +
-                             "?,\n" +
-                             "?)\n" +
-                             "\n" +
-                             "ON DUPLICATE KEY UPDATE\n" +
-                             "  plays = ?,\n" +
-                             "  discordid =  ?;";
+                "(artist_id,\n" +
+                "discordid,\n" +
+                "album,\n" +
+                "plays,\n" +
+                "guildid)\n" +
+                "VALUES\n" +
+                "(?,\n" +
+                "?,\n" +
+                "?,\n" +
+                "?,\n" +
+                "?)\n" +
+                "\n" +
+                "ON DUPLICATE KEY UPDATE\n" +
+                "  plays = ?,\n" +
+                "  discordid =  ?;";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
@@ -471,10 +475,10 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public Map<Long, Character> getGuildPrefixes(Connection connection) {
         Map<Long, Character> returnedMap = new HashMap<>();
-        String queryString = "SELECT guild_id, prefix FROM guild;";
+        String queryString = "SELECT guild_id, prefix FROM guild where prefix != ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
-
+            preparedStatement.setString(1, String.valueOf(Chuu.DEFAULT_PREFIX));
 
 
 
@@ -668,8 +672,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
             InstanceNotFoundException {
         @Language("MariaDB") String queryString =
                 "SELECT a.discord_id, a.role, a.lastfm_id, (if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating ,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) control " +
-                "FROM user a   " +
-                " WHERE a.discord_id = ?  ";
+                        "FROM user a   " +
+                        " WHERE a.discord_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -747,11 +751,11 @@ public class UpdaterDaoImpl implements UpdaterDao {
     public ReportEntity getReportEntity(Connection connection, LocalDateTime localDateTime, Set<Long> skippedIds) {
 
         String queryString = "SELECT b.id,count(*) AS reportcount,b.score,\n" +
-                             "min(a.report_date) AS l,b.added_date,b.discord_id,c.name,b.url,(SELECT count(*) FROM log_reported WHERE reported = b.discord_id),b.artist_id\n" +
-                             "FROM reported a JOIN \n" +
-                             "alt_url b ON a.alt_id = b.id JOIN\n" +
-                             "artist c ON b.artist_id = c.id\n" +
-                             "WHERE a.report_date < ?";
+                "min(a.report_date) AS l,b.added_date,b.discord_id,c.name,b.url,(SELECT count(*) FROM log_reported WHERE reported = b.discord_id),b.artist_id\n" +
+                "FROM reported a JOIN \n" +
+                "alt_url b ON a.alt_id = b.id JOIN\n" +
+                "artist c ON b.artist_id = c.id\n" +
+                "WHERE a.report_date < ?";
         if (!skippedIds.isEmpty()) {
             queryString += " and a.alt_id not in (" + "?,".repeat(skippedIds.size() - 1) + "?)";
         }

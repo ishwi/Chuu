@@ -7,6 +7,7 @@ import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
 import dao.musicbrainz.AffinityDao;
 import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
@@ -500,9 +501,9 @@ public class ChuuService {
 
     }
 
-    public void updateStatusBit(long artistId) {
+    public void updateImageStatus(long artistId, String url, boolean updateBir) {
         try (Connection connection = dataSource.getConnection()) {
-            updaterDao.updateStatusBit(connection, artistId);
+            updaterDao.updateStatusBit(connection, artistId, updateBir, url);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -979,6 +980,7 @@ public class ChuuService {
         }
     }
 
+
     public void removeReportedImage(long alt_id, long image_owner, long mod_id) {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.removeImage(connection, alt_id);
@@ -1112,11 +1114,61 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+
     public void setPrivateUpdate(long discordId, boolean privateUpdate) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setPrivateUpdate(connection, discordId, privateUpdate);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+    }
+
+    public void insertServerDisabled(long discordId, String commandName) {
+        try (Connection connection = dataSource.getConnection()) {
+            this.userGuildDao.insertServerDisabled(connection, discordId, commandName);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void insertChannelCommandStatus(long discordId, long channelId, String commandName, boolean enabled) {
+        try (Connection connection = dataSource.getConnection()) {
+            this.userGuildDao.insertChannelCommandStatus(connection, discordId, channelId, commandName, enabled);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void deleteServerCommandStatus(long discordId, String commandName) {
+        try (Connection connection = dataSource.getConnection()) {
+            this.userGuildDao.deleteServerCommandStatus(connection, discordId, commandName);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void deleteChannelCommandStatus(long discordId, long channelId, String commandName) {
+        try (Connection connection = dataSource.getConnection()) {
+            this.userGuildDao.deleteChannelCommandStatus(connection, discordId, channelId, commandName);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public MultiValuedMap<Long, String> initServerCommandStatuses() {
+        try (Connection connection = dataSource.getConnection()) {
+            return this.userGuildDao.initServerCommandStatuses(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public MultiValuedMap<Pair<Long, Long>, String> initServerChannelsCommandStatuses(boolean enabled) {
+        try (Connection connection = dataSource.getConnection()) {
+            return this.userGuildDao.initServerChannelsCommandStatuses(connection, enabled);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
     }
 }
