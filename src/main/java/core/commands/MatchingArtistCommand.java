@@ -30,11 +30,16 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
+    @Override
     public Parser<NumberParameters<ChuuDataParams>> getParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays needed to award a match, " +
-                   "defaults to 1";
+                "defaults to 1";
         return new NumberParser<>(new OnlyUsernameParser(getService()),
                 null,
                 Integer.MAX_VALUE,

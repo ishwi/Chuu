@@ -10,8 +10,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AlbumCrownsLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
+
     public AlbumCrownsLeaderboardCommand(ChuuService dao) {
         super(dao);
+    }
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.CROWNS;
     }
 
     @Override

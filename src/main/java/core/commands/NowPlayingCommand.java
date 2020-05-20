@@ -15,6 +15,7 @@ public class NowPlayingCommand extends NpCommand {
         super(dao);
     }
 
+
     @Override
     public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e, long discordId) {
         StringBuilder a = new StringBuilder();

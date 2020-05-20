@@ -27,6 +27,11 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     private final Spotify spotifyApi;
 
 
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.STARTING;
+    }
+
     public UpdateCommand(ChuuService dao) {
         super(dao);
         parser = new OnlyUsernameParser(dao, new OptionalEntity("--force", "Does a full heavy update"));

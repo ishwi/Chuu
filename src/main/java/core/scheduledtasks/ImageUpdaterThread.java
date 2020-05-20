@@ -26,7 +26,7 @@ public class ImageUpdaterThread implements Runnable {
     @Override
     public void run() {
         Set<ScrobbledArtist> artistData = dao.getNullUrls();
-        System.out.println("Found at lest " + artistData.size() + "null artist ");
+        System.out.println("Found at lest " + artistData.size() + " null artist ");
         for (ScrobbledArtist artistDatum : artistData) {
             String url;
             System.out.println("Working with artist " + artistDatum.getArtist());
@@ -34,18 +34,16 @@ public class ImageUpdaterThread implements Runnable {
                 //We can get rate limited if we do it wihtout sleeping
                 Thread.sleep(100L);
                 url = discogsApi.findArtistImage(artistDatum.getArtist());
-                if (url != null) {
 
+                if (url == null || url.isEmpty()) {
+                    ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistDatum.getArtist(), 0, null);
+                    scrobbledArtist.setArtistId(scrobbledArtist.getArtistId());
+                    scrobbledArtist.setUpdateBit(true);
+                    scrobbledArtist.setUrl("");
+                    dao.upsertArtistSad(scrobbledArtist);
+                } else {
+                    dao.upsertUrl(url, artistDatum.getArtistId());
                     System.out.println("Upserting buddy");
-                    if (url.isEmpty()) {
-                        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistDatum.getArtist(), 0, null);
-                        scrobbledArtist.setArtistId(scrobbledArtist.getArtistId());
-                        scrobbledArtist.setUpdateBit(true);
-                        scrobbledArtist.setUrl("");
-                        dao.upsertArtistSad(scrobbledArtist);
-                    } else {
-                        dao.upsertUrl(url, artistDatum.getArtistId());
-                    }
                 }
             } catch (DiscogsServiceException | InterruptedException e) {
                 Chuu.getLogger().warn(e.getMessage(), e);

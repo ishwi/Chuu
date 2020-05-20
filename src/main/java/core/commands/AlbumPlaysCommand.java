@@ -28,6 +28,12 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
         this.spotify = SpotifySingleton.getInstance();
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
     @Override
     public Parser<ArtistAlbumParameters> getParser() {
         return new ArtistAlbumParser(getService(), lastFM);

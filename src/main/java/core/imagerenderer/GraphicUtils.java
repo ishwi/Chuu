@@ -339,6 +339,9 @@ public class GraphicUtils {
     }
 
     public static BufferedImage getImage(String url) {
+        if (url == null || url.isBlank()) {
+            return null;
+        }
         String path = url.replaceAll("[\\\\/:;]", "_");
         path = path.substring(0, Math.min(path.length(), 150));
         File file = new File(CacheDirectory, path);

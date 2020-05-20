@@ -29,6 +29,12 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
 
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.SERVER_STATS;
+    }
+
     @Override
     public Parser<CommandParameters> getParser() {
         return new NoOpParser();
@@ -56,10 +62,10 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
         }
 
         List<String> collect = list.stream().map(x -> ". [" +
-                                                      CommandUtil.cleanMarkdownCharacter(x.getArtistName()) +
-                                                      "](" + CommandUtil.getLastFmArtistUrl(x.getArtistName()) +
-                                                      ") - " + x.getCount() +
-                                                      " listeners \n").collect(Collectors.toList());
+                CommandUtil.cleanMarkdownCharacter(x.getArtistName()) +
+                "](" + CommandUtil.getLastFmArtistUrl(x.getArtistName()) +
+                ") - " + x.getCount() +
+                " listeners \n").collect(Collectors.toList());
         EmbedBuilder embedBuilder = initList(collect);
         embedBuilder.setTitle("Artist's frequencies");
         embedBuilder.setFooter(String.format("%s has %d different artists!%n", e.getGuild().getName(), wrapper.getRows()), null);

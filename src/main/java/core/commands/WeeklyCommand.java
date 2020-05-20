@@ -32,6 +32,10 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
         return new OnlyUsernameParser(getService(), new OptionalEntity("--image", "displays it as a bar chart"));
     }
 
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
 
     @Override
     public String getDescription() {

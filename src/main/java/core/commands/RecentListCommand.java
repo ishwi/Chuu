@@ -27,6 +27,11 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.NOW_PLAYING;
+    }
+
+    @Override
     public Parser<NumberParameters<ChuuDataParams>> getParser() {
         Map<Integer, String> map = new HashMap<>(1);
         map.put(LIMIT_ERROR, "The number introduced must be lower than 15");

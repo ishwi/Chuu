@@ -26,6 +26,11 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.BOT_STATS;
+    }
+
+    @Override
     public Parser<CommandParameters> getParser() {
         return new NoOpParser();
     }

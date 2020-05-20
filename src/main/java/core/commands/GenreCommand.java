@@ -33,6 +33,10 @@ public class GenreCommand extends ConcurrentCommand<TimeFrameParameters> {
         super(dao);
         this.musicBrainz = MusicBrainzServiceSingleton.getInstance();
     }
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
 
     @Override
     public Parser<TimeFrameParameters> getParser() {

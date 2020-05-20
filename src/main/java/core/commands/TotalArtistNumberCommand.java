@@ -16,18 +16,23 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<ChuuDataParams> 
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
+    @Override
     public Parser<ChuuDataParams> getParser() {
         return new OnlyUsernameParser(getService());
     }
 
     @Override
     public String getDescription() {
-        return ("Artists count of user ");
+        return ("Number of artists listened by an user");
     }
 
     @Override
     public List<String> getAliases() {
-        return List.of("artists", "ar");
+        return List.of("artists", "art");
     }
 
     @Override

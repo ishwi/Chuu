@@ -15,6 +15,12 @@ public class GlobalRanksCommand extends ConcurrentCommand<CommandParameters> {
         super(dao);
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
     @Override
     public Parser<CommandParameters> getParser() {
         return null;

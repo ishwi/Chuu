@@ -26,6 +26,12 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
         super(dao);
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.ARTIST_IMAGES;
+    }
+
     @Override
     public Parser<ArtistUrlParameters> getParser() {
         return new ArtistUrlParser();

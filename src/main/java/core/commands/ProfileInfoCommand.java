@@ -35,6 +35,11 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
+    @Override
     public Parser<ChuuDataParams> getParser() {
         return new OnlyUsernameParser(getService(), new OptionalEntity("--image", "display in list format"));
     }

@@ -14,6 +14,11 @@ public class GlobalUniquesCommand extends UniqueCommand {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
+    @Override
     public boolean isGlobal() {
         return true;
     }

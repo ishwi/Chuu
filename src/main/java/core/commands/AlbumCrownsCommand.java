@@ -23,6 +23,12 @@ public class AlbumCrownsCommand extends ConcurrentCommand<ChuuDataParams> {
         this.respondInPrivate = false;
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.CROWNS;
+    }
+
     @Override
     public Parser<ChuuDataParams> getParser() {
         return new OnlyUsernameParser(getService());

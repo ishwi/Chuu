@@ -35,6 +35,11 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.INFO;
+    }
+
+    @Override
     public Parser<ArtistParameters> getParser() {
         return new ArtistParser(getService(), lastFM);
     }
@@ -97,9 +102,9 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                     addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), serverStats.toString(), true);
         }
         String lastFMStats = String.format("**%d** listeners%n", summary.getListeners()) +
-                             String.format("**%d** plays%n", summary.getPlaycount());
+                String.format("**%d** plays%n", summary.getPlaycount());
         String globalStats = String.format("**%d** listeners%n", globalArtistFrequencies) +
-                             String.format("**%d** plays%n", globalArtistPlays);
+                String.format("**%d** plays%n", globalArtistPlays);
         embedBuilder
                 .addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName())), globalStats, true)
                 .addField("Last.FM stats", lastFMStats, true)
@@ -119,7 +124,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
         embedBuilder.addField("Tags:", tagsField, false)
                 .addField("Similars:", similarField, false)
                 .addField("Bio:", CommandUtil.cleanMarkdownCharacter(summary.getSummary()), false)
-                .setImage(scrobbledArtist.getUrl().isBlank() ? null : scrobbledArtist.getUrl())
+                .setImage(scrobbledArtist.getUrl())
                 .setColor(CommandUtil.randomColor());
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
     }

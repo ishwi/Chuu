@@ -18,6 +18,12 @@ public class TrackPlaysCommand extends AlbumPlaysCommand {
         super(dao);
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.SERVER_STATS;
+    }
+
     @Override
     public Parser<ArtistAlbumParameters> getParser() {
         return new ArtistSongParser(getService(), lastFM);

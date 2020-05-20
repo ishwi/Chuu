@@ -56,6 +56,10 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+    @Override
     public Parser<CountryParameters> getParser() {
         CountryParser countryParser = new CountryParser(getService());
         countryParser.addOptional(new OptionalEntity("--image", "show this with a chart instead of a list "));

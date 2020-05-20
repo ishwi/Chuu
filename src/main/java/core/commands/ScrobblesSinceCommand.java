@@ -20,6 +20,11 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
+    @Override
     public Parser<DateParameters> getParser() {
         return new DateParser(getService());
     }

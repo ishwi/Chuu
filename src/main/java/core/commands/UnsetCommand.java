@@ -19,6 +19,12 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
         super(dao);
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.STARTING;
+    }
+
     @Override
     public Parser<CommandParameters> getParser() {
         return new NoOpParser();

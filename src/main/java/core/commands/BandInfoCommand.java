@@ -53,6 +53,12 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistTimeFrameParameters
 
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
     @Override
     public Parser<ArtistTimeFrameParameters> getParser() {
         ArtistTimeFrameParser artistTimeFrameParser = new ArtistTimeFrameParser(getService(), lastFM);

@@ -36,6 +36,11 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         this.pie = getPie();
     }
 
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.CHARTS;
+    }
+
     public abstract ChartableParser<T> getParser();
 
     @Override

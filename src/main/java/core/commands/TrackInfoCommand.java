@@ -22,6 +22,11 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.INFO;
+    }
+
+    @Override
     public Parser<ArtistAlbumParameters> getParser() {
         return new ArtistSongParser(getService(), lastFM);
     }

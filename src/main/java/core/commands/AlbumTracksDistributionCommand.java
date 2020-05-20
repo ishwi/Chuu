@@ -28,6 +28,12 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
         mb = MusicBrainzServiceSingleton.getInstance();
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
     @Override
     public String getDescription() {
         return "Plays on each track of the provided album";

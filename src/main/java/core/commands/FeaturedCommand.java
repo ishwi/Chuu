@@ -41,6 +41,11 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.BOT_INFO;
+    }
+
+    @Override
     public Parser<CommandParameters> getParser() {
         return new NoOpParser();
     }

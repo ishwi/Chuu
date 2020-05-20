@@ -16,6 +16,11 @@ import java.util.List;
 public class InviteCommand extends ConcurrentCommand<CommandParameters> {
     private static final long PERMISSIONS = 387136;
 
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.BOT_INFO;
+    }
+
     public InviteCommand(ChuuService dao) {
         super(dao);
     }

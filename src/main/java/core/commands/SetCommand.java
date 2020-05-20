@@ -25,6 +25,11 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.STARTING;
+    }
+
+    @Override
     public Parser<WordParameter> getParser() {
         return new SetParser();
     }

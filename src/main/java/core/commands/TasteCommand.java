@@ -29,6 +29,11 @@ public class TasteCommand extends ConcurrentCommand<TwoUsersParamaters> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
+    @Override
     public Parser<TwoUsersParamaters> getParser() {
         return new TwoUsersParser(getService(), new OptionalEntity("--list", "display in a list format"));
     }

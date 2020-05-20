@@ -29,12 +29,18 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
         this.respondInPrivate = false;
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.CROWNS;
+    }
+
     @Override
     public Parser<NumberParameters<TwoUsersParamaters>> getParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays to award a crown, " +
-                   "defaults to whatever the guild has configured (0 if not configured)";
+                "defaults to whatever the guild has configured (0 if not configured)";
         return new NumberParser<>(new TwoUsersParser(getService()),
                 null,
                 Integer.MAX_VALUE,

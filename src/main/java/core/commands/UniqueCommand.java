@@ -25,6 +25,11 @@ public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
+    @Override
     public Parser<ChuuDataParams> getParser() {
         return new OnlyUsernameParser(getService());
     }

@@ -22,6 +22,11 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParser> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.MODERATION;
+    }
+
+    @Override
     public Parser<CharacterParser> getParser() {
         return new PrefixParser();
     }

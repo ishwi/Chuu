@@ -34,7 +34,10 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         super(dao);
 
     }
-
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
     @Override
     //XD
     public Parser<NumberParameters<NumberParameters<NaturalTimeParams>>> getParser() {

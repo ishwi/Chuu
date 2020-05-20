@@ -28,6 +28,11 @@ public class UserExportCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.MODERATION;
+    }
+
+    @Override
     public Parser<CommandParameters> getParser() {
         return new NoOpParser();
     }

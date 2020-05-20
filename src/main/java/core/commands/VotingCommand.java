@@ -29,6 +29,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
     private static final String DOWN_VOTE = "U+1f44e";
     private static final String REPORT = "U+1f6ab";
 
+
     private final BiFunction<JDA, Integer, BiFunction<VotingEntity, EmbedBuilder, EmbedBuilder>> builder = (jda, integer) -> (votingEntity, embedBuilder) ->
             embedBuilder.clearFields()
                     .addField("Added by", CommandUtil.getGlobalUsername(jda, votingEntity.getOwner()), true)
@@ -43,6 +44,11 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
 
     public VotingCommand(ChuuService dao) {
         super(dao);
+    }
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.ARTIST_IMAGES;
     }
 
     @Override

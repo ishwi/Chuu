@@ -135,6 +135,11 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.MODERATION;
+    }
+
+    @Override
     public Parser<UrlParameters> getParser() {
         return new FileParser("json");
     }

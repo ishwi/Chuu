@@ -18,6 +18,11 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.DISCOVERY;
+    }
+
+    @Override
     public Parser<UrlParameters> getParser() {
         return new RandomAlbumParser();
     }

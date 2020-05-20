@@ -31,6 +31,11 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.BOT_STATS;
+    }
+
+    @Override
     public Parser<ArtistParameters> getParser() {
         return new ArtistParser(getService(), lastFM);
     }
@@ -114,8 +119,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         embedBuilder
                 .addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName())), globalStats, true);
 
-        String url = validable.getUrl().isEmpty() ? null : validable.getUrl();
-        embedBuilder.setImage(url);
+        embedBuilder.setImage(validable.getUrl());
         embedBuilder.setTitle("Who knows " + artist + " globally?");
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
 

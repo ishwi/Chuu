@@ -33,6 +33,11 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
+    @Override
     public Parser<ArtistTimeFrameParameters> getParser() {
         return new ArtistTimeFrameParser(getService(), lastFM);
     }

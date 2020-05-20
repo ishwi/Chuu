@@ -13,6 +13,12 @@ public class ScrobblesLbCommand extends LeaderboardCommand<CommandParameters> {
         super(dao);
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.SERVER_STATS;
+    }
+
     @Override
     public String getEntryName() {
         return "scrobbles";

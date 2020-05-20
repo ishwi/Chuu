@@ -15,6 +15,7 @@
  */
 package core.commands;
 
+import com.google.common.collect.TreeMultimap;
 import core.Chuu;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -24,22 +25,31 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.function.Function;
 
 public class HelpCommand extends ConcurrentCommand<CommandParameters> {
     private static final String NO_NAME = "No name provided for this command. Sorry!";
     private static final String NO_DESCRIPTION = "No description has been provided for this command. Sorry!";
     private static final String NO_USAGE = "No usage instructions have been provided for this command. Sorry!";
 
-    private final TreeMap<String, MyCommand<?>> commands;
+    private final TreeMultimap<CommandCategory, MyCommand<?>> categoryMap;
+
 
     public HelpCommand(ChuuService dao) {
         super(dao);
+        categoryMap = TreeMultimap.create(Comparator.comparingInt(CommandCategory::getOrder), (c1, c2) -> {
+            String s = c1.getAliases().get(0);
+            String s1 = c2.getAliases().get(0);
+            return s.compareToIgnoreCase(s1);
+        });
+        categoryMap.put(this.getCategory(), this);
+    }
 
-        commands = new TreeMap<>();
-        commands.put(this.getAliases().get(0), this);
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.BOT_INFO;
     }
 
     @Override
@@ -48,7 +58,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     public MyCommand<?> registerCommand(MyCommand<?> command) {
-        commands.put(command.getAliases().get(0), command);
+        categoryMap.put(command.getCategory(), command);
         return command;
     }
 
@@ -61,10 +71,10 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
     public String getUsageInstructions() {
         return
                 "help   **OR**  help *<command>*\n"
-                + "help - returns the list of commands along with a simple description of each.\n"
-                + "help <command> - returns the name, description, aliases and usage information of a command.\n"
-                + "   - This can use the aliases of a command as input as well.\n"
-                + "Example: !help chart";
+                        + "help - returns the list of commands along with a simple description of each.\n"
+                        + "help <command> - returns the name, description, aliases and usage information of a command.\n"
+                        + "   - This can use the aliases of a command as input as well.\n"
+                        + "Example: !help chart";
     }
 
     @Override
@@ -100,8 +110,9 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
     public void sendPrivate(MessageChannel channel, String[] args, Character prefix) {
         if (args.length < 2) {
             StringBuilder s = new StringBuilder();
-            s.append("A lot of commands accept different time frames which are the following:\n" +
-                     " w: Week \n")
+            s.append("A lot of commands accept different time frames which are the following:\n")
+                    .append(" d: Day \n")
+                    .append(" w: Week \n")
                     .append(" m: Month \n")
                     .append(" q: quarter \n")
                     .append(" s: semester \n")
@@ -113,24 +124,29 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
                     .append("\n")
                     .append("The following commands are supported by the bot\n");
 
-            for (MyCommand<?> c : commands.values()) {
+            for (Map.Entry<CommandCategory, Collection<MyCommand<?>>> a : categoryMap.asMap().entrySet()) {
+                CommandCategory key = a.getKey();
+                Collection<MyCommand<?>> commandList = a.getValue();
+                s.append("\n__**").append(key.toString().replaceAll("_", " ")).append(":**__ _").append(key.getDescription()).append("_\n");
 
-                if (s.length() > 1800) {
-                    channel.sendMessage(new MessageBuilder()
-                            .append(s.toString())
-                            .build()).complete();
-                    s = new StringBuilder();
+                for (MyCommand<?> c : commandList) {
+                    if (s.length() > 1800) {
+                        channel.sendMessage(new MessageBuilder()
+                                .append(s.toString())
+                                .build()).complete();
+                        s = new StringBuilder();
+                    }
+                    String description = c.getDescription();
+                    description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
+
+                    s.append("**").append(prefix).append(c.getAliases().get(0)).append("** - ");
+                    s.append(description).append("\n");
                 }
-                String description = c.getDescription();
-                description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
-
-                s.append("**").append(prefix).append(c.getAliases().get(0)).append("** - ");
-                s.append(description).append("\n");
             }
 
             channel.sendMessage(new MessageBuilder()
                     .append(s.toString())
-                    .build()).complete();
+                    .build()).queue();
         } else {
             doSend(args, channel, prefix);
         }
@@ -138,8 +154,8 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
 
     private void doSend(String[] args, MessageChannel channel, Character prefix) {
         String command = args[1]
-                                 .charAt(0) == prefix ? args[1] : "" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
-        for (MyCommand<?> c : commands.values()) {
+                .charAt(0) == prefix ? args[1] : "" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
+        for (MyCommand<?> c : categoryMap.values()) {
             if (c.getAliases().contains(command.toLowerCase())) {
                 String name = c.getName();
                 String description = c.getDescription();

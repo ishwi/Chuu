@@ -30,6 +30,12 @@ public class CountryCommand extends ConcurrentCommand<TimeFrameParameters> {
 
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
     @Override
     public Parser<TimeFrameParameters> getParser() {
         return new TimerFrameParser(getService(), TimeFrameEnum.ALL);

@@ -25,6 +25,11 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.DISCOVERY;
+    }
+
+    @Override
     public Parser<RecommendationsParams> getParser() {
         return new RecommendationParser(getService());
     }

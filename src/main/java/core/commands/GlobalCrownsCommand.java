@@ -16,6 +16,11 @@ public class GlobalCrownsCommand extends CrownsCommand {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.CROWNS;
+    }
+
+    @Override
     public boolean isGlobal() {
         return true;
     }

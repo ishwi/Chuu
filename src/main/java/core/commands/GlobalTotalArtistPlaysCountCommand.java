@@ -26,6 +26,11 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.BOT_STATS;
+    }
+
+    @Override
     public Parser<CommandParameters> getParser() {
         return new NoOpParser();
     }

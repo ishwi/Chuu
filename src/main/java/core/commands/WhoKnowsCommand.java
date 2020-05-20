@@ -49,6 +49,11 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.SERVER_STATS;
+    }
+
+    @Override
     public Parser<ArtistParameters> getParser() {
         return new ArtistParser(getService(), lastFM,
                 new OptionalEntity("--list", "display in list format")

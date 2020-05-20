@@ -29,11 +29,17 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
             embedBuilder.clearFields()
                     .addField("Alias:", aliasEntity.getAlias(), false)
                     .addField("Artist to be aliased:", aliasEntity.getArtistName(), false)
-                    .addField("Added:", aliasEntity.getDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("YYYY-dd-mm HH:mm 'UTC'")), false)
+                    .addField("Added:", aliasEntity.getDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-dd-MM HH:mm 'UTC'")), false)
                     .setColor(CommandUtil.randomColor());
 
     public AliasReviewCommand(ChuuService dao) {
         super(dao);
+    }
+
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.MODERATION;
     }
 
     @Override

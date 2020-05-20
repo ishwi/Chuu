@@ -30,6 +30,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
         this.respondInPrivate = false;
     }
 
+
     @Override
     public ChartableParser<ChartSizeParameters> getParser() {
         OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(getService(), TimeFrameEnum.ALL,

@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 public abstract class MyCommand<T extends CommandParameters> extends ListenerAdapter {
     final ConcurrentLastFM lastFM;
     private final ChuuService dao;
+    private final CommandCategory category;
     boolean respondInPrivate = true;
     Parser<T> parser;
 
@@ -33,7 +34,10 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
         this.dao = dao;
         lastFM = LastFMFactory.getNewInstance();
         this.parser = getParser();
+        this.category = getCategory();
     }
+
+    protected abstract CommandCategory getCategory();
 
     public abstract Parser<T> getParser();
 

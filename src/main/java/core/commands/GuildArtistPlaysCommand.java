@@ -27,6 +27,11 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.SERVER_STATS;
+    }
+
+    @Override
     public Parser<ArtistParameters> getParser() {
         return new ArtistParser(getService(), lastFM);
     }
@@ -57,7 +62,7 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
-        
+
         long artistPlays;
         if (e.isFromGuild()) {
             artistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());

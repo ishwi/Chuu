@@ -26,6 +26,11 @@ public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlay
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.SERVER_STATS;
+    }
+
+    @Override
     public Parser<CommandParameters> getParser() {
         return new NoOpParser();
     }

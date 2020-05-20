@@ -14,6 +14,12 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParam
         super(dao);
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.SERVER_STATS;
+    }
+
     @Override
     public Parser<CommandParameters> getParser() {
         return new NoOpParser();

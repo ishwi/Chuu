@@ -14,6 +14,12 @@ import java.util.List;
 public class SourceCommand extends ConcurrentCommand<CommandParameters> {
     private static final String REPO_URL = "https://github.com/ishwi/discordBot";
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.BOT_INFO;
+    }
+
     public SourceCommand(ChuuService dao) {
         super(dao);
     }

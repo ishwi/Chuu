@@ -19,6 +19,12 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
         super(dao);
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.INFO;
+    }
+
     @Override
     public String getDescription() {
         return "Information about an album";

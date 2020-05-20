@@ -21,6 +21,12 @@ public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
         super(dao);
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.CONFIGURATION;
+    }
+
     @Override
     public Parser<TwoArtistParams> getParser() {
         return new TwoArtistsParser();

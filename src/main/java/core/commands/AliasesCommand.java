@@ -31,6 +31,11 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.INFO;
+    }
+
+    @Override
     public Parser<ArtistParameters> getParser() {
         return new ArtistParser(getService(), lastFM);
     }

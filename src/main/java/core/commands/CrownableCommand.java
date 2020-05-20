@@ -23,6 +23,11 @@ public class CrownableCommand extends ListCommand<CrownableArtist, ChuuDataParam
 
 
     @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.CROWNS;
+    }
+
+    @Override
     public Parser<ChuuDataParams> getParser() {
         OnlyUsernameParser onlyUsernameParser = new OnlyUsernameParser(getService());
         onlyUsernameParser.addOptional(new OptionalEntity("--nofirst", "To show only the artists in which you are not first"));

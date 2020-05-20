@@ -17,6 +17,12 @@ public class ArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
         super(dao);
     }
 
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
     @Override
     public Parser<ArtistParameters> getParser() {
         return new ArtistParser(getService(), lastFM);
