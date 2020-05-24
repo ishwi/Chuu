@@ -379,6 +379,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
     @Override
     public long getArtistPlays(Connection connection, Long guildID, long artistId) {
+        //TODO for global, it chooses repeated
         @Language("MariaDB") String queryString = "SELECT sum(playnumber) FROM scrobbled_artist a " +
                 "JOIN user b " +
                 "ON a.lastfm_id = b.lastfm_id " +
@@ -442,6 +443,21 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 return resultSet.getInt(1);
             }
             return 0;
+        } catch (SQLException ex) {
+            throw new ChuuServiceException(ex);
+        }
+    }
+
+    @Override
+    public boolean getGuildConfigEmbed(Connection connection, long guildID) {
+        @Language("MariaDB") String queryBody = "SELECT additional_embed FROM guild WHERE guild_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
+            preparedStatement.setLong(1, guildID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getBoolean(1);
+            }
+            return false;
         } catch (SQLException ex) {
             throw new ChuuServiceException(ex);
         }
@@ -1019,12 +1035,14 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 
     @Override
-    public int userArtistCount(Connection con, String whom) {
-        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_artist WHERE scrobbled_artist.lastfm_id=?";
+    public int userArtistCount(Connection con, String whom, int threshold) {
+        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_artist WHERE scrobbled_artist.lastfm_id= ? and playNumber >= ?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
-            preparedStatement.setString(i, whom);
+            preparedStatement.setString(i++, whom);
+            preparedStatement.setInt(i, threshold);
+
 
             /* Execute query. */
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -1039,7 +1057,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public List<LbEntry> artistLeaderboard(Connection con, long guildID) {
+    public List<LbEntry> artistLeaderboard(Connection con, long guildID, int threshold) {
         @Language("MariaDB") String queryString = "(SELECT  " +
                 "        a.lastfm_id , count(*) AS ord, c.discord_id" +
                 "    FROM " +
@@ -1047,11 +1065,13 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 "    JOIN user b ON a.lastfm_id = b.lastfm_id " +
                 "    JOIN user_guild c ON b.discord_id = c.discord_id " +
                 "    WHERE " +
-                "        c.guild_id = ? " +
+                "        c.guild_id = ? and " +
+                "       c.guild_id = ? and " +
+                "       a.playnumber >= ?" +
                 " GROUP BY a.lastfm_id,c.discord_id " +
                 "    ORDER BY ord DESC    )";
 
-        return getLbEntries(con, guildID, queryString, ArtistLbEntry::new, false, 0);
+        return getLbEntries(con, guildID, queryString, ArtistLbEntry::new, true, threshold);
     }
 
     @Override

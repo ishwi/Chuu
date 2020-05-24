@@ -121,7 +121,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartYearRangeParameters params, int count) {
-        return params.initEmbed("s top albums from " + params.getDisplayString(), embedBuilder, " has " + count + " albums from " + params.getDisplayString() + " in their top " + searchSpace + " albums");
+        return params.initEmbed("s top albums from " + params.getDisplayString(), embedBuilder, " has " + count + " albums from " + params.getDisplayString() + " in their top " + searchSpace + " albums", params.getLastfmID());
     }
 
     @Override
@@ -139,14 +139,14 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
     }
 
     @Override
-    public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, ChartYearRangeParameters parameters) {
+    public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, ChartYearRangeParameters parameters, int size) {
         if (!parameters.isCareAboutSized()) {
             int imageSize = Math.max((int) Math.ceil(Math.sqrt(queue.size())), 1);
-            super.doImage(queue, imageSize, imageSize, parameters);
+            super.doImage(queue, imageSize, imageSize, parameters, size);
         } else {
             BlockingQueue<UrlCapsule> tempQueuenew = new LinkedBlockingDeque<>();
             queue.drainTo(tempQueuenew, x * y);
-            super.doImage(tempQueuenew, x, y, parameters);
+            super.doImage(tempQueuenew, x, y, parameters, size);
         }
     }
 

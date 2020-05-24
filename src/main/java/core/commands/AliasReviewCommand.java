@@ -25,7 +25,7 @@ import java.util.function.BiFunction;
 
 public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
     private final AtomicBoolean isActive = new AtomicBoolean(false);
-    private BiFunction<AliasEntity, EmbedBuilder, EmbedBuilder> builder = (aliasEntity, embedBuilder) ->
+    private final BiFunction<AliasEntity, EmbedBuilder, EmbedBuilder> builder = (aliasEntity, embedBuilder) ->
             embedBuilder.clearFields()
                     .addField("Alias:", aliasEntity.getAlias(), false)
                     .addField("Artist to be aliased:", aliasEntity.getArtistName(), false)
@@ -49,17 +49,17 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public String getDescription() {
-        return "Review Aliases";
+        return "Aliases review";
     }
 
     @Override
     public List<String> getAliases() {
-        return List.of("review");
+        return List.of("aliasreview", "alrev");
     }
 
     @Override
     public String getName() {
-        return "review";
+        return "Aliases Review";
     }
 
     @Override

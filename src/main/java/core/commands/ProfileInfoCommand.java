@@ -72,7 +72,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
         int totalUnique = unique.getRows();
         int totalCrowns = crowns.getRows();
-        int totalArtist = getService().getUserArtistCount(lastFmName);
+        int totalArtist = getService().getUserArtistCount(lastFmName, 0);
         String crownRepresentative = !crowns.getUniqueData().isEmpty() ? crowns.getUniqueData().get(0)
                 .getArtistName() : "no crowns";
         String uniqueRepresentative = !unique.getUniqueData().isEmpty() ? unique.getUniqueData().get(0)

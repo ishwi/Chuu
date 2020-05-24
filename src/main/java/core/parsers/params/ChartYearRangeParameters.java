@@ -11,14 +11,14 @@ public class ChartYearRangeParameters extends ChartParameters {
     private final int numberOfYears;
 
 
-    public ChartYearRangeParameters(MessageReceivedEvent e, Year baseYear, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, int numberOfYears) {
-        super(e, lastfmID, discordId, timeFrameEnum, x, y);
+    public ChartYearRangeParameters(MessageReceivedEvent e, Year baseYear, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, int numberOfYears, boolean doAdditionalEmbed) {
+        super(e, lastfmID, discordId, doAdditionalEmbed, timeFrameEnum, x, y);
         this.baseYear = baseYear;
         this.numberOfYears = numberOfYears;
     }
 
-    public ChartYearRangeParameters(MessageReceivedEvent e, Year baseYear, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat, int numberOfYears) {
-        super(e, lastfmID, discordId, timeFrameEnum, x, y, writeTitles, writePlays, isList, pieFormat);
+    public ChartYearRangeParameters(MessageReceivedEvent e, Year baseYear, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat, int numberOfYears, boolean doAdditionalEmbed) {
+        super(e, lastfmID, discordId, timeFrameEnum, x, y, writeTitles, writePlays, isList, pieFormat, doAdditionalEmbed);
         this.baseYear = baseYear;
         this.numberOfYears = numberOfYears;
     }

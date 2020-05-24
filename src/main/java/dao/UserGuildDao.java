@@ -51,8 +51,6 @@ interface UserGuildDao {
 
     void upsertRateLimit(Connection connection, long discordId, float queriesPerSecond);
 
-    void setPrivateUpdate(Connection connection, long discordId, boolean privateUpdate);
-
     void insertServerDisabled(Connection connection, long discordId, String commandName);
 
     void insertChannelCommandStatus(Connection connection, long discordId, long channelId, String commandName, boolean enabled);
@@ -65,4 +63,8 @@ interface UserGuildDao {
     MultiValuedMap<Long, String> initServerCommandStatuses(Connection connection);
 
     MultiValuedMap<Pair<Long, Long>, String> initServerChannelsCommandStatuses(Connection connection, boolean enabled);
+
+    void setUserProperty(Connection connection, long discordId, String additional_embed, boolean chartEmbed);
+
+
 }

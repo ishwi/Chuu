@@ -67,7 +67,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartSizeParameters params, int count) {
-        return params.initEmbed("'s top artists", embedBuilder, " has listened to " + count + " artists");
+        return params.initEmbed("'s top artists", embedBuilder, " has listened to " + count + " artists", params.getLastfmID());
     }
 
     @Override

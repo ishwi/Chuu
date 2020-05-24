@@ -5156,9 +5156,17 @@ Legend
                 id="text2537">No data
         </text>
         <text
-                x="2220"
+                font-size="45"
+                x="2210"
                 y="1454"
                 id="text2539">Total Country Count : 2013
+        </text>
+        <text
+                font-size="45"
+
+                x="1"
+                y="105"
+                id="text0000">Placeholder
         </text>
     </g>
 

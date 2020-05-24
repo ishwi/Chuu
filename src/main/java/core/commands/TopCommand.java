@@ -48,7 +48,7 @@ public class TopCommand extends ArtistAbleCommand<TopParameters> {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, TopParameters params, int count) {
         String s = params.isDoAlbum() ? "albums" : "artists";
-        return params.initEmbed(String.format("'s top %s", s), embedBuilder, " has listened to " + count + " " + s);
+        return params.initEmbed(String.format("'s top %s", s), embedBuilder, " has listened to " + count + " " + s, params.getLastfmID());
     }
 
     @Override

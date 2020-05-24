@@ -319,7 +319,8 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new AOTDCommand(dao)))
                 .addEventListeners(help.registerCommand(new UserConfigCommand(dao)))
                 .addEventListeners(help.registerCommand(new DisabledCommand(dao)))
-                .addEventListeners(help.registerCommand(new DisabledStatusCommand(dao)));
+                .addEventListeners(help.registerCommand(new DisabledStatusCommand(dao)))
+                .addEventListeners(help.registerCommand(new UrlQueueReview(dao)));
 
 
         try {

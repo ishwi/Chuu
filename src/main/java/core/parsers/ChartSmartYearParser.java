@@ -80,15 +80,15 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
         }
         TimeFrameEnum timeFrameEnum = calculateTimeFrame(year);
         discordName = atTheEndOneUser(e, words);
-        return new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrameEnum, x, y, year);
+        return new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrameEnum, x, y, year, doAdditionalEmbed(discordName,e));
     }
 
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *Username* *YEAR* *sizeXsize*** \n" +
-               "\tIf username is not specified defaults to authors account \n" +
-               "\tIf YEAR not specified it default to current year\n" +
-               "\tIf Size not specified it defaults to 5x5\n";
+                "\tIf username is not specified defaults to authors account \n" +
+                "\tIf YEAR not specified it default to current year\n" +
+                "\tIf Size not specified it defaults to 5x5\n";
     }
 
     @Override

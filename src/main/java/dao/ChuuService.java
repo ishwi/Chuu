@@ -293,6 +293,15 @@ public class ChuuService {
         }
     }
 
+    public boolean getGuildEmbedConfig(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getGuildConfigEmbed(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public Set<ScrobbledArtist> getNullUrls() {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
@@ -329,6 +338,16 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             long urlId = updaterDao.upsertUrl(connection, url, artistId, discordId);
             updaterDao.castVote(connection, urlId, discordId, true);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+
+        }
+
+    }
+
+    public void userInsertQueueUrl(String url, long artistId, long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.upsertQueueUrl(connection, url, artistId, discordId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
 
@@ -560,19 +579,19 @@ public class ChuuService {
         }
     }
 
-    public int getUserArtistCount(String lastfmId) {
+    public int getUserArtistCount(String lastfmId, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.userArtistCount(connection, lastfmId);
+            return queriesDao.userArtistCount(connection, lastfmId, threshold);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
     }
 
-    public List<LbEntry> getArtistLeaderboard(long guildId) {
+    public List<LbEntry> getArtistLeaderboard(long guildId, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.artistLeaderboard(connection, guildId);
+            return queriesDao.artistLeaderboard(connection, guildId, threshold);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
 
@@ -933,6 +952,14 @@ public class ChuuService {
         }
     }
 
+    public OptionalLong checkQueuedUrlExists(long artistId, String urlParsed) {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.checkQueuedUrlExists(connection, artistId, urlParsed);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
     public VoteStatus castVote(long urlId, long discordId, boolean isPositive) {
         try (Connection connection = dataSource.getConnection()) {
@@ -998,6 +1025,14 @@ public class ChuuService {
         }
     }
 
+    public int getQueueUrlCount() {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.getQueueUrlCount(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void ignoreReportedImage(long altId) {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.removeReport(connection, altId);
@@ -1006,9 +1041,26 @@ public class ChuuService {
         }
     }
 
+    public void rejectQueuedImage(long queuedId) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.removeQueuedImage(connection, queuedId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public ReportEntity getNextReport(LocalDateTime localDateTime, Set<Long> skippedIds) {
         try (Connection connection = dataSource.getConnection()) {
             return updaterDao.getReportEntity(connection, localDateTime, skippedIds);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public ImageQueue getNextQueue(LocalDateTime localDateTime, Set<Long> skippedIds) {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.getUrlQueue(connection, localDateTime, skippedIds);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1072,6 +1124,14 @@ public class ChuuService {
         }
     }
 
+    public void updateGuildDefaultChart(long guildId, boolean chartEmbed) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.updateGuildProperty(connection, guildId, "additional_embed", chartEmbed);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public List<LbEntry> getScrobblesLeaderboard(long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
@@ -1117,7 +1177,23 @@ public class ChuuService {
 
     public void setPrivateUpdate(long discordId, boolean privateUpdate) {
         try (Connection connection = dataSource.getConnection()) {
-            userGuildDao.setPrivateUpdate(connection, discordId, privateUpdate);
+            userGuildDao.setUserProperty(connection, discordId, "private_update", privateUpdate);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setImageNotify(long discordId, boolean imageNotify) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setUserProperty(connection, discordId, "notify_image", imageNotify);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setChartEmbed(long discordId, boolean chartEmbed) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setUserProperty(connection, discordId, "additional_embed", chartEmbed);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1166,6 +1242,17 @@ public class ChuuService {
     public MultiValuedMap<Pair<Long, Long>, String> initServerChannelsCommandStatuses(boolean enabled) {
         try (Connection connection = dataSource.getConnection()) {
             return this.userGuildDao.initServerChannelsCommandStatuses(connection, enabled);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public void acceptImageQueue(long queuedId, String url, long artistId, long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.removeQueuedImage(connection, queuedId);
+            long urlId = updaterDao.upsertUrl(connection, url, artistId, discordId);
+            updaterDao.castVote(connection, urlId, discordId, true);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

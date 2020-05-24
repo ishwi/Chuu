@@ -26,7 +26,7 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParam
     }
 
     @Override
-    public String getEntryName() {
+    public String getEntryName(CommandParameters params) {
         return "Obscurity points";
     }
 

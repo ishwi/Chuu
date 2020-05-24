@@ -53,8 +53,9 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
             return;
         }
         GroupingQueue queue = countWrapper.getResult();
+        List<UrlCapsule> urlCapsules = queue.setUp();
+
         if (chartGroupParameters.isList() || chartGroupParameters.isPieFormat()) {
-            List<UrlCapsule> urlCapsules = queue.setUp();
             int sum = urlCapsules.stream().mapToInt(x -> ((TrackDurationChart) x).getSeconds()).sum();
             countWrapper.setRows(sum);
             if (chartGroupParameters.isPieFormat()) {
@@ -64,8 +65,9 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
                 doList(urlCapsules, chartGroupParameters, countWrapper.getRows());
             }
         } else {
-            queue.setUp();
-            doImage(queue, chartGroupParameters.getX(), chartGroupParameters.getY(), chartGroupParameters);
+            int sum = urlCapsules.stream().mapToInt(x -> ((TrackDurationChart) x).getSeconds()).sum();
+            countWrapper.setRows(sum);
+            doImage(queue, chartGroupParameters.getX(), chartGroupParameters.getY(), chartGroupParameters, countWrapper.getRows());
         }
 
     }

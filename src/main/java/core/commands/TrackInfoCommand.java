@@ -61,7 +61,7 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
                 .collect(Collectors.joining(" - "));
 
         MessageBuilder messageBuilder = new MessageBuilder();
-        embedBuilder.setTitle(trackInfo.getName(), CommandUtil.getLastFMArtistTrack(lastFMData.getName(), trackInfo.getName()))
+        embedBuilder.setTitle(trackInfo.getName(), CommandUtil.getLastFMArtistTrack(trackInfo.getArtist(), trackInfo.getName()))
                 .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(trackInfo.getArtist()),
                         CommandUtil.getLastFmArtistUrl(trackInfo.getArtist())), false);
         if (trackInfo.getAlbumName() != null) {

@@ -20,7 +20,7 @@ public class ScrobblesLbCommand extends LeaderboardCommand<CommandParameters> {
     }
 
     @Override
-    public String getEntryName() {
+    public String getEntryName(CommandParameters params) {
         return "scrobbles";
     }
 

@@ -29,9 +29,9 @@ interface SQLQueriesDao {
 
     List<LbEntry> uniqueLeaderboard(Connection connection, long guildId);
 
-    int userArtistCount(Connection con, String whom);
+    int userArtistCount(Connection con, String whom, int threshold);
 
-    List<LbEntry> artistLeaderboard(Connection con, long guildID);
+    List<LbEntry> artistLeaderboard(Connection con, long guildID, int threshold);
 
     List<LbEntry> obscurityLeaderboard(Connection connection, long guildId);
 
@@ -83,6 +83,8 @@ interface SQLQueriesDao {
 
     int getGuildCrownThreshold(Connection connection, long guildID);
 
+
+    boolean getGuildConfigEmbed(Connection connection, long guildID);
 
     List<LbEntry> getScrobblesLeaderboard(Connection connection, long guildId);
 

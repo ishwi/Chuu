@@ -4,7 +4,6 @@ import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.AlbumChart;
 import core.apis.last.chartentities.ChartUtil;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -123,10 +122,10 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistTimeFrameParameters
                             })
                             .filter(a -> a.getPlays() > 0)
                             .collect(Collectors.toList());
-            list.sort(Comparator.comparing(AlbumUserPlays::getPlays).reversed());
-            list.forEach(x -> x.setArtist(ai.getArtist()));
+
             ai.getAlbumList().addAll(list);
         }
+        ai.getAlbumList().sort(Comparator.comparing(AlbumUserPlays::getPlays).reversed());
         ai.getAlbumList().forEach(x -> x.setArtist(ai.getArtist()));
         WrapperReturnNowPlaying np = getService().whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
         np.getReturnNowPlayings().forEach(element ->

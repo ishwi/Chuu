@@ -287,4 +287,14 @@ CREATE TABLE command_guild_channel_disabled
     CONSTRAINT command_guild_channel_disabled_fk_guild FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-
+CREATE TABLE queued_url (
+    id         INT(11)      NOT NULL AUTO_INCREMENT,
+    url      VARCHAR(400) NOT NULL,
+    artist_id  BIGINT(20)   NOT NULL,
+    discord_id BIGINT(20),
+    added_date DATETIME     NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (id),
+    UNIQUE(artist_id,url),
+    CONSTRAINT queued_url_fk_artsit FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT  queued_url_fk_discordid FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE CASCADE
+);

@@ -34,7 +34,7 @@ public abstract class OnlyChartCommand<T extends ChartParameters> extends Charta
             this.noElementsMessage(chartParameters);
             return;
         }
-        doImage(urlCapsules, chartParameters.getX(), chartParameters.getY(), chartParameters);
+        doImage(urlCapsules, chartParameters.getX(), chartParameters.getY(), chartParameters, countWrapper.getRows());
     }
 
 

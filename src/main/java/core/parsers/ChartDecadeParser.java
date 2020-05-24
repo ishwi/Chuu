@@ -12,10 +12,7 @@ import java.awt.*;
 import java.time.Year;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -105,7 +102,7 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
 
                 ChartYearRangeParameters(e, baseYear, discordName.getName(), discordName.
 
-                getDiscordId(), timeFrame, x, y, numberOfYears);
+                getDiscordId(), timeFrame, x, y, numberOfYears, doAdditionalEmbed(discordName,e));
     }
 
     @Override

@@ -26,7 +26,7 @@ public class AlbumCrownsLeaderboardCommand extends LeaderboardCommand<CommandPar
     }
 
     @Override
-    public String getEntryName() {
+    public String getEntryName(CommandParameters params) {
         return "Album Crowns";
     }
 

@@ -33,7 +33,7 @@ public class FeaturedTestCommand extends CommandTest {
 	@Test
 	public void normalUsage() {
 		List<FieldRowMatcher> fieldRowMatchers = new ArrayList<>();
-		//Relaxed pattern, wont be the exact one when album or artist has -
+		//Relaxed pattern, won't be the exact one when album or artist has -
 
 		fieldRowMatchers.add(new FieldRowMatcher("Artist:", Pattern.compile("(.*)")));
 		fieldRowMatchers.add(new FieldRowMatcher("User:", Pattern.compile("(.*)"),

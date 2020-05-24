@@ -44,7 +44,7 @@ public class TopParser extends ChartableParser<TopParameters> {
         subMessage = chartParserAux.getMessage();
 
         LastFMData data = atTheEndOneUser(e, subMessage);
-        return new TopParameters(e, data.getName(), data.getDiscordId(), defaultTFE, x, y);
+        return new TopParameters(e, data.getName(), data.getDiscordId(), defaultTFE, x, y, doAdditionalEmbed(data,e));
     }
 
 

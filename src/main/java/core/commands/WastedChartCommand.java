@@ -60,7 +60,7 @@ public class WastedChartCommand extends GroupingChartCommand {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartGroupParameters params, int count) {
         return params.initEmbed("'s most listened artists", embedBuilder,
-                String.format(" has listened to artists for %s", String.format("%d:%02d hours", count / 3600, count / 60 % 60)));
+                String.format(" has listened to artists for %s", String.format("%d:%02d hours", count / 3600, count / 60 % 60)), params.getLastfmID());
     }
 
     @Override

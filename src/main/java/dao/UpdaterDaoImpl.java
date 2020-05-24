@@ -920,6 +920,18 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
+    public void removeQueuedImage(Connection connection, long altId) {
+        String queryString = "DELETE FROM queued_url WHERE id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, altId);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
+    @Override
     public void insertPastRecommendation(Connection connection, long secondDiscordID, long firstDiscordID, long artistId) {
         String queryString = "INSERT IGNORE INTO past_recommendations ( artist_id,receiver_id,giver_id)   VALUES (?, ?,?)  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -946,6 +958,105 @@ public class UpdaterDaoImpl implements UpdaterDao {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    @Override
+    public ImageQueue getUrlQueue(Connection connection, LocalDateTime localDateTime, Set<Long> skippedIds) {
+
+        String queryString = "SELECT a.id,a.url,a.artist_id,a.discord_id,a.added_date, c.name,(SELECT count(*) FROM log_reported WHERE reported = a.discord_id) as reportedCount\n" +
+                "FROM queued_url a " +
+                "JOIN\n" +
+                "artist c ON a.artist_id = c.id\n" +
+                "WHERE a.added_date < ?";
+        if (!skippedIds.isEmpty()) {
+            queryString += " and a.id not in (" + "?,".repeat(skippedIds.size() - 1) + "?)";
+        }
+        queryString += "ORDER BY a.added_date DESC LIMIT 1";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setTimestamp(1, Timestamp.from(localDateTime.atOffset(ZoneOffset.UTC).toInstant()));
+            int i = 2;
+            for (Long skippedId : skippedIds) {
+                preparedStatement.setLong(i++, skippedId);
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                long queuedId = resultSet.getLong(1);
+                String url = resultSet.getString(2);
+                long artistId = resultSet.getInt(3);
+                long uploader = resultSet.getLong(4);
+                Timestamp addedDate = resultSet.getTimestamp(5);
+                String artistName = resultSet.getString(6);
+                int userReportCount = resultSet.getInt(7);
+                return new ImageQueue(queuedId, url, artistId, uploader,
+                        artistName, addedDate.toLocalDateTime(), userReportCount);
+            }
+            return null;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void upsertQueueUrl(Connection connection, String url, long artistId, long discordId) {
+        String queryString = "INSERT INTO queued_url(url,artist_id,discord_id) values (?,?,?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, url);
+            preparedStatement.setLong(2, artistId);
+            preparedStatement.setLong(3, discordId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public OptionalLong checkQueuedUrlExists(Connection connection, long artistId, String urlParsed) {
+        String queryString = "SELECT id FROM queued_url WHERE artist_id = ? AND url = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            preparedStatement.setLong(1, artistId);
+            preparedStatement.setString(2, urlParsed);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return OptionalLong.of(resultSet.getLong(1));
+            }
+            return OptionalLong.empty();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public int getQueueUrlCount(Connection connection) {
+
+        String queryString = "SELECT count(*) FROM queued_url ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void updateGuildProperty(Connection connection, long guildId, String property, boolean propertyValue) {
+        @Language("MariaDB") String queryString = "UPDATE  guild SET " + property + " = ? WHERE guild_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setBoolean(i++, propertyValue);
+            preparedStatement.setLong(i, guildId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 }
 

@@ -18,27 +18,30 @@ import java.util.function.BiFunction;
 public class ChartParameters extends CommandParameters {
     private final String lastfmID;
     private final long discordId;
+    private final boolean doAdditionalEmbed;
     private final TimeFrameEnum timeFrameEnum;
     private final int x;
     private final int y;
 
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y) {
+    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, boolean doAdditionalEmbed, TimeFrameEnum timeFrameEnum, int x, int y) {
         super(e);
         this.lastfmID = lastfmID;
         this.discordId = discordId;
+        this.doAdditionalEmbed = doAdditionalEmbed;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
         this.y = y;
     }
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat) {
+    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat, boolean doAdditionalEmbed) {
         super(e);
         this.lastfmID = lastfmID;
         this.discordId = discordId;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
         this.y = y;
+        this.doAdditionalEmbed = doAdditionalEmbed;
         this.optionals.put(new OptionalEntity("--notitles", ""), !writeTitles);
         this.optionals.put(new OptionalEntity("--plays", ""), writePlays);
         this.optionals.put(new OptionalEntity("--list", ""), isList);
@@ -49,7 +52,7 @@ public class ChartParameters extends CommandParameters {
 
     public static ChartParameters toListParams() {
         return new ChartParameters(null, "", -1L, null, 0, 0, true
-                , true, true, false);
+                , true, true, false, false);
     }
 
     public int makeCommand(ConcurrentLastFM lastFM, BlockingQueue<UrlCapsule> queue, TopEntity topEntity, BiFunction<JSONObject, Integer, UrlCapsule> parser) throws LastFmException {
@@ -92,14 +95,18 @@ public class ChartParameters extends CommandParameters {
     }
 
 
-    public EmbedBuilder initEmbed(String titleInit, EmbedBuilder embedBuilder, String footerText) {
-        DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoConsideringGuildOrNot(getE(), discordId);
-        return embedBuilder.setTitle(discordUserDisplay.getUsername() + titleInit + this.getTimeFrameEnum().getDisplayString())
-                .setFooter(CommandUtil.markdownLessString(discordUserDisplay.getUsername()) + footerText + this.getTimeFrameEnum().getDisplayString());
+    public EmbedBuilder initEmbed(String titleInit, EmbedBuilder embedBuilder, String footerText, String lastfmid) {
+        DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoNotStripped(getE(), discordId);
+        return embedBuilder.setAuthor(discordUserDisplay.getUsername() + titleInit + this.getTimeFrameEnum().getDisplayString(), CommandUtil.getLastFmUser(lastfmid), discordUserDisplay.getUrlImage())
+                .setFooter(CommandUtil.markdownLessString(discordUserDisplay.getUsername()) + footerText + this.getTimeFrameEnum().getDisplayString()).setColor(CommandUtil.randomColor());
     }
 
 
     public boolean isPieFormat() {
         return hasOptional("--pie");
+    }
+
+    public boolean isDoAdditionalEmbed() {
+        return doAdditionalEmbed;
     }
 }

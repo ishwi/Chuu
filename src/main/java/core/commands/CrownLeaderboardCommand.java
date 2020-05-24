@@ -30,7 +30,7 @@ public class CrownLeaderboardCommand extends LeaderboardCommand<NumberParameters
     }
 
     @Override
-    public String getEntryName() {
+    public String getEntryName(NumberParameters<CommandParameters> params) {
         return "Crowns";
     }
 

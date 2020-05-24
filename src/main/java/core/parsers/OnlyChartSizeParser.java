@@ -45,7 +45,8 @@ public class OnlyChartSizeParser extends ChartableParser<ChartSizeParameters> {
             this.sendError(getErrorMessage(6), e);
             return null;
         }
-        return new ChartSizeParameters(e, x, y);
+        boolean guildEmbedConfig = dao.getGuildEmbedConfig(e.getGuild().getIdLong());
+        return new ChartSizeParameters(e, x, y, guildEmbedConfig);
     }
 
     @Override

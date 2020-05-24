@@ -25,7 +25,7 @@ public class ArtistCommand extends ArtistAbleCommand<ChartParameters> {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
-        return params.initEmbed("'s top artists", embedBuilder, " has listened to " + count + " artists");
+        return params.initEmbed("'s top artists", embedBuilder, " has listened to " + count + " artists", params.getLastfmID());
     }
 
     @Override

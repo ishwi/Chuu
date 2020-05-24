@@ -74,7 +74,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
         /* Create "queryString". */
-        String queryString = "SELECT   discord_id, lastfm_id,role,private_update FROM user WHERE discord_id = ?";
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,additional_embed FROM user WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -95,10 +95,12 @@ public class UserGuildDaoImpl implements UserGuildDao {
             long resDiscordID = resultSet.getLong(i++);
             String lastFmID = resultSet.getString(i++);
             Role role = Role.valueOf(resultSet.getString(i++));
-            boolean privateUpdate = resultSet.getBoolean(i);
+            boolean privateUpdate = resultSet.getBoolean(i++);
+            boolean notify_image = resultSet.getBoolean(i++);
+            boolean additional_embed = resultSet.getBoolean(i);
 
 
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate);
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, additional_embed);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -382,7 +384,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update " +
+        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image,a.additional_embed  " +
                 "FROM   user a" +
                 " WHERE  a.lastfm_id = ? ";
 
@@ -401,10 +403,14 @@ public class UserGuildDaoImpl implements UserGuildDao {
             String string = resultSet.getString(2);
             Role role = Role.valueOf(resultSet.getString(3));
             boolean privateUpdate = resultSet.getBoolean(4);
+            boolean imageNOtify = resultSet.getBoolean(5);
+            boolean additional_embed = resultSet.getBoolean(6);
+
+
 
             /* Get results. */
 
-            return new LastFMData(string, aLong, role, privateUpdate);
+            return new LastFMData(string, aLong, role, privateUpdate, imageNOtify, additional_embed);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -463,23 +469,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
     }
 
-    @Override
-    public void setPrivateUpdate(Connection connection, long discordId, boolean privateUpdate) {
-        @Language("MariaDB") String queryString = "UPDATE  user SET  private_update = ? WHERE discord_id = ? ";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-            /* Fill "preparedStatement". */
-            int i = 1;
-            preparedStatement.setBoolean(i++, privateUpdate);
-            preparedStatement.setLong(i, discordId);
-
-            preparedStatement.executeUpdate();
-
-
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
-    }
 
     @Override
     public void insertServerDisabled(Connection connection, long discordId, String commandName) {
@@ -600,6 +589,23 @@ public class UserGuildDaoImpl implements UserGuildDao {
             throw new ChuuServiceException(e);
         }
         return map;
+    }
+
+    @Override
+    public void setUserProperty(Connection connection, long discordId, String property, boolean chartEmbed) {
+        @Language("MariaDB") String queryString = "UPDATE  user SET  " + property + " = ? WHERE discord_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setBoolean(i++, chartEmbed);
+            preparedStatement.setLong(i, discordId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
     }
 
 }

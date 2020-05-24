@@ -9,6 +9,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.TimeFrameEnum;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
@@ -177,10 +178,14 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
     }
 
     void sendImage(BufferedImage image, MessageReceivedEvent e) {
-        sendImage(image, e, ChartQuality.PNG_BIG);
+        sendImage(image, e, ChartQuality.PNG_BIG, null);
     }
 
     void sendImage(BufferedImage image, MessageReceivedEvent e, ChartQuality chartQuality) {
+        sendImage(image, e, chartQuality, null);
+    }
+
+    void sendImage(BufferedImage image, MessageReceivedEvent e, ChartQuality chartQuality, EmbedBuilder embedBuilder) {
         if (image == null) {
             sendMessageQueue(e, "Something went wrong generating the image");
             return;
@@ -195,12 +200,18 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
 
             byte[] img = b.toByteArray();
             long maxSize = e.isFromGuild() ? e.getGuild().getMaxFileSize() : Message.MAX_FILE_SIZE;
-            if (img.length < maxSize)
-                e.getChannel().sendFile(img, "cat." + format).queue();
-            else
+            if (img.length < maxSize) {
+                if (embedBuilder != null) {
+                    //embedBuilder.setImage("attachment://cat." + format);
+                    e.getChannel().sendFile(img, "cat." + format).embed(embedBuilder.build()).queue();
+                } else {
+                    e.getChannel().sendFile(img, "cat." + format).queue();
+                }
+            } else
                 e.getChannel().sendMessage("File was real big").queue();
 
-        } catch (IOException ex) {
+        } catch (
+                IOException ex) {
             sendMessageQueue(e, "Ish Pc Bad");
             Chuu.getLogger().warn(ex.getMessage(), ex);
         }

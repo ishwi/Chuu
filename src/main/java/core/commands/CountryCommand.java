@@ -84,7 +84,7 @@ public class CountryCommand extends ConcurrentCommand<TimeFrameParameters> {
             return;
         }
 
-        byte[] b = WorldMapRenderer.generateImage(map);
+        byte[] b = WorldMapRenderer.generateImage(map, CommandUtil.getUserInfoNotStripped(e, discordId).getUsername());
         CommandUtil.handleConditionalMessage(future);
         if (b == null) {
             parser.sendError("Unknown error happened while creating the map", e);

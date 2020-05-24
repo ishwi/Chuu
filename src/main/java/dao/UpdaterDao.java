@@ -102,10 +102,21 @@ interface UpdaterDao {
 
     void removeReport(Connection connection, long reportId);
 
+    void removeQueuedImage(Connection connection, long altId);
+
     void insertPastRecommendation(Connection connection, long secondDiscordID, long firstDiscordID, long artistId);
 
 
     void updateGuildCrownThreshold(Connection connection, long guildId, int newThreshold);
 
 
+    ImageQueue getUrlQueue(Connection connection, LocalDateTime localDateTime, Set<Long> skippedIds);
+
+    void upsertQueueUrl(Connection connection, String url, long artistId, long discordId);
+
+    OptionalLong checkQueuedUrlExists(Connection connection, long artistId, String urlParsed);
+
+    int getQueueUrlCount(Connection connection);
+
+    void updateGuildProperty(Connection connection, long guildId, String additional_embed, boolean chartEmbed);
 }

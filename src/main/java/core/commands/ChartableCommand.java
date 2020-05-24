@@ -64,7 +64,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
                 doList(liste, chartParameters, countWrapper.getRows());
             }
         } else {
-            doImage(urlCapsules, chartParameters.getX(), chartParameters.getY(), chartParameters);
+            doImage(urlCapsules, chartParameters.getX(), chartParameters.getY(), chartParameters, countWrapper.getRows());
         }
     }
 
@@ -72,33 +72,34 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     public abstract CountWrapper<BlockingQueue<UrlCapsule>> processQueue(T params) throws
             LastFmException;
 
-    void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e) {
-        int size = queue.size();
+    void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e, T params, int size) {
+        int chartSize = queue.size();
         ChartQuality chartQuality = ChartQuality.PNG_BIG;
-        int minx = (int) Math.ceil((double) size / x);
+        int minx = (int) Math.ceil((double) chartSize / x);
         if (minx == 1)
-            x = size;
+            x = chartSize;
         if (e.isFromGuild()) {
             if ((e.isFromGuild() && e.getGuild().getMaxFileSize() == Message.MAX_FILE_SIZE) || !e.isFromGuild()) {
-                if (size > 45 && size < 400)
+                if (chartSize > 45 && chartSize < 400)
                     chartQuality = ChartQuality.JPEG_BIG;
-                else if (size >= 400)
+                else if (chartSize >= 400)
                     chartQuality = ChartQuality.JPEG_SMALL;
             }
         }
         BufferedImage image = CollageMaker
                 .generateCollageThreaded(x, minx, queue, chartQuality);
-        sendImage(image, e, chartQuality);
+
+        sendImage(image, e, chartQuality, params.isDoAdditionalEmbed() ? configEmbed(new EmbedBuilder(), params, size) : null);
     }
 
 
-    public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, T parameters) {
+    public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, T parameters, int size) {
         CompletableFuture<Message> future = null;
         MessageReceivedEvent e = parameters.getE();
         if (x * y > 100) {
             future = e.getChannel().sendMessage("Going to take a while").submit();
         }
-        generateImage(queue, x, y, e);
+        generateImage(queue, x, y, e, parameters, size);
         CommandUtil.handleConditionalMessage(future);
     }
 

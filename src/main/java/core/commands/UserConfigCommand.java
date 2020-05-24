@@ -59,6 +59,23 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                     sendMessageQueue(e, "Successfully made non private the update for user " + getUserString(e, e.getAuthor().getIdLong()));
                 }
                 break;
+            case NOTIFY_IMAGE:
+                b = Boolean.parseBoolean(value);
+                getService().setImageNotify(e.getAuthor().getIdLong(), b);
+                if (b) {
+                    sendMessageQueue(e, "Now you will get notified whenever an image you uploaded gets approved");
+                } else {
+                    sendMessageQueue(e, "Now you will not get notified whenever an image you uploaded gets approved");
+                }
+            case ADDITIONAL_CHART_INFO:
+                b = Boolean.parseBoolean(value);
+                getService().setChartEmbed(e.getAuthor().getIdLong(), b);
+                if (b) {
+                    sendMessageQueue(e, "Now your charts will have additional info");
+                } else {
+                    sendMessageQueue(e, "Now your charts won't have additional info");
+                }
+                break;
         }
     }
 }

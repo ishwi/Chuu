@@ -6,20 +6,26 @@ public class LastFMData {
     private String name;
     private long guildID;
     private Role role;
-    private boolean privateUpdate;
+    private final boolean privateUpdate;
+    private final boolean imageNotify;
+    private final boolean additionalEmbedChart;
 
-    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate) {
+    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, boolean additionalEmbedChart) {
         this.discordId = discordId;
         this.name = name;
         this.guildID = guildID;
         this.privateUpdate = privateUpdate;
+        this.imageNotify = imageNotify;
+        this.additionalEmbedChart = additionalEmbedChart;
     }
 
-    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate) {
+    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, boolean additionalEmbedChart) {
         this.name = lastFmID;
         this.discordId = resDiscordID;
         this.role = role;
         this.privateUpdate = privateUpdate;
+        this.imageNotify = notifyImage;
+        this.additionalEmbedChart = additionalEmbedChart;
     }
 
 
@@ -58,5 +64,13 @@ public class LastFMData {
 
     public boolean isPrivateUpdate() {
         return privateUpdate;
+    }
+
+    public boolean isImageNotify() {
+        return imageNotify;
+    }
+
+    public boolean isAdditionalEmbedChart() {
+        return additionalEmbedChart;
     }
 }

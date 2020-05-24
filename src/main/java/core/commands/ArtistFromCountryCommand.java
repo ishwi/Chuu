@@ -1,22 +1,17 @@
 package core.commands;
 
-import checkers.units.quals.A;
 import com.neovisionaries.i18n.CountryCode;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.ArtistChart;
 import core.apis.last.chartentities.ChartUtil;
-import core.apis.last.queues.ArtistQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
-import core.imagerenderer.GraphicUtils;
 import core.otherlisteners.Reactionary;
-import core.parsers.ArtistParser;
 import core.parsers.CountryParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
@@ -103,7 +98,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         int cols = rows;
 
         BufferedImage bufferedImage = CollageMaker.generateCollageThreaded(rows, cols, new LinkedBlockingDeque<>(collect), ChartQuality.PNG_BIG);
-        sendImage(bufferedImage, countryParameters.getE(), ChartQuality.PNG_BIG);
+        sendImage(bufferedImage, countryParameters.getE());
 
     }
 

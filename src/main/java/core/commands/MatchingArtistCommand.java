@@ -92,7 +92,7 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
             a.append(i + 1).append(list.get(i).toString());
         }
         embedBuilder.setDescription(a).setTitle("Matching artists with " + usableName)
-                .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService().getUserArtistCount(params.getLastFMData().getName())), null);
+                .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService().getUserArtistCount(params.getLastFMData().getName(), 0)), null);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(mes ->
                 new Reactionary<>(list, mes, embedBuilder));
     }

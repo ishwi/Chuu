@@ -53,7 +53,7 @@ public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
-        return params.initEmbed("'s top albums", embedBuilder, " has listened to " + count + " albums");
+        return params.initEmbed("'s top albums", embedBuilder, " has listened to " + count + " albums", params.getLastfmID());
     }
 
     @Override

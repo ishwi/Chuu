@@ -8,8 +8,8 @@ import java.time.Year;
 public class ChartYearParameters extends ChartParameters {
     private final Year year;
 
-    public ChartYearParameters(MessageReceivedEvent e, String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, Year year) {
-        super(e, username, discordId, timeFrameEnum, x, y);
+    public ChartYearParameters(MessageReceivedEvent e, String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, Year year, boolean doAdditionalEmbed) {
+        super(e, username, discordId, doAdditionalEmbed, timeFrameEnum, x, y);
         this.year = year;
     }
 

@@ -38,7 +38,7 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
             return null;
         }
         int x = (int) Math.sqrt(searchSpace);
-        ChartYearParameters chartYearParameters = new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrame, x, x, year);
+        ChartYearParameters chartYearParameters = new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrame, x, x, year, doAdditionalEmbed(discordName,e));
         chartYearParameters.initParams(List.of("--nolimit"));
         return chartYearParameters;
 

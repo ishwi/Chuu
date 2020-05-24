@@ -1,14 +1,20 @@
 package core.commands;
 
 import core.parsers.NoOpParser;
+import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ArtistCountLeaderboard extends LeaderboardCommand<CommandParameters> {
+import static core.parsers.ExtraParser.LIMIT_ERROR;
+
+public class ArtistCountLeaderboard extends LeaderboardCommand<NumberParameters<CommandParameters>> {
     public ArtistCountLeaderboard(ChuuService dao) {
         super(dao);
     }
@@ -20,23 +26,34 @@ public class ArtistCountLeaderboard extends LeaderboardCommand<CommandParameters
     }
 
     @Override
-    public Parser<CommandParameters> getParser() {
-        return new NoOpParser();
+    public Parser<NumberParameters<CommandParameters>> getParser() {
+        Map<Integer, String> map = new HashMap<>(2);
+        map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
+        String s = "You can also introduce the playcount to only show artists above that number of plays";
+        return new NumberParser<>(new NoOpParser(),
+                -0L,
+                Integer.MAX_VALUE,
+                map, s, false, true, true);
     }
 
     @Override
-    public String getEntryName() {
+    public String getEntryName(NumberParameters<CommandParameters> params) {
+        Long extraParam = params.getExtraParam();
+        if (extraParam != 0) {
+            return "artist with more than " + extraParam + " plays";
+        }
         return "artist";
     }
 
     @Override
     public List<String> getAliases() {
-        return List.of("artistslb", "arlb");
+        return List.of("artistslb", "alb");
     }
 
     @Override
-    public List<LbEntry> getList(CommandParameters params) {
-        return getService().getArtistLeaderboard(params.getE().getGuild().getIdLong());
+    public List<LbEntry> getList(NumberParameters<CommandParameters> params) {
+        int threshold = params.getExtraParam().intValue();
+        return getService().getArtistLeaderboard(params.getE().getGuild().getIdLong(), threshold == 0 ? -1 : threshold);
 
     }
 

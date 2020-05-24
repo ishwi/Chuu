@@ -12,10 +12,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum GuildConfigType {
-    CROWNS_THRESHOLD("crowns");
+    CROWNS_THRESHOLD("crowns"), ADDITIONAL_CHART_INFO("chart-info");
 
     private static final Map<String, GuildConfigType> ENUM_MAP;
     private static final Pattern number = Pattern.compile("\\d+");
+    private static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
+
 
     static {
         ENUM_MAP = Stream.of(GuildConfigType.values())
@@ -42,6 +44,8 @@ public enum GuildConfigType {
         switch (this) {
             case CROWNS_THRESHOLD:
                 return number.asMatchPredicate();
+            case ADDITIONAL_CHART_INFO:
+                return bool.asMatchPredicate();
             default:
                 return (s) -> true;
         }
@@ -51,6 +55,8 @@ public enum GuildConfigType {
         switch (this) {
             case CROWNS_THRESHOLD:
                 return "A positive number that represent the minimum number of scrobbles for a crown to count";
+            case ADDITIONAL_CHART_INFO:
+                return "Whether you want the chart images in the server to have additional info to better identify each image. Keep in mind that users can override this setting for themselves on their own later on.";
             default:
                 return "";
         }
@@ -64,6 +70,9 @@ public enum GuildConfigType {
                         case CROWNS_THRESHOLD:
                             int guildCrownThreshold = dao.getGuildCrownThreshold(guildId);
                             return String.format("**%s** -> %d", key, guildCrownThreshold);
+                        case ADDITIONAL_CHART_INFO:
+                            boolean guildEmbedConfig = dao.getGuildEmbedConfig(guildId);
+                            return String.format("**%s** -> %s", key, guildEmbedConfig);
                     }
                     return null;
                 }).collect(Collectors.joining("\n"));

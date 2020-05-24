@@ -7,8 +7,8 @@ public class RainbowParams extends ChartParameters {
     private int x;
     private int y;
 
-    public RainbowParams(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y) {
-        super(e, lastfmID, discordId, timeFrameEnum, x, y);
+    public RainbowParams(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean doAdditionalEmbed) {
+        super(e, lastfmID, discordId, doAdditionalEmbed, timeFrameEnum, x, y);
         this.x = x;
         this.y = y;
     }

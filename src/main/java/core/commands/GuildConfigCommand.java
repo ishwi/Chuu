@@ -56,6 +56,15 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 getService().updateGuildCrownThreshold(e.getGuild().getIdLong(), threshold);
                 sendMessageQueue(e, "Successfully updated the crown threshold to " + threshold);
                 break;
+            case ADDITIONAL_CHART_INFO:
+                boolean defaultChartInfo = Boolean.parseBoolean(value);
+                getService().updateGuildDefaultChart(e.getGuild().getIdLong(), defaultChartInfo);
+                if (defaultChartInfo) {
+                    sendMessageQueue(e, "Now charts in this server will have additional info shown in their charts");
+                } else {
+                    sendMessageQueue(e, "Now chart in this server by default won't have additional info shown in their charts");
+                }
+                break;
         }
     }
 }

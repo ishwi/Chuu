@@ -75,7 +75,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
-        return params.initEmbed("'s top tracks", embedBuilder, " has listened to " + count + " tracks");
+        return params.initEmbed("'s top tracks", embedBuilder, " has listened to " + count + " tracks", params.getLastfmID());
 
     }
 

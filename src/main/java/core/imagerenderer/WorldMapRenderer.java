@@ -41,7 +41,7 @@ public class WorldMapRenderer {
         return list;
     }
 
-    public static byte[] generateImage(Map<Country, Integer> countryFrequency) {
+    public static byte[] generateImage(Map<Country, Integer> countryFrequency, String username) {
 
         // make a Document with the base map
 
@@ -83,7 +83,7 @@ public class WorldMapRenderer {
 
         value += (sb);
         styleNode.getFirstChild().setNodeValue(value);
-
+        doc.getElementById("text0000").getFirstChild().setNodeValue(username + "'s countries");
         TranscoderInput input = new TranscoderInput(doc);
         PNGTranscoder s = new PNGTranscoder();
         s.addTranscodingHint(PNGTranscoder.KEY_BACKGROUND_COLOR, Color.white);

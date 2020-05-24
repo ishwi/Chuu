@@ -26,7 +26,7 @@ public class UniqueLeaderboardCommand extends LeaderboardCommand<CommandParamete
     }
 
     @Override
-    public String getEntryName() {
+    public String getEntryName(CommandParameters params) {
         return "Unique Artists";
     }
 

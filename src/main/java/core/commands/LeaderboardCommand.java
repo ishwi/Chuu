@@ -17,7 +17,7 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
         this.respondInPrivate = false;
     }
 
-    public abstract String getEntryName();
+    public abstract String getEntryName(T params);
 
     @Override
     public void printList(List<LbEntry> list, T params) {
@@ -37,7 +37,7 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
         for (int i = 0; i < 10 && i < list.size(); i++) {
             a.append(i + 1).append(list.get(i).toString());
         }
-        embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "'s " + getEntryName() + " leaderboard")
+        embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "'s " + getEntryName(params) + " leaderboard")
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setFooter(e.getGuild().getName() + " has " + list.size() + " registered users!\n", null);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->

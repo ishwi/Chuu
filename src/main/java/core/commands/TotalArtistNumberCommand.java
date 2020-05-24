@@ -2,15 +2,22 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.NoOpParser;
+import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class TotalArtistNumberCommand extends ConcurrentCommand<ChuuDataParams> {
+import static core.parsers.ExtraParser.LIMIT_ERROR;
+
+public class TotalArtistNumberCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
     public TotalArtistNumberCommand(ChuuService dao) {
         super(dao);
     }
@@ -21,8 +28,17 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<ChuuDataParams> 
     }
 
     @Override
-    public Parser<ChuuDataParams> getParser() {
-        return new OnlyUsernameParser(getService());
+    public Parser<NumberParameters<ChuuDataParams>> getParser() {
+
+
+        Map<Integer, String> map = new HashMap<>(2);
+        map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
+        String s = "You can also introduce the playcount to only show artists above that number of plays";
+        return new NumberParser<>(new OnlyUsernameParser(getService()),
+                -0L,
+                Integer.MAX_VALUE,
+                map, s, false, true, true);
+
     }
 
     @Override
@@ -37,13 +53,19 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<ChuuDataParams> 
 
     @Override
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ChuuDataParams params = parser.parse(e);
+        NumberParameters<ChuuDataParams> parse = parser.parse(e);
+        ChuuDataParams params = parse.getInnerParams();
         String lastFmName = params.getLastFMData().getName();
         long discordID = params.getLastFMData().getDiscordId();
         String username = getUserString(e, discordID, lastFmName);
+        int threshold = parse.getExtraParam().intValue();
 
-        int plays = getService().getUserArtistCount(lastFmName);
-        sendMessageQueue(e, String.format("**%s** has scrobbled **%d** different artists", username, plays));
+        int plays = getService().getUserArtistCount(lastFmName, threshold == 0 ? -1 : threshold);
+        String filler = "";
+        if (threshold != 0) {
+            filler += " with more than " + threshold + " plays";
+        }
+        sendMessageQueue(e, String.format("**%s** has scrobbled **%d** different artists%s", username, plays, filler));
 
     }
 
