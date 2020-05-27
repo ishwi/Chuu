@@ -31,8 +31,8 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> {
 
         UserConfigType userConfigType = UserConfigType.get(command);
         if (userConfigType == null) {
-            String collect = Arrays.stream(UserConfigType.values()).map(UserConfigType::getCommandName).collect(Collectors.joining(","));
-            sendError(command + " is not a valid configuration, use one of the following:" + collect, e);
+            String collect = Arrays.stream(UserConfigType.values()).map(UserConfigType::getCommandName).collect(Collectors.joining(", "));
+            sendError(command + " is not a valid configuration, use one of the following:\n\t" + collect, e);
             return null;
         }
         if (!userConfigType.getParser().test(args)) {

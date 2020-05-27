@@ -2,23 +2,19 @@ package dao;
 
 import core.exceptions.ChuuServiceException;
 import core.exceptions.InstanceNotFoundException;
-import dao.entities.LastFMData;
-import dao.entities.Role;
-import dao.entities.UsersWrapper;
+import dao.entities.*;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -74,7 +70,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
         /* Create "queryString". */
-        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,additional_embed FROM user WHERE discord_id = ?";
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode FROM user WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -97,10 +93,12 @@ public class UserGuildDaoImpl implements UserGuildDao {
             Role role = Role.valueOf(resultSet.getString(i++));
             boolean privateUpdate = resultSet.getBoolean(i++);
             boolean notify_image = resultSet.getBoolean(i++);
-            boolean additional_embed = resultSet.getBoolean(i);
+            ChartMode chartMode = ChartMode.valueOf(resultSet.getString(i++));
+            WhoKnowsMode whoKnowsMode = WhoKnowsMode.valueOf(resultSet.getString(i++));
+            RemainingImagesMode remainingImagesMode = RemainingImagesMode.valueOf(resultSet.getString(i));
 
 
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, additional_embed);
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -384,7 +382,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image,a.additional_embed  " +
+        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image,a.chart_mode,a.whoknows_mode,a.remaining_mode  " +
                 "FROM   user a" +
                 " WHERE  a.lastfm_id = ? ";
 
@@ -404,13 +402,16 @@ public class UserGuildDaoImpl implements UserGuildDao {
             Role role = Role.valueOf(resultSet.getString(3));
             boolean privateUpdate = resultSet.getBoolean(4);
             boolean imageNOtify = resultSet.getBoolean(5);
-            boolean additional_embed = resultSet.getBoolean(6);
+            ChartMode chartMode = ChartMode.valueOf(resultSet.getString(6));
+            WhoKnowsMode whoKnowsMode = WhoKnowsMode.valueOf(resultSet.getString(7));
+            RemainingImagesMode remainingImagesMode = RemainingImagesMode.valueOf(resultSet.getString(8));
 
+
+            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode);
 
 
             /* Get results. */
 
-            return new LastFMData(string, aLong, role, privateUpdate, imageNOtify, additional_embed);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -606,6 +607,116 @@ public class UserGuildDaoImpl implements UserGuildDao {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    @Override
+    public <T extends Enum<T>> void setUserProperty(Connection connection, long discordId, String propertyName, T value) {
+        @Language("MariaDB") String queryString = "UPDATE  user SET  " + propertyName + " = ? WHERE discord_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setString(i++, value.toString().replaceAll("-", "_"));
+            preparedStatement.setLong(i, discordId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public GuildProperties getGuild(Connection connection, long discordId) throws InstanceNotFoundException {
+        @Language("MariaDB") String queryString = "select guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode from guild where guild_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            preparedStatement.setLong(1, discordId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (!resultSet.next()) {
+                throw new InstanceNotFoundException(discordId);
+            }
+            long guild_id = resultSet.getLong("guild_id");
+            String prefix = resultSet.getString("prefix");
+            int crown_threshold = resultSet.getInt("crown_threshold");
+            String whoknows_mode = resultSet.getString("whoknows_mode");
+            WhoKnowsMode whoKnowsMode = whoknows_mode == null ? null : WhoKnowsMode.valueOf(whoknows_mode);
+            String chart_mode = resultSet.getString("chart_mode");
+            ChartMode chartMode = chart_mode == null ? null : ChartMode.valueOf(chart_mode);
+            String remaining_mode = resultSet.getString("remaining_mode");
+            RemainingImagesMode remainingImagesMode = remaining_mode == null ? null : RemainingImagesMode.valueOf(remaining_mode);
+
+            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, remainingImagesMode);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public LastFMData findLastFmData(Connection con, long discordId, long guildId) throws InstanceNotFoundException {
+        @Language("MariaDB")
+        String queryString = "SELECT   a.discord_id, lastfm_id,role,private_update,notify_image," +
+                "IFNULL(c.chart_mode,a.chart_mode), " +
+                "IFNULL(c.whoknows_mode,a.whoknows_mode), " +
+                "IFNULL(c.remaining_mode,a.remaining_mode) " +
+                "FROM user a join user_guild b on a.discord_id = b.discord_id join guild c on c.guild_id = b.guild_id " +
+                " WHERE a.discord_id = ? AND c.guild_id = ? ";
+
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, discordId);
+            preparedStatement.setLong(i, guildId);
+
+
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.next()) {
+                throw new core.exceptions.InstanceNotFoundException(discordId);
+            }
+
+            /* Get results. */
+            i = 1;
+            long resDiscordID = resultSet.getLong(i++);
+            String lastFmID = resultSet.getString(i++);
+            Role role = Role.valueOf(resultSet.getString(i++));
+            boolean privateUpdate = resultSet.getBoolean(i++);
+            boolean notify_image = resultSet.getBoolean(i++);
+            ChartMode chartMode = ChartMode.valueOf(resultSet.getString(i++));
+            WhoKnowsMode whoKnowsMode = WhoKnowsMode.valueOf(resultSet.getString(i++));
+            RemainingImagesMode remainingImagesMode = RemainingImagesMode.valueOf(resultSet.getString(i));
+
+
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public <T extends Enum<T>> void setGuildProperty(Connection connection, long discordId, String propertyName, @Nullable T value) {
+        @Language("MariaDB") String queryString = "UPDATE  guild SET " + propertyName + " = ? WHERE guild_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            if (value == null) {
+                preparedStatement.setNull(i++, Types.VARCHAR);
+
+            } else {
+                preparedStatement.setString(i++, value.toString().replaceAll("-", "_"));
+            }
+            preparedStatement.setLong(i, discordId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 
 }

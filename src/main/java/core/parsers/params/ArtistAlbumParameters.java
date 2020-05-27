@@ -1,16 +1,16 @@
 package core.parsers.params;
 
+import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class ArtistAlbumParameters extends DiscordParameters {
+public class ArtistAlbumParameters extends ChuuDataParams {
     private final String artist;
     private final String album;
     private ScrobbledArtist scrobbledArtist;
 
-    public ArtistAlbumParameters(MessageReceivedEvent e, String artist, String album, User user) {
-        super(e, user);
+    public ArtistAlbumParameters(MessageReceivedEvent e, String artist, String album, LastFMData lastFMData) {
+        super(e, lastFMData);
         this.artist = artist;
         this.album = album;
     }
@@ -31,4 +31,9 @@ public class ArtistAlbumParameters extends DiscordParameters {
     public String getAlbum() {
         return album;
     }
+
+    public boolean isNoredirect() {
+        return hasOptional("--noredirect");
+    }
+
 }

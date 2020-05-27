@@ -54,6 +54,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
         @Language("MariaDB") String queryString =
                 "SELECT a.discord_id,a.role, a.lastfm_id,(if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) controling " +
                         "FROM user a   " +
+                        " WHERE NOT private_update " +
                         "ORDER BY  control_timestamp LIMIT 1";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -383,7 +384,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public RandomUrlEntity getRandomUrl(Connection con) {
         String queryString = "SELECT * FROM randomlinks WHERE discord_id IN \n" +
-                "(SELECT discord_id FROM (SELECT discord_id,count(*)   ,log(count(*) + 1)  / log(1-rand())  AS ra FROM randomlinks GROUP BY discord_id ORDER BY ra LIMIT 1) t)  \n" +
+                "(SELECT discord_id FROM (SELECT discord_id,count(*)   ,log(count(*) + 1)  / log(1-rand())  AS ra FROM randomlinks GROUP BY discord_id having COUNT(*) > 0 ORDER BY ra LIMIT 1) t)  \n" +
                 " ORDER BY rand() LIMIT 1;";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -1043,21 +1044,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
         }
     }
 
-    @Override
-    public void updateGuildProperty(Connection connection, long guildId, String property, boolean propertyValue) {
-        @Language("MariaDB") String queryString = "UPDATE  guild SET " + property + " = ? WHERE guild_id = ? ";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
-            /* Fill "preparedStatement". */
-            int i = 1;
-            preparedStatement.setBoolean(i++, propertyValue);
-            preparedStatement.setLong(i, guildId);
-            preparedStatement.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
-    }
 }
 
 

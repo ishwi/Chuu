@@ -58,6 +58,7 @@ public class Chuu {
         return scheduledExecutorService;
     }
 
+
     public static void addGuildPrefix(long guildId, Character prefix) {
         if (prefix.equals(DEFAULT_PREFIX)) {
             prefixMap.remove(guildId);
@@ -322,7 +323,6 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new DisabledStatusCommand(dao)))
                 .addEventListeners(help.registerCommand(new UrlQueueReview(dao)));
 
-
         try {
             jda = builder.build().awaitReady();
             commandAdministrator.onStartup(jda);
@@ -391,4 +391,6 @@ public class Chuu {
     public static Map<Long, RateLimiter> getRatelimited() {
         return ratelimited;
     }
+
+
 }

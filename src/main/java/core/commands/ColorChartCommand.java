@@ -17,6 +17,7 @@ import dao.ChuuService;
 import dao.entities.CountWrapper;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
@@ -161,13 +162,13 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
         if (params.isArtist()) {
             count = lastFM.getChart(params.getLastfmID(),
                     params.getTimeFrameEnum().toApiFormat(),
-                    1500,
+                    3000,
                     1,
                     TopEntity.ARTIST,
                     ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getLastfmID()),
                     queue);
         } else {
-            count = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1500, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getLastfmID()), queue);
+            count = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getLastfmID()), queue);
         }
 
         List<UrlCapsule> holding = new ArrayList<>();
@@ -203,10 +204,29 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
     }
 
     @Override
+    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ColorChartParams params, int count) {
+        String stringBuilder = "top " +
+                (params.isStrict() ? " strict " : "") +
+                getColorsParams(params) +
+                (params.isArtist() ? " artist " : " albums ") +
+                "sorted by " +
+                (params.isSorted() ? "plays" : params.isColor() ? "color" : "brightness") +
+                (params.isInverse() ? " inversed" : "") +
+                " ordered by " + (params.isColumn() ? "column" : params.isLinear() ? "rows" : "diagonal");
+        return params.initEmbed("'s " + stringBuilder, embedBuilder, " has listened to " + count + (params.isArtist() ? " artists" : " albums"), params.getLastfmID());
+
+
+    }
+
+    @Override
     public void noElementsMessage(ColorChartParams parameters) {
 
-        Message message = parameters.getE().getMessage();
-        String collect = Arrays.stream(message.getContentRaw().split("\\s+")).filter(x ->
+        sendMessageQueue(parameters.getE(), "Couldn't get any image searching by " + getColorsParams(parameters));
+    }
+
+    private String getColorsParams(ColorChartParams params) {
+        Message message = params.getE().getMessage();
+        return Arrays.stream(message.getContentRaw().split("\\s+")).filter(x ->
         {
             try {
                 ColorFactory.valueOf(x);
@@ -215,6 +235,5 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
                 return false;
             }
         }).collect(Collectors.joining(", "));
-        sendMessageQueue(parameters.getE(), "Couldn't get any image searching by " + collect);
     }
 }

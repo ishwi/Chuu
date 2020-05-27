@@ -12,6 +12,7 @@ import core.parsers.ChartGroupParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartGroupParameters;
 import dao.ChuuService;
+import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
@@ -55,21 +56,22 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
         GroupingQueue queue = countWrapper.getResult();
         List<UrlCapsule> urlCapsules = queue.setUp();
 
-        if (chartGroupParameters.isList() || chartGroupParameters.isPieFormat()) {
-            int sum = urlCapsules.stream().mapToInt(x -> ((TrackDurationChart) x).getSeconds()).sum();
-            countWrapper.setRows(sum);
-            if (chartGroupParameters.isPieFormat()) {
+        ChartMode effectiveMode = getEffectiveMode(chartGroupParameters);
+        switch (effectiveMode) {
+            default:
+                int sum = urlCapsules.stream().mapToInt(x -> ((TrackDurationChart) x).getSeconds()).sum();
+                countWrapper.setRows(sum);
+            case LIST:
+                doList(urlCapsules, chartGroupParameters, countWrapper.getRows());
+                return;
+            case IMAGE_INFO:
+            case IMAGE:
+                doImage(queue, chartGroupParameters.getX(), chartGroupParameters.getY(), chartGroupParameters, countWrapper.getRows());
+                return;
+            case PIE:
                 PieChart pieChart = this.pie.doPie(chartGroupParameters, urlCapsules);
                 doPie(pieChart, chartGroupParameters, countWrapper.getRows());
-            } else {
-                doList(urlCapsules, chartGroupParameters, countWrapper.getRows());
-            }
-        } else {
-            int sum = urlCapsules.stream().mapToInt(x -> ((TrackDurationChart) x).getSeconds()).sum();
-            countWrapper.setRows(sum);
-            doImage(queue, chartGroupParameters.getX(), chartGroupParameters.getY(), chartGroupParameters, countWrapper.getRows());
         }
-
     }
 
 

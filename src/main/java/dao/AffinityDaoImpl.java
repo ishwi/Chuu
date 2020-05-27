@@ -137,13 +137,13 @@ public class AffinityDaoImpl implements AffinityDao {
                 "JOIN user_guild c ON b.discord_id = c.discord_id \n" +
                 "WHERE c.guild_id = ? \n" +
                 "AND b.lastfm_id != ?\n" +
-                "        AND a.playnumber > ?) server \n" +
+                "        AND a.playnumber >= ?) server \n" +
                 " JOIN (SELECT artist_id AS a2,\n" +
                 "                    a.lastfm_id AS l2,\n" +
                 "                    a.playnumber AS p2\n" +
                 "             FROM   scrobbled_artist a \n" +
                 "             WHERE  a.lastfm_id= ?\n" +
-                "                    AND a.playnumber > ? ) \n" +
+                "                    AND a.playnumber >= ? ) \n" +
                 "user ON server.a1 = user.a2 ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             int i = 1;

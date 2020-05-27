@@ -7,7 +7,11 @@ import core.parsers.UserConfigParser;
 import core.parsers.params.UserConfigParameters;
 import core.parsers.params.UserConfigType;
 import dao.ChuuService;
+import dao.entities.ChartMode;
+import dao.entities.RemainingImagesMode;
+import dao.entities.WhoKnowsMode;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.apache.commons.text.WordUtils;
 
 import java.util.List;
 
@@ -49,6 +53,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
         }
         UserConfigType config = parse.getConfig();
         String value = parse.getValue();
+        boolean cleansing = value.equalsIgnoreCase("clear");
         switch (config) {
             case PRIVATE_UPDATE:
                 boolean b = Boolean.parseBoolean(value);
@@ -67,13 +72,47 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 } else {
                     sendMessageQueue(e, "Now you will not get notified whenever an image you uploaded gets approved");
                 }
-            case ADDITIONAL_CHART_INFO:
-                b = Boolean.parseBoolean(value);
-                getService().setChartEmbed(e.getAuthor().getIdLong(), b);
-                if (b) {
-                    sendMessageQueue(e, "Now your charts will have additional info");
+                break;
+            case CHART_MODE:
+                ChartMode chartMode;
+                if (cleansing) {
+                    chartMode = ChartMode.IMAGE;
                 } else {
-                    sendMessageQueue(e, "Now your charts won't have additional info");
+                    chartMode = ChartMode.valueOf(value.replace("-", "_").toUpperCase());
+                }
+                getService().setChartEmbed(e.getAuthor().getIdLong(), chartMode);
+                if (cleansing) {
+                    sendMessageQueue(e, "Now your charts are back to the default");
+                } else {
+                    sendMessageQueue(e, "Chart mode set to: **" + WordUtils.capitalizeFully(chartMode.toString()) + "**");
+                }
+                break;
+            case WHOKNOWS_MODE:
+                WhoKnowsMode whoKnowsMode;
+                if (cleansing) {
+                    whoKnowsMode = WhoKnowsMode.IMAGE;
+                } else {
+                    whoKnowsMode = WhoKnowsMode.valueOf(value.replace("-", "_").toUpperCase());
+                }
+                getService().setWhoknowsMode(e.getAuthor().getIdLong(), whoKnowsMode);
+                if (cleansing) {
+                    sendMessageQueue(e, "Now your who knows are back to the default");
+                } else {
+                    sendMessageQueue(e, "Who Knows mode set to: **" + WordUtils.capitalizeFully(whoKnowsMode.toString()) + "**");
+                }
+                break;
+            case REMAINING_MODE:
+                RemainingImagesMode remainingImagesMode;
+                if (cleansing) {
+                    remainingImagesMode = RemainingImagesMode.IMAGE;
+                } else {
+                    remainingImagesMode = RemainingImagesMode.valueOf(value.replace("-", "_").toUpperCase());
+                }
+                getService().setRemainingImagesMode(e.getAuthor().getIdLong(), remainingImagesMode);
+                if (cleansing) {
+                    sendMessageQueue(e, "The mode of the remaining image commands to the default");
+                } else {
+                    sendMessageQueue(e, "The mode of the remaining image commands was set to: **" + WordUtils.capitalizeFully(remainingImagesMode.toString()) + "**");
                 }
                 break;
         }

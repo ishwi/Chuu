@@ -1,31 +1,49 @@
 package core.commands;
 
 import com.google.common.collect.Multimaps;
+import com.wrapper.spotify.SpotifyApi;
+import core.apis.spotify.Spotify;
+import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
+import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.TrackDistributor;
+import core.imagerenderer.util.IPieable;
+import core.imagerenderer.util.PieableKnows;
+import core.imagerenderer.util.PieableTrack;
+import core.parsers.ArtistAlbumParser;
+import core.parsers.OptionalEntity;
+import core.parsers.Parser;
+import core.parsers.params.ArtistAlbumParameters;
+import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
-import dao.entities.FullAlbumEntity;
-import dao.entities.LastFMData;
-import dao.entities.ScrobbledArtist;
-import dao.entities.Track;
+import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.imgscalr.Scalr;
+import org.knowm.xchart.PieChart;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
     private final MusicBrainzService mb;
-
+    private final Spotify spotifyApi;
+    private final IPieable<Track, ArtistAlbumParameters> pie;
 
     public AlbumTracksDistributionCommand(ChuuService dao) {
 
         super(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
+        this.pie = new PieableTrack(this.parser);
+        spotifyApi = SpotifySingleton.getInstance();
     }
 
 
@@ -40,6 +58,15 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
     }
 
     @Override
+    public Parser<ArtistAlbumParameters> getParser() {
+        ArtistAlbumParser parser = new ArtistAlbumParser(getService(), lastFM);
+        parser.addOptional(new OptionalEntity("--list", "display in list format"));
+
+        parser.setExpensiveSearch(true);
+        return parser;
+    }
+
+    @Override
     public List<String> getAliases() {
         return Arrays.asList("tracks", "tt");
     }
@@ -50,13 +77,13 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    void doSomethingWithAlbumArtist(ScrobbledArtist scrobbledArtist, String album, MessageReceivedEvent e, long who) throws InstanceNotFoundException, LastFmException {
+    void doSomethingWithAlbumArtist(ScrobbledArtist scrobbledArtist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
 
         FullAlbumEntity fullAlbumEntity;
         String artistUrl = scrobbledArtist.getUrl();
         String artist = scrobbledArtist.getArtist();
         long artistId = scrobbledArtist.getArtistId();
-        LastFMData data = getService().findLastFMData(who);
+        LastFMData data = params.getLastFMData();
 
         try {
             fullAlbumEntity = lastFM.getTracksAlbum(data.getName(), artist, album);
@@ -70,6 +97,24 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 
         Set<Track> trackList = new HashSet<>(fullAlbumEntity.getTrackList());
 
+        if (trackList.isEmpty()) {
+            List<Track> spoList = spotifyApi.getAlbumTrackList(artist, album);
+            if (spoList.size() > 50) {
+                sendMessageQueue(e, "Track list is too big for me to calculate all the plays");
+                return;
+            }
+            spoList.stream().map(t ->
+                    {
+                        try {
+                            Track trackInfo = lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
+                            trackInfo.setPosition(t.getPosition());
+                            return trackInfo;
+                        } catch (LastFmException ex) {
+                            return t;
+                        }
+                    }
+            ).sorted(Comparator.comparingInt(Track::getPosition)).forEach(trackList::add);
+        }
         if (trackList.isEmpty()) {
             if (fullAlbumEntity.getMbid() != null && !fullAlbumEntity.getMbid().isBlank()) {
                 List<Track> albumTrackListMbid = mb.getAlbumTrackListMbid(fullAlbumEntity.getMbid());
@@ -154,7 +199,45 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
         }
 
         fullAlbumEntity.setArtistUrl(artistUrl);
-        BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity);
-        sendImage(bufferedImage, e);
+
+        switch (CommandUtil.getEffectiveMode(params.getLastFMData().getRemainingImagesMode(), params)) {
+
+            case IMAGE:
+                BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity);
+                sendImage(bufferedImage, e);
+                break;
+
+            case PIE:
+                PieChart pieChart = this.pie.doPie(params, fullAlbumEntity.getTrackList());
+                pieChart.setTitle(params.getArtist() + " - " + params.getAlbum() + " tracklist");
+                bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = bufferedImage.createGraphics();
+                GraphicUtils.setQuality(g);
+
+                pieChart.paint(g, 1000, 750);
+                BufferedImage image = GraphicUtils.getImage(fullAlbumEntity.getAlbumUrl());
+                if (image != null) {
+                    BufferedImage backgroundImage = Scalr.resize(image, 150);
+                    g.drawImage(backgroundImage, 10, 750 - 10 - backgroundImage.getHeight(), null);
+                }
+                sendImage(bufferedImage, params.getE());
+                break;
+            case LIST:
+                StringBuilder a = new StringBuilder();
+                for (int i = 0; i < fullAlbumEntity.getTrackList().size(); i++) {
+                    Track t = fullAlbumEntity.getTrackList().get(i);
+                    a.append(i + 1).append(t.toString());
+                }
+                EmbedBuilder embedBuilder = new EmbedBuilder()
+                        .setDescription(a)
+                        .setColor(CommandUtil.randomColor())
+                        .setTitle(String.format("%s tracklist", album), CommandUtil.getLastFmArtistAlbumUrl(artist, album))
+                        .setFooter(String.format("%s has %d total plays on the album!!%n", CommandUtil.markdownLessUserString(getUserString(e, params.getLastFMData().getDiscordId()), params.getLastFMData().getDiscordId(), e), fullAlbumEntity.getTotalPlayNumber()), null)
+                        .setThumbnail(fullAlbumEntity.getAlbumUrl());
+
+                MessageBuilder mes = new MessageBuilder();
+                e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
+                break;
+        }
     }
 }

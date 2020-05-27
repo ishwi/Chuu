@@ -61,7 +61,7 @@ public class UpdaterThreadLogicTest {
         lastFM = LastFMFactory.getNewInstance();
 
         dao = new ChuuService(dataSource);
-        dao.insertNewUser(new LastFMData("manuelk", 1, Role.USER, privateUpdate, imageNotify, additionalEmbedChart));
+        dao.insertNewUser(new LastFMData("manuelk", 1, Role.USER, privateUpdate, imageNotify, additionalEmbedChart, chartMode, remainingImagesMode));
         dao.insertArtistDataList(Collections.emptyList(), "manuelk");
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement("TRUNCATE lastfm_test.corrections");

@@ -60,7 +60,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         ArtistParameters returned = parser.parse(e);
         if (returned == null)
             return;
-        long userId = returned.getUser().getIdLong();
+        long userId = returned.getLastFMData().getDiscordId();
         ScrobbledArtist validable = new ScrobbledArtist(returned.getArtist(), 0, "");
         CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
         returned.setScrobbledArtist(validable);

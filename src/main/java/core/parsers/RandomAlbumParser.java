@@ -12,7 +12,7 @@ public class RandomAlbumParser extends Parser<UrlParameters> {
             .compile("^(https://open.spotify.com/(album|artist|track|playlist)/|spotify:(album|artist|track|playlist):)([a-zA-Z0-9]{22})(?:\\?.*)?$");
 
     private final Pattern youtubePattern = Pattern
-            .compile("(?:https?://)?(?:www\\.)?youtu\\.?be(?:\\.com)?/?.*(?:watch|embed)?(?:.*v=|v/|/)([\\w-_]{11})(?:.*)?$");
+            .compile("(?:https?://)?(?:(?:www\\.)?|(?:music\\.))?youtu\\.?be(?:\\.com)?/?.*(?:watch|embed)?(?:.*v=|v/|/)([\\w-_]{11})(?:.*)?$");
     private final Pattern deezerPattern = Pattern
             .compile("^https?://(?:www\\.)?deezer\\.com/(?:\\w+/)?(track|album|playlist)/(\\d+)(?:.*)$");
     private final Pattern soundCloundPattern = Pattern
@@ -22,7 +22,7 @@ public class RandomAlbumParser extends Parser<UrlParameters> {
 
     @Override
     protected void setUpErrorMessages() {
-        errorMessages.put(1, "Invalid url, only accepts spotify uri or url, yt url, deezer's url and soundcloud's url");
+        errorMessages.put(1, "Invalid url, only accepts spotify uri or url, yt url, deezer's url,bandcamp's and  soundcloud's url");
     }
 
     public UrlParameters parseLogic(MessageReceivedEvent e, String[] subMessage) {

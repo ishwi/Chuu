@@ -3,6 +3,7 @@ package core.commands;
 import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.otherlisteners.ReactionResponse;
 import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -91,12 +92,12 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = getService().getQueueUrlCount();
-            HashMap<String, BiFunction<ImageQueue, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
+            HashMap<String, BiFunction<ImageQueue, MessageReactionAddEvent, ReactionResponse>> actionMap = new HashMap<>();
             actionMap.put(DELETE, (reportEntity, r) -> {
                 getService().rejectQueuedImage(reportEntity.getQueuedId());
                 statDeclined.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return false;
+                return ReactionResponse.FETCH_NEW_ELEMENT;
 
             });
             actionMap.put(ACCEPT, (a, r) -> {
@@ -113,12 +114,12 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 }
                 statAccepeted.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return false;
+                return ReactionResponse.FETCH_NEW_ELEMENT;
             });
             actionMap.put(RIGHT_ARROW, (a, r) -> {
                 skippedIds.add(a.getQueuedId());
                 navigationCounter.incrementAndGet();
-                return false;
+                return ReactionResponse.FETCH_NEW_ELEMENT;
             });
             new Validator<>(
                     finalEmbed -> {
@@ -147,7 +148,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                     },
                     () -> getService().getNextQueue(localDateTime, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
-                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
+                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false);
         } catch (Throwable ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);
         } finally {

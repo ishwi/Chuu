@@ -11,6 +11,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
+import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UrlCapsule;
@@ -34,6 +35,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     public ChartableCommand(ChuuService dao) {
         super(dao);
         this.pie = getPie();
+        getParser().setExpensiveSearch(true);
     }
 
     @Override
@@ -42,6 +44,17 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     }
 
     public abstract ChartableParser<T> getParser();
+
+    ChartMode getEffectiveMode(ChartParameters chartParameters) {
+        ChartMode chartMode = chartParameters.chartMode();
+        if ((chartMode.equals(ChartMode.LIST) && !chartParameters.isList() && !chartParameters.isPieFormat()) || (!chartMode.equals(ChartMode.LIST) && chartParameters.isList())) {
+            return ChartMode.LIST;
+        } else if ((chartMode.equals(ChartMode.PIE) && !chartParameters.isPieFormat() && !chartParameters.isList()) || (!chartMode.equals(ChartMode.PIE) && chartParameters.isPieFormat())) {
+            return ChartMode.PIE;
+        } else {
+            return ChartMode.IMAGE;
+        }
+    }
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
@@ -54,17 +67,24 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
             this.noElementsMessage(chartParameters);
             return;
         }
-        if (chartParameters.isList() || chartParameters.isPieFormat()) {
-            ArrayList<UrlCapsule> liste = new ArrayList<>(urlCapsules.size());
-            urlCapsules.drainTo(liste);
-            if (chartParameters.isPieFormat()) {
+        ChartMode chartMode = getEffectiveMode(chartParameters);
+        switch (chartMode) {
+            case IMAGE_INFO:
+            case IMAGE:
+                doImage(urlCapsules, chartParameters.getX(), chartParameters.getY(), chartParameters, countWrapper.getRows());
+                return;
+            default:
+            case LIST:
+                ArrayList<UrlCapsule> liste = new ArrayList<>(urlCapsules.size());
+                urlCapsules.drainTo(liste);
+                doList(liste, chartParameters, countWrapper.getRows());
+                break;
+            case PIE:
+                liste = new ArrayList<>(urlCapsules.size());
+                urlCapsules.drainTo(liste);
                 PieChart pieChart = pie.doPie(chartParameters, liste);
                 doPie(pieChart, chartParameters, countWrapper.getRows());
-            } else {
-                doList(liste, chartParameters, countWrapper.getRows());
-            }
-        } else {
-            doImage(urlCapsules, chartParameters.getX(), chartParameters.getY(), chartParameters, countWrapper.getRows());
+                break;
         }
     }
 
@@ -74,6 +94,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
 
     void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e, T params, int size) {
         int chartSize = queue.size();
+
         ChartQuality chartQuality = ChartQuality.PNG_BIG;
         int minx = (int) Math.ceil((double) chartSize / x);
         if (minx == 1)
@@ -89,13 +110,17 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         BufferedImage image = CollageMaker
                 .generateCollageThreaded(x, minx, queue, chartQuality);
 
-        sendImage(image, e, chartQuality, params.isDoAdditionalEmbed() ? configEmbed(new EmbedBuilder(), params, size) : null);
+        sendImage(image, e, chartQuality, params.chartMode().equals(ChartMode.IMAGE_INFO) ? configEmbed(new EmbedBuilder(), params, size) : null);
     }
 
 
     public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, T parameters, int size) {
         CompletableFuture<Message> future = null;
         MessageReceivedEvent e = parameters.getE();
+        if (queue.size() < x * y) {
+            x = Math.max((int) Math.ceil(Math.sqrt(queue.size())), 1);
+            y = x;
+        }
         if (x * y > 100) {
             future = e.getChannel().sendMessage("Going to take a while").submit();
         }

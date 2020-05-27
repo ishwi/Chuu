@@ -63,14 +63,13 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
         ScrobbledArtist validable = new ScrobbledArtist(parsed.getArtist(), 0, "");
         CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
         parsed.setScrobbledArtist(validable);
-        doSomethingWithAlbumArtist(validable, parsed.getAlbum(), e, parsed.getUser().getIdLong());
+        doSomethingWithAlbumArtist(validable, parsed.getAlbum(), e, parsed.getLastFMData().getDiscordId(), parsed);
 
     }
 
-    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who) throws InstanceNotFoundException, LastFmException {
+    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws InstanceNotFoundException, LastFmException {
 
-        LastFMData data = getService().findLastFMData(who);
-
+        LastFMData data = params.getLastFMData();
         int a = lastFM.getPlaysAlbumArtist(data.getName(), artist.getArtist(), album).getPlays();
         String usernameString = data.getName();
 

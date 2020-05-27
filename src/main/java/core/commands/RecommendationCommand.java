@@ -67,17 +67,23 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
             }
             TreeMap<Float, Affinity> integerAffinityTreeMap = new TreeMap<>();
             float counter = 1;
-            double v = CommandUtil.rand.nextDouble();
             for (Affinity affinity : serverAffinity) {
                 integerAffinityTreeMap.put(counter, affinity);
                 counter += affinity.getAffinity() + 0.001f;
             }
-            Map.Entry<Float, Affinity> floatAffinityEntry = integerAffinityTreeMap.floorEntry((float) (v * counter));
+            int numberOfTries = 2;
+            Map.Entry<Float, Affinity> floatAffinityEntry = null;
+            while (numberOfTries-- != 0 && floatAffinityEntry == null) {
+                double v = CommandUtil.rand.nextDouble();
+                floatAffinityEntry = integerAffinityTreeMap.floorEntry((float) (v * counter));
+            }
+
             if (floatAffinityEntry == null) {
                 sendMessageQueue(e, "Couldn't get you any recommendation :(");
                 return;
             }
             Affinity affinity = floatAffinityEntry.getValue();
+
             firstDiscordID = e.getAuthor().getIdLong();
             secondDiscordID = affinity.getDiscordId();
         } else {

@@ -24,7 +24,7 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
         }
         if (words.length != 2) {
             String prefix = e.getMessage().getContentRaw().substring(0, 1);
-            String list = GuildConfigType.list(dao, e.getAuthor().getIdLong());
+            String list = GuildConfigType.list(dao, e.getGuild().getIdLong());
             sendError("The config format must be the following: **`Command`**  **`Value`**\n do " + prefix + "help sconfig for more info.\nCurrent Values:\n" + list, e);
             return null;
         }
@@ -33,8 +33,8 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
 
         GuildConfigType guildConfigType = GuildConfigType.get(command);
         if (guildConfigType == null) {
-            String collect = Arrays.stream(GuildConfigType.values()).map(GuildConfigType::getCommandName).collect(Collectors.joining(","));
-            sendError(command + " is not a valid configuration, use one of the following:" + collect, e);
+            String collect = Arrays.stream(GuildConfigType.values()).map(GuildConfigType::getCommandName).collect(Collectors.joining(", "));
+            sendError(command + " is not a valid configuration, use one of the following:\n\t" + collect, e);
             return null;
         }
         if (!guildConfigType.getParser().test(args)) {

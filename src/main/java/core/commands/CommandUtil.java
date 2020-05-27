@@ -6,10 +6,9 @@ import core.apis.spotify.Spotify;
 import core.exceptions.DiscogsServiceException;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import dao.entities.DiscordUserDisplay;
-import dao.entities.ScrobbledArtist;
-import dao.entities.UpdaterStatus;
+import dao.entities.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -94,11 +93,17 @@ public class CommandUtil {
     }
 
     private static void validate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck) throws LastFmException {
+        validate(dao, scrobbledArtist, lastFM, discogsApi, spotify, doUrlCheck, true);
+    }
+
+    public static void validate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck, boolean findCorrection) throws LastFmException {
 
 
-        String dbCorrection = dao.findCorrection(scrobbledArtist.getArtist());
-        if (dbCorrection != null) {
-            scrobbledArtist.setArtist(dbCorrection);
+        if (findCorrection) {
+            String dbCorrection = dao.findCorrection(scrobbledArtist.getArtist());
+            if (dbCorrection != null) {
+                scrobbledArtist.setArtist(dbCorrection);
+            }
         }
         boolean existed;
         boolean corrected = false;
@@ -145,9 +150,9 @@ public class CommandUtil {
         }
     }
 
-    static ScrobbledArtist onlyCorrection(ChuuService dao, String artist, ConcurrentLastFM lastFM) throws LastFmException {
+    static ScrobbledArtist onlyCorrection(ChuuService dao, String artist, ConcurrentLastFM lastFM, boolean doCorrection) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        validate(dao, scrobbledArtist, lastFM, null, null, false);
+        validate(dao, scrobbledArtist, lastFM, null, null, false, doCorrection);
         return scrobbledArtist;
     }
 
@@ -293,6 +298,18 @@ public class CommandUtil {
                 return "rd";
             default:
                 return "th";
+        }
+    }
+
+    public static RemainingImagesMode getEffectiveMode(RemainingImagesMode remainingImagesMode, CommandParameters chartParameters) {
+        boolean pie = chartParameters.hasOptional("--pie");
+        boolean list = chartParameters.hasOptional("--list");
+        if ((remainingImagesMode.equals(RemainingImagesMode.LIST) && !list && !pie) || (!remainingImagesMode.equals(RemainingImagesMode.LIST) && list)) {
+            return RemainingImagesMode.LIST;
+        } else if (remainingImagesMode.equals(RemainingImagesMode.PIE) && !pie || !remainingImagesMode.equals(RemainingImagesMode.PIE) && pie) {
+            return RemainingImagesMode.PIE;
+        } else {
+            return RemainingImagesMode.IMAGE;
         }
     }
 }

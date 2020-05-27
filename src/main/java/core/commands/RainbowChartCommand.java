@@ -21,6 +21,7 @@ import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
@@ -135,6 +136,16 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         queue = new LinkedBlockingQueue<>(cols * rows);
         queue.addAll(collect);
         return new CountWrapper<>(count, queue);
+    }
+
+    @Override
+    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, RainbowParams params, int count) {
+        StringBuilder stringBuilder = new StringBuilder("top ").append(params.getX() * params.getY()).append(params.isArtist() ? " artist " : "albums ");
+        stringBuilder.append(params.isColor() ? "by color" : "by brightness")
+                .append(params.isInverse() ? " inversed" : "")
+                .append(" ordered by ").append(params.isColumn() ? "column" : params.isLinear() ? "rows" : "diagonal");
+        return params.initEmbed("'s " + stringBuilder.toString(), embedBuilder, " has listened to " + count + (params.isArtist() ? " artists" : " albums"), params.getLastfmID());
+
     }
 
 

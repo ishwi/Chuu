@@ -8,24 +8,31 @@ public class LastFMData {
     private Role role;
     private final boolean privateUpdate;
     private final boolean imageNotify;
-    private final boolean additionalEmbedChart;
+    private final WhoKnowsMode whoKnowsMode;
+    private final ChartMode ChartMode;
+    private final RemainingImagesMode remainingImagesMode;
 
-    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, boolean additionalEmbedChart) {
+
+    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode) {
         this.discordId = discordId;
         this.name = name;
         this.guildID = guildID;
         this.privateUpdate = privateUpdate;
         this.imageNotify = imageNotify;
-        this.additionalEmbedChart = additionalEmbedChart;
+        this.whoKnowsMode = whoKnowsMode;
+        ChartMode = chartMode;
+        this.remainingImagesMode = remainingImagesMode;
     }
 
-    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, boolean additionalEmbedChart) {
+    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode) {
         this.name = lastFmID;
         this.discordId = resDiscordID;
         this.role = role;
         this.privateUpdate = privateUpdate;
         this.imageNotify = notifyImage;
-        this.additionalEmbedChart = additionalEmbedChart;
+        this.whoKnowsMode = whoKnowsMode;
+        ChartMode = chartMode;
+        this.remainingImagesMode = remainingImagesMode;
     }
 
 
@@ -70,7 +77,16 @@ public class LastFMData {
         return imageNotify;
     }
 
-    public boolean isAdditionalEmbedChart() {
-        return additionalEmbedChart;
+    public WhoKnowsMode getWhoKnowsMode() {
+        return whoKnowsMode;
     }
+
+    public dao.entities.ChartMode getChartMode() {
+        return ChartMode;
+    }
+
+    public RemainingImagesMode getRemainingImagesMode() {
+        return remainingImagesMode;
+    }
+
 }

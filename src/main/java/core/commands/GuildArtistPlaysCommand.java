@@ -58,7 +58,7 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
             return;
         }
         String artist = returned.getArtist();
-        long whom = returned.getUser().getIdLong();
+        long userId = returned.getLastFMData().getDiscordId();
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
@@ -67,7 +67,7 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
         if (e.isFromGuild()) {
             artistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
         } else {
-            LastFMData data = getService().findLastFMData(whom);
+            LastFMData data = returned.getLastFMData();
             artistPlays = getService().getArtistPlays(scrobbledArtist.getArtistId(), data.getName());
         }
         String usableString;

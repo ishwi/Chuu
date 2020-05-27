@@ -5,6 +5,7 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistTimeFrameParameters;
 import dao.ChuuService;
+import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.entities.User;
@@ -20,6 +21,11 @@ public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> 
     }
 
     @Override
+    void setUpOptionals() {
+        opts.add(new OptionalEntity("--noredirect", "not change the artist name for a correction automatically"));
+    }
+
+    @Override
     public ArtistTimeFrameParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
         TimeFrameEnum timeFrame = defaultTFE;
 
@@ -30,12 +36,13 @@ public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> 
         User sample = parserAux.getOneUser(e);
         words = parserAux.getMessage();
 
+        LastFMData lastFMData = findLastfmFromID(sample, e);
+
         if (words.length == 0) {
-            String userName = dao.findLastFMData(sample.getIdLong()).getName();
-            NowPlayingArtist np = lastFM.getNowPlayingInfo(userName);
-            return new ArtistTimeFrameParameters(e, np.getArtistName(), sample, timeFrame);
+            NowPlayingArtist np = lastFM.getNowPlayingInfo(lastFMData.getName());
+            return new ArtistTimeFrameParameters(e, np.getArtistName(), lastFMData, timeFrame);
         } else {
-            return new ArtistTimeFrameParameters(e, String.join(" ", words), sample, timeFrame);
+            return new ArtistTimeFrameParameters(e, String.join(" ", words), lastFMData, timeFrame);
         }
     }
 

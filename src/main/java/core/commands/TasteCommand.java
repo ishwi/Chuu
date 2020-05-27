@@ -35,7 +35,9 @@ public class TasteCommand extends ConcurrentCommand<TwoUsersParamaters> {
 
     @Override
     public Parser<TwoUsersParamaters> getParser() {
-        return new TwoUsersParser(getService(), new OptionalEntity("--list", "display in a list format"));
+        TwoUsersParser twoUsersParser = new TwoUsersParser(getService(), new OptionalEntity("--list", "display in a list format"));
+        twoUsersParser.setExpensiveSearch(true);
+        return twoUsersParser;
     }
 
     @Override
@@ -63,44 +65,53 @@ public class TasteCommand extends ConcurrentCommand<TwoUsersParamaters> {
 
         lastfMNames = Arrays.asList(ogLastFmId, secondlastFmId);
 
-        ResultWrapper<UserArtistComparison> resultWrapper = getService().getSimilarities(lastfMNames);
+        ResultWrapper<UserArtistComparison> resultWrapper = getService().getSimilarities(lastfMNames, isList ? 200 : 10);
         //TODO this happens both when user is not on db and no mathching so fix pls
         if (resultWrapper.getRows() == 0) {
             sendMessageQueue(e, "You don't share any artist :(");
             return;
         }
-
-        if (isList) {
-            StringBuilder stringBuilder = new StringBuilder();
-            List<String> strings = resultWrapper.getResultList().stream().map(x -> String.format(". [%s](%s) - %d vs %d plays%n",
-                    x.getArtistID(),
-                    CommandUtil.getLastFmArtistUrl(x.getArtistID()),
-                    x.getCountA(), x.getCountB())).collect(Collectors.toList());
-            for (int i = 0, size = strings.size(); i < 10 && i < size; i++) {
-                String text = strings.get(i);
-                stringBuilder.append(i + 1).append(text);
-            }
-            DiscordUserDisplay uinfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ogDiscordID);
-            DiscordUserDisplay uinfo1 = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordId);
-            EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setDescription(stringBuilder)
-                    .setTitle(String.format("%s vs %s", uinfo.getUsername(), uinfo1.getUsername()))
-                    .setColor(CommandUtil.randomColor())
-                    .setFooter(String.format("Both user have %d common artists", resultWrapper.getRows()), null)
-                    .setThumbnail(uinfo1.getUrlImage());
-            MessageBuilder mes = new MessageBuilder();
-            e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                    new Reactionary<>(strings, message1, embedBuilder));
-        } else {
-            java.util.List<String> users = new ArrayList<>();
-            users.add(resultWrapper.getResultList().get(0).getUserA());
-            users.add(resultWrapper.getResultList().get(0).getUserB());
-            java.util.List<UserInfo> userInfoList = lastFM.getUserInfo(users);
-            BufferedImage image = TasteRenderer.generateTasteImage(resultWrapper, userInfoList);
-            sendImage(image, e);
-
-
+        switch (CommandUtil.getEffectiveMode(params.getFirstUser().getRemainingImagesMode(), params)) {
+            case PIE:
+            case IMAGE:
+                doImage(e, resultWrapper);
+                break;
+            case LIST:
+                doList(e, ogDiscordID, secondDiscordId, resultWrapper);
+                break;
         }
+    }
+
+    private void doImage(MessageReceivedEvent e, ResultWrapper<UserArtistComparison> resultWrapper) throws LastFmException {
+        List<String> users = new ArrayList<>();
+        users.add(resultWrapper.getResultList().get(0).getUserA());
+        users.add(resultWrapper.getResultList().get(0).getUserB());
+        List<UserInfo> userInfoList = lastFM.getUserInfo(users);
+        BufferedImage image = TasteRenderer.generateTasteImage(resultWrapper, userInfoList);
+        sendImage(image, e);
+    }
+
+    private void doList(MessageReceivedEvent e, long ogDiscordID, long secondDiscordId, ResultWrapper<UserArtistComparison> resultWrapper) {
+        StringBuilder stringBuilder = new StringBuilder();
+        List<String> strings = resultWrapper.getResultList().stream().map(x -> String.format(". [%s](%s) - %d vs %d plays%n",
+                x.getArtistID(),
+                CommandUtil.getLastFmArtistUrl(x.getArtistID()),
+                x.getCountA(), x.getCountB())).collect(Collectors.toList());
+        for (int i = 0, size = strings.size(); i < 10 && i < size; i++) {
+            String text = strings.get(i);
+            stringBuilder.append(i + 1).append(text);
+        }
+        DiscordUserDisplay uinfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ogDiscordID);
+        DiscordUserDisplay uinfo1 = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordId);
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setDescription(stringBuilder)
+                .setTitle(String.format("%s vs %s", uinfo.getUsername(), uinfo1.getUsername()))
+                .setColor(CommandUtil.randomColor())
+                .setFooter(String.format("Both user have %d common artists", resultWrapper.getRows()), null)
+                .setThumbnail(uinfo1.getUrlImage());
+        MessageBuilder mes = new MessageBuilder();
+        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+                new Reactionary<>(strings, message1, embedBuilder));
     }
 
     @Override

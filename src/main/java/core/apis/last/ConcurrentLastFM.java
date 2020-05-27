@@ -199,7 +199,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         int page = 1;
         if (requestedSize >= 1000)
             url += "&limit=1000";
-        if (requestedSize > 700)
+        else if (requestedSize > 700)
             url += "&limit=500";
         else if (requestedSize > 150)
             url += "&limit=200";
@@ -358,7 +358,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         int page = 1;
         if (requestedSize >= 1000)
             url += "&limit=1000";
-        if (requestedSize > 500)
+        else if (requestedSize > 500)
             url += "&limit=500";
         else
             url += "&limit=" + requestedSize;

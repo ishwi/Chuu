@@ -20,6 +20,7 @@ public class Reactionary<T> extends ReactionListener {
 
 
     public Reactionary(List<T> list, Message message, EmbedBuilder who) {
+
         this(list, message, 10, who);
     }
 
@@ -33,7 +34,7 @@ public class Reactionary<T> extends ReactionListener {
     }
 
     public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who, boolean numberedEntries) {
-        super(who, messageToReact);
+        super(who, messageToReact, 25);
         this.list = list;
         this.pageSize = pageSize;
         this.numberedEntries = numberedEntries;
@@ -99,6 +100,7 @@ public class Reactionary<T> extends ReactionListener {
         who.setColor(CommandUtil.randomColor());
         message.editMessage(who.build()).queue();
         clearOneReact(event);
+        refresh(event.getJDA());
     }
 
 }

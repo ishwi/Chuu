@@ -22,6 +22,7 @@ import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
 
 import java.awt.*;
@@ -50,7 +51,9 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
 
     @Override
     public Parser<ArtistAlbumParameters> getParser() {
-        return new ArtistAlbumParser(getService(), lastFM, new OptionalEntity("--list", "display in list format"));
+        ArtistAlbumParser parser = new ArtistAlbumParser(getService(), lastFM, new OptionalEntity("--list", "display in list format"));
+        parser.setExpensiveSearch(true);
+        return parser;
     }
 
     @Override
@@ -75,7 +78,7 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
             return;
         }
         ScrobbledArtist validable = new ScrobbledArtist(ap.getArtist(), 0, "");
-        CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
+        CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify, true, ap.isNoredirect());
         ap.setScrobbledArtist(validable);
         doSomethingWithAlbumArtist(ap);
     }
@@ -98,7 +101,7 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
                 .map(ReturnNowPlaying::getDiscordId)
                 .collect(Collectors.toList());
 
-        userList = userList.stream().filter(x -> usersThatKnow.contains(x.getDiscordID()) || x.getDiscordID() == ap.getUser().getIdLong() || x.getDiscordID() == e.getAuthor().getIdLong()).collect(Collectors.toList());
+        userList = userList.stream().filter(x -> usersThatKnow.contains(x.getDiscordID()) || x.getDiscordID() == ap.getLastFMData().getDiscordId() || x.getDiscordID() == e.getAuthor().getIdLong()).collect(Collectors.toList());
         if (userList.isEmpty()) {
             Chuu.getLogger().error("Something went real wrong");
             sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.cleanMarkdownCharacter(ap.getArtist()), CommandUtil.cleanMarkdownCharacter(ap.getAlbum())));
@@ -117,7 +120,8 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
         List<Map.Entry<UsersWrapper, Integer>> list = new ArrayList<>(userMapPlays.entrySet());
         list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
-        List<ReturnNowPlaying> list2 = list.stream().sequential().limit(ap.hasOptional("--pie") || ap.hasOptional("--list") ? Integer.MAX_VALUE : 10).map(t -> {
+        WhoKnowsMode effectiveMode = WhoKnowsCommand.getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
+        List<ReturnNowPlaying> list2 = list.stream().sequential().limit(effectiveMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE).map(t -> {
             long id2 = t.getKey().getDiscordID();
             ReturnNowPlaying np = new ReturnNowPlaying(id2, t.getKey().getLastFMName(), correctedArtist, t.getValue());
             np.setDiscordName(CommandUtil.getUserInfoNotStripped(e, id2).getUsername());
@@ -133,18 +137,18 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
 
         WrapperReturnNowPlaying a = new WrapperReturnNowPlaying(list2, list.size(), urlContainter.getAlbumUrl(),
                 correctedArtist + " - " + correctedAlbum);
-        if (ap.hasOptional("--pie")) {
-            doPie(ap, a);
-            return;
+        switch (effectiveMode) {
+            case IMAGE:
+                BufferedImage sender = WhoKnowsMaker.generateWhoKnows(a, e.getGuild().getName(), logo);
+                sendImage(sender, e);
+                break;
+            case LIST:
+                doList(ap, a);
+                break;
+            case PIE:
+                doPie(ap, a);
+                break;
         }
-        if (ap.hasOptional("--list")) {
-            doList(ap, a);
-            return;
-        }
-        BufferedImage sender = WhoKnowsMaker.generateWhoKnows(a, e.getGuild().getName(), logo);
-
-        sendImage(sender, e);
-
     }
 
     void doExtraThings(List<ReturnNowPlaying> list2, long id, long artistId, String album) {
@@ -205,7 +209,7 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
 
         GraphicUtils.setQuality(g);
         pieChart.paint(g, 1000, 750);
-        BufferedImage backgroundImage = GraphicUtils.getImage(returnNowPlaying.getUrl());
+        BufferedImage backgroundImage = Scalr.resize(GraphicUtils.getImage(returnNowPlaying.getUrl()), 250);
         if (backgroundImage != null) {
             g.drawImage(backgroundImage, 10, 750 - 10 - backgroundImage.getHeight(), null);
         }

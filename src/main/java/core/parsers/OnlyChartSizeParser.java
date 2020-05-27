@@ -1,8 +1,10 @@
 package core.parsers;
 
+import core.exceptions.InstanceNotFoundException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.ChartSizeParameters;
 import dao.ChuuService;
+import dao.entities.ChartMode;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -45,7 +47,13 @@ public class OnlyChartSizeParser extends ChartableParser<ChartSizeParameters> {
             this.sendError(getErrorMessage(6), e);
             return null;
         }
-        boolean guildEmbedConfig = dao.getGuildEmbedConfig(e.getGuild().getIdLong());
+        ChartMode guildEmbedConfig;
+        try {
+            guildEmbedConfig = dao.getGuildProperties(e.getGuild().getIdLong()).getChartMode();
+        } catch (InstanceNotFoundException instanceNotFoundException) {
+            instanceNotFoundException.printStackTrace();
+            guildEmbedConfig = ChartMode.IMAGE;
+        }
         return new ChartSizeParameters(e, x, y, guildEmbedConfig);
     }
 

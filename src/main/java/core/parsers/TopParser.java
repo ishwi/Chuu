@@ -44,15 +44,15 @@ public class TopParser extends ChartableParser<TopParameters> {
         subMessage = chartParserAux.getMessage();
 
         LastFMData data = atTheEndOneUser(e, subMessage);
-        return new TopParameters(e, data.getName(), data.getDiscordId(), defaultTFE, x, y, doAdditionalEmbed(data,e));
+        return new TopParameters(e, data.getName(), data.getDiscordId(), defaultTFE, x, y, data.getChartMode());
     }
 
 
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *sizeXsize*  *Username* ** \n" +
-               "\tIf username is not specified defaults to authors account \n" +
-               "\tIf Size not specified it defaults to 5x5\n";
+                "\tIf username is not specified defaults to authors account \n" +
+                "\tIf Size not specified it defaults to 5x5\n";
 
     }
 }

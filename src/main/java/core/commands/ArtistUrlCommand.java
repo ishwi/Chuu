@@ -34,7 +34,7 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
 
     @Override
     public Parser<ArtistUrlParameters> getParser() {
-        return new ArtistUrlParser();
+        return new ArtistUrlParser(getService());
     }
 
     @Override
@@ -49,26 +49,22 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String urlParsed;
-        String artist;
-        LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
+
+        ArtistUrlParameters params = parser.parse(e);
+        LastFMData lastFMData = params.getLastFMData();
         if (lastFMData.getRole().equals(Role.IMAGE_BLOCKED)) {
             sendMessageQueue(e, "You don't have enough permissions to add an image!");
             return;
         }
-        ArtistUrlParameters params = parser.parse(e);
-        if (params == null)
-            return;
-        urlParsed = params.getUrl();
-
-        artist = params.getArtist();
+        String urlParsed = params.getUrl();
+        String artist = params.getArtist();
         try (InputStream in = new URL(urlParsed).openStream()) {
             BufferedImage image = ImageIO.read(in);
             if (image == null) {
                 parser.sendError(parser.getErrorMessage(2), e);
                 return;
             }
-            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), artist, lastFM);
+            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), artist, lastFM, params.isNoredirect());
             OptionalLong persistedId = getService().checkArtistUrlExists(scrobbledArtist.getArtistId(), urlParsed);
             OptionalLong queuedId = getService().checkQueuedUrlExists(scrobbledArtist.getArtistId(), urlParsed);
 

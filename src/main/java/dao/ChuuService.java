@@ -1,5 +1,6 @@
 package dao;
 
+import com.sun.istack.NotNull;
 import core.Chuu;
 import core.exceptions.ChuuServiceException;
 import core.exceptions.DuplicateInstanceException;
@@ -188,6 +189,14 @@ public class ChuuService {
     public LastFMData findLastFMData(long discordID) throws InstanceNotFoundException {
         try (Connection connection = dataSource.getConnection()) {
             return userGuildDao.findLastFmData(connection, discordID);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public LastFMData computeLastFmData(long discordID, Long guildId) throws InstanceNotFoundException {
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.findLastFmData(connection, discordID, guildId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1124,13 +1133,6 @@ public class ChuuService {
         }
     }
 
-    public void updateGuildDefaultChart(long guildId, boolean chartEmbed) {
-        try (Connection connection = dataSource.getConnection()) {
-            updaterDao.updateGuildProperty(connection, guildId, "additional_embed", chartEmbed);
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
-    }
 
     public List<LbEntry> getScrobblesLeaderboard(long guildId) {
         try (Connection connection = dataSource.getConnection()) {
@@ -1191,9 +1193,9 @@ public class ChuuService {
         }
     }
 
-    public void setChartEmbed(long discordId, boolean chartEmbed) {
+    public void setChartEmbed(long discordId, @NotNull ChartMode chartMode) {
         try (Connection connection = dataSource.getConnection()) {
-            userGuildDao.setUserProperty(connection, discordId, "additional_embed", chartEmbed);
+            userGuildDao.setUserProperty(connection, discordId, "chart_mode", chartMode);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1257,5 +1259,57 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    public GuildProperties getGuildProperties(long guildId) throws InstanceNotFoundException {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getGuild(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public void setWhoknowsMode(long discordId, @NotNull WhoKnowsMode whoKnowsMode) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setUserProperty(connection, discordId, "whoknows_mode", whoKnowsMode);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public void setRemainingImagesMode(long discordId, @NotNull RemainingImagesMode remainingImagesMode) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setUserProperty(connection, discordId, "remaining_mode", remainingImagesMode);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public void setRemainingImagesModeServer(long guildId, @Nullable RemainingImagesMode remainingImagesMode) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildProperty(connection, guildId, "remaining_mode", remainingImagesMode);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setServerWhoknowMode(long guildId, @Nullable WhoKnowsMode images) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildProperty(connection, guildId, "whoknows_mode", images);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setServerChartMode(long guildId, @Nullable ChartMode chartMode) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildProperty(connection, guildId, "chart_mode", chartMode);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 }

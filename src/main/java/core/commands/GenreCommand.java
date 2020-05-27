@@ -33,6 +33,7 @@ public class GenreCommand extends ConcurrentCommand<TimeFrameParameters> {
         super(dao);
         this.musicBrainz = MusicBrainzServiceSingleton.getInstance();
     }
+
     @Override
     protected CommandCategory getCategory() {
         return CommandCategory.USER_STATS;
@@ -69,7 +70,7 @@ public class GenreCommand extends ConcurrentCommand<TimeFrameParameters> {
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
         String usableString = userInfo.getUsername();
         String urlImage = userInfo.getUrlImage();
-        List<AlbumInfo> albumInfos = lastFM.getTopAlbums(username, timeframe.toApiFormat(), 2000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
+        List<AlbumInfo> albumInfos = lastFM.getTopAlbums(username, timeframe.toApiFormat(), 3000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
         if (albumInfos.isEmpty()) {
             sendMessageQueue(e, "Was not able to find any genre in  " + usableString + "'s artist");

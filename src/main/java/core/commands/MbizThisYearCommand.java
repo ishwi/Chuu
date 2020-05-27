@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MbizThisYearCommand extends MusicBrainzCommand {
-    private static final int CUSTOM_SEARCH_SPACE = 1500;
+    private static final int CUSTOM_SEARCH_SPACE = 2000;
 
     public MbizThisYearCommand(ChuuService dao) {
         super(dao);
@@ -30,7 +30,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
     @Override
     public String getDescription() {
         return "Gets your top albums of the year queried.\t" +
-               "NOTE: The further the year is from the  current year, the less precise the command will be";
+                "NOTE: The further the year is from the  current year, the less precise the command will be";
     }
 
     @Override

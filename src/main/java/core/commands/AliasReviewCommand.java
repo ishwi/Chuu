@@ -4,6 +4,7 @@ import core.Chuu;
 import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.otherlisteners.ReactionResponse;
 import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -79,7 +80,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
 
         try {
 
-            HashMap<String, BiFunction<AliasEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
+            HashMap<String, BiFunction<AliasEntity, MessageReactionAddEvent, ReactionResponse>> actionMap = new HashMap<>();
             actionMap.put("U+2714", (aliasEntity, r) -> {
                 try {
                     getService().addAlias(aliasEntity.getAlias(), aliasEntity.getArtistId());
@@ -95,7 +96,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
                         //Doesnt exists on the server
                     }
                 }
-                return true;
+                return ReactionResponse.FETCH_NEW_EMBED;
 
             });
             actionMap.put("U+274c", (a, r) -> {
@@ -104,13 +105,13 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
                 } catch (InstanceNotFoundException e1) {
                     Chuu.getLogger().error(e1.getMessage());
                 }
-                return true;
+                return ReactionResponse.FETCH_NEW_EMBED;
             });
             new Validator<>(
                     embedBuilder1 -> embedBuilder.setTitle("No more  Aliases to Review").clearFields(),
                     () -> getService().getNextInAliasQueue(),
                     builder
-                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, false);
+                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false);
         } catch (Exception ex) {
             Chuu.getLogger().warn(ex.getMessage());
         } finally {

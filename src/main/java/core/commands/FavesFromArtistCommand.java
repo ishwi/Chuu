@@ -63,14 +63,13 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         ArtistTimeFrameParameters returned = parser.parse(e);
         if (returned == null)
             return;
-        long userId = returned.getUser().getIdLong();
+        long userId = returned.getLastFMData().getDiscordId();
         TimeFrameEnum timeframew = returned.getTimeFrame();
         String artist = returned.getArtist();
         ScrobbledArtist who = new ScrobbledArtist(artist, 0, "");
         CommandUtil.validate(getService(), who, lastFM, discogs, spotify);
         List<Track> ai;
-        String lastFmName;
-        lastFmName = getService().findLastFMData(userId).getName();
+        String lastFmName = returned.getLastFMData().getName();
 
         ai = lastFM.getTopArtistTracks(lastFmName, who.getArtist(), timeframew.toApiFormat());
 

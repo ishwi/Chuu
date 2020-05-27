@@ -5,6 +5,7 @@ import core.apis.last.TopEntity;
 import core.commands.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.OptionalEntity;
+import dao.entities.ChartMode;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UrlCapsule;
@@ -18,30 +19,30 @@ import java.util.function.BiFunction;
 public class ChartParameters extends CommandParameters {
     private final String lastfmID;
     private final long discordId;
-    private final boolean doAdditionalEmbed;
+    private final ChartMode chartMode;
     private final TimeFrameEnum timeFrameEnum;
     private final int x;
     private final int y;
 
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, boolean doAdditionalEmbed, TimeFrameEnum timeFrameEnum, int x, int y) {
+    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, ChartMode chartMode, TimeFrameEnum timeFrameEnum, int x, int y) {
         super(e);
         this.lastfmID = lastfmID;
         this.discordId = discordId;
-        this.doAdditionalEmbed = doAdditionalEmbed;
+        this.chartMode = chartMode;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
         this.y = y;
     }
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat, boolean doAdditionalEmbed) {
+    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, ChartMode chartMode) {
         super(e);
         this.lastfmID = lastfmID;
         this.discordId = discordId;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
         this.y = y;
-        this.doAdditionalEmbed = doAdditionalEmbed;
+        this.chartMode = chartMode;
         this.optionals.put(new OptionalEntity("--notitles", ""), !writeTitles);
         this.optionals.put(new OptionalEntity("--plays", ""), writePlays);
         this.optionals.put(new OptionalEntity("--list", ""), isList);
@@ -52,7 +53,7 @@ public class ChartParameters extends CommandParameters {
 
     public static ChartParameters toListParams() {
         return new ChartParameters(null, "", -1L, null, 0, 0, true
-                , true, true, false, false);
+                , true, true, ChartMode.LIST);
     }
 
     public int makeCommand(ConcurrentLastFM lastFM, BlockingQueue<UrlCapsule> queue, TopEntity topEntity, BiFunction<JSONObject, Integer, UrlCapsule> parser) throws LastFmException {
@@ -106,7 +107,7 @@ public class ChartParameters extends CommandParameters {
         return hasOptional("--pie");
     }
 
-    public boolean isDoAdditionalEmbed() {
-        return doAdditionalEmbed;
+    public ChartMode chartMode() {
+        return chartMode;
     }
 }

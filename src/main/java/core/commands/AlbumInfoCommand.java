@@ -1,7 +1,7 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.FullAlbumEntityExtended;
 import dao.entities.LastFMData;
@@ -41,8 +41,8 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who) throws InstanceNotFoundException, LastFmException {
-        LastFMData lastFMData = getService().findLastFMData(who);
+    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
+        LastFMData lastFMData = params.getLastFMData();
         FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(lastFMData.getName(), artist.getArtist(), album);
         String username = getUserString(e, who, lastFMData.getName());
 

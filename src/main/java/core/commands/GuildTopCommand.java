@@ -67,7 +67,15 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartSizeParameters params, int count) {
-        return params.initEmbed("'s top artists", embedBuilder, " has listened to " + count + " artists", params.getLastfmID());
+        String titleInit = "'s top artists";
+        String footerText = " has listened to " + count + " artists";
+        if (params.chartMode().equals(ChartMode.IMAGE_INFO)) {
+            String name = params.getE().getGuild().getName();
+            return embedBuilder.setAuthor(name + titleInit + params.getTimeFrameEnum().getDisplayString(),
+                    null, params.getE().getGuild().getIconUrl())
+                    .setFooter(CommandUtil.markdownLessString(name) + footerText + params.getTimeFrameEnum().getDisplayString()).setColor(CommandUtil.randomColor());
+        }
+        return params.initEmbed(titleInit, embedBuilder, footerText, params.getLastfmID());
     }
 
     @Override

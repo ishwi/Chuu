@@ -18,9 +18,15 @@ import java.util.regex.Pattern;
 public class ParserAux {
     private String[] message;
     private static final Pattern user = Pattern.compile("(.{2,32})#(\\d{4})");
+    private final boolean doExpensiveSearch;
 
     public ParserAux(String[] message) {
+        this(message, false);
+    }
+
+    public ParserAux(String[] message, boolean doExpensiveSearch) {
         this.message = message;
+        this.doExpensiveSearch = doExpensiveSearch;
     }
 
     User getOneUserPermissive(MessageReceivedEvent e) {
@@ -97,56 +103,69 @@ public class ParserAux {
         return sample;
     }
 
-    LastFMData[] getTwoUsers(ChuuService dao, String[] message, MessageReceivedEvent e) throws InstanceNotFoundException {
-        if (message.length == 0) {
-            return null;
-        }
-        LastFMData[] datas = new LastFMData[]{null, null};
-        if (message.length > 2) {
-            String join = String.join(" ", message);
-            datas[0] = dao.findLastFMData(e.getAuthor().getIdLong());
-            datas[1] = handleRawMessage(join, e, dao);
-        } else {
-            List<User> list = e.getMessage().getMentionedUsers();
-            if (message.length == 1 && list.size() == 1) {
-                datas[1] = dao.findLastFMData(list.get(0).getIdLong());
-                datas[0] = dao.findLastFMData(e.getAuthor().getIdLong());
-            } else if (message.length == 1 && list.isEmpty()) {
-                datas[1] = handleRawMessage(message[0], e, dao);
-                datas[0] = dao.findLastFMData(e.getAuthor().getIdLong());
-            } else if (message.length == 2 && list.size() == 1) {
-                User sample = list.get(0);
-                if (message[0].equals(sample.getAsMention()) || message[0].equals("<@!" + sample.getAsMention().substring(2))) {
-                    datas[0] = dao.findLastFMData(sample.getIdLong());
-                    datas[1] = handleRawMessage(message[1], e, dao);
-                } else {
-                    datas[0] = handleRawMessage(message[0], e, dao);
-                    datas[1] = dao.findLastFMData(sample.getIdLong());
-                }
-            } else if (message.length == 2 && list.size() == 2) {
-                datas[0] = dao.findLastFMData(list.get(0).getIdLong());
-                datas[1] = dao.findLastFMData(list.get(1).getIdLong());
-            } else if (message.length == 2 && list.isEmpty()) {
-                try {
-                    datas[1] = handleRawMessage(String.join(" ", message), e, dao);
-                    datas[0] = dao.findLastFMData(e.getAuthor().getIdLong());
-                } catch (InstanceNotFoundException ex) {
-                    datas[0] = handleRawMessage(message[0], e, dao);
-                    datas[1] = handleRawMessage(message[1], e, dao);
-                }
 
-            } else {
-                return null;
-            }
+    private LastFMData findUsername(MessageReceivedEvent event, User user, ChuuService dao) throws InstanceNotFoundException {
+        if (event.isFromGuild() && this.doExpensiveSearch) {
+            return dao.computeLastFmData(user.getIdLong(), event.getGuild().getIdLong());
+        } else {
+            return dao.findLastFMData(user.getIdLong());
         }
-        return datas;
     }
 
-    private LastFMData getLastFMData(Optional<User> opt, String message, ChuuService dao) throws InstanceNotFoundException {
+    public LastFMData[] getTwoUsers(ChuuService dao, String[] message, MessageReceivedEvent e) throws InstanceNotFoundException {
+        LastFMData[] result = null;
+        boolean finished = false;
+        if (message.length != 0) {
+            LastFMData[] datas = new LastFMData[]{null, null};
+            if (message.length > 2) {
+                String join = String.join(" ", message);
+                datas[0] = findUsername(e, e.getAuthor(), dao);
+                datas[1] = handleRawMessage(join, e, dao);
+            } else {
+                List<User> list = e.getMessage().getMentionedUsers();
+                if (message.length == 1 && list.size() == 1) {
+                    datas[1] = findUsername(e, list.get(0), dao);
+                    datas[0] = findUsername(e, e.getAuthor(), dao);
+                } else if (message.length == 1 && list.isEmpty()) {
+                    datas[1] = handleRawMessage(message[0], e, dao);
+                    datas[0] = findUsername(e, e.getAuthor(), dao);
+                } else if (message.length == 2 && list.size() == 1) {
+                    User sample = list.get(0);
+                    if (message[0].equals(sample.getAsMention()) || message[0].equals("<@!" + sample.getAsMention().substring(2))) {
+                        datas[0] = findUsername(e, sample, dao);
+                        datas[1] = handleRawMessage(message[1], e, dao);
+                    } else {
+                        datas[0] = handleRawMessage(message[0], e, dao);
+                        datas[1] = findUsername(e, sample, dao);
+                    }
+                } else if (message.length == 2 && list.size() == 2) {
+                    datas[0] = findUsername(e, list.get(0), dao);
+                    datas[1] = findUsername(e, list.get(1), dao);
+                } else if (message.length == 2 && list.isEmpty()) {
+                    try {
+                        datas[1] = handleRawMessage(String.join(" ", message), e, dao);
+                        datas[0] = findUsername(e, e.getAuthor(), dao);
+                    } catch (InstanceNotFoundException ex) {
+                        datas[0] = handleRawMessage(message[0], e, dao);
+                        datas[1] = handleRawMessage(message[1], e, dao);
+                    }
+
+                } else {
+                    finished = true;
+                }
+            }
+            if (!finished) {
+                result = datas;
+            }
+        }
+        return result;
+    }
+
+    private LastFMData getLastFMData(Optional<User> opt, String message, ChuuService dao, MessageReceivedEvent e) throws InstanceNotFoundException {
         if (opt.isEmpty()) {
             throw new InstanceNotFoundException(message);
         } else {
-            return dao.findLastFMData(opt.get().getIdLong());
+            return findUsername(e, opt.get(), dao);
         }
     }
 
@@ -159,7 +178,7 @@ public class ParserAux {
             if (!biPredicate.test(memberByTag) && memberByTag != null) {
                 throw new InstanceNotFoundException(memberByTag.getId());
             }
-            return getLastFMData(Optional.ofNullable(memberByTag).map(Member::getUser), message, dao);
+            return getLastFMData(Optional.ofNullable(memberByTag).map(Member::getUser), message, dao, e);
         }
         List<Member> membersByEffectiveName = e.getGuild().getMembersByEffectiveName(message, true);
         if (!membersByEffectiveName.isEmpty()) {
@@ -167,7 +186,7 @@ public class ParserAux {
             if (!biPredicate.test(first.get())) {
                 throw new InstanceNotFoundException(first.get().getIdLong());
             }
-            return getLastFMData(first.map(Member::getUser), message, dao);
+            return getLastFMData(first.map(Member::getUser), message, dao, e);
 
         } else {
             List<Member> membersByName = e.getGuild().getMembersByName(message, true);
@@ -176,10 +195,10 @@ public class ParserAux {
                 if (!biPredicate.test(user.get())) {
                     throw new InstanceNotFoundException(user.get().getIdLong());
                 }
-                return getLastFMData(Optional.of(user.get().getUser()), message, dao);
+                return getLastFMData(Optional.of(user.get().getUser()), message, dao, e);
             } else {
                 long discordIdFromLastfm = dao.getDiscordIdFromLastfm(message, e.getGuild().getIdLong());
-                return getLastFMData(Optional.ofNullable(e.getGuild().getJDA().getUserById(discordIdFromLastfm)), message, dao);
+                return getLastFMData(Optional.ofNullable(e.getGuild().getJDA().getUserById(discordIdFromLastfm)), message, dao, e);
             }
         }
     }

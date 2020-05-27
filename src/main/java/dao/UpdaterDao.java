@@ -118,5 +118,4 @@ interface UpdaterDao {
 
     int getQueueUrlCount(Connection connection);
 
-    void updateGuildProperty(Connection connection, long guildId, String additional_embed, boolean chartEmbed);
 }

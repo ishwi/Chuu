@@ -34,7 +34,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
         ParserAux parserAux = new ParserAux(words);
         User sample = parserAux.getOneUser(e);
         words = parserAux.getMessage();
-        LastFMData lastFMData = dao.findLastFMData(sample.getIdLong());
+        LastFMData lastFMData = findLastfmFromID(sample, e);
         ChartParserAux chartParserAux = new ChartParserAux(words);
         TimeFrameEnum timeFrameEnum = chartParserAux.parseTimeframe(TimeFrameEnum.ALL);
         words = chartParserAux.getMessage();

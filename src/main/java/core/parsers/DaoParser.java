@@ -11,6 +11,7 @@ import java.util.List;
 
 public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
     final ChuuService dao;
+    private boolean expensiveSearch = false;
 
 
     public DaoParser(ChuuService dao, OptionalEntity... opts) {
@@ -18,11 +19,19 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
         this.dao = dao;
     }
 
+
     LastFMData atTheEndOneUser(MessageReceivedEvent event, String[] message) throws InstanceNotFoundException {
         ParserAux aux = new ParserAux(message);
         User oneUserPermissive = aux.getOneUserPermissive(event);
-        return this.dao.findLastFMData(oneUserPermissive.getIdLong());
+        return findLastfmFromID(oneUserPermissive, event);
+    }
 
+    protected LastFMData findLastfmFromID(User user, MessageReceivedEvent event) throws InstanceNotFoundException {
+        if (event.isFromGuild() && expensiveSearch) {
+            return this.dao.computeLastFmData(user.getIdLong(), event.getGuild().getIdLong());
+        } else {
+            return this.dao.findLastFMData(user.getIdLong());
+        }
     }
 
 
@@ -48,4 +57,13 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
         errorMessages.put(3, "User hasn't played anything recently");
         errorMessages.put(4, "User does not exist on last.fm");
     }
+
+    public boolean isExpensiveSearch() {
+        return expensiveSearch;
+    }
+
+    public void setExpensiveSearch(boolean expensiveSearch) {
+        this.expensiveSearch = expensiveSearch;
+    }
+
 }

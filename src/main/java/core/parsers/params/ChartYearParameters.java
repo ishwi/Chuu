@@ -1,5 +1,6 @@
 package core.parsers.params;
 
+import dao.entities.ChartMode;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -8,8 +9,8 @@ import java.time.Year;
 public class ChartYearParameters extends ChartParameters {
     private final Year year;
 
-    public ChartYearParameters(MessageReceivedEvent e, String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, Year year, boolean doAdditionalEmbed) {
-        super(e, username, discordId, doAdditionalEmbed, timeFrameEnum, x, y);
+    public ChartYearParameters(MessageReceivedEvent e, String username, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, Year year, ChartMode chartMode) {
+        super(e, username, discordId, chartMode, timeFrameEnum, x, y);
         this.year = year;
     }
 

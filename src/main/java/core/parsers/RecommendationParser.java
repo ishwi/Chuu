@@ -62,9 +62,9 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *user* **\n" +
-               "\t If user is not specified if will give you a recommendation from a random user " +
-               "(biasing more users with more affinity with you), otherwise a rec from that user\n" +
-               "\t Alternatively you could also mention two different users\n\n";
+                "\t If user is not specified if will give you a recommendation from a random user " +
+                "(biasing more users with more affinity with you), otherwise a rec from that user\n" +
+                "\t Alternatively you could also mention two different users\n";
 
     }
 }

@@ -47,8 +47,8 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, MessageReceivedEvent e, long who) throws InstanceNotFoundException, LastFmException {
-        LastFMData lastFMData = getService().findLastFMData(who);
+    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws InstanceNotFoundException, LastFmException {
+        LastFMData lastFMData = params.getLastFMData();
         TrackExtended trackInfo = this.lastFM.getTrackInfoExtended(lastFMData.getName(), artist.getArtist(), song);
 
 

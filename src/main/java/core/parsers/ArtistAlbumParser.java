@@ -5,6 +5,7 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
+import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -21,6 +22,11 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
         this.opts.addAll(Arrays.asList(o));
     }
 
+    @Override
+    void setUpOptionals() {
+        opts.add(new OptionalEntity("--noredirect", "not change the artist name for a correction automatically"));
+    }
+
 
     @Override
     public ArtistAlbumParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
@@ -28,26 +34,27 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
         ParserAux parserAux = new ParserAux(subMessage);
         User sample = parserAux.getOneUser(e);
         subMessage = parserAux.getMessage();
+        LastFMData userName = findLastfmFromID(sample, e);
+
         if (subMessage.length == 0) {
 
             NowPlayingArtist np;
 
-            String userName = dao.findLastFMData(sample.getIdLong()).getName();
-            np = lastFM.getNowPlayingInfo(userName);
+            np = lastFM.getNowPlayingInfo(userName.getName());
 
-            return doSomethingWithNp(np, sample, e);
+            return doSomethingWithNp(np, userName, e);
 
         } else {
-            return doSomethingWithString(subMessage, sample, e);
+            return doSomethingWithString(subMessage, userName, e);
         }
     }
 
 
-    ArtistAlbumParameters doSomethingWithNp(NowPlayingArtist np, User ignored, MessageReceivedEvent e) {
-        return new ArtistAlbumParameters(e, np.getArtistName(), np.getAlbumName(), e.getAuthor());
+    ArtistAlbumParameters doSomethingWithNp(NowPlayingArtist np, LastFMData lastFMData, MessageReceivedEvent e) {
+        return new ArtistAlbumParameters(e, np.getArtistName(), np.getAlbumName(), lastFMData);
     }
 
-    ArtistAlbumParameters doSomethingWithString(String[] subMessage, User sample, MessageReceivedEvent e) {
+    ArtistAlbumParameters doSomethingWithString(String[] subMessage, LastFMData sample, MessageReceivedEvent e) {
         StringBuilder builder = new StringBuilder();
         for (String s : subMessage) {
             builder.append(s).append(" ");
@@ -73,7 +80,7 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
 
     @Override
     public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *artist-album** username* " +
+        return "**" + commandName + " *artist-album* *username*** " +
                 "\n\tIf username it's not provided it defaults to authors account, only ping and tag format (user#number)\n ";
 
 

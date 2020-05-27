@@ -38,8 +38,10 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
 
     @Override
     public Parser<ArtistAlbumParameters> getParser() {
-        return new ArtistSongParser(getService(), lastFM, new OptionalEntity("--list", "display in list format")
+        ArtistSongParser parser = new ArtistSongParser(getService(), lastFM, new OptionalEntity("--list", "display in list format")
                 , new OptionalEntity("--pie", "display it as a chart pie"));
+        parser.setExpensiveSearch(true);
+        return parser;
     }
 
     @Override

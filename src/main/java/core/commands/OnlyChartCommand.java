@@ -38,14 +38,10 @@ public abstract class OnlyChartCommand<T extends ChartParameters> extends Charta
     }
 
 
-    @Override
-    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, T params, int count) {
-        throw new UnsupportedOperationException();
-    }
 
     @Override
     public String configPieChart(PieChart pieChart, T params, int count, String initTitle) {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override

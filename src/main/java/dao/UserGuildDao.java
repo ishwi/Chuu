@@ -1,10 +1,12 @@
 package dao;
 
 import core.exceptions.InstanceNotFoundException;
+import dao.entities.GuildProperties;
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -66,5 +68,12 @@ interface UserGuildDao {
 
     void setUserProperty(Connection connection, long discordId, String additional_embed, boolean chartEmbed);
 
+    <T extends Enum<T>> void  setUserProperty(Connection connection, long discordId, String propertyName, T value);
 
+
+    GuildProperties getGuild(Connection connection, long discordId) throws InstanceNotFoundException;
+
+    LastFMData findLastFmData(Connection connection, long discordID, long guildId) throws InstanceNotFoundException;
+
+    <T extends Enum<T>> void setGuildProperty(Connection connection, long discordId, String propertyName, @Nullable T value);
 }

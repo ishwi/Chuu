@@ -100,7 +100,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
 
         //Never registered before
-        LastFMData lastFMData = new LastFMData(lastfmid, userId, Role.USER, false, true, u.isAdditionalEmbedChart());
+        LastFMData lastFMData = new LastFMData(lastfmid, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE);
         lastFMData.setGuildID(guildID);
 
         getService().
@@ -210,7 +210,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
             long userId = Long.parseLong(jsonObject.optString("discordUserID"));
             String lastfmid = jsonObject.getString("lastFMUsername");
-            LastFMData lastFMData = new LastFMData(lastfmid, userId, guildID, respondInPrivate, true, false);
+            LastFMData lastFMData = new LastFMData(lastfmid, userId, guildID, respondInPrivate, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE);
             queue.add(consumer.executeCallback(lastFMData, stringBuilder, complete, embedBuilder, e.getAuthor(), i, counter));
 
         }

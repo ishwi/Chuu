@@ -36,7 +36,7 @@ public class RainbowParser extends ChartableParser<RainbowParams> {
         if (chartParameters == null) {
             return null;
         }
-        return new RainbowParams(e, chartParameters.getLastfmID(), chartParameters.getDiscordId(), chartParameters.getTimeFrameEnum(), chartParameters.getX(), chartParameters.getY(), chartParameters.isDoAdditionalEmbed());
+        return new RainbowParams(e, chartParameters.getLastfmID(), chartParameters.getDiscordId(), chartParameters.getTimeFrameEnum(), chartParameters.getX(), chartParameters.getY(), chartParameters.chartMode());
     }
 
     @Override

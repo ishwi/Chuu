@@ -28,7 +28,7 @@ public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
             sendError(getErrorMessage(5), e);
             return null;
         }
-        ParserAux parserAux = new ParserAux(words);
+        ParserAux parserAux = new ParserAux(words,isExpensiveSearch());
         LastFMData[] datas = parserAux.getTwoUsers(dao, words, e);
         // words = parserAux.getMessage();
         if (datas == null) {
@@ -42,7 +42,7 @@ public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *userName* *userName***\n" +
-               "\tIf the second user is missing it gets replaced by the owner of the message\n";
+                "\tIf the second user is missing it gets replaced by the owner of the message\n";
 
     }
 

@@ -38,7 +38,7 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
             return null;
         }
         int x = (int) Math.sqrt(searchSpace);
-        ChartYearParameters chartYearParameters = new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrame, x, x, year, doAdditionalEmbed(discordName,e));
+        ChartYearParameters chartYearParameters = new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrame, x, x, year, discordName.getChartMode());
         chartYearParameters.initParams(List.of("--nolimit"));
         return chartYearParameters;
 
@@ -47,9 +47,9 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *[d,w,m,q,s,y,a]* *Username* *YEAR*** \n" +
-               "\tIf time is not specified defaults to " + defaultTFE.toString() + "\n" +
-               "\tIf username is not specified defaults to authors account \n" +
-               "\tIf YEAR not specified it default to current year\n";
+                "\tIf time is not specified defaults to " + defaultTFE.toString() + "\n" +
+                "\tIf username is not specified defaults to authors account \n" +
+                "\tIf YEAR not specified it default to current year\n";
     }
 
     @Override

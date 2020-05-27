@@ -3,4 +3,19 @@ alter table user add column  notify_image TINYINT(1) NOT NULL DEFAULT TRUE;
 alter table user add column  additional_embed TINYINT(1) NOT NULL DEFAULT false ;
 alter table guild add column  additional_embed TINYINT(1) NOT NULL DEFAULT false ;
 
+--
+alter table user add column  whoknows_mode ENUM ('IMAGE','LIST','PIE')  NOT NULL DEFAULT "IMAGE" ;
+alter table guild add column whoknows_mode ENUM ('IMAGE','LIST','PIE') ;
 
+alter table user add column  chart_mode ENUM ('IMAGE','IMAGE_INFO','LIST','PIE')  NULL DEFAULT "IMAGE" ;
+alter table guild add column  chart_mode ENUM ('IMAGE','IMAGE_INFO','LIST','PIE')  NULL ;
+
+update user set chart_mode = IF(additional_embed,"IMAGE_INFO","IMAGE");
+update guild set chart_mode = IF(additional_embed,"IMAGE_INFO",NULL );
+
+alter table user drop column  additional_embed;
+alter table guild drop column  additional_embed;
+
+alter table user add column  remaining_mode ENUM ('IMAGE','IMAGE_INFO','LIST','PIE') NOT NULL DEFAULT "IMAGE" ;
+alter table guild add column  remaining_mode ENUM ('IMAGE','IMAGE_INFO','LIST','PIE')   NULL ;
+--

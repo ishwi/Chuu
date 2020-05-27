@@ -3,6 +3,7 @@ package core.parsers;
 import core.exceptions.InstanceNotFoundException;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
+import dao.entities.ChartMode;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -13,12 +14,15 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
     public ChartableParser(ChuuService dao, TimeFrameEnum defaultTFE) {
         super(dao);
         this.defaultTFE = defaultTFE;
+        this.setExpensiveSearch(true);
+
     }
 
 
     public ChartableParser(ChuuService dao, TimeFrameEnum defaultTFE, OptionalEntity... opts) {
         super(dao, opts);
         this.defaultTFE = defaultTFE;
+        this.setExpensiveSearch(true);
     }
 
     @Override
@@ -30,14 +34,6 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
 
     }
 
-    boolean doAdditionalEmbed(LastFMData lastFMData, MessageReceivedEvent e) {
-        if (!e.isFromGuild()) {
-            return lastFMData.isAdditionalEmbedChart();
-        } else {
-            return dao.getGuildEmbedConfig(e.getGuild().getIdLong()) || lastFMData.isAdditionalEmbedChart();
-        }
-
-    }
 
     @Override
     public abstract T parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException;

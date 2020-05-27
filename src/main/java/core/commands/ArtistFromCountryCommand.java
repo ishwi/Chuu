@@ -54,6 +54,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     protected CommandCategory getCategory() {
         return CommandCategory.USER_STATS;
     }
+
     @Override
     public Parser<CountryParameters> getParser() {
         CountryParser countryParser = new CountryParser(getService());
@@ -110,9 +111,9 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         }
 
         CountryCode country = parameters.getCode();
-        BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(1500);
+        BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(2000);
         String name = parameters.getLastFMData().getName();
-        lastFM.getChart(name, parameters.getTimeFrame().toApiFormat(), 1500, 1, TopEntity.ARTIST, ChartUtil.getParser(parameters.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, name), queue);
+        lastFM.getChart(name, parameters.getTimeFrame().toApiFormat(), 2000, 1, TopEntity.ARTIST, ChartUtil.getParser(parameters.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, name), queue);
 
         Long discordId = parameters.getLastFMData().getDiscordId();
         List<ArtistUserPlays> list = this.mb.getArtistFromCountry(country, queue, discordId);

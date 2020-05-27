@@ -13,6 +13,7 @@ import core.parsers.ChartableParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
+import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UrlCapsule;
@@ -37,6 +38,18 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
     }
 
     @Override
+    ChartMode getEffectiveMode(ChartParameters chartParameters) {
+        if (chartParameters.isList()) {
+            return ChartMode.LIST;
+        }
+        if (chartParameters.isPieFormat()) {
+            return ChartMode.PIE;
+        }
+        return ChartMode.IMAGE;
+
+    }
+
+    @Override
     protected CommandCategory getCategory() {
         return CommandCategory.USER_STATS;
     }
@@ -46,6 +59,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
         ChartParser chartParser = new ChartParser(getService());
         chartParser.replaceOptional("--list", new OptionalEntity("--image", "show this with a chart instead of a list "));
         chartParser.addOptional(new OptionalEntity("--list", "shows this in list mode", true, "--image"));
+        chartParser.setExpensiveSearch(false);
         return chartParser;
     }
 
@@ -95,4 +109,5 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s didn't listen to any track%s!", ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
     }
+
 }

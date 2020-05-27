@@ -62,13 +62,13 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistTimeFrameParameters
     public Parser<ArtistTimeFrameParameters> getParser() {
         ArtistTimeFrameParser artistTimeFrameParser = new ArtistTimeFrameParser(getService(), lastFM);
         artistTimeFrameParser.addOptional(new OptionalEntity("--list", "display in list format"));
-        artistTimeFrameParser.addOptional(new OptionalEntity("--noredirect", "not change the artist name for a correction automatically"));
+        artistTimeFrameParser.setExpensiveSearch(true);
         return artistTimeFrameParser;
     }
 
     @Override
     public String getDescription() {
-        return "An image returning some information about an artist related to an user ";
+        return "An image returning some information about an artist related to an user";
     }
 
     @Override
@@ -77,11 +77,11 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistTimeFrameParameters
     }
 
 
-    void bandLogic(ArtistTimeFrameParameters ap) throws InstanceNotFoundException, LastFmException {
+    void bandLogic(ArtistTimeFrameParameters ap) throws LastFmException {
 
 
-        long idLong = ap.getUser().getIdLong();
-        final String username = getService().findLastFMData(idLong).getName();
+        long idLong = ap.getLastFMData().getDiscordId();
+        final String username = ap.getLastFMData().getName();
 
 
         ScrobbledArtist who = ap.getScrobbledArtist();
@@ -149,13 +149,13 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistTimeFrameParameters
 
     private void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo) {
         BufferedImage returnedImage = BandRendered
-                .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getUser().getIdLong()).getUsername());
+                .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getLastFMData().getDiscordId()).getUsername());
         sendImage(returnedImage, ap.getE());
     }
 
     private void doList(ArtistTimeFrameParameters ap, ArtistAlbums ai) {
         MessageReceivedEvent e = ap.getE();
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ap.getUser().getIdLong());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ap.getLastFMData().getDiscordId());
         StringBuilder str = new StringBuilder();
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -174,7 +174,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistTimeFrameParameters
 
     private void doPie(ArtistTimeFrameParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, BufferedImage logo) {
         PieChart pieChart = this.pie.doPie(ap, ai.getAlbumList());
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getUser().getIdLong());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getLastFMData().getDiscordId());
 
         pieChart.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.cleanMarkdownCharacter(ap.getScrobbledArtist().getArtist()) + " albums" + ap.getTimeFrame().getDisplayString());
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
@@ -214,7 +214,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistTimeFrameParameters
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistParameters.getArtist(), 0, null);
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
         artistParameters.setScrobbledArtist(scrobbledArtist);
-        if (artistParameters.hasOptional("--noredirect")) {
+        if (artistParameters.isNoredirect()) {
             scrobbledArtist.setArtist(artistParameters.getArtist());
         }
         bandLogic(artistParameters);

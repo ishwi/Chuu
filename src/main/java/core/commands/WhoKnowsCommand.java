@@ -15,10 +15,10 @@ import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.parsers.params.ChartParameters;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import dao.entities.ReturnNowPlaying;
-import dao.entities.ScrobbledArtist;
-import dao.entities.WrapperReturnNowPlaying;
+import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -52,10 +52,24 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> getParser() {
-        return new ArtistParser(getService(), lastFM,
-                new OptionalEntity("--list", "display in list format")
-                , new OptionalEntity("--noredirect", "not change the artist name for a correction automatically"));
+        ArtistParser parser = new ArtistParser(getService(), lastFM,
+                new OptionalEntity("--list", "display in list format"));
+        parser.setExpensiveSearch(true);
+        return parser;
     }
+
+    public static WhoKnowsMode getEffectiveMode(WhoKnowsMode whoKnowsMode, CommandParameters chartParameters) {
+        boolean pie = chartParameters.hasOptional("--pie");
+        boolean list = chartParameters.hasOptional("--list");
+        if ((whoKnowsMode.equals(WhoKnowsMode.LIST) && !list && !pie) || (!whoKnowsMode.equals(WhoKnowsMode.LIST) && list)) {
+            return WhoKnowsMode.LIST;
+        } else if (whoKnowsMode.equals(WhoKnowsMode.PIE) && !pie || !whoKnowsMode.equals(WhoKnowsMode.PIE) && pie) {
+            return WhoKnowsMode.PIE;
+        } else {
+            return WhoKnowsMode.IMAGE;
+        }
+    }
+
 
     @Override
     public String getDescription() {
@@ -73,11 +87,8 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
         if (artistParameters == null)
             return;
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistParameters.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
+        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, artistParameters.isNoredirect());
         artistParameters.setScrobbledArtist(scrobbledArtist);
-        if (artistParameters.hasOptional("--noredirect")) {
-            scrobbledArtist.setArtist(artistParameters.getArtist());
-        }
         whoKnowsLogic(artistParameters);
     }
 
@@ -136,11 +147,10 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
 
         ScrobbledArtist who = ap.getScrobbledArtist();
         long artistId = who.getArtistId();
-        boolean isList = ap.hasOptional("--list") || ap.hasOptional("--pie");
+        WhoKnowsMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
+
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                isList
-                        ? this.getService().whoKnows(artistId, ap.getE().getGuild().getIdLong(), Integer.MAX_VALUE)
-                        : this.getService().whoKnows(artistId, ap.getE().getGuild().getIdLong());
+                effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.getService().whoKnows(artistId, ap.getE().getGuild().getIdLong()) : this.getService().whoKnows(artistId, ap.getE().getGuild().getIdLong(), Integer.MAX_VALUE);
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(ap.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(who.getArtist()));
             return;
@@ -148,15 +158,19 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername()));
         wrapperReturnNowPlaying.setUrl(who.getUrl());
-        if (ap.hasOptional("--list")) {
-            doList(ap, wrapperReturnNowPlaying);
-            return;
+        switch (effectiveMode) {
+
+            case IMAGE:
+                doImage(ap, wrapperReturnNowPlaying);
+
+                break;
+            case LIST:
+                doList(ap, wrapperReturnNowPlaying);
+                break;
+            case PIE:
+                doPie(ap, wrapperReturnNowPlaying);
+                break;
         }
-        if (ap.hasOptional("--pie")) {
-            doPie(ap, wrapperReturnNowPlaying);
-            return;
-        }
-        doImage(ap, wrapperReturnNowPlaying);
     }
 
     @Override

@@ -2,6 +2,7 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.otherlisteners.ReactionResponse;
 import core.otherlisteners.Validator;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
@@ -84,7 +85,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
             return;
         }
         String preCorrectionArtist = params.getArtist();
-        ScrobbledArtist artist = CommandUtil.onlyCorrection(getService(), preCorrectionArtist, lastFM);
+        ScrobbledArtist artist = CommandUtil.onlyCorrection(getService(), preCorrectionArtist, lastFM, params.isNoredirect());
         List<VotingEntity> allArtistImages = getService().getAllArtistImages(artist.getArtistId());
         if (allArtistImages.isEmpty()) {
             sendMessageQueue(e, artist.getArtist() + " doesn't have any image");
@@ -95,7 +96,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                 .setTitle(correctedArtist + " Images");
 
         AtomicInteger counter = new AtomicInteger(0);
-        HashMap<String, BiFunction<VotingEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
+        HashMap<String, BiFunction<VotingEntity, MessageReactionAddEvent, ReactionResponse>> actionMap = new HashMap<>();
         List<Long> guildList = e.isFromGuild()
                 ? getService().getAll(e.getGuild().getIdLong()).stream().filter(u -> !u.getRole().equals(Role.IMAGE_BLOCKED)).map(UsersWrapper::getDiscordID).collect(Collectors.toList())
                 : List.of(e.getAuthor().getIdLong());
@@ -104,7 +105,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
             if (guildList.contains(r.getUserIdLong())) {
                 getService().report(a.getUrlId(), r.getUserIdLong());
             }
-            return false;
+            return ReactionResponse.FETCH_NEW_ELEMENT;
         });
         actionMap.put(UP_VOTE, (a, r) -> {
             if (guildList.contains(r.getUserIdLong())) {
@@ -116,7 +117,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                     a.incrementTotalVotes();
                 }
             }
-            return false;
+            return ReactionResponse.DO_NOTHING;
         });
         actionMap.put(DOWN_VOTE, (a, r) -> {
             if (guildList.contains(r.getUserIdLong())) {
@@ -128,18 +129,18 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                     a.incrementTotalVotes();
                 }
             }
-            return false;
+            return ReactionResponse.DO_NOTHING;
         });
         if (allArtistImages.size() > 1) {
             actionMap.put(LEFT_ARROW, (aliasEntity, r) -> {
                 int i = counter.decrementAndGet();
                 if (i == 0) {
-                    r.getReaction().clearReactions();
+                    r.getReaction().clearReactions().queue();
                 }
                 if (i == allArtistImages.size() - 2) {
                     r.getChannel().addReactionById(r.getMessageIdLong(), RIGHT_ARROW).queue();
                 }
-                return false;
+                return ReactionResponse.FETCH_NEW_ELEMENT;
             });
             actionMap.put(RIGHT_ARROW, (a, r) -> {
                 int i = counter.incrementAndGet();
@@ -149,7 +150,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                 if (i == 1) {
                     r.getChannel().addReactionById(r.getMessageIdLong(), LEFT_ARROW).queue();
                 }
-                return false;
+                return ReactionResponse.FETCH_NEW_ELEMENT;
             });
         }
 
@@ -180,7 +181,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                     return allArtistImages.get(counter.get());
                 },
                 builder.apply(e.getJDA(), allArtistImages.size())
-                , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, true, true);
+                , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, true);
 
     }
 }
