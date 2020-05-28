@@ -212,11 +212,8 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistTimeFrameParameters
         if (artistParameters == null)
             return;
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistParameters.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
+        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !artistParameters.isNoredirect());
         artistParameters.setScrobbledArtist(scrobbledArtist);
-        if (artistParameters.isNoredirect()) {
-            scrobbledArtist.setArtist(artistParameters.getArtist());
-        }
         bandLogic(artistParameters);
     }
 

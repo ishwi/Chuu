@@ -64,7 +64,7 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
                 parser.sendError(parser.getErrorMessage(2), e);
                 return;
             }
-            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), artist, lastFM, params.isNoredirect());
+            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), artist, lastFM, !params.isNoredirect());
             OptionalLong persistedId = getService().checkArtistUrlExists(scrobbledArtist.getArtistId(), urlParsed);
             OptionalLong queuedId = getService().checkQueuedUrlExists(scrobbledArtist.getArtistId(), urlParsed);
 

@@ -19,6 +19,7 @@ import core.parsers.params.ChartParameters;
 import core.parsers.params.CountryParameters;
 import dao.ChuuService;
 import dao.entities.ArtistUserPlays;
+import dao.entities.ChartMode;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
@@ -98,7 +99,8 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         rows = Math.min(rows, 5);
         int cols = rows;
 
-        BufferedImage bufferedImage = CollageMaker.generateCollageThreaded(rows, cols, new LinkedBlockingDeque<>(collect), ChartQuality.PNG_BIG);
+        BufferedImage bufferedImage = CollageMaker.generateCollageThreaded(rows, cols, new LinkedBlockingDeque<>(collect), ChartQuality.PNG_BIG,
+                false);
         sendImage(bufferedImage, countryParameters.getE());
 
     }

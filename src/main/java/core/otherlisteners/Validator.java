@@ -24,13 +24,14 @@ public class Validator<T> extends ReactionListener {
     private final BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder;
     private final long whom;
     private final MessageChannel messageChannel;
-    private final Map<String, BiFunction<T, MessageReactionAddEvent, ReactionResponse>> actionMap;
+    private final Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap;
     private T currentElement;
     private final boolean allowOtherUsers;
+    private final boolean renderInSameElement;
     private final Queue<MessageReactionAddEvent> tbp = new LinkedBlockingDeque<>();
     private final AtomicBoolean hasCleaned = new AtomicBoolean(false);
 
-    public Validator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, MessageChannel channel, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, ReactionResponse>> actionMap, boolean allowOtherUsers) {
+    public Validator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, MessageChannel channel, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap, boolean allowOtherUsers, boolean renderInSameElement) {
         super(who, null, 30, channel.getJDA());
         this.getLastMessage = getLastMessage;
         this.elementFetcher = elementFetcher;
@@ -39,6 +40,7 @@ public class Validator<T> extends ReactionListener {
         this.whom = discordId;
         this.actionMap = actionMap;
         this.allowOtherUsers = allowOtherUsers;
+        this.renderInSameElement = renderInSameElement;
 
         init();
     }
@@ -80,6 +82,7 @@ public class Validator<T> extends ReactionListener {
         return this.message.editMessage(apply.build());
     }
 
+
     @Override
     public void init() {
         MessageAction messageAction = doTheThing(true);
@@ -105,36 +108,25 @@ public class Validator<T> extends ReactionListener {
             return;
         }
         if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUserIdLong() != whom) ||
-                event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong() || !event.getReaction().getReactionEmote().isEmoji())
+            event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong() || !event.getReaction().getReactionEmote().isEmoji())
             return;
-        BiFunction<T, MessageReactionAddEvent, ReactionResponse> action = this.actionMap.get(event.getReaction().getReactionEmote().getAsCodepoints());
+        BiFunction<T, MessageReactionAddEvent, Boolean> action = this.actionMap.get(event.getReaction().getReactionEmote().getAsCodepoints());
         if (action == null)
             return;
-        ReactionResponse response = action.apply(currentElement, event);
-        MessageAction messageAction = null;
-        switch (response) {
-            case FETCH_NEW_ELEMENT:
-                messageAction = this.doTheThing(false);
-                break;
-            case FETCH_NEW_EMBED:
-                messageAction = this.doTheThing(true);
-                break;
-            case DO_NOTHING:
-                messageAction = dotheLogicThing(currentElement, false);
-                clearOneReact(event);
-                break;
-        }
+        Boolean apply = action.apply(currentElement, event);
+        MessageAction messageAction = this.doTheThing(apply);
         if (messageAction != null) {
-            if (response.equals(ReactionResponse.FETCH_NEW_ELEMENT)) {
+            if (Boolean.TRUE.equals(apply)) {
                 messageAction.queue(this::accept);
             } else if (event.getUser() != null) {
                 clearOneReact(event);
-                messageAction.queue();
+                if (renderInSameElement) {
+                    messageAction.queue();
+                }
             } else {
                 messageAction.queue();
             }
         }
-
         refresh(event.getJDA());
     }
 

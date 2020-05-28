@@ -78,7 +78,7 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
             return;
         }
         ScrobbledArtist validable = new ScrobbledArtist(ap.getArtist(), 0, "");
-        CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify, true, ap.isNoredirect());
+        CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify, true, !ap.isNoredirect());
         ap.setScrobbledArtist(validable);
         doSomethingWithAlbumArtist(ap);
     }

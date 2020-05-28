@@ -23,7 +23,7 @@ public class TrackQueue extends ArtistQueue {
 
     @Override
     public boolean offer(@NotNull UrlCapsule item) {
-        if (item.getUrl() == null) {
+        if (item.getUrl() == null || item.getUrl().isBlank() || item.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
             return super.offer(item);
         }
         return wrapper.offer(CompletableFuture.supplyAsync(() -> item));

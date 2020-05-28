@@ -4,7 +4,6 @@ import core.Chuu;
 import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.otherlisteners.ReactionResponse;
 import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -30,7 +29,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
             embedBuilder.clearFields()
                     .addField("Alias:", aliasEntity.getAlias(), false)
                     .addField("Artist to be aliased:", aliasEntity.getArtistName(), false)
-                    .addField("Added:", aliasEntity.getDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-dd-MM HH:mm 'UTC'")), false)
+                    .addField("Added:", aliasEntity.getDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-dd-mm HH:mm 'UTC'")), false)
                     .setColor(CommandUtil.randomColor());
 
     public AliasReviewCommand(ChuuService dao) {
@@ -80,7 +79,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
 
         try {
 
-            HashMap<String, BiFunction<AliasEntity, MessageReactionAddEvent, ReactionResponse>> actionMap = new HashMap<>();
+            HashMap<String, BiFunction<AliasEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
             actionMap.put("U+2714", (aliasEntity, r) -> {
                 try {
                     getService().addAlias(aliasEntity.getAlias(), aliasEntity.getArtistId());
@@ -96,7 +95,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
                         //Doesnt exists on the server
                     }
                 }
-                return ReactionResponse.FETCH_NEW_EMBED;
+                return true;
 
             });
             actionMap.put("U+274c", (a, r) -> {
@@ -105,13 +104,13 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
                 } catch (InstanceNotFoundException e1) {
                     Chuu.getLogger().error(e1.getMessage());
                 }
-                return ReactionResponse.FETCH_NEW_EMBED;
+                return true;
             });
             new Validator<>(
                     embedBuilder1 -> embedBuilder.setTitle("No more  Aliases to Review").clearFields(),
                     () -> getService().getNextInAliasQueue(),
                     builder
-                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false);
+                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, false);
         } catch (Exception ex) {
             Chuu.getLogger().warn(ex.getMessage());
         } finally {

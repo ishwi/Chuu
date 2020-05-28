@@ -23,7 +23,7 @@ public enum UserConfigType {
 
     private static final Map<String, UserConfigType> ENUM_MAP;
     private static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
-    private static final Pattern chartMode = Pattern.compile("(Image|Image-info|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern chartMode = Pattern.compile("(Image|Image-info|Image-Aside|Image-aside-info|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
     private static final Pattern whoknowsMode = Pattern.compile("(Image|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
 
 

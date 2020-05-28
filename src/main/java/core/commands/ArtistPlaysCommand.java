@@ -48,7 +48,7 @@ public class ArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
         ArtistParameters returned = parser.parse(e);
         if (returned == null)
             return;
-        ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), returned.getArtist(), lastFM, returned.isNoredirect());
+        ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), returned.getArtist(), lastFM, !returned.isNoredirect());
         long whom = returned.getLastFMData().getDiscordId();
         int a;
         LastFMData data = returned.getLastFMData();

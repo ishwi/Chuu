@@ -212,8 +212,13 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
 
         } catch (
                 IOException ex) {
-            sendMessageQueue(e, "Ish Pc Bad");
-            Chuu.getLogger().warn(ex.getMessage(), ex);
+            if (ex.getMessage().equals("Maximum supported image dimension is 65500 pixels")) {
+                sendMessageQueue(e, "Programming language won't allow images with more than 65500 pixels in one dimension");
+
+            } else {
+                sendMessageQueue(e, "Ish Pc Bad");
+                Chuu.getLogger().warn(ex.getMessage(), ex);
+            }
         }
 
 

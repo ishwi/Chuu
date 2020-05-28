@@ -92,12 +92,12 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = getService().getQueueUrlCount();
-            HashMap<String, BiFunction<ImageQueue, MessageReactionAddEvent, ReactionResponse>> actionMap = new HashMap<>();
+            HashMap<String, BiFunction<ImageQueue, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
             actionMap.put(DELETE, (reportEntity, r) -> {
                 getService().rejectQueuedImage(reportEntity.getQueuedId());
                 statDeclined.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return ReactionResponse.FETCH_NEW_ELEMENT;
+                return false;
 
             });
             actionMap.put(ACCEPT, (a, r) -> {
@@ -114,12 +114,12 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 }
                 statAccepeted.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return ReactionResponse.FETCH_NEW_ELEMENT;
+                return false;
             });
             actionMap.put(RIGHT_ARROW, (a, r) -> {
                 skippedIds.add(a.getQueuedId());
                 navigationCounter.incrementAndGet();
-                return ReactionResponse.FETCH_NEW_ELEMENT;
+                return false;
             });
             new Validator<>(
                     finalEmbed -> {
@@ -148,7 +148,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                     },
                     () -> getService().getNextQueue(localDateTime, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
-                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false);
+                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
         } catch (Throwable ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);
         } finally {

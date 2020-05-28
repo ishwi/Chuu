@@ -49,10 +49,13 @@ public class OnlyChartSizeParser extends ChartableParser<ChartSizeParameters> {
         }
         ChartMode guildEmbedConfig;
         try {
-            guildEmbedConfig = dao.getGuildProperties(e.getGuild().getIdLong()).getChartMode();
-        } catch (InstanceNotFoundException instanceNotFoundException) {
-            instanceNotFoundException.printStackTrace();
-            guildEmbedConfig = ChartMode.IMAGE;
+            guildEmbedConfig = findLastfmFromID(e.getAuthor(), e).getChartMode();
+        } catch (InstanceNotFoundException ignored) {
+            try {
+                guildEmbedConfig = dao.getGuildProperties(e.getGuild().getIdLong()).getChartMode();
+            } catch (InstanceNotFoundException instanceNotFoundException) {
+                guildEmbedConfig = ChartMode.IMAGE;
+            }
         }
         return new ChartSizeParameters(e, x, y, guildEmbedConfig);
     }

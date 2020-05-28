@@ -87,7 +87,7 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
         if (artistParameters == null)
             return;
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistParameters.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, artistParameters.isNoredirect());
+        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !artistParameters.isNoredirect());
         artistParameters.setScrobbledArtist(scrobbledArtist);
         whoKnowsLogic(artistParameters);
     }

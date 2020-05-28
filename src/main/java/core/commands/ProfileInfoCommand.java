@@ -105,7 +105,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
         ProfileEntity entity = new ProfileEntity(lastFmName, "", crownRepresentative, uniqueRepresentative, uniqueImage, crownImage, userInfo
                 .getImage(), "", userInfo
-                .getPlayCount(), albumCount, totalArtist, totalCrowns, totalUnique, summary.getTotal(), date);
+                .getPlayCount(), albumCount, totalArtist, totalCrowns, totalUnique, summary == null ? 0 : summary.getTotal(), date);
         sendImage(ProfileMaker.makeProfile(entity), e);
     }
 

@@ -79,11 +79,11 @@ public class TestMain {
 
                         int finalI = i;
                         if ((GraphicUtils.getDistance(color, average) < weights[i][0] ||
-                             left.stream().anyMatch(t -> GraphicUtils.getDistance(color, t) < weights[finalI][0]))) {
+                                left.stream().anyMatch(t -> GraphicUtils.getDistance(color, t) < weights[finalI][0]))) {
                             if (GraphicUtils.getDistance(average, left.stream()
                                     .map(z -> Pair.of(color, GraphicUtils.getDistance(color, z)))
                                     .min(Comparator.comparingDouble(Pair::getRight)).map(Pair::getLeft).orElse(GraphicUtils.getBetter(average)))
-                                < weights[i][1]) {
+                                    < weights[i][1]) {
                                 counter++;
                                 ac.add(new PreComputedByBrightness(new
                                         AlbumChart(null, counter, "", "", "", 0, false, false), read, false));
@@ -130,7 +130,7 @@ public class TestMain {
                 discardMap.put(String.format(" discarded %s %s", ia, colors), discarded);
                 int x = (int) Math.floor(counter);
                 x = Math.min(5, x);
-                BufferedImage image = CollageMaker.generateCollageThreaded(x, x, ac, ChartQuality.PNG_BIG);
+                BufferedImage image = CollageMaker.generateCollageThreaded(x, x, ac, ChartQuality.PNG_BIG, false);
                 File outputfile = new File(file.getPath() + File.separatorChar + ".." + File.separatorChar + "results" + File.separatorChar + format + ".png");
                 try {
                     ImageIO.write(image, "png", outputfile);

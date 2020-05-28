@@ -3,7 +3,6 @@ package core.commands;
 import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.otherlisteners.ReactionResponse;
 import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -94,24 +93,24 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = getService().getReportCount();
-            HashMap<String, BiFunction<ReportEntity, MessageReactionAddEvent, ReactionResponse>> actionMap = new HashMap<>();
+            HashMap<String, BiFunction<ReportEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
             actionMap.put(DELETE, (reportEntity, r) -> {
                 getService().removeReportedImage(reportEntity.getImageReported(), reportEntity.getWhoGotReported(), idLong);
                 statBan.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return ReactionResponse.FETCH_NEW_ELEMENT;
+                return false;
 
             });
             actionMap.put(ACCEPT, (a, r) -> {
                 getService().ignoreReportedImage(a.getImageReported());
                 statIgnore.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return ReactionResponse.FETCH_NEW_ELEMENT;
+                return false;
             });
             actionMap.put(RIGHT_ARROW, (a, r) -> {
                 skippedIds.add(a.getImageReported());
                 navigationCounter.incrementAndGet();
-                return ReactionResponse.FETCH_NEW_ELEMENT;
+                return false;
             });
 
 
@@ -136,7 +135,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                     },
                     () -> getService().getNextReport(localDateTime, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
-                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false);
+                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
         } catch (Throwable ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);
         } finally {

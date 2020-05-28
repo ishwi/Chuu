@@ -47,9 +47,12 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
 
     ChartMode getEffectiveMode(ChartParameters chartParameters) {
         ChartMode chartMode = chartParameters.chartMode();
-        if ((chartMode.equals(ChartMode.LIST) && !chartParameters.isList() && !chartParameters.isPieFormat()) || (!chartMode.equals(ChartMode.LIST) && chartParameters.isList())) {
+        if ((chartMode.equals(ChartMode.LIST) && !chartParameters.isList() && !chartParameters.isPieFormat() && !chartParameters.isAside())
+                ||
+                (!chartMode.equals(ChartMode.LIST) && chartParameters.isList())) {
             return ChartMode.LIST;
-        } else if ((chartMode.equals(ChartMode.PIE) && !chartParameters.isPieFormat() && !chartParameters.isList()) || (!chartMode.equals(ChartMode.PIE) && chartParameters.isPieFormat())) {
+        } else if ((chartMode.equals(ChartMode.PIE) && !chartParameters.isPieFormat() && !chartParameters.isList() && !chartParameters.isAside())
+                || (!chartMode.equals(ChartMode.PIE) && chartParameters.isPieFormat())) {
             return ChartMode.PIE;
         } else {
             return ChartMode.IMAGE;
@@ -71,6 +74,8 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         switch (chartMode) {
             case IMAGE_INFO:
             case IMAGE:
+            case IMAGE_ASIDE:
+            case IMAGE_ASIDE_INFO:
                 doImage(urlCapsules, chartParameters.getX(), chartParameters.getY(), chartParameters, countWrapper.getRows());
                 return;
             default:
@@ -101,16 +106,17 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
             x = chartSize;
         if (e.isFromGuild()) {
             if ((e.isFromGuild() && e.getGuild().getMaxFileSize() == Message.MAX_FILE_SIZE) || !e.isFromGuild()) {
-                if (chartSize > 45 && chartSize < 400)
+                if (chartSize > 45 && chartSize < 200)
                     chartQuality = ChartQuality.JPEG_BIG;
-                else if (chartSize >= 400)
+                else if (chartSize >= 200)
                     chartQuality = ChartQuality.JPEG_SMALL;
             }
         }
         BufferedImage image = CollageMaker
-                .generateCollageThreaded(x, minx, queue, chartQuality);
+                .generateCollageThreaded(x, minx, queue, chartQuality, params.isAside() || params.chartMode().equals(ChartMode.IMAGE_ASIDE) || params.chartMode().equals(ChartMode.IMAGE_ASIDE_INFO));
 
-        sendImage(image, e, chartQuality, params.chartMode().equals(ChartMode.IMAGE_INFO) ? configEmbed(new EmbedBuilder(), params, size) : null);
+        boolean info = params.chartMode().equals(ChartMode.IMAGE_INFO) || params.chartMode().equals(ChartMode.IMAGE_ASIDE_INFO);
+        sendImage(image, e, chartQuality, info ? configEmbed(new EmbedBuilder(), params, size) : null);
     }
 
 

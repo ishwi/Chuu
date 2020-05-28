@@ -11,7 +11,9 @@ import dao.entities.UpdaterStatus;
 import dao.entities.UrlCapsule;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -71,6 +73,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
         }
     }
 
+
     @NotNull
     @Override
     public UrlCapsule take() throws InterruptedException {
@@ -96,6 +99,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
             }
             try {
                 c.add(urlCapsuleCompletableFuture.get());
+
                 counter++;
             } catch (InterruptedException | ExecutionException e) {
                 Chuu.getLogger().warn("Future stopped", e);

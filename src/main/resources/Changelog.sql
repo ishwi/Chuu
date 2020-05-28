@@ -19,3 +19,6 @@ alter table guild drop column  additional_embed;
 alter table user add column  remaining_mode ENUM ('IMAGE','IMAGE_INFO','LIST','PIE') NOT NULL DEFAULT "IMAGE" ;
 alter table guild add column  remaining_mode ENUM ('IMAGE','IMAGE_INFO','LIST','PIE')   NULL ;
 --
+
+alter table user MODIFY column  chart_mode ENUM ('IMAGE','IMAGE_INFO','IMAGE_ASIDE','IMAGE_ASIDE_INFO','LIST','PIE')  NULL DEFAULT "IMAGE" ;
+alter table guild MODIFY column  chart_mode ENUM ('IMAGE','IMAGE_INFO','IMAGE_ASIDE','IMAGE_ASIDE_INFO','LIST','PIE')  NULL ;

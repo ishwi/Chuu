@@ -2,6 +2,7 @@ package core.commands;
 
 import core.apis.last.chartentities.ArtistChart;
 import core.imagerenderer.GraphicUtils;
+import core.otherlisteners.Reactionary;
 import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
 import core.parsers.OptionalEntity;
@@ -9,6 +10,8 @@ import core.parsers.params.ChartSizeParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
@@ -66,14 +69,31 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
     }
 
     @Override
+    public void doList(List<UrlCapsule> urlCapsules, ChartSizeParameters params, int count) {
+
+        StringBuilder a = new StringBuilder();
+        for (int i = 0; i < 10 && i < urlCapsules.size(); i++) {
+            a.append(i + 1).append(urlCapsules.get(i).toEmbedDisplay());
+        }
+        Guild guild = params.getE().getGuild();
+        EmbedBuilder embedBuilder = configEmbed(new EmbedBuilder()
+                .setDescription(a)
+                .setColor(CommandUtil.randomColor())
+                .setThumbnail(guild.getIconUrl()), params, count);
+        MessageBuilder mes = new MessageBuilder();
+        params.getE().getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+                new Reactionary<>(urlCapsules, message1, embedBuilder));
+    }
+
+    @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartSizeParameters params, int count) {
         String titleInit = "'s top artists";
         String footerText = " has listened to " + count + " artists";
         if (params.chartMode().equals(ChartMode.IMAGE_INFO)) {
             String name = params.getE().getGuild().getName();
-            return embedBuilder.setAuthor(name + titleInit + params.getTimeFrameEnum().getDisplayString(),
+            return embedBuilder.setAuthor(name + titleInit,
                     null, params.getE().getGuild().getIconUrl())
-                    .setFooter(CommandUtil.markdownLessString(name) + footerText + params.getTimeFrameEnum().getDisplayString()).setColor(CommandUtil.randomColor());
+                    .setFooter(CommandUtil.markdownLessString(name) + footerText).setColor(CommandUtil.randomColor());
         }
         return params.initEmbed(titleInit, embedBuilder, footerText, params.getLastfmID());
     }

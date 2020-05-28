@@ -14,6 +14,12 @@ public abstract class UrlCapsule {
     private int plays;
     private String mbid;
 
+    public void setNeverendingMode(boolean neverendingMode) {
+        this.neverendingMode = neverendingMode;
+    }
+
+    private boolean neverendingMode = false;
+
     public UrlCapsule(String url, int pos, String albumName, String artistName, String mbid, int plays) {
         this.url = url;
         this.pos = pos;
@@ -99,11 +105,15 @@ public abstract class UrlCapsule {
         UrlCapsule that = (UrlCapsule) o;
         return
                 Objects.equals(getArtistName(), that.getArtistName()) &&
-                Objects.equals(getAlbumName(), that.getAlbumName());
+                        Objects.equals(getAlbumName(), that.getAlbumName());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getArtistName(), getAlbumName());
+    }
+
+    public boolean isNeverendingMode() {
+        return neverendingMode;
     }
 }

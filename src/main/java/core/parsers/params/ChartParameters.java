@@ -47,6 +47,8 @@ public class ChartParameters extends CommandParameters {
         this.optionals.put(new OptionalEntity("--plays", ""), writePlays);
         this.optionals.put(new OptionalEntity("--list", ""), isList);
         this.optionals.put(new OptionalEntity("--pie", ""), isPieFormat());
+        this.optionals.put(new OptionalEntity("--aside", ""), isAside());
+
 
     }
 
@@ -89,6 +91,10 @@ public class ChartParameters extends CommandParameters {
 
     public boolean isList() {
         return hasOptional("--list");
+    }
+
+    public boolean isAside() {
+        return hasOptional("--aside");
     }
 
     public long getDiscordId() {
