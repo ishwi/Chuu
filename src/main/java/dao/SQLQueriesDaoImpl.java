@@ -20,7 +20,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public UniqueWrapper<ArtistPlays> getGlobalCrowns(Connection connection, String lastfmId, int threshold) {
         List<ArtistPlays> returnList = new ArrayList<>();
-        long discordId;
+        long discordId = 0;
 
         @Language("MariaDB") String queryString = "SELECT c.name , b.discord_id , playnumber AS orden" +
                 " FROM  scrobbled_artist  a" +
@@ -51,10 +51,6 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
             if (!resultSet.next()) {
                 return new UniqueWrapper<>(0, 0, lastfmId, returnList);
-
-            } else {
-                discordId = resultSet.getLong("b.discord_id");
-                resultSet.beforeFirst();
             }
 
             while (resultSet.next()) {
@@ -62,6 +58,9 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 String artist = resultSet.getString("c.name");
                 int plays = resultSet.getInt("orden");
                 returnList.add(new ArtistPlays(artist, plays));
+                // TODO
+                discordId = resultSet.getLong("b.discord_id");
+
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
@@ -91,26 +90,18 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             preparedStatement.setString(i, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (!resultSet.next()) {
-                return new UniqueWrapper<>(0, 0, lastfmId, new ArrayList<>());
-            }
 
             List<ArtistPlays> returnList = new ArrayList<>();
-            resultSet.last();
-            int rows = resultSet.getRow();
-            long discordId = resultSet.getLong("temp.discord_id");
-
-            resultSet.beforeFirst();
-            /* Get results. */
-
+            long discordId = 0;
             while (resultSet.next()) {
+                discordId = resultSet.getLong("temp.discord_id");
                 String name = resultSet.getString("a.name");
                 int countA = resultSet.getInt("temp.playNumber");
 
                 returnList.add(new ArtistPlays(name, countA));
 
             }
-            return new UniqueWrapper<>(rows, discordId, lastfmId, returnList);
+            return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
 
 
         } catch (SQLException e) {
@@ -671,26 +662,17 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             preparedStatement.setString(i, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (!resultSet.next()) {
-                return new UniqueWrapper<>(0, 0, lastfmId, new ArrayList<>());
-            }
-
             List<ArtistPlays> returnList = new ArrayList<>();
-            resultSet.last();
-            int rows = resultSet.getRow();
-            long discordId = resultSet.getLong("temp.discord_id");
-
-            resultSet.beforeFirst();
-            /* Get results. */
-
+            long discordId = 0;
             while (resultSet.next()) {
+                discordId = resultSet.getLong("temp.discord_id");
                 String name = resultSet.getString("temp.name");
                 int countA = resultSet.getInt("temp.playNumber");
 
                 returnList.add(new ArtistPlays(name, countA));
 
             }
-            return new UniqueWrapper<>(rows, discordId, lastfmId, returnList);
+            return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
 
 
         } catch (SQLException e) {
@@ -739,16 +721,9 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             ResultSet resultSet = preparedStatement.executeQuery();
             List<UserArtistComparison> returnList = new ArrayList<>();
 
-            if (!resultSet.next()) {
-                return new ResultWrapper<>(0, returnList);
-            }
-            resultSet.last();
-            int rows = resultSet.getRow();
-            resultSet.beforeFirst();
-            /* Get results. */
-            int j = 0;
-            while (resultSet.next() && (j < limit && j < rows)) {
-                j++;
+
+            while (resultSet.next()) {
+
                 String name = resultSet.getString("c.name");
                 int countA = resultSet.getInt("a.playNumber");
                 int countB = resultSet.getInt("b.playNumber");
@@ -756,7 +731,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 returnList.add(new UserArtistComparison(countA, countB, name, userA, userB, url));
             }
 
-            return new ResultWrapper<>(rows, returnList);
+            return new ResultWrapper<>(returnList.size(), returnList);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -790,27 +765,17 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             /* Execute query. */
 
             ResultSet resultSet = preparedStatement.executeQuery();
-            int rows;
             String url = "";
             String artistName = "";
             List<ReturnNowPlaying> returnList = new ArrayList<>();
-            if (!resultSet.next()) {
-                rows = 0;
-            } else {
-                resultSet.last();
-                rows = resultSet.getRow();
-                url = resultSet.getString("a2.url");
-                artistName = resultSet.getString("a2.name");
 
 
-            }
-            /* Get generated identifier. */
 
-            resultSet.beforeFirst();
             /* Get results. */
             int j = 0;
-            while (resultSet.next() && (j < limit && j < rows)) {
-                j++;
+            while (resultSet.next() && (j < limit)) {
+                url = resultSet.getString("a2.url");
+                artistName = resultSet.getString("a2.name");
                 String lastfmId = resultSet.getString("a.lastFM_ID");
 
                 int playNumber = resultSet.getInt("a.playNumber");
@@ -819,7 +784,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 returnList.add(new ReturnNowPlaying(discordId, lastfmId, artistName, playNumber));
             }
             /* Return booking. */
-            return new WrapperReturnNowPlaying(returnList, rows, url, artistName);
+            return new WrapperReturnNowPlaying(returnList, returnList.size(), url, artistName);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -830,7 +795,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     public UniqueWrapper<ArtistPlays> getCrowns(Connection connection, String lastfmId, long guildID,
                                                 int crownThreshold) {
         List<ArtistPlays> returnList = new ArrayList<>();
-        long discordId;
+        long discordId = 0;
 
         @Language("MariaDB") String queryString = "SELECT a2.name, b.discord_id , playnumber AS orden" +
                 " FROM  scrobbled_artist  a" +
@@ -862,15 +827,9 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (!resultSet.next()) {
-                return new UniqueWrapper<>(0, 0, lastfmId, returnList);
-
-            } else {
-                discordId = resultSet.getLong("b.discord_id");
-                resultSet.beforeFirst();
-            }
 
             while (resultSet.next()) {
+                discordId = resultSet.getLong("b.discord_id");
 
                 String artist = resultSet.getString("a2.name");
                 int plays = resultSet.getInt("orden");
@@ -1190,8 +1149,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     public StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser,
                                                 long guildId, int threshold) {
         List<StolenCrown> returnList = new ArrayList<>();
-        long discordid;
-        long discordid2;
+        long discordid = 0;
+        long discordid2 = 0;
         @Language("MariaDB") String queryString = "SELECT \n" +
                 "    inn.name AS artist ,inn.orden AS ogplays , inn.discord_id AS ogid , inn2.discord_id queriedid,  inn2.orden AS queriedplays\n" +
                 "FROM\n" +
@@ -1256,16 +1215,11 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 preparedStatement.setInt(i, threshold);
             }
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (!resultSet.next()) {
-                return new StolenCrownWrapper(0, 0, returnList);
-            } else {
-                discordid = resultSet.getLong("ogId");
-                discordid2 = resultSet.getLong("queriedId");
-                resultSet.beforeFirst();
-            }
+
 
             while (resultSet.next()) {
-
+                discordid = resultSet.getLong("ogId");
+                discordid2 = resultSet.getLong("queriedId");
                 String artist = resultSet.getString("artist");
                 int plays = resultSet.getInt("ogPlays");
                 int plays2 = resultSet.getInt("queriedPlays");
@@ -1296,20 +1250,10 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             preparedStatement.setString(i, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (!resultSet.next()) {
-                return new UniqueWrapper<>(0, 0, lastfmId, new ArrayList<>());
-            }
-
             List<ArtistPlays> returnList = new ArrayList<>();
-            resultSet.last();
-            int rows = resultSet.getRow();
-
-            long discordId = resultSet.getLong("discord_id");
-
-            resultSet.beforeFirst();
-            /* Get results. */
-
+            long discordId = 0;
             while (resultSet.next()) { //&& (j < 10 && j < rows)) {
+                discordId = resultSet.getLong("discord_id");
                 String name = resultSet.getString("name");
                 String album = resultSet.getString("album");
 
@@ -1318,7 +1262,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 returnList.add(new ArtistPlays(name + " - " + album, countA));
 
             }
-            return new UniqueWrapper<>(rows, discordId, lastfmId, returnList);
+            return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
 
 
         } catch (SQLException e) {
