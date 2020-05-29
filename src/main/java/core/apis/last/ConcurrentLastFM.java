@@ -2,10 +2,12 @@ package core.apis.last;
 
 import core.Chuu;
 import core.apis.ClientSingleton;
-import core.apis.last.chartentities.ArtistChart;
 import core.apis.last.chartentities.ChartUtil;
 import core.apis.last.chartentities.TrackDurationChart;
-import core.apis.last.exceptions.*;
+import core.apis.last.exceptions.AlbumException;
+import core.apis.last.exceptions.ArtistException;
+import core.apis.last.exceptions.ExceptionEntity;
+import core.apis.last.exceptions.TrackException;
 import core.exceptions.*;
 import core.parsers.params.ChartParameters;
 import dao.entities.*;
@@ -15,6 +17,7 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,8 +25,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -55,6 +56,12 @@ public class ConcurrentLastFM {//implements LastFMService {
     static final String GET_CORRECTION = "?method=artist.getcorrection&artist=";
     static final String GET_ARTIST_ALBUMS = "?method=artist.gettopalbums&artist=";
     static final String GET_ARTIST_INFO = "?method=artist.getinfo&artist=";
+    static final String GET_TRACK_TAGS = "?method=track.gettoptags";
+    static final String GET_ALBUM_TAGS = "?method=album.gettoptags";
+    static final String GET_ARTIST_TAGS = "?method=artist.gettoptags";
+    static final String GET_TAG_INFO = "?method=tag.getinfo&tag=";
+
+
     static final Header header = initHeader();
     final String apiKey;
     final HttpClient client;
@@ -1148,48 +1155,59 @@ public class ConcurrentLastFM {//implements LastFMService {
         return attrObj.getInt("total");
     }
 
-    public int newChart(String username, TopEntity entity, TimeFrameEnum timeframe, int x, int y, BlockingQueue<UrlCapsule> queue) throws LastFmException {
-
-        int requestedSize = x * y;
-        String apiMethod = entity.getApiMethod();
-        String leadingObject = entity.getLeadingObject();
-        BiFunction<JSONObject, Integer, UrlCapsule> artistParser = ArtistChart.getArtistParser(ChartParameters.toListParams());
-        String arrayObject = entity.getArrayObject();
-        LocalDateTime localDateTime = timeframe.toLocalDate(1);
-        long instant = localDateTime.truncatedTo(ChronoUnit.DAYS).atOffset(ZoneOffset.UTC).toEpochSecond();
-        long l = LocalDate.now().atStartOfDay().plus(1, ChronoUnit.DAYS).atOffset(ZoneOffset.UTC).toEpochSecond();
-        String url = "http://ws.audioscrobbler.com/2.0/?method=user.getweeklyartistchart&user=" + username + apiKey + "&format=json&from=" + instant + "&to=" + l;
-        int size = 0;
-        int page = 1;
+    public List<String> getTrackTags(int count, TopEntity entity, String artist, @Nullable String track) throws LastFmException {
+        String url = "";
+        switch (entity) {
+            case ALBUM:
+                url = BASE + GET_ALBUM_TAGS + "&artist=" +
+                        URLEncoder
+                                .encode(artist, StandardCharsets.UTF_8) + "&album=" + URLEncoder
+                        .encode(track, StandardCharsets.UTF_8) +
+                        apiKey + ENDING + "&autocorrect=1";
+                break;
+            case TRACK:
+                url = BASE + GET_TRACK_TAGS + "&artist=" +
+                        URLEncoder
+                                .encode(artist, StandardCharsets.UTF_8) + "&track=" + URLEncoder
+                        .encode(track, StandardCharsets.UTF_8) +
+                        apiKey + ENDING + "&autocorrect=1";
+                break;
+            case ARTIST:
+                url = BASE + GET_ARTIST_TAGS + "&artist=" +
+                        URLEncoder
+                                .encode(artist, StandardCharsets.UTF_8) +
+                        apiKey + ENDING + "&autocorrect=1";
+                break;
+        }
 
         HttpMethodBase method = createMethod(url);
+        JSONObject obj = doMethod(method, new TrackException(artist, track));
 
-        // Execute the method.
-        JSONObject obj = doMethod(method, new ExceptionEntity(username));
-        obj = obj.getJSONObject("weeklyartistchart");
-//			if (page== 2)
-//				requestedSize = obj.getJSONObject("@attr").getInt("total");
-        JSONArray arr = obj.getJSONArray("artist");
-
-        for (int i = 0; i < arr.length() && size < requestedSize; i++) {
-            JSONObject albumObj = arr.getJSONObject(i);
-            queue.add(artistParser.apply(albumObj, size));
-            ++size;
+        obj = obj.getJSONObject("toptags");
+        JSONArray tag = obj.getJSONArray("tag");
+        List<String> tags = new ArrayList<>();
+        for (int i = 0; i < tag.length() && i < count; i++) {
+            tags.add(tag.getJSONObject(i).getString("name"));
         }
-        return size;
+        return tags;
     }
 
-    public int handleChart(String username, TimeFrameEnum timeFrameEnum, int x, int y, BiFunction<JSONObject, Integer, UrlCapsule> parser, TopEntity topEntity, BlockingQueue<UrlCapsule> queue) throws LastFmException {
-        if (timeFrameEnum.equals(TimeFrameEnum.DAY) || timeFrameEnum.getCount() != 1) {
-            return newChart(username, topEntity, timeFrameEnum, x, y, queue);
-        } else {
-            return newChart(username, topEntity, timeFrameEnum, x, y, queue);
-
-//            int chart = getChart(username, timeFrameEnum.toApiFormat(), x, y, topEntity, parser, queue);
-            //          if (x * y > 1000) {
-
-            //      }
-            //        return chart;
+    public GenreInfo getGenreInfo(String genre) throws LastFmException {
+        String url = BASE + GET_TAG_INFO + URLEncoder
+                .encode(genre, StandardCharsets.UTF_8) + apiKey + ENDING;
+        HttpMethodBase method = createMethod(url);
+        try {
+            JSONObject obj = doMethod(method, new ArtistException(genre));
+            JSONObject tag = obj.getJSONObject("tag");
+            String summary = tag.getJSONObject("wiki").getString("content");
+            int i = summary.indexOf("<a");
+            summary = summary.substring(0, i);
+            if (!summary.isBlank()) {
+                summary += "...";
+            }
+            return new GenreInfo(tag.getString("name"), tag.getInt("total"), tag.getInt("reach"), summary);
+        } catch (LastFmEntityNotFoundException ex) {
+            return new GenreInfo(genre, 0, 0, "");
         }
     }
 }

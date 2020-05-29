@@ -7,7 +7,8 @@ There are a ton of available commands like:
  -Image charts of both albums and artists<br>
  -Artist, albums and songs leaderboards (crowns)<br>
  -Unique artists within a server<br>
- -60+ more commands!
+ -Genre information about your artist/albums<br>
+ -70+ more commands!
 
 ## Invite Link
 
@@ -36,7 +37,6 @@ In order to do that you need:<br><br>
  - DISCORD_TOKEN
 
 -[A Youtube developer account](https://www.youtube.com/intl/en-GB/yt/dev/)
-
  - TY_API
 
 Then you should set all those properties in the file [all.properties](https://github.com/ishwi/discordBot/blob/master/src/main/resources/all.properties)
@@ -45,6 +45,8 @@ In MariaDB you should run the [following SQL script](https://github.com/ishwi/di
 For postgresql I would recommend you to use [mbdata](https://pypi.org/project/mbdata/) to set up the musicbrainz database.
 Then adjust the [mbiz.properties](https://github.com/ishwi/discordBot/blob/master/src/main/resources/mbiz.properties) with the corresponding properties.
 WARNING: Its like a 30GB database, so yeah that.
+Is it recommended to set normal and lowercase indexes on artist and album names to optimize some queries.
+Also the pg_trgm extension should be enabled.
 
 After all that is installed you can run the task shadowjar of gradle and then you can execute 
 ```bash 

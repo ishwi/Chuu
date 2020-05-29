@@ -1,0 +1,68 @@
+package core.commands;
+
+import core.apis.last.ConcurrentLastFM;
+import core.exceptions.InstanceNotFoundException;
+import core.exceptions.LastFmException;
+import core.parsers.GenreParser;
+import core.parsers.Parser;
+import core.parsers.params.GenreParameters;
+import dao.ChuuService;
+import dao.entities.GenreInfo;
+import dao.entities.NowPlayingArtist;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.List;
+
+public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
+    public GenreInfoCommand(ChuuService dao) {
+        super(dao);
+    }
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.INFO;
+    }
+
+    @Override
+    public Parser<GenreParameters> getParser() {
+        return new GenreParser(getService(), lastFM);
+    }
+
+    @Override
+    public String getDescription() {
+        return "Information about a Genre";
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("genreinfo", "gi");
+    }
+
+    @Override
+    public String getName() {
+        return "Genre Information";
+    }
+
+    @Override
+    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+        GenreParameters gp = parser.parse(e);
+        if (gp == null) {
+            return;
+        }
+        String genre = gp.getGenre();
+        GenreInfo genreInfo = lastFM.getGenreInfo(genre);
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setTitle("Information about " + genreInfo.getName())
+                .addField("Usage of the genre:", String.valueOf(genreInfo.getTotal()), false)
+                .addField("Listeners", String.valueOf(genreInfo.getReach()), false)
+                .addField("Info", genreInfo.getString().substring(0, Math.min(1024, genreInfo.getString().length())), false);
+
+        if (gp.isAutoDetected()) {
+            NowPlayingArtist np = gp.getNp();
+            embedBuilder.setFooter("This genre was obtained from " + String.format("**%s** - **%s** | **%s**", np.getArtistName(), np.getSongName(), np.getAlbumName()));
+        }
+        new MessageBuilder().setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+    }
+}

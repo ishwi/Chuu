@@ -323,7 +323,9 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new DisabledStatusCommand(dao)))
                 .addEventListeners(help.registerCommand(new UrlQueueReview(dao)))
                 .addEventListeners(help.registerCommand(new CoverCommand(dao)))
-                .addEventListeners(help.registerCommand(new LastFmLinkCommand(dao)));
+                .addEventListeners(help.registerCommand(new LastFmLinkCommand(dao)))
+                .addEventListeners(help.registerCommand(new GenreInfoCommand(dao)))
+                .addEventListeners(help.registerCommand(new GenreAlbumsCommands(dao)));
 
 
         try {

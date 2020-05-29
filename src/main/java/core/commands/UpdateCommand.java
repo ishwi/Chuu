@@ -70,7 +70,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
         if (e.isFromGuild()) {
             if (getService().getAll(e.getGuild().getIdLong()).stream()
                     .noneMatch(s -> s.getLastFMName().equals(lastFmName))) {
-                sendMessageQueue(e, userString + " is not registered in this guild");
+                sendMessageQueue(e, userString + " is not registered in this server");
                 return;
             }
         } else if (!getService().getMapGuildUsers().containsValue(e.getAuthor().getIdLong())) {

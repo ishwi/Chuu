@@ -8,9 +8,7 @@ import dao.entities.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Year;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
 
@@ -136,6 +134,40 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
     }
 
     @Override
+    public Set<String> albumsGenre(List<AlbumInfo> releaseInfo, String genre) {
+
+
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (releaseInfo.isEmpty()) {
+                return new HashSet<>();
+            }
+            return mbizQueriesDao.getArtistOfGenre(connection, genre, releaseInfo);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public List<AlbumInfo> albumsGenreByName(List<AlbumInfo> releaseInfo, String genre) {
+
+
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (releaseInfo.isEmpty()) {
+                return new ArrayList<>();
+            }
+            return mbizQueriesDao.getAlbumsOfGenreByName(connection, releaseInfo, genre);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
     public Map<Country, Integer> countryCount(List<ArtistInfo> artistInfo) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
@@ -167,6 +199,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
         }
 
     }
+
 
     @Override
     public List<Track> getAlbumTrackListMbid(String mbid) {

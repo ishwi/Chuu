@@ -6,6 +6,7 @@ import dao.entities.*;
 import java.time.Year;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 public interface MusicBrainzService {
@@ -37,6 +38,10 @@ public interface MusicBrainzService {
     List<Track> getAlbumTrackList(String artist, String album);
 
     List<Track> getAlbumTrackListLowerCase(String artist, String album);
+
+    Set<String> albumsGenre(List<AlbumInfo> releaseInfo, String genre);
+
+    List<AlbumInfo> albumsGenreByName(List<AlbumInfo> releaseInfo, String genre);
 
     Map<Country, Integer> countryCount(List<ArtistInfo> artistInfo);
 

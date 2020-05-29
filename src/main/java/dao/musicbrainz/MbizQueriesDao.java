@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.time.Year;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 interface MbizQueriesDao {
     List<CountWrapper<AlbumInfo>> getYearAverage(Connection con, List<AlbumInfo> albumInfos, Year year);
@@ -28,6 +29,11 @@ interface MbizQueriesDao {
     List<AlbumInfo> getYearAlbumsByReleaseNameLowerCase(Connection con, List<AlbumInfo> releaseInfo, Year year);
 
     List<String> getArtistFromCountry(Connection connection, CountryCode country, List<ArtistInfo> allUserArtist);
+
+    List<AlbumInfo> getAlbumsOfGenreByName(Connection con, List<AlbumInfo> releaseInfo, String genre);
+
+    Set<String> getArtistOfGenre(Connection connection, String genre, List<AlbumInfo> releaseInfo);
+
 
     List<Track> getAlbumTrackListMbid(Connection connection, String mbid);
 

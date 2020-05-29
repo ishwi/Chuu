@@ -5,12 +5,11 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.PrefixParser;
-import core.parsers.params.CharacterParser;
+import core.parsers.CharacterParser;
 import dao.ChuuService;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.sharding.ShardManager;
 
 import java.util.Collections;
 import java.util.List;

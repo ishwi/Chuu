@@ -36,7 +36,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public String getDescription() {
-        return ("List of albums you are the top listener within a guild");
+        return ("List of albums you are the top listener within a server");
     }
 
     @Override

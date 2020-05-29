@@ -11,10 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Year;
 import java.time.temporal.ChronoField;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MbizQueriesDaoImpl implements MbizQueriesDao {
@@ -422,6 +419,106 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
     }
 
+
+    @Override
+    public List<AlbumInfo> getAlbumsOfGenreByName(Connection con, List<AlbumInfo> releaseInfo, String genre) {
+        String queryString = "SELECT DISTINCT\n" +
+                "    (a.name) as artistname, b.name as albumname \n" +
+                "FROM\n" +
+                "    musicbrainz.artist_credit a\n" +
+                "        JOIN\n" +
+                "    musicbrainz.release b ON a.id = b.artist_credit\n" +
+                "        JOIN\n" +
+                "    musicbrainz.release_group c ON b.release_group = c.id\n" +
+                "       JOIN\n" +
+                "    musicbrainz.release_group_tag d ON c.id = b.release_group\n" +
+                "        JOIN\n" +
+                "    musicbrainz.tag e ON d.tag = e.id\n";
+        String whereSentence;
+        StringBuilder artistWhere = new StringBuilder("where a.name in (");
+        StringBuilder albumWhere = new StringBuilder("and b.name in (");
+        for (AlbumInfo ignored : releaseInfo) {
+            artistWhere.append(" ? ,");
+            albumWhere.append(" ? ,");
+        }
+        whereSentence = artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
+        whereSentence += albumWhere.toString().substring(0, albumWhere.length() - 1) + ") ";
+        whereSentence += "\n  and similarity(c.name,?) > 0.4";
+
+
+        List<AlbumInfo> returnList = new ArrayList<>();
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString + whereSentence)) {
+            int i = 1;
+
+            for (AlbumInfo albumInfo : releaseInfo) {
+
+                preparedStatement.setString(i, albumInfo.getName());
+                preparedStatement.setString(i + releaseInfo.size(), albumInfo.getName());
+                i++;
+            }
+            preparedStatement.setString(1 + releaseInfo.size() * 2, genre);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                String artist = resultSet.getString("artistname");
+                String album = resultSet.getString("albumname");
+
+                AlbumInfo ai = new AlbumInfo("", album, artist);
+                returnList.add(ai);
+            }
+
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return returnList;
+    }
+
+    @Override
+    public Set<String> getArtistOfGenre(Connection connection, String genre, List<AlbumInfo> releaseInfo) {
+        Set<String> uuids = new HashSet<>();
+        StringBuilder queryString = new StringBuilder("SELECT \n" +
+                "       d.gid" +
+                " FROM\n" +
+                " musicbrainz.release d join \n" +
+                " musicbrainz.release_group a " +
+                " on d.release_group = a.id " +
+                "        JOIN\n" +
+                "    musicbrainz.release_group_tag b ON a.id = b.release_group\n" +
+                "        JOIN\n" +
+                "    musicbrainz.tag c ON b.tag = c.id\n" +
+                "WHERE\n" +
+                "    d.gid in (");
+
+        for (AlbumInfo ignored : releaseInfo) {
+            queryString.append(" ? ,");
+        }
+
+
+        queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
+        queryString.append("\n  and similarity(c.name,?) > 0.4");
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString.toString())) {
+            int i = 1;
+
+            for (AlbumInfo albumInfo : releaseInfo) {
+                preparedStatement.setObject(i++, java.util.UUID.fromString(albumInfo.getMbid()));
+            }
+            preparedStatement.setString(i, genre);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                UUID id = resultSet.getObject("gid", UUID.class);
+                uuids.add(id.toString());
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return uuids;
+    }
+
     @Override
     public List<Track> getAlbumTrackListMbid(Connection connection, String mbid) {
         List<Track> returnList = new ArrayList<>();
@@ -525,7 +622,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
     }
 
-    private void prepareRealeaseYearStatement(List<AlbumInfo> releaseInfo, Year year, List<AlbumInfo> returnList, PreparedStatement preparedStatement) throws SQLException {
+    private void prepareRealeaseYearStatement(List<AlbumInfo> releaseInfo, Year
+            year, List<AlbumInfo> returnList, PreparedStatement preparedStatement) throws SQLException {
         preparedStatement.setInt(1 + releaseInfo.size() * 2, year.get(ChronoField.YEAR));
 
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -540,7 +638,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
         }
     }
 
-    private void prepareRealeaseDecadeStatement(List<AlbumInfo> releaseInfo, int decade, List<AlbumInfo> returnList, PreparedStatement preparedStatement, int numberOfYears) throws SQLException {
+    private void prepareRealeaseDecadeStatement(List<AlbumInfo> releaseInfo, int decade, List<
+            AlbumInfo> returnList, PreparedStatement preparedStatement, int numberOfYears) throws SQLException {
         preparedStatement.setInt(1 + releaseInfo.size() * 2, decade);
         preparedStatement.setInt(1 + releaseInfo.size() * 2 + 1, decade + numberOfYears);
 
@@ -556,7 +655,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
         }
     }
 
-    private List<Track> processTracks(Connection connection, String artist, String album, List<Track> returnList, String queryString) {
+    private List<Track> processTracks(Connection connection, String artist, String
+            album, List<Track> returnList, String queryString) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
 
@@ -582,7 +682,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
     }
 
-    private List<Track> processTracks(Connection connection, String mbid, List<Track> returnList, String queryString) {
+    private List<Track> processTracks(Connection connection, String mbid, List<Track> returnList, String
+            queryString) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
 
@@ -651,7 +752,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
     }
 
     @Override
-    public List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameLowerCaseAverage(Connection con, List<AlbumInfo> releaseInfo, Year year) {
+    public List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameLowerCaseAverage(Connection
+                                                                                            con, List<AlbumInfo> releaseInfo, Year year) {
         String queryString = "SELECT DISTINCT\n" +
                 "    (a.name) as artistname, b.name as albumname, (sum(e.length) / count(*)) as av \n" +
                 "FROM\n" +
@@ -699,7 +801,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
     }
 
     @Override
-    public List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameAverage(Connection connection, List<AlbumInfo> releaseInfo, Year year) {
+    public List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameAverage(Connection
+                                                                                   connection, List<AlbumInfo> releaseInfo, Year year) {
         String queryString = "SELECT DISTINCT\n" +
                 "    (a.name) as artistname, b.name as albumname, (sum(e.length) / count(*)) as av  \n" +
                 "FROM\n" +
@@ -748,7 +851,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
     }
 
     @Override
-    public List<AlbumInfo> getDecadeAlbums(Connection connection, List<AlbumInfo> mbiz, int decade, int numberOfYears) {
+    public List<AlbumInfo> getDecadeAlbums(Connection connection, List<AlbumInfo> mbiz, int decade,
+                                           int numberOfYears) {
         List<AlbumInfo> returnList = new ArrayList<>();
 
         StringBuilder queryString = new StringBuilder("SELECT \n" +
@@ -795,7 +899,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
     }
 
     @Override
-    public List<CountWrapper<AlbumInfo>> getDecadeAverage(Connection connection, List<AlbumInfo> mbiz, int decade, int numberOfYears) {
+    public List<CountWrapper<AlbumInfo>> getDecadeAverage(Connection connection, List<AlbumInfo> mbiz,
+                                                          int decade, int numberOfYears) {
         List<CountWrapper<AlbumInfo>> returnList = new ArrayList<>();
 
         StringBuilder queryString = new StringBuilder("SELECT \n" +
@@ -846,7 +951,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
     }
 
     @Override
-    public List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameAverageDecade(Connection connection, List<AlbumInfo> emptyMbid, int decade, int numberOfYears) {
+    public List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameAverageDecade(Connection
+                                                                                         connection, List<AlbumInfo> emptyMbid, int decade, int numberOfYears) {
         String queryString = "SELECT DISTINCT\n" +
                 "    (a.name) as artistname, b.name as albumname, (sum(e.length) / count(*)) as av  \n" +
                 "FROM\n" +
@@ -892,7 +998,9 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
         return returnList;
     }
 
-    private void prepareRealeaseYearStatementAverage(List<AlbumInfo> releaseInfo, Year year, List<CountWrapper<AlbumInfo>> returnList, PreparedStatement preparedStatement) throws SQLException {
+    private void prepareRealeaseYearStatementAverage(List<AlbumInfo> releaseInfo, Year
+            year, List<CountWrapper<AlbumInfo>> returnList, PreparedStatement preparedStatement) throws
+            SQLException {
         preparedStatement.setInt(1 + releaseInfo.size() * 2, year.get(ChronoField.YEAR));
 
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -909,7 +1017,9 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
         }
     }
 
-    private void prepareRealeaseDecadeStatementAverage(List<AlbumInfo> releaseInfo, int decade, List<CountWrapper<AlbumInfo>> returnList, PreparedStatement preparedStatement, int numberOfYears) throws SQLException {
+    private void prepareRealeaseDecadeStatementAverage(List<AlbumInfo> releaseInfo, int decade, List<
+            CountWrapper<AlbumInfo>> returnList, PreparedStatement preparedStatement, int numberOfYears) throws
+            SQLException {
         preparedStatement.setInt(1 + releaseInfo.size() * 2, decade);
         preparedStatement.setInt(1 + releaseInfo.size() * 2 + 1, numberOfYears + decade);
 

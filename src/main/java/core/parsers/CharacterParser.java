@@ -1,5 +1,6 @@
-package core.parsers.params;
+package core.parsers;
 
+import core.parsers.params.CommandParameters;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class CharacterParser extends CommandParameters {

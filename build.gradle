@@ -2,8 +2,8 @@ plugins {
     id 'java'
     id 'application'
     id "com.github.johnrengelman.shadow" version "5.2.0"
-    id 'info.solidsoft.pitest' version '1.4.9'
-    id 'se.patrikerdes.use-latest-versions' version '0.2.13'
+    id 'info.solidsoft.pitest' version '1.5.1'
+    id 'se.patrikerdes.use-latest-versions' version '0.2.14'
     id 'com.github.ben-manes.versions' version '0.28.0'
 }
 
@@ -36,8 +36,8 @@ compileJava.options.encoding = 'UTF-8'
 
 dependencies {
 // https://mvnrepository.com/artifact/org.knowm.xchart/xchart
-    compile group: 'org.knowm.xchart', name: 'xchart', version: '3.6.2'
-    compile 'se.michaelthelin.spotify:spotify-web-api-java:5.0.4'
+    compile group: 'org.knowm.xchart', name: 'xchart', version: '3.6.3'
+    compile 'se.michaelthelin.spotify:spotify-web-api-java:6.0.0'
 
 // https://mvnrepository.com/artifact/com.mchange/c3p0
 // https://mvnrepository.com/artifact/se.michaelthelin.spotify/spotify-web-api-java
@@ -50,7 +50,7 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.13'
 
-    compile 'net.dv8tion:JDA:4.1.1_137'
+    compile 'net.dv8tion:JDA:4.1.1_155'
 
     compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
 // https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
@@ -60,12 +60,12 @@ dependencies {
 // https://mvnrepository.com/artifact/c3p0/c3p0
 // https://mvnrepository.com/artifact/com.github.jengelman.gradle.plugins/shadow
 
-    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.19'
-    compile group: 'org.json', name: 'json', version: '20190722'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.20'
+    compile group: 'org.json', name: 'json', version: '20200518'
 
     //For Youtube search api
     compile 'com.google.api-client:google-api-client:1.30.9'
-    compile 'com.google.apis:google-api-services-youtube:v3-rev20200402-1.30.9'
+    compile 'com.google.apis:google-api-services-youtube:v3-rev20200423-1.30.9'
     compile 'com.google.oauth-client:google-oauth-client-jetty:1.30.6'
     compile 'org.beryx:awt-color-factory:1.0.1'
 
@@ -77,15 +77,15 @@ dependencies {
     //Rescaler
     compile group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
 
-    compile group: 'org.apache.xmlgraphics', name: 'batik-transcoder', version: '1.12'
+    compile group: 'org.apache.xmlgraphics', name: 'batik-transcoder', version: '1.13'
 
-    compile group: 'org.apache.xmlgraphics', name: 'batik-codec', version: '1.12'
+    compile group: 'org.apache.xmlgraphics', name: 'batik-codec', version: '1.13'
 // https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-svggen
-    compile group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.12'
+    compile group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.13'
 // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
-    compile group: 'com.zaxxer', name: 'HikariCP', version: '3.4.2'
+    compile group: 'com.zaxxer', name: 'HikariCP', version: '3.4.5'
 // https://mvnrepository.com/artifact/org.awaitility/awaitility
-    testCompile group: 'org.awaitility', name: 'awaitility', version: '4.0.2'
+    testCompile group: 'org.awaitility', name: 'awaitility', version: '4.0.3'
     testCompile group: 'com.openpojo', name: 'openpojo', version: '0.8.13'
 // https://mvnrepository.com/artifact/org.ow2.asm/asm
     testCompile group: 'org.ow2.asm', name: 'asm', version: '8.0.1'
@@ -97,7 +97,7 @@ dependencies {
 
 // https://mvnrepository.com/artifact/com.pholser/junit-quickcheck-core
     //a
-    testCompile group: 'com.pholser', name: 'junit-quickcheck-core', version: '0.9.1'
+    testCompile group: 'com.pholser', name: 'junit-quickcheck-core', version: '0.9.2'
     testCompile "org.mockito:mockito-core:3.3.3"
 
 

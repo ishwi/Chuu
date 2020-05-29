@@ -1,6 +1,5 @@
 package core.parsers;
 
-import core.parsers.params.CharacterParser;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -8,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PrefixParser extends Parser<CharacterParser> {
-    static final List<Character> acceptecChars = (Arrays
+    public  static final List<Character> acceptecChars = (Arrays
             .asList('!', '@', '#', '$', '%', '^', '_', '.', ',', ';', ':', '~'));
 
     @Override
