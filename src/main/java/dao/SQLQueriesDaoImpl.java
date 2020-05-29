@@ -721,14 +721,16 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             ResultSet resultSet = preparedStatement.executeQuery();
             List<UserArtistComparison> returnList = new ArrayList<>();
 
-
+            int counter = 0;
             while (resultSet.next()) {
-
-                String name = resultSet.getString("c.name");
-                int countA = resultSet.getInt("a.playNumber");
-                int countB = resultSet.getInt("b.playNumber");
-                String url = resultSet.getString("c.url");
-                returnList.add(new UserArtistComparison(countA, countB, name, userA, userB, url));
+                counter++;
+                if (counter < limit) {
+                    String name = resultSet.getString("c.name");
+                    int countA = resultSet.getInt("a.playNumber");
+                    int countB = resultSet.getInt("b.playNumber");
+                    String url = resultSet.getString("c.url");
+                    returnList.add(new UserArtistComparison(countA, countB, name, userA, userB, url));
+                }
             }
 
             return new ResultWrapper<>(returnList.size(), returnList);

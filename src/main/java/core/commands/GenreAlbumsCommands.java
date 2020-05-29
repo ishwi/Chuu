@@ -52,7 +52,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
 
     @Override
     public String getName() {
-        return "Artist Of Genre";
+        return "Albums by Genre";
     }
 
     @Override
@@ -62,7 +62,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
         String name = params.getLastfmID();
         lastFM.getChart(name, params.getTimeFrameEnum().toApiFormat(), 4000, 1,
                 TopEntity.ALBUM,
-                ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, name), queue);
+                ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, name), queue);
 
         ArrayList<UrlCapsule> c = new ArrayList<>();
         queue.drainTo(c);
