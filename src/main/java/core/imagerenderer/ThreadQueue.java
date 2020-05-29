@@ -45,6 +45,7 @@ class ThreadQueue implements Runnable {
         START_FONT = new Font("Noto Sans", Font.PLAIN, START_FONT_SIZE);
     }
 
+
     final void drawImage(BufferedImage image, UrlCapsule capsule, int x, int y) {
         if (image.getHeight() != imageSize || image.getWidth() != imageSize) {
             image = Scalr.resize(image, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, imageSize,
@@ -57,10 +58,12 @@ class ThreadQueue implements Runnable {
     public void handleInvalidImage(UrlCapsule capsule, int x, int y) {
         Color temp = g.getColor();
         g.setColor(Color.WHITE);
+        g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
+        g.setColor(temp);
         if (asideMode) {
-            g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
             drawNeverEndingCharts(capsule, y, x, imageSize);
         } else {
+            temp = g.getColor();
             g.setColor(Color.BLACK);
             drawNames(capsule, y, x, g, imageSize, null);
             g.setColor(temp);
@@ -93,32 +96,31 @@ class ThreadQueue implements Runnable {
 
     public void handleInvalidPrecomputedImage(PreComputedChartEntity capsule, int x, int y) {
 
+        Color temp = g.getColor();
         g.setColor(Color.WHITE);
         g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
+        g.setColor(temp);
 
 
-        Color temp = g.getColor();
         if (capsule.isDarkToWhite()) {
             g.setColor(Color.WHITE);
         } else {
             g.setColor(Color.BLACK);
         }
         g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
+        g.setColor(temp);
 
         if (asideMode) {
             drawNeverEndingCharts(capsule, y, x, imageSize);
         } else {
             drawNames(capsule, y, x, g, imageSize, null);
         }
-        g.setColor(temp);
     }
 
     @Override
     public void run() {
         while (iterations.getAndDecrement() > 0) {
 
-            g.setFont(START_FONT);
-            g.setColor(Color.BLACK);
             try {
                 UrlCapsule capsule = queue.take();
                 int pos = capsule.getPos();

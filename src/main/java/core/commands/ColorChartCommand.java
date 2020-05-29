@@ -23,10 +23,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import org.beryx.awt.color.ColorFactory;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -76,28 +73,23 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
                 preComputedChartEntity.setPos(t++);
             }
         } else {
-            int j;
-            int i;
-            int counter = 0;
-            for (int k = 0; k < rows; k++) {
-                i = k;
-                j = 0;
-                while (i >= 0 && j < cols) {
-                    sorting.get(counter++).setPos(i * rows + j);
-                    i--;
-                    j++;
-                }
-            }
-            for (int k = 1; k < cols; k++) {
-                i = cols - 1;
-                j = k;
-                while (j <= cols - 1) {
-                    sorting.get(counter++).setPos(i * rows + j);
-                    i--;
-                    j++;
-                }
+            diagonalSort(rows, cols, sorting);
+        }
+    }
+
+    private static void diagonalSort(int m, int n, List<PreComputedChartEntity> sorting) {
+        int counter = 0;
+
+        for (int slice = 0; slice < m + n - 1; ++slice) {
+            int z1 = slice < m ? 0 : slice - m + 1;
+            int z2 = slice < n ? 0 : slice - n + 1;
+
+            for (int j = slice - z2; j >= z1; --j) {
+
+                sorting.get(counter++).setPos(j * (m) + (slice - j));
             }
         }
+
     }
 
     @Override

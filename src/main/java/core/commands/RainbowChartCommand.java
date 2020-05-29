@@ -102,6 +102,9 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
                     ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID()), queue);
         }
         boolean inverted = param.isInverse();
+        boolean isColumn = param.isColumn();
+        boolean isLinear = param.isLinear();
+
 
         List<UrlCapsule> temp = new ArrayList<>();
         queue.drainTo(temp);
@@ -109,14 +112,15 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         temp = temp.stream().filter(x -> !x.getUrl().isBlank()).takeWhile(x -> coutner.incrementAndGet() <= param.getX() * param.getY()).collect(Collectors.toList());
         int rows = param.getX();
         int cols = param.getY();
-
-        if (temp.size() < rows * cols || rows != cols) {
+        if (temp.size() < rows * cols) {
             rows = (int) Math.floor(Math.sqrt(temp.size()));
             cols = rows;
             param.setX(rows);
             param.setY(cols);
 
+
         }
+
         List<PreComputedChartEntity> collect = temp.parallelStream().map(x -> {
             BufferedImage image = GraphicUtils.getImage(x.getUrl());
             if (param.isColor()) {
@@ -125,14 +129,15 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
                 return new PreComputedByBrightness(x, image, inverted);
             }
         }).sorted().limit(rows * cols).collect(Collectors.toList());
-        if (param.isColumn()) {
+        if (isColumn) {
+            int counter = 0;
             for (int i = 0; i < rows; i++) {
                 for (int j = 0; j < cols; j++) {
-                    PreComputedChartEntity preComputed = collect.get(i * rows + j);
-                    preComputed.setPos(j * cols + i);
+                    PreComputedChartEntity preComputed = collect.get(counter++);
+                    preComputed.setPos(j * rows + i);
                 }
             }
-        } else ColorChartCommand.diagonalSort(rows, cols, collect, param.isLinear());
+        } else ColorChartCommand.diagonalSort(rows, cols, collect, isLinear);
         queue = new LinkedBlockingQueue<>(cols * rows);
         queue.addAll(collect);
         return new CountWrapper<>(count, queue);
@@ -140,7 +145,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, RainbowParams params, int count) {
-        StringBuilder stringBuilder = new StringBuilder("top ").append(params.getX() * params.getY()).append(params.isArtist() ? " artist " : "albums ");
+        StringBuilder stringBuilder = new StringBuilder("top ").append(params.getX() * params.getY()).append(params.isArtist() ? " artist " : " albums ");
         stringBuilder.append(params.isColor() ? "by color" : "by brightness")
                 .append(params.isInverse() ? " inversed" : "")
                 .append(" ordered by ").append(params.isColumn() ? "column" : params.isLinear() ? "rows" : "diagonal");
