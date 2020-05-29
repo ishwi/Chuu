@@ -59,6 +59,7 @@ public class Spotify {
     }
 
     public List<dao.entities.Track> getAlbumTrackList(String artist, String album) {
+        ArrayList<dao.entities.Track> tracks = new ArrayList<>();
         initRequest();
         artist = artist.contains(":") ? "\"" + artist + "\"" : artist;
         album = album.contains(":") ? "\"" + album + "\"" : album;
@@ -79,10 +80,9 @@ public class Spotify {
             Chuu.getLogger().warn(e.getMessage(), e);
         }
         if (returned.equals("")) {
-            return null;
+            return tracks;
         }
         String finalArtist = artist;
-        String finalAlbum = album;
         try {
             return Arrays.stream(spotifyApi.getAlbum(returned).market(CountryCode.NZ).build().execute().getTracks().getItems()).map(x -> {
                 dao.entities.Track track = new dao.entities.Track(finalArtist, x.getName(), 0, false, x.getDurationMs());
@@ -90,7 +90,7 @@ public class Spotify {
                 return track;
             }).collect(Collectors.toList());
         } catch (IOException | SpotifyWebApiException | ParseException e) {
-            return new ArrayList<>();
+            return tracks;
         }
 
     }

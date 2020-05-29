@@ -44,7 +44,7 @@ public class Reactionary<T> extends ReactionListener {
 
     @Override
     public void init() {
-        if (list.size() <= 10)
+        if (list.size() <= pageSize)
             return;
         message.addReaction("U+2B05").submit();
         message.addReaction("U+27A1").submit();

@@ -12,6 +12,7 @@ import core.imagerenderer.TrackDistributor;
 import core.imagerenderer.util.IPieable;
 import core.imagerenderer.util.PieableKnows;
 import core.imagerenderer.util.PieableTrack;
+import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
@@ -224,9 +225,13 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                 break;
             case LIST:
                 StringBuilder a = new StringBuilder();
-                for (int i = 0; i < fullAlbumEntity.getTrackList().size(); i++) {
-                    Track t = fullAlbumEntity.getTrackList().get(i);
-                    a.append(i + 1).append(t.toString());
+                List<String> collect1 = fullAlbumEntity.getTrackList().stream().map(t -> ". " + "[" +
+                        CommandUtil.cleanMarkdownCharacter(t.getName()) +
+                        "](" + CommandUtil.getLastFMArtistTrack(artist, t.getName()) +
+                        ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").collect(Collectors.toList());
+                for (int i = 0; i < collect.size() && i <= 20; i++) {
+                    String s = collect1.get(i);
+                    a.append(i + 1).append(s);
                 }
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                         .setDescription(a)
@@ -236,7 +241,8 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                         .setThumbnail(fullAlbumEntity.getAlbumUrl());
 
                 MessageBuilder mes = new MessageBuilder();
-                e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
+                e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message ->
+                        new Reactionary<>(collect, message, 20, embedBuilder));
                 break;
         }
     }

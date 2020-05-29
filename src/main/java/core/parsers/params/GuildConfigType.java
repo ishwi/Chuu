@@ -23,9 +23,6 @@ public enum GuildConfigType {
 
     private static final Map<String, GuildConfigType> ENUM_MAP;
     private static final Pattern number = Pattern.compile("\\d+");
-    private static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
-    private static final Pattern chartMode = Pattern.compile("(Image|Image-info|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
-    private static final Pattern whoknowsMode = Pattern.compile("(Image|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
 
     static {
         ENUM_MAP = Stream.of(GuildConfigType.values())
@@ -53,10 +50,10 @@ public enum GuildConfigType {
             case CROWNS_THRESHOLD:
                 return number.asMatchPredicate();
             case CHART_MODE:
-                return chartMode.asMatchPredicate();
+                return UserConfigType.chartMode.asMatchPredicate();
             case REMAINING_MODE:
             case WHOKNOWS_MODE:
-                return whoknowsMode.asMatchPredicate();
+                return UserConfigType.whoknowsMode.asMatchPredicate();
             default:
                 return (s) -> true;
         }

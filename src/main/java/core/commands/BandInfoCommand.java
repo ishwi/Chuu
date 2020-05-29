@@ -12,6 +12,7 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.BandRendered;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.PieableBand;
+import core.otherlisteners.Reactionary;
 import core.parsers.ArtistTimeFrameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
@@ -159,17 +160,18 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistTimeFrameParameters
         StringBuilder str = new StringBuilder();
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        List<AlbumUserPlays> list = ai.getAlbumList();
-        for (int i = 0; i < list.size(); i++) {
-            AlbumUserPlays albumUserPlays = list.get(i);
-            str.append(String.format("%d. [%s](%s) - %d plays%n", i + 1, albumUserPlays.getAlbum(), CommandUtil
-                    .getLastFmArtistAlbumUrl(ai.getArtist(), albumUserPlays.getAlbum()), albumUserPlays.getPlays()));
+        List<String> collect = ai.getAlbumList().stream().map(x -> (String.format(".[%s](%s) - %d plays%n", x.getAlbum(), CommandUtil
+                .getLastFmArtistAlbumUrl(ai.getArtist(), x.getAlbum()), x.getPlays()))).collect(Collectors.toList());
+        for (int i = 0; i < collect.size() && i < 10; i++) {
+            String s = collect.get(i);
+            str.append(i + 1).append(s);
         }
         embedBuilder.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.cleanMarkdownCharacter(ai.getArtist()) + " albums" + ap.getTimeFrame().getDisplayString()).
                 setThumbnail(CommandUtil.noImageUrl(ap.getScrobbledArtist().getUrl())).setDescription(str)
                 .setColor(CommandUtil.randomColor());
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel())
-                .queue();
+                .queue(message ->
+                        new Reactionary<>(collect, message, 10, embedBuilder));
     }
 
     private void doPie(ArtistTimeFrameParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, BufferedImage logo) {

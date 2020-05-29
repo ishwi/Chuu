@@ -22,6 +22,17 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
             sendError("Only admins can modify the server configuration", e);
             return null;
         }
+        if (words.length == 1) {
+            String collect = Arrays.stream(GuildConfigType.values()).filter(x -> x.getCommandName().equalsIgnoreCase(words[0])).map(x ->
+                    String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
+            if (collect.isBlank()) {
+                collect = Arrays.stream(GuildConfigType.values()).map(GuildConfigType::getCommandName).collect(Collectors.joining(", "));
+                sendError(words[0] + " is not a valid configuration, use one of the following:\n\t" + collect, e);
+            } else {
+                e.getChannel().sendMessage(collect).queue();
+            }
+            return null;
+        }
         if (words.length != 2) {
             String prefix = e.getMessage().getContentRaw().substring(0, 1);
             String list = GuildConfigType.list(dao, e.getGuild().getIdLong());

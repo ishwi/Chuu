@@ -22,9 +22,9 @@ public enum UserConfigType {
     CHART_MODE("chart"), NOTIFY_IMAGE("image-notify"), PRIVATE_UPDATE("private-update"), WHOKNOWS_MODE("whoknows"), REMAINING_MODE("rest");
 
     private static final Map<String, UserConfigType> ENUM_MAP;
-    private static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
-    private static final Pattern chartMode = Pattern.compile("(Image|Image-info|Image-Aside|Image-aside-info|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
-    private static final Pattern whoknowsMode = Pattern.compile("(Image|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
+     static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
+     static final Pattern chartMode = Pattern.compile("(Image|Image-info|Image-Aside|Image-aside-info|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
+     static final Pattern whoknowsMode = Pattern.compile("(Image|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
 
 
     static {
