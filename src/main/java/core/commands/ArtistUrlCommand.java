@@ -51,6 +51,9 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
         ArtistUrlParameters params = parser.parse(e);
+        if (params == null) {
+            return;
+        }
         LastFMData lastFMData = params.getLastFMData();
         if (lastFMData.getRole().equals(Role.IMAGE_BLOCKED)) {
             sendMessageQueue(e, "You don't have enough permissions to add an image!");

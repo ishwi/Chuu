@@ -41,8 +41,9 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
         UrlParameters params = parser.parse(e);
-        if (params == null)
+        if (params == null) {
             return;
+        }
         String url = params.getUrl();
         if (url.length() == 0) {
             //get randomurl
@@ -57,6 +58,7 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
         }
         //add url
         Long guildId = CommandUtil.getGuildIdConsideringPrivateChannel(e);
+        //getService().findLastFMData(e.getAuthor().getIdLong());
 
         if (!getService().addToRandomPool(new RandomUrlEntity(url, e.getAuthor().getIdLong(), guildId))) {
             sendMessageQueue(e, String.format("The provided url: %s was already on the pool", url));

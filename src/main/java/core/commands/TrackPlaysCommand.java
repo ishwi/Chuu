@@ -55,6 +55,6 @@ public class TrackPlaysCommand extends AlbumPlaysCommand {
         int plays = trackInfo.getPlays();
         String ending = plays == 1 ? "time " : "times";
 
-        sendMessageQueue(e, String.format("**%s** has listened **%s** %d %s", usernameString, song, plays, ending));
+        sendMessageQueue(e, String.format("**%s** has listened **%s** %d %s", usernameString, CommandUtil.cleanMarkdownCharacter(song), plays, ending));
     }
 }

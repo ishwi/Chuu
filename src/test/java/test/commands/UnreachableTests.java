@@ -1,5 +1,6 @@
 package test.commands;
 
+import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ExceptionEntity;
 import core.commands.NPSpotifyCommand;
 import core.exceptions.InstanceNotFoundException;
@@ -18,11 +19,11 @@ import test.commands.utils.TestResources;
 import java.util.Optional;
 
 public class UnreachableTests {
-	@ClassRule
-	public static final TestRule res = TestResources.INSTANCE;
+    @ClassRule
+    public static final TestRule res = TestResources.INSTANCE;
 
-	@Test(expected = NullPointerException.class)
-	public void spotifyNpSearch() {
+    @Test(expected = NullPointerException.class)
+    public void spotifyNpSearch() {
         Optional<NPSpotifyCommand> any = TestResources.ogJDA.getRegisteredListeners().stream()
                 .filter(x -> x instanceof NPSpotifyCommand).map(x -> (NPSpotifyCommand) x).findAny();
         assert any.isPresent();
@@ -34,33 +35,33 @@ public class UnreachableTests {
 
     }
 
-	@Test(expected = UnsupportedOperationException.class)
-	public void noOpParserParsing() throws LastFmException, InstanceNotFoundException {
-		NoOpParser noOpParser = new NoOpParser();
-		noOpParser.parseLogic(null, null);
-	}
+    @Test(expected = UnsupportedOperationException.class)
+    public void noOpParserParsing() throws LastFmException, InstanceNotFoundException {
+        NoOpParser noOpParser = new NoOpParser();
+        noOpParser.parseLogic(null, null);
+    }
 
-	@Test
-	public void OptionalEntityEquals() {
-		OptionalEntity optionalEntity = new OptionalEntity("--test", "testdef");
-		Assert.assertEquals(optionalEntity, optionalEntity);
-		Assert.assertNotEquals(optionalEntity, optionalEntity.getDefinition());
-		Assert.assertNotEquals(null, optionalEntity);
-		Assert.assertNotEquals(this, optionalEntity);
-	}
+    @Test
+    public void OptionalEntityEquals() {
+        OptionalEntity optionalEntity = new OptionalEntity("--test", "testdef");
+        Assert.assertEquals(optionalEntity, optionalEntity);
+        Assert.assertNotEquals(optionalEntity, optionalEntity.getDefinition());
+        Assert.assertNotEquals(null, optionalEntity);
+        Assert.assertNotEquals(this, optionalEntity);
+    }
 
 
-	@Test
-	public void gettersSettersExeption() {
-		ExceptionEntity exceptionEntity = new ExceptionEntity("artist", "album");
-		ExceptionEntity exceptionEntity1 = new ExceptionEntity("username");
-		Assert.assertEquals(exceptionEntity.getArtistName(), "artist");
-		Assert.assertEquals(exceptionEntity.getAlbumName(), "album");
-		Assert.assertEquals(exceptionEntity1.getUserName(), "username");
+    @Test
+    public void gettersSettersExeption() {
+        AlbumException exceptionEntity = new AlbumException("artist", "album");
+        ExceptionEntity exceptionEntity1 = new ExceptionEntity("username");
+        Assert.assertEquals(exceptionEntity.getArtist(), "artist");
+        Assert.assertEquals(exceptionEntity.getAlbum(), "album");
+        Assert.assertEquals(exceptionEntity1.getUserName(), "username");
 
-		UrlParser urlParser = new UrlParser();
-		PrefixParser prefixParser = new PrefixParser();
-	}
+        UrlParser urlParser = new UrlParser();
+        PrefixParser prefixParser = new PrefixParser();
+    }
 
 
 }

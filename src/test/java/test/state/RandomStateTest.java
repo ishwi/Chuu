@@ -1,6 +1,7 @@
 package test.state;
 
 import core.parsers.RandomAlbumParser;
+import core.parsers.params.UrlParameters;
 import dao.entities.RandomUrlEntity;
 import org.graphwalker.core.condition.EdgeCoverage;
 import org.graphwalker.core.generator.RandomPath;
@@ -153,9 +154,9 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
 
         RandomAlbumParser randomAlbumParser = new RandomAlbumParser();
         try {
-            //String[] received = randomAlbumParser.parseLogic(null, new String[]{peek});
+            UrlParameters received = randomAlbumParser.parseLogic(null, new String[]{peek});
             formatQueue.poll();
-            formatQueue.add(received[0]);
+            formatQueue.add(received.getUrl());
             isMessageValid = true;
         }
         //A error message was tried to be sent so it means an error occured because we are sending null as MessageReceivedEvent

@@ -57,10 +57,12 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
         List<UrlCapsule> urlCapsules = queue.setUp();
 
         ChartMode effectiveMode = getEffectiveMode(chartGroupParameters);
+        if (!(effectiveMode.equals(ChartMode.IMAGE) && chartGroupParameters.chartMode().equals(ChartMode.IMAGE))) {
+            int sum = urlCapsules.stream().mapToInt(x -> ((TrackDurationChart) x).getSeconds()).sum();
+            countWrapper.setRows(sum);
+        }
         switch (effectiveMode) {
-            default:
-                int sum = urlCapsules.stream().mapToInt(x -> ((TrackDurationChart) x).getSeconds()).sum();
-                countWrapper.setRows(sum);
+         
             case LIST:
                 doList(urlCapsules, chartGroupParameters, countWrapper.getRows());
                 return;

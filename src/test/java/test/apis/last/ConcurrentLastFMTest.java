@@ -109,7 +109,7 @@ public class ConcurrentLastFMTest {
     }
 
     @Test
-    public void notExistingArtist() {
+    public void notExistingArtist() throws LastFmException {
 
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
         assertEquals(lastFM.getCorrection("aiusdhbniaubnscinabsiuc"), "aiusdhbniaubnscinabsiuc");

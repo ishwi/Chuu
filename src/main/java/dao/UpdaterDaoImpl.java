@@ -384,7 +384,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public RandomUrlEntity getRandomUrl(Connection con) {
         String queryString = "SELECT * FROM randomlinks WHERE discord_id IN \n" +
-                "(SELECT discord_id FROM (SELECT discord_id,count(*)   ,log(count(*) + 1)  / log(1-rand())  AS ra FROM randomlinks GROUP BY discord_id having COUNT(*) > 0 ORDER BY ra LIMIT 1) t)  \n" +
+                "(SELECT discord_id FROM (SELECT discord_id,count(*)   , -log(1-rand()) / log(count(*) + 1)    AS ra FROM randomlinks GROUP BY discord_id having COUNT(*) > 0 ORDER BY ra LIMIT 1) t) or discord_id is null  \n" +
                 " ORDER BY rand() LIMIT 1;";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 

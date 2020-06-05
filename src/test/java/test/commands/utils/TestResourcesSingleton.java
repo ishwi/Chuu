@@ -2,11 +2,9 @@ package test.commands.utils;
 
 import core.Chuu;
 import core.commands.CustomInterfacedEventManager;
+import core.exceptions.ChuuServiceException;
 import dao.ChuuService;
-import dao.entities.ArtistPlays;
-import dao.entities.LastFMData;
-import dao.entities.ScrobbledArtist;
-import dao.entities.UniqueWrapper;
+import dao.entities.*;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -41,9 +39,9 @@ public class TestResourcesSingleton extends ExternalResource {
     public static String testerJdaUsername;
     private final AtomicBoolean started = new AtomicBoolean();
 
-	public static void deleteCommonArtists() {
+    public static void deleteCommonArtists() {
         dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong(), setUp, imageNotify, additionalEmbedChart, chartMode, remainingImagesMode));
+                .getGuild().getIdLong(),setUp, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
         dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -60,7 +58,7 @@ public class TestResourcesSingleton extends ExternalResource {
 
     public static void insertCommonArtistWithPlays(int plays) {
         dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong(), setUp, imageNotify, additionalEmbedChart, chartMode, remainingImagesMode));
+                .getGuild().getIdLong(), true, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         scrobbledArtistData.add(new ScrobbledArtist("guilleecs", commonArtist, plays));
         dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
@@ -94,29 +92,29 @@ public class TestResourcesSingleton extends ExternalResource {
             developerId = Long.parseLong(properties.getProperty("DEVELOPER_ID"));
 
             JDABuilder builder = new JDABuilder(AccountType.BOT).setEventManager(new CustomInterfacedEventManager());
-			try {
-				testerJDA = builder.setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
-						.build().awaitReady();
-			} catch (LoginException | InterruptedException e) {
-				e.printStackTrace();
-			}
+            try {
+                testerJDA = builder.setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
+                        .build().awaitReady();
+            } catch (LoginException | InterruptedException e) {
+                e.printStackTrace();
+            }
 
-			Chuu.setupBot(true);
-			ogJDA = Chuu.getPresence().getJDA();
+            Chuu.setupBot(true);
+            ogJDA = Chuu.getPresence().getJDA();
 
-			Guild testing_server = testerJDA.getGuildById(properties.getProperty("TESTING_SERVER"));
-			assert (testing_server != null);
+            Guild testing_server = testerJDA.getGuildById(properties.getProperty("TESTING_SERVER"));
+            assert (testing_server != null);
 
-			channelWorker = testing_server.getDefaultChannel();
-			assert (channelWorker != null);
-			channelId = channelWorker.getIdLong();
-			deleteAllMessage(channelWorker);
+            channelWorker = testing_server.getDefaultChannel();
+            assert (channelWorker != null);
+            channelId = channelWorker.getIdLong();
+            deleteAllMessage(channelWorker);
 
-			//Setting up one bot
-			long id = channelWorker.sendMessage("!set pablopita").complete().getIdLong();
-			await().atMost(2, TimeUnit.MINUTES).until(() ->
-			{
-				MessageHistory complete = channelWorker.getHistoryAfter(id, 20).complete();
+            //Setting up one bot
+            long id = channelWorker.sendMessage("!set pablopita").complete().getIdLong();
+            await().atMost(2, TimeUnit.MINUTES).until(() ->
+            {
+                MessageHistory complete = channelWorker.getHistoryAfter(id, 20).complete();
                 if (complete.getRetrievedHistory().size() == 3) {
                     return true;
                 }
@@ -141,9 +139,9 @@ public class TestResourcesSingleton extends ExternalResource {
             testerJdaUsername = first.get().getEffectiveName();
             setUp = true;
         }
-	}
+    }
 
-	@Override
-	protected void after() {
-	}
+    @Override
+    protected void after() {
+    }
 }

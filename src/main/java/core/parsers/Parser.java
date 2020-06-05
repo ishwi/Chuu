@@ -4,12 +4,16 @@ import core.commands.CommandUtil;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
+import javacutils.Pair;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class Parser<T extends CommandParameters> {
     final Map<Integer, String> errorMessages = new HashMap<>(10);
@@ -33,6 +37,19 @@ public abstract class Parser<T extends CommandParameters> {
 
     protected abstract void setUpErrorMessages();
 
+    public <Y> Pair<String[], Y>
+
+    filterMessage(String[] ogMessage, Predicate<String> filter, Function<String, Y> mappingFuntion, Y defualt) {
+        Stream<String> secondStream = Arrays.stream(ogMessage).filter(filter);
+        Y apply = defualt;
+        Optional<String> opt2 = secondStream.findAny();
+        if (opt2.isPresent()) {
+            apply = mappingFuntion.apply(opt2.get());
+            ogMessage = Arrays.stream(ogMessage).filter(s -> !s.equals(opt2.get())).toArray(String[]::new);
+        }
+        return Pair.of(ogMessage, apply);
+
+    }
 
     public T parse(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         String[] subMessage = getSubMessage(e.getMessage());

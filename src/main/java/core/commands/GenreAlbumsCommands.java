@@ -42,7 +42,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
 
     @Override
     public String getDescription() {
-        return "Searches Musicbrainz for artists that match the given tag (Should be coherent with the genre command)";
+        return "Searches Musicbrainz for albums that match the given tag (Should be coherent with the genre command)";
     }
 
     @Override
@@ -98,7 +98,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
     @Override
     public String configPieChart(PieChart pieChart, ChartableGenreParameters params, int count, String initTitle) {
         String time = params.getTimeFrameEnum().getDisplayString();
-        pieChart.setTitle("'s top " + params.getGenreParameters().getGenre() + " albums " + time);
+        pieChart.setTitle(initTitle + "'s top " + params.getGenreParameters().getGenre() + " albums " + time);
         return String.format("%s has listened to %d %s albums%s (showing top %d)", initTitle, count, params.getGenreParameters().getGenre(), time, params.getX() * params.getY());
     }
 

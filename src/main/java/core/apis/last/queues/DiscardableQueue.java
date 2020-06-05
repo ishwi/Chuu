@@ -66,7 +66,7 @@ public class DiscardableQueue implements BlockingQueue<UrlCapsule> {
                     }
                 }
             }
-            return null;
+            return 0;
         }).toCompletableFuture();
         return taskQueue.offer(future);
     }

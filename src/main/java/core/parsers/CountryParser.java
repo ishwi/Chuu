@@ -94,7 +94,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
 
     @Override
     public String getUsageLogic(String commandName) {
-        return commandName + " *country* *[d,w,m,q,s,y,a]* *username*** \n" +
+        return "**" + commandName + " *country* *[d,w,m,q,s,y,a]* *username*** \n" +
                 "\tIf the username it's not provided it defaults to authors account, only ping and tag format (user#number)" +
                 "\n\tIf the timeframe it's not specified it defaults to All-Time" +
                 "\n\tCountry must come in the full name format or in the ISO 3166-1 alpha-2/alpha-3" +

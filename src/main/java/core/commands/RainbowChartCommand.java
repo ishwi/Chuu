@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 // Credits to http://thechurchofkoen.com/ for the idea and allowing me to do this command
 public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
-    private final AtomicInteger maxConcurrency = new AtomicInteger(3);
+    private final AtomicInteger maxConcurrency = new AtomicInteger(4);
     private final DiscogsApi discogsApi;
     private final Spotify spotifyApi;
 

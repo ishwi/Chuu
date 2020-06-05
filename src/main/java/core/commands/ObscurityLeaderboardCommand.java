@@ -1,15 +1,22 @@
 package core.commands;
 
+import core.Chuu;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
+    private final AtomicInteger maxConcurrency = new AtomicInteger(4);
+
     public ObscurityLeaderboardCommand(ChuuService dao) {
         super(dao);
     }
@@ -44,6 +51,25 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParam
     public List<LbEntry> getList(CommandParameters params) {
         return getService().getObscurityRankings(params.getE().getGuild().getIdLong());
 
+    }
+
+    @Override
+    void handleCommand(MessageReceivedEvent e) {
+        if (maxConcurrency.decrementAndGet() == 0) {
+            sendMessageQueue(e, "There are a lot of people executing this command right now, try again later :(");
+            maxConcurrency.incrementAndGet();
+        } else {
+            CompletableFuture<Message> future = null;
+            try {
+                future = sendMessage(e, "Obscurity command can take a really long time :(").submit();
+                super.handleCommand(e);
+            } catch (Throwable ex) {
+                Chuu.getLogger().warn(ex.getMessage(), ex);
+            } finally {
+                maxConcurrency.incrementAndGet();
+                CommandUtil.handleConditionalMessage(future);
+            }
+        }
     }
 
 

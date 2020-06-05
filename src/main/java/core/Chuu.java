@@ -325,7 +325,8 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new CoverCommand(dao)))
                 .addEventListeners(help.registerCommand(new LastFmLinkCommand(dao)))
                 .addEventListeners(help.registerCommand(new GenreInfoCommand(dao)))
-                .addEventListeners(help.registerCommand(new GenreAlbumsCommands(dao)));
+                .addEventListeners(help.registerCommand(new GenreAlbumsCommands(dao)))
+                .addEventListeners(help.registerCommand(new GayCommand(dao)));
 
 
         try {
@@ -355,17 +356,11 @@ public class Chuu {
     private static void initDisabledCommands(ChuuService dao, JDA jda) {
         Map<String, MyCommand<?>> commandsByName = jda.getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).collect(Collectors.toMap(MyCommand::getName, x -> x));
         MultiValuedMap<Long, String> serverDisables = dao.initServerCommandStatuses();
-        serverDisables.entries().forEach(x -> {
-            Chuu.disabledServersMap.put(x.getKey(), commandsByName.get(x.getValue()));
-        });
+        serverDisables.entries().forEach(x -> Chuu.disabledServersMap.put(x.getKey(), commandsByName.get(x.getValue())));
         MultiValuedMap<Pair<Long, Long>, String> channelDisables = dao.initServerChannelsCommandStatuses(false);
-        channelDisables.entries().forEach(x -> {
-            Chuu.disabledChannelsMap.put(x.getKey(), commandsByName.get(x.getValue()));
-        });
+        channelDisables.entries().forEach(x -> Chuu.disabledChannelsMap.put(x.getKey(), commandsByName.get(x.getValue())));
         MultiValuedMap<Pair<Long, Long>, String> channelEnables = dao.initServerChannelsCommandStatuses(true);
-        channelEnables.entries().forEach(x -> {
-            Chuu.enabledChannelsMap.put(x.getKey(), commandsByName.get(x.getValue()));
-        });
+        channelEnables.entries().forEach(x -> Chuu.enabledChannelsMap.put(x.getKey(), commandsByName.get(x.getValue())));
 
     }
 

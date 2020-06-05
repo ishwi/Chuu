@@ -41,7 +41,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> getParser() {
-        OnlyUsernameParser parser = new OnlyUsernameParser(getService(), new OptionalEntity("--image", "display in list format"));
+        OnlyUsernameParser parser = new OnlyUsernameParser(getService(), new OptionalEntity("--list", "display in list format"));
         parser.setExpensiveSearch(true);
         return parser;
     }

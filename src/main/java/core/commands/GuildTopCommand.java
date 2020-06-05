@@ -58,8 +58,10 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartSizeParameters gp) {
+        ChartMode effectiveMode = getEffectiveMode(gp);
         ResultWrapper<ScrobbledArtist> guildTop = getService().getGuildTop(gp.hasOptional("--global") ? null : gp.getE().getGuild().getIdLong(),
-                gp.getX() * gp.getY(), (gp.isList() || gp.isPieFormat()));
+                gp.getX() * gp.getY(),
+                !(effectiveMode.equals(ChartMode.IMAGE) && gp.chartMode().equals(ChartMode.IMAGE) || gp.chartMode().equals(ChartMode.IMAGE_ASIDE)));
         AtomicInteger counter = new AtomicInteger(0);
         BlockingQueue<UrlCapsule> collect = guildTop.getResultList().stream().sorted(Comparator.comparingInt(ScrobbledArtist::getCount).reversed()).
                 map(x ->
@@ -89,13 +91,10 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartSizeParameters params, int count) {
         String titleInit = "'s top artists";
         String footerText = " has listened to " + count + " artists";
-        if (params.chartMode().equals(ChartMode.IMAGE_INFO)) {
-            String name = params.getE().getGuild().getName();
-            return embedBuilder.setAuthor(name + titleInit,
-                    null, params.getE().getGuild().getIconUrl())
-                    .setFooter(CommandUtil.markdownLessString(name) + footerText).setColor(CommandUtil.randomColor());
-        }
-        return params.initEmbed(titleInit, embedBuilder, footerText, params.getLastfmID());
+        String name = params.getE().getGuild().getName();
+        return embedBuilder.setAuthor(name + titleInit,
+                null, params.getE().getGuild().getIconUrl())
+                .setFooter(CommandUtil.markdownLessString(name) + footerText).setColor(CommandUtil.randomColor());
     }
 
     @Override

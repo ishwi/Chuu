@@ -724,7 +724,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             int counter = 0;
             while (resultSet.next()) {
                 counter++;
-                if (counter < limit) {
+                if (counter <= limit) {
                     String name = resultSet.getString("c.name");
                     int countA = resultSet.getInt("a.playNumber");
                     int countB = resultSet.getInt("b.playNumber");
@@ -733,7 +733,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 }
             }
 
-            return new ResultWrapper<>(returnList.size(), returnList);
+            return new ResultWrapper<>(counter, returnList);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

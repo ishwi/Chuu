@@ -35,10 +35,10 @@ public class AllPlayingCommand extends ConcurrentCommand<CommandParameters> {
         super(dao);
 
         this.respondInPrivate = false;
-        controlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(1, TimeUnit.DAYS).build(
+        controlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(12, TimeUnit.HOURS).build(
                 new CacheLoader<>() {
                     public LocalDateTime load(@NotNull Long guild) {
-                        return LocalDateTime.now().plus(1, ChronoUnit.DAYS);
+                        return LocalDateTime.now().plus(12, ChronoUnit.HOURS);
                     }
                 });
     }
@@ -80,7 +80,7 @@ public class AllPlayingCommand extends ConcurrentCommand<CommandParameters> {
                 now = now.plus(hours, ChronoUnit.HOURS);
                 long minutes = now.until(ifPresent, ChronoUnit.MINUTES);
 
-                sendMessageQueue(e, "This server has too many user, so the playing command can only be executed once per day (usable in " + hours + ":" + minutes + "h)");
+                sendMessageQueue(e, "This server has too many user, so the playing command can only be executed twice per day (usable in " + hours + " hours and " + minutes + " minutes)");
                 return;
             } else {
                 controlAccess.refresh(e.getGuild().getIdLong());
