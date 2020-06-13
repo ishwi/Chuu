@@ -1,10 +1,9 @@
 package core.commands;
 
 import core.otherlisteners.Reactionary;
-import core.parsers.OnlyUsernameParser;
-import core.parsers.OptionalEntity;
-import core.parsers.Parser;
+import core.parsers.*;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.CrownableArtist;
 import dao.entities.DiscordUserDisplay;
@@ -12,10 +11,14 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CrownableCommand extends ListCommand<CrownableArtist, ChuuDataParams> {
+import static core.parsers.ExtraParser.LIMIT_ERROR;
+
+public class CrownableCommand extends ListCommand<CrownableArtist, NumberParameters<ChuuDataParams>> {
 
     public CrownableCommand(ChuuService dao) {
         super(dao);
@@ -28,22 +31,40 @@ public class CrownableCommand extends ListCommand<CrownableArtist, ChuuDataParam
     }
 
     @Override
-    public Parser<ChuuDataParams> getParser() {
+    public Parser<NumberParameters<ChuuDataParams>> getParser() {
+
+        Map<Integer, String> map = new HashMap<>(2);
+        map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
+        String s = "You can also introduce the playcount to only show crowns achievable within that number of plays, defaults to a number big enough to not filter anything";
         OnlyUsernameParser onlyUsernameParser = new OnlyUsernameParser(getService());
-        onlyUsernameParser.addOptional(new OptionalEntity("--nofirst", "To show only the artists in which you are not first"));
-        onlyUsernameParser.addOptional(new OptionalEntity("--server", "to make the ranking only count for this server"));
-        return onlyUsernameParser;
+        onlyUsernameParser.addOptional(new OptionalEntity("--nofirst", "show only the artists in which you are not first"));
+        onlyUsernameParser.addOptional(new OptionalEntity("--server", "make the ranking only count for this server"));
+        onlyUsernameParser.addOptional(new OptionalEntity("--secondonly", "make the ranking only count for this server"));
+        onlyUsernameParser.addOptional(new OptionalEntity("--second", "do the same as --secondonly"));
+        onlyUsernameParser.addOptional(new OptionalEntity("--onlysecond", "do the same as --secondonly"));
+
+        onlyUsernameParser.addOptional(new OptionalEntity("--server", "make the ranking only count for this server"));
+
+        return new NumberParser<>(onlyUsernameParser,
+                (long) Integer.MAX_VALUE,
+                Integer.MAX_VALUE,
+                map, s, false, true, false);
+    }
+
+
+    @Override
+    public List<CrownableArtist> getList(NumberParameters<ChuuDataParams> outerParams) {
+        ChuuDataParams params = outerParams.getInnerParams();
+        Long guildId = params.getE().isFromGuild() ? outerParams.hasOptional("--server") ? params.getE().getGuild().getIdLong() : null : null;
+        boolean onlySecond = outerParams.hasOptional("--secondonly") || outerParams.hasOptional("--second") || outerParams.hasOptional("--onlysecond");
+        int crownDistance = Math.toIntExact(outerParams.getExtraParam());
+        return getService().getCrownable(params.getLastFMData().getDiscordId(), guildId, crownDistance != Integer.MAX_VALUE || outerParams.hasOptional("--nofirst"), onlySecond, crownDistance);
     }
 
     @Override
-    public List<CrownableArtist> getList(ChuuDataParams params) {
-        Long guildId = params.getE().isFromGuild() ? params.hasOptional("--server") ? params.getE().getGuild().getIdLong() : null : null;
-        return getService().getCrownable(params.getLastFMData().getDiscordId(), guildId, params.hasOptional("--nofirst"));
-    }
-
-    @Override
-    public void printList(List<CrownableArtist> list, ChuuDataParams params) {
-        MessageReceivedEvent e = params.getE();
+    public void printList(List<CrownableArtist> list, NumberParameters<ChuuDataParams> outerParmams) {
+        MessageReceivedEvent e = outerParmams.getE();
+        ChuuDataParams params = outerParmams.getInnerParams();
         if (list.isEmpty()) {
             sendMessageQueue(e, "Found no users :(");
             return;
@@ -62,7 +83,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, ChuuDataParam
                         x.getRank(),
                         x.getTotalListeners(),
                         x.getPlayNumber(),
-                        x.getRank() != 1 ? "(need " + (x.getMaxPlaynumber() - x.getPlayNumber()) + " more plays for first)" : "")
+                        x.getRank() != 1 ? "(need " + (x.getMaxPlaynumber() - x.getPlayNumber() + 1) + " more plays for first)" : "")
         ).collect(Collectors.toList());
         for (int i = 0; i < 10 && i < collect.size(); i++) {
             a.append(i + 1).append(collect.get(i));
@@ -73,11 +94,24 @@ public class CrownableCommand extends ListCommand<CrownableArtist, ChuuDataParam
         } else {
             s = params.getE().getJDA().getSelfUser().getName();
         }
+        boolean onlySecond = outerParmams.hasOptional("--secondonly") || outerParmams.hasOptional("--second") || outerParmams.hasOptional("--onlysecond");
+
         String thumbnail = isServer && e.isFromGuild() ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl();
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(params.getE(), params.getLastFMData().getDiscordId());
+        String footer;
+        String conditionalFiltering = outerParmams.getExtraParam() != Integer.MAX_VALUE ? "and you are less than " + outerParmams.getExtraParam() + " plays away from first" : "";
+        if (onlySecond) {
+            footer = String.format("Displaying artist where %s is the second top listener %s in %s", uInfo.getUsername(), conditionalFiltering, s);
+        } else if (outerParmams.hasOptional("--nofirst")) {
+            footer = String.format("Displaying artist where %s is yet to be the top listener %s in %s", uInfo.getUsername(), conditionalFiltering, s);
+        } else {
+            footer = String.format("Displaying rank of %s's artist %s in %s", uInfo.getUsername(), conditionalFiltering, s);
+        }
         embedBuilder.setDescription(a)
+                .setFooter("")
                 .setAuthor(String.format("%s's artist resume in %s", (uInfo.getUsername()), s), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
-                .setThumbnail(thumbnail);
+                .setThumbnail(thumbnail)
+                .setFooter(footer);
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
                 new Reactionary<>(collect, message, embedBuilder));
     }

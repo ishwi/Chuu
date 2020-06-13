@@ -46,7 +46,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public String getDescription() {
-        return "Keeps you up to date ";
+        return "Keeps you up to date";
     }
 
     @Override
@@ -107,11 +107,11 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
             } catch (LastFMNoPlaysException ex) {
                 getService().updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
                         (int) (Instant.now().getEpochSecond() + 4000));
-                sendMessageQueue(e, "You were already up to date!");
+                sendMessageQueue(e, "You were already up to date! If you consider you are not really up to date run this command again with **`--force`**");
                 return;
             }
         }
-        sendMessageQueue(e, "Successfully updated " + userString + " info !");
+        sendMessageQueue(e, "Successfully updated " + userString + " info!");
 
 
     }

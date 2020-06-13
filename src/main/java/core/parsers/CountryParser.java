@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 public class CountryParser extends DaoParser<CountryParameters> {
@@ -70,12 +71,18 @@ public class CountryParser extends DaoParser<CountryParameters> {
                 if (opt.isPresent()) {
                     country = CountryCode.getByAlpha3Code(opt.get().getISO3Country());
                 } else {
-                    List<CountryCode> byName = CountryCode.findByName(Pattern.compile(".*" + countryCode + ".*")).stream()
-                            .filter(x -> !x.getName().equalsIgnoreCase("Undefined")).collect(Collectors.toList());
-                    if (byName.isEmpty()) {
-                        country = null;
-                    } else {
-                        country = byName.get(0);
+                    try {
+                        List<CountryCode> byName = CountryCode.findByName(Pattern.compile(".*" + countryCode + ".*")).stream()
+                                .filter(x -> !x.getName().equalsIgnoreCase("Undefined")).collect(Collectors.toList());
+
+                        if (byName.isEmpty()) {
+                            country = null;
+                        } else {
+                            country = byName.get(0);
+                        }
+                    } catch (PatternSyntaxException ex) {
+                        sendError("The provided regex is not a valid one according to Java :(", e);
+                        return null;
                     }
                 }
             }

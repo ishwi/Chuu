@@ -49,9 +49,6 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (!resultSet.next()) {
-                return new UniqueWrapper<>(0, 0, lastfmId, returnList);
-            }
 
             while (resultSet.next()) {
 
@@ -466,7 +463,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public List<CrownableArtist> getCrownable(Connection connection, Long discordId, Long guildId, boolean skipCrowns) {
+    public List<CrownableArtist> getCrownable(Connection connection, Long discordId, Long guildId, boolean skipCrowns, boolean onlySecond, int crownDistance) {
         List<CrownableArtist> list = new ArrayList<>();
         String guildQuery;
         if (guildId != null) {
@@ -507,8 +504,11 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                     "                 ON temp_2.artist_id = inn.artist_id \n" +
                     "        GROUP  BY temp_2.artist_id \n" +
                     "        ORDER  BY temp_2.playnumber DESC) main \n" +
-                    "WHERE  rank != 1 \n" +
-                    "        or not ? \n" +
+                    "WHERE" +
+                    "(? and rank = 2 or ((not ?) and\n" +
+                    "                        ? and rank != 1 or \n" +
+                    "                        not ? and not ?)) " +
+                    "and (maxPlays - plays < ?) " +
                     "LIMIT  500 ";
         } else {
             guildQuery = "Select * from (SELECT temp_2.name as name, temp_2.artist_id as artist , \n" +
@@ -530,8 +530,12 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                     "GROUP  BY temp_2.artist_id \n" +
                     "ORDER  BY temp_2.playnumber DESC \n" +
                     ") main " +
-                    " where rank != 1 or not ? " +
-                    "limit 500;";
+                    " where " +
+                    "(? and rank = 2 or ((not ?) and\n" +
+                    "                        ? and rank != 1 or \n" +
+                    "                        not ? and not ?))  " +
+                    "and (maxPlays - plays < ?) " +
+                    " limit 500;";
         }
 
 
@@ -544,7 +548,12 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 preparedStatement1.setLong(i++, guildId);
             }
             preparedStatement1.setLong(i++, discordId);
+            preparedStatement1.setBoolean(i++, onlySecond);
+            preparedStatement1.setBoolean(i++, onlySecond);
             preparedStatement1.setBoolean(i++, skipCrowns);
+            preparedStatement1.setBoolean(i++, onlySecond);
+            preparedStatement1.setBoolean(i++, skipCrowns);
+            preparedStatement1.setInt(i, crownDistance);
 
 
             ResultSet resultSet1 = preparedStatement1.executeQuery();

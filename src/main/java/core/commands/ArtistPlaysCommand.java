@@ -6,6 +6,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
+import dao.entities.ArtistSummary;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -52,10 +53,11 @@ public class ArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
         long whom = returned.getLastFMData().getDiscordId();
         int a;
         LastFMData data = returned.getLastFMData();
-        a = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data.getName()).getUserPlayCount();
+        ArtistSummary artistSummary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data.getName());
+        a = artistSummary.getUserPlayCount();
         String usernameString = getUserString(e, whom, data.getName());
         String ending = a != 1 ? "times" : "time";
-        sendMessageQueue(e, "**" + usernameString + "** has scrobbled **" + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()) + " " + a + "** " + ending);
+        sendMessageQueue(e, "**" + usernameString + "** has scrobbled **" + CommandUtil.cleanMarkdownCharacter(artistSummary.getArtistname()) + " " + a + "** " + ending);
 
     }
 }

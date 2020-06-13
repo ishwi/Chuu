@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
+import javax.validation.constraints.NotNull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -59,7 +60,7 @@ public class CommandUtil {
         return null;
     }
 
-    public static String updateUrl(DiscogsApi discogsApi, ScrobbledArtist scrobbledArtist, ChuuService dao, Spotify spotify) {
+    public static String updateUrl(DiscogsApi discogsApi, @NotNull ScrobbledArtist scrobbledArtist, ChuuService dao, Spotify spotify) {
         String newUrl = null;
         try {
             newUrl = discogsApi.findArtistImage(scrobbledArtist.getArtist());

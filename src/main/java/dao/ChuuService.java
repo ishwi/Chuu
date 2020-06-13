@@ -1143,10 +1143,10 @@ public class ChuuService {
         }
     }
 
-    public List<CrownableArtist> getCrownable(Long discordId, Long guildId, boolean skipCrownws) {
+    public List<CrownableArtist> getCrownable(Long discordId, Long guildId, boolean skipCrownws, boolean onlySecond, int crownDistance) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getCrownable(connection, discordId, guildId, skipCrownws);
+            return queriesDao.getCrownable(connection, discordId, guildId, skipCrownws, onlySecond, crownDistance);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

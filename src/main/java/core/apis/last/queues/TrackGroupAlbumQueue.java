@@ -62,14 +62,14 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
         Map<String, UrlCapsule> urlMap = this.albumEntities.stream()
                 .filter(x -> !x.getUrl().isBlank() && !x.getUrl().equals(defaultTrackImage))
                 .collect(Collectors.toMap(UrlCapsule::getUrl, o -> o));
-        Map<String, List<UrlCapsule>> collect1 = artistMap.values()
+        Map<String, List<UrlCapsule>> possibleAlbumsUrl = artistMap.values()
                 .stream()
                 .filter(x -> !x.getUrl().isBlank() && !x.getUrl().equals(defaultTrackImage))
                 .collect(Collectors.groupingBy(UrlCapsule::getUrl));
 
         List<UrlCapsule> mbidGrouped = new ArrayList<>();
 
-        for (List<UrlCapsule> value : collect1.values()) {
+        for (List<UrlCapsule> value : possibleAlbumsUrl.values()) {
             value.forEach(x -> x.setAlbumName(""));
             List<UrlCapsule> albumsGruoped = TrackDurationAlbumArtistChart.getGrouped(value);
             UrlCapsule urlCapsule = albumsGruoped.get(0);
@@ -78,7 +78,7 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
 
             mbidGrouped.addAll(albumsGruoped);
         }
-        Set<UrlCapsule> tracksFoundByURL = collect1.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+        Set<UrlCapsule> tracksFoundByURL = possibleAlbumsUrl.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
         artistMap.entrySet().removeIf(x -> tracksFoundByURL.contains(x.getValue()));
 
         Map<Boolean, List<UrlCapsule>> partitioned = new ArrayList<>(artistMap.values()).stream().collect(Collectors.partitioningBy(x -> !x.getMbid().isBlank()));

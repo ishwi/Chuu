@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GayParser extends ChartableParser<GayParams> {
-    private final static Pattern gayRegex = Pattern.compile("((lgtb).*|(gay)|(bi)(?:sexaul)?|(trans)(?:exual)?)", Pattern.CASE_INSENSITIVE);
+    private final static Pattern gayRegex = Pattern.compile("((lgtb).*|(gay)|(bi)(?:sexual)?|(trans)(?:exual)?)", Pattern.CASE_INSENSITIVE);
 
     public GayParser(ChuuService service, TimeFrameEnum defaultTimeFrame) {
         super(service, defaultTimeFrame);

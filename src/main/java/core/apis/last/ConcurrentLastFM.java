@@ -1200,10 +1200,14 @@ public class ConcurrentLastFM {//implements LastFMService {
             JSONObject obj = doMethod(method, new ArtistException(genre));
             JSONObject tag = obj.getJSONObject("tag");
             String summary = tag.getJSONObject("wiki").getString("content");
-            int i = summary.indexOf("<a");
-            summary = summary.substring(0, i);
             if (!summary.isBlank()) {
-                summary += "...";
+                int i = summary.indexOf("<a");
+                if (i != -1) {
+                    String substring = summary.substring(0, i);
+                    if (substring.length() != summary.length() && !substring.trim().endsWith("."))
+                        substring += "...";
+                    summary = substring;
+                }
             }
             return new GenreInfo(tag.getString("name"), tag.getInt("total"), tag.getInt("reach"), summary);
         } catch (LastFmEntityNotFoundException ex) {
