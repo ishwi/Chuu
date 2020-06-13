@@ -3,15 +3,16 @@ package core.parsers;
 import core.exceptions.InstanceNotFoundException;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import dao.entities.LastFMData;
+import dao.entities.*;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.List;
-
 public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
+    private static final QuadFunction<MessageReceivedEvent, ChartMode, WhoKnowsMode, RemainingImagesMode, LastFMData> DEFAULT_DATA = (e, c, w, r) ->
+            new LastFMData(null, 537353774205894676L, e.isFromGuild() ? e.getGuild().getIdLong() : 693124899220226178L, false, false, w, c, r, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y);
     final ChuuService dao;
     private boolean expensiveSearch = false;
+    private boolean allowUnaothorizedUsers = false;
 
 
     public DaoParser(ChuuService dao, OptionalEntity... opts) {
@@ -27,28 +28,30 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
     }
 
     protected LastFMData findLastfmFromID(User user, MessageReceivedEvent event) throws InstanceNotFoundException {
-        if (event.isFromGuild() && expensiveSearch) {
-            return this.dao.computeLastFmData(user.getIdLong(), event.getGuild().getIdLong());
-        } else {
-            return this.dao.findLastFMData(user.getIdLong());
+        try {
+            if (event.isFromGuild() && expensiveSearch) {
+                return this.dao.computeLastFmData(user.getIdLong(), event.getGuild().getIdLong());
+            } else {
+                return this.dao.findLastFMData(user.getIdLong());
+            }
+        } catch (InstanceNotFoundException exception) {
+            if (allowUnaothorizedUsers) {
+                WhoKnowsMode whoKnowsMode = WhoKnowsMode.IMAGE;
+                ChartMode chartMode = ChartMode.IMAGE;
+                RemainingImagesMode remainingImagesMode = RemainingImagesMode.IMAGE;
+
+                if (event.isFromGuild()) {
+                    GuildProperties guildProperties = this.dao.getGuildProperties(event.getGuild().getIdLong());
+                    whoKnowsMode = guildProperties.getWhoKnowsMode() != null ? guildProperties.getWhoKnowsMode() : whoKnowsMode;
+                    chartMode = guildProperties.getChartMode() != null ? guildProperties.getChartMode() : chartMode;
+                    remainingImagesMode = guildProperties.getRemainingImagesMode() != null ? guildProperties.getRemainingImagesMode() : remainingImagesMode;
+                }
+                return DEFAULT_DATA.apply(event, chartMode, whoKnowsMode, remainingImagesMode);
+            }
+            throw exception;
         }
     }
 
-
-    LastFMData getLastFmUsername1input(Long id, MessageReceivedEvent event) throws InstanceNotFoundException {
-        if (event.isFromGuild()) {
-            LastFMData data;
-            List<User> list = event.getMessage().getMentionedUsers();
-            data = list.isEmpty()
-                    ? this.dao.findLastFMData((id))
-                    : this.dao.findLastFMData(list.get(0).getIdLong());
-
-            return data;
-        } else {
-            return dao.findLastFMData((id));
-        }
-
-    }
 
     @Override
     protected void setUpErrorMessages() {
@@ -66,4 +69,11 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
         this.expensiveSearch = expensiveSearch;
     }
 
+    public boolean isAllowUnaothorizedUsers() {
+        return allowUnaothorizedUsers;
+    }
+
+    public void setAllowUnaothorizedUsers(boolean allowUnaothorizedUsers) {
+        this.allowUnaothorizedUsers = allowUnaothorizedUsers;
+    }
 }

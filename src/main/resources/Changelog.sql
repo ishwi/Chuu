@@ -25,3 +25,6 @@ alter table guild MODIFY column  chart_mode ENUM ('IMAGE','IMAGE_INFO','IMAGE_AS
 
 
 alter table user add column botted_account boolean default false ;
+
+alter table user add column default_x int default  5;
+alter table user add column default_y int default  5;

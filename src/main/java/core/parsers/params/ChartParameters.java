@@ -5,10 +5,7 @@ import core.apis.last.TopEntity;
 import core.commands.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.OptionalEntity;
-import dao.entities.ChartMode;
-import dao.entities.DiscordUserDisplay;
-import dao.entities.TimeFrameEnum;
-import dao.entities.UrlCapsule;
+import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONObject;
@@ -20,22 +17,24 @@ public class ChartParameters extends CommandParameters {
     private final String lastfmID;
     private final long discordId;
     private final ChartMode chartMode;
+    private final LastFMData lastFMData;
     private final TimeFrameEnum timeFrameEnum;
     private int x;
     private int y;
 
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, ChartMode chartMode, TimeFrameEnum timeFrameEnum, int x, int y) {
+    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, ChartMode chartMode, LastFMData lastFMData, TimeFrameEnum timeFrameEnum, int x, int y) {
         super(e);
         this.lastfmID = lastfmID;
         this.discordId = discordId;
         this.chartMode = chartMode;
+        this.lastFMData = lastFMData;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
         this.y = y;
     }
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, ChartMode chartMode) {
+    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, ChartMode chartMode, LastFMData lastFMData) {
         super(e);
         this.lastfmID = lastfmID;
         this.discordId = discordId;
@@ -43,6 +42,7 @@ public class ChartParameters extends CommandParameters {
         this.x = x;
         this.y = y;
         this.chartMode = chartMode;
+        this.lastFMData = lastFMData;
         this.optionals.put(new OptionalEntity("--notitles", ""), !writeTitles);
         this.optionals.put(new OptionalEntity("--plays", ""), writePlays);
         this.optionals.put(new OptionalEntity("--list", ""), isList);
@@ -55,7 +55,7 @@ public class ChartParameters extends CommandParameters {
 
     public static ChartParameters toListParams() {
         return new ChartParameters(null, "", -1L, null, 0, 0, true
-                , true, true, ChartMode.LIST);
+                , true, true, ChartMode.LIST, null);
     }
 
     public int makeCommand(ConcurrentLastFM lastFM, BlockingQueue<UrlCapsule> queue, TopEntity topEntity, BiFunction<JSONObject, Integer, UrlCapsule> parser) throws LastFmException {
@@ -122,5 +122,9 @@ public class ChartParameters extends CommandParameters {
 
     public ChartMode chartMode() {
         return chartMode;
+    }
+
+    public LastFMData getLastFMData() {
+        return lastFMData;
     }
 }

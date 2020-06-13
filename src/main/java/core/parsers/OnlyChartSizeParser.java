@@ -5,6 +5,7 @@ import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.ChartSizeParameters;
 import dao.ChuuService;
 import dao.entities.ChartMode;
+import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -31,7 +32,7 @@ public class OnlyChartSizeParser extends ChartableParser<ChartSizeParameters> {
 
 
     @Override
-    public ChartSizeParameters parseLogic(MessageReceivedEvent e, String[] words) {
+    public ChartSizeParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
 
         ChartParserAux chartParserAux = new ChartParserAux(words);
         int x = 5;
@@ -48,16 +49,9 @@ public class OnlyChartSizeParser extends ChartableParser<ChartSizeParameters> {
             return null;
         }
         ChartMode guildEmbedConfig;
-        try {
-            guildEmbedConfig = findLastfmFromID(e.getAuthor(), e).getChartMode();
-        } catch (InstanceNotFoundException ignored) {
-            try {
-                guildEmbedConfig = dao.getGuildProperties(e.getGuild().getIdLong()).getChartMode();
-            } catch (InstanceNotFoundException instanceNotFoundException) {
-                guildEmbedConfig = ChartMode.IMAGE;
-            }
-        }
-        return new ChartSizeParameters(e, x, y, guildEmbedConfig);
+        LastFMData lastfmFromID = findLastfmFromID(e.getAuthor(), e);
+
+        return new ChartSizeParameters(e, x, y, lastfmFromID.getChartMode(), lastfmFromID);
     }
 
     @Override

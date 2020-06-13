@@ -2,8 +2,10 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.ChartParserAux;
 import core.parsers.Parser;
 import core.parsers.UserConfigParser;
+import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.UserConfigParameters;
 import core.parsers.params.UserConfigType;
 import dao.ChuuService;
@@ -13,6 +15,7 @@ import dao.entities.WhoKnowsMode;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
+import java.awt.*;
 import java.util.List;
 
 public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
@@ -114,6 +117,28 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 } else {
                     sendMessageQueue(e, "The mode of the remaining image commands was set to: **" + WordUtils.capitalizeFully(remainingImagesMode.toString()) + "**");
                 }
+                break;
+            case CHART_SIZE:
+                ChartParserAux chartParserAux = new ChartParserAux(new String[]{value});
+                int x;
+                int y;
+                try {
+                    Point chartSize = chartParserAux.getChartSize();
+                    if (chartSize == null) {
+                        sendMessage(e, "Something went wrong evaluating your chart size");
+                        return;
+                    }
+                    x = (int) chartSize.getX();
+                    y = (int) chartSize.getY();
+                } catch (InvalidChartValuesException invalidChartValuesException) {
+                    sendMessage(e, "Something went wrong evaluating your chart size");
+                    return;
+                }
+                if (x * y > 7 * 7) {
+                    sendMessage(e, "The default value can't be greater than 7x7");
+                }
+                getService().setChartDefaults(x, y, e.getAuthor().getIdLong());
+                sendMessageQueue(e, "Successfully changed default chart size for user " + getUserString(e, e.getAuthor().getIdLong()));
                 break;
         }
     }

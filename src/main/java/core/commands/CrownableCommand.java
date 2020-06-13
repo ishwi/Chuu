@@ -39,10 +39,9 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         OnlyUsernameParser onlyUsernameParser = new OnlyUsernameParser(getService());
         onlyUsernameParser.addOptional(new OptionalEntity("--nofirst", "show only the artists in which you are not first"));
         onlyUsernameParser.addOptional(new OptionalEntity("--server", "make the ranking only count for this server"));
-        onlyUsernameParser.addOptional(new OptionalEntity("--secondonly", "make the ranking only count for this server"));
+        onlyUsernameParser.addOptional(new OptionalEntity("--secondonly", "only shows artist where you are second"));
         onlyUsernameParser.addOptional(new OptionalEntity("--second", "do the same as --secondonly"));
         onlyUsernameParser.addOptional(new OptionalEntity("--onlysecond", "do the same as --secondonly"));
-
         onlyUsernameParser.addOptional(new OptionalEntity("--server", "make the ranking only count for this server"));
 
         return new NumberParser<>(onlyUsernameParser,

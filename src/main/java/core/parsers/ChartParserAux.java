@@ -17,17 +17,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-class ChartParserAux {
+public class ChartParserAux {
     private static final Pattern pattern = Pattern.compile("(:?[yqsmwad]|(:?(:?day|daily)?)|(:?year(:?ly)?|month(:?ly)?|quarter(:?ly)?|semester(:?ly)?|week(:?ly)?|alltime|all))");
     private static final Pattern naturalPattern = Pattern.compile("(:?[yqsmwadh']|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(:?ly)?(:?lies)?|day(:?s)?|" +
             "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))");
 
     private static final Pattern nonPermissivePattern = Pattern.compile("[yqsmwd]");
-    private static final Pattern chartSizePattern = Pattern.compile("\\d+[xX]\\d+");
+    public static final Pattern chartSizePattern = Pattern.compile("\\d+[xX]\\d+");
     private final boolean permissive;
     private String[] message;
 
-    ChartParserAux(String[] message) {
+    public ChartParserAux(String[] message) {
         this(message, true);
     }
 
@@ -125,7 +125,8 @@ class ChartParserAux {
     }
 
 
-    @Nullable Point getChartSize() throws InvalidChartValuesException {
+    @Nullable
+    public Point getChartSize() throws InvalidChartValuesException {
 
         Optional<String> opt = Arrays.stream(message).filter(s -> chartSizePattern.matcher(s).matches()).findAny();
         if (opt.isPresent()) {

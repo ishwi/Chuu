@@ -38,6 +38,8 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         getParser().setExpensiveSearch(true);
     }
 
+
+
     @Override
     protected CommandCategory getCategory() {
         return CommandCategory.CHARTS;

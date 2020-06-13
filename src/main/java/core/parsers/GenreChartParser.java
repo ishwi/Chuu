@@ -4,11 +4,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.exceptions.ChuuServiceException;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.parsers.ChartParserAux;
-import core.parsers.ChartableParser;
-import core.parsers.OptionalEntity;
 import core.parsers.exceptions.InvalidChartValuesException;
-import core.parsers.params.ChartParameters;
 import core.parsers.params.ChartableGenreParameters;
 import core.parsers.params.GenreParameters;
 import dao.ChuuService;
@@ -56,7 +52,7 @@ public class GenreChartParser extends ChartableParser<ChartableGenreParameters> 
         LastFMData data = findLastfmFromID(oneUser, e);
         try {
             GenreParameters genreParameters = innerParser.parseLogic(e, message);
-            return new ChartableGenreParameters(e, data.getName(), data.getDiscordId(), data.getChartMode(), timeFrameEnum, x, y, genreParameters);
+            return new ChartableGenreParameters(e, data.getName(), data.getDiscordId(), data.getChartMode(), timeFrameEnum, x, y, genreParameters, data);
         } catch (LastFmException lastFmException) {
             throw new ChuuServiceException();
         }

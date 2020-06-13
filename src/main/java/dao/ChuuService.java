@@ -225,7 +225,7 @@ public class ChuuService {
             connection.setReadOnly(true);
             if (limit < 1)
                 limit = 10;
-            return queriesDao.getGlobalWhoKnows(connection, artistId, limit, includeBottedUsers,ownerId);
+            return queriesDao.getGlobalWhoKnows(connection, artistId, limit, includeBottedUsers, ownerId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1324,6 +1324,14 @@ public class ChuuService {
     public void setServerChartMode(long guildId, @Nullable ChartMode chartMode) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setGuildProperty(connection, guildId, "chart_mode", chartMode);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setChartDefaults(int x, int y, long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setChartDefaults(connection, discordId, x, y);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

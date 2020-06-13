@@ -11,9 +11,11 @@ public class LastFMData {
     private final WhoKnowsMode whoKnowsMode;
     private final ChartMode ChartMode;
     private final RemainingImagesMode remainingImagesMode;
+    private final int defaultX;
+    private final int defaultY;
 
 
-    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode) {
+    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY) {
         this.discordId = discordId;
         this.name = name;
         this.guildID = guildID;
@@ -22,9 +24,11 @@ public class LastFMData {
         this.whoKnowsMode = whoKnowsMode;
         ChartMode = chartMode;
         this.remainingImagesMode = remainingImagesMode;
+        this.defaultX = defaultX;
+        this.defaultY = defaultY;
     }
 
-    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode) {
+    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY) {
         this.name = lastFmID;
         this.discordId = resDiscordID;
         this.role = role;
@@ -33,6 +37,8 @@ public class LastFMData {
         this.whoKnowsMode = whoKnowsMode;
         ChartMode = chartMode;
         this.remainingImagesMode = remainingImagesMode;
+        this.defaultX = defaultX;
+        this.defaultY = defaultY;
     }
 
 
@@ -89,4 +95,11 @@ public class LastFMData {
         return remainingImagesMode;
     }
 
+    public int getDefaultX() {
+        return defaultX;
+    }
+
+    public int getDefaultY() {
+        return defaultY;
+    }
 }

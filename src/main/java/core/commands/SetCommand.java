@@ -2,6 +2,7 @@ package core.commands;
 
 import core.Chuu;
 import core.exceptions.*;
+import core.parsers.ChartableParser;
 import core.parsers.Parser;
 import core.parsers.SetParser;
 import core.parsers.params.WordParameter;
@@ -126,7 +127,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
                         sendTyping().
 
                         queue());
-        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE);
+        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y);
         lastFMData.setGuildID(guildID);
 
         getService().

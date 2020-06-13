@@ -55,6 +55,7 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
         ArtistParser parser = new ArtistParser(getService(), lastFM,
                 new OptionalEntity("--list", "display in list format"));
         parser.setExpensiveSearch(true);
+        parser.setAllowUnaothorizedUsers(true);
         return parser;
     }
 

@@ -9,8 +9,12 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Arrays;
+
 public abstract class ChartableParser<T extends ChartParameters> extends DaoParser<T> {
     final TimeFrameEnum defaultTFE;
+    public static final int DEFAULT_X = 5;
+    public static final int DEFAULT_Y = 5;
 
     public ChartableParser(ChuuService dao, TimeFrameEnum defaultTFE) {
         super(dao);
@@ -39,6 +43,20 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
     @Override
     public abstract T parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException;
 
+    @Override
+    public T parse(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+        T params = super.parse(e);
+        if (params != null) {
+            if (params.getX() == DEFAULT_X && params.getY() == DEFAULT_Y) {
+                String[] subMessage = getSubMessage(e.getMessage());
+                if (Arrays.stream(subMessage).filter(ChartParserAux.chartSizePattern.asMatchPredicate()).findAny().isEmpty()) {
+                    params.setX(params.getLastFMData().getDefaultX());
+                    params.setY(params.getLastFMData().getDefaultY());
+                }
+            }
+        }
+        return params;
+    }
 
     @Override
     public String getErrorMessage(int code) {

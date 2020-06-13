@@ -40,7 +40,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
                 new OptionalEntity("--global", " show artist from all bot users instead of only from this server"));
         onlyChartSizeParser.replaceOptional("--plays", new OptionalEntity("--noplays", "don't display plays"));
         onlyChartSizeParser.addOptional(new OptionalEntity("--plays", "shows this with plays", true, "--noplays"));
-
+        onlyChartSizeParser.setAllowUnaothorizedUsers(true);
         return onlyChartSizeParser;
     }
 

@@ -9,7 +9,6 @@ import dao.entities.TimeFrameEnum;
 import javacutils.Pair;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GayParser extends ChartableParser<GayParams> {
@@ -50,7 +49,7 @@ public class GayParser extends ChartableParser<GayParams> {
         subMessage = integerPair.first;
         int x = integerPair.second;
         LastFMData data = atTheEndOneUser(e, subMessage);
-        return new GayParams(e, data.getName(), data.getDiscordId(), gayType, timeFrame, y, x, data.getChartMode());
+        return new GayParams(e, data.getName(), data.getDiscordId(), gayType, timeFrame, y, x, data.getChartMode(), data);
 
     }
 

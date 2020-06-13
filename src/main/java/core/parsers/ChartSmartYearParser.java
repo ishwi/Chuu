@@ -80,7 +80,7 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
         }
         TimeFrameEnum timeFrameEnum = calculateTimeFrame(year);
         discordName = atTheEndOneUser(e, words);
-        return new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrameEnum, x, y, year, discordName.getChartMode());
+        return new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrameEnum, x, y, year, discordName.getChartMode(), discordName);
     }
 
     @Override

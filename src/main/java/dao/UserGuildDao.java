@@ -76,4 +76,6 @@ interface UserGuildDao {
     LastFMData findLastFmData(Connection connection, long discordID, long guildId) throws InstanceNotFoundException;
 
     <T extends Enum<T>> void setGuildProperty(Connection connection, long discordId, String propertyName, @Nullable T value);
+
+    void setChartDefaults(Connection connection, long discordId, int x, int y);
 }

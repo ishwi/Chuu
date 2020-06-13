@@ -36,6 +36,9 @@ public class ArtistParser extends DaoParser<ArtistParameters> {
         LastFMData lastFMData = findLastfmFromID(oneUser, e);
         if (words.length == 0) {
             NowPlayingArtist np;
+            if (isAllowUnaothorizedUsers() && lastFMData.getName() == null) {
+                throw new InstanceNotFoundException(oneUser.getIdLong());
+            }
             np = lastFM.getNowPlayingInfo(lastFMData.getName());
             return new ArtistParameters(e, np.getArtistName(), lastFMData);
         } else {

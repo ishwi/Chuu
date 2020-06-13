@@ -1,6 +1,8 @@
 package core.parsers.params;
 
 import core.exceptions.InstanceNotFoundException;
+import core.parsers.ChartParser;
+import core.parsers.ChartParserAux;
 import dao.ChuuService;
 import dao.entities.ChartMode;
 import dao.entities.LastFMData;
@@ -19,12 +21,12 @@ import java.util.stream.Stream;
 
 public enum UserConfigType {
 
-    CHART_MODE("chart"), NOTIFY_IMAGE("image-notify"), PRIVATE_UPDATE("private-update"), WHOKNOWS_MODE("whoknows"), REMAINING_MODE("rest");
+    CHART_MODE("chart"), NOTIFY_IMAGE("image-notify"), PRIVATE_UPDATE("private-update"), WHOKNOWS_MODE("whoknows"), REMAINING_MODE("rest"), CHART_SIZE("size");
 
     private static final Map<String, UserConfigType> ENUM_MAP;
-     static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
-     static final Pattern chartMode = Pattern.compile("(Image|Image-info|Image-Aside|Image-aside-info|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
-     static final Pattern whoknowsMode = Pattern.compile("(Image|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
+    static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
+    static final Pattern chartMode = Pattern.compile("(Image|Image-info|Image-Aside|Image-aside-info|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
+    static final Pattern whoknowsMode = Pattern.compile("(Image|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
 
 
     static {
@@ -59,6 +61,8 @@ public enum UserConfigType {
             case PRIVATE_UPDATE:
             case NOTIFY_IMAGE:
                 return bool.asMatchPredicate();
+            case CHART_SIZE:
+                return ChartParserAux.chartSizePattern.asMatchPredicate();
             default:
                 return (s) -> true;
 
@@ -89,6 +93,8 @@ public enum UserConfigType {
                 return "Set the mode for the rest of the commands. " +
                         "Keep in mind that if a server has a set value that will be prioritized.\n" +
                         "\t\tThe possible values for the rest of the commands are the following:" + collect;
+            case CHART_SIZE:
+                return "Change the default chart size for chart command when you dont specify directly the size";
             default:
                 return "";
         }
@@ -134,6 +140,13 @@ public enum UserConfigType {
                                 remaining = "NOT SET";
                             } else {
                                 remaining = lastFMData.getRemainingImagesMode().toString();
+                            }
+                            return String.format("**%s** -> %s", key, remaining);
+                        case CHART_SIZE:
+                            if (lastFMData == null) {
+                                remaining = "NOT SET";
+                            } else {
+                                remaining = String.format("%dx%d", lastFMData.getDefaultX(), lastFMData.getDefaultY());
                             }
                             return String.format("**%s** -> %s", key, remaining);
                     }
