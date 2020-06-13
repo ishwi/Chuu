@@ -21,8 +21,8 @@ public class ChartParameters extends CommandParameters {
     private final long discordId;
     private final ChartMode chartMode;
     private final TimeFrameEnum timeFrameEnum;
-    private final int x;
-    private final int y;
+    private int x;
+    private int y;
 
 
     public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, ChartMode chartMode, TimeFrameEnum timeFrameEnum, int x, int y) {
@@ -79,6 +79,13 @@ public class ChartParameters extends CommandParameters {
         return y;
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
 
     public boolean isWriteTitles() {
         return !hasOptional("--notitles");

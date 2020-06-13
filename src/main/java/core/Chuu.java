@@ -326,7 +326,8 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new LastFmLinkCommand(dao)))
                 .addEventListeners(help.registerCommand(new GenreInfoCommand(dao)))
                 .addEventListeners(help.registerCommand(new GenreAlbumsCommands(dao)))
-                .addEventListeners(help.registerCommand(new GayCommand(dao)));
+                .addEventListeners(help.registerCommand(new GayCommand(dao)))
+                .addEventListeners(help.registerCommand(new GlobalWhoKnowCommand(dao)));
 
 
         try {

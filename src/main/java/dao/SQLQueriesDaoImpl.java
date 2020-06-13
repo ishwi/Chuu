@@ -18,7 +18,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public UniqueWrapper<ArtistPlays> getGlobalCrowns(Connection connection, String lastfmId, int threshold) {
+    public UniqueWrapper<ArtistPlays> getGlobalCrowns(Connection connection, String lastfmId, int threshold, boolean includeBottedUsers, long ownerId) {
         List<ArtistPlays> returnList = new ArrayList<>();
         long discordId = 0;
 
@@ -37,6 +37,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 " JOIN " +
                 " user in_b" +
                 " ON in_a.lastfm_id = in_b.lastfm_id" +
+                " where ? or not in_b.botted_account " +
                 "   ) AS b" +
                 " WHERE b.artist_id = a.artist_id" +
                 " GROUP BY artist_id)" +
@@ -45,6 +46,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, lastfmId);
             preparedStatement.setInt(2, threshold);
+            preparedStatement.setBoolean(3, includeBottedUsers);
+            //preparedStatement.setLong(4, ownerId);
 
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -603,6 +606,61 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    @Override
+    public WrapperReturnNowPlaying getGlobalWhoKnows(Connection con, long artistId, int limit, boolean includeBottedUsers, long ownerId) {
+
+        @Language("MariaDB")
+        String queryString =
+                "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id " +
+                        "FROM  scrobbled_artist a " +
+                        "JOIN artist a2 ON a.artist_id = a2.id  " +
+                        "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
+                        " where   (? or not c.botted_account or c.discord_id = ? )  " +
+                        "and  a2.id = ? " +
+                        "ORDER BY a.playNumber desc ";
+        queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setBoolean(i++, includeBottedUsers);
+            preparedStatement.setLong(i++, ownerId);
+            preparedStatement.setLong(i, artistId);
+
+
+
+
+
+
+            /* Execute query. */
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            String url = "";
+            String artistName = "";
+            List<ReturnNowPlaying> returnList = new ArrayList<>();
+
+
+
+            /* Get results. */
+            int j = 0;
+            while (resultSet.next() && (j < limit)) {
+                url = resultSet.getString("a2.url");
+                artistName = resultSet.getString("a2.name");
+                String lastfmId = resultSet.getString("a.lastFM_ID");
+
+                int playNumber = resultSet.getInt("a.playNumber");
+                long discordId = resultSet.getLong("c.discord_ID");
+
+                returnList.add(new ReturnNowPlaying(discordId, lastfmId, artistName, playNumber));
+            }
+            /* Return booking. */
+            return new WrapperReturnNowPlaying(returnList, returnList.size(), url, artistName);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 
 
@@ -1386,18 +1444,22 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public List<GlobalCrown> getGlobalKnows(Connection connection, long artistID) {
+    public List<GlobalCrown> getGlobalKnows(Connection connection, long artistID, boolean includeBottedUsers, long ownerId) {
         List<GlobalCrown> returnedList = new ArrayList<>();
-        @Language("MariaDB") String queryString = "SELECT  playnumber AS ord, discord_id, l.lastfm_id\n" +
+        @Language("MariaDB") String queryString = "SELECT  playnumber AS ord, discord_id, l.lastfm_id, l.botted_account\n" +
                 " FROM  scrobbled_artist ar\n" +
                 "  	 	 JOIN user l ON ar.lastfm_id = l.lastfm_id " +
                 "        WHERE  ar.artist_id = ? " +
+                "   and   (? or not l.botted_account or l.discord_id = ? ) " +
+                "   " +
                 "        ORDER BY  playnumber DESC";
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
-            preparedStatement.setLong(i, artistID);
+            preparedStatement.setLong(i++, artistID);
+            preparedStatement.setBoolean(i++, includeBottedUsers);
+            preparedStatement.setLong(i, ownerId);
 
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -1407,8 +1469,9 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 String lastfmId = resultSet.getString("lastfm_id");
                 long discordId = resultSet.getLong("discord_id");
                 int crowns = resultSet.getInt("ord");
+                boolean bootedAccount = resultSet.getBoolean("botted_account");
 
-                returnedList.add(new GlobalCrown(lastfmId, discordId, crowns, j++));
+                returnedList.add(new GlobalCrown(lastfmId, discordId, crowns, j++, bootedAccount));
             }
             return returnedList;
         } catch (SQLException e) {

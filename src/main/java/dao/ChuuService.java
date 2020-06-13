@@ -215,6 +215,22 @@ public class ChuuService {
         return getSimilarities(lastfMNames, 10);
     }
 
+
+    public WrapperReturnNowPlaying globalWhoKnows(long artistId, boolean includeBottedUsers, long ownerId) {
+        return globalWhoKnows(artistId, 10, includeBottedUsers, ownerId);
+    }
+
+    public WrapperReturnNowPlaying globalWhoKnows(long artistId, int limit, boolean includeBottedUsers, long ownerId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (limit < 1)
+                limit = 10;
+            return queriesDao.getGlobalWhoKnows(connection, artistId, limit, includeBottedUsers,ownerId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public WrapperReturnNowPlaying whoKnows(long artistId, long guildId) {
         return whoKnows(artistId, guildId, 10);
     }
@@ -744,9 +760,9 @@ public class ChuuService {
         }
     }
 
-    public List<GlobalCrown> getGlobalArtistRanking(Long artistId) {
+    public List<GlobalCrown> getGlobalArtistRanking(Long artistId, boolean includeBottedUsers, long ownerId) {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.getGlobalKnows(connection, artistId);
+            return queriesDao.getGlobalKnows(connection, artistId, includeBottedUsers, ownerId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -761,9 +777,9 @@ public class ChuuService {
 
     }
 
-    public UniqueWrapper<ArtistPlays> getGlobalCrowns(String lastfmid, int threshold) {
+    public UniqueWrapper<ArtistPlays> getGlobalCrowns(String lastfmid, int threshold, boolean includeBottedUsers, long ownerId) {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.getGlobalCrowns(connection, lastfmid, threshold);
+            return queriesDao.getGlobalCrowns(connection, lastfmid, threshold, includeBottedUsers, ownerId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

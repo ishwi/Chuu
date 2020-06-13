@@ -48,11 +48,11 @@ interface SQLQueriesDao {
 
     int getRandomCount(Connection connection, Long userId);
 
-    List<GlobalCrown> getGlobalKnows(Connection connection, long artistID);
+    List<GlobalCrown> getGlobalKnows(Connection connection, long artistID, boolean includeBottedUsers,long ownerId);
 
     void getGlobalRank(Connection connection, String lastfmid);
 
-    UniqueWrapper<ArtistPlays> getGlobalCrowns(Connection connection, String lastFmId, int threshold);
+    UniqueWrapper<ArtistPlays> getGlobalCrowns(Connection connection, String lastFmId, int threshold, boolean includeBottedUsers, long ownerId);
 
     UniqueWrapper<ArtistPlays> getGlobalUniques(Connection connection, String lastfmId);
 
@@ -91,5 +91,7 @@ interface SQLQueriesDao {
     List<CrownableArtist> getCrownable(Connection connection, Long discordId, Long guildId, boolean skipCrowns, boolean onlySecond, int crownDistance);
 
     Map<Long, Float> getRateLimited(Connection connection);
+
+    WrapperReturnNowPlaying getGlobalWhoKnows(Connection connection, long artistId, int limit, boolean includeBottedUsers, long ownerId);
 
 }

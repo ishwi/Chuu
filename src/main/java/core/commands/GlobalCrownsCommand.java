@@ -1,5 +1,7 @@
 package core.commands;
 
+import core.parsers.OptionalEntity;
+import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
@@ -37,7 +39,16 @@ public class GlobalCrownsCommand extends CrownsCommand {
                 threshold = 0L;
             }
         }
-        return getService().getGlobalCrowns(params.getInnerParams().getLastFMData().getName(), Math.toIntExact(threshold));
+        return getService().getGlobalCrowns(params.getInnerParams().getLastFMData().getName(),
+                Math.toIntExact(threshold),
+                !params.hasOptional("--nobotted"), params.getE().getAuthor().getIdLong());
+    }
+
+    @Override
+    public Parser<NumberParameters<ChuuDataParams>> getParser() {
+        Parser<NumberParameters<ChuuDataParams>> parser = super.getParser();
+        parser.addOptional(new OptionalEntity("--nobotted", "discard users that have been manually flagged as potentially botted accounts"));
+        return parser;
     }
 
     @Override

@@ -7,6 +7,7 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
+import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
@@ -37,22 +38,24 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> getParser() {
-        return new ArtistParser(getService(), lastFM);
+        ArtistParser parser = new ArtistParser(getService(), lastFM);
+        parser.addOptional(new OptionalEntity("--nobotted", "discard users that have been manually flagged as potentially botted accounts"));
+        return parser;
     }
 
     @Override
     public String getDescription() {
-        return "Like who knows but for all bot members";
+        return "An overview of your global ranking of an artist";
     }
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("global");
+        return List.of("global", "g");
     }
 
     @Override
     public String getName() {
-        return "Global knows";
+        return "Global Artist Overview";
     }
 
     @Override
@@ -64,7 +67,8 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         ScrobbledArtist validable = new ScrobbledArtist(returned.getArtist(), 0, "");
         CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
         returned.setScrobbledArtist(validable);
-        List<GlobalCrown> globalArtistRanking = getService().getGlobalArtistRanking(validable.getArtistId());
+        boolean b = !returned.hasOptional("--nobotted");
+        List<GlobalCrown> globalArtistRanking = getService().getGlobalArtistRanking(validable.getArtistId(), b, e.getAuthor().getIdLong());
         String artist = CommandUtil.cleanMarkdownCharacter(validable.getArtist());
         if (globalArtistRanking.isEmpty()) {
             sendMessageQueue(e, "No one knows " + artist);
@@ -84,6 +88,9 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
             //It means we have someone ahead of us
             if (position != 1) {
                 if (position == 2) {
+                    if (globalArtistRanking.get(0).isBootedAccount()) {
+                        embedBuilder.addField("Plays for global crown:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true);
+                    }
                     embedBuilder.addField("Plays for global crown:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true);
                     embedBuilder.addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), true);
 

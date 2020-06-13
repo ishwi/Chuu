@@ -92,18 +92,15 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
         whoKnowsLogic(artistParameters);
     }
 
-    private void doImage(ArtistParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
+    void doImage(ArtistParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         MessageReceivedEvent e = ap.getE();
-        wrapperReturnNowPlaying.getReturnNowPlayings().forEach(element ->
-                element.setDiscordName(CommandUtil.getUserInfoNotStripped(e, element.getDiscordId()).getUsername())
-        );
         BufferedImage logo = CommandUtil.getLogo(getService(), e);
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, e.getGuild().getName(), logo);
         sendImage(image, e);
 
     }
 
-    private void doList(ArtistParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
+    void doList(ArtistParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         MessageBuilder messageBuilder = new MessageBuilder();
         StringBuilder builder = new StringBuilder();
@@ -127,7 +124,7 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
                                 .getReturnNowPlayings(), message1, embedBuilder));
     }
 
-    private void doPie(ArtistParameters ap, WrapperReturnNowPlaying returnNowPlaying) {
+    void doPie(ArtistParameters ap, WrapperReturnNowPlaying returnNowPlaying) {
         PieChart pieChart = this.pie.doPie(ap, returnNowPlaying.getReturnNowPlayings());
         pieChart.setTitle("Who knows " + (ap.getScrobbledArtist().getArtist()) + " in " + (ap.getE().getGuild().getName()) + "?");
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
