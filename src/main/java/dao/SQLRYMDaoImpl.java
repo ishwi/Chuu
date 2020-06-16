@@ -23,11 +23,12 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
         @Language("MariaDB") String queryBody =
                 "                                CREATE TEMPORARY TABLE temp_rating(\n" +
                         "                                        rym_id bigint(20) PRIMARY KEY,\n" +
-                        "                                        last_name varchar(400),\n" +
-                        "                                        first_name varchar(20),\n" +
-                        "                                        first_localized_name varchar(20),\n" +
-                        "                                        last_localized_name varchar(40)\n" +
-                        "                        );";
+                        "                                        last_name varchar(400) COLLATE  utf8mb4_unicode_ci ,\n" +
+                        "                                        first_name varchar(20) COLLATE  utf8mb4_unicode_ci,\n" +
+                        "                                        first_localized_name varchar(20) COLLATE  utf8mb4_unicode_ci,\n" +
+                        "                                        last_localized_name varchar(400) COLLATE  utf8mb4_unicode_ci\n" +
+                        "                        ) DEFAULT CHARSET=utf8mb4" +
+                        " COLLATE =  utf8mb4_general_ci;";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
