@@ -2,6 +2,8 @@ package dao;
 
 import com.sun.istack.NotNull;
 import core.Chuu;
+import dao.entities.RYMImportRating;
+import dao.entities.ScoredAlbumRatings;
 import core.exceptions.ChuuServiceException;
 import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
@@ -26,6 +28,7 @@ public class ChuuService {
     private final AffinityDao affinityDao;
 
     private final UpdaterDao updaterDao;
+    private final SQLRYMDao rymDao;
     private final UserGuildDao userGuildDao;
 
     public ChuuService(SimpleDataSource dataSource) {
@@ -34,13 +37,14 @@ public class ChuuService {
         this.queriesDao = new SQLQueriesDaoImpl();
         this.userGuildDao = new UserGuildDaoImpl();
         this.affinityDao = new AffinityDaoImpl();
-
+        this.rymDao = new SQLRYMDaoImpl();
         this.updaterDao = new UpdaterDaoImpl();
     }
 
     public ChuuService() {
 
         this.dataSource = new SimpleDataSource(true);
+        this.rymDao = new SQLRYMDaoImpl();
         this.queriesDao = new SQLQueriesDaoImpl();
         this.affinityDao = new AffinityDaoImpl();
         this.userGuildDao = new UserGuildDaoImpl();
@@ -1332,6 +1336,155 @@ public class ChuuService {
     public void setChartDefaults(int x, int y, long discordId) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setChartDefaults(connection, discordId, x, y);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void insertRatings(long userId, List<RYMImportRating> ratings) {
+        try (Connection connection = dataSource.getConnection()) {
+
+
+            /* Prepare connection. */
+
+            connection.setAutoCommit(false);
+            if (!ratings.isEmpty()) {
+                //connection.prepareStatement("set foreign_key_checks  = 0").execute();
+                rymDao.cleanUp(connection);
+                //delete everything first to have a clean start
+                updaterDao.deleteAllRatings(connection, userId);
+                /* Do work. */
+                updaterDao.fillALbumsByRYMID(connection, ratings);
+                Map<Boolean, List<RYMImportRating>> map = ratings.stream().collect(Collectors.partitioningBy(albumRating -> albumRating.getId() == -1L));
+                List<RYMImportRating> knownAlbums = map.get(false);
+                List<RYMImportRating> unknownAlbums = map.get(true);
+
+                rymDao.setServerTempTable(connection, unknownAlbums);
+                //Returns a map with rym_id -> artist_id
+                Map<Long, Long> artists = rymDao.findArtists(connection);
+
+                Map<Boolean, List<RYMImportRating>> map1 = unknownAlbums.stream().collect(Collectors.partitioningBy(x -> {
+                    Long aLong = artists.get(x.getRYMid());
+                    return aLong != null && aLong > 0;
+                }));
+
+                // List of artist that were found in last step
+                List<RYMImportRating> ratingsWithKnownArtist = map1.get(true);
+                //We set the found id
+                for (RYMImportRating RYMImportRating : ratingsWithKnownArtist) {
+                    Long aLong = artists.get(RYMImportRating.getRYMid());
+                    RYMImportRating.setArtist_id(aLong);
+                }
+                //This were not found
+                List<RYMImportRating> ratingsWithUnknownArtist = map1.get(false);
+
+                //This were the ids that were found, we reduce a bit the size of the table
+                Collection<Long> rymIdsToDelete = artists.keySet();
+                rymDao.deletePartialTempTable(connection, Set.copyOf(rymIdsToDelete));
+
+                //Over the remaining items we do an auxiliar search
+                Map<Long, Long> artistsAuxiliar = rymDao.findArtistsAuxiliar(connection);
+                map1 = ratingsWithUnknownArtist.stream().collect(Collectors.partitioningBy(x -> {
+                    Long aLong = artistsAuxiliar.get(x.getRYMid());
+                    return aLong != null && aLong > 0;
+                }));
+
+                //These were found on the auxiliar search
+                List<RYMImportRating> auxiliarFoundArtists = map1.get(true);
+                List<RYMImportRating> notFoundAuxiiliar = map1.get(false);
+                for (RYMImportRating RYMImportRating : auxiliarFoundArtists) {
+                    Long aLong = artistsAuxiliar.get(RYMImportRating.getRYMid());
+                    RYMImportRating.setArtist_id(aLong);
+                }
+                ratingsWithUnknownArtist.addAll(notFoundAuxiiliar);
+                ratingsWithKnownArtist.addAll(auxiliarFoundArtists);
+
+
+                for (RYMImportRating RYMImportRating : ratingsWithUnknownArtist) {
+                    ScrobbledArtist scrobbledArtist = new ScrobbledArtist(RYMImportRating.getFirstName() + " " + RYMImportRating.getLastName(), 0, null);
+                    updaterDao.insertArtistSad(connection, scrobbledArtist);
+                    RYMImportRating.setArtist_id(scrobbledArtist.getArtistId());
+                }
+                //KnownAlbumvs vs Ratings WithKnownArtist
+                // Now we have on ratingsw with known artists all ratings with unknown album
+                ratingsWithKnownArtist.addAll(ratingsWithUnknownArtist);
+
+                for (RYMImportRating RYMImportRating : ratingsWithKnownArtist) {
+                    updaterDao.insertAlbumSad(connection, RYMImportRating);
+                }
+
+                knownAlbums.addAll(ratingsWithKnownArtist);
+                knownAlbums = knownAlbums.stream()
+                        .collect(Collectors.groupingBy(RYMImportRating::getId, Collectors.toList())).entrySet().stream()
+                        // Dont think is equivalent :thinking:
+                        .map(rymImportRatings -> rymImportRatings.getValue().stream().max(Comparator.comparingInt(RYMImportRating::getRating)).orElse(null))
+                        .filter(Objects::nonNull).collect(Collectors.toList());
+
+
+                rymDao.insertRatings(connection, knownAlbums, userId);
+                connection.commit();
+                //connection.rollback();
+
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public AlbumRatings getRatingsByName(long idLong, String album, long artistId) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            return rymDao.getRatingsByName(connection, idLong, album, artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public Collection<AlbumRatings> getArtistRatings(long artistId, long guildId) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            return rymDao.getArtistRatings(connection, guildId, artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScoredAlbumRatings> getGlobalTopRatings() {
+        try (Connection connection = dataSource.getConnection()) {
+            return rymDao.getGlobalTopRatings(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScoredAlbumRatings> getSelfRatingsScore(long discordId, Short ratingNumber) {
+        try (Connection connection = dataSource.getConnection()) {
+            return rymDao.getSelfRatingsScore(connection, ratingNumber, discordId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public RymStats getUserRymStatms(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return rymDao.getUserRymStatms(connection, discordId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public RymStats getRYMServerStats(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return rymDao.getServerStats(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public RymStats getRYMBotStats() {
+        try (Connection connection = dataSource.getConnection()) {
+            return rymDao.getRYMBotStats(connection);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

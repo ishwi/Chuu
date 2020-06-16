@@ -1,6 +1,7 @@
 package dao;
 
 import core.Chuu;
+import dao.entities.RYMImportRating;
 import core.exceptions.ChuuServiceException;
 import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
@@ -669,6 +670,41 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
+    public long getAlbumIdByRYMId(Connection connection, Long rymId) throws InstanceNotFoundException {
+        @Language("MariaDB") String queryString = "SELECT artist_id FROM  album WHERE rym_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, rymId);
+
+            ResultSet execute = preparedStatement.executeQuery();
+            if (execute.next()) {
+                return execute.getLong(1);
+            }
+            throw new InstanceNotFoundException(rymId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public long getAlbumByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException {
+        @Language("MariaDB") String queryString = "SELECT id FROM  album WHERE album_name = ? and artist_id = ?  ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(2, artist_id);
+            preparedStatement.setString(1, album);
+
+
+            ResultSet execute = preparedStatement.executeQuery();
+            if (execute.next()) {
+                return execute.getLong(1);
+            }
+            throw new InstanceNotFoundException(album);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
+    @Override
     public UpdaterUserWrapper getUserUpdateStatus(Connection connection, long discordId) throws
             InstanceNotFoundException {
         @Language("MariaDB") String queryString =
@@ -1040,6 +1076,91 @@ public class UpdaterDaoImpl implements UpdaterDao {
             }
             return 0;
         } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void deleteAllRatings(Connection con, long userId) {
+        @Language("MariaDB") String queryString = "DELETE   FROM album_rating  WHERE discord_id = ? ";
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i, userId);
+
+            preparedStatement.executeUpdate();
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void fillALbumsByRYMID(Connection connection, List<RYMImportRating> list) {
+        String queryString = "SELECT id, album_name, artist_id,rym_id  FROM  album WHERE rym_id in (%s) ";
+        String sql = String.format(queryString, list.isEmpty() ? null : preparePlaceHolders(list.size()));
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+
+            for (int i = 0; i < list.size(); i++) {
+                preparedStatement.setLong(i + 1, list.get(i).getRYMid());
+            }
+            /* Fill "preparedStatement". */
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            Map<Long, RYMImportRating> collect = list.stream().collect(Collectors.toMap(RYMImportRating::getRYMid, Function.identity()));
+
+            while (resultSet.next()) {
+                long id = resultSet.getLong("id");
+                String name = resultSet.getString("album_name");
+                long artist_id = resultSet.getLong("artist_id");
+                long rym_id = resultSet.getLong("rym_id");
+                RYMImportRating RYMImportRating = collect.get(rym_id);
+                RYMImportRating.setArtist_id(artist_id);
+                RYMImportRating.setId(id);
+                RYMImportRating.setRealAlbumName(name);
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void insertAlbumSad(Connection connection, RYMImportRating x) {
+        StringBuilder mySql =
+                new StringBuilder("INSERT IGNORE INTO album (artist_id,album_name,rym_id,release_year) VALUES (?,?,?,?)");
+        mySql.append(" ON DUPLICATE KEY UPDATE release_year =  LEAST(release_year,values(release_year))");
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString(), Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setLong(+1, x.getArtist_id());
+            preparedStatement.setString(2, x.getTitle());
+            preparedStatement.setLong(3, x.getRYMid());
+            if (x.getYear() == null) {
+                preparedStatement.setNull(4, Types.SMALLINT);
+            } else {
+                preparedStatement.setShort(4, (short) x.getYear().getValue());
+
+            }
+
+            preparedStatement.execute();
+
+            ResultSet ids = preparedStatement.getResultSet();
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                x.setId(generatedKeys.getLong("GENERATED_KEY"));
+            } else {
+                try {
+                    long albumId = getAlbumByName(connection, x.getTitle(), x.getArtist_id());
+                    x.setId(albumId);
+                } catch (InstanceNotFoundException e) {
+                    throw new SQLException("Creating user failed, no ID obtained.");
+                }
+            }
+        } catch (
+                SQLException e) {
             throw new ChuuServiceException(e);
         }
     }

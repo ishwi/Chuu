@@ -1,5 +1,6 @@
 package dao;
 
+import dao.entities.RYMImportRating;
 import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
@@ -71,6 +72,10 @@ interface UpdaterDao {
     long getArtistId(Connection connection, String artistId) throws InstanceNotFoundException;
 
 
+    long getAlbumIdByRYMId(Connection connection, Long rymId) throws InstanceNotFoundException;
+
+    long getAlbumByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException;
+
     UpdaterUserWrapper getUserUpdateStatus(Connection connection, long discordId) throws InstanceNotFoundException;
 
     void addAlias(Connection connection, String alias, long toArtistId) throws DuplicateInstanceException;
@@ -117,5 +122,11 @@ interface UpdaterDao {
     OptionalLong checkQueuedUrlExists(Connection connection, long artistId, String urlParsed);
 
     int getQueueUrlCount(Connection connection);
+
+    void deleteAllRatings(Connection connection, long userId);
+
+    void fillALbumsByRYMID(Connection connection, List<RYMImportRating> list);
+
+    void insertAlbumSad(Connection connection, RYMImportRating x);
 
 }

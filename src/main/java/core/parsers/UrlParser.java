@@ -7,6 +7,16 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.net.URL;
 
 public class UrlParser extends Parser<UrlParameters> {
+    private final boolean permCheck;
+
+    public UrlParser() {
+        this(true);
+    }
+
+    public UrlParser(boolean permCheck) {
+        this.permCheck = permCheck;
+    }
+
     @Override
     public void setUpErrorMessages() {
         errorMessages.put(1, "Invalid url ");
@@ -15,7 +25,7 @@ public class UrlParser extends Parser<UrlParameters> {
     }
 
     public UrlParameters parseLogic(MessageReceivedEvent e, String[] subMessage) {
-        if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+        if (permCheck && (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE))) {
             sendError(getErrorMessage(2), e);
             return null;
         }
@@ -38,7 +48,7 @@ public class UrlParser extends Parser<UrlParameters> {
             sendError("You need to give only a url or an attachment", e);
             return null;
         }
-        return new  UrlParameters(e, url);
+        return new UrlParameters(e, url);
 
 
     }
@@ -56,6 +66,6 @@ public class UrlParser extends Parser<UrlParameters> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *url***\n" +
-               "\t User needs to have administration permissions\n";
+                "\t User needs to have administration permissions\n";
     }
 }

@@ -146,7 +146,7 @@ public class Chuu {
 
     public static void main(String[] args) throws InterruptedException {
         if (System.getProperty("file.encoding").equals("UTF-8")) {
-            setupBot(false);
+            setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")));
         } else {
             relaunchInUTF8();
         }
@@ -327,7 +327,12 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new GenreInfoCommand(dao)))
                 .addEventListeners(help.registerCommand(new GenreAlbumsCommands(dao)))
                 .addEventListeners(help.registerCommand(new GayCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalWhoKnowCommand(dao)));
+                .addEventListeners(help.registerCommand(new GlobalWhoKnowCommand(dao)))
+                .addEventListeners(help.registerCommand(new RYMDumpImportCommand(dao)))
+                .addEventListeners(help.registerCommand(new AlbumRatings(dao)))
+                .addEventListeners(help.registerCommand(new ArtistRatings(dao)))
+                .addEventListeners(help.registerCommand(new TopRatings(dao)))
+                .addEventListeners(help.registerCommand(new UserRatings(dao)));
 
 
         try {

@@ -98,8 +98,6 @@ public class CommandUtil {
     }
 
     public static void validate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck, boolean findCorrection) throws LastFmException {
-
-
         if (findCorrection) {
             String dbCorrection = dao.findCorrection(scrobbledArtist.getArtist());
             if (dbCorrection != null) {
@@ -155,6 +153,58 @@ public class CommandUtil {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         validate(dao, scrobbledArtist, lastFM, null, null, false, doCorrection);
         return scrobbledArtist;
+    }
+
+    public static void validateAlbum(ChuuService dao, String artist, String album, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck, boolean findCorrection) {
+     /*   if (findCorrection) {
+            String dbCorrection = dao.findCorrection(scrobbledArtist.getArtist());
+            if (dbCorrection != null) {
+                scrobbledArtist.setArtist(dbCorrection);
+            }
+        }
+        boolean existed;
+        boolean corrected = false;
+        //Find by id//
+        // Doesnt exist? -> search for lastfm correction
+        UpdaterStatus status = null;
+        try {
+            status = dao.getUpdaterStatusByName(scrobbledArtist.getArtist());
+            scrobbledArtist.setArtistId(status.getArtistId());
+            existed = true;
+        } catch (InstanceNotFoundException e) {
+            //Artist doesnt exists
+            String originalArtist = scrobbledArtist.getArtist();
+            String correction = lastFM.getCorrection(originalArtist);
+            if (!correction.equalsIgnoreCase(originalArtist)) {
+                scrobbledArtist.setArtist(correction);
+                corrected = true;
+            }
+            try {
+                status = dao.getUpdaterStatusByName(correction);
+                scrobbledArtist.setArtistId(status.getArtistId());
+                existed = true;
+            } catch (InstanceNotFoundException ex) {
+                scrobbledArtist.setArtist(correction);
+                //Mutates id
+                dao.upsertArtistSad(scrobbledArtist);
+                existed = false;
+            }
+            if (corrected) {
+                dao.insertCorrection(scrobbledArtist.getArtistId(), originalArtist);
+            }
+
+
+        }
+        if (doUrlCheck) {
+            if (!existed || (status.getArtistUrl() == null))
+                scrobbledArtist.setUrl(CommandUtil.updateUrl(discogsApi, scrobbledArtist, dao, spotify));
+            else {
+                scrobbledArtist.setUrl(status.getArtistUrl());
+            }
+            if (scrobbledArtist.getUrl() == null || scrobbledArtist.getUrl().isBlank()) {
+                scrobbledArtist.setUrl(null);
+            }
+        }*/
     }
 
 

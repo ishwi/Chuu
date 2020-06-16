@@ -30,10 +30,9 @@ public class GlobalCrownsCommand extends CrownsCommand {
     @Override
     public UniqueWrapper<ArtistPlays> getList(NumberParameters<ChuuDataParams> params) {
         Long threshold = params.getExtraParam();
-        long idLong = params.getE().getGuild().getIdLong();
-
         if (threshold == null) {
             if (params.getE().isFromGuild()) {
+                long idLong = params.getE().getGuild().getIdLong();
                 threshold = (long) getService().getGuildCrownThreshold(idLong);
             } else {
                 threshold = 0L;

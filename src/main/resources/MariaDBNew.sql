@@ -5,7 +5,7 @@ CREATE TABLE user
     last_update       TIMESTAMP                             NULL     DEFAULT current_timestamp(),
     control_timestamp TIMESTAMP                             NULL     DEFAULT current_timestamp(),
     role              ENUM ('USER','IMAGE_BLOCKED','ADMIN') NOT NULL DEFAULT 'USER',
-    private_update TINYINT(1) NOT NULL DEFAULT FALSE,
+    private_update    TINYINT(1)                            NOT NULL DEFAULT FALSE,
     PRIMARY KEY (discord_id),
     UNIQUE (lastfm_id)
 );
@@ -108,7 +108,7 @@ CREATE TABLE alt_url
     id         BIGINT(20)                            NOT NULL AUTO_INCREMENT PRIMARY KEY,
     artist_id  BIGINT(20)                            NOT NULL,
     url        VARCHAR(400) COLLATE ascii_general_ci NOT NULL,
-    discord_id BIGINT(20)                             NULL,
+    discord_id BIGINT(20)                            NULL,
     added_date DATETIME                              NOT NULL DEFAULT NOW(),
     score      INT                                   NOT NULL DEFAULT 0,
     CONSTRAINT alt_urls_fk_artist FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -228,7 +228,7 @@ CREATE TRIGGER vote_delete
     FOR EACH ROW
 BEGIN
     SET @new_value = 0;
-    IF (old.ispositive ) THEN
+    IF (old.ispositive) THEN
         SET @new_value = -1;
     ELSE
         SET @new_value = 1;
@@ -264,37 +264,78 @@ CREATE TABLE past_recommendations
 
 CREATE TABLE rate_limited
 (
-    discord_id BIGINT(20) NOT NULL PRIMARY KEY ,
-    queries_second float  NOT NULL ,
+    discord_id     BIGINT(20) NOT NULL PRIMARY KEY,
+    queries_second float      NOT NULL,
     CONSTRAINT rate_limiteddiscord_id FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE command_guild_disabled
 (
-    guild_id BIGINT(20) NOT NULL  ,
+    guild_id     BIGINT(20)  NOT NULL,
     command_name VARCHAR(40) NOT NULL,
-    PRIMARY KEY (guild_id,command_name),
+    PRIMARY KEY (guild_id, command_name),
     CONSTRAINT command_guild_disabled_fk_guild FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE command_guild_channel_disabled
 (
-    guild_id BIGINT(20) NOT NULL ,
-    channel_id BIGINT(20) NOT NULL ,
-    command_name VARCHAR(40) NOT NULL ,
-    enabled TINYINT(1) NOT NULL ,
-    PRIMARY KEY (guild_id,channel_id,command_name),
+    guild_id     BIGINT(20)  NOT NULL,
+    channel_id   BIGINT(20)  NOT NULL,
+    command_name VARCHAR(40) NOT NULL,
+    enabled      TINYINT(1)  NOT NULL,
+    PRIMARY KEY (guild_id, channel_id, command_name),
     CONSTRAINT command_guild_channel_disabled_fk_guild FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE queued_url (
+CREATE TABLE queued_url
+(
     id         INT(11)      NOT NULL AUTO_INCREMENT,
-    url      VARCHAR(400) NOT NULL,
+    url        VARCHAR(400) NOT NULL,
     artist_id  BIGINT(20)   NOT NULL,
     discord_id BIGINT(20),
     added_date DATETIME     NOT NULL DEFAULT NOW(),
     PRIMARY KEY (id),
-    UNIQUE(artist_id,url),
+    UNIQUE (artist_id, url),
     CONSTRAINT queued_url_fk_artsit FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT  queued_url_fk_discordid FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE CASCADE
+    CONSTRAINT queued_url_fk_discordid FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+CREATE TABLE `album`
+(
+    `id`           bigint(20)                              NOT NULL AUTO_INCREMENT,
+    `artist_id`    bigint(20)                              DEFAULT NULL,
+    `album_name`   varchar(400) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `url`          varchar(400) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `rym_id`       bigint(20)                              DEFAULT NULL,
+    `mbid`         binary(16)                              DEFAULT NULL,
+    `spotify_id`   varchar(40) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
+    `release_year` smallint(6)                             DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `rym_id` (`rym_id`),
+    UNIQUE KEY `mbid` (`mbid`),
+    UNIQUE KEY `spotify_id` (`spotify_id`),
+    UNIQUE KEY `artist_id` (`artist_id`, `album_name`),
+    CONSTRAINT `album_fk_artist` FOREIGN KEY (`artist_id`) REFERENCES `artist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE `album_rating`
+(
+    `id`         bigint(20)  NOT NULL AUTO_INCREMENT,
+    `artist_id`  bigint(20) DEFAULT NULL,
+    `album_id`   bigint(20) DEFAULT NULL,
+    `discord_id` bigint(20) DEFAULT NULL,
+    `rating`     tinyint(10) NOT NULL,
+    `source`     tinyint(2) DEFAULT 0,
+    `review`     text       DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `review_unique` (`artist_id`, `album_id`, `discord_id`),
+    KEY `album_rating_url_fk_discordid` (`discord_id`),
+    KEY `album_rating_fk_album` (`album_id`),
+    CONSTRAINT `album_rating_fk_album` FOREIGN KEY (`album_id`) REFERENCES `album` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `album_rating_fk_artist` FOREIGN KEY (`artist_id`) REFERENCES `artist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `album_rating_url_fk_discordid` FOREIGN KEY (`discord_id`) REFERENCES `user` (`discord_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;

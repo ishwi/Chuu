@@ -15,8 +15,9 @@ public enum CommandCategory {
     DISCOVERY(8, "Discover or help others discover new music"),
     BOT_INFO(9, "Information about the bot"),
     ARTIST_IMAGES(10, "Personalize the artist images displayed on the bot"),
-    CONFIGURATION(11, "Personalize your bot usage"),
-    MODERATION(12, "Command for bot admins");
+    RYM_BETA(11, "Testing command about a RYM integration, possibly broken"),
+    CONFIGURATION(12, "Personalize your bot usage"),
+    MODERATION(13, "Command for bot admins");
 
     private final int order;
     private final String description;

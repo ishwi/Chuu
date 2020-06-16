@@ -63,7 +63,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
         e.getChannel().sendTyping().queue();
         System.out.println("We received a message from " +
                 e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
-        if (!e.getChannelType().isGuild() && !respondInPrivate) {
+        if (!e.isFromGuild() && !respondInPrivate) {
             sendMessageQueue(e, "This command only works in a server");
             return;
         }
