@@ -70,7 +70,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
         }
     }
 
-    private void doIndividual(AffinityParameters ap) throws LastFmException {
+    void doIndividual(AffinityParameters ap) throws LastFmException {
         MessageReceivedEvent e = ap.getE();
 
         Affinity affinity = getService().getAffinity(ap.getFirstLastfmId(), ap.getSecondLastfmId(), ap.getThreshold());
@@ -81,7 +81,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
         sendImage(bufferedImage, e);
     }
 
-    private void doGuild(AffinityParameters ap) throws InstanceNotFoundException {
+     void doGuild(AffinityParameters ap) throws InstanceNotFoundException {
         MessageReceivedEvent e = ap.getE();
         LastFMData ogData = getService().findLastFMData(e.getAuthor().getIdLong());
         List<Affinity> serverAffinity = getService().getServerAffinity(ogData.getName(), e.getGuild().getIdLong(), ap.getThreshold());

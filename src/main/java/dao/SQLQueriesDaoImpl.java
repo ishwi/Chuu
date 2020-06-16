@@ -613,7 +613,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
         @Language("MariaDB")
         String queryString =
-                "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id " +
+                "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id,c.privacy_mode " +
                         "FROM  scrobbled_artist a " +
                         "JOIN artist a2 ON a.artist_id = a2.id  " +
                         "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
@@ -652,8 +652,9 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
                 int playNumber = resultSet.getInt("a.playNumber");
                 long discordId = resultSet.getLong("c.discord_ID");
+                PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString("c.privacy_mode"));
 
-                returnList.add(new ReturnNowPlaying(discordId, lastfmId, artistName, playNumber));
+                returnList.add(new GlobalReturnNowPlaying(discordId, lastfmId, artistName, playNumber, privacyMode));
             }
             /* Return booking. */
             return new WrapperReturnNowPlaying(returnList, returnList.size(), url, artistName);

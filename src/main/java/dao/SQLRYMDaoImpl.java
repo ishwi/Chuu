@@ -62,9 +62,9 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
         HashMap<Long, Long> returnedMap = new HashMap<>();
         String s = "Select b.id,a.rym_id from temp_rating a left join artist b " +
                 "on a.last_name = name  " +
-                "or concat(a.first_name,' ',a.last_name) = name " +
-                "or  concat(a.first_localized_name,' ',a.last_localized_name) = name " +
-                "or last_localized_name = name ";
+                "or if(concat(a.first_name,' ',a.last_name) = '',null,concat(a.first_localized_name,' ',a.last_localized_name))= name " +
+                "or  if(concat(a.first_localized_name,' ',a.last_localized_name) = '',null,concat(a.first_localized_name,' ',a.last_localized_name)) = name " +
+                "or if(last_localized_name = '',null,last_localized_name) = name ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -143,7 +143,9 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
                 "join album_rating c on a.discord_id = c.discord_id " +
                 "join album d on c.album_id = d.id " +
                 "and d.album_name = ? " +
-                "and c.artist_id = ? ";
+                "and c.artist_id = ?" +
+                " order by  c.rating descs ";
+
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, idLong);
@@ -248,21 +250,48 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
                 "order by (main.coun * main.agg * main.ave)  desc limit 200";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                String albumName = resultSet.getString(1);
-                long count = resultSet.getLong(2);
-                double average = resultSet.getDouble(4);
-                String artist = resultSet.getString(
-                        5);
-                returnList.add(new ScoredAlbumRatings(0, albumName, count, average, artist));
-
-            }
+            getScoredAlbums(returnList, resultSet);
         } catch (
                 SQLException throwables) {
 
             throw new ChuuServiceException(throwables);
         }
         return returnList;
+    }
+
+    @Override
+    public List<ScoredAlbumRatings> getServerTopRatings(Connection connection, long guildId) {
+        List<ScoredAlbumRatings> returnList = new ArrayList<>();
+        String s = "select *  from (select  album_name, count(*) as  coun, sum(rating) as agg, avg(rating) as ave, name " +
+                "from album_rating a " +
+                "join artist b on a.artist_id = b.id " +
+                "join album c on a.album_id = c.id " +
+                "join user_guild d on a.discord_id = d.discord_id " +
+                " where guild_id = ? " +
+                "group by album_id) main " +
+                "order by (main.coun * main.agg * main.ave)  desc limit 200";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            preparedStatement.setLong(1, guildId);
+            getScoredAlbums(returnList, resultSet);
+        } catch (
+                SQLException throwables) {
+
+            throw new ChuuServiceException(throwables);
+        }
+        return returnList;
+    }
+
+    private void getScoredAlbums(List<ScoredAlbumRatings> returnList, ResultSet resultSet) throws SQLException {
+        while (resultSet.next()) {
+            String albumName = resultSet.getString(1);
+            long count = resultSet.getLong(2);
+            double average = resultSet.getDouble(4);
+            String artist = resultSet.getString(
+                    5);
+            returnList.add(new ScoredAlbumRatings(0, albumName, count, average, artist));
+
+        }
     }
 
     @Override

@@ -86,7 +86,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
                 ")** - " + formatter.format((float) x.getRating() / 2) +
                 "\n").collect(Collectors.toList());
         if (stringList.isEmpty()) {
-            sendMessageQueue(e, album + " by  " + artist + " was not rated by anyone.");
+            sendMessageQueue(e, String.format("**%s** by **%s** was not rated by anyone.", album, artist));
             return;
         }
 

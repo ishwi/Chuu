@@ -31,6 +31,8 @@ public interface SQLRYMDao {
 
     List<ScoredAlbumRatings> getGlobalTopRatings(Connection connection);
 
+    List<ScoredAlbumRatings> getServerTopRatings(Connection connection, long guildId);
+
     List<ScoredAlbumRatings> getSelfRatingsScore(Connection connection, Short ratingNumber, long discordId);
 
     RymStats getUserRymStatms(Connection connection, long discordId);

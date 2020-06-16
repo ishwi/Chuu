@@ -6,6 +6,8 @@ import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.UrlParameters;
 import dao.ChuuService;
+import dao.entities.LastFMData;
+import dao.entities.PrivacyMode;
 import dao.entities.RandomUrlEntity;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -52,7 +54,34 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
                 sendMessageQueue(e, "The pool of urls was empty, add one first!");
                 return;
             }
-            String sb = String.format("%s, here's your random recommendation%n**Posted by:** %s%n**Link:** %s", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()), getUserString(e, randomUrl.getDiscordId()), randomUrl.getUrl());
+            String ownerRec = null;// getUserString(e, randomUrl.getDiscordId());
+            if (randomUrl.getDiscordId() != null && randomUrl.getDiscordId() != e.getJDA().getSelfUser().getIdLong()) {
+                try {
+                    LastFMData lastFMData = getService().findLastFMData(randomUrl.getDiscordId());
+                    PrivacyMode privacyMode = lastFMData.getPrivacyMode();
+                    switch (privacyMode) {
+                        case STRICT:
+                            ownerRec = "Private User";
+                            break;
+                        case DISCORD_NAME:
+                        case NORMAL:
+                            ownerRec = getUserString(e, lastFMData.getDiscordId());
+                            break;
+                        case TAG:
+                            ownerRec = e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
+                            break;
+                        case LAST_NAME:
+                            ownerRec = lastFMData.getName() + " (lastfm)";
+                            break;
+                    }
+                } catch (InstanceNotFoundException ex) {
+                    ownerRec = "Unknown";
+                }
+            }
+            if (ownerRec == null) {
+                ownerRec = e.getJDA().getSelfUser().getName();
+            }
+            String sb = String.format("%s, here's your random recommendation%n**Posted by:** %s%n**Link:** %s", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()), ownerRec, randomUrl.getUrl());
             e.getChannel().sendMessage(sb).queue();
             return;
         }

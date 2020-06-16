@@ -27,11 +27,11 @@ import java.util.OptionalDouble;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class ArtistRatings extends ConcurrentCommand<ArtistParameters> {
+public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
-    public ArtistRatings(ChuuService dao) {
+    public ArtistRatingsCommand(ChuuService dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotify = SpotifySingleton.getInstance();
@@ -73,7 +73,7 @@ public class ArtistRatings extends ConcurrentCommand<ArtistParameters> {
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !parse.isNoredirect());
         String artist = scrobbledArtist.getArtist();
         List<AlbumRatings> rating = getService().getArtistRatings(scrobbledArtist.getArtistId(), e.getGuild().getIdLong()).stream()
-                .sorted(Comparator.comparingDouble((AlbumRatings y) -> y.getUserRatings().stream().filter(Rating::isSameGuild).mapToLong(Rating::getRating).average().orElse(0)).reversed()).collect(Collectors.toList());
+                .sorted(Comparator.comparingDouble((AlbumRatings y) -> y.getUserRatings().stream().filter(Rating::isSameGuild).mapToLong(Rating::getRating).average().orElse(0) * y.getUserRatings().size()).reversed()).collect(Collectors.toList());
         EmbedBuilder embedBuilder = new EmbedBuilder();
 
 
@@ -102,7 +102,7 @@ public class ArtistRatings extends ConcurrentCommand<ArtistParameters> {
                     "\n\n";
         }).collect(Collectors.toList());
         StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < mappedString.size(); i++) {
+        for (int i = 0; i < 5 && i < mappedString.size(); i++) {
             a.append(i + 1).append(mappedString.get(i));
         }
 
@@ -118,6 +118,6 @@ public class ArtistRatings extends ConcurrentCommand<ArtistParameters> {
                         setEmbed(embedBuilder.build()).
                         build()).
                 queue(message1 ->
-                        new Reactionary<>(mappedString, message1, embedBuilder));
+                        new Reactionary<>(mappedString, message1, 5, embedBuilder));
     }
 }

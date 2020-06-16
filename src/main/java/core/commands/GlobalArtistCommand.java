@@ -12,12 +12,15 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.GlobalCrown;
+import dao.entities.LastFMData;
+import dao.entities.PrivacyMode;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,6 +90,29 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
             embedBuilder.addField("Position:", position + "/" + totalPeople, true);
             //It means we have someone ahead of us
             if (position != 1) {
+                try {
+                    LastFMData lastFMData = getService().findLastFMData(globalArtistRanking.get(0).getDiscordId());
+                    if (EnumSet.of(PrivacyMode.LAST_NAME, PrivacyMode.TAG, PrivacyMode.DISCORD_NAME).contains(lastFMData.getPrivacyMode())) {
+                        String embedText;
+                        switch (lastFMData.getPrivacyMode()) {
+                            case DISCORD_NAME:
+                                embedText = getUserString(e, lastFMData.getDiscordId());
+                                break;
+                            case TAG:
+                                embedText = e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
+                                break;
+                            case LAST_NAME:
+                                embedText = lastFMData.getName() + " (lastfm)";
+                                break;
+                            default:
+                                embedText =
+                                        "Unknown";
+                        }
+                        embedBuilder.addField("Crown Holder: ", embedText, true);
+                    }
+                } catch (InstanceNotFoundException ignored) {
+                    // Do Nothing
+                }
                 if (position == 2) {
                     if (globalArtistRanking.get(0).isBootedAccount()) {
                         embedBuilder.addField("Plays for global crown:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true);

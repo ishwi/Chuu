@@ -7,10 +7,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
-import dao.entities.ScrobbledArtist;
-import dao.entities.UsersWrapper;
-import dao.entities.WhoKnowsMode;
-import dao.entities.WrapperReturnNowPlaying;
+import dao.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
@@ -18,11 +15,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class GlobalWhoKnowCommand extends WhoKnowsCommand {
     public GlobalWhoKnowCommand(ChuuService dao) {
         super(dao);
+        this.respondInPrivate = true;
     }
 
     @Override
@@ -76,13 +76,34 @@ public class GlobalWhoKnowCommand extends WhoKnowsCommand {
             showableUsers = Set.of(author);
         }
         AtomicInteger atomicInteger = new AtomicInteger(1);
+        Consumer<GlobalReturnNowPlaying> a = (x) -> {
+            PrivacyMode privacyMode = x.getPrivacyMode();
+            if (showableUsers.contains(x.getDiscordId())) {
+                privacyMode = PrivacyMode.DISCORD_NAME;
+            }
+
+            switch (privacyMode) {
+                case STRICT:
+                case NORMAL:
+                    x.setDiscordName("Private User #" + atomicInteger.getAndIncrement());
+                    break;
+                case DISCORD_NAME:
+                    x.setDiscordName(getUserString(ap.getE(), x.getDiscordId()) + "");
+                    break;
+                case TAG:
+                    x.setDiscordName(ap.getE().getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag());
+                    break;
+                case LAST_NAME:
+                    x.setDiscordName(x.getLastFMId() + " (last.fm)");
+                    break;
+            }
+
+        };
         wrapperReturnNowPlaying.getReturnNowPlayings()
-                .forEach(x -> {
-                            if (showableUsers.contains(x.getDiscordId())) {
-                                x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername());
-                            } else {
-                                x.setDiscordName("Private User #" + atomicInteger.getAndIncrement());
-                            }
+                .forEach(x ->
+                        {
+                            GlobalReturnNowPlaying x1 = (GlobalReturnNowPlaying) x;
+                            x1.setDisplayer(a);
                         }
                 );
         wrapperReturnNowPlaying.setUrl(who.getUrl());

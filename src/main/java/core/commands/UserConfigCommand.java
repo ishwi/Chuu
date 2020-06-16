@@ -10,6 +10,7 @@ import core.parsers.params.UserConfigParameters;
 import core.parsers.params.UserConfigType;
 import dao.ChuuService;
 import dao.entities.ChartMode;
+import dao.entities.PrivacyMode;
 import dao.entities.RemainingImagesMode;
 import dao.entities.WhoKnowsMode;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -140,6 +141,19 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 getService().setChartDefaults(x, y, e.getAuthor().getIdLong());
                 sendMessageQueue(e, "Successfully changed default chart size for user " + getUserString(e, e.getAuthor().getIdLong()));
                 break;
+            case PRIVACY_MODE:
+                PrivacyMode privacyMode;
+                if (cleansing) {
+                    privacyMode = PrivacyMode.NORMAL;
+                } else {
+                    privacyMode = PrivacyMode.valueOf(value.replace("-", "_").toUpperCase());
+                }
+                getService().setPrivacyMode(e.getAuthor().getIdLong(), privacyMode);
+                if (cleansing) {
+                    sendMessageQueue(e, "Your privacy setting has changed to the default");
+                } else {
+                    sendMessageQueue(e, "Your privacy setting was set to: **" + WordUtils.capitalizeFully(privacyMode.toString()) + "**");
+                }
         }
     }
 }

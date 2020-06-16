@@ -35,7 +35,7 @@ public class FullAlbumEntity {
     }
 
     public String getAlbumUrl() {
-        return albumUrl;
+        return albumUrl.isBlank() ? null : albumUrl;
     }
 
     public void addTrack(Track track) {

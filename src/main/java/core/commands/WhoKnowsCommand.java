@@ -116,7 +116,13 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
             if (counter == 11)
                 break;
         }
-        embedBuilder.setTitle("Who knows " + CommandUtil.cleanMarkdownCharacter(ap.getScrobbledArtist().getArtist()) + " in " + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "?").
+        String usable;
+        if (e.isFromGuild()) {
+            usable = CommandUtil.cleanMarkdownCharacter(e.getGuild().getName());
+        } else {
+            usable = e.getJDA().getSelfUser().getName();
+        }
+        embedBuilder.setTitle("Who knows " + CommandUtil.cleanMarkdownCharacter(ap.getScrobbledArtist().getArtist()) + " in " + usable + "?").
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
                 .setColor(CommandUtil.randomColor());
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel())
@@ -127,7 +133,14 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
 
     void doPie(ArtistParameters ap, WrapperReturnNowPlaying returnNowPlaying) {
         PieChart pieChart = this.pie.doPie(ap, returnNowPlaying.getReturnNowPlayings());
-        pieChart.setTitle("Who knows " + (ap.getScrobbledArtist().getArtist()) + " in " + (ap.getE().getGuild().getName()) + "?");
+        String usable;
+        MessageReceivedEvent e = ap.getE();
+        if (e.isFromGuild()) {
+            usable = CommandUtil.cleanMarkdownCharacter(e.getGuild().getName());
+        } else {
+            usable = e.getJDA().getSelfUser().getName();
+        }
+        pieChart.setTitle("Who knows " + (ap.getScrobbledArtist().getArtist()) + " in " + usable + "?");
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = bufferedImage.createGraphics();
         GraphicUtils.setQuality(g);
@@ -138,7 +151,7 @@ public class WhoKnowsCommand extends ConcurrentCommand<ArtistParameters> {
             BufferedImage backgroundImage = Scalr.resize(image, 150);
             g.drawImage(backgroundImage, 10, 750 - 10 - backgroundImage.getHeight(), null);
         }
-        sendImage(bufferedImage, ap.getE());
+        sendImage(bufferedImage, e);
     }
 
     void whoKnowsLogic(ArtistParameters ap) {

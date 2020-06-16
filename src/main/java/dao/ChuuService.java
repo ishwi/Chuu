@@ -17,6 +17,8 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLTransactionRollbackException;
+import java.sql.Savepoint;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -933,6 +935,18 @@ public class ChuuService {
         }
     }
 
+    public List<ArtistLbGlobalEntry> globalMatchings(String lastFmId, Long guildId, int theshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            affinityDao.setGlobalTable(connection, lastFmId, theshold);
+            List<ArtistLbGlobalEntry> matchingCount = affinityDao.getGlobalMatchingCount(connection);
+            matchingCount.sort(Comparator.comparingInt(LbEntry::getEntryCount).reversed());
+            affinityDao.cleanUpGlobal(connection, true);
+            return matchingCount;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void addAlias(String alias, long toArtist) throws DuplicateInstanceException {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.addAlias(connection, alias, toArtist);
@@ -1126,6 +1140,18 @@ public class ChuuService {
         }
     }
 
+    public List<GlobalAffinity> getGlobalAffinity(String ogLastFmID, Long guildId, int threshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            affinityDao.setGlobalTable(connection, ogLastFmID, threshold);
+            List<GlobalAffinity> affinityList = affinityDao.doGlobalAffinity(connection, ogLastFmID, threshold);
+            affinityDao.cleanUpGlobal(connection, true);
+            return affinityList;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+
+        }
+    }
+
     public List<ScrobbledArtist> getRecommendation(long giverDiscordId, long receiverDiscordId, boolean ignorePast, int limit) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getRecommendations(connection, giverDiscordId, receiverDiscordId, ignorePast, limit);
@@ -1309,6 +1335,15 @@ public class ChuuService {
 
     }
 
+    public void setPrivacyMode(long discordId, @NotNull PrivacyMode privacyMode) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setUserProperty(connection, discordId, "privacy_mode", privacyMode);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
     public void setRemainingImagesModeServer(long guildId, @Nullable RemainingImagesMode remainingImagesMode) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setGuildProperty(connection, guildId, "remaining_mode", remainingImagesMode);
@@ -1361,6 +1396,8 @@ public class ChuuService {
 
                 rymDao.setServerTempTable(connection, unknownAlbums);
                 //Returns a map with rym_id -> artist_id
+
+
                 Map<Long, Long> artists = rymDao.findArtists(connection);
 
                 Map<Boolean, List<RYMImportRating>> map1 = unknownAlbums.stream().collect(Collectors.partitioningBy(x -> {
@@ -1420,9 +1457,15 @@ public class ChuuService {
                         .map(rymImportRatings -> rymImportRatings.getValue().stream().max(Comparator.comparingInt(RYMImportRating::getRating)).orElse(null))
                         .filter(Objects::nonNull).collect(Collectors.toList());
 
-
-                rymDao.insertRatings(connection, knownAlbums, userId);
-                connection.commit();
+                Savepoint savepoint = connection.setSavepoint();
+                try {
+                    rymDao.insertRatings(connection, knownAlbums, userId);
+                    connection.commit();
+                } catch (SQLTransactionRollbackException exception) {
+                    connection.rollback(savepoint);
+                    rymDao.insertRatings(connection, knownAlbums, userId);
+                    connection.commit();
+                }
                 //connection.rollback();
 
             }
@@ -1435,6 +1478,7 @@ public class ChuuService {
     public AlbumRatings getRatingsByName(long idLong, String album, long artistId) {
 
         try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
             return rymDao.getRatingsByName(connection, idLong, album, artistId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1444,6 +1488,7 @@ public class ChuuService {
     public Collection<AlbumRatings> getArtistRatings(long artistId, long guildId) {
 
         try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
             return rymDao.getArtistRatings(connection, guildId, artistId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1452,6 +1497,16 @@ public class ChuuService {
 
     public List<ScoredAlbumRatings> getGlobalTopRatings() {
         try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return rymDao.getGlobalTopRatings(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScoredAlbumRatings> getServerTopRatings() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
             return rymDao.getGlobalTopRatings(connection);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1460,6 +1515,7 @@ public class ChuuService {
 
     public List<ScoredAlbumRatings> getSelfRatingsScore(long discordId, Short ratingNumber) {
         try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
             return rymDao.getSelfRatingsScore(connection, ratingNumber, discordId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1468,6 +1524,7 @@ public class ChuuService {
 
     public RymStats getUserRymStatms(long discordId) {
         try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
             return rymDao.getUserRymStatms(connection, discordId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1476,6 +1533,7 @@ public class ChuuService {
 
     public RymStats getRYMServerStats(long guildId) {
         try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
             return rymDao.getServerStats(connection, guildId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1484,6 +1542,7 @@ public class ChuuService {
 
     public RymStats getRYMBotStats() {
         try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
             return rymDao.getRYMBotStats(connection);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

@@ -16,12 +16,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 
-public class TopRatings extends ListCommand<ScoredAlbumRatings, CommandParameters> {
+public class TopRatingsCommand extends ListCommand<ScoredAlbumRatings, CommandParameters> {
 
-    public TopRatings(ChuuService dao) {
+    public TopRatingsCommand(ChuuService dao) {
         super(dao);
-        this.respondInPrivate = false;
-
     }
 
     @Override
@@ -51,6 +49,7 @@ public class TopRatings extends ListCommand<ScoredAlbumRatings, CommandParameter
 
     @Override
     public List<ScoredAlbumRatings> getList(CommandParameters params) {
+
         return getService().getGlobalTopRatings();
     }
 
@@ -61,21 +60,21 @@ public class TopRatings extends ListCommand<ScoredAlbumRatings, CommandParameter
         NumberFormat formatter = new DecimalFormat("#0.##");
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
-                .setThumbnail(e.getGuild().getIconUrl());
+                .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
         StringBuilder a = new StringBuilder();
 
         if (list.isEmpty()) {
-            sendMessageQueue(e, "This guild has no registered users:(");
+            sendMessageQueue(e, "There are no ratings in the bot at alls");
             return;
         }
 
         for (int i = 0; i < 10 && i < list.size(); i++) {
             a.append(i + 1).append(list.get(i).toString());
         }
-        RymStats rymServerStats = getService().getRYMServerStats(e.getGuild().getIdLong());
+        RymStats rymServerStats = getService().getRYMBotStats();
         embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName()) + "'s Top Ranked Albums")
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl())
-                .setFooter(String.format("This server has rated a total of %s albums with an average of %s!", rymServerStats.getNumberOfRatings(), formatter.format(rymServerStats.getAverage() / 2f)), null)
+                .setFooter(String.format(e.getJDA().getSelfUser().getName() + " users have rated a total of %s albums with an average of %s!", rymServerStats.getNumberOfRatings(), formatter.format(rymServerStats.getAverage() / 2f)), null)
                 .setColor(CommandUtil.randomColor());
 
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->

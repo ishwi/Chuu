@@ -330,14 +330,20 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new GlobalWhoKnowCommand(dao)))
                 .addEventListeners(help.registerCommand(new RYMDumpImportCommand(dao)))
                 .addEventListeners(help.registerCommand(new AlbumRatings(dao)))
-                .addEventListeners(help.registerCommand(new ArtistRatings(dao)))
-                .addEventListeners(help.registerCommand(new TopRatings(dao)))
-                .addEventListeners(help.registerCommand(new UserRatings(dao)));
+                .addEventListeners(help.registerCommand(new ArtistRatingsCommand(dao)))
+                .addEventListeners(help.registerCommand(new TopRatingsCommand(dao)))
+                .addEventListeners(help.registerCommand(new TopServerRatingsCommand(dao)))
+
+                .addEventListeners(help.registerCommand(new UserRatings(dao)))
+                .addEventListeners(help.registerCommand(new PrivacySetterCommand(dao)))
+                .addEventListeners(help.registerCommand(new GlobalMatchingCommand(dao)))
+                .addEventListeners(help.registerCommand(new GlobalAffinity(dao)))
+                .addEventListeners(help.registerCommand(new GlobalRecommendationCommand(dao)));
 
 
         try {
             jda = builder.build().awaitReady();
-            commandAdministrator.onStartup(jda);
+            //commandAdministrator.onStartup(jda);
             initDisabledCommands(dao, jda);
             prefixCommand.onStartup(jda);
             jda.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
