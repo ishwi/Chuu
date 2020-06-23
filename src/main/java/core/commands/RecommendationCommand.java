@@ -111,7 +111,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
                 StringBuilder s = new StringBuilder();
                 for (ScrobbledArtist rec : recs) {
                     s.append((String.format("%d. [%s](%s): %d plays%n", artistNum, CommandUtil.cleanMarkdownCharacter(rec.getArtist()), CommandUtil.getLastFmArtistUrl(rec.getArtist()), rec.getCount())));
-                    artistNum++
+                    artistNum++;
                 }
                 EmbedBuilder embedBuilder = new EmbedBuilder();
 
