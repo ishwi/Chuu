@@ -10,13 +10,13 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
-public class PieableResultWrapper<T, Y extends CommandParameters> extends OptionalPie implements IPieable<T, Y> {
+public class PieableListResultWrapper<T, Y extends CommandParameters> extends OptionalPie implements IPieableList<T, Y> {
 
     private final Function<T, String> keyMapper;
     private final ToIntFunction<T> valueMapper;
     Predicate<T> parted;
 
-    public PieableResultWrapper(Parser<Y> parser, Function<T, String> keyMapper, ToIntFunction<T> valueMapper) {
+    public PieableListResultWrapper(Parser<Y> parser, Function<T, String> keyMapper, ToIntFunction<T> valueMapper) {
 
         this(parser, keyMapper, valueMapper, null);
         AtomicInteger acceptedCount = new AtomicInteger(0);
@@ -33,7 +33,7 @@ public class PieableResultWrapper<T, Y extends CommandParameters> extends Option
 
     }
 
-    public PieableResultWrapper(Parser<Y> parser, Function<T, String> keyMapper, ToIntFunction<T> valueMapper, Predicate<T> parted) {
+    public PieableListResultWrapper(Parser<Y> parser, Function<T, String> keyMapper, ToIntFunction<T> valueMapper, Predicate<T> parted) {
         super(parser);
         this.keyMapper = keyMapper;
         this.valueMapper = valueMapper;
@@ -44,7 +44,7 @@ public class PieableResultWrapper<T, Y extends CommandParameters> extends Option
     @Override
     public PieChart fillPie(PieChart chart, Y params, List<T> data) {
         AtomicInteger acceptedCount = new AtomicInteger(0);
-        fillSeries(chart,
+        fillListedSeries(chart,
                 keyMapper,
                 valueMapper,
                 x -> {

@@ -1,10 +1,14 @@
 package core.commands;
 
+import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.WorldMapRenderer;
+import core.parsers.NumberParser;
+import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
+import core.parsers.params.NumberParameters;
 import core.parsers.params.TimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.ArtistInfo;
@@ -15,13 +19,19 @@ import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class CountryCommand extends ConcurrentCommand<TimeFrameParameters> {
+import static core.parsers.ExtraParser.LIMIT_ERROR;
+
+public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrameParameters>> {
     private final MusicBrainzService musicBrainz;
 
     public CountryCommand(ChuuService dao) {
@@ -31,14 +41,29 @@ public class CountryCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
 
+
+
     @Override
     protected CommandCategory getCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<TimeFrameParameters> getParser() {
-        return new TimerFrameParser(getService(), TimeFrameEnum.ALL);
+    public Parser<NumberParameters<TimeFrameParameters>> getParser() {
+        Map<Integer, String> map = new HashMap<>(2);
+        map.put(LIMIT_ERROR, "The number introduced must be between 1 and 5");
+        String s = "A number which represent the palette to use.\n" +
+                "If it is not indicated it defaults to a random palette";
+        return new NumberParser<>(new TimerFrameParser(getService(), TimeFrameEnum.ALL),
+                null,
+                5,
+                map, s, false, true, false);
+
+    }
+
+    @Override
+    public String getUsageInstructions() {
+        return super.getUsageInstructions() + "\nThe existing palettes are the following:\n" + "https://cdn.discordapp.com/attachments/698702434108964874/725486389801779282/unknown.png";
     }
 
     @Override
@@ -58,12 +83,16 @@ public class CountryCommand extends ConcurrentCommand<TimeFrameParameters> {
 
     @Override
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        TimeFrameParameters returned = parser.parse(e);
-
-        String username = returned.getLastFMData().getName();
-        long discordId = returned.getLastFMData().getDiscordId();
+        NumberParameters<TimeFrameParameters> parse = parser.parse(e);
+        if (parse == null) {
+            return;
+        }
+        Long pallete = (parse.getExtraParam());
+        TimeFrameParameters params = parse.getInnerParams();
+        String username = params.getLastFMData().getName();
+        long discordId = params.getLastFMData().getDiscordId();
         CompletableFuture<Message> future = null;
-        TimeFrameEnum time = returned.getTime();
+        TimeFrameEnum time = params.getTime();
         if (time.equals(TimeFrameEnum.SEMESTER) || time.equals(TimeFrameEnum.ALL)) {
             future = sendMessage(e, "Going to take a while ").submit();
         }
@@ -83,8 +112,12 @@ public class CountryCommand extends ConcurrentCommand<TimeFrameParameters> {
             sendMessageQueue(e, "Was not able to find any country on " + getUserString(e, discordId, username) + " 's artists");
             return;
         }
-
-        byte[] b = WorldMapRenderer.generateImage(map, CommandUtil.getUserInfoNotStripped(e, discordId).getUsername());
+        Integer indexPalette;
+        if (pallete != null)
+            indexPalette = Math.toIntExact(pallete - 1);
+        else
+            indexPalette = null;
+        byte[] b = WorldMapRenderer.generateImage(map, CommandUtil.getUserInfoNotStripped(e, discordId).getUsername(), indexPalette);
         CommandUtil.handleConditionalMessage(future);
         if (b == null) {
             parser.sendError("Unknown error happened while creating the map", e);
@@ -97,4 +130,6 @@ public class CountryCommand extends ConcurrentCommand<TimeFrameParameters> {
             e.getChannel().sendMessage("Boot too big").queue();
 
     }
+
+
 }

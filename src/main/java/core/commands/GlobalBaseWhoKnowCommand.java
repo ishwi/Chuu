@@ -6,6 +6,7 @@ import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -19,55 +20,35 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class GlobalWhoKnowCommand extends WhoKnowsCommand {
-    public GlobalWhoKnowCommand(ChuuService dao) {
+public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> extends WhoKnowsBaseCommand<T> {
+    public GlobalBaseWhoKnowCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = true;
-    }
-
-    @Override
-    public Parser<ArtistParameters> getParser() {
-        Parser<ArtistParameters> parser = super.getParser();
         parser.addOptional(new OptionalEntity("--nobotted", "discard users that have been manually flagged as potentially botted accounts"));
-        return parser;
+    }
+
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.BOT_STATS;
     }
 
     @Override
-    public String getName() {
-        return "Global Who Knows";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Like who knows but for all bot users and keeping some privacy :flushed:";
-    }
-
-    @Override
-    public List<String> getAliases() {
-        return List.of("globalwhoknows", "gk", "gwk");
-    }
-
-    @Override
-    void doImage(ArtistParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
+    void doImage(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         MessageReceivedEvent e = ap.getE();
-        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, e.getJDA().getSelfUser().getName(), null);
+
+        BufferedImage logo = null;
+        String title = e.getJDA().getSelfUser().getName();
+        if (e.isFromGuild()) {
+            logo = CommandUtil.getLogo(getService(), e);
+        }
+        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title, logo);
         sendImage(image, e);
+
     }
 
     @Override
-    void whoKnowsLogic(ArtistParameters ap) {
-        ScrobbledArtist who = ap.getScrobbledArtist();
-        long artistId = who.getArtistId();
-        WhoKnowsMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
-
-        boolean b = ap.hasOptional("--nobotted");
-        long author = ap.getE().getAuthor().getIdLong();
-        WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.getService().globalWhoKnows(artistId, !b, author) : this.getService().globalWhoKnows(artistId, Integer.MAX_VALUE, !b, author);
-        if (wrapperReturnNowPlaying.getRows() == 0) {
-            sendMessageQueue(ap.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(who.getArtist()));
-            return;
-        }
+    public void generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, T ap, long author, WhoKnowsMode effectiveMode) {
         Set<Long> showableUsers;
         if (ap.getE().isFromGuild()) {
             showableUsers = getService().getAll(ap.getE().getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
@@ -106,7 +87,6 @@ public class GlobalWhoKnowCommand extends WhoKnowsCommand {
                             x1.setDisplayer(a);
                         }
                 );
-        wrapperReturnNowPlaying.setUrl(who.getUrl());
         switch (effectiveMode) {
             case IMAGE:
                 doImage(ap, wrapperReturnNowPlaying);
@@ -119,4 +99,6 @@ public class GlobalWhoKnowCommand extends WhoKnowsCommand {
                 break;
         }
     }
+
+
 }

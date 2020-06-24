@@ -67,7 +67,7 @@ public class AlbumChart extends UrlCapsule {
         return (jsonObject, ignored) ->
         {
             NowPlayingArtist x = fromRecentTrack(jsonObject, TopEntity.ALBUM);
-            return new AlbumChart(x.getUrl(), 0, x.getAlbumName(), x.getArtistName(), x.getMbid(), 1,
+            return new AlbumChart(x.getUrl(), 0, x.getAlbumName(), x.getArtistName(), x.getArtistMbid(), 1,
                     chartParameters.isWriteTitles()
                     , chartParameters.isWritePlays());
         };

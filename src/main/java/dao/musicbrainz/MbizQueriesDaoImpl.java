@@ -998,6 +998,109 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
         return returnList;
     }
 
+    @Override
+    public Map<Language, Long> getScriptLanguages(Connection connection, List<AlbumInfo> mbiz) {
+        Map<Language, Long> returnMap = new HashMap<>();
+
+        StringBuilder queryString = new StringBuilder("SELECT \n" +
+                "b.name as language_name,iso_code_3 as code,count(*) as frequency\n" +
+                "FROM\n" +
+                "    musicbrainz.release a\n" +
+                "     join musicbrainz.language b ON a.language = b.id\n" +
+                " where " +
+                "    a.gid in (");
+        for (AlbumInfo ignored : mbiz) {
+            queryString.append(" ? ,");
+        }
+        queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
+        queryString.append(" group by b.name,b.iso_code_3 ");
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString.toString())) {
+            int i = 1;
+
+            for (AlbumInfo albumInfo : mbiz) {
+                preparedStatement.setObject(i++, java.util.UUID.fromString(albumInfo.getMbid()));
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                String language_name = resultSet.getString("language_name");
+                String code = resultSet.getString("code");
+
+                long frequency = resultSet.getLong("frequency");
+
+                returnMap.put(new Language(language_name, code), frequency);
+            }
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return returnMap;
+    }
+
+    @Override
+    public List<AlbumGenre> getAlbumRecommendationsByGenre(Connection connection, Map<Genre, Integer> map, List<ScrobbledArtist> recs) {
+        String queryString = "SELECT DISTINCT on (a.name) \n" +
+                "    (a.name) as artistname, b.name as albumname,e.name  as genreName \n" +
+                "FROM\n" +
+                "    musicbrainz.artist_credit a\n" +
+                "        JOIN\n" +
+                "    musicbrainz.release b ON a.id = b.artist_credit\n" +
+                "        JOIN" +
+                "     musicbrainz.release_group c on b.release_group = c.id\n" +
+                "  join " +
+                "   musicbrainz.release_group_tag d on c.id = d.release_group " +
+                " join tag e on d.tag = e.id ";
+
+        String whereSentence = "";
+        StringBuilder artistWhere = new StringBuilder("where a.name in (");
+        StringBuilder genreWhere = new StringBuilder(" and e.name in (");
+        for (ScrobbledArtist ignored : recs) {
+            artistWhere.append(" ? ,");
+        }
+        for (int i = 0; i < map.size(); i++) {
+            genreWhere.append("? ,");
+        }
+
+        whereSentence += artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
+        whereSentence += genreWhere.toString().substring(0, genreWhere.length() - 1) + ") ";
+
+
+        List<AlbumGenre> returnList = new ArrayList<>();
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement(queryString + whereSentence)) {
+            int i = 1;
+
+            for (ScrobbledArtist albumInfo : recs) {
+
+                preparedStatement.setString(i++, albumInfo.getArtist());
+            }
+            for (Map.Entry<Genre, Integer> genreIntegerEntry : map.entrySet()) {
+                preparedStatement.setString(i++, genreIntegerEntry.getKey().getGenreName());
+            }
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                String artist = resultSet.getString("artistname");
+                String album = resultSet.getString("albumname");
+                String genre = resultSet.getString("genreName");
+
+
+                AlbumGenre ai = new AlbumGenre(artist, album, genre);
+                returnList.add(ai);
+            }
+        } catch (
+                SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return returnList;
+    }
+
     private void prepareRealeaseYearStatementAverage(List<AlbumInfo> releaseInfo, Year
             year, List<CountWrapper<AlbumInfo>> returnList, PreparedStatement preparedStatement) throws
             SQLException {

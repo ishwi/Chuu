@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class PieableChart extends OptionalPie implements IPieable<UrlCapsule, ChartParameters> {
+public class PieableListChart extends OptionalPie implements IPieableList<UrlCapsule, ChartParameters> {
 
 
-    public PieableChart(Parser<?> parser) {
+    public PieableListChart(Parser<?> parser) {
         super(parser);
     }
 
@@ -24,7 +24,7 @@ public class PieableChart extends OptionalPie implements IPieable<UrlCapsule, Ch
         int breakpoint = (int) (0.75 * total);
         AtomicInteger counter = new AtomicInteger(0);
         AtomicInteger acceptedCount = new AtomicInteger(0);
-        fillSeries(chart,
+        fillListedSeries(chart,
                 x -> x.getLines().stream().map(ChartLine::getLine).collect(Collectors.joining(" - ")),
                 UrlCapsule::getChartValue,
                 x -> {

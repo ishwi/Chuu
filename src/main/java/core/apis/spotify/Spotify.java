@@ -58,8 +58,7 @@ public class Spotify {
         }
     }
 
-    public List<dao.entities.Track> getAlbumTrackList(String artist, String album) {
-        ArrayList<dao.entities.Track> tracks = new ArrayList<>();
+    private Paging<AlbumSimplified> searchAlbum(String artist, String album) throws ParseException, SpotifyWebApiException, IOException {
         initRequest();
         artist = artist.contains(":") ? "\"" + artist + "\"" : artist;
         album = album.contains(":") ? "\"" + album + "\"" : album;
@@ -69,10 +68,30 @@ public class Spotify {
                 .limit(1)
                 .offset(0)
                 .build();
+        return build.execute();
+    }
+
+    public String getAlbumLink(String artist, String album) {
+        String returned = null;
+        try {
+            Paging<AlbumSimplified> albumSimplifiedPaging = searchAlbum(artist, album);
+            for (AlbumSimplified item : albumSimplifiedPaging.getItems()) {
+                returned = "https://open.spotify.com/album/" + item.getUri().split("spotify:album:")[1];
+            }
+
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+        }
+        return returned;
+
+    }
+
+    public List<dao.entities.Track> getAlbumTrackList(String artist, String album) {
+        ArrayList<dao.entities.Track> tracks = new ArrayList<>();
         String returned = "";
         try {
-            Paging<AlbumSimplified> execute = build.execute();
-            for (AlbumSimplified item : execute.getItems()) {
+            Paging<AlbumSimplified> albumSimplifiedPaging = searchAlbum(artist, album);
+            for (AlbumSimplified item : albumSimplifiedPaging.getItems()) {
                 returned = item.getId();
             }
 
@@ -82,10 +101,9 @@ public class Spotify {
         if (returned.equals("")) {
             return tracks;
         }
-        String finalArtist = artist;
         try {
             return Arrays.stream(spotifyApi.getAlbum(returned).market(CountryCode.NZ).build().execute().getTracks().getItems()).map(x -> {
-                dao.entities.Track track = new dao.entities.Track(finalArtist, x.getName(), 0, false, x.getDurationMs());
+                dao.entities.Track track = new dao.entities.Track(artist, x.getName(), 0, false, x.getDurationMs());
                 track.setPosition(x.getTrackNumber() - 1);
                 return track;
             }).collect(Collectors.toList());

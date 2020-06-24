@@ -1,6 +1,6 @@
 package core.commands;
 
-import core.imagerenderer.util.PieableResultWrapper;
+import core.imagerenderer.util.PieableListResultWrapper;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
     public GlobalArtistFrequenciesCommand(ChuuService dao) {
         super(dao);
-        this.pie = new PieableResultWrapper<>(getParser(),
+        this.pie = new PieableListResultWrapper<>(getParser(),
                 ArtistPlays::getArtistName,
                 ArtistPlays::getCount);
     }

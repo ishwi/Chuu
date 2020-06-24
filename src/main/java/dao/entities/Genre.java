@@ -30,9 +30,8 @@ public class Genre {
 
     @Override
     public int hashCode() {
-        int result = mapString(genreName).hashCode();
-        result = 31 * result + representativeArtist.hashCode();
-        return result;
+        //result = 31 * result + representativeArtist.hashCode();
+        return mapString(genreName).hashCode();
     }
 
     @Override
@@ -42,8 +41,7 @@ public class Genre {
 
         Genre genre = (Genre) o;
 
-        if (!mapString(genreName).equals(mapString(genre.genreName))) return false;
-        return representativeArtist.equals(genre.representativeArtist);
+        return mapString(genreName).equals(mapString(genre.genreName));
     }
 
     private String mapString(String string) {

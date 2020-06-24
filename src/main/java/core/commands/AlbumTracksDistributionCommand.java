@@ -1,23 +1,19 @@
 package core.commands;
 
 import com.google.common.collect.Multimaps;
-import com.wrapper.spotify.SpotifyApi;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.TrackDistributor;
-import core.imagerenderer.util.IPieable;
-import core.imagerenderer.util.PieableKnows;
-import core.imagerenderer.util.PieableTrack;
+import core.imagerenderer.util.IPieableList;
+import core.imagerenderer.util.PieableListTrack;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
@@ -37,13 +33,13 @@ import java.util.stream.Collectors;
 public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
     private final MusicBrainzService mb;
     private final Spotify spotifyApi;
-    private final IPieable<Track, ArtistAlbumParameters> pie;
+    private final IPieableList<Track, ArtistAlbumParameters> pie;
 
     public AlbumTracksDistributionCommand(ChuuService dao) {
 
         super(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
-        this.pie = new PieableTrack(this.parser);
+        this.pie = new PieableListTrack(this.parser);
         spotifyApi = SpotifySingleton.getInstance();
     }
 

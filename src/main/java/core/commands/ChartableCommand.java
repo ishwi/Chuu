@@ -5,8 +5,8 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
 import core.imagerenderer.GraphicUtils;
-import core.imagerenderer.util.IPieable;
-import core.imagerenderer.util.PieableChart;
+import core.imagerenderer.util.IPieableList;
+import core.imagerenderer.util.PieableListChart;
 import core.otherlisteners.Reactionary;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartParameters;
@@ -30,7 +30,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class ChartableCommand<T extends ChartParameters> extends ConcurrentCommand<T> {
-    public IPieable<UrlCapsule, ChartParameters> pie;
+    public IPieableList<UrlCapsule, ChartParameters> pie;
 
     public ChartableCommand(ChuuService dao) {
         super(dao);
@@ -177,8 +177,8 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
 
     public abstract void noElementsMessage(T parameters);
 
-    public IPieable<UrlCapsule, ChartParameters> getPie() {
-        return new PieableChart(this.parser);
+    public IPieableList<UrlCapsule, ChartParameters> getPie() {
+        return new PieableListChart(this.parser);
     }
 
 

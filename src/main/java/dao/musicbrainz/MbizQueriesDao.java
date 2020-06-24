@@ -53,4 +53,8 @@ interface MbizQueriesDao {
 
     List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameAverageDecade(Connection connection, List<AlbumInfo> emptyMbid, int decade, int numberOfYears);
 
+    Map<Language, Long> getScriptLanguages(Connection connection, List<AlbumInfo> mbiz);
+
+
+    List<AlbumGenre> getAlbumRecommendationsByGenre(Connection connection, Map<Genre, Integer> map, List<ScrobbledArtist> recs);
 }

@@ -1305,57 +1305,99 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public UniqueWrapper<ArtistPlays> getUserAlbumCrowns(Connection connection, String lastfmId,
-                                                         long guildId) {
+    public UniqueWrapper<AlbumPlays> getUserAlbumCrowns(Connection connection, String lastfmId, int crownThreshold, long guildID) {
+        long discordId = -1L;
+        @Language("MariaDB") String queryString = "SELECT d.name, a2.album_name, b.discord_id , playnumber AS orden" +
+                " FROM  scrobbled_album  a" +
+                " JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                " JOIN album a2 ON a.album_id = a2.id " +
+                " join artist d on a2.artist_id = d.id " +
+                " WHERE  b.lastfm_id = ?" +
+                " AND playnumber >= ? " +
+                " AND  playnumber >= ALL" +
+                "       (SELECT max(b.playnumber) " +
+                " FROM " +
+                "(SELECT in_a.album_id,in_a.playnumber" +
+                " FROM scrobbled_album in_a  " +
+                " JOIN " +
+                " user in_b" +
+                " ON in_a.lastfm_id = in_b.lastfm_id" +
+                " NATURAL JOIN " +
+                " user_guild in_c" +
+                " WHERE guild_id = ?" +
+                "   ) AS b" +
+                "" +
+                " WHERE b.album_id = a.album_id" +
+                " GROUP BY album_id)" +
+                " ORDER BY orden DESC";
 
-        @Language("MariaDB") String queryString = "SELECT a2.name ,a.album,a.plays,b.discord_id " +
-                "FROM album_crowns a " +
-                "JOIN user b ON a.discordid = b.discord_id" +
-                " JOIN artist a2 ON a.artist_id = a2.id " +
-                " WHERE guildid = ? AND b.lastfm_id = ? ORDER BY plays DESC";
-
+        List<AlbumPlays> returnList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
-            preparedStatement.setLong(i++, guildId);
-            preparedStatement.setString(i, lastfmId);
+            preparedStatement.setString(i++, lastfmId);
+            preparedStatement.setInt(i++, crownThreshold);
+            preparedStatement.setLong(i, guildID);
+
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            List<ArtistPlays> returnList = new ArrayList<>();
-            long discordId = 0;
-            while (resultSet.next()) { //&& (j < 10 && j < rows)) {
-                discordId = resultSet.getLong("discord_id");
-                String name = resultSet.getString("name");
-                String album = resultSet.getString("album");
 
-                int countA = resultSet.getInt("plays");
+            while (resultSet.next()) {
+                discordId = resultSet.getLong("b.discord_id");
 
-                returnList.add(new ArtistPlays(name + " - " + album, countA));
+                String artist = resultSet.getString("d.name");
+                String album = resultSet.getString("a2.album_name");
 
+
+                int plays = resultSet.getInt("orden");
+                returnList.add(new AlbumPlays(artist, plays, album));
             }
-            return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
-
-
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
         }
-        return null;
+        return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
     }
 
 
     @Override
-    public List<LbEntry> albumCrownsLeaderboard(Connection con, long guildID) {
-        @Language("MariaDB") String queryString = "SELECT \n" +
-                "    b.discord_id , b.lastfm_id, COUNT(*) AS ord\n" +
-                "FROM\n" +
-                "    album_crowns a\n" +
-                "      RIGHT JOIN\n" +
-                "    user b ON a.discordid = b.discord_id\n" +
-                "WHERE\n" +
-                "    guildid = ?\n" +
-                "GROUP BY a.discordid , b.lastfm_id\n" +
-                "ORDER BY ord DESC ;";
+    public List<LbEntry> albumCrownsLeaderboard(Connection con, long guildID, int threshold) {
+        @Language("MariaDB") String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
+                "FROM " +
+                "( " +
+                "SELECT " +
+                "        a.album_id,max(a.playnumber) plays " +
+                "    FROM " +
+                "         scrobbled_album a  " +
+                "    JOIN " +
+                "        user b  " +
+                "            ON a.lastfm_id = b.lastfm_id  " +
+                "    JOIN " +
+                "        user_guild c  " +
+                "            ON b.discord_id = c.discord_id  " +
+                "    WHERE " +
+                "        c.guild_id = ?  " +
+                "    GROUP BY " +
+                "        a.album_id  " +
+                "  ) t " +
+                "  JOIN scrobbled_album t2  " +
+                "   " +
+                "  ON t.plays = t2.playnumber AND t.album_id = t2.album_id " +
+                "  JOIN user t3  ON t2.lastfm_id = t3.lastfm_id  " +
+                "    JOIN " +
+                "        user_guild t4  " +
+                "            ON t3.discord_id = t4.discord_id  " +
+                "    WHERE " +
+                "        t4.guild_id = ?  ";
+        if (threshold != 0) {
+            queryString += " and t2.playnumber > ? ";
+        }
 
-        return getLbEntries(con, guildID, queryString, AlbumCrownLbEntry::new, false, 0);
+
+        queryString += "  GROUP BY t2.lastfm_id,t3.discord_id " +
+                "  ORDER BY ord DESC";
+
+
+        return getLbEntries(con, guildID, queryString, AlbumCrownLbEntry::new, true, threshold);
     }
 
     @Override
@@ -1508,6 +1550,167 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException((e));
+        }
+    }
+
+
+    @Override
+    public WrapperReturnNowPlaying whoKnowsAlbum(Connection con, long albumId, long guildId, int limit) {
+
+        @Language("MariaDB")
+        String queryString =
+                "SELECT a2.album_name,a3.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id " +
+                        "FROM  scrobbled_album a" +
+                        " JOIN album a2 ON a.album_id = a2.id  " +
+                        " join artist a3 on a2.artist_id = a3.id " +
+                        "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
+                        "JOIN user_guild d on c.discord_ID = d.discord_Id " +
+                        "where d.guild_Id = ? " +
+                        "and  a2.id = ? " +
+                        "ORDER BY a.playNumber desc ";
+        queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, guildId);
+            preparedStatement.setLong(i, albumId);
+
+
+
+            /* Execute query. */
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            String url = "";
+            String artistName = "";
+            String albumName = "";
+            List<ReturnNowPlaying> returnList = new ArrayList<>();
+
+
+
+            /* Get results. */
+            int j = 0;
+            while (resultSet.next() && (j < limit)) {
+                url = resultSet.getString("a2.url");
+                artistName = resultSet.getString("a3.name");
+                albumName = resultSet.getString("a2.album_name");
+
+                String lastfmId = resultSet.getString("a.lastFM_ID");
+
+                int playNumber = resultSet.getInt("a.playNumber");
+                long discordId = resultSet.getLong("c.discord_ID");
+
+                returnList.add(new ReturnNowPlaying(discordId, lastfmId, artistName + " - " + albumName, playNumber));
+            }
+            /* Return booking. */
+            return new WrapperReturnNowPlaying(returnList, returnList.size(), url, artistName);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public WrapperReturnNowPlaying globalWhoKnowsAlbum(Connection con, long albumId, int limit, long ownerId, boolean includeBottedUsers) {
+
+        @Language("MariaDB")
+        String queryString =
+                "SELECT a2.album_name,a3.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id,c.privacy_mode " +
+                        "FROM  scrobbled_album a" +
+                        " JOIN album a2 ON a.album_id = a2.id  " +
+                        " join artist a3 on a2.artist_id = a3.id " +
+                        "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
+                        " where   (? or not c.botted_account or c.discord_id = ? )  " +
+                        "and  a2.id = ? " +
+                        "ORDER BY a.playNumber desc ";
+        queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setBoolean(i++, includeBottedUsers);
+            preparedStatement.setLong(i++, ownerId);
+            preparedStatement.setLong(i, albumId);
+
+
+
+
+
+
+            /* Execute query. */
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            String url = "";
+            String artistName = "";
+            String albumName = "";
+
+            List<ReturnNowPlaying> returnList = new ArrayList<>();
+
+
+
+            /* Get results. */
+            int j = 0;
+            while (resultSet.next() && (j < limit)) {
+                url = resultSet.getString("a2.url");
+                artistName = resultSet.getString("a3.name");
+                albumName = resultSet.getString("a2.album_name");
+
+                String lastfmId = resultSet.getString("a.lastFM_ID");
+
+                int playNumber = resultSet.getInt("a.playNumber");
+                long discordId = resultSet.getLong("c.discord_ID");
+                PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString("c.privacy_mode"));
+
+                returnList.add(new GlobalReturnNowPlaying(discordId, lastfmId, artistName + " - " + albumName, playNumber, privacyMode));
+            }
+            /* Return booking. */
+            return new WrapperReturnNowPlaying(returnList, returnList.size(), url, artistName + " - " + albumName);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public UniqueWrapper<AlbumPlays> albumUniques(Connection connection, long guildID, String lastfmId) {
+        @Language("MariaDB") String queryString = "SELECT * " +
+                "FROM(  " +
+                "       SELECT a2.album_name,a3.name, playnumber, a.lastfm_id ,b.discord_id" +
+                "       FROM scrobbled_album a JOIN user b " +
+                "       ON a.lastfm_id = b.lastfm_id " +
+                "       JOIN user_guild c ON b.discord_id = c.discord_id " +
+                " JOIN album a2 ON a.album_id = a2.id " +
+                " join artist a3 on a2.artist_id = a3.id " +
+                "       WHERE c.guild_id = ? AND a.playnumber > 2 " +
+                "       GROUP BY a.album_id " +
+                "       HAVING count( *) = 1) temp " +
+                "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
+                " ORDER BY temp.playnumber DESC ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i++, guildID);
+            preparedStatement.setString(i, lastfmId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            List<AlbumPlays> returnList = new ArrayList<>();
+            long discordId = 0;
+            while (resultSet.next()) {
+                discordId = resultSet.getLong("temp.discord_id");
+                String album = resultSet.getString("temp.album_name");
+                String artist = resultSet.getString("temp.name");
+
+                int countA = resultSet.getInt("temp.playNumber");
+
+                returnList.add(new AlbumPlays(artist, countA, album));
+
+            }
+            return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
+
+
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
         }
     }
 }

@@ -50,7 +50,7 @@ public class TopServerRatingsCommand extends ListCommand<ScoredAlbumRatings, Com
 
     @Override
     public List<ScoredAlbumRatings> getList(CommandParameters params) {
-        return getService().getServerTopRatings();
+        return getService().getServerTopRatings(params.getE().getGuild().getIdLong());
     }
 
     @Override

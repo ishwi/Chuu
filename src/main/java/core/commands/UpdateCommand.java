@@ -18,9 +18,10 @@ import dao.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static core.scheduledtasks.UpdaterThread.groupAlbumsToArtist;
 
 public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     private final DiscogsApi discogsApi;
@@ -79,31 +80,52 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
         if (force) {
-            List<ScrobbledArtist> list = lastFM.getAllArtists(lastFmName, TimeFrameEnum.ALL.toApiFormat());
-            getService().insertArtistDataList(list, lastFmName);
+            List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFmName, TimeFrameEnum.ALL.toApiFormat());
+            List<ScrobbledArtist> artistData = groupAlbumsToArtist(albumData);
+
+            getService().albumUpdate(albumData, artistData, lastFmName);
         } else {
             UpdaterUserWrapper userUpdateStatus = null;
 
             try {
                 userUpdateStatus = getService().getUserUpdateStatus(discordID);
-
-                TimestampWrapper<List<ScrobbledArtist>> artistDataLinkedList = lastFM
-                        .getWhole(userUpdateStatus.getLastFMName(),
+                TimestampWrapper<List<ScrobbledAlbum>> albumDataList = lastFM
+                        .getNewWhole(lastFmName,
                                 userUpdateStatus.getTimestamp());
+
 
                 // Correction with current last fm implementation should return the same name so
                 // no correction gives
-                for (Iterator<ScrobbledArtist> iterator = artistDataLinkedList.getWrapped().iterator(); iterator.hasNext(); ) {
+                List<ScrobbledAlbum> albumData = albumDataList.getWrapped();
+                List<ScrobbledArtist> artistData = groupAlbumsToArtist(albumData);
+                albumData = albumData.stream().filter(x -> x != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
+                Map<String, ScrobbledArtist> changedName = new HashMap<>();
+                for (Iterator<ScrobbledArtist> iterator = artistData.iterator(); iterator.hasNext(); ) {
                     ScrobbledArtist datum = iterator.next();
                     try {
+                        String artist = datum.getArtist();
                         CommandUtil.validate(getService(), datum, lastFM, discogsApi, spotifyApi);
+                        String newArtist = datum.getArtist();
+                        if (!artist.equals(newArtist)) {
+                            ScrobbledArtist scrobbledArtist = new ScrobbledArtist(newArtist, 0, null);
+                            scrobbledArtist.setArtistId(datum.getArtistId());
+                            changedName.put(artist, scrobbledArtist);
+                        }
                     } catch (LastFmEntityNotFoundException ex) {
-                        Chuu.getLogger().error("WTF ARTIST DELETED {} ", datum.getArtist());
+                        Chuu.getLogger().error("WTF ARTIST DELETED" + datum.getArtist());
                         iterator.remove();
                     }
                 }
 
-                getService().incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
+                albumData.forEach(x -> {
+                    ScrobbledArtist scrobbledArtist = changedName.get(x.getArtist());
+                    if (scrobbledArtist != null) {
+                        x.setArtist(scrobbledArtist.getArtist());
+                        x.setArtistId(scrobbledArtist.getArtistId());
+                    }
+                });
+
+                getService().incrementalUpdate(new TimestampWrapper<>(artistData, albumDataList.getTimestamp()), lastFmName, albumData);                //getService().incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
             } catch (LastFMNoPlaysException ex) {
                 getService().updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
                         (int) (Instant.now().getEpochSecond() + 4000));

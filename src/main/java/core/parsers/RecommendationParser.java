@@ -11,8 +11,19 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class RecommendationParser extends DaoParser<RecommendationsParams> {
+    private final int defaultCount;
+
     public RecommendationParser(ChuuService dao) {
+        this(dao, 1);
+    }
+
+    public RecommendationParser(ChuuService dao, int defaultCount) {
         super(dao);
+        this.defaultCount = defaultCount;
+    }
+
+    public int getDefaultCount() {
+        return defaultCount;
     }
 
     @Override
@@ -30,7 +41,7 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
 
         Stream<String> secondStream = Arrays.stream(words).filter(s -> s.matches("\\d+"));
         Optional<String> opt2 = secondStream.findAny();
-        int recCount = 1;
+        int recCount = defaultCount;
 
         if (opt2.isPresent()) {
             recCount = Integer.parseInt(opt2.get());

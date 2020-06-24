@@ -8,9 +8,9 @@ import org.knowm.xchart.PieChart;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PieableKnowsAlbumArtist extends OptionalPie implements IPieable<ReturnNowPlaying, ArtistAlbumParameters> {
+public class PieableListKnowsAlbumArtist extends OptionalPie implements IPieableList<ReturnNowPlaying, ArtistAlbumParameters> {
 
-    public PieableKnowsAlbumArtist(Parser parser) {
+    public PieableListKnowsAlbumArtist(Parser<?> parser) {
         super(parser);
     }
 
@@ -21,7 +21,7 @@ public class PieableKnowsAlbumArtist extends OptionalPie implements IPieable<Ret
         int breakpoint = (int) (0.75 * total);
         AtomicInteger counter = new AtomicInteger(0);
         AtomicInteger acceptedCount = new AtomicInteger(0);
-        fillSeries(chart,
+        fillListedSeries(chart,
                 ReturnNowPlaying::getDiscordName,
                 ReturnNowPlaying::getPlayNumber,
                 x -> {

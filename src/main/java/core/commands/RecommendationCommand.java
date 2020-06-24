@@ -115,6 +115,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
 
                 embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
                         .setThumbnail(giverUI.getUrlImage())
+                        .setColor(CommandUtil.randomColor())
                         .setDescription(s);
                 new MessageBuilder(embedBuilder.build()).sendTo(e.getChannel()).queue();
             }

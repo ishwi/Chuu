@@ -1,9 +1,6 @@
 package dao;
 
-import dao.entities.RYMImportRating;
-import dao.entities.ScoredAlbumRatings;
-import dao.entities.AlbumRatings;
-import dao.entities.RymStats;
+import dao.entities.*;
 
 import java.sql.Connection;
 import java.util.Collection;
@@ -42,4 +39,5 @@ public interface SQLRYMDao {
 
     RymStats getRYMBotStats(Connection connection);
 
+    List<AlbumPlays> unratedAlbums(Connection connection, long discordId);
 }

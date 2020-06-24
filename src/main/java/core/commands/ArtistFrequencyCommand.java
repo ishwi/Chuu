@@ -1,6 +1,6 @@
 package core.commands;
 
-import core.imagerenderer.util.PieableResultWrapper;
+import core.imagerenderer.util.PieableListResultWrapper;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -22,7 +22,7 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
     public ArtistFrequencyCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
-        this.pie = new PieableResultWrapper<>(this.parser,
+        this.pie = new PieableListResultWrapper<>(this.parser,
                 ArtistPlays::getArtistName,
                 ArtistPlays::getCount);
 

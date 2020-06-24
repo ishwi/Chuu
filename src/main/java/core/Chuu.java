@@ -249,7 +249,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new ArtistUrlCommand(dao)))
                 .addEventListeners(help.registerCommand(new BandInfoCommand(dao)))
                 // .addEventListeners(help.registerCommand(new BandInfoNpCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoKnowsAlbumCommand(dao)))
+                .addEventListeners(help.registerCommand(new LocalWhoKnowsAlbumCommand(dao)))
                 .addEventListeners(help.registerCommand(new CrownLeaderboardCommand(dao)))
                 .addEventListeners(help.registerCommand(new CrownsCommand(dao)))
                 .addEventListeners(help.registerCommand(new RecentListCommand(dao)))
@@ -327,18 +327,24 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new GenreInfoCommand(dao)))
                 .addEventListeners(help.registerCommand(new GenreAlbumsCommands(dao)))
                 .addEventListeners(help.registerCommand(new GayCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalWhoKnowCommand(dao)))
+                .addEventListeners(help.registerCommand(new GlobalWhoKnowsCommand(dao)))
                 .addEventListeners(help.registerCommand(new RYMDumpImportCommand(dao)))
                 .addEventListeners(help.registerCommand(new AlbumRatings(dao)))
                 .addEventListeners(help.registerCommand(new ArtistRatingsCommand(dao)))
                 .addEventListeners(help.registerCommand(new TopRatingsCommand(dao)))
                 .addEventListeners(help.registerCommand(new TopServerRatingsCommand(dao)))
-
                 .addEventListeners(help.registerCommand(new UserRatings(dao)))
                 .addEventListeners(help.registerCommand(new PrivacySetterCommand(dao)))
                 .addEventListeners(help.registerCommand(new GlobalMatchingCommand(dao)))
                 .addEventListeners(help.registerCommand(new GlobalAffinity(dao)))
-                .addEventListeners(help.registerCommand(new GlobalRecommendationCommand(dao)));
+                .addEventListeners(help.registerCommand(new GlobalRecommendationCommand(dao)))
+                .addEventListeners(help.registerCommand(new LanguageCommand(dao)))
+                .addEventListeners(help.registerCommand(new AlbumRecommendationCommand(dao)))
+                .addEventListeners(help.registerCommand(new UnratedAlbums(dao)))
+                .addEventListeners(help.registerCommand(new GlobalWhoKnowsAlbumCommand(dao)))
+                .addEventListeners(help.registerCommand(new WhoKnowsAlbumCommand(dao)))
+                .addEventListeners(help.registerCommand(new BandInfoGlobalCommand(dao)))
+                .addEventListeners(help.registerCommand(new BandInfoServerCommand(dao)));
 
 
         try {
@@ -347,11 +353,11 @@ public class Chuu {
             initDisabledCommands(dao, jda);
             prefixCommand.onStartup(jda);
             jda.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
+            scheduledExecutorService.scheduleAtFixedRate(
+                    new UpdaterThread(dao, true), 0, 60,
+                    TimeUnit.SECONDS);
 
             if (!isTest) {
-                scheduledExecutorService.scheduleAtFixedRate(
-                        new UpdaterThread(dao, true), 0, 60,
-                        TimeUnit.SECONDS);
                 scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 20, 12, TimeUnit.MINUTES);
                 scheduledExecutorService.scheduleAtFixedRate(
                         new SpotifyUpdaterThread(dao), 20, 21,

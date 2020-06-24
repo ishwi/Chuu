@@ -49,4 +49,10 @@ alter table user
     add column default_y int default 5;
 
 alter table user
-    add column privacy_mode ENUM ('STRICT', 'NORMAL', 'TAG', 'LAST_NAME', 'DISCORD_NAME') DEFAULT  'NORMAL';
+    add column privacy_mode ENUM ('STRICT', 'NORMAL', 'TAG', 'LAST_NAME', 'DISCORD_NAME') DEFAULT 'NORMAL';
+
+ALTER TABLE ALBUM
+    DROP COLUMN MBID;
+
+ALTER TABLE ALBUM
+    ADD COLUMN mbid VARCHAR(36) unique;

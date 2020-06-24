@@ -3,10 +3,13 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
+import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.params.NumberParameters;
 import dao.ChuuService;
+import dao.entities.AlbumPlays;
 import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
@@ -15,9 +18,13 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class AlbumCrownsCommand extends ConcurrentCommand<ChuuDataParams> {
+import static core.parsers.ExtraParser.LIMIT_ERROR;
+
+public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
     public AlbumCrownsCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
@@ -30,8 +37,15 @@ public class AlbumCrownsCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public Parser<ChuuDataParams> getParser() {
-        return new OnlyUsernameParser(getService());
+    public Parser<NumberParameters<ChuuDataParams>> getParser() {
+        Map<Integer, String> map = new HashMap<>(2);
+        map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
+        String s = "You can also introduce a number to vary the number of plays to award a crown, " +
+                "defaults to whatever the guild has configured (0 if not configured)";
+        return new NumberParser<>(new OnlyUsernameParser(getService()),
+                null,
+                Integer.MAX_VALUE,
+                map, s, false, true, true);
     }
 
     @Override
@@ -51,14 +65,21 @@ public class AlbumCrownsCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ChuuDataParams params = parser.parse(e);
+        NumberParameters<ChuuDataParams> outer = parser.parse(e);
+        ChuuDataParams params = outer.getInnerParams();
+
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         String name = userInfo.getUsername();
         String url = userInfo.getUrlImage();
+        Long threshold = outer.getExtraParam();
+        long idLong = params.getE().getGuild().getIdLong();
 
-        UniqueWrapper<ArtistPlays> uniqueDataUniqueWrapper = getService()
-                .getUserAlbumCrowns(params.getLastFMData().getName(), e.getGuild().getIdLong());
-        List<ArtistPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
+        if (threshold == null) {
+            threshold = (long) getService().getGuildCrownThreshold(idLong);
+        }
+        UniqueWrapper<AlbumPlays> uniqueDataUniqueWrapper = getService()
+                .getUserAlbumCrowns(params.getLastFMData().getName(), e.getGuild().getIdLong(), Math.toIntExact(threshold));
+        List<AlbumPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 
         int rows = resultWrapper.size();
         if (rows == 0) {

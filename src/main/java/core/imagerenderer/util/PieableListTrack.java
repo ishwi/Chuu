@@ -1,20 +1,17 @@
 package core.imagerenderer.util;
 
 import core.commands.CommandUtil;
-import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import core.parsers.params.ArtistParameters;
-import dao.entities.ReturnNowPlaying;
 import dao.entities.Track;
 import org.knowm.xchart.PieChart;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PieableTrack extends OptionalPie implements IPieable<Track, ArtistAlbumParameters> {
+public class PieableListTrack extends OptionalPie implements IPieableList<Track, ArtistAlbumParameters> {
 
-    public PieableTrack(Parser<?> parser) {
+    public PieableListTrack(Parser<?> parser) {
         super(parser);
     }
 
@@ -25,7 +22,7 @@ public class PieableTrack extends OptionalPie implements IPieable<Track, ArtistA
         int breakpoint = (int) (0.75 * total);
         AtomicInteger counter = new AtomicInteger(0);
         AtomicInteger acceptedCount = new AtomicInteger(0);
-        fillSeries(chart,
+        fillListedSeries(chart,
                 (x) -> x.getName() + " - " + x.getPlays() + CommandUtil.singlePlural(x.getPlays(), " play", " plays"),
                 Track::getPlays,
                 x -> {

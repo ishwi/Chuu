@@ -3,7 +3,7 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
-import core.imagerenderer.util.PieableResultWrapper;
+import core.imagerenderer.util.PieableListResultWrapper;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.ResultWrapper;
@@ -17,7 +17,7 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 public abstract class ResultWrappedCommand<T, Y extends CommandParameters> extends ConcurrentCommand<Y> {
-    public PieableResultWrapper<T, Y> pie;
+    public PieableListResultWrapper<T, Y> pie;
 
     ResultWrappedCommand(ChuuService dao) {
         super(dao);

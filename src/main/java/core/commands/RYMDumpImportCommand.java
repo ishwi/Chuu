@@ -101,6 +101,11 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
             sendMessageQueue(e, "You need to upload a file  :thinking:");
             return;
         }
+        Pattern compile = Pattern.compile("https?://rateyourmusic.com/");
+        if (compile.matcher(url).matches()) {
+            sendMessageQueue(e, "You can't link directly to the export page, you should download the file and upload it to discord");
+            return;
+        }
         try {
             URL url1 = new URL(url);
             Scanner s = new Scanner(url1.openStream());

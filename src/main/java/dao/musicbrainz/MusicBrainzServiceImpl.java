@@ -302,4 +302,35 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             throw new ChuuServiceException(e);
         }
     }
+
+    @Override
+    public Map<Language, Long> getLanguageCountByMbid(List<AlbumInfo> withMbid) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (withMbid.isEmpty()) {
+                return new HashMap<>();
+            }
+
+            return mbizQueriesDao.getScriptLanguages(connection, withMbid);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<AlbumGenre> getAlbumRecommendationsByGenre(Map<Genre, Integer> map, List<ScrobbledArtist> recs) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (map.isEmpty() || recs.isEmpty()) {
+                return new ArrayList<>();
+            }
+
+            return mbizQueriesDao.getAlbumRecommendationsByGenre(connection, map, recs);
+
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
 }

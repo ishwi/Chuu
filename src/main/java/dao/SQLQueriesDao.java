@@ -40,15 +40,16 @@ interface SQLQueriesDao {
 
     StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser, long guildId, int threshold);
 
-    UniqueWrapper<ArtistPlays> getUserAlbumCrowns(Connection connection, String lastfmID, long guildId);
 
-    List<LbEntry> albumCrownsLeaderboard(Connection con, long guildID);
+    UniqueWrapper<AlbumPlays> getUserAlbumCrowns(Connection connection, String lastfmId, int crownThreshold, long guildID);
+
+    List<LbEntry> albumCrownsLeaderboard(Connection con, long guildID, int threshold);
 
     ObscuritySummary getUserObscuritPoints(Connection connection, String lastfmid);
 
     int getRandomCount(Connection connection, Long userId);
 
-    List<GlobalCrown> getGlobalKnows(Connection connection, long artistID, boolean includeBottedUsers,long ownerId);
+    List<GlobalCrown> getGlobalKnows(Connection connection, long artistID, boolean includeBottedUsers, long ownerId);
 
     void getGlobalRank(Connection connection, String lastfmid);
 
@@ -94,4 +95,10 @@ interface SQLQueriesDao {
 
     WrapperReturnNowPlaying getGlobalWhoKnows(Connection connection, long artistId, int limit, boolean includeBottedUsers, long ownerId);
 
+    WrapperReturnNowPlaying whoKnowsAlbum(Connection con, long albumId, long guildId, int limit);
+
+
+    WrapperReturnNowPlaying globalWhoKnowsAlbum(Connection con, long albumId, int limit, long ownerId, boolean includeBottedUsers);
+
+    UniqueWrapper<AlbumPlays> albumUniques(Connection connection, long guildId, String lastfmId);
 }

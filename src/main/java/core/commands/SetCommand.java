@@ -6,6 +6,7 @@ import core.parsers.ChartableParser;
 import core.parsers.Parser;
 import core.parsers.SetParser;
 import core.parsers.params.WordParameter;
+import core.scheduledtasks.UpdaterThread;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -136,8 +137,11 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
 
         try {
 
-            List<ScrobbledArtist> allArtists = lastFM.getAllArtists(lastFmID, TimeFrameEnum.ALL.toApiFormat());
-            getService().insertArtistDataList(allArtists, lastFmID);
+
+            List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
+            List<ScrobbledArtist> artistData = UpdaterThread.groupAlbumsToArtist(albumData);
+
+            getService().albumUpdate(albumData, artistData, lastFmID);
             sendMessageQueue(e, "Finished updating " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + " library, you are good to go!");
         } catch (
                 LastFMNoPlaysException ex) {

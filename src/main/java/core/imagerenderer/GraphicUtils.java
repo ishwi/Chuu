@@ -1,8 +1,5 @@
 package core.imagerenderer;
 
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.youtube.YouTube;
-import core.Chuu;
 import core.apis.youtube.Search;
 import core.exceptions.ChuuServiceException;
 import core.imagerenderer.stealing.blur.GaussianFilter;
@@ -21,12 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.GeneralSecurityException;
-import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -64,7 +55,7 @@ public class GraphicUtils {
         float[] first1 = CIELab.getInstance().fromRGB(first.getColorComponents(null));
         float[] second1 = CIELab.getInstance().fromRGB(second.getColorComponents(null));
 
-        return D.doSomethin(first1, second1);
+        return D.getTheFreakingDistance(first1, second1);
 
     }
 

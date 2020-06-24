@@ -62,5 +62,9 @@ public interface MusicBrainzService {
 
     List<CountWrapper<AlbumInfo>> findArtistByReleaseWithAverageRangeYears(List<AlbumInfo> emptyMbid, int baseYear, int numberOfYears);
 
+    Map<Language, Long> getLanguageCountByMbid(List<AlbumInfo> withMbid);
+
+    List<AlbumGenre> getAlbumRecommendationsByGenre(Map<Genre, Integer> map, List<ScrobbledArtist> recs);
+
 }
 

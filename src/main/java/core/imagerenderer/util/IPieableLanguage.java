@@ -2,31 +2,36 @@ package core.imagerenderer.util;
 
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import dao.entities.ReturnNowPlaying;
+import core.parsers.params.CommandParameters;
+import dao.entities.AlbumUserPlays;
+import dao.entities.Language;
 import org.knowm.xchart.PieChart;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 
-public class PieableKnows extends OptionalPie implements IPieable<ReturnNowPlaying, ArtistParameters> {
-
-    public PieableKnows(Parser parser) {
+public class IPieableLanguage extends OptionalPie implements IPieableMap<Language, Long, CommandParameters> {
+    public IPieableLanguage(Parser<?> parser) {
         super(parser);
     }
 
 
     @Override
-    public PieChart fillPie(PieChart chart, ArtistParameters params, List<ReturnNowPlaying> data) {
-        int total = data.stream().mapToInt(ReturnNowPlaying::getPlayNumber).sum();
+    public PieChart fillPie(PieChart chart, CommandParameters params, Map<Language, Long> data) {
+        long total = data.values().stream().mapToLong(Long::longValue).sum();
         int breakpoint = (int) (0.75 * total);
         AtomicInteger counter = new AtomicInteger(0);
         AtomicInteger acceptedCount = new AtomicInteger(0);
-        fillSeries(chart,
-                ReturnNowPlaying::getDiscordName,
-                ReturnNowPlaying::getPlayNumber,
+        fillMappedSeries(chart,
+                Language::getName,
+                Long::intValue,
                 x -> {
                     if (acceptedCount.get() < 10 || (counter.get() < breakpoint && acceptedCount.get() < 15)) {
-                        counter.addAndGet(x.getPlayNumber());
+                        counter.addAndGet(x.getValue().intValue());
                         acceptedCount.incrementAndGet();
                         return true;
                     } else {
@@ -35,5 +40,6 @@ public class PieableKnows extends OptionalPie implements IPieable<ReturnNowPlayi
                 }, data);
         return chart;
     }
+
 
 }

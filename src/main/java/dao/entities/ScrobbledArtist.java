@@ -7,6 +7,7 @@ public class ScrobbledArtist {
     private String discordID;
     private String artist;
     private int count;
+    private String artistMbid;
     private String url;
     private boolean updateBit = false;
 
@@ -70,6 +71,14 @@ public class ScrobbledArtist {
     public void setUrl(String url) {
 
         this.url = url;
+    }
+
+    public String getArtistMbid() {
+        return artistMbid;
+    }
+
+    public void setArtistMbid(String artistMbid) {
+        this.artistMbid = artistMbid;
     }
 
     @Override

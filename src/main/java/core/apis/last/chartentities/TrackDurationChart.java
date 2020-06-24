@@ -50,7 +50,7 @@ public class TrackDurationChart extends TrackChart {
         {
             NowPlayingArtist x = AlbumChart.fromRecentTrack(jsonObject, TopEntity.TRACK);
             Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.getArtistName(), x.getSongName(), 1, false, 0), 200);
-            return new TrackDurationChart(null, 0, x.getSongName(), x.getArtistName(), x.getMbid(),
+            return new TrackDurationChart(null, 0, x.getSongName(), x.getArtistName(), x.getArtistMbid(),
                     1
                     , orDefault, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
         };

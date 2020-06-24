@@ -1,21 +1,6 @@
-# + Fix parenthesis on Now playing url
-# + proper message on set
-# + Add YT CLIENT NAME
-# Top scrobbles
-# Most Wins?
-#Remove on leaving all connected guilds;
-#Check guild users on login
-#Add png per guild db
-# *Fix albums
-#Add database creation script
-#Condition for doing command outside of guild
-#Fix the logging issue
-#clear git repo previously
-#remove api_key from lastfm
-##Migrate artist table with -> artist_url| incremental id
-#Only username Parser when username not on guild exception handling
-#heuristic update
-
+clear git repo previously
 ----maybe | If spotify/discogs/ token  mbiz db missing disable commands not crash
 ----no | option to embed mysql on jar
 ----yes | reorganize entities in a OOP way
+Add web server to allow spotify oauth
+

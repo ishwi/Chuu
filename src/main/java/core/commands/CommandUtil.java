@@ -5,6 +5,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.spotify.Spotify;
 import core.exceptions.DiscogsServiceException;
 import core.exceptions.InstanceNotFoundException;
+import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
@@ -145,6 +146,22 @@ public class CommandUtil {
             }
             if (scrobbledArtist.getUrl() == null || scrobbledArtist.getUrl().isBlank()) {
                 scrobbledArtist.setUrl(null);
+            }
+        }
+    }
+
+    public static long albumvalidate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM,String album) throws LastFmException {
+        try {
+            return dao.findAlbumIdByName(scrobbledArtist.getArtistId(), album);
+        } catch (InstanceNotFoundException exception) {
+            try {
+                FullAlbumEntityExtended chuu = lastFM.getAlbumSummary("chuu", scrobbledArtist.getArtist(), album);
+                ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), chuu.getAlbumUrl(), chuu.getMbid());
+                scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
+                dao.insertAlbum(scrobbledAlbum);
+                return scrobbledAlbum.getAlbumId();
+            } catch (LastFmEntityNotFoundException e) {
+                return -1L;
             }
         }
     }

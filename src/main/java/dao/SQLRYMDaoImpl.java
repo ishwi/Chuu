@@ -1,11 +1,7 @@
 package dao;
 
-import dao.entities.RYMImportRating;
-import dao.entities.ScoredAlbumRatings;
+import dao.entities.*;
 import core.exceptions.ChuuServiceException;
-import dao.entities.AlbumRatings;
-import dao.entities.Rating;
-import dao.entities.RymStats;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
@@ -144,7 +140,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
                 "join album d on c.album_id = d.id " +
                 "and d.album_name = ? " +
                 "and c.artist_id = ?" +
-                " order by  c.rating descs ";
+                " order by  c.rating desc ";
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
@@ -379,6 +375,41 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
 
 
         return getRymStats(connection, 1L, s);
+    }
+
+    @Override
+    public List<AlbumPlays> unratedAlbums(Connection connection, long discordId) {
+        List<AlbumPlays> returnList = new ArrayList<>();
+        String sql = "select a.album_name, d.name, b.playnumber from album a join " +
+                "scrobbled_album b on a.id = b.album_id  " +
+                "join user c on b.lastfm_id = c.lastfm_id  " +
+                " join artist d on a.artist_id = d.id" +
+                " " +
+                "where c.discord_id  = ?" +
+                " and a.id not in (select album_id from album_rating where c.discord_id = ? ) " +
+                " order by playnumber desc ";
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setLong(1, discordId);
+            preparedStatement.setLong(2, discordId);
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String albumName = resultSet.getString(1);
+                String artist = resultSet.getString(2);
+                int plays = resultSet.getInt(3);
+
+                returnList.add(new AlbumPlays(artist, plays, albumName));
+
+            }
+        } catch (
+                SQLException throwables) {
+
+            throw new ChuuServiceException(throwables);
+        }
+        return returnList;
+
     }
 
 }

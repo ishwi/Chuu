@@ -304,11 +304,11 @@ CREATE TABLE `album`
 (
     `id`           bigint(20)                              NOT NULL AUTO_INCREMENT,
     `artist_id`    bigint(20)                              DEFAULT NULL,
-    `album_name`   varchar(400) COLLATE  utf8mb4_unicode_ci NOT NULL,
-    `url`          varchar(400) COLLATE  utf8mb4_unicode_ci DEFAULT NULL,
+    `album_name`   varchar(400) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `url`          varchar(400) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
     `rym_id`       bigint(20)                              DEFAULT NULL,
     `mbid`         binary(16)                              DEFAULT NULL,
-    `spotify_id`   varchar(40) COLLATE  utf8mb4_unicode_ci  DEFAULT NULL,
+    `spotify_id`   varchar(40) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
     `release_year` smallint(6)                             DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `rym_id` (`rym_id`),
@@ -339,3 +339,15 @@ CREATE TABLE `album_rating`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE scrobbled_album
+(
+    artist_id  BIGINT(20)                           NOT NULL,
+    album_id   BIGINT(20)                           NOT NULL,
+    lastfm_id  VARCHAR(45) COLLATE ascii_general_ci NOT NULL,
+    playnumber INT(11)                              NOT NULL,
+    PRIMARY KEY (album_id, lastfm_id),
+    CONSTRAINT scrobbled_album_fk_artist FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT scrobbled_album_fk_album FOREIGN KEY (album_id) REFERENCES album (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT scrobbled_album_fk_user FOREIGN KEY (lastfm_id) REFERENCES user (lastfm_id) ON UPDATE CASCADE ON DELETE CASCADE
+);

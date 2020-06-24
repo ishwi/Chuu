@@ -9,8 +9,8 @@ import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.WhoKnowsMaker;
-import core.imagerenderer.util.IPieable;
-import core.imagerenderer.util.PieableKnows;
+import core.imagerenderer.util.IPieableList;
+import core.imagerenderer.util.PieableListKnows;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.OptionalEntity;
@@ -31,17 +31,10 @@ import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameters> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
-    private final IPieable<ReturnNowPlaying, ArtistParameters> pie;
+public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParameters> {
 
     public WhoKnowsAlbumCommand(ChuuService dao) {
         super(dao);
-        respondInPrivate = false;
-        this.pie = new PieableKnows(this.parser);
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -51,9 +44,7 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
 
     @Override
     public Parser<ArtistAlbumParameters> getParser() {
-        ArtistAlbumParser parser = new ArtistAlbumParser(getService(), lastFM, new OptionalEntity("--list", "display in list format"));
-        parser.setExpensiveSearch(true);
-        return parser;
+        return new ArtistAlbumParser(getService(), lastFM);
     }
 
     @Override
@@ -71,20 +62,17 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
         return "Get guild Album plays";
     }
 
+
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ArtistAlbumParameters ap = parser.parse(e);
-        if (ap == null) {
-            return;
-        }
+    WhoKnowsMode getWhoknowsMode(ArtistAlbumParameters params) {
+        return getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
+    }
+
+    @Override
+    WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsMode whoKnowsMode) throws LastFmException {
         ScrobbledArtist validable = new ScrobbledArtist(ap.getArtist(), 0, "");
         CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify, true, !ap.isNoredirect());
         ap.setScrobbledArtist(validable);
-        doSomethingWithAlbumArtist(ap);
-    }
-
-    public void doSomethingWithAlbumArtist(ArtistAlbumParameters ap) throws LastFmException {
-
         MessageReceivedEvent e = ap.getE();
         ScrobbledArtist artist = ap.getScrobbledArtist();
         long id = e.getGuild().getIdLong();
@@ -92,7 +80,7 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
         List<UsersWrapper> userList = getService().getAll(id);
         if (userList.isEmpty()) {
             sendMessageQueue(e, "There are no users registered on this server");
-            return;
+            return null;
         }
 
         // Gets play number for each registered artist
@@ -105,7 +93,7 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
         if (userList.isEmpty()) {
             Chuu.getLogger().error("Something went real wrong");
             sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.cleanMarkdownCharacter(ap.getArtist()), CommandUtil.cleanMarkdownCharacter(ap.getAlbum())));
-            return;
+            return null;
 
         }
         Map<UsersWrapper, Integer> userMapPlays = fillPlayCounter(userList, artist.getArtist(), ap.getAlbum(), urlContainter);
@@ -129,27 +117,16 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
         }).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
         if (list2.isEmpty()) {
             sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.cleanMarkdownCharacter(correctedArtist), CommandUtil.cleanMarkdownCharacter(correctedAlbum)));
-            return;
+            return null;
         }
 
 
         doExtraThings(list2, id, artist.getArtistId(), correctedAlbum);
 
-        WrapperReturnNowPlaying a = new WrapperReturnNowPlaying(list2, list.size(), urlContainter.getAlbumUrl(),
+        return new WrapperReturnNowPlaying(list2, list.size(), urlContainter.getAlbumUrl(),
                 correctedArtist + " - " + correctedAlbum);
-        switch (effectiveMode) {
-            case IMAGE:
-                BufferedImage sender = WhoKnowsMaker.generateWhoKnows(a, e.getGuild().getName(), logo);
-                sendImage(sender, e);
-                break;
-            case LIST:
-                doList(ap, a);
-                break;
-            case PIE:
-                doPie(ap, a);
-                break;
-        }
     }
+
 
     void doExtraThings(List<ReturnNowPlaying> list2, long id, long artistId, String album) {
         ReturnNowPlaying crownUser = list2.get(0);
@@ -177,43 +154,10 @@ public class WhoKnowsAlbumCommand extends ConcurrentCommand<ArtistAlbumParameter
         return userMapPlays;
     }
 
-    private void doList(ArtistAlbumParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        MessageBuilder messageBuilder = new MessageBuilder();
-        StringBuilder builder = new StringBuilder();
 
-        MessageReceivedEvent e = ap.getE();
-
-
-        int counter = 1;
-        for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {
-            builder.append(counter++)
-                    .append(returnNowPlaying.toString());
-            if (counter == 11)
-                break;
-        }
-        embedBuilder.setTitle("Who knows " + CommandUtil.cleanMarkdownCharacter(ap.getScrobbledArtist().getArtist()) + " - " + ap.getAlbum() + " in " + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "?").
-                setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
-                .setColor(CommandUtil.randomColor());
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel())
-                .queue(message1 ->
-                        new Reactionary<>(wrapperReturnNowPlaying
-                                .getReturnNowPlayings(), message1, embedBuilder));
-    }
-
-    private void doPie(ArtistAlbumParameters ap, WrapperReturnNowPlaying returnNowPlaying) {
-        PieChart pieChart = this.pie.doPie(null, returnNowPlaying.getReturnNowPlayings());
-        pieChart.setTitle("Who knows " + (ap.getScrobbledArtist().getArtist()) + " - " + ap.getAlbum() + " in " + (ap.getE().getGuild().getName()) + "?");
-        BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = bufferedImage.createGraphics();
-
-        GraphicUtils.setQuality(g);
-        pieChart.paint(g, 1000, 750);
-        BufferedImage backgroundImage = Scalr.resize(GraphicUtils.getImage(returnNowPlaying.getUrl()), 250);
-        if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 10, 750 - 10 - backgroundImage.getHeight(), null);
-        }
-        sendImage(bufferedImage, ap.getE());
+    @Override
+    public String getTitle(ArtistAlbumParameters params, String baseTitle) {
+        return "Who knows " + CommandUtil.cleanMarkdownCharacter(params.getArtist() + " - " + params.getAlbum()) + " in " + baseTitle + "?";
     }
 
 

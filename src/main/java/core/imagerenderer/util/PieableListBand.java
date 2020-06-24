@@ -8,10 +8,10 @@ import org.knowm.xchart.PieChart;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PieableBand extends OptionalPie implements IPieable<AlbumUserPlays, ArtistParameters> {
+public class PieableListBand extends OptionalPie implements IPieableList<AlbumUserPlays, ArtistParameters> {
 
 
-    public PieableBand(Parser parser) {
+    public PieableListBand(Parser<?> parser) {
         super(parser);
     }
 
@@ -22,7 +22,7 @@ public class PieableBand extends OptionalPie implements IPieable<AlbumUserPlays,
         int breakpoint = (int) (0.75 * total);
         AtomicInteger counter = new AtomicInteger(0);
         AtomicInteger acceptedCount = new AtomicInteger(0);
-        fillSeries(chart,
+        fillListedSeries(chart,
                 x -> x.getArtist() + " - " + x.getAlbum(),
                 AlbumUserPlays::getPlays,
                 x -> {
@@ -36,4 +36,6 @@ public class PieableBand extends OptionalPie implements IPieable<AlbumUserPlays,
                 }, data);
         return chart;
     }
+
+
 }
