@@ -107,9 +107,11 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
                         giver, receiver, CommandUtil.cleanMarkdownCharacter(recs.get(0).getArtist()), recs.get(0).getCount()));
                 getService().insertRecommendation(secondDiscordID, firstDiscordID, recs.get(0).getArtistId());
             } else {
+                int artistNum = 1;
                 StringBuilder s = new StringBuilder();
                 for (ScrobbledArtist rec : recs) {
-                    s.append((String.format("# [%s](%s): %d plays%n", CommandUtil.cleanMarkdownCharacter(rec.getArtist()), CommandUtil.getLastFmArtistUrl(rec.getArtist()), rec.getCount())));
+                    s.append((String.format("%d. [%s](%s): %d plays%n", artistNum, CommandUtil.cleanMarkdownCharacter(rec.getArtist()), CommandUtil.getLastFmArtistUrl(rec.getArtist()), rec.getCount())));
+                    artistNum++;
                 }
                 EmbedBuilder embedBuilder = new EmbedBuilder();
 
