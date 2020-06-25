@@ -10,6 +10,7 @@ import dao.ChuuService;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.sharding.ShardManager;
 
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +59,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParser> {
         return "Prefix setter";
     }
 
-    public void onStartup(JDA jda) {
+    public void onStartup(ShardManager jda) {
 
         Map<Long, Character> prefixMap = Chuu.getPrefixMap();
         List<Guild> guilds = jda.getGuilds();

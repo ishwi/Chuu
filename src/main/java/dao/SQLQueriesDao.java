@@ -101,4 +101,7 @@ interface SQLQueriesDao {
     WrapperReturnNowPlaying globalWhoKnowsAlbum(Connection con, long albumId, int limit, long ownerId, boolean includeBottedUsers);
 
     UniqueWrapper<AlbumPlays> albumUniques(Connection connection, long guildId, String lastfmId);
+
+    BotStats getBotStats(Connection connection);
+
 }

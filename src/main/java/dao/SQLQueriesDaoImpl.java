@@ -1713,6 +1713,53 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             throw new ChuuServiceException(e);
         }
     }
+
+    @Override
+    public BotStats getBotStats(Connection connection) {
+        @Language("MariaDB") String queryString = "Select (Select count(*) from user) as user_count," +
+                " (Select count(*) from guild) guild_count," +
+                " (Select count(*) from artist) artist_count," +
+                "(select count(*) from album) album_count," +
+                "(select sum(playnumber) from scrobbled_artist) scrobbled_count," +
+                "(select count(*) from album_rating ) rym_count," +
+                " (select avg(rating) from album_rating ) rym_avg," +
+                " (select count(*) from past_recommendations) recommedation_count," +
+                " (Select count(*) from corrections)correction_count, " +
+                "(select count(*) from randomlinks) random_count," +
+                " (select count(*) from alt_url) image_count, " +
+                "(select count(*) from vote) vote_count," +
+                "(select count(*) from user_guild) set_count," +
+                "(select  value from metrics where id = 5) as api_count";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                long user_count = resultSet.getLong("user_count");
+                long guild_count = resultSet.getLong("guild_count");
+                long artist_count = resultSet.getLong("artist_count");
+                long album_count = resultSet.getLong("album_count");
+                long scrobbled_count = resultSet.getLong("scrobbled_count");
+                long rym_count = resultSet.getLong("rym_count");
+                double rym_avg = resultSet.getDouble("rym_avg");
+                long recommendation_count = resultSet.getLong("recommedation_count");
+                long correction_count = resultSet.getLong("correction_count");
+                long random_count = resultSet.getLong("random_count");
+                long image_count = resultSet.getLong("image_count");
+                long vote_count = resultSet.getLong("vote_count");
+                long set_count = resultSet.getLong("set_count");
+                long api_count = resultSet.getLong("api_count");
+
+                return new BotStats(user_count, guild_count, artist_count, album_count, scrobbled_count, rym_count, rym_avg, recommendation_count, correction_count, random_count, image_count, vote_count, set_count, api_count);
+
+            }
+            throw new ChuuServiceException();
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+
+    }
 }
 
 

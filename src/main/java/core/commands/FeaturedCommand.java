@@ -146,7 +146,7 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
-                .setTitle(Chuu.getPresence().getJDA().getSelfUser().getName() + "'s Featured Artist:", CommandUtil
+                .setTitle(e.getJDA().getSelfUser().getName() + "'s Featured Artist:", CommandUtil
                         .getLastFmArtistUrl(currentPresence.getArtist()))
                 .addField(doSeasonal ? ":sunglasses:" : "Artist:", CommandUtil.cleanMarkdownCharacter(currentPresence.getArtist()), false)
                 .addField("User:", userString, false)

@@ -22,12 +22,13 @@ import java.util.stream.IntStream;
 
 public class CustomInterfacedEventManager implements IEventManager {
 
-    private final CopyOnWriteArrayList<EventListener> listeners = new CopyOnWriteArrayList<>();
+    private final Set<EventListener> listeners = new HashSet<>();
     private final Map<String, MyCommand<?>> commandListeners = new HashMap<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new HashMap<>();
+    private final int shardInt;
 
-    public CustomInterfacedEventManager() {
-        //Default constructor
+    public CustomInterfacedEventManager(int a) {
+        shardInt = a;
     }
 
     @Override
@@ -117,7 +118,7 @@ public class CustomInterfacedEventManager implements IEventManager {
             }
             return;
         }
-        if (event instanceof GuildMemberRemoveEvent || event instanceof MessageReactionAddEvent) {
+        if (event instanceof GuildMemberRemoveEvent || event instanceof MessageReactionAddEvent || event instanceof ReadyEvent) {
 
             for (EventListener listener : listeners) {
                 try {

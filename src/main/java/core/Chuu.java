@@ -5,20 +5,21 @@ import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.*;
 import core.exceptions.ChuuServiceException;
+import core.otherlisteners.AwaitReady;
 import core.scheduledtasks.ImageUpdaterThread;
 import core.scheduledtasks.SpotifyUpdaterThread;
 import core.scheduledtasks.UpdaterThread;
 import dao.ChuuService;
 import dao.entities.Metrics;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.priv.react.PrivateMessageReactionAddEvent;
-import net.dv8tion.jda.api.managers.Presence;
+import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -37,13 +38,14 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
 public class Chuu {
 
     public static final Character DEFAULT_PREFIX = '!';
-    private static JDA jda;
+    private static ShardManager shardManager;
     private static Logger logger;
     private static ScheduledExecutorService scheduledExecutorService;
     private static final LongAdder lastFMMetric = new LongAdder();
@@ -136,9 +138,6 @@ public class Chuu {
         return prefixMap;
     }
 
-    public static Presence getPresence() {
-        return Chuu.jda.getPresence();
-    }
 
     public static void incrementMetric() {
         lastFMMetric.increment();
@@ -226,11 +225,15 @@ public class Chuu {
         }, 5, 5, TimeUnit.MINUTES);
         ratelimited = dao.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
 
-        JDABuilder builder = JDABuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL)
+        AtomicInteger counter = new AtomicInteger(0);
+        IEventManager customManager = new CustomInterfacedEventManager(0);
+        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL)
                 .disableCache(EnumSet.allOf(CacheFlag.class))
                 .setBulkDeleteSplittingEnabled(false)
                 .setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
-                .setEventManager(new CustomInterfacedEventManager()).addEventListeners(help)
+                .setEventManagerProvider(a -> customManager)
+                .addEventListeners(help)
+                .setShardsTotal(5)
                 .addEventListeners(help.registerCommand(commandAdministrator))
                 .addEventListeners(help.registerCommand(new NowPlayingCommand(dao)))
                 .addEventListeners(help.registerCommand(new WhoKnowsCommand(dao)))
@@ -344,15 +347,23 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new GlobalWhoKnowsAlbumCommand(dao)))
                 .addEventListeners(help.registerCommand(new WhoKnowsAlbumCommand(dao)))
                 .addEventListeners(help.registerCommand(new BandInfoGlobalCommand(dao)))
-                .addEventListeners(help.registerCommand(new BandInfoServerCommand(dao)));
+                .addEventListeners(help.registerCommand(new BandInfoServerCommand(dao)))
+                .addEventListeners(help.registerCommand(new HardwareStatsCommand(dao)))
+                .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
+                    initDisabledCommands(dao, shard);
+                    prefixCommand.onStartup(shard);
+                    commandAdministrator.onStartup(shardManager);
+
+                    shardManager.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
+                    updatePresence("Chuu");
+                }));
 
 
         try {
-            jda = builder.build().awaitReady();
-            //commandAdministrator.onStartup(jda);
-            initDisabledCommands(dao, jda);
-            prefixCommand.onStartup(jda);
-            jda.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
+
+            shardManager = builder.build();
+
+
             scheduledExecutorService.scheduleAtFixedRate(
                     new UpdaterThread(dao, true), 0, 60,
                     TimeUnit.SECONDS);
@@ -363,16 +374,15 @@ public class Chuu {
                         new SpotifyUpdaterThread(dao), 20, 21,
                         TimeUnit.MINUTES);
             }
-            updatePresence("Chuu");
 
-        } catch (LoginException | InterruptedException e) {
+        } catch (LoginException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }
     }
 
-    private static void initDisabledCommands(ChuuService dao, JDA jda) {
-        Map<String, MyCommand<?>> commandsByName = jda.getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).collect(Collectors.toMap(MyCommand::getName, x -> x));
+    private static void initDisabledCommands(ChuuService dao, ShardManager jda) {
+        Map<String, MyCommand<?>> commandsByName = jda.getShards().get(0).getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).collect(Collectors.toMap(MyCommand::getName, x -> x));
         MultiValuedMap<Long, String> serverDisables = dao.initServerCommandStatuses();
         serverDisables.entries().forEach(x -> Chuu.disabledServersMap.put(x.getKey(), commandsByName.get(x.getValue())));
         MultiValuedMap<Pair<Long, Long>, String> channelDisables = dao.initServerChannelsCommandStatuses(false);
@@ -402,7 +412,8 @@ public class Chuu {
     }
 
     public static void updatePresence(String artist) {
-        Chuu.jda.getPresence().setActivity(Activity.playing(artist + " | !help for help"));
+
+        Chuu.shardManager.getShards().forEach(x -> x.getPresence().setActivity(Activity.playing(artist + " | !help for help")));
 
     }
 
@@ -410,5 +421,7 @@ public class Chuu {
         return ratelimited;
     }
 
-
+    public static ShardManager getShardManager() {
+        return shardManager;
+    }
 }

@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.imgscalr.Scalr;
 
@@ -69,7 +70,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
                 });
     }
 
-    public void onStartup(JDA jda) {
+    public void onStartup(ShardManager jda) {
         MultiValuedMap<Long, Long> map = getService().getMapGuildUsers();
         map.mapIterator().forEachRemaining(key -> {
             List<Long> usersToDelete;

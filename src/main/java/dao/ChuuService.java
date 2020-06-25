@@ -406,7 +406,7 @@ public class ChuuService {
     }
 
     public void upsertUrl(String url, long artistId) {
-        upsertUrl(url, artistId, Chuu.getPresence().getJDA().getSelfUser().getIdLong());
+        upsertUrl(url, artistId, Chuu.getShardManager().getShards().get(0).getSelfUser().getIdLong());
     }
 
     public void userInsertUrl(String url, long artistId, long discordId) {
@@ -452,7 +452,7 @@ public class ChuuService {
     }
 
     public void upsertSpotify(String url, long artistId) {
-        this.upsertSpotify(url, artistId, Chuu.getPresence().getJDA().getSelfUser().getIdLong());
+        this.upsertSpotify(url, artistId, Chuu.getShardManager().getShards().get(0).getSelfUser().getIdLong());
     }
 
     public void addLogo(long guildId, BufferedImage in) {
@@ -1751,4 +1751,11 @@ public class ChuuService {
         }
     }
 
+    public BotStats getBotStats() {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getBotStats(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }
