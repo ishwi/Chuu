@@ -51,8 +51,8 @@ alter table user
 alter table user
     add column privacy_mode ENUM ('STRICT', 'NORMAL', 'TAG', 'LAST_NAME', 'DISCORD_NAME') DEFAULT 'NORMAL';
 
-ALTER TABLE ALBUM
+ALTER TABLE album
     DROP COLUMN MBID;
 
-ALTER TABLE ALBUM
+ALTER TABLE album
     ADD COLUMN mbid VARCHAR(36) unique;
