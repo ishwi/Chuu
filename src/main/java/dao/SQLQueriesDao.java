@@ -104,4 +104,6 @@ interface SQLQueriesDao {
 
     BotStats getBotStats(Connection connection);
 
+    long getUserAlbumCount(Connection connection, long discordId);
+
 }

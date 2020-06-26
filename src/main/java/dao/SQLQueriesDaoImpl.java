@@ -1760,6 +1760,27 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         }
 
     }
+
+    @Override
+    public long getUserAlbumCount(Connection con, long discordId) {
+        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_album a join user b on a.lastfm_id = b.lastfm_id WHERE b.discord_id= ? ";
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, discordId);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (!resultSet.next())
+                return 0;
+            return resultSet.getInt("numb");
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
 }
 
 

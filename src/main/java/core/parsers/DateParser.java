@@ -168,10 +168,10 @@ public class DateParser extends DaoParser<DateParameters> {
                     //It wasn't a number
                 }
             }
-            localDate = naturalTimeFrameEnum.toLocalDate(count).atOffset(ZoneOffset.UTC);
+            localDate = naturalTimeFrameEnum.toLocalDate(count).atOffset(OffsetDateTime.now().getOffset());
         } else {
             if (words.length == 0) {
-                localDate = LocalDate.now().with(MonthDay.of(1, 1)).atStartOfDay().atOffset(ZoneOffset.UTC);
+                localDate = LocalDate.now().with(MonthDay.of(1, 1)).atStartOfDay().atOffset(OffsetDateTime.now().getOffset());
             } else {
                 String remaining = String.join(" ", words);
                 remaining = remaining.replaceAll("[ ][ -/]+", " ");
@@ -184,7 +184,7 @@ public class DateParser extends DaoParser<DateParameters> {
             sendError(getErrorMessage(5), e);
             return null;
         } else {
-            if (localDate.isAfter(LocalDateTime.now().atOffset(ZoneOffset.UTC))) {
+            if (localDate.isAfter(LocalDateTime.now().atOffset(OffsetDateTime.now().getOffset()))) {
                 sendError(getErrorMessage(6), e);
                 return null;
             }

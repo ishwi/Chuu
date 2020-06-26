@@ -8,18 +8,24 @@ import java.text.NumberFormat;
 public class ScoredAlbumRatings {
     private final double score;
     private final String name;
+    private final String url;
     private final long numberOfRatings;
     private final double average;
     private String artist;
-    private final static NumberFormat formatter = new DecimalFormat("#0.##");
+    public final static NumberFormat formatter = new DecimalFormat("#0.##");
 
 
-    public ScoredAlbumRatings(double score, String name, long numberOfRatings, double average, String artist) {
+    public ScoredAlbumRatings(double score, String name, String url, long numberOfRatings, double average, String artist) {
         this.score = score;
         this.name = name;
+        this.url = url;
         this.numberOfRatings = numberOfRatings;
         this.average = average;
         this.artist = artist;
+    }
+
+    public String getUrl() {
+        return url;
     }
 
     public double getScore() {

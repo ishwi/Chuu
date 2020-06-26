@@ -138,11 +138,12 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
         try {
 
 
+            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
+            getService().insertArtistDataList(artistData, lastFmID);
+            sendMessageQueue(e, "Finished updating your artist, now the album process will start");
+            e.getChannel().sendTyping().queue();
             List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
-            List<ScrobbledArtist> artistData = UpdaterThread.groupAlbumsToArtist(albumData);
-
             getService().albumUpdate(albumData, artistData, lastFmID);
-            sendMessageQueue(e, "Finished updating " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + " library, you are good to go!");
         } catch (
                 LastFMNoPlaysException ex) {
             sendMessageQueue(e, "Finished updating " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + "'s library, you are good to go!");

@@ -39,7 +39,7 @@ public class TopRatingsCommand extends ListCommand<ScoredAlbumRatings, CommandPa
 
     @Override
     public List<String> getAliases() {
-        return List.of("rymchart", "rymc", "rymtop", "rmyt");
+        return List.of("rymtop", "rymt");
     }
 
     @Override

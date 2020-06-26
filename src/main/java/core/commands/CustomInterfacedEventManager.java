@@ -1,5 +1,6 @@
 package core.commands;
 
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.RateLimiter;
 import core.Chuu;
 import core.otherlisteners.ReactionListener;
@@ -14,6 +15,7 @@ import net.dv8tion.jda.internal.JDAImpl;
 
 import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +24,7 @@ import java.util.stream.IntStream;
 
 public class CustomInterfacedEventManager implements IEventManager {
 
-    private final Set<EventListener> listeners = new HashSet<>();
+    private final Set<EventListener> listeners = Sets.newConcurrentHashSet();
     private final Map<String, MyCommand<?>> commandListeners = new HashMap<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new HashMap<>();
     private final int shardInt;

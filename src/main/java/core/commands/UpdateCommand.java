@@ -78,11 +78,20 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
             sendMessageQueue(e, "You are not registered yet, go to any server and register there!");
             return;
         }
+        long userAlbumCount = getService().getUserAlbumCount(discordID);
+        int userArtistCount = getService().getUserArtistCount(lastFmName, 0);
 
-        if (force) {
-            List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFmName, TimeFrameEnum.ALL.toApiFormat());
-            List<ScrobbledArtist> artistData = groupAlbumsToArtist(albumData);
-
+        if (force || userAlbumCount < 0.86 * userArtistCount) {
+            if (!force) {
+                sendMessageQueue(e, "Will run a full update to index your albums. Takes a while :pensive:");
+            }
+            e.getChannel().sendTyping().queue();
+            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
+            getService().insertArtistDataList(artistData, lastFmName);
+            e.getChannel().sendTyping().queue();
+            //sendMessageQueue(e, "Finished updating your artist, now the album process will start");
+            List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
+            e.getChannel().sendTyping().queue();
             getService().albumUpdate(albumData, artistData, lastFmName);
         } else {
             UpdaterUserWrapper userUpdateStatus = null;

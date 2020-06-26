@@ -238,7 +238,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     @Override
     public List<ScoredAlbumRatings> getGlobalTopRatings(Connection connection) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
-        String s = "select *  from (select  album_name, count(*) as  coun, sum(rating) as agg, avg(rating) as ave, name " +
+        String s = "select *  from (select  album_name, count(*) as  coun, sum(rating) as agg, avg(rating) as ave, name,c.url " +
                 "from album_rating a " +
                 "join artist b on a.artist_id = b.id " +
                 "join album c on a.album_id = c.id " +
@@ -258,7 +258,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     @Override
     public List<ScoredAlbumRatings> getServerTopRatings(Connection connection, long guildId) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
-        String s = "select *  from (select  album_name, count(*) as  coun, sum(rating) as agg, avg(rating) as ave, name " +
+        String s = "select *  from (select  album_name, count(*) as  coun, sum(rating) as agg, avg(rating) as ave, name,c.url " +
                 "from album_rating a " +
                 "join artist b on a.artist_id = b.id " +
                 "join album c on a.album_id = c.id " +
@@ -267,8 +267,8 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
                 "group by album_id) main " +
                 "order by (main.coun * main.agg * main.ave)  desc limit 200";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
-            ResultSet resultSet = preparedStatement.executeQuery();
             preparedStatement.setLong(1, guildId);
+            ResultSet resultSet = preparedStatement.executeQuery();
             getScoredAlbums(returnList, resultSet);
         } catch (
                 SQLException throwables) {
@@ -285,7 +285,9 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
             double average = resultSet.getDouble(4);
             String artist = resultSet.getString(
                     5);
-            returnList.add(new ScoredAlbumRatings(0, albumName, count, average, artist));
+            String url = resultSet.getString(6);
+
+            returnList.add(new ScoredAlbumRatings(0, albumName, url, count, average, artist));
 
         }
     }
@@ -293,7 +295,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     @Override
     public List<ScoredAlbumRatings> getSelfRatingsScore(Connection connection, Short ratingNumber, long discordId) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
-        String s = "select  album_name, name,rating,(select avg(rating) from album_rating t  where t.album_id = a.album_id) as agg,(select count(*) from album_rating t  where t.album_id = a.album_id) as coun " +
+        String s = "select  album_name, name,rating,(select avg(rating) from album_rating t  where t.album_id = a.album_id) as agg,(select count(*) from album_rating t  where t.album_id = a.album_id) as coun,c.url " +
                 "from album_rating a " +
                 "join artist b on a.artist_id = b.id " +
                 "join album c on a.album_id = c.id " +
@@ -316,8 +318,10 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
                 short rating = resultSet.getShort(3);
                 double avg = resultSet.getDouble(4);
                 long count = resultSet.getLong(5);
+                String url = resultSet.getString(6);
 
-                returnList.add(new ScoredAlbumRatings(rating, albumName, count, avg, artist));
+
+                returnList.add(new ScoredAlbumRatings(rating, albumName, url, count, avg, artist));
 
             }
         } catch (

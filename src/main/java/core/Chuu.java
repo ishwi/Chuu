@@ -233,7 +233,7 @@ public class Chuu {
                 .setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
                 .setEventManagerProvider(a -> customManager)
                 .addEventListeners(help)
-                .setShardsTotal(5)
+                .setShardsTotal(-1)
                 .addEventListeners(help.registerCommand(commandAdministrator))
                 .addEventListeners(help.registerCommand(new NowPlayingCommand(dao)))
                 .addEventListeners(help.registerCommand(new WhoKnowsCommand(dao)))
@@ -349,6 +349,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new BandInfoGlobalCommand(dao)))
                 .addEventListeners(help.registerCommand(new BandInfoServerCommand(dao)))
                 .addEventListeners(help.registerCommand(new HardwareStatsCommand(dao)))
+                .addEventListeners(help.registerCommand(new RYMChartCommand(dao)))
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
                     initDisabledCommands(dao, shard);
                     prefixCommand.onStartup(shard);

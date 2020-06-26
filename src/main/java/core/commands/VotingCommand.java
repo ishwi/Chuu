@@ -1,8 +1,11 @@
 package core.commands;
 
+import core.apis.discogs.DiscogsApi;
+import core.apis.discogs.DiscogsSingleton;
+import core.apis.spotify.Spotify;
+import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.otherlisteners.ReactionResponse;
 import core.otherlisteners.Validator;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
@@ -78,6 +81,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
         if (params == null) {
             return;
         }
+
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = getService().findLastFMData(idLong);
         if (lastFMData.getRole() == Role.IMAGE_BLOCKED) {
@@ -85,7 +89,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
             return;
         }
         String preCorrectionArtist = params.getArtist();
-        ScrobbledArtist artist = CommandUtil.onlyCorrection(getService(), preCorrectionArtist, lastFM, false);
+        ScrobbledArtist artist = CommandUtil.onlyCorrection(getService(), preCorrectionArtist, lastFM, !params.isNoredirect());
         List<VotingEntity> allArtistImages = getService().getAllArtistImages(artist.getArtistId());
         if (allArtistImages.isEmpty()) {
             sendMessageQueue(e, artist.getArtist() + " doesn't have any image");

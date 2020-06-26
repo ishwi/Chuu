@@ -61,11 +61,12 @@ public class UpdaterThread implements Runnable {
             float chance = r.nextFloat();
             userWork = dao.getLessUpdated();
 
+            String lastFMName = userWork.getLastFMName();
             try {
-                if (isIncremental && chance <= 0.01f) {
+                if (isIncremental && chance <= 0.95f) {
 
                     TimestampWrapper<List<ScrobbledAlbum>> albumDataList = lastFM
-                            .getNewWhole(userWork.getLastFMName(),
+                            .getNewWhole(lastFMName,
                                     userWork.getTimestamp());
 
 
@@ -100,27 +101,28 @@ public class UpdaterThread implements Runnable {
                         }
                     });
 
-                    dao.incrementalUpdate(new TimestampWrapper<>(artistData, albumDataList.getTimestamp()), userWork.getLastFMName(), albumData);
+                    dao.incrementalUpdate(new TimestampWrapper<>(artistData, albumDataList.getTimestamp()), lastFMName, albumData);
 
-                    System.out.println("Updated Info Incrementally of " + userWork.getLastFMName()
+                    System.out.println("Updated Info Incrementally of " + lastFMName
                             + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
                     System.out.println(" Number of rows updated :" + albumData.size());
 
                 } else {
 
-                    List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(userWork.getLastFMName(), TimeFrameEnum.ALL.toApiFormat());
-                    List<ScrobbledArtist> artistData = groupAlbumsToArtist(albumData);
+                    List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMName, TimeFrameEnum.ALL.toApiFormat());
+                    dao.insertArtistDataList(artistData, lastFMName);
+                    System.out.println(" Updated  ) " + lastFMName + " artists");
 
-                    dao.albumUpdate(albumData, artistData, userWork.getLastFMName());
-                    System.out.println("Updated Info Normally  of " + userWork.getLastFMName()
-                            + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-                    System.out.println(" Number of rows updated :" + albumData.size());
+                    List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFMName, TimeFrameEnum.ALL.toApiFormat());
+                    dao.albumUpdate(albumData, artistData, lastFMName);
+                    System.out.println(" Updated  ) " + lastFMName + " albums");
+
                 }
             } catch (LastFMNoPlaysException e) {
                 // dao.updateUserControlTimestamp(userWork.getLastFMName(),userWork.getTimestampControl());
-                dao.updateUserTimeStamp(userWork.getLastFMName(), userWork.getTimestamp(),
+                dao.updateUserTimeStamp(lastFMName, userWork.getTimestamp(),
                         (int) (Instant.now().getEpochSecond() + 4000));
-                System.out.println("No plays " + userWork.getLastFMName()
+                System.out.println("No plays " + lastFMName
                         + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
             } catch (LastFmEntityNotFoundException e) {
                 dao.removeUserCompletely(userWork.getDiscordID());

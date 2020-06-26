@@ -6,6 +6,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.imagerenderer.ChartLine;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
@@ -22,6 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
@@ -68,22 +70,27 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
             return;
         }
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(parse.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !parse.isNoredirect());
+        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, false, !parse.isNoredirect());
         String album = parse.getAlbum();
         String artist = parse.getArtist();
 
         dao.entities.AlbumRatings ratingss = getService().getRatingsByName(e.getGuild().getIdLong(), album, scrobbledArtist.getArtistId());
 
-        NumberFormat formatter = new DecimalFormat("#0.#");
         NumberFormat average = new DecimalFormat("#0.##");
-
+        Function<Byte, String> starFormatter = (score) -> {
+            float number = score / 2f;
+            String starts = "★".repeat((int) number);
+            if (number % 1 != 0)
+                starts += "✮";
+            return starts;
+        };
         FullAlbumEntityExtended chuu1 = lastFM.getAlbumSummary("chuu", scrobbledArtist.getArtist(), album);
         List<Rating> userRatings = ratingss.getUserRatings();
         String lastFmArtistAlbumUrl = CommandUtil.getLastFmArtistAlbumUrl(artist, album);
         List<String> stringList = userRatings.stream().filter(Rating::isSameGuild).map(x -> ". **[" +
                 getUserString(e, x.getDiscordId()) +
                 "](" + lastFmArtistAlbumUrl +
-                ")** - " + formatter.format((float) x.getRating() / 2) +
+                ")** - " + starFormatter.apply(x.getRating()) +
                 "\n").collect(Collectors.toList());
         if (stringList.isEmpty()) {
             sendMessageQueue(e, String.format("**%s** by **%s** was not rated by anyone.", album, artist));

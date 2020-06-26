@@ -1,5 +1,6 @@
 package dao;
 
+import core.Chuu;
 import core.exceptions.ChuuServiceException;
 import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
@@ -111,7 +112,8 @@ public class AlbumDaoImpl implements AlbumDao {
                     long albumId = getAlbumIdByName(connection, x.getAlbum(), x.getArtistId());
                     x.setAlbumId(albumId);
                 } catch (InstanceNotFoundException e) {
-                    throw new SQLException("Creating user failed, no ID obtained.");
+                    Chuu.getLogger().warn("ERROR CREATING {} {} {}", x, x.getAlbum(), x.getArtist());
+                    //throw new SQLException("Creating user failed, no ID obtained.");
                 }
             }
         } catch (
