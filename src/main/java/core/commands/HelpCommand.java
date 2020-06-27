@@ -17,6 +17,7 @@ package core.commands;
 
 import com.google.common.collect.TreeMultimap;
 import core.Chuu;
+import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
@@ -54,7 +55,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> getParser() {
-        return null;
+        return new NoOpParser();
     }
 
     public MyCommand<?> registerCommand(MyCommand<?> command) {

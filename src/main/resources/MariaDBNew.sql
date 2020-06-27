@@ -351,3 +351,73 @@ CREATE TABLE scrobbled_album
     CONSTRAINT scrobbled_album_fk_album FOREIGN KEY (album_id) REFERENCES album (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT scrobbled_album_fk_user FOREIGN KEY (lastfm_id) REFERENCES user (lastfm_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+create table week
+(
+    id         int not null AUTO_INCREMENT,
+    week_start date,
+    PRIMARY KEY (id)
+);
+create table weekly_billboard_listeners
+(
+    id         bigint(20) not null AUTO_INCREMENT,
+    guild_id   bigint(20),
+    week_id    int,
+    artist_id  bigint(20),
+    track_name varchar(400),
+    position   smallint,
+    listeners  int,
+    PRIMARY KEY (id),
+    -- KEY (guild_id, week_id, artist_id, track_name),
+    CONSTRAINT weekly_billboard_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_guild_id FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+
+);
+
+create table weekly_billboard_scrobbles
+(
+    id             bigint(20) not null AUTO_INCREMENT,
+    guild_id       bigint(20),
+    week_id        int,
+    artist_id      bigint(20),
+    track_name     varchar(400),
+    position       smallint,
+    scrobble_count int,
+    PRIMARY KEY (id),
+    -- KEY (guild_id, week_id, artist_id, track_name),
+    CONSTRAINT weekly_billboard_scrobbles_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_scrobbles_guild_id FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_scrobbles_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+DELIMITER $$
+
+create PROCEDURE insert_weeks()
+BEGIN
+    SET @t_current = date(curdate() - interval weekday(curdate()) day);
+    SET @t_end = DATE_ADD(date(curdate() - interval weekday(curdate()) day), INTERVAL 5 YEAR);
+    WHILE(@t_current < @t_end)
+        DO
+            INSERT INTO week(week_start) VALUES (@t_current);
+            SET @t_current = DATE_ADD(@t_current, INTERVAL 7 day);
+        END WHILE;
+END;
+$$
+DELIMITER ;
+
+
+create table user_billboard_data
+(
+    id             BIGINT(20)                           not null AUTO_INCREMENT,
+    week_id        int,
+    lastfm_id      VARCHAR(45) COLLATE ascii_general_ci NOT NULL,
+    artist_id      bigint(20),
+    track_name     varchar(400),
+    scrobble_count smallint,
+    PRIMARY KEY (id),
+    CONSTRAINT user_billboard_data_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT user_billboard_data_guild_id FOREIGN KEY (lastfm_id) REFERENCES user (lastfm_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT user_billboard_data_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+)

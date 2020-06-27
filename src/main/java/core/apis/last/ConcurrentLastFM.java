@@ -1,5 +1,6 @@
 package core.apis.last;
 
+import com.google.gson.stream.JsonReader;
 import core.Chuu;
 import core.apis.ClientSingleton;
 import core.apis.last.chartentities.ChartUtil;
@@ -21,8 +22,9 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
@@ -128,18 +130,21 @@ public class ConcurrentLastFM {//implements LastFMService {
                 Chuu.incrementMetric();
                 int responseCode = client.executeMethod(method);
                 parseHttpCode(responseCode);
-                byte[] responseBody = method.getResponseBody();
-                JSONObject jsonObject = new JSONObject(new String(responseBody, StandardCharsets.UTF_8));
-                if (jsonObject.has("error"))
-                    parseResponse(jsonObject, causeOfNotFound);
-                if (responseCode == 404) {
-                    throw new LastFmEntityNotFoundException(new ExceptionEntity("Whatever"));
-                }
-                if (Math.floor((float) responseCode / 100) == 4) {
-                    throw new UnknownLastFmException(jsonObject.toString(), responseCode);
-                }
-                return jsonObject;
+                try (InputStream responseBodyAsStream = method.getResponseBodyAsStream()) {
+                    JSONTokener x = new JSONTokener(responseBodyAsStream);
+                    JSONObject jsonObject = new JSONObject(x);
+                    if (jsonObject.has("error"))
+                        parseResponse(jsonObject, causeOfNotFound);
+                    if (responseCode == 404) {
+                        throw new LastFmEntityNotFoundException(new ExceptionEntity("Whatever"));
+                    }
+                    if (Math.floor((float) responseCode / 100) == 4) {
+                        throw new UnknownLastFmException(jsonObject.toString(), responseCode);
+                    }
+                    return jsonObject;
+                } catch (Exception e) {
 
+                }
             } catch (IOException | LastFMServiceException e) {
                 Logger.getAnonymousLogger().log(Level.WARNING, e.getMessage(), e);
             } finally {
@@ -802,6 +807,12 @@ public class ConcurrentLastFM {//implements LastFMService {
 
         List<ScrobbledAlbum> list = new ArrayList<>();
         while (page <= pages) {
+            if (pages > 10) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {
+                }
+            }
 
             String urlPage = url + "&page=" + page;
             HttpMethodBase method = createMethod(urlPage);

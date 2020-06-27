@@ -350,6 +350,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new BandInfoServerCommand(dao)))
                 .addEventListeners(help.registerCommand(new HardwareStatsCommand(dao)))
                 .addEventListeners(help.registerCommand(new RYMChartCommand(dao)))
+                .addEventListeners(help.registerCommand(new BillboardCommand(dao)))
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
                     initDisabledCommands(dao, shard);
                     prefixCommand.onStartup(shard);
