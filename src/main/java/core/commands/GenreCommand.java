@@ -52,11 +52,10 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         TimerFrameParser timerFrameParser = new TimerFrameParser(getService(), TimeFrameEnum.YEAR);
         timerFrameParser.addOptional(new OptionalEntity("--artist", "use artists instead of albums for the genres"));
 
-        NumberParser<TimeFrameParameters, TimerFrameParser> timeFrameParametersTimerFrameParserNumberParser = new NumberParser<>(timerFrameParser,
+        return new NumberParser<>(timerFrameParser,
                 10L,
                 Integer.MAX_VALUE,
                 map, s, false, true, false);
-        return timeFrameParametersTimerFrameParserNumberParser;
     }
 
     @Override
@@ -77,6 +76,9 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
     @Override
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         NumberParameters<TimeFrameParameters> parse = parser.parse(e);
+        if (parse == null) {
+            return;
+        }
         TimeFrameParameters returned = parse.getInnerParams();
         String username = returned.getLastFMData().getName();
         long discordId = returned.getLastFMData().getDiscordId();
@@ -134,7 +136,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                 .forEachOrdered(entry -> {
                     Genre genre = entry.getKey();
                     int plays = entry.getValue();
-                    pieChart.addSeries(genre.getGenreName(), plays);
+                    pieChart.addSeries(genre.getGenreName() + "\u200B", plays);
                 });
 
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);

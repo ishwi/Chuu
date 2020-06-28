@@ -36,8 +36,8 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
 
     private final Spotify spotify;
     private final DiscogsApi discogsApi;
-    ConcurrentSkipListSet<Long> inProcessSets = new ConcurrentSkipListSet<>();
-    ConcurrentSkipListSet<Long> usersBeeingProcessed = new ConcurrentSkipListSet<>();
+    private final static ConcurrentSkipListSet<Long> inProcessSets = new ConcurrentSkipListSet<>();
+    private final static ConcurrentSkipListSet<Long> usersBeeingProcessed = new ConcurrentSkipListSet<>();
 
 
     public BillboardCommand(ChuuService dao) {
@@ -119,7 +119,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             return;
         }
         if (entities.isEmpty()) {
-            synchronized (this) {
+            synchronized (inProcessSets) {
                 if (inProcessSets.contains(guildId)) {
                     sendMessageQueue(e, "This weekly chart is still being calculated, wait a few seconds/minutes more pls.");
                     return;
@@ -127,6 +127,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
                 inProcessSets.add(guildId);
             }
             try {
+                Thread.sleep(10000L);
                 sendMessageQueue(e, "Didn't have the top from this week, will start to make it now.");
                 Map<String, List<TrackWithArtistId>> toValidate = new HashMap<>();
                 all.parallelStream().forEach(x -> {
@@ -200,6 +201,8 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
 
 
                 sendMessageQueue(e, "Successfully Generated these week's charts");
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
             } finally {
                 inProcessSets.remove(guildId);
             }

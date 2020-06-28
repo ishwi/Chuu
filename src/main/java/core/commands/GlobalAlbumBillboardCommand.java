@@ -19,10 +19,7 @@ public class GlobalAlbumBillboardCommand extends GlobalBillboardCommand {
         return List.of("globalalbumbillboard", "globaltrendalbum", "galbtrend", "gtrendalb");
     }
 
-    @Override
-    protected CommandCategory getCategory() {
-        return CommandCategory.BOT_STATS;
-    }
+
 
     @Override
     public String getName() {

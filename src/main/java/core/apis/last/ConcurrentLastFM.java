@@ -1,5 +1,6 @@
 package core.apis.last;
 
+import com.google.gson.JsonArray;
 import com.google.gson.stream.JsonReader;
 import core.Chuu;
 import core.apis.ClientSingleton;
@@ -12,10 +13,7 @@ import core.apis.last.exceptions.TrackException;
 import core.exceptions.*;
 import core.parsers.params.ChartParameters;
 import dao.entities.*;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -120,6 +118,13 @@ public class ConcurrentLastFM {//implements LastFMService {
         if (attrObj.getInt("total") == 0) {
             throw new LastFMNoPlaysException(user, timeFrameEnum.toApiFormat());
         }
+        JSONArray arr = obj.optJSONArray("track");
+        if (arr == null) {
+            JSONObject t = obj.getJSONObject("track");
+            JSONArray objects = new JSONArray(List.of(t));
+            obj.remove("track");
+            obj.append("track", objects);
+        }
         return obj;
     }
 
@@ -144,6 +149,16 @@ public class ConcurrentLastFM {//implements LastFMService {
                 }
                 return jsonObject;
             } catch (IOException | LastFMServiceException e) {
+                if (e instanceof LastFMServiceException) {
+                    try {
+                        Chuu.getLogger().warn(method.getURI().getEscapedURI());
+                        Chuu.getLogger().warn("LAST.FM Internal Error");
+
+
+                    } catch (URIException uriException) {
+                        uriException.printStackTrace();
+                    }
+                }
                 Chuu.getLogger().warn(e.getMessage(), e);
             } finally {
                 method.releaseConnection();
@@ -561,12 +576,17 @@ public class ConcurrentLastFM {//implements LastFMService {
         boolean stopArtistCounter = false;
         boolean stopTCounter = false;
         boolean cont = true;
+        int totalPages = 1;
         while (cont) {
+
             String urlPage = url + "&page=" + ++page;
-            if (page == 6) {
+            if (page == 6 || page > totalPages) {
                 break;
             }
             JSONObject obj = initGetRecentTracks(username, urlPage, TimeFrameEnum.ALL);
+            if (page == 1) {
+                totalPages = obj.getJSONObject("@attr").getInt("totalPages");
+            }
 
             JSONArray arr = obj.getJSONArray("track");
             for (int i = 0; i < arr.length(); i++) {
@@ -711,7 +731,6 @@ public class ConcurrentLastFM {//implements LastFMService {
         int count = 0;
         while (count < total) {
             String urlPage = url + "&page=" + ++page;
-            HttpMethodBase method = createMethod(urlPage);
             JSONObject obj = initGetRecentTracks(username, urlPage, TimeFrameEnum.ALL);
 
             JSONObject attrObj = obj.getJSONObject("@attr");
@@ -825,7 +844,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         while (page <= pages) {
             if (pages > 15) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 } catch (InterruptedException ignored) {
                 }
             }
@@ -834,7 +853,15 @@ public class ConcurrentLastFM {//implements LastFMService {
             HttpMethodBase method = createMethod(urlPage);
 
             // Execute the method.
-            JSONObject obj = doMethod(method, new ExceptionEntity(user));
+            JSONObject obj;
+            try {
+                obj = doMethod(method, new ExceptionEntity(user));
+            } catch (LastFMConnectionException e) {
+                if (page >= pages) {
+                    return list;
+                }
+                obj = doMethod(method, new ExceptionEntity(user));
+            }
             String topObject = "topalbums";
             obj = obj.getJSONObject(topObject);
             if (page++ == 1) {

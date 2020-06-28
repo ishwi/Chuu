@@ -34,7 +34,7 @@ public class GlobalAffinity extends ConcurrentCommand<NumberParameters<ChuuDataP
 
     @Override
     protected CommandCategory getCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.DISCOVERY;
     }
 
     @Override

@@ -51,7 +51,7 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
 
     @Override
     public String getDescription() {
-        return "Returns List Of Users Who Know the inputted Artist";
+        return "Users who know the given artist";
     }
 
     @Override

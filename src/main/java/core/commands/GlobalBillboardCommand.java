@@ -35,7 +35,7 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class GlobalBillboardCommand extends BillboardCommand {
 
-    public AtomicBoolean settingUp = new AtomicBoolean(false);
+    public static final AtomicBoolean settingUp = new AtomicBoolean(false);
 
 
     public GlobalBillboardCommand(ChuuService dao) {
@@ -47,7 +47,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
 
     @Override
     protected CommandCategory getCategory() {
-        return CommandCategory.SERVER_STATS;
+        return CommandCategory.BOT_STATS;
     }
 
 
