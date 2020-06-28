@@ -21,7 +21,7 @@ public class TopParser extends ChartableParser<TopParameters> {
         opts.add(new OptionalEntity("--noplays", " don't display play count"));
         opts.add(new OptionalEntity("--list", "display it as an embed"));
         opts.add(new OptionalEntity("--pie", "display it as a chart pie"));
-        opts.add(new OptionalEntity("--album", "use artists instead of albums"));
+        opts.add(new OptionalEntity("--album", "use albums instead of artist"));
     }
 
     @Override

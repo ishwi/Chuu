@@ -572,6 +572,10 @@ public class ConcurrentLastFM {//implements LastFMService {
             JSONArray arr = obj.getJSONArray("track");
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject trackObj = arr.getJSONObject(i);
+                if (aCounter != 0 && trackObj.has("@attr")) {
+                    continue;
+                }
+
                 String trackName = trackObj.getString("name");
                 JSONObject artistObj = trackObj.getJSONObject("artist");
                 String artistName = artistObj.getString("name");
@@ -615,7 +619,10 @@ public class ConcurrentLastFM {//implements LastFMService {
                 }
             }
         }
-        return new StreakEntity(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter);
+        return new
+
+                StreakEntity(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter);
+
     }
 
     public TimestampWrapper<List<ScrobbledAlbum>> getNewWhole(String username, int timestampQuery) throws LastFmException {
@@ -807,7 +814,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
         List<ScrobbledAlbum> list = new ArrayList<>();
         while (page <= pages) {
-            if (pages > 10) {
+            if (pages > 15) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException ignored) {
@@ -1106,6 +1113,42 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     }
 
+    public List<TrackWithArtistId> getWeeklyBillboard(String username, int from, int to) throws
+            LastFmException {
+        List<TrackWithArtistId> list = new ArrayList<>();
+        String url = BASE + GET_ALL + username + apiKey + ENDING + "&extended=1" + "&from=" + (from) + "&to=" + to;
+
+        int page = 0;
+        int totalPages = 1;
+        while (page < totalPages) {
+            String urlPage = url + "&page=" + ++page;
+            JSONObject obj = initGetRecentTracks(username, urlPage, TimeFrameEnum.WEEK);
+            JSONObject attrObj = obj.getJSONObject("@attr");
+            totalPages = attrObj.getInt("totalPages");
+            if (totalPages == 0) {
+                throw new LastFMNoPlaysException(username, TimeFrameEnum.WEEK.toApiFormat());
+            }
+
+            JSONArray arr = obj.getJSONArray("track");
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject trackObj = arr.getJSONObject(i);
+                if (trackObj.has("@attr"))
+                    continue;
+
+                String trackName = trackObj.getString("name");
+                JSONObject artistObj = trackObj.getJSONObject("artist");
+                String artistName = artistObj.getString("name");
+                TrackWithArtistId track = new TrackWithArtistId(artistName, trackName, 0, false, 0);
+                JSONObject albumObj = trackObj.optJSONObject("album");
+                if (albumObj != null) {
+                    track.setAlbum(albumObj.getString("#text"));
+                }
+                list.add(track);
+            }
+
+        }
+        return list;
+    }
 
     public List<TimestampWrapper<Track>> getTracksAndTimestamps(String username, int from, int to) throws
             LastFmException {

@@ -415,9 +415,194 @@ create table user_billboard_data
     lastfm_id      VARCHAR(45) COLLATE ascii_general_ci NOT NULL,
     artist_id      bigint(20),
     track_name     varchar(400),
+    album_name     varchar(400),
     scrobble_count smallint,
     PRIMARY KEY (id),
     CONSTRAINT user_billboard_data_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT user_billboard_data_guild_id FOREIGN KEY (lastfm_id) REFERENCES user (lastfm_id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT user_billboard_data_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
-)
+);
+
+
+create table weekly_billboard_artist_listeners
+(
+    id        bigint(20) not null AUTO_INCREMENT,
+    guild_id  bigint(20),
+    week_id   int,
+    artist_id bigint(20),
+    position  smallint,
+    listeners int,
+    PRIMARY KEY (id),
+    -- KEY (guild_id, week_id, artist_id, track_name),
+    CONSTRAINT weekly_billboard_artists_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_artist_guild_id FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_artist_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+
+);
+
+create table weekly_billboard_artist_scrobbles
+(
+    id             bigint(20) not null AUTO_INCREMENT,
+    guild_id       bigint(20),
+    week_id        int,
+    artist_id      bigint(20),
+    position       smallint,
+    scrobble_count int,
+    PRIMARY KEY (id),
+    -- KEY (guild_id, week_id, artist_id, track_name),
+    CONSTRAINT weekly_billboard_artist_scrobbles_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_artist_scrobbles_guild_id FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_artist_scrobbles_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+
+create table weekly_billboard_album_listeners
+(
+    id         bigint(20) not null AUTO_INCREMENT,
+    guild_id   bigint(20),
+    week_id    int,
+    artist_id  bigint(20),
+    album_name varchar(400),
+
+    position   smallint,
+    listeners  int,
+    PRIMARY KEY (id),
+    -- KEY (guild_id, week_id, artist_id, track_name),
+    CONSTRAINT weekly_billboard_album_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_album_guild_id FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_album_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+
+);
+
+create table weekly_billboard_album_scrobbles
+(
+    id             bigint(20) not null AUTO_INCREMENT,
+    guild_id       bigint(20),
+    week_id        int,
+    artist_id      bigint(20),
+    album_name     varchar(400),
+    position       smallint,
+    scrobble_count int,
+    PRIMARY KEY (id),
+    -- KEY (guild_id, week_id, artist_id, track_name),
+    CONSTRAINT weekly_billboard_album_scrobbles_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_album_scrobbles_guild_id FOREIGN KEY (guild_id) REFERENCES guild (guild_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_album_scrobbles_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- GLOBAL
+
+
+create table weekly_billboard_global_listeners
+(
+    id         bigint(20) not null AUTO_INCREMENT,
+    week_id    int,
+    artist_id  bigint(20),
+    track_name varchar(400),
+    position   smallint,
+    listeners  int,
+    PRIMARY KEY (id),
+    -- KEY (guild_id, week_id, artist_id, track_name),
+    CONSTRAINT weekly_billboard_global_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_global_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+
+);
+
+create table weekly_billboard_global_scrobbles
+(
+    id             bigint(20) not null AUTO_INCREMENT,
+    week_id        int,
+    artist_id      bigint(20),
+    track_name     varchar(400),
+    position       smallint,
+    scrobble_count int,
+    PRIMARY KEY (id),
+    -- KEY (guild_id, week_id, artist_id, track_name),
+    CONSTRAINT weekly_billboard_global_scrobbles_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_global_scrobbles_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+
+create table weekly_billboard_artist_global_scrobbles
+(
+    id             bigint(20) not null AUTO_INCREMENT,
+    week_id        int,
+    artist_id      bigint(20),
+    position       smallint,
+    scrobble_count int,
+    PRIMARY KEY (id),
+    -- KEY (guild_id, week_id, artist_id, track_name),
+    CONSTRAINT weekly_billboard_artist_global_scrobbles_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_artist_global_scrobbles_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+create table weekly_billboard_artist_global_listeners
+(
+    id             bigint(20) not null AUTO_INCREMENT,
+    week_id        int,
+    artist_id      bigint(20),
+    position       smallint,
+    scrobble_count int,
+    PRIMARY KEY (id),
+    -- KEY (guild_id, week_id, artist_id, track_name),
+    CONSTRAINT weekly_billboard_artist_global_listeners_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_artist_global_listeners_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+create table weekly_billboard_album_global_listeners
+(
+    id         bigint(20) not null AUTO_INCREMENT,
+    week_id    int,
+    artist_id  bigint(20),
+    album_name varchar(400),
+    position   smallint,
+    listeners  int,
+    PRIMARY KEY (id),
+    -- KEY (guild_id, week_id, artist_id, track_name),
+    CONSTRAINT weekly_billboard_album_global_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_album_global_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+
+);
+
+create table weekly_billboard_album_global_scrobbles
+(
+    id             bigint(20) not null AUTO_INCREMENT,
+    week_id        int,
+    artist_id      bigint(20),
+    album_name     varchar(400),
+    position       smallint,
+    scrobble_count int,
+    PRIMARY KEY (id),
+    -- KEY (guild_id, week_id, artist_id, track_name),
+    CONSTRAINT weekly_billboard_album_global_scrobbles_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT weekly_billboard_album_global_scrobbles_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+alter table weekly_billboard_album_global_scrobbles add index(week_id);
+alter table weekly_billboard_album_global_listeners add index(week_id);
+alter table weekly_billboard_artitst_global_scrobbles add index(week_id);
+alter table weekly_billboard_album_global_scrobbles add index(week_id);
+
+
+
+
+
+

@@ -131,10 +131,12 @@ public class HotMaker {
             innerYCounter += trackHeight;
 
             g.setColor(secundaryColor);
+            if (hot.getArtist() != null) {
+                font = GraphicUtils.chooseFont(hot.getArtist());
+                g.setFont(font.deriveFont(18f));
+                g.drawString(hot.getArtist(), xCounter, innerYCounter);
 
-            font = GraphicUtils.chooseFont(hot.getArtist());
-            g.setFont(font.deriveFont(18f));
-            g.drawString(hot.getArtist(), xCounter, innerYCounter);
+            }
 
 
             doMetric(g, widthMetrics1, startMetrics, innerYCounter, previousWeek, String.valueOf(previousWeek));
@@ -159,8 +161,13 @@ public class HotMaker {
             g.drawLine(X_MAX - 1, yCounter, X_MAX - 1, yCounter + BOX_SIZE);
 
 
-            innerYCounter += g.getFontMetrics().getStringBounds(hot.getArtist(), g).getHeight();
+            if (hot.getArtist() != null) {
 
+                innerYCounter += g.getFontMetrics().getStringBounds(hot.getArtist(), g).getHeight();
+            } else {
+                innerYCounter += g.getFontMetrics().getStringBounds(hot.getName(), g).getHeight();
+
+            }
             String variation;
             if (previousWeek == 0) {
                 variation = "-";

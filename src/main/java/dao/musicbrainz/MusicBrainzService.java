@@ -35,6 +35,8 @@ public interface MusicBrainzService {
 
     Map<Genre, Integer> genreCount(List<AlbumInfo> releaseInfo);
 
+    Map<Genre, Integer> genreCountByartist(List<ArtistInfo> releaseInfo);
+
     List<Track> getAlbumTrackList(String artist, String album);
 
     List<Track> getAlbumTrackListLowerCase(String artist, String album);

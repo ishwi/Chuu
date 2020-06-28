@@ -3,14 +3,14 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
+import core.parsers.NumberParser;
+import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
+import core.parsers.params.NumberParameters;
 import core.parsers.params.TimeFrameParameters;
 import dao.ChuuService;
-import dao.entities.AlbumInfo;
-import dao.entities.DiscordUserDisplay;
-import dao.entities.Genre;
-import dao.entities.TimeFrameEnum;
+import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -22,11 +22,14 @@ import org.knowm.xchart.style.Styler;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class GenreCommand extends ConcurrentCommand<TimeFrameParameters> {
+import static core.parsers.ExtraParser.LIMIT_ERROR;
+
+public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFrameParameters>> {
     private final MusicBrainzService musicBrainz;
 
     public GenreCommand(ChuuService dao) {
@@ -40,8 +43,20 @@ public class GenreCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    public Parser<TimeFrameParameters> getParser() {
-        return new TimerFrameParser(getService(), TimeFrameEnum.YEAR);
+    public Parser<NumberParameters<TimeFrameParameters>> getParser() {
+        Map<Integer, String> map = new HashMap<>(2);
+        map.put(LIMIT_ERROR, "The number introduced must be between 1 and a big number");
+        String s = "You can also introduce a number to vary the number of genres shown in the pie," +
+                "defaults to 10";
+
+        TimerFrameParser timerFrameParser = new TimerFrameParser(getService(), TimeFrameEnum.YEAR);
+        timerFrameParser.addOptional(new OptionalEntity("--artist", "use artists instead of albums for the genres"));
+
+        NumberParser<TimeFrameParameters, TimerFrameParser> timeFrameParametersTimerFrameParserNumberParser = new NumberParser<>(timerFrameParser,
+                10L,
+                Integer.MAX_VALUE,
+                map, s, false, true, false);
+        return timeFrameParametersTimerFrameParserNumberParser;
     }
 
     @Override
@@ -61,8 +76,8 @@ public class GenreCommand extends ConcurrentCommand<TimeFrameParameters> {
 
     @Override
     protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-
-        TimeFrameParameters returned = parser.parse(e);
+        NumberParameters<TimeFrameParameters> parse = parser.parse(e);
+        TimeFrameParameters returned = parse.getInnerParams();
         String username = returned.getLastFMData().getName();
         long discordId = returned.getLastFMData().getDiscordId();
 
@@ -70,23 +85,35 @@ public class GenreCommand extends ConcurrentCommand<TimeFrameParameters> {
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
         String usableString = userInfo.getUsername();
         String urlImage = userInfo.getUrlImage();
-        List<AlbumInfo> albumInfos = lastFM.getTopAlbums(username, timeframe.toApiFormat(), 3000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
-                .collect(Collectors.toList());
-        if (albumInfos.isEmpty()) {
-            sendMessageQueue(e, "Was not able to find any genre in " + usableString + "'s top 3000 albums" + returned.getTime().getDisplayString() + " on Musicbrainz");
-            return;
+        Map<Genre, Integer> map;
+        if (parse.hasOptional("--artist")) {
+            List<ArtistInfo> albumInfos = lastFM.getTopArtists(username, timeframe.toApiFormat(), 3000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
+                    .collect(Collectors.toList());
+            if (albumInfos.isEmpty()) {
+                sendMessageQueue(e, "Was not able to find any genre in " + usableString + "'s top 3000 artists" + returned.getTime().getDisplayString() + " on Musicbrainz");
+                return;
+            }
+            map = musicBrainz.genreCountByartist(albumInfos);
+        } else {
+            List<AlbumInfo> albumInfos = lastFM.getTopAlbums(username, timeframe.toApiFormat(), 3000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
+                    .collect(Collectors.toList());
+            if (albumInfos.isEmpty()) {
+                sendMessageQueue(e, "Was not able to find any genre in " + usableString + "'s top 3000 albums" + returned.getTime().getDisplayString() + " on Musicbrainz");
+                return;
+            }
+            map = musicBrainz.genreCount(albumInfos);
         }
-        Map<Genre, Integer> map = musicBrainz.genreCount(albumInfos);
         if (map.isEmpty()) {
-            sendMessageQueue(e, "Was not able to find any genre in " + usableString + "'s top 3000 albums" + returned.getTime().getDisplayString() + " on Musicbrainz");
+            sendMessageQueue(e, "Was not able to find any genre in " + usableString + "'s top 3000 " + (parse.hasOptional("--artist") ? "artists" : "albums") + returned.getTime().getDisplayString() + " on Musicbrainz");
             return;
         }
 
+        Long extraParam = parse.getExtraParam();
         PieChart pieChart =
                 new PieChartBuilder()
                         .width(1000)
                         .height(750)
-                        .title("Top 10 Genres from " + usableString + timeframe.getDisplayString())
+                        .title("Top " + extraParam + " Genres from " + usableString + timeframe.getDisplayString())
                         .theme(Styler.ChartTheme.GGPlot2)
                         .build();
         pieChart.getStyler().setLegendVisible(false);
@@ -103,7 +130,7 @@ public class GenreCommand extends ConcurrentCommand<TimeFrameParameters> {
         pieChart.getStyler().setChartTitleBoxBackgroundColor(Color.decode("#23272a"));
         pieChart.getStyler().setChartBackgroundColor(Color.decode("#23272a"));
         pieChart.getStyler().setChartFontColor(Color.white);
-        map.entrySet().stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).sequential().limit(10)
+        map.entrySet().stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).sequential().limit(extraParam)
                 .forEachOrdered(entry -> {
                     Genre genre = entry.getKey();
                     int plays = entry.getValue();

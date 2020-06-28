@@ -18,7 +18,7 @@ public class GlobalReturnNowPlaying extends ReturnNowPlaying {
     @Override
     public String toString() {
         String url;
-        String discordName = getDiscordName();
+        String discordName = CommandUtil.markdownLessString(getDiscordName());
         if (discordName.startsWith("Private User #")) {
             url = CommandUtil
                     .getLastFmArtistUserUrl(getArtist(), "chuu");

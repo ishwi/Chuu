@@ -79,20 +79,20 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
         if (combo.getaCounter() > 1) {
             description.append("**Artist**: ")
-                    .append(combo.getaCounter()).append(combo.getaCounter() >= 1000 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ")
+                    .append(combo.getaCounter()).append(combo.getaCounter() >= 5000 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ")
                     .append("**[").append(aString).append("](").append(CommandUtil.getLastFmArtistUrl(combo.getCurrentArtist())).append(")**").append("\n");
         }
         if (combo.getAlbCounter() > 1) {
             description.append("**Album**: ")
                     .append(combo.getAlbCounter())
-                    .append(combo.getAlbCounter() >= 1000 ? "+" : "")
+                    .append(combo.getAlbCounter() >= 5000 ? "+" : "")
                     .append(combo.getAlbCounter() != 1 ? " consecutive plays - " : " play - ")
                     .append("**[").append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentAlbum())).append("](")
                     .append(CommandUtil.getLastFmArtistAlbumUrl(combo.getCurrentArtist(), combo.getCurrentAlbum())).append(")**")
                     .append("\n");
         }
         if (combo.gettCounter() > 1) {
-            description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 1000 ? "+" : "")
+            description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 5000 ? "+" : "")
                     .append(combo.gettCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
                     .append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentSong())).append("](").append(CommandUtil.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
         }

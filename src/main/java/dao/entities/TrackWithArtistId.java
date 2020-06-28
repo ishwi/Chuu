@@ -3,6 +3,8 @@ package dao.entities;
 public class TrackWithArtistId extends Track {
     private long artistId;
     private int plays;
+    private String album;
+    private long albumId;
 
     public TrackWithArtistId(String artist, String name, int plays, boolean isLoved, int duration) {
         super(artist, name, plays, isLoved, duration);
@@ -28,5 +30,21 @@ public class TrackWithArtistId extends Track {
 
     public void setPlays(int plays) {
         this.plays = plays;
+    }
+
+    public String getAlbum() {
+        return album;
+    }
+
+    public void setAlbum(String album) {
+        this.album = album;
+    }
+
+    public long getAlbumId() {
+        return albumId;
+    }
+
+    public void setAlbumId(long albumId) {
+        this.albumId = albumId;
     }
 }

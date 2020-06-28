@@ -351,6 +351,11 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new HardwareStatsCommand(dao)))
                 .addEventListeners(help.registerCommand(new RYMChartCommand(dao)))
                 .addEventListeners(help.registerCommand(new BillboardCommand(dao)))
+                .addEventListeners(help.registerCommand(new BillboardAlbumCommand(dao)))
+                .addEventListeners(help.registerCommand(new BillboardArtistCommand(dao)))
+                .addEventListeners(help.registerCommand(new GlobalBillboardCommand(dao)))
+                .addEventListeners(help.registerCommand(new GlobalAlbumBillboardCommand(dao)))
+                .addEventListeners(help.registerCommand(new GlobalArtistBillboardCommand(dao)))
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
                     initDisabledCommands(dao, shard);
                     prefixCommand.onStartup(shard);

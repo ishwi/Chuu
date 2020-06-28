@@ -134,6 +134,16 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
     }
 
     @Override
+    public Map<Genre, Integer> genreCountByartist(List<ArtistInfo> releaseInfo) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return mbizQueriesDao.genreCountByArtist(connection, releaseInfo);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public Set<String> albumsGenre(List<AlbumInfo> releaseInfo, String genre) {
 
 

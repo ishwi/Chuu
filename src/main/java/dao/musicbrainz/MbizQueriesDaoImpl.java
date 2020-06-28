@@ -1,6 +1,7 @@
 package dao.musicbrainz;
 
 import com.neovisionaries.i18n.CountryCode;
+import com.wrapper.spotify.model_objects.specification.Artist;
 import core.Chuu;
 import core.exceptions.ChuuServiceException;
 import dao.entities.*;
@@ -1099,6 +1100,50 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             throw new ChuuServiceException(e);
         }
         return returnList;
+    }
+
+    @Override
+    public Map<Genre, Integer> genreCountByArtist(Connection connection, List<ArtistInfo> releaseInfo) {
+        Map<Genre, Integer> returnMap = new HashMap<>();
+        List<Genre> list = new ArrayList<>();
+        StringBuilder queryString = new StringBuilder("SELECT \n" +
+                "       c.name as neim, count(*) as count\n \n" +
+                " FROM\n" +
+                " musicbrainz.artist d join \n" +
+                "musicbrainz.artist_tag b ON d.id = b.artist\n" +
+                "        JOIN\n" +
+                "    musicbrainz.tag c ON b.tag = c.id\n" +
+                "WHERE\n" +
+                "    d.gid in (");
+
+        for (ArtistInfo ignored : releaseInfo) {
+            queryString.append(" ? ,");
+        }
+
+        queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
+        queryString.append("\n Group by c.name");
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString.toString())) {
+            int i = 1;
+
+            for (ArtistInfo albumInfo : releaseInfo) {
+                preparedStatement.setObject(i++, java.util.UUID.fromString(albumInfo.getMbid()));
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                String mbid = resultSet.getString("neim");
+                int count = resultSet.getInt("count");
+                Genre genre = new Genre(mbid, "");
+                list.add(genre);
+                returnMap.put(genre, count);
+            }
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return list.stream().collect(Collectors.toMap(genre -> genre, genre -> returnMap.getOrDefault(genre, 0), Integer::sum));
     }
 
     private void prepareRealeaseYearStatementAverage(List<AlbumInfo> releaseInfo, Year

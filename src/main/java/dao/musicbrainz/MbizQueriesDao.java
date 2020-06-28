@@ -57,4 +57,7 @@ interface MbizQueriesDao {
 
 
     List<AlbumGenre> getAlbumRecommendationsByGenre(Connection connection, Map<Genre, Integer> map, List<ScrobbledArtist> recs);
+
+    Map<Genre, Integer> genreCountByArtist(Connection connection, List<ArtistInfo> releaseInfo);
+
 }
