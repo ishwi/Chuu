@@ -598,10 +598,25 @@ create table weekly_billboard_album_global_scrobbles
 
 alter table weekly_billboard_album_global_scrobbles add index(week_id);
 alter table weekly_billboard_album_global_listeners add index(week_id);
-alter table weekly_billboard_artitst_global_scrobbles add index(week_id);
+alter table weekly_billboard_artist_global_scrobbles add index(week_id);
+alter table weekly_billboard_album_global_scrobbles add index(week_id);
+alter table weekly_billboard_global_listeners add index(week_id);
+alter table weekly_billboard_global_scrobbles add index(week_id);
+alter table weekly_billboard_album_global_scrobbles add index(week_id);
+alter table weekly_billboard_album_global_listeners add index(week_id);
+alter table weekly_billboard_artist_global_scrobbles add index(week_id);
 alter table weekly_billboard_album_global_scrobbles add index(week_id);
 
-
+alter table weekly_billboard_album_scrobbles add index(week_id,guild_id);
+alter table weekly_billboard_album_listeners add index(week_id,guild_id);
+alter table weekly_billboard_artist_scrobbles add index(week_id,guild_id);
+alter table weekly_billboard_album_scrobbles add index(week_id,guild_id);
+alter table weekly_billboard_listeners add index(week_id,guild_id);
+alter table weekly_billboard_scrobbles add index(week_id,guild_id);
+alter table weekly_billboard_album_scrobbles add index(week_id,guild_id);
+alter table weekly_billboard_album_listeners add index(week_id,guild_id);
+alter table weekly_billboard_artist_scrobbles add index(week_id,guild_id);
+alter table weekly_billboard_album_scrobbles add index(week_id,guild_id);
 
 
 

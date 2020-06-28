@@ -27,7 +27,7 @@ public class BillboardAlbumCommand extends BillboardCommand {
 
     @Override
     public String getTitle() {
-        return "Albums";
+        return "Albums ";
     }
 
     @Override

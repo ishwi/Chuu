@@ -27,6 +27,8 @@ import org.json.JSONTokener;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -130,23 +132,19 @@ public class ConcurrentLastFM {//implements LastFMService {
                 Chuu.incrementMetric();
                 int responseCode = client.executeMethod(method);
                 parseHttpCode(responseCode);
-                try (InputStream responseBodyAsStream = method.getResponseBodyAsStream()) {
-                    JSONTokener x = new JSONTokener(responseBodyAsStream);
-                    JSONObject jsonObject = new JSONObject(x);
-                    if (jsonObject.has("error"))
-                        parseResponse(jsonObject, causeOfNotFound);
-                    if (responseCode == 404) {
-                        throw new LastFmEntityNotFoundException(new ExceptionEntity("Whatever"));
-                    }
-                    if (Math.floor((float) responseCode / 100) == 4) {
-                        throw new UnknownLastFmException(jsonObject.toString(), responseCode);
-                    }
-                    return jsonObject;
-                } catch (Exception e) {
-
+                byte[] responseBody = method.getResponseBody();
+                JSONObject jsonObject = new JSONObject(new String(responseBody, StandardCharsets.UTF_8));
+                if (jsonObject.has("error"))
+                    parseResponse(jsonObject, causeOfNotFound);
+                if (responseCode == 404) {
+                    throw new LastFmEntityNotFoundException(new ExceptionEntity("Whatever"));
                 }
+                if (Math.floor((float) responseCode / 100) == 4) {
+                    throw new UnknownLastFmException(jsonObject.toString(), responseCode);
+                }
+                return jsonObject;
             } catch (IOException | LastFMServiceException e) {
-                Logger.getAnonymousLogger().log(Level.WARNING, e.getMessage(), e);
+                Chuu.getLogger().warn(e.getMessage(), e);
             } finally {
                 method.releaseConnection();
             }
@@ -156,6 +154,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             }
 
         }
+
     }
 
     private void parseHttpCode(int code) throws LastFmException {
@@ -627,8 +626,18 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     public TimestampWrapper<List<ScrobbledAlbum>> getNewWhole(String username, int timestampQuery) throws LastFmException {
         List<NowPlayingArtist> list = new ArrayList<>();
-        String url = BASE + GET_ALL + username + apiKey + ENDING + "&extended=1";
 
+
+        String url = BASE + RECENT_TRACKS + "&user=" + username + apiKey + ENDING + "&extended=1";
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestampQuery), ZoneOffset.systemDefault());
+        int limit = 1000;
+        if (localDateTime.isBefore(LocalDateTime.now().minus(1, ChronoUnit.DAYS))) {
+            limit = 200;
+        } else if (localDateTime.isBefore(LocalDateTime.now().minus(2, ChronoUnit.DAYS))) {
+            limit = 400;
+        }
+
+        url += "&limit=" + limit;
         if (timestampQuery != 0)
             url += "&from=" + (timestampQuery + 1);
         int timestamp = 0;
@@ -638,7 +647,6 @@ public class ConcurrentLastFM {//implements LastFMService {
         int count = 0;
         while (count < total) {
             String urlPage = url + "&page=" + ++page;
-            HttpMethodBase method = createMethod(urlPage);
             JSONObject obj = initGetRecentTracks(username, urlPage, TimeFrameEnum.ALL);
 
             JSONObject attrObj = obj.getJSONObject("@attr");
@@ -689,7 +697,8 @@ public class ConcurrentLastFM {//implements LastFMService {
                         .collect(Collectors.toCollection(ArrayList::new)), timestamp);
     }
 
-    public TimestampWrapper<List<ScrobbledArtist>> getWhole(String username, int timestampQuery) throws LastFmException {
+    public TimestampWrapper<List<ScrobbledArtist>> getWhole(String username, int timestampQuery) throws
+            LastFmException {
         List<NowPlayingArtist> list = new ArrayList<>();
         String url = BASE + GET_ALL + username + apiKey + ENDING + "&extended=1";
 
@@ -816,7 +825,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         while (page <= pages) {
             if (pages > 15) {
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(1000);
                 } catch (InterruptedException ignored) {
                 }
             }

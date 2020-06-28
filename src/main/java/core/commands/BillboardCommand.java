@@ -114,6 +114,10 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
         List<BillboardEntity> entities = getEntities(weekId, guildId, doListeners);
         Date weekStart = week.getWeekStart();
         LocalDateTime weekBeggining = weekStart.toLocalDate().minus(1, ChronoUnit.WEEKS).atStartOfDay();
+        if (entities.isEmpty() && weekId == 1 && this instanceof BillboardAlbumCommand && !getService().getBillboard(weekId, guildId, doListeners).isEmpty()) {
+            sendMessageQueue(e, "The album trend couldn't be computed this week because it was the first one.");
+            return;
+        }
         if (entities.isEmpty()) {
             synchronized (this) {
                 if (inProcessSets.contains(guildId)) {
@@ -192,7 +196,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
                 getService().insertBillboardData(weekId, guildId);
 
 
-                entities = getService().getBillboard(weekId, guildId, doListeners);
+                entities = getEntities(weekId, guildId, doListeners);
 
 
                 sendMessageQueue(e, "Successfully Generated these week's charts");

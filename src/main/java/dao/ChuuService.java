@@ -1694,30 +1694,6 @@ public class ChuuService {
         albumDao.addSrobbledAlbums(connection, scrobbledAlbums);
     }
 
-    public void incrementalAlbumUpdate(TimestampWrapper<List<ScrobbledAlbum>> wrapper, String id) {
-        try (Connection connection = dataSource.getConnection()) {
-
-            try {
-
-                /* Prepare connection. */
-                connection.setAutoCommit(false);
-                List<ScrobbledArtist> peeked = wrapper.getWrapped().stream().peek(x -> x.setDiscordID(id)).collect(Collectors.toList());
-                updaterDao.upsertArtist(connection, peeked);
-                updaterDao.setUpdatedTime(connection, id, wrapper.getTimestamp(), wrapper.getTimestamp());
-
-                connection.commit();
-
-
-            } catch (SQLException e) {
-                connection.rollback();
-                throw new ChuuServiceException(e);
-            }
-
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
-    }
-
     public WrapperReturnNowPlaying getWhoKnowsAlbums(int limit, long albumId, long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.whoKnowsAlbum(connection, albumId, guildId, limit);

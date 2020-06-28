@@ -444,7 +444,7 @@ public class BillboardDaoImpl implements BillboardDao {
                         "where guild_id = ?" +
                         " and week_id = ?  \n" +
                         "group by a.artist_id\n" +
-                        "window w as (order by count(*) desc)\n" +
+                        "window w as (order by count(distinct b.discord_id) desc)\n" +
                         "order by listeners desc\n" +
                         "limit 100");
 
@@ -474,7 +474,7 @@ public class BillboardDaoImpl implements BillboardDao {
                         "where guild_id = ?" +
                         " and week_id = ? and a.album_name is not null  \n" +
                         "group by a.artist_id,a.album_name\n" +
-                        "window w as (order by count(*) desc)\n" +
+                        "window w as (order by count(distinct b.discord_id) desc)\n" +
                         "order by listeners desc\n" +
                         "limit 100");
 
@@ -602,12 +602,12 @@ public class BillboardDaoImpl implements BillboardDao {
     public void insertGlobalBillboardDataListenersByAlbum(Connection connection, int week_id) {
         StringBuilder mySql =
                 new StringBuilder("INSERT INTO  weekly_billboard_album_listeners" +
-                        "                  (week_id,artist_id,album_name,position,listeners) " + "SELECT ? ,  artist_id,album_name,rank() over w as 'cum',count(*) as listeners\n" +
+                        "                  (week_id,artist_id,album_name,position,listeners) " + "SELECT ? ,  artist_id,album_name,rank() over w as 'cum',count(distinct a.lastfm_id)  as listeners\n" +
                         "from\n" +
                         "user_billboard_data a\n" +
                         " where week_id = ? and a.album_name is not null  \n" +
                         "group by a.artist_id,a.album_name\n" +
-                        "window w as (order by count(*) desc)\n" +
+                        "window w as (order by count(distinct a.lastfm_id) desc)\n" +
                         "order by listeners desc\n" +
                         "limit 100");
 
@@ -652,12 +652,12 @@ public class BillboardDaoImpl implements BillboardDao {
     public void insertGlobalBillboardDataListenersByArtist(Connection connection, int week_id) {
         StringBuilder mySql =
                 new StringBuilder("INSERT INTO  weekly_billboard_artist_listeners" +
-                        "                  (week_id,artist_id,position,listeners) " + "SELECT ? ,  artist_id,rank() over w as 'cum',count(*) as listeners\n" +
+                        "                  (week_id,artist_id,position,listeners) " + "SELECT ? ,  artist_id,rank() over w as 'cum',count(distinct a.lastfm_id)  as listeners\n" +
                         "from\n" +
                         "user_billboard_data a\n" +
                         " where week_id = ?  \n" +
                         "group by a.artist_id\n" +
-                        "window w as (order by count(*) desc)\n" +
+                        "window w as (order by count(distinct a.lastfm_id)  desc)\n" +
                         "order by listeners desc\n" +
                         "limit 100");
 

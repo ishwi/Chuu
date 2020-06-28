@@ -31,7 +31,7 @@ public class GlobalAlbumBillboardCommand extends GlobalBillboardCommand {
 
     @Override
     public String getTitle() {
-        return "Albums";
+        return "Albums ";
     }
 
     @Override

@@ -26,7 +26,7 @@ public class GlobalArtistBillboardCommand extends GlobalBillboardCommand {
 
     @Override
     public String getTitle() {
-        return "Artists";
+        return "Artists ";
     }
 
     @Override
