@@ -186,17 +186,27 @@ END;
 //
 DELIMITER ;
 
+
+
+
+
+
 DELIMITER //
 CREATE TRIGGER alt_url_update
     AFTER UPDATE
     ON alt_url
     FOR EACH ROW
 BEGIN
-    (SELECT max(a.score), a.url
-     INTO @current_score,@current_url
-     FROM alt_url a
-     WHERE a.artist_id = new.artist_id);
-    IF ((SELECT url FROM artist b WHERE b.id = new.artist_id) = new.url) AND (new.score < @current_score) THEN
+    declare current_score int;
+    declare current_url varchar(400);
+
+    set current_score = (SELECT max(a.score)
+                         FROM alt_url a
+                         WHERE a.artist_id = new.artist_id);
+    set current_url = (SELECT a.url
+                       FROM alt_url a
+                       WHERE a.artist_id = new.artist_id);
+    IF ((SELECT url FROM artist b WHERE b.id = new.artist_id) = new.url) AND (new.score < current_score) THEN
         UPDATE artist SET url = @current_url WHERE id = new.artist_id;
     ELSEIF (new.score >= @current_score) THEN
         UPDATE artist SET url = new.url WHERE id = new.artist_id;
@@ -205,6 +215,10 @@ END;
 //
 DELIMITER ;
 DELIMITER //
+
+
+
+
 CREATE TRIGGER alt_url_delete
     AFTER DELETE
     ON alt_url
@@ -558,7 +572,7 @@ create table weekly_billboard_artist_global_listeners
     week_id        int,
     artist_id      bigint(20),
     position       smallint,
-    scrobble_count int,
+    listeners int,
     PRIMARY KEY (id),
     -- KEY (guild_id, week_id, artist_id, track_name),
     CONSTRAINT weekly_billboard_artist_global_listeners_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,

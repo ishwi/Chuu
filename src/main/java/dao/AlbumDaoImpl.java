@@ -84,6 +84,43 @@ public class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
+    public void insertAlbums(Connection connection, List<ScrobbledAlbum> nonExistingId) {
+        StringBuilder mySql =
+                new StringBuilder("INSERT INTO album (artist_id,album_name,url,mbid) VALUES (?,?,?,?)");
+
+        mySql.append(",(?,?,?,?)".repeat(Math.max(0, nonExistingId.size() - 1)));
+        mySql.append(" on duplicate key update " +
+                " mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " +
+                " url = if(url is null and values(url) is not null,values(url),url)  returning id ");
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            for (int i = 0; i < nonExistingId.size(); i++) {
+                ScrobbledAlbum x = nonExistingId.get(i);
+                preparedStatement.setLong(4 * i + 1, x.getArtistId());
+                preparedStatement.setString(4 * i + 2, x.getAlbum());
+                preparedStatement.setString(4 * i + 3, x.getUrl());
+                String albumMbid = x.getAlbumMbid();
+                if (albumMbid == null || albumMbid.isBlank()) {
+                    albumMbid = null;
+                }
+                preparedStatement.setString(4 * i + 4, albumMbid);
+
+            }
+            preparedStatement.execute();
+
+            ResultSet ids = preparedStatement.getResultSet();
+            int counter = 0;
+            while (ids.next()) {
+                long aLong = ids.getLong(1);
+                nonExistingId.get(counter++).setAlbumId(aLong);
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public void insertLastFmAlbum(Connection connection, ScrobbledAlbum x) {
 
         String sql = "INSERT INTO album (artist_id,album_name,url,mbid) VALUES (?,?,?,?) on duplicate key update" +

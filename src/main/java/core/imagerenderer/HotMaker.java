@@ -106,17 +106,18 @@ public class HotMaker {
                 g.setFont(g.getFont().deriveFont(14f).deriveFont(Font.BOLD));
                 stringBounds = g.getFontMetrics().getStringBounds("New", g);
                 rankX = (int) (((X_MAX * 0.15) - stringBounds.getWidth()) / 2);
-                g.drawString("New", rankX, innerYCounter + 8);
+                g.drawString("New", rankX, innerYCounter + 10);
             } else {
                 if (previousWeek > hot.getPosition()) {
                     g.drawImage(upvote, rankX + 5, innerYCounter - 2, null);
                 } else if (previousWeek < hot.getPosition()) {
                     g.drawImage(downvote, rankX + 5, innerYCounter - 2, null);
                 } else {
+                    g.setColor(secundaryColor);
+                    g.setFont(g.getFont().deriveFont(14f).deriveFont(Font.BOLD));
                     stringBounds = g.getFontMetrics().getStringBounds("-", g);
-                    rankX = (int) (((X_MAX * 0.09) - stringBounds.getWidth()) / 2);
-                    rankY = innerYCounter + (int) ((BOX_SIZE + stringBounds.getHeight()) / 2);
-                    g.drawString("-", rankX, rankY);
+                    rankX = (int) (((X_MAX * 0.15) - stringBounds.getWidth()) / 2);
+                    g.drawString("-", rankX, innerYCounter + 10);
                 }
             }
 

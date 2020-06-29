@@ -14,6 +14,8 @@ public interface AlbumDao {
 
     void deleteAllUserAlbums(Connection con, String lastfmId);
 
+    void insertAlbums(Connection connection, List<ScrobbledAlbum> nonExistingId);
+
     void insertLastFmAlbum(Connection connection, ScrobbledAlbum x);
 
     long getAlbumIdByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException;

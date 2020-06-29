@@ -79,10 +79,11 @@ public class GlobalBillboardCommand extends BillboardCommand {
         List<BillboardEntity> entities = getEntities(week.getId() - 1, doListeners);
         if (entities.isEmpty()) {
             if (settingUp.compareAndSet(false, true)) {
+                sendMessageQueue(e, "The global billboard chart didn't exist. Will begin the process to build it.");
                 getService().insertGlobalBillboardData(week.getId() - 1);
                 settingUp.set(false);
             } else {
-                sendMessage(e, "The global billboard chart was already being computed, check again later!");
+                sendMessageQueue(e, "The global billboard chart was already being computed, check again later!");
                 return;
             }
 

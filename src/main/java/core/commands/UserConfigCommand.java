@@ -126,17 +126,18 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 try {
                     Point chartSize = chartParserAux.getChartSize();
                     if (chartSize == null) {
-                        sendMessage(e, "Something went wrong evaluating your chart size");
+                        sendMessageQueue(e, "Something went wrong evaluating your chart size");
                         return;
                     }
                     x = (int) chartSize.getX();
                     y = (int) chartSize.getY();
                 } catch (InvalidChartValuesException invalidChartValuesException) {
-                    sendMessage(e, "Something went wrong evaluating your chart size");
+                    sendMessageQueue(e, "Something went wrong evaluating your chart size");
                     return;
                 }
                 if (x * y > 7 * 7) {
-                    sendMessage(e, "The default value can't be greater than 7x7");
+                    sendMessageQueue(e, "The default value can't be greater than 7x7");
+                    return;
                 }
                 getService().setChartDefaults(x, y, e.getAuthor().getIdLong());
                 sendMessageQueue(e, "Successfully changed default chart size for user " + getUserString(e, e.getAuthor().getIdLong()));

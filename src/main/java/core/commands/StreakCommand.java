@@ -98,7 +98,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         }
         MessageEmbed build = embedBuilder.setDescription(description)
                 .setColor(CommandUtil.randomColor())
-                .setFooter(String.format("%s has played %s %d times!", CommandUtil.markdownLessUserString(userName, discordID, e), artist.getArtist(), artistPlays))
+                .setFooter(String.format("%s has played %s %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), artist.getArtist(), artistPlays, CommandUtil.singlePlural(artistPlays, "time", "times")))
                 .build();
         MessageBuilder messageBuilder = new MessageBuilder();
         messageBuilder.setEmbed(build).sendTo(e.getChannel()).queue();

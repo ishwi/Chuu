@@ -56,3 +56,10 @@ ALTER TABLE album
 
 ALTER TABLE album
     ADD COLUMN mbid VARCHAR(36) unique;
+
+
+alter table weekly_billboard_artist_global_listeners
+    drop column scrobble_count;
+alter table weekly_billboard_artist_global_listeners
+    add column listeners int;
+
