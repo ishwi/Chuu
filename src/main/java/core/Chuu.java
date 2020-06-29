@@ -359,7 +359,9 @@ public class Chuu {
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
                     initDisabledCommands(dao, shard);
                     prefixCommand.onStartup(shard);
-                    commandAdministrator.onStartup(shardManager);
+                    if (!isTest) {
+                        commandAdministrator.onStartup(shardManager);
+                    }
 
                     shardManager.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
                     updatePresence("Chuu");

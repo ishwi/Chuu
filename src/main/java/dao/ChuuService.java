@@ -79,7 +79,6 @@ public class ChuuService {
             connection.setAutoCommit(false);
             if (!list.isEmpty()) {
                 //delete everything first to have a clean start
-                updaterDao.deleteAllArtists(connection, id);
                 /* Do work. */
                 updaterDao.fillIds(connection, list);
 
@@ -153,13 +152,13 @@ public class ChuuService {
                 Savepoint a = a(albumData, id, connection, false);
                 try {
                     updaterDao.setUpdatedTime(connection, id, wrapper.getTimestamp(), wrapper.getTimestamp());
+
                     connection.commit();
                 } catch (SQLTransactionRollbackException exception) {
                     connection.rollback(a);
                     updaterDao.setUpdatedTime(connection, id, wrapper.getTimestamp(), wrapper.getTimestamp());
                     connection.commit();
                 }
-
             } catch (SQLException e) {
                 connection.rollback();
                 throw new ChuuServiceException(e);
@@ -1673,12 +1672,13 @@ public class ChuuService {
 
     private Savepoint a(List<ScrobbledAlbum> list, String id, Connection connection, boolean doDeletion) throws SQLException {
         if (list.isEmpty()) {
-            return;
+            return null;
         }
         albumDao.fillIds(connection, list);
 
         Map<Boolean, List<ScrobbledAlbum>> map = list.stream().peek(x -> x.setDiscordID(id)).collect(Collectors.partitioningBy(scrobbledArtist -> scrobbledArtist.getAlbumId() == -1));
         List<ScrobbledAlbum> nonExistingId = map.get(true);
+        connection.setAutoCommit(true);
         if (!nonExistingId.isEmpty()) {
             nonExistingId.forEach(x -> {
                 albumDao.insertLastFmAlbum(connection, x);
@@ -1696,6 +1696,7 @@ public class ChuuService {
             albumDao.deleteAllUserAlbums(connection, id);
         }
         albumDao.addSrobbledAlbums(connection, scrobbledAlbums);
+        return savepoint;
     }
 
     public WrapperReturnNowPlaying getWhoKnowsAlbums(int limit, long albumId, long guildId) {

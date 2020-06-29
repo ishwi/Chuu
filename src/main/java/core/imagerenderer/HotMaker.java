@@ -11,7 +11,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDate;
 import java.util.List;
 
 public class HotMaker {
@@ -19,7 +18,7 @@ public class HotMaker {
     private final static int BOX_SIZE = 125;
 
     private final static Color fontColor = ColorFactory.valueOf("#344072");
-    private final static Color secundaryColor = ColorFactory.valueOf("#8086a0");
+    private final static Color secondaryColor = ColorFactory.valueOf("#8086a0");
     private final static Color newColor = ColorFactory.valueOf("#ffaa36");
 
 
@@ -29,7 +28,7 @@ public class HotMaker {
 
 
     private final static Font normalFont = GraphicUtils.chooseFont(metric1);
-    private static BufferedImage upvote;
+    private static BufferedImage upboats;
     private static BufferedImage downvote;
 
     static {
@@ -39,9 +38,9 @@ public class HotMaker {
             downvote = null;
         }
         try (InputStream in = BandRendered.class.getResourceAsStream("/images/upvote.png")) {
-            upvote = Scalr.resize(ImageIO.read(in), Scalr.Method.QUALITY, 15, Scalr.OP_ANTIALIAS);
+            upboats = Scalr.resize(ImageIO.read(in), Scalr.Method.QUALITY, 15, Scalr.OP_ANTIALIAS);
         } catch (IOException e) {
-            upvote = null;
+            upboats = null;
         }
     }
 
@@ -82,20 +81,20 @@ public class HotMaker {
             g.drawImage(logo, x, (yCounter - 50) / 2, null);
             x += logo.getWidth();
         }
-        int size = g.getFontMetrics().stringWidth(title);
         g.drawString(title, (x + 15), yCounter - 50);
         g.setFont(g.getFont().deriveFont(12f));
         g.drawString(subtitle, (x + 15), yCounter - 25);
 
         for (int i = 0, hotsSize = hots.size(); i < hotsSize || (i < itemCount); i++) {
             BillboardEntity hot = hots.get(i);
-            g.setColor(secundaryColor);
+            g.setColor(secondaryColor);
             g.drawRect(0, yCounter, X_MAX - 2, BOX_SIZE);
             int innerYCounter = yCounter;
             g.setFont(g.getFont().deriveFont(42f));
             Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(String.valueOf(hot.getPosition()), g);
             int rankX = (int) (((X_MAX * .15) - stringBounds.getWidth()) / 2);
             int rankY = innerYCounter + (int) ((BOX_SIZE - stringBounds.getHeight() + 40) / 2);
+            int FIRST_COLUMN_MIDDLE = (int) (rankX + (stringBounds.getWidth() / 2));
             g.setColor(fontColor);
             g.drawString(String.valueOf(hot.getPosition()), rankX, rankY);
             int textStart = (int) (rankY - stringBounds.getHeight());
@@ -105,19 +104,17 @@ public class HotMaker {
                 g.setColor(newColor);
                 g.setFont(g.getFont().deriveFont(14f).deriveFont(Font.BOLD));
                 stringBounds = g.getFontMetrics().getStringBounds("New", g);
-                rankX = (int) (((X_MAX * 0.15) - stringBounds.getWidth()) / 2);
-                g.drawString("New", rankX, innerYCounter + 10);
+                g.drawString("New", (int) (FIRST_COLUMN_MIDDLE - stringBounds.getWidth() / 2), innerYCounter + 10);
             } else {
                 if (previousWeek > hot.getPosition()) {
-                    g.drawImage(upvote, rankX + 5, innerYCounter - 2, null);
+                    g.drawImage(upboats, FIRST_COLUMN_MIDDLE - upboats.getWidth() / 2, innerYCounter - 2, null);
                 } else if (previousWeek < hot.getPosition()) {
-                    g.drawImage(downvote, rankX + 5, innerYCounter - 2, null);
+                    g.drawImage(downvote, FIRST_COLUMN_MIDDLE - upboats.getWidth() / 2, innerYCounter - 2, null);
                 } else {
-                    g.setColor(secundaryColor);
+                    g.setColor(secondaryColor);
                     g.setFont(g.getFont().deriveFont(14f).deriveFont(Font.BOLD));
                     stringBounds = g.getFontMetrics().getStringBounds("-", g);
-                    rankX = (int) (((X_MAX * 0.15) - stringBounds.getWidth()) / 2);
-                    g.drawString("-", rankX, innerYCounter + 10);
+                    g.drawString("-", (int) (FIRST_COLUMN_MIDDLE - stringBounds.getWidth() / 2), innerYCounter + 10);
                 }
             }
 
@@ -131,7 +128,7 @@ public class HotMaker {
             g.drawString(hot.getName(), xCounter, innerYCounter);
             innerYCounter += trackHeight;
 
-            g.setColor(secundaryColor);
+            g.setColor(secondaryColor);
             if (hot.getArtist() != null) {
                 font = GraphicUtils.chooseFont(hot.getArtist());
                 g.setFont(font.deriveFont(18f));
