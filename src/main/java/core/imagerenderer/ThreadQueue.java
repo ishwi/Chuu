@@ -14,6 +14,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static core.imagerenderer.WhoKnowsMaker.EMOJI_FONT;
+
 
 class ThreadQueue implements Runnable {
     final BlockingQueue<UrlCapsule> queue;
@@ -173,7 +175,10 @@ class ThreadQueue implements Runnable {
             if (font.canDisplayUpTo(string) != -1) {
                 font = KOREAN_FONT;
                 if (font.canDisplayUpTo(string) != -1) {
-                    font = START_FONT;
+                    font = EMOJI_FONT;
+                    if (font.canDisplayUpTo(string) != -1) {
+                        font = START_FONT;
+                    }
                 }
             }
         }

@@ -1,7 +1,5 @@
 package core.apis.last;
 
-import com.google.gson.JsonArray;
-import com.google.gson.stream.JsonReader;
 import core.Chuu;
 import core.apis.ClientSingleton;
 import core.apis.last.chartentities.ChartUtil;
@@ -10,6 +8,7 @@ import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ArtistException;
 import core.apis.last.exceptions.ExceptionEntity;
 import core.apis.last.exceptions.TrackException;
+import core.commands.CommandUtil;
 import core.exceptions.*;
 import core.parsers.params.ChartParameters;
 import dao.entities.*;
@@ -20,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.io.*;
 import java.net.URLEncoder;
@@ -36,8 +34,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -67,6 +63,7 @@ public class ConcurrentLastFM {//implements LastFMService {
     static final Header header = initHeader();
     final String apiKey;
     final HttpClient client;
+    private final int SONG_AVERAGE_DURATION = 200;
 
     public ConcurrentLastFM(String apikey) {
         this.apiKey = "&api_key=" + apikey;
@@ -478,7 +475,6 @@ public class ConcurrentLastFM {//implements LastFMService {
         Map<Track, Integer> trackList = new HashMap<>();
         String url = BASE + GET_TOP_TRACKS + user + apiKey + ENDING + "&period=" + timeFrameEnum
                 .toApiFormat() + "&limit=1000";
-        int SONG_AVERAGE_LENGTH_SECONDS = 200;
         int page = 1;
         int total = 1;
         boolean doWhole = timeFrameEnum.equals(TimeFrameEnum.WEEK);
@@ -501,7 +497,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                 String name = jsonObj.getString("name");
                 int duration = jsonObj.getInt("duration");
                 int frequency = jsonObj.getInt("playcount");
-                duration = duration == 0 ? SONG_AVERAGE_LENGTH_SECONDS : duration;
+                duration = duration == 0 ? SONG_AVERAGE_DURATION : duration;
                 String artist_name = jsonObj.getJSONObject("artist").getString("name");
 
                 trackList.put(new Track(artist_name, name, 0, false, 0), duration);
@@ -516,6 +512,7 @@ public class ConcurrentLastFM {//implements LastFMService {
     public SecondsTimeFrameCount getMinutesWastedOnMusicDaily(String username, Map<Track, Integer> trackList, int timestampQuery) throws LastFmException {
         String url = BASE + GET_ALL + username + apiKey + ENDING + "&extended=1" + "&from=" + (timestampQuery + 1);
         SecondsTimeFrameCount returned = new SecondsTimeFrameCount(TimeFrameEnum.ALL);
+        Map<String, String> validatedArtist = new HashMap<>();
         int count = 0;
         int seconds = 0;
         int page = 0;
@@ -529,6 +526,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                 throw new LastFMNoPlaysException(username, TimeFrameEnum.WEEK.toApiFormat());
             }
             JSONArray arr = obj.getJSONArray("track");
+
             for (int i = 0; i < arr.length(); i++) {
 
                 JSONObject trackObj = arr.getJSONObject(i);
@@ -543,6 +541,20 @@ public class ConcurrentLastFM {//implements LastFMService {
                 Integer duration;
                 if ((duration = trackList.get(track)) != null) {
                     seconds += duration;
+                } else {
+                    String s = validatedArtist.get(track.getArtist());
+                    if (s == null) {
+                        try {
+                            s = Chuu.getDao().getReverseCorrection(track.getArtist());
+                        } catch (Exception e) {
+                            s = null;
+                        }
+                    }
+                    track = new Track(s, track.getName(), 0, false, 0);
+                    if ((duration = trackList.get(track)) != null) {
+                        seconds += duration;
+                    } else
+                        seconds += 0;
                 }
                 count++;
             }
@@ -563,7 +575,7 @@ public class ConcurrentLastFM {//implements LastFMService {
     }
 
     public StreakEntity getCombo(String username) throws LastFmException {
-        String url = BASE + GET_ALL + username + apiKey + ENDING + "&extended=1";
+        String url = BASE + RECENT_TRACKS + "&user=" + username + apiKey + ENDING + "&extended=1";
         int page = 0;
         String currentArtist = null;
         String currentAlbum = null;
@@ -572,15 +584,22 @@ public class ConcurrentLastFM {//implements LastFMService {
         int albCounter = 0;
         int tCounter = 0;
         boolean inited = false;
+        Instant streakStart = null;
         boolean stopAlbCounter = false;
         boolean stopArtistCounter = false;
         boolean stopTCounter = false;
         boolean cont = true;
+
         int totalPages = 1;
         while (cont) {
-
-            String urlPage = url + "&page=" + ++page;
-            if (page == 6 || page > totalPages) {
+            String comboUrl;
+            if (page == 0) {
+                comboUrl = url + "&limit=50";
+            } else {
+                comboUrl = url + "&limit=1000";
+            }
+            String urlPage = comboUrl + "&page=" + ++page;
+            if (page == 7 || page > totalPages) {
                 break;
             }
             JSONObject obj = initGetRecentTracks(username, urlPage, TimeFrameEnum.ALL);
@@ -617,6 +636,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                         stopAlbCounter = true;
                         if (stopArtistCounter) {
                             cont = false;
+                            streakStart = Instant.ofEpochSecond(trackObj.getJSONObject("date").getLong("uts"));
                             break;
                         }
                     }
@@ -629,7 +649,6 @@ public class ConcurrentLastFM {//implements LastFMService {
                         albCounter++;
                         currentAlbum = albumString;
                     }
-
                     currentArtist = artistName;
                     currentSong = trackName;
                     aCounter++;
@@ -640,11 +659,12 @@ public class ConcurrentLastFM {//implements LastFMService {
         }
         return new
 
-                StreakEntity(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter);
+                StreakEntity(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter, streakStart);
 
     }
 
-    public TimestampWrapper<List<ScrobbledAlbum>> getNewWhole(String username, int timestampQuery) throws LastFmException {
+    public TimestampWrapper<List<ScrobbledAlbum>> getNewWhole(String username, int timestampQuery) throws
+            LastFmException {
         List<NowPlayingArtist> list = new ArrayList<>();
 
 

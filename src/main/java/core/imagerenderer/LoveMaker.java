@@ -6,13 +6,12 @@ import dao.entities.UserArtistComparison;
 import org.apache.commons.lang3.tuple.Pair;
 import org.imgscalr.Scalr;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
+
+import static core.imagerenderer.GraphicUtils.chooseFont;
 
 public class LoveMaker {
 
@@ -27,9 +26,6 @@ public class LoveMaker {
     private static final float DESC_SIZE = 26;
     private static final int BAR_SIZE = X_SIZE - (X_MARGIN + IMAGE_SIZE + IMAGE_MARGIN) * 2;
     private static final Font NORMAL_FONT = new Font("Noto Sans", Font.BOLD, (int) DESC_SIZE);
-    private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.BOLD, (int) DESC_SIZE);
-    private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.BOLD, (int) DESC_SIZE);
-    private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, (int) DESC_SIZE);
 
     private LoveMaker() {
     }
@@ -173,7 +169,6 @@ public class LoveMaker {
             Font secondFont = chooseFont(artist);
             secondFont.deriveFont((float) g.getFont().getSize());
             g.setFont(secondFont);
-            Rectangle2D textBounds = g.getFontMetrics().getStringBounds(artist, g);
 
             GraphicUtils.drawStringNicely(g, artist, (int) (secondPartStart + realFirstPartBounds.getWidth()), secondPartBaseline + yAccum, canvas);
             return (int) secondPartBounds.getHeight();
@@ -188,18 +183,5 @@ public class LoveMaker {
         }
     }
 
-    private static Font chooseFont(String string) {
-        Font font = NORMAL_FONT;
-        if (font.canDisplayUpTo(string) != -1) {
-            font = JAPANESE_FONT;
-            if (font.canDisplayUpTo(string) != -1) {
-                font = KOREAN_FONT;
-                if (font.canDisplayUpTo(string) != -1) {
-                    font = EMOJI_FONT;
-                }
-            }
-        }
-        return font;
-    }
 
 }

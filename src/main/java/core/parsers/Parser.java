@@ -105,13 +105,13 @@ public abstract class Parser<T extends CommandParameters> {
 
     public void sendError(String message, MessageReceivedEvent e) {
         String errorBase = "Error on " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + "'s request:\n";
-        sendMessage(new MessageBuilder().append(CommandUtil.sanitizeUserString(errorBase)).append(CommandUtil.sanitizeUserString(message)).build(), e);
+        sendMessage(new MessageBuilder().append(errorBase).append(message).build(), e);
     }
 
     public void sendFocusedError(String message, MessageReceivedEvent e, long discordID) {
         String username = CommandUtil.getUserInfoNotStripped(e, discordID).getUsername();
         String errorBase = "Error on " + CommandUtil.cleanMarkdownCharacter(username) + "'s request:\n";
-        sendMessage(new MessageBuilder().append(CommandUtil.sanitizeUserString(errorBase)).append(message).build(), e);
+        sendMessage(new MessageBuilder().append(errorBase).append(message).build(), e);
     }
 
 

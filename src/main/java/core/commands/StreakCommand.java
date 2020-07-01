@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Credits: to lfmwhoknows bot owner for the idea
@@ -69,6 +70,16 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
         ScrobbledArtist artist = new ScrobbledArtist(combo.getCurrentArtist(), 0, "");
         CommandUtil.validate(getService(), artist, lastFM, DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstance());
+        Long albumId = null;
+        if (combo.getAlbCounter() > 1) {
+            albumId = CommandUtil.albumvalidate(getService(), artist, lastFM, combo.getCurrentAlbum());
+        }
+        if (combo.getaCounter() >= 20) {
+            Long finalAlbumId = albumId;
+            CompletableFuture.runAsync(() -> getService().insertCombo(combo, discordID, artist.getArtistId(), finalAlbumId));
+        }
+
+
         int artistPlays = getService().getArtistPlays(artist.getArtistId(), lastfmId);
         String aString = CommandUtil.cleanMarkdownCharacter(artist.getArtist());
         StringBuilder description = new StringBuilder();
@@ -79,29 +90,34 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
         if (combo.getaCounter() > 1) {
             description.append("**Artist**: ")
-                    .append(combo.getaCounter()).append(combo.getaCounter() >= 5000 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ")
+                    .append(combo.getaCounter()).append(combo.getaCounter() >= 5050 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ")
                     .append("**[").append(aString).append("](").append(CommandUtil.getLastFmArtistUrl(combo.getCurrentArtist())).append(")**").append("\n");
         }
         if (combo.getAlbCounter() > 1) {
             description.append("**Album**: ")
                     .append(combo.getAlbCounter())
-                    .append(combo.getAlbCounter() >= 5000 ? "+" : "")
+                    .append(combo.getAlbCounter() >= 5050 ? "+" : "")
                     .append(combo.getAlbCounter() != 1 ? " consecutive plays - " : " play - ")
                     .append("**[").append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentAlbum())).append("](")
                     .append(CommandUtil.getLastFmArtistAlbumUrl(combo.getCurrentArtist(), combo.getCurrentAlbum())).append(")**")
                     .append("\n");
         }
         if (combo.gettCounter() > 1) {
-            description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 5000 ? "+" : "")
+            description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 5050 ? "+" : "")
                     .append(combo.gettCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
                     .append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentSong())).append("](").append(CommandUtil.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
         }
+
         MessageEmbed build = embedBuilder.setDescription(description)
                 .setColor(CommandUtil.randomColor())
                 .setFooter(String.format("%s has played %s %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), artist.getArtist(), artistPlays, CommandUtil.singlePlural(artistPlays, "time", "times")))
                 .build();
         MessageBuilder messageBuilder = new MessageBuilder();
-        messageBuilder.setEmbed(build).sendTo(e.getChannel()).queue();
+        messageBuilder.setEmbed(build).
+
+                sendTo(e.getChannel()).
+
+                queue();
 
     }
 }

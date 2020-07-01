@@ -12,12 +12,14 @@ import core.scheduledtasks.UpdaterThread;
 import dao.ChuuService;
 import dao.entities.Metrics;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.priv.react.PrivateMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
@@ -54,6 +56,7 @@ public class Chuu {
     public static final MultiValuedMap<Long, MyCommand<?>> disabledServersMap = new HashSetValuedHashMap<>();
     public final static MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = new HashSetValuedHashMap<>();
     public final static MultiValuedMap<Pair<Long, Long>, MyCommand<?>> enabledChannelsMap = new HashSetValuedHashMap<>();
+    private static ChuuService dao;
 
 
     public static ScheduledExecutorService getScheduledExecutorService() {
@@ -205,7 +208,7 @@ public class Chuu {
     public static void setupBot(boolean isTest) {
         logger = LoggerFactory.getLogger(Chuu.class);
         Properties properties = readToken();
-        ChuuService dao = new ChuuService();
+        dao = new ChuuService();
         prefixMap = initPrefixMap(dao);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
@@ -224,6 +227,7 @@ public class Chuu {
             logger.info("Made {} petitions in the last 5 minutes", l);
         }, 5, 5, TimeUnit.MINUTES);
         ratelimited = dao.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
+        MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
 
         AtomicInteger counter = new AtomicInteger(0);
         IEventManager customManager = new CustomInterfacedEventManager(0);
@@ -356,6 +360,11 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new GlobalBillboardCommand(dao)))
                 .addEventListeners(help.registerCommand(new GlobalAlbumBillboardCommand(dao)))
                 .addEventListeners(help.registerCommand(new GlobalArtistBillboardCommand(dao)))
+                .addEventListeners(help.registerCommand(new MyCombosCommand(dao)))
+                .addEventListeners(help.registerCommand(new TopCombosCommand(dao)))
+                .addEventListeners(help.registerCommand(new BehindArtistsCommand(dao)))
+
+
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
                     initDisabledCommands(dao, shard);
                     prefixCommand.onStartup(shard);
@@ -432,5 +441,9 @@ public class Chuu {
 
     public static ShardManager getShardManager() {
         return shardManager;
+    }
+
+    public static ChuuService getDao() {
+        return dao;
     }
 }

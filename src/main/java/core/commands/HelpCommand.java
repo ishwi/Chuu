@@ -23,6 +23,7 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -98,6 +99,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
                 e.getTextChannel().sendMessage(new MessageBuilder()
                         .append(e.getAuthor())
                         .append(": Help information was sent as a private message.")
+                        .mentionUsers(e.getAuthor().getIdLong())
                         .build()).queue();
             } else {
                 doSend(args, e.getChannel(), prefix);

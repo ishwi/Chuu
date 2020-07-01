@@ -8,6 +8,7 @@ import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
 import org.intellij.lang.annotations.Language;
 
+import javax.annotation.Nullable;
 import java.sql.*;
 import java.text.Normalizer;
 import java.time.Instant;
@@ -1159,6 +1160,38 @@ public class UpdaterDaoImpl implements UpdaterDao {
                     throw new SQLException("Creating user failed, no ID obtained.");
                 }
             }
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void insertCombo(Connection connection, StreakEntity combo, long discordID, long artistId, @Nullable Long albumId) {
+
+        String mySql = "INSERT INTO top_combos (artist_id,discord_id,album_id,track_name,artist_combo,album_combo,track_combo,first_scrobble_in_streak) VALUES" +
+                " (?,?,?,?,?,?,?,?)" + " ON DUPLICATE KEY UPDATE artist_combo =  values(artist_combo), album_combo = values(album_combo), track_combo = values(track_combo)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
+            preparedStatement.setLong(+1, artistId);
+            preparedStatement.setLong(+2, discordID);
+            if (albumId == null) {
+                preparedStatement.setNull(+3, Types.BIGINT);
+            } else {
+                preparedStatement.setLong(+3, albumId);
+
+            }
+            if (combo.gettCounter() <= 1) {
+                preparedStatement.setNull(+4, Types.VARCHAR);
+            } else {
+                preparedStatement.setString(4, combo.getCurrentSong());
+            }
+            preparedStatement.setInt(+5, combo.getaCounter());
+            preparedStatement.setInt(+6, combo.getAlbCounter());
+            preparedStatement.setInt(+7, combo.gettCounter());
+
+            preparedStatement.setTimestamp(8, Timestamp.from(combo.getStreakStart()));
+
+            preparedStatement.execute();
         } catch (
                 SQLException e) {
             throw new ChuuServiceException(e);

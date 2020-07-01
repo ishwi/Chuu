@@ -38,6 +38,9 @@ interface SQLQueriesDao {
     PresenceInfo getRandomArtistWithUrl(Connection connection);
 
 
+    StolenCrownWrapper artistsBehind(Connection connection, String ogUser, String queriedUser,
+                                     int threshold);
+
     StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser, long guildId, int threshold);
 
 
@@ -105,5 +108,11 @@ interface SQLQueriesDao {
     BotStats getBotStats(Connection connection);
 
     long getUserAlbumCount(Connection connection, long discordId);
+
+    List<StreakEntity> getUserStreaks(long discordId, Connection connection);
+
+    List<GlobalStreakEntities> getTopStreaks(Connection connection, Long extraParam, Long guildId);
+
+    String getReverseCorrection(Connection connection, String correction);
 
 }

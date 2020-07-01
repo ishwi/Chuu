@@ -3,7 +3,6 @@ package core.commands;
 import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.otherlisteners.ReactionResponse;
 import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;

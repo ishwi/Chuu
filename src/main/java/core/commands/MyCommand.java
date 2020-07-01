@@ -134,8 +134,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
 
 
     void sendMessageQueue(MessageReceivedEvent e, String message) {
-
-        sendMessageQueue(e, new MessageBuilder().append(CommandUtil.sanitizeUserString(message)).build());
+        sendMessageQueue(e, new MessageBuilder().append(message).build());
     }
 
     private void sendMessageQueue(MessageReceivedEvent e, Message message) {

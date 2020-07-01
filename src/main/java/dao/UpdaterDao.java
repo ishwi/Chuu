@@ -5,6 +5,7 @@ import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
 
+import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -129,4 +130,5 @@ interface UpdaterDao {
 
     void insertAlbumSad(Connection connection, RYMImportRating x);
 
+    void insertCombo(Connection connection, StreakEntity combo, long discordID, long artistId, @Nullable Long albumId);
 }

@@ -121,7 +121,8 @@ public class ChuuService {
                 connection.setAutoCommit(false);
                 List<ScrobbledArtist> artistData = wrapper.getWrapped().stream().peek(x -> x.setDiscordID(id)).collect(Collectors.toList());
                 albumData = albumData.stream().filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
-                updaterDao.upsertArtist(connection, artistData);
+                if (!artistData.isEmpty())
+                    updaterDao.upsertArtist(connection, artistData);
                 connection.commit();
                 updaterDao.fillIds(connection, artistData);
                 Map<String, Long> artistIds = artistData.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, ScrobbledArtist::getArtistId, (a, b) -> {
@@ -755,6 +756,16 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+
+    public StolenCrownWrapper getArtistsBehind(String ogUser, String queriedUser, int threshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.artistsBehind(connection, ogUser, queriedUser, threshold);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
     public UniqueWrapper<AlbumPlays> getUserAlbumCrowns(String lastfmId, long guildId, int crownthreshold) {
         try (Connection connection = dataSource.getConnection()) {
@@ -1695,7 +1706,11 @@ public class ChuuService {
         if (doDeletion) {
             albumDao.deleteAllUserAlbums(connection, id);
         }
-        albumDao.addSrobbledAlbums(connection, scrobbledAlbums);
+        Map<Boolean, List<ScrobbledAlbum>> whyDoesThisNotHaveAnId = scrobbledAlbums.stream().collect(Collectors.partitioningBy(x -> x.getAlbumId() >= 1 && x.getArtistId() >= 1));
+        whyDoesThisNotHaveAnId.get(false).forEach(x -> Chuu.getLogger().warn(String.format("%s %s caused a foreign key for user %s", x.getAlbum(), x.getArtist(), id)));
+        List<ScrobbledAlbum> finalTruer = whyDoesThisNotHaveAnId.get(true);
+        if (!finalTruer.isEmpty())
+            albumDao.addSrobbledAlbums(connection, finalTruer);
         return savepoint;
     }
 
@@ -1886,6 +1901,39 @@ public class ChuuService {
             billboardDao.insertGlobalBillboardDataScrobblesByArtist(connection, week_id);
             billboardDao.insertGlobalBillboardDataListenersByAlbum(connection, week_id);
             billboardDao.insertGlobalBillboardDataScrobblesByAlbum(connection, week_id);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void insertCombo(StreakEntity combo, long discordID, long artistId, @Nullable Long albumId) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.insertCombo(connection, combo, discordID, artistId, albumId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<StreakEntity> getUserStreaks(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getUserStreaks(discordId, connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<GlobalStreakEntities> getTopStreaks(@Nullable Long extraParam, @Nullable Long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getTopStreaks(connection, extraParam, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public String getReverseCorrection(String correction) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getReverseCorrection(connection, correction);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

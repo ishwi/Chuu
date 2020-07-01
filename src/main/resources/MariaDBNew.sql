@@ -187,10 +187,6 @@ END;
 DELIMITER ;
 
 
-
-
-
-
 DELIMITER //
 CREATE TRIGGER alt_url_update
     AFTER UPDATE
@@ -215,8 +211,6 @@ END;
 //
 DELIMITER ;
 DELIMITER //
-
-
 
 
 CREATE TRIGGER alt_url_delete
@@ -506,18 +500,6 @@ create table weekly_billboard_album_scrobbles
 );
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 -- GLOBAL
 
 
@@ -568,10 +550,10 @@ create table weekly_billboard_artist_global_scrobbles
 
 create table weekly_billboard_artist_global_listeners
 (
-    id             bigint(20) not null AUTO_INCREMENT,
-    week_id        int,
-    artist_id      bigint(20),
-    position       smallint,
+    id        bigint(20) not null AUTO_INCREMENT,
+    week_id   int,
+    artist_id bigint(20),
+    position  smallint,
     listeners int,
     PRIMARY KEY (id),
     -- KEY (guild_id, week_id, artist_id, track_name),
@@ -610,28 +592,62 @@ create table weekly_billboard_album_global_scrobbles
 );
 
 
-alter table weekly_billboard_album_global_scrobbles add index(week_id);
-alter table weekly_billboard_album_global_listeners add index(week_id);
-alter table weekly_billboard_artist_global_scrobbles add index(week_id);
-alter table weekly_billboard_album_global_scrobbles add index(week_id);
-alter table weekly_billboard_global_listeners add index(week_id);
-alter table weekly_billboard_global_scrobbles add index(week_id);
-alter table weekly_billboard_album_global_scrobbles add index(week_id);
-alter table weekly_billboard_album_global_listeners add index(week_id);
-alter table weekly_billboard_artist_global_scrobbles add index(week_id);
-alter table weekly_billboard_album_global_scrobbles add index(week_id);
+alter table weekly_billboard_album_global_scrobbles
+    add index (week_id);
+alter table weekly_billboard_album_global_listeners
+    add index (week_id);
+alter table weekly_billboard_artist_global_scrobbles
+    add index (week_id);
+alter table weekly_billboard_album_global_scrobbles
+    add index (week_id);
+alter table weekly_billboard_global_listeners
+    add index (week_id);
+alter table weekly_billboard_global_scrobbles
+    add index (week_id);
+alter table weekly_billboard_album_global_scrobbles
+    add index (week_id);
+alter table weekly_billboard_album_global_listeners
+    add index (week_id);
+alter table weekly_billboard_artist_global_scrobbles
+    add index (week_id);
+alter table weekly_billboard_album_global_scrobbles
+    add index (week_id);
 
-alter table weekly_billboard_album_scrobbles add index(week_id,guild_id);
-alter table weekly_billboard_album_listeners add index(week_id,guild_id);
-alter table weekly_billboard_artist_scrobbles add index(week_id,guild_id);
-alter table weekly_billboard_album_scrobbles add index(week_id,guild_id);
-alter table weekly_billboard_listeners add index(week_id,guild_id);
-alter table weekly_billboard_scrobbles add index(week_id,guild_id);
-alter table weekly_billboard_album_scrobbles add index(week_id,guild_id);
-alter table weekly_billboard_album_listeners add index(week_id,guild_id);
-alter table weekly_billboard_artist_scrobbles add index(week_id,guild_id);
-alter table weekly_billboard_album_scrobbles add index(week_id,guild_id);
+alter table weekly_billboard_album_scrobbles
+    add index (week_id, guild_id);
+alter table weekly_billboard_album_listeners
+    add index (week_id, guild_id);
+alter table weekly_billboard_artist_scrobbles
+    add index (week_id, guild_id);
+alter table weekly_billboard_album_scrobbles
+    add index (week_id, guild_id);
+alter table weekly_billboard_listeners
+    add index (week_id, guild_id);
+alter table weekly_billboard_scrobbles
+    add index (week_id, guild_id);
+alter table weekly_billboard_album_scrobbles
+    add index (week_id, guild_id);
+alter table weekly_billboard_album_listeners
+    add index (week_id, guild_id);
+alter table weekly_billboard_artist_scrobbles
+    add index (week_id, guild_id);
+alter table weekly_billboard_album_scrobbles
+    add index (week_id, guild_id);
 
 
 
+create table top_combos
+(
+    id                       bigint       not null AUTO_INCREMENT,
+    discord_id               bigint       not null,
+    artist_id                bigint       not null,
+    album_id                 bigint       null,
+    track_name               varchar(400) null,
+    artist_combo             int,
+    album_combo              int,
+    track_combo              int,
 
+    first_scrobble_in_streak TIMESTAMP,
+    primary key (id),
+    unique (discord_id, artist_id, first_scrobble_in_streak)
+)

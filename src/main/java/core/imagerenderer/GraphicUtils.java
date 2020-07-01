@@ -7,6 +7,8 @@ import core.imagerenderer.util.CIELab;
 import core.imagerenderer.util.D;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
+import org.apache.commons.lang3.tuple.Pair;
+import org.beryx.awt.color.ColorFactory;
 import org.imgscalr.Scalr;
 
 import javax.annotation.Nullable;
@@ -18,9 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.*;
 import java.util.List;
-import java.util.Properties;
-import java.util.Random;
+import java.util.stream.Collectors;
 
 public class GraphicUtils {
 
@@ -29,7 +31,29 @@ public class GraphicUtils {
     private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.BOLD, 14);
     private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.BOLD, 14);
     private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 14);
+    //private static final Font UNICODE_FONT = new Font("Sun-ExtA", Font.PLAIN, 14);
+
     static final File CacheDirectory;
+
+    public static final List<List<Color>> palettes;
+
+    static {
+        List<String[]> palette = new ArrayList<>();
+        palette.add(new String[]{"#ddf3f5", "a6dcef", "e36387", "f2aaaa", "cff6cf", "e5cfe5", "cfe5cf"});
+        palette.add(new String[]{"142850", "27496d", "00909e", "dae1e7", "fbe6d4", "fecb89"});
+        palette.add(new String[]{"f67280", "e23e57", "88304e", "522546", "311d3f", "355c7d"});
+        palette.add(new String[]{"#648FFF", "785EF0", "DC267F", "FE6100", "FFB000", "B54325", "48B02A", "#522779"});
+        palette.add(new String[]{"#332288", "#117733", "#44AA99", "#88CCEE", "#DDCC77", "#CC6677", "#AA4499", "#882255"});
+        palette.add(new String[]{"#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"});
+        palette.add(new String[]{"#CC79A7", "#bfeeb2", "#4c6452", "#c8bbca", "#b2fb7e", "#dbf674", "#ac88ee", "#36ad46", "#a43e3d", "#800c6b", "#3bcd92"});
+        palette.add(new String[]{"#68FFE0", "#2c1efa", "#4bc6c6", "#fc3e00", "#41a873", "#44039b", "#3a5930", "#67db91", "#51c33f", "#277e1f", "#ab4761", "#4e8e93"});
+        palette.add(new String[]{"#FFBC9F", "#846853", "#a0e3b2", "#23270d", "#1c261b", "#af293e", "#23f224", "#f1196c", "#272c81", "#5ac146"});
+        palette.add(new String[]{"#FFFFFF", "#df66f1", "#646acb", "#3d1a4c", "#b1b259", "#bf0869", "#afdac2"});
+        palette.add(new String[]{"#000000", "#5f2735", "#fd9f40", "#ca86d6", "#bdbade", "#37b6d6", "#fecaf1"});
+        palette.add(new String[]{"#FF00BF", "#5586b3", "#b2c7e8", "#1e589f", "#9f1f97", "#8c0f7d", "#3f4474"});
+        palette.add(new String[]{"#FFE47E", "#4720df", "#2baa71", "#6925eb", "#69c671", "#9ef4e6", "#ada630", "#e93dac"});
+        palettes = palette.stream().map(x -> Arrays.stream(x).map(ColorFactory::valueOf).collect(Collectors.toList())).collect(Collectors.toList());
+    }
 
     private GraphicUtils() {
     }
@@ -67,6 +91,12 @@ public class GraphicUtils {
                 font = KOREAN_FONT;
                 if (font.canDisplayUpTo(string) != -1) {
                     font = EMOJI_FONT;
+                    if (font.canDisplayUpTo(string) != -1) {
+                        /*font = UNICODE_FONT;
+                        if (font.canDisplayUpTo(string) != -1) {*/
+                        font = NORMAL_FONT;
+                        //    }
+                    }
                 }
             }
         }
@@ -161,11 +191,15 @@ public class GraphicUtils {
 
     }
 
-    static void doChart(Graphics2D g, int x, int yCounter, int width, int height, int maxRows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, Font font) {
+    static void doChart(Graphics2D g, int x, int yCounter, int width, int height,
+                        int maxRows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage
+                                lastFmLogo, Font font) {
         doChart(g, x, yCounter, width, height, maxRows, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, true, font);
     }
 
-    public static void doChart(Graphics2D g, int x, int yCounter, int width, int rowHeight, int maxRows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage lastFmLogo, boolean doNumber, Font font) {
+    public static void doChart(Graphics2D g, int x, int yCounter, int width, int rowHeight,
+                               int maxRows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage
+                                       lastFmLogo, boolean doNumber, Font font) {
 
         Font ogFont = g.getFont();
         Color ogColor = g.getColor();
@@ -200,9 +234,7 @@ public class GraphicUtils {
                 g.drawString(strNumber, x, yCounter + (margin - metrics.getAscent() / 2));
                 startName += g.getFontMetrics().stringWidth(strNumber);
             }
-
-            if (g.getFont().canDisplayUpTo(name) != -1 && WhoKnowsMaker.EMOJI_FONT.canDisplayUpTo(name) == -1)
-                g.setFont(WhoKnowsMaker.EMOJI_FONT.deriveFont(size));
+            g.setFont(chooseFont(name).deriveFont(size));
 
             while (g.getFontMetrics(g.getFont()).stringWidth(name) > (width * 0.55) && size > 14f)
                 g.setFont(g.getFont().deriveFont(size -= 2));
@@ -240,6 +272,14 @@ public class GraphicUtils {
         }
         return (accum / color.length) < 128 ? Color.WHITE : Color.BLACK;
 
+    }
+
+    public static Pair<Color, Color> getBetterPie(Color... color) {
+        double accum = 0;
+        for (Color col : color) {
+            accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
+        }
+        return (accum / color.length) < 128 ? Pair.of(Color.decode("#f6def6"), Color.decode("#ffa5b0")) : Pair.of(Color.decode("#2c2f33"), Color.decode("#23272a"));
     }
 
     static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {

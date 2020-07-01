@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 public class CommandUtil {
 
     private static final Pattern markdownStripper = Pattern.compile("((?<!\\\\)[*_~|`>\\[()\\]])");
-    static final Random rand = new Random();
+    public static final Random rand = new Random();
 
     private CommandUtil() {
     }
@@ -150,7 +150,7 @@ public class CommandUtil {
         }
     }
 
-    public static long albumvalidate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM,String album) throws LastFmException {
+    public static long albumvalidate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, String album) throws LastFmException {
         try {
             return dao.findAlbumIdByName(scrobbledArtist.getArtistId(), album);
         } catch (InstanceNotFoundException exception) {
@@ -166,7 +166,7 @@ public class CommandUtil {
         }
     }
 
-    static ScrobbledArtist onlyCorrection(ChuuService dao, String artist, ConcurrentLastFM lastFM, boolean doCorrection) throws LastFmException {
+    public static ScrobbledArtist onlyCorrection(ChuuService dao, String artist, ConcurrentLastFM lastFM, boolean doCorrection) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         validate(dao, scrobbledArtist, lastFM, null, null, false, doCorrection);
         return scrobbledArtist;

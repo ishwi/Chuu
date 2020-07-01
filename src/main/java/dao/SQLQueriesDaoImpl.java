@@ -6,7 +6,9 @@ import dao.entities.*;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.sql.*;
+import java.time.Instant;
 import java.util.*;
 
 public class SQLQueriesDaoImpl implements SQLQueriesDao {
@@ -1216,6 +1218,71 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
+    public StolenCrownWrapper artistsBehind(Connection connection, String ogUser, String queriedUser,
+                                            int threshold) {
+        List<StolenCrown> returnList = new ArrayList<>();
+        long discordid = 0;
+        long discordid2 = 0;
+        @Language("MariaDB") String queryString = "SELECT \n" +
+                "    inn.name AS artist ,inn.orden AS ogplays , inn.discord_id AS ogid , inn2.discord_id queriedid,  inn2.orden AS queriedplays\n" +
+                "FROM\n" +
+                "    (SELECT \n" +
+                "        a.artist_id, a2.name, b.discord_id, playnumber AS orden\n" +
+                "    FROM\n" +
+                "        scrobbled_artist a\n" +
+                "    JOIN user b ON a.lastfm_id = b.lastfm_id\n" +
+                " JOIN artist a2 ON a.artist_id = a2.id " +
+                "    WHERE\n" +
+                "        a.lastfm_id = ?) inn\n" +
+                " join " +
+                "(SELECT \n" +
+                "        a.artist_id, a2.name, b.discord_id, playnumber AS orden\n" +
+                "    FROM\n" +
+                "        scrobbled_artist a\n" +
+                "    JOIN user b ON a.lastfm_id = b.lastfm_id\n" +
+                " JOIN artist a2 ON a.artist_id = a2.id " +
+                "    WHERE\n" +
+                "        a.lastfm_id = ?) inn2 " +
+                "  on inn2.artist_id = inn.artist_id and inn2.orden >= inn.orden ";
+
+
+        if (threshold != 0) {
+            queryString += " and inn.orden >= ? && inn2.orden >= ? ";
+        }
+
+
+        queryString += " ORDER BY inn.orden DESC , inn2.orden DESC\n";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i++, ogUser);
+            preparedStatement.setString(i++, queriedUser);
+
+            if (threshold != 0) {
+                preparedStatement.setInt(i++, threshold);
+                preparedStatement.setInt(i, threshold);
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+
+            while (resultSet.next()) {
+                discordid = resultSet.getLong("ogId");
+                discordid2 = resultSet.getLong("queriedId");
+                String artist = resultSet.getString("artist");
+                int plays = resultSet.getInt("ogPlays");
+                int plays2 = resultSet.getInt("queriedPlays");
+
+                returnList.add(new StolenCrown(artist, plays, plays2));
+            }
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        //Ids will be 0 if returnlist is empty;
+        return new StolenCrownWrapper(discordid, discordid2, returnList);
+    }
+
+    @Override
     public StolenCrownWrapper getCrownsStolenBy(Connection connection, String ogUser, String queriedUser,
                                                 long guildId, int threshold) {
         List<StolenCrown> returnList = new ArrayList<>();
@@ -1781,7 +1848,121 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         }
 
     }
+
+    @Override
+    public List<StreakEntity> getUserStreaks(long discordId, Connection connection) {
+        List<StreakEntity> returnList = new ArrayList<>();
+        @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name," +
+                "first_scrobble_in_streak FROM top_combos a join artist b on a.artist_id = b.id join album c on a.album_id = c.id where " +
+                "discord_id = ? order by  artist_combo desc,album_combo desc, track_combo desc,first_scrobble_in_streak asc ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(1, discordId);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int artistCombo = resultSet.getInt("artist_combo");
+                int albumCombo = resultSet.getInt("album_combo");
+                int trackCombo = resultSet.getInt("track_combo");
+                String artistName = resultSet.getString("name");
+                String trackName = resultSet.getString("track_name");
+
+                String albumName = resultSet.getString("album_name");
+                Timestamp init = resultSet.getTimestamp("first_scrobble_in_streak");
+
+
+                StreakEntity streakEntity = new StreakEntity(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, Instant.ofEpochMilli(init.getTime()));
+                returnList.add(streakEntity);
+            }
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnList;
+
+    }
+
+    @Override
+    public List<GlobalStreakEntities> getTopStreaks(Connection connection, @Nullable Long comboFilter, @Nullable Long guildId) {
+        List<GlobalStreakEntities> returnList = new ArrayList<>();
+        @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id," +
+                "first_scrobble_in_streak FROM top_combos a join artist b on a.artist_id = b.id join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
+
+        if (guildId != null) {
+            queryString += " join user_guild e on d.discord_id = e.discord_id where e.guild_id = ? ";
+        } else {
+            queryString += " where 1=1";
+        }
+
+        if (comboFilter != null) {
+            queryString += " and artist_combo > ? ";
+        }
+
+        queryString += " order by  artist_combo desc,album_combo desc, track_combo desc,first_scrobble_in_streak asc ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            int i = 1;
+            if (guildId != null)
+                preparedStatement.setLong(i++, guildId);
+            if (comboFilter != null)
+                preparedStatement.setLong(i, comboFilter);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int artistCombo = resultSet.getInt("artist_combo");
+                int albumCombo = resultSet.getInt("album_combo");
+                int trackCombo = resultSet.getInt("track_combo");
+                String artistName = resultSet.getString("name");
+                String trackName = resultSet.getString("track_name");
+
+                String albumName = resultSet.getString("album_name");
+                Timestamp init = resultSet.getTimestamp("first_scrobble_in_streak");
+                PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString("privacy_mode"));
+                long discordId = resultSet.getLong("discord_id");
+                String lastfm_id = resultSet.getString("lastfm_id");
+
+
+                GlobalStreakEntities streakEntity = new GlobalStreakEntities(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, Instant.ofEpochMilli(init.getTime()), privacyMode, discordId, lastfm_id);
+                returnList.add(streakEntity);
+            }
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnList;
+
+    }
+
+    @Override
+    public String getReverseCorrection(Connection connection, String correction) {
+
+        @Language("MariaDB") String queryString = "select alias,min(a.id)  as ird " +
+                "from corrections a join artist b on a.artist_id = b.id  join scrobbled_artist c on b.id = c.artist_id" +
+                " where b.name = ? " +
+                "order by ird desc " +
+                "limit 1";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i, correction);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getString("alias");
+            }
+            return correction;
+
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+
+    }
 }
+
 
 
 

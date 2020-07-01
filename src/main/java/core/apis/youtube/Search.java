@@ -24,6 +24,7 @@ import core.exceptions.ChuuServiceException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -47,8 +48,8 @@ public class Search {
      * Define a global instance of a Youtube object, which will be used
      * to make YouTube Data API requests.
      */
-    private YouTube youtube;
-    private String apiKey;
+    private final YouTube youtube;
+    private final String apiKey;
 
     /**
      * Initialize a YouTube object to search for videos on YouTube. Then
@@ -65,7 +66,7 @@ public class Search {
             }).setApplicationName("discordBot").build();
         } catch (IOException | GeneralSecurityException e) {
             System.err.println("There was an error reading " + PROPERTIES_FILENAME + ": " + e.getCause()
-                               + " : " + e.getMessage());
+                    + " : " + e.getMessage());
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }
@@ -101,7 +102,7 @@ public class Search {
         try {
             // Define the API request for retrieving search results.
 
-            YouTube.Search.List search = youtube.search().list("id,snippet");
+            YouTube.Search.List search = youtube.search().list(List.of("id", "snippet"));
 
             // Set your developer key from the Google Developers Console for
             // non-authenticated requests. See:
@@ -112,7 +113,7 @@ public class Search {
 
             // Restrict the search results to only include videos. See:
             // https://developers.google.com/youtube/v3/docs/search/list#type
-            search.setType("video");
+            search.setType(Collections.singletonList("video"));
 
             // To increase efficiency, only retrieve the fields that the
             // application uses.
