@@ -115,4 +115,5 @@ interface SQLQueriesDao {
 
     String getReverseCorrection(Connection connection, String correction);
 
+    List<GlobalStreakEntities> getArtistTopStreaks(Connection connection, Long extraParam, Long guildId, long artistId);
 }

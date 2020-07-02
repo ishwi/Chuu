@@ -1938,4 +1938,12 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+
+    public List<GlobalStreakEntities> getArtistTopStreaks(@Nullable Long extraParam, @Nullable Long guildId, long artistId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getArtistTopStreaks(connection, extraParam, guildId,artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }

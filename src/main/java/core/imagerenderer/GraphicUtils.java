@@ -257,7 +257,8 @@ public class GraphicUtils {
                 g.drawString(strNumber, x, yCounter + (margin - metrics.getAscent() / 2));
                 startName += g.getFontMetrics().stringWidth(strNumber);
             }
-            g.setFont(chooseFont(name).deriveFont(size));
+            if (g.getFont().canDisplayUpTo(name) != -1 && WhoKnowsMaker.EMOJI_FONT.canDisplayUpTo(name) == -1)
+                g.setFont(WhoKnowsMaker.EMOJI_FONT.deriveFont(size));
 
             while (g.getFontMetrics(g.getFont()).stringWidth(name) > (width * 0.55) && size > 14f)
                 g.setFont(g.getFont().deriveFont(size -= 2));

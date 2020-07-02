@@ -37,7 +37,7 @@ public class GlobalStreakEntities extends StreakEntity {
                     .append(i).append(i >= 5050 ? "+" : "").append(" consecutive plays - ")
                     .append("**[").append(aString).append("](").append(CommandUtil.getLastFmArtistUrl(currentArtist)).append(")**").append("\n");
         }
-        if (albCounter > 1) {
+        if (albCounter > 1 && currentAlbum != null && !currentAlbum.isBlank()) {
             description.append("**Album**: ")
                     .append(albCounter)
                     .append(albCounter >= 5050 ? "+" : "")
@@ -46,7 +46,7 @@ public class GlobalStreakEntities extends StreakEntity {
                     .append(CommandUtil.getLastFmArtistAlbumUrl(currentArtist, currentAlbum)).append(")**")
                     .append("\n");
         }
-        if (i2 > 1) {
+        if (i2 > 1 && currentSong != null && !currentSong.isBlank()) {
             description.append("**Song**: ").append(i2).append(i2 >= 5050 ? "+" : "")
                     .append(" consecutive plays - ").append("**[")
                     .append(CommandUtil.cleanMarkdownCharacter(currentSong)).append("](").append(CommandUtil.getLastFMArtistTrack(currentArtist, currentSong)).append(")**").append("\n");

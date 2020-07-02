@@ -75,6 +75,9 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
             albumId = CommandUtil.albumvalidate(getService(), artist, lastFM, combo.getCurrentAlbum());
         }
         if (combo.getaCounter() >= 20) {
+            if (combo.gettCounter() > 5050) {
+                //Handle this case if it didnt existed
+            }
             Long finalAlbumId = albumId;
             CompletableFuture.runAsync(() -> getService().insertCombo(combo, discordID, artist.getArtistId(), finalAlbumId));
         }

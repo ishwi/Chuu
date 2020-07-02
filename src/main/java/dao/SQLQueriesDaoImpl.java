@@ -1853,7 +1853,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     public List<StreakEntity> getUserStreaks(long discordId, Connection connection) {
         List<StreakEntity> returnList = new ArrayList<>();
         @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name," +
-                "first_scrobble_in_streak FROM top_combos a join artist b on a.artist_id = b.id join album c on a.album_id = c.id where " +
+                "first_scrobble_in_streak FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id where " +
                 "discord_id = ? order by  artist_combo desc,album_combo desc, track_combo desc,first_scrobble_in_streak asc ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
@@ -1888,7 +1888,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     public List<GlobalStreakEntities> getTopStreaks(Connection connection, @Nullable Long comboFilter, @Nullable Long guildId) {
         List<GlobalStreakEntities> returnList = new ArrayList<>();
         @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id," +
-                "first_scrobble_in_streak FROM top_combos a join artist b on a.artist_id = b.id join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
+                "first_scrobble_in_streak FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
 
         if (guildId != null) {
             queryString += " join user_guild e on d.discord_id = e.discord_id where e.guild_id = ? ";
@@ -1959,6 +1959,61 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }
+
+    }
+
+    @Override
+    public List<GlobalStreakEntities> getArtistTopStreaks(Connection connection, Long comboFilter, Long guildId, long artistId) {
+        List<GlobalStreakEntities> returnList = new ArrayList<>();
+        @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id," +
+                "first_scrobble_in_streak FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
+
+        if (guildId != null) {
+            queryString += " join user_guild e on d.discord_id = e.discord_id where e.guild_id = ? ";
+        } else {
+            queryString += " where 1=1";
+        }
+
+        if (comboFilter != null) {
+            queryString += " and artist_combo > ? ";
+        }
+        queryString += " and a.artist_id = ? ";
+
+        queryString += " order by  artist_combo desc,album_combo desc, track_combo desc,first_scrobble_in_streak asc ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            int i = 1;
+            if (guildId != null)
+                preparedStatement.setLong(i++, guildId);
+            if (comboFilter != null)
+                preparedStatement.setLong(i, comboFilter);
+            preparedStatement.setLong(i, artistId);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int artistCombo = resultSet.getInt("artist_combo");
+                int albumCombo = resultSet.getInt("album_combo");
+                int trackCombo = resultSet.getInt("track_combo");
+                String artistName = resultSet.getString("name");
+                String trackName = resultSet.getString("track_name");
+
+                String albumName = resultSet.getString("album_name");
+                Timestamp init = resultSet.getTimestamp("first_scrobble_in_streak");
+                PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString("privacy_mode"));
+                long discordId = resultSet.getLong("discord_id");
+                String lastfm_id = resultSet.getString("lastfm_id");
+
+
+                GlobalStreakEntities streakEntity = new GlobalStreakEntities(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, Instant.ofEpochMilli(init.getTime()), privacyMode, discordId, lastfm_id);
+                returnList.add(streakEntity);
+            }
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnList;
+
 
     }
 }

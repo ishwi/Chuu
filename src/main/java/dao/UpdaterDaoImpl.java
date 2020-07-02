@@ -1170,7 +1170,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
     public void insertCombo(Connection connection, StreakEntity combo, long discordID, long artistId, @Nullable Long albumId) {
 
         String mySql = "INSERT INTO top_combos (artist_id,discord_id,album_id,track_name,artist_combo,album_combo,track_combo,first_scrobble_in_streak) VALUES" +
-                " (?,?,?,?,?,?,?,?)" + " ON DUPLICATE KEY UPDATE artist_combo =  values(artist_combo), album_combo = values(album_combo), track_combo = values(track_combo)";
+                " (?,?,?,?,?,?,?,?)" + " ON DUPLICATE KEY UPDATE " +
+                "artist_combo =  values(artist_combo), album_combo = values(album_combo), track_combo = values(track_combo), album_id = values(album_id), track_name = values(track_name)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             preparedStatement.setLong(+1, artistId);
             preparedStatement.setLong(+2, discordID);

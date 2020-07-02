@@ -75,7 +75,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
         StringBuilder a = new StringBuilder();
-        for (int i = 0; i <= 5 && i < streaks.size(); i++) {
+        for (int i = 0; i < 5 && i < streaks.size(); i++) {
             a.append(i + 1).append(streaks.get(i));
         }
 
