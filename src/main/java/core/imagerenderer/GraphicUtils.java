@@ -27,36 +27,59 @@ import java.util.stream.Collectors;
 public class GraphicUtils {
 
     static final Random ran = new Random();
-    private static final Font NORMAL_FONT = new Font("Noto Sans", Font.BOLD, 14);
-    private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.BOLD, 14);
-    private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.BOLD, 14);
+    private static final Font NORMAL_FONT = new Font("Noto Sans", Font.PLAIN, 14);
+    private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, 14);
+    private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, 14);
     private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 14);
     //private static final Font UNICODE_FONT = new Font("Sun-ExtA", Font.PLAIN, 14);
 
     static final File CacheDirectory;
 
-    public static final List<List<Color>> palettes;
 
-    static {
-        List<String[]> palette = new ArrayList<>();
-        palette.add(new String[]{"#ddf3f5", "a6dcef", "e36387", "f2aaaa", "cff6cf", "e5cfe5", "cfe5cf"});
-        palette.add(new String[]{"142850", "27496d", "00909e", "dae1e7", "fbe6d4", "fecb89"});
-        palette.add(new String[]{"f67280", "e23e57", "88304e", "522546", "311d3f", "355c7d"});
-        palette.add(new String[]{"#648FFF", "785EF0", "DC267F", "FE6100", "FFB000", "B54325", "48B02A", "#522779"});
-        palette.add(new String[]{"#332288", "#117733", "#44AA99", "#88CCEE", "#DDCC77", "#CC6677", "#AA4499", "#882255"});
-        palette.add(new String[]{"#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"});
-        palette.add(new String[]{"#CC79A7", "#bfeeb2", "#4c6452", "#c8bbca", "#b2fb7e", "#dbf674", "#ac88ee", "#36ad46", "#a43e3d", "#800c6b", "#3bcd92"});
-        palette.add(new String[]{"#68FFE0", "#2c1efa", "#4bc6c6", "#fc3e00", "#41a873", "#44039b", "#3a5930", "#67db91", "#51c33f", "#277e1f", "#ab4761", "#4e8e93"});
-        palette.add(new String[]{"#FFBC9F", "#846853", "#a0e3b2", "#23270d", "#1c261b", "#af293e", "#23f224", "#f1196c", "#272c81", "#5ac146"});
-        palette.add(new String[]{"#FFFFFF", "#df66f1", "#646acb", "#3d1a4c", "#b1b259", "#bf0869", "#afdac2"});
-        palette.add(new String[]{"#000000", "#5f2735", "#fd9f40", "#ca86d6", "#bdbade", "#37b6d6", "#fecaf1"});
-        palette.add(new String[]{"#FF00BF", "#5586b3", "#b2c7e8", "#1e589f", "#9f1f97", "#8c0f7d", "#3f4474"});
-        palette.add(new String[]{"#FFE47E", "#4720df", "#2baa71", "#6925eb", "#69c671", "#9ef4e6", "#ada630", "#e93dac"});
-        palettes = palette.stream().map(x -> Arrays.stream(x).map(ColorFactory::valueOf).collect(Collectors.toList())).collect(Collectors.toList());
-    }
 
     private GraphicUtils() {
     }
+
+    public static Color slightlydarker(Color color) {
+        return slightlydarker(color, 0.85);
+    }
+
+    public static Color slightlydarker(Color color, double factor) {
+        return new Color(Math.max((int) (color.getRed() * factor), 0),
+                Math.max((int) (color.getGreen() * factor), 0),
+                Math.max((int) (color.getBlue() * factor), 0),
+                color.getAlpha());
+    }
+
+    public static Color slightlybrighter(Color color) {
+        return slightlybrighter(color, 0.85);
+    }
+
+    public static Color slightlybrighter(Color color, double factor) {
+        int r = color.getRed();
+        int g = color.getGreen();
+        int b = color.getBlue();
+        int alpha = color.getAlpha();
+
+        /* From 2D group:
+         * 1. black.brighter() should return grey
+         * 2. applying brighter to blue will always return blue, brighter
+         * 3. non pure color (non zero rgb) will eventually return white
+         */
+        int i = (int) (1.0 / (1.0 - factor));
+        if (r == 0 && g == 0 && b == 0) {
+            return new Color(i, i, i, alpha);
+        }
+        if (r > 0 && r < i) r = i;
+        if (g > 0 && g < i) g = i;
+        if (b > 0 && b < i) b = i;
+
+        return new Color(Math.min((int) (r / factor), 255),
+                Math.min((int) (g / factor), 255),
+                Math.min((int) (b / factor), 255),
+                alpha);
+    }
+
 
     public static Color averageColor(BufferedImage bi) {
         long sumr = 0, sumg = 0, sumb = 0;
@@ -274,13 +297,7 @@ public class GraphicUtils {
 
     }
 
-    public static Pair<Color, Color> getBetterPie(Color... color) {
-        double accum = 0;
-        for (Color col : color) {
-            accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
-        }
-        return (accum / color.length) < 128 ? Pair.of(Color.decode("#f6def6"), Color.decode("#ffa5b0")) : Pair.of(Color.decode("#2c2f33"), Color.decode("#23272a"));
-    }
+
 
     static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
 

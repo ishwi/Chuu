@@ -1,5 +1,6 @@
 package core.apis.last;
 
+import com.google.gson.JsonObject;
 import core.Chuu;
 import core.apis.ClientSingleton;
 import core.apis.last.chartentities.ChartUtil;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.*;
 import java.net.URLEncoder;
@@ -134,8 +136,13 @@ public class ConcurrentLastFM {//implements LastFMService {
                 Chuu.incrementMetric();
                 int responseCode = client.executeMethod(method);
                 parseHttpCode(responseCode);
-                byte[] responseBody = method.getResponseBody();
-                JSONObject jsonObject = new JSONObject(new String(responseBody, StandardCharsets.UTF_8));
+                JSONObject jsonObject;
+                try (InputStream responseBodyAsStream = method.getResponseBodyAsStream()) {
+                    jsonObject = new JSONObject(new JSONTokener(responseBodyAsStream));
+                } catch (JSONException exception) {
+                    Chuu.getLogger().warn(exception.getMessage(), exception);
+                    throw new ChuuServiceException(exception);
+                }
                 if (jsonObject.has("error"))
                     parseResponse(jsonObject, causeOfNotFound);
                 if (responseCode == 404) {
@@ -546,8 +553,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                     if (s == null) {
                         try {
                             s = Chuu.getDao().getReverseCorrection(track.getArtist());
-                        } catch (Exception e) {
-                            s = null;
+                        } catch (Exception ignored) {
                         }
                     }
                     track = new Track(s, track.getName(), 0, false, 0);
@@ -589,13 +595,15 @@ public class ConcurrentLastFM {//implements LastFMService {
         boolean stopArtistCounter = false;
         boolean stopTCounter = false;
         boolean cont = true;
-
+        boolean restarting = false;
         int totalPages = 1;
         while (cont) {
             String comboUrl;
             if (page == 0) {
                 comboUrl = url + "&limit=50";
             } else {
+                if (restarting)
+                    page--;
                 comboUrl = url + "&limit=1000";
             }
             String urlPage = comboUrl + "&page=" + ++page;
@@ -609,6 +617,10 @@ public class ConcurrentLastFM {//implements LastFMService {
 
             JSONArray arr = obj.getJSONArray("track");
             for (int i = 0; i < arr.length(); i++) {
+                if (restarting) {
+                    i = 50;
+                    restarting = false;
+                }
                 JSONObject trackObj = arr.getJSONObject(i);
                 if (aCounter != 0 && trackObj.has("@attr")) {
                     continue;
@@ -655,6 +667,9 @@ public class ConcurrentLastFM {//implements LastFMService {
                     tCounter++;
                     inited = true;
                 }
+            }
+            if (page == 1) {
+                restarting = true;
             }
         }
         return new

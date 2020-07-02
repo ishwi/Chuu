@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 import org.knowm.xchart.PieChart;
+import org.knowm.xchart.PieSeries;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -27,6 +28,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
@@ -42,12 +47,15 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         this.musicBrainz = MusicBrainzServiceSingleton.getInstance();
         pieable = (chart, params, data) -> {
             data.entrySet().stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).sequential().limit(params.getExtraParam())
-                    .forEachOrdered(entry -> {
+                    .forEach(entry -> {
+
+
                         Genre genre = entry.getKey();
                         int plays = entry.getValue();
                         chart.addSeries(genre.getGenreName() + "\u200B", plays);
                     });
             return chart;
+
         };
     }
 
