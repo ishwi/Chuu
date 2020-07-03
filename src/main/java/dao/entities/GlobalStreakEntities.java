@@ -34,20 +34,20 @@ public class GlobalStreakEntities extends StreakEntity {
     public static String getComboString(String aString, StringBuilder description, int i, String currentArtist, int albCounter, String currentAlbum, int i2, String currentSong) {
         if (i > 1) {
             description.append("**Artist**: ")
-                    .append(i).append(i >= 5050 ? "+" : "").append(" consecutive plays - ")
+                    .append(i).append(i >= 6000 ? "+" : "").append(" consecutive plays - ")
                     .append("**[").append(aString).append("](").append(CommandUtil.getLastFmArtistUrl(currentArtist)).append(")**").append("\n");
         }
         if (albCounter > 1 && currentAlbum != null && !currentAlbum.isBlank()) {
             description.append("**Album**: ")
                     .append(albCounter)
-                    .append(albCounter >= 5050 ? "+" : "")
+                    .append(albCounter >= 6000 ? "+" : "")
                     .append(" consecutive plays - ")
                     .append("**[").append(CommandUtil.cleanMarkdownCharacter(currentAlbum)).append("](")
                     .append(CommandUtil.getLastFmArtistAlbumUrl(currentArtist, currentAlbum)).append(")**")
                     .append("\n");
         }
         if (i2 > 1 && currentSong != null && !currentSong.isBlank()) {
-            description.append("**Song**: ").append(i2).append(i2 >= 5050 ? "+" : "")
+            description.append("**Song**: ").append(i2).append(i2 >= 6000 ? "+" : "")
                     .append(" consecutive plays - ").append("**[")
                     .append(CommandUtil.cleanMarkdownCharacter(currentSong)).append("](").append(CommandUtil.getLastFMArtistTrack(currentArtist, currentSong)).append(")**").append("\n");
         }

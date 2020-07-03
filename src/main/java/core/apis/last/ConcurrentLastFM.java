@@ -13,6 +13,7 @@ import core.commands.CommandUtil;
 import core.exceptions.*;
 import core.parsers.params.ChartParameters;
 import dao.entities.*;
+import jdk.jfr.Timestamp;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.jetbrains.annotations.NotNull;
@@ -596,6 +597,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         boolean stopTCounter = false;
         boolean cont = true;
         boolean restarting = false;
+        boolean restarted = false;
         int totalPages = 1;
         while (cont) {
             String comboUrl;
@@ -618,7 +620,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             JSONArray arr = obj.getJSONArray("track");
             for (int i = 0; i < arr.length(); i++) {
                 if (restarting) {
-                    i = 50;
+                    i = 51;
                     restarting = false;
                 }
                 JSONObject trackObj = arr.getJSONObject(i);
@@ -668,10 +670,13 @@ public class ConcurrentLastFM {//implements LastFMService {
                     inited = true;
                 }
             }
-            if (page == 1) {
+            if (page == 1 && !restarted) {
                 restarting = true;
+                restarted = true;
             }
         }
+        if (streakStart == null)
+            streakStart = Instant.EPOCH;
         return new
 
                 StreakEntity(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter, streakStart);
