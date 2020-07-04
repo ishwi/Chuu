@@ -148,7 +148,7 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
     public String getUsageInstructions() {
         return getAliases().get(0) + " rym_import_file \n" + " " +
                 "In order to import your data you need to actively download your rym data and then link it to the bot uploading the plain .txt file while using this command." +
-                "The file can be exported and the bottom of your profile page on rym clicking on the button ***EXPORT YOUR DATA*** or ***EXPROT WITH REVIEWS***";
+                "The file can be exported and the bottom of your profile page on rym clicking on the button ***EXPORT YOUR DATA*** or ***EXPORT WITH REVIEWS***";
 
     }
 }
