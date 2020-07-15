@@ -364,6 +364,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new TopCombosCommand(dao)))
                 .addEventListeners(help.registerCommand(new BehindArtistsCommand(dao)))
                 .addEventListeners(help.registerCommand(new TopArtistComboCommand(dao)))
+                .addEventListeners(help.registerCommand(new PaceArtistCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {

@@ -34,10 +34,12 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         super(dao);
 
     }
+
     @Override
     protected CommandCategory getCategory() {
         return CommandCategory.USER_STATS;
     }
+
     @Override
     //XD
     public Parser<NumberParameters<NumberParameters<NaturalTimeParams>>> getParser() {
@@ -175,10 +177,10 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
             timeFrame = "over the last" + (unitNumber == 1 ? "" : " " + unitNumber) + " " + (unitNumber == 1 ? naturalTimeFrameEnum.toString().toLowerCase() : naturalTimeFrameEnum.toString().toLowerCase() + "s");
         String format = now.plus((long) remainingUnits, chronoUnits.get(i)).format(formatter);
         String unit = chronoUnits.get(i).name().toLowerCase();
-        String s = String.format("**%s** has a rate of **%s** scrobbles per %s %s, so they are on pace to hit **%d** scrobbles on **%s**.",
+        String s = String.format("**%s** has a rate of **%s** scrobbles per %s %s, so they are on pace to hit **%d** scrobbles on **%s**. (They currently have %d scrobbles)",
                 userString, new DecimalFormat("#0.00").format(ratio),
                 unit.substring(0, unit.length() - 1),
-                timeFrame, goal, format);
+                timeFrame, goal, format, playCount);
 
         sendMessageQueue(e, s);
     }
