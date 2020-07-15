@@ -41,7 +41,7 @@ public class TestResourcesSingleton extends ExternalResource {
 
     public static void deleteCommonArtists() {
         dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong(),setUp, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.DISCORD_NAME));
+                .getGuild().getIdLong(), setUp, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.DISCORD_NAME));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
         dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -91,7 +91,7 @@ public class TestResourcesSingleton extends ExternalResource {
             }
             developerId = Long.parseLong(properties.getProperty("DEVELOPER_ID"));
 
-            JDABuilder builder = new JDABuilder(AccountType.BOT).setEventManager(new CustomInterfacedEventManager());
+            JDABuilder builder = new JDABuilder(AccountType.BOT).setEventManager(new CustomInterfacedEventManager(0));
             try {
                 testerJDA = builder.setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
                         .build().awaitReady();
@@ -100,7 +100,7 @@ public class TestResourcesSingleton extends ExternalResource {
             }
 
             Chuu.setupBot(true);
-            ogJDA = Chuu.getPresence().getJDA();
+            ogJDA = Chuu.getShardManager().getShards().get(0);
 
             Guild testing_server = testerJDA.getGuildById(properties.getProperty("TESTING_SERVER"));
             assert (testing_server != null);

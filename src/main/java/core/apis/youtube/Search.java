@@ -34,7 +34,7 @@ import java.util.Properties;
  *
  * @author Jeremy Walker
  */
-public class Search {
+public class Search implements YoutubeSearch {
 
     /**
      * Define a global variable that identifies the name of a file that
@@ -43,7 +43,7 @@ public class Search {
     private static final String PROPERTIES_FILENAME = "all.properties";
 
     private static final long NUMBER_OF_VIDEOS_RETURNED = 25;
-    private static final String BASE_URL = "https://www.youtube.com/watch?v=";
+    static final String BASE_URL = "https://www.youtube.com/watch?v=";
     /**
      * Define a global instance of a Youtube object, which will be used
      * to make YouTube Data API requests.
