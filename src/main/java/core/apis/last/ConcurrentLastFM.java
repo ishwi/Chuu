@@ -554,6 +554,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                     if (s == null) {
                         try {
                             s = Chuu.getDao().getReverseCorrection(track.getArtist());
+                            validatedArtist.put(track.getArtist(), s);
                         } catch (Exception ignored) {
                         }
                     }

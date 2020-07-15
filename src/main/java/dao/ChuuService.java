@@ -1462,7 +1462,6 @@ public class ChuuService {
                 //connection.prepareStatement("set foreign_key_checks  = 0").execute();
                 rymDao.cleanUp(connection);
                 //delete everything first to have a clean start
-                updaterDao.deleteAllRatings(connection, userId);
                 /* Do work. */
                 updaterDao.fillALbumsByRYMID(connection, ratings);
                 Map<Boolean, List<RYMImportRating>> map = ratings.stream().collect(Collectors.partitioningBy(albumRating -> albumRating.getId() == -1L));
@@ -1532,6 +1531,7 @@ public class ChuuService {
                         .map(rymImportRatings -> rymImportRatings.getValue().stream().max(Comparator.comparingInt(RYMImportRating::getRating)).orElse(null))
                         .filter(Objects::nonNull).collect(Collectors.toList());
 
+                updaterDao.deleteAllRatings(connection, userId);
                 Savepoint savepoint = connection.setSavepoint();
                 try {
                     rymDao.insertRatings(connection, knownAlbums, userId);

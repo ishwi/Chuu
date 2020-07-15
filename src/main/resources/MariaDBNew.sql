@@ -646,8 +646,7 @@ create table top_combos
     artist_combo             int,
     album_combo              int,
     track_combo              int,
-
-    first_scrobble_in_streak TIMESTAMP,
     primary key (id),
-    unique (discord_id, artist_id, first_scrobble_in_streak)
-)
+    unique (discord_id, artist_id)
+);
+

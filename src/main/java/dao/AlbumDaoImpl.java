@@ -37,7 +37,7 @@ public class AlbumDaoImpl implements AlbumDao {
 
             /* Fill "preparedStatement". */
             ResultSet resultSet = preparedStatement.executeQuery();
-            Map<String, ScrobbledAlbum> collect = list.stream().collect(Collectors.toMap(scrobbledAlbum -> scrobbledAlbum.getAlbumId() + "_" + seed + "_" + scrobbledAlbum.getAlbum(), Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
+            Map<String, ScrobbledAlbum> collect = list.stream().collect(Collectors.toMap(scrobbledAlbum -> scrobbledAlbum.getArtistId() + "_" + seed + "_" + scrobbledAlbum.getAlbum(), Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
                 scrobbledArtist.setCount(scrobbledArtist.getCount() + scrobbledArtist2.getCount());
                 return scrobbledArtist;
             }));

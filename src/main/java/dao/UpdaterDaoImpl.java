@@ -1169,9 +1169,13 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public void insertCombo(Connection connection, StreakEntity combo, long discordID, long artistId, @Nullable Long albumId) {
 
-        String mySql = "INSERT INTO top_combos (artist_id,discord_id,album_id,track_name,artist_combo,album_combo,track_combo,first_scrobble_in_streak) VALUES" +
-                " (?,?,?,?,?,?,?,?)" + " ON DUPLICATE KEY UPDATE " +
-                "artist_combo =  values(artist_combo), album_combo = values(album_combo), track_combo = values(track_combo), album_id = values(album_id), track_name = values(track_name)";
+        String mySql = "INSERT INTO top_combos (artist_id,discord_id,album_id,track_name,artist_combo,album_combo,track_combo) VALUES" +
+                " (?,?,?,?,?,?,?)" + " ON DUPLICATE KEY UPDATE " +
+                "artist_combo = if(artist_combo < values(artist_combo),values(artist_combo),artist_combo)," +
+                "album_combo = if(artist_combo < values(artist_combo),values(album_combo),album_combo)," +
+                "track_combo = if(artist_combo < values(artist_combo),values(track_combo),track_combo)," +
+                " album_id = if(album_combo > 1,values(album_id),null)," +
+                " track_name = if(track_combo > 1,values(track_name),null)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             preparedStatement.setLong(+1, artistId);
             preparedStatement.setLong(+2, discordID);
@@ -1190,7 +1194,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
             preparedStatement.setInt(+6, combo.getAlbCounter());
             preparedStatement.setInt(+7, combo.gettCounter());
 
-            preparedStatement.setTimestamp(8, Timestamp.from(combo.getStreakStart()));
 
             preparedStatement.execute();
         } catch (
