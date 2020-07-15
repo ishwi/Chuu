@@ -2015,6 +2015,106 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
 
     }
+
+    @Override
+    public List<ScoredAlbumRatings> getServerTopRandomUrls(Connection connection, long guildId) {
+
+        List<ScoredAlbumRatings> returnList = new ArrayList<>();
+
+        String s = "select *  from (select  count(*) as  coun,  avg(rating) as ave, a.url " +
+                "from random_links_ratings a " +
+                "join user_guild d on a.discord_id = d.discord_id " +
+                " where guild_id = ? " +
+                "group by a.url) main " +
+                "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            preparedStatement.setLong(1, guildId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            getScoredAlbums(returnList, resultSet);
+        } catch (
+                SQLException throwables) {
+
+            throw new ChuuServiceException(throwables);
+        }
+        return returnList;
+    }
+
+    @Override
+    public List<ScoredAlbumRatings> getTopUrlsRatedByUser(Connection connection, long discordId) {
+
+        List<ScoredAlbumRatings> returnList = new ArrayList<>();
+
+        String s = "select *  from (select  count(*) as  coun,  avg(rating) as ave, a.url " +
+                "from random_links_ratings a " +
+                " where discord_id  = ? " +
+                "group by a.url) main " +
+                "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            preparedStatement.setLong(1, discordId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            getScoredAlbums(returnList, resultSet);
+        } catch (
+                SQLException throwables) {
+
+            throw new ChuuServiceException(throwables);
+        }
+        return returnList;
+    }
+
+    @Override
+    public List<ScoredAlbumRatings> getGlobalTopRandomUrls(Connection connection) {
+
+        List<ScoredAlbumRatings> returnList = new ArrayList<>();
+
+        String s = "select *  from (select  count(*) as  coun,  avg(rating) as ave, a.url " +
+                "from random_links_ratings a " +
+                "group by a.url) main " +
+                "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            getScoredAlbums(returnList, resultSet);
+        } catch (
+                SQLException throwables) {
+
+            throw new ChuuServiceException(throwables);
+        }
+        return returnList;
+    }
+
+    @Override
+    public List<ScoredAlbumRatings> getUserTopRatedUrlsByEveryoneElse(Connection connection, long discordId) {
+        List<ScoredAlbumRatings> returnList = new ArrayList<>();
+
+        String s = "select *  from (select  count(*) as  coun,  avg(rating) as ave, a.url " +
+                "from random_links_ratings a " +
+                "join randomlinks b on a.url = b.url  " +
+                " where b.discord_id = ? " +
+                "group by a.url) main " +
+                "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            preparedStatement.setLong(1, discordId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            getScoredAlbums(returnList, resultSet);
+        } catch (
+                SQLException throwables) {
+
+            throw new ChuuServiceException(throwables);
+        }
+        return returnList;
+    }
+
+
+    private void getScoredAlbums(List<ScoredAlbumRatings> returnList, ResultSet resultSet) throws SQLException {
+
+        while (resultSet.next()) {
+            long count = resultSet.getLong(1);
+            double average = resultSet.getDouble(2);
+            String url = resultSet.getString(3);
+            returnList.add(new ScoredAlbumRatings(0, "", url, count, average, ""));
+
+        }
+    }
+
 }
 
 

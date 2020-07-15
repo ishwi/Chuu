@@ -155,6 +155,15 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 } else {
                     sendMessageQueue(e, "Your privacy setting was set to: **" + WordUtils.capitalizeFully(privacyMode.toString()) + "**");
                 }
+            case NOTIFY_RATING:
+                b = Boolean.parseBoolean(value);
+                getService().setImageNotify(e.getAuthor().getIdLong(), b);
+                if (b) {
+                    sendMessageQueue(e, "Now you will get notified whenever an url you uploaded to the random command gets rated");
+                } else {
+                    sendMessageQueue(e, "Now you will not get notified whenever an url you uploaded to the random command gets rated");
+                }
+                break;
         }
     }
 }

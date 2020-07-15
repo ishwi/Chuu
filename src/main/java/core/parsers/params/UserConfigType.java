@@ -20,9 +20,11 @@ import java.util.stream.Stream;
 
 public enum UserConfigType {
 
-    CHART_MODE("chart"), NOTIFY_IMAGE("image-notify"), PRIVATE_UPDATE("private-update"), WHOKNOWS_MODE("whoknows"), REMAINING_MODE("rest"),
+    CHART_MODE("chart"), NOTIFY_IMAGE("image-notify"), PRIVATE_UPDATE("private-update"), WHOKNOWS_MODE("whoknows"),
+    REMAINING_MODE("rest"),
     CHART_SIZE("size"),
-    PRIVACY_MODE("privacy");
+    PRIVACY_MODE("privacy"),
+    NOTIFY_RATING("rating-notify");
 
     private static final Map<String, UserConfigType> ENUM_MAP;
     static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
@@ -63,6 +65,7 @@ public enum UserConfigType {
                 return privatyMode.asMatchPredicate();
             case PRIVATE_UPDATE:
             case NOTIFY_IMAGE:
+            case NOTIFY_RATING:
                 return bool.asMatchPredicate();
             case CHART_SIZE:
                 return ChartParserAux.chartSizePattern.asMatchPredicate();
@@ -77,7 +80,7 @@ public enum UserConfigType {
             case PRIVATE_UPDATE:
                 return "If you want others users to be able to update your account with a ping and the update command (true for making it private, false for it to be public)";
             case NOTIFY_IMAGE:
-                return "Whether you will get notified or not when a submitted image gets accepted (true = notify, false = no)";
+                return "Whether you will get notified or not when a submitted image gets accepted (true = notify, false = don't)";
             case CHART_MODE:
                 String collect = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 collect += "\n\t\t\t**Clear**: Sets the default mode";
@@ -100,6 +103,8 @@ public enum UserConfigType {
                 return "Change the default chart size for chart command when you dont specify directly the size";
             case PRIVACY_MODE:
                 return "Sets how will you appear in the global leaderboard, changing this means users from other servers might be able to contact you directly";
+            case NOTIFY_RATING:
+                return "Whether you will get notified or not when a url you have submitted to the random command gets rated by someone else (true = notify, false = don't)";
             default:
                 return "";
         }
@@ -162,6 +167,9 @@ public enum UserConfigType {
                                 remaining = String.format("%s", lastFMData.getPrivacyMode().toString());
                             }
                             return String.format("**%s** -> %s", key, remaining);
+                        case NOTIFY_RATING:
+                            privateUpdate = lastFMData != null && lastFMData.isRatingNotify();
+                            return String.format("**%s** -> %s", key, privateUpdate);
                     }
                     return null;
                 }).

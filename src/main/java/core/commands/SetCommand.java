@@ -6,7 +6,6 @@ import core.parsers.ChartableParser;
 import core.parsers.Parser;
 import core.parsers.SetParser;
 import core.parsers.params.WordParameter;
-import core.scheduledtasks.UpdaterThread;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -128,7 +127,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
                         sendTyping().
 
                         queue());
-        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL);
+        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true);
         lastFMData.setGuildID(guildID);
 
         getService().

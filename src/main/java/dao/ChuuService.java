@@ -717,6 +717,14 @@ public class ChuuService {
         }
     }
 
+    public @Nullable RandomUrlEntity findRandomUrl(String url) {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.findRandomUrlById(connection, url);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public boolean randomUrlExists(String url) {
         try (Connection connection = dataSource.getConnection()) {
             return (updaterDao.findRandomUrlById(connection, url) != null);
@@ -1309,6 +1317,14 @@ public class ChuuService {
     public void setImageNotify(long discordId, boolean imageNotify) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setUserProperty(connection, discordId, "notify_image", imageNotify);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setRatingNotify(long discordId, boolean ratingNotify) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setUserProperty(connection, discordId, "notify_rating", ratingNotify);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1941,9 +1957,56 @@ public class ChuuService {
 
     public List<GlobalStreakEntities> getArtistTopStreaks(@Nullable Long extraParam, @Nullable Long guildId, long artistId) {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.getArtistTopStreaks(connection, extraParam, guildId,artistId);
+            return queriesDao.getArtistTopStreaks(connection, extraParam, guildId, artistId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
     }
+
+    public void addUrlRating(long author, int rating, String url) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.addUrlRating(connection, author, rating, url);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public List<ScoredAlbumRatings> getServerTopUrl(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getServerTopRandomUrls(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScoredAlbumRatings> getGlobalTopUrl() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getGlobalTopRandomUrls(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScoredAlbumRatings> getByUserTopRatedUrls(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getTopUrlsRatedByUser(connection, discordId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScoredAlbumRatings> getUserTopRatedUrlsByEveryoneElse(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getUserTopRatedUrlsByEveryoneElse(connection, discordId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
 }

@@ -63,3 +63,5 @@ alter table weekly_billboard_artist_global_listeners
 alter table weekly_billboard_artist_global_listeners
     add column listeners int;
 
+alter table user
+    add column notify_rating boolean NOT NULL DEFAULT true;

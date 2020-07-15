@@ -638,15 +638,26 @@ alter table weekly_billboard_album_scrobbles
 
 create table top_combos
 (
-    id                       bigint       not null AUTO_INCREMENT,
-    discord_id               bigint       not null,
-    artist_id                bigint       not null,
-    album_id                 bigint       null,
-    track_name               varchar(400) null,
-    artist_combo             int,
-    album_combo              int,
-    track_combo              int,
+    id           bigint       not null AUTO_INCREMENT,
+    discord_id   bigint       not null,
+    artist_id    bigint       not null,
+    album_id     bigint       null,
+    track_name   varchar(400) null,
+    artist_combo int,
+    album_combo  int,
+    track_combo  int,
     primary key (id),
     unique (discord_id, artist_id)
 );
 
+
+CREATE TABLE random_links_ratings
+(
+    id         bigint(20) PRIMARY KEY                  NOT NULL AUTO_INCREMENT,
+    url        VARCHAR(400) COLLATE utf8mb4_unicode_ci NOT NULL,
+    discord_id BIGINT(20)                              NOT NULL,
+    rating     int,
+    unique (url, discord_id),
+    CONSTRAINT random_links_ratings_url FOREIGN KEY (url) REFERENCES randomlinks (url) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT random_links_ratings_discord FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE CASCADE
+);

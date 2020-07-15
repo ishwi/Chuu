@@ -255,12 +255,13 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
         }
         return returnList;
     }
-        //
+
+    //
     @Override
     public List<ScoredAlbumRatings> getServerTopRatings(Connection connection, long guildId) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
 
-        String s = "select *  from (select  album_name, count(*) as  coun, sum(rating) as agg, avg(rating) as ave, name,c.url " +
+        String s = "select *  from (select  album_name, count(*) as  coun, 1, avg(rating) as ave, name,c.url " +
                 "from album_rating a " +
                 "join artist b on a.artist_id = b.id " +
                 "join album c on a.album_id = c.id " +

@@ -1,5 +1,7 @@
 package dao.entities;
 
+import core.commands.CommandUtil;
+
 public class LastFMData {
 
     private Long discordId;
@@ -14,9 +16,10 @@ public class LastFMData {
     private final int defaultX;
     private final int defaultY;
     private final PrivacyMode privacyMode;
+    private final boolean ratingNotify;
 
 
-    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode) {
+    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify) {
         this.discordId = discordId;
         this.name = name;
         this.guildID = guildID;
@@ -28,9 +31,10 @@ public class LastFMData {
         this.defaultX = defaultX;
         this.defaultY = defaultY;
         this.privacyMode = privacyMode;
+        this.ratingNotify = ratingNotify;
     }
 
-    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode) {
+    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify) {
         this.name = lastFmID;
         this.discordId = resDiscordID;
         this.role = role;
@@ -42,6 +46,7 @@ public class LastFMData {
         this.defaultX = defaultX;
         this.defaultY = defaultY;
         this.privacyMode = privacyMode;
+        this.ratingNotify = ratingNotify;
     }
 
 
@@ -109,4 +114,10 @@ public class LastFMData {
     public PrivacyMode getPrivacyMode() {
         return privacyMode;
     }
+
+    public boolean isRatingNotify() {
+        return ratingNotify;
+    }
+
+
 }

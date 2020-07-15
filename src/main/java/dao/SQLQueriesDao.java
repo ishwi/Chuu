@@ -116,4 +116,13 @@ interface SQLQueriesDao {
     String getReverseCorrection(Connection connection, String correction);
 
     List<GlobalStreakEntities> getArtistTopStreaks(Connection connection, Long extraParam, Long guildId, long artistId);
+
+    List<ScoredAlbumRatings> getServerTopRandomUrls(Connection connection, long guildId);
+
+    List<ScoredAlbumRatings> getTopUrlsRatedByUser(Connection connection, long discordId);
+
+    List<ScoredAlbumRatings> getGlobalTopRandomUrls(Connection connection);
+
+    List<ScoredAlbumRatings> getUserTopRatedUrlsByEveryoneElse(Connection connection, long discordId);
+
 }

@@ -1202,6 +1202,22 @@ public class UpdaterDaoImpl implements UpdaterDao {
         }
     }
 
+    @Override
+    public void addUrlRating(Connection connection, long author, int rating, String url) {
+        String mySql = "INSERT INTO random_links_ratings (url,discord_id,rating) VALUES" +
+                " (?,?,?)" + " ON DUPLICATE KEY UPDATE " +
+                " rating = values(rating)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
+            preparedStatement.setString(+1, url);
+            preparedStatement.setLong(+2, author);
+            preparedStatement.setInt(+3, rating);
+            preparedStatement.execute();
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
 }
 

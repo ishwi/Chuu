@@ -131,4 +131,6 @@ interface UpdaterDao {
     void insertAlbumSad(Connection connection, RYMImportRating x);
 
     void insertCombo(Connection connection, StreakEntity combo, long discordID, long artistId, @Nullable Long albumId);
+
+    void addUrlRating(Connection connection, long author, int rating, String url);
 }

@@ -70,7 +70,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
         /* Create "queryString". */
-        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode FROM user WHERE discord_id = ?";
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating FROM user WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -99,9 +99,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
             int defaultX = resultSet.getInt(i++);
             int defaultY = resultSet.getInt(i++);
             PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(i++));
+            boolean ratingNotify = resultSet.getBoolean(i);
 
 
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode);
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -385,7 +386,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image,a.chart_mode,a.whoknows_mode,a.remaining_mode,a.default_x,a.default_y,a.privacy_mode  " +
+        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image,a.chart_mode,a.whoknows_mode,a.remaining_mode,a.default_x,a.default_y,a.privacy_mode,a.notify_rating " +
                 "FROM   user a" +
                 " WHERE  a.lastfm_id = ? ";
 
@@ -411,8 +412,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
             int defaultX = resultSet.getInt(9);
             int defaultY = resultSet.getInt(10);
             PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(11));
+            boolean ratingNotify = resultSet.getBoolean(12);
 
-            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode);
+
+            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify);
 
 
             /* Get results. */
@@ -666,7 +669,8 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 "IFNULL(c.whoknows_mode,a.whoknows_mode), " +
                 "IFNULL(c.remaining_mode,a.remaining_mode)" +
                 ", default_x, default_y " +
-                ", a.privacy_mode " +
+                ", a.privacy_mode," +
+                "a.notify_rating " +
                 "FROM user a join user_guild b on a.discord_id = b.discord_id join guild c on c.guild_id = b.guild_id " +
                 " WHERE a.discord_id = ? AND c.guild_id = ? ";
 
@@ -698,9 +702,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
             RemainingImagesMode remainingImagesMode = RemainingImagesMode.valueOf(resultSet.getString(i++));
             int defaultX = resultSet.getInt(i++);
             int defaultY = resultSet.getInt(i++);
-            PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(i));
+            PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(i++));
+            boolean ratingNotify = resultSet.getBoolean(i);
 
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode);
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

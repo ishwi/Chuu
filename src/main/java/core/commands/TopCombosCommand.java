@@ -60,7 +60,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
 
     @Override
     public List<String> getAliases() {
-        return List.of("botsreaks", "topcombos", "topstreaks", "tc");
+        return List.of("botstreaks", "topcombos", "topstreaks", "tc");
     }
 
     @Override
