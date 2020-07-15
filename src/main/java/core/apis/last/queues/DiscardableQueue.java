@@ -1,14 +1,6 @@
 package core.apis.last.queues;
 
 import core.Chuu;
-import core.apis.discogs.DiscogsApi;
-import core.apis.last.chartentities.PreComputedChartEntity;
-import core.apis.spotify.Spotify;
-import core.commands.CommandUtil;
-import core.exceptions.InstanceNotFoundException;
-import dao.ChuuService;
-import dao.entities.ScrobbledArtist;
-import dao.entities.UpdaterStatus;
 import dao.entities.UrlCapsule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,29 +12,25 @@ import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class DiscardableQueue implements BlockingQueue<UrlCapsule> {
+public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<UrlCapsule> {
     final boolean needsImages;
     private final int maxNumberOfElements;
     private final LinkedBlockingQueue<UrlCapsule> innerQueue;
-    private final ChuuService dao;
-    private final DiscogsApi discogsApi;
-    private final Spotify spotifyApi;
-    private final Function<UrlCapsule, PreComputedChartEntity> factoryFunction;
-    private final Predicate<PreComputedChartEntity> discard;
+
+    private final Function<UrlCapsule, T> factoryFunction;
+    private final Predicate<T> discard;
     protected LinkedBlockingQueue<CompletableFuture<?>> taskQueue;
 
-    public DiscardableQueue(ChuuService dao, DiscogsApi discogsApi, Spotify spotify, Predicate<PreComputedChartEntity> discard, Function<UrlCapsule, PreComputedChartEntity> factoryFunction, int maxNumberOfElements) {
-        this(maxNumberOfElements, dao, discogsApi, spotify, factoryFunction, discard, true);
+    public DiscardableQueue(Predicate<T> discard, Function<UrlCapsule, T> factoryFunction, int maxNumberOfElements) {
+        this(maxNumberOfElements, factoryFunction, discard, true);
     }
 
-    public DiscardableQueue(int maxNumberOfElements, ChuuService dao, DiscogsApi discogsApi, Spotify spotify, Function<UrlCapsule, PreComputedChartEntity> factoryFunction, Predicate<PreComputedChartEntity> discard, boolean needsImages) {
+    public DiscardableQueue(int maxNumberOfElements, Function<UrlCapsule, T> factoryFunction, Predicate<T> discard, boolean needsImages) {
         super();
         innerQueue = new LinkedBlockingQueue<>();
         this.taskQueue = new LinkedBlockingQueue<>();
         this.maxNumberOfElements = maxNumberOfElements;
-        this.dao = dao;
-        this.discogsApi = discogsApi;
-        this.spotifyApi = spotify;
+
         this.factoryFunction = factoryFunction;
         this.discard = discard;
         this.needsImages = needsImages;
@@ -54,37 +42,25 @@ public class DiscardableQueue implements BlockingQueue<UrlCapsule> {
         CompletableFuture<?> future = CompletableFuture.supplyAsync(() -> {
             if (innerQueue.size() < maxNumberOfElements) {
 
-                if (item.getUrl() == null) {
-                    getUrl(item);
+                T entity = factoryFunction.apply(item);
+                if (!discard.test(entity)) {
+                    innerQueue.add(entity);
+                } else {
+                    cleanUp(entity);
                 }
-                if (item.getUrl() != null) {
-                    PreComputedChartEntity entity = factoryFunction.apply(item);
-                    if (!discard.test(entity)) {
-                        innerQueue.add(entity);
-                    } else if (entity.getImage() != null) {
-                        entity.getImage().flush();
-                    }
-                }
+
             }
             return 0;
-        }).toCompletableFuture();
+        }).
+
+                toCompletableFuture();
         return taskQueue.offer(future);
     }
 
-    private void getUrl(@NotNull UrlCapsule item) {
-        try {
-            UpdaterStatus updaterStatusByName = dao.getUpdaterStatusByName(item.getArtistName());
-            String url = updaterStatusByName.getArtistUrl();
-            if (url == null) {
-                ScrobbledArtist scrobbledArtist = new ScrobbledArtist(item.getArtistName(), item.getPlays(), item.getUrl());
-                scrobbledArtist.setArtistId(updaterStatusByName.getArtistId());
-                url = CommandUtil.updateUrl(discogsApi, scrobbledArtist, dao, spotifyApi);
-            }
-            item.setUrl(url);
-        } catch (InstanceNotFoundException e) {
-            //What can we do
-        }
+    private void cleanUp(T entity) {
+        // Do Nothing
     }
+
 
     @Override
     public int drainTo(@NotNull Collection<? super UrlCapsule> c, int maxElements) {
@@ -220,7 +196,7 @@ public class DiscardableQueue implements BlockingQueue<UrlCapsule> {
 
     @NotNull
     @Override
-    public <T> T[] toArray(@NotNull T[] a) {
+    public <Z> Z[] toArray(@NotNull Z[] a) {
         return innerQueue.toArray(a);
     }
 
@@ -229,3 +205,5 @@ public class DiscardableQueue implements BlockingQueue<UrlCapsule> {
         return this.drainTo(c, Integer.MAX_VALUE);
     }
 }
+
+

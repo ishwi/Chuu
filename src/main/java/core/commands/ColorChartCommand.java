@@ -5,7 +5,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.*;
-import core.apis.last.queues.DiscardableQueue;
+import core.apis.last.queues.DiscardByQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
@@ -131,7 +131,6 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ColorChartParams params) throws LastFmException {
 
-        BlockingQueue<UrlCapsule> queue;
         int count;
         Function<UrlCapsule, PreComputedChartEntity> factoryFunction =
                 (capsule) ->
@@ -150,8 +149,9 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
                     return new PreComputedByBrightness(capsule, image, isDarkToWhite, comparison);
                 };
 
-        queue = new DiscardableQueue(getService(), discogsApi, spotifyApi, discardGenerator.apply(params), factoryFunction, params.getX() * params.getY());
+        BlockingQueue<UrlCapsule> queue = new DiscardByQueue(getService(), discogsApi, spotifyApi, discardGenerator.apply(params), factoryFunction, params.getX() * params.getY());
         if (params.isArtist()) {
+
             count = lastFM.getChart(params.getLastfmID(),
                     params.getTimeFrameEnum().toApiFormat(),
                     3000,

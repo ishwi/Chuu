@@ -1,16 +1,19 @@
 package core.commands;
 
+import core.apis.discogs.DiscogsApi;
+import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.ChartUtil;
 import core.apis.last.chartentities.PreComputedByGayness;
 import core.apis.last.chartentities.PreComputedChartEntity;
-import core.apis.last.queues.DiscardableQueue;
+import core.apis.last.queues.DiscardByQueue;
+import core.apis.spotify.Spotify;
+import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
 import core.parsers.ChartableParser;
 import core.parsers.GayParser;
 import core.parsers.params.GayParams;
-import core.parsers.params.RainbowParams;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -33,8 +36,13 @@ import java.util.stream.IntStream;
 public class GayCommand extends OnlyChartCommand<GayParams> {
 
 
+    private final DiscogsApi discogsApi;
+    private final Spotify spotify;
+
     public GayCommand(ChuuService dao) {
         super(dao);
+        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+        spotify = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -54,7 +62,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
     @Override
     public String getName() {
-        return null;
+        return "Pride Command";
     }
 
     private final BiFunction<Map<Color, Integer>, GayParams, Predicate<PreComputedChartEntity>> discardGenerator = (map, perRow) -> preComputedChartEntity ->
@@ -104,7 +112,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(GayParams params) throws LastFmException {
 
-        BlockingQueue<UrlCapsule> queue;
+        DiscardByQueue queue;
         List<Color> palettes = params.getGayType().getPalettes();
         Map<Color, Integer> gayColours = palettes.stream().collect(Collectors.toMap(x -> x, x -> 0, (x, y) -> x - params.getX()));
 
@@ -117,7 +125,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
                     return new PreComputedByGayness(capsule, image, true, comparison);
                 };
 
-        queue = new DiscardableQueue(getService(), null, null, discardGenerator.apply(gayColours, params), factoryFunction, params.getX() * params.getY());
+        queue = new DiscardByQueue(getService(), discogsApi, spotify, discardGenerator.apply(gayColours, params), factoryFunction, params.getX() * params.getY());
         if (params.hasOptional("--artist")) {
             count = lastFM.getChart(params.getLastfmID(),
                     params.getTimeFrameEnum().toApiFormat(),
