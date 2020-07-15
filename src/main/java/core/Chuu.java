@@ -244,7 +244,7 @@ public class Chuu {
                 // .addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao)))
                 .addEventListeners(help.registerCommand(new AlbumChartCommand(dao)))
                 .addEventListeners(help.registerCommand(new SetCommand(dao)))
-                .addEventListeners(help.registerCommand(new AllPlayingCommand(dao)))
+                .addEventListeners(help.registerCommand(new PlayingCommand(dao)))
                 .addEventListeners(help.registerCommand(new TasteCommand(dao)))
                 .addEventListeners(help.registerCommand(new TopCommand(dao)))
                 .addEventListeners(help.registerCommand(new UpdateCommand(dao)))

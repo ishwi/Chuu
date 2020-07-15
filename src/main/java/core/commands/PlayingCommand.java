@@ -27,11 +27,11 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class AllPlayingCommand extends ConcurrentCommand<CommandParameters> {
+public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
 
     private final LoadingCache<Long, LocalDateTime> controlAccess;
 
-    public AllPlayingCommand(ChuuService dao) {
+    public PlayingCommand(ChuuService dao) {
         super(dao);
 
         this.respondInPrivate = false;
@@ -133,9 +133,13 @@ public class AllPlayingCommand extends ConcurrentCommand<CommandParameters> {
         }
         int pageSize = count;
         MessageBuilder mes = new MessageBuilder();
+        int pages = (int) Math.ceil(result.size() / (float) count);
+        if (pages != 1) {
+            a.append("\n1").append("/").append(pages);
+        }
         embedBuilder.setDescription(a);
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                new Reactionary<>(result, message1, pageSize, embedBuilder, false));
+                new Reactionary<>(result, message1, pageSize, embedBuilder, false, true));
 
     }
 

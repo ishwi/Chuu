@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.IEventManager;
 
 import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 public abstract class ReactionListener implements EventListener {
     private static final String PERMS_MES = "Don't have permissions to clear reactions :(\nYou can still manually remove the reaction\n";
@@ -72,11 +73,16 @@ public abstract class ReactionListener implements EventListener {
     public abstract void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event);
 
     public void clearReacts() {
+        clearReacts((Void a) -> {
+        });
+    }
+
+    public void clearReacts(Consumer<Void> consumer) {
         try {
 
             if (message.isFromGuild()) {
-                message.clearReactions().queue(aVoid -> {
-                }, throwable -> message.editMessage(who.setFooter(PERMS_MES).build()).queue());
+                message.clearReactions().queue(consumer,
+                        throwable -> message.editMessage(who.setFooter(PERMS_MES).build()).queue());
             }
         } catch (Exception ex) {
             message.editMessage(who.setFooter(PERMS_MES).build()).queue();
