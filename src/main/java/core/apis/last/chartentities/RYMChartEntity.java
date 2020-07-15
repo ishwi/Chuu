@@ -13,21 +13,15 @@ public class RYMChartEntity extends UrlCapsule {
     private final boolean drawScore;
     private final boolean useNumber;
     private final double average;
+    private final long numberOfRatings;
 
-    public RYMChartEntity(String url, int pos, String albumName, String artistName, int plays, boolean drawTitles, boolean drawScore, boolean useNumber, double average) {
-        super(url, pos, albumName, artistName, null, plays);
-        this.drawTitles = drawTitles;
-        this.drawScore = drawScore;
-        this.useNumber = useNumber;
-        this.average = average;
-    }
-
-    public RYMChartEntity(String url, int pos, String artistName, String albumName, boolean drawTitles, boolean drawScore, boolean useNumber, double average) {
+    public RYMChartEntity(String url, int pos, String artistName, String albumName, boolean drawTitles, boolean drawScore, boolean useNumber, double average, long numberOfRatings) {
         super(url, pos, artistName, albumName, null);
         this.drawTitles = drawTitles;
         this.drawScore = drawScore;
         this.useNumber = useNumber;
         this.average = average;
+        this.numberOfRatings = numberOfRatings;
     }
 
     @Override
@@ -45,7 +39,7 @@ public class RYMChartEntity extends UrlCapsule {
                     starts += "✮";
                 list.add(new ChartLine(starts));
             } else
-                list.add(new ChartLine(ScoredAlbumRatings.formatter.format(average / 2f)));
+                list.add(new ChartLine(ScoredAlbumRatings.formatter.format(average / 2f) + " in " + numberOfRatings + " " + CommandUtil.singlePlural(Math.toIntExact(numberOfRatings), "rating", "ratings")));
 
         }
         return list;

@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
     private static final String headerLine = "RYM Album, First Name,Last Name,First Name localized, Last Name localized,Title,Release_Date,Rating,Ownership,Purchase Date,Media Type,Review";
     private static final Pattern unlocalized = Pattern.compile("(.*) \\[(.*)] ?");
+    private static final Set<Long> usersInProcess = new HashSet<>();
     private static final Function<String, RYMImportRating> mapper = (line) -> {
         String[] split = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
         if (split.length != 12)
@@ -107,41 +108,53 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
             return;
         }
         try {
-            URL url1 = new URL(url);
-            Scanner s = new Scanner(url1.openStream());
-            if (!s.hasNextLine()) {
-                sendMessageQueue(e, "File was empty :thinking:");
-                return;
-            }
-            String next = s.nextLine();
-            if (!next.equals(headerLine)) {
-                sendMessageQueue(e, "File did not match rym export format :thinking:");
-                return;
-            }
-            while (s.hasNextLine()) {
-                String line = s.nextLine();
-                RYMImportRating rating = mapper.apply(line);
-                if (rating == null) {
+            try {
+                synchronized (usersInProcess) {
+                    if (usersInProcess.contains(e.getAuthor().getIdLong())) {
+                        sendMessageQueue(e, "Your previous import command is still being processed");
+                        return;
+                    }
+                    usersInProcess.add(e.getAuthor().getIdLong());
+                }
+
+                URL url1 = new URL(url);
+                Scanner s = new Scanner(url1.openStream());
+                if (!s.hasNextLine()) {
+                    sendMessageQueue(e, "File was empty :thinking:");
+                    return;
+                }
+                String next = s.nextLine();
+                if (!next.equals(headerLine)) {
                     sendMessageQueue(e, "File did not match rym export format :thinking:");
                     return;
                 }
-                if (rating.getRating() == 0) {
-                    continue;
+                while (s.hasNextLine()) {
+                    String line = s.nextLine();
+                    RYMImportRating rating = mapper.apply(line);
+                    if (rating == null) {
+                        sendMessageQueue(e, "File did not match rym export format :thinking:");
+                        return;
+                    }
+                    if (rating.getRating() == 0) {
+                        continue;
+                    }
+                    ratings.add(rating);
                 }
-                ratings.add(rating);
+            } catch (IOException ioException) {
+                sendMessageQueue(e, "An Unexpected Error happened parsing the file :thinking:");
+                return;
             }
-        } catch (IOException ioException) {
-            sendMessageQueue(e, "An Unexpected Error happened parsing the file :thinking:");
-            return;
+            if (ratings.isEmpty()) {
+                sendMessageQueue(e, "Rating List was empty :thinking:");
+                return;
+            }
+            sendMessageQueue(e, String.format("Read %d ratings, now the import process will start.", ratings.size()));
+            e.getChannel().sendTyping().queue();
+            getService().insertRatings(e.getAuthor().getIdLong(), ratings);
+            sendMessageQueue(e, "Finished without errors");
+        } finally {
+            usersInProcess.remove(e.getAuthor().getIdLong());
         }
-        if (ratings.isEmpty()) {
-            sendMessageQueue(e, "Rating List was empty :thinking:");
-            return;
-        }
-        sendMessageQueue(e, String.format("Read %d ratings, now the import process will start.", ratings.size()));
-        e.getChannel().sendTyping().queue();
-        getService().insertRatings(e.getAuthor().getIdLong(), ratings);
-        sendMessageQueue(e, "Finished without errors");
     }
 
     @Override

@@ -198,7 +198,8 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     @Override
     public Collection<AlbumRatings> getArtistRatings(Connection connection, long guildId, long artistId) {
         Map<String, AlbumRatings> retunMap = new HashMap<>();
-        String s = "Select a.discord_id,d.rym_id,d.album_name,c.rating,d.release_year, exists (select discord_id  from user_guild where discord_id = a.discord_id and guild_id = ? )  as owner " +
+        String s = "Select a.discord_id,d.rym_id,d.album_name,c.rating,d.release_year, " +
+                "exists (select discord_id  from user_guild where discord_id = a.discord_id and guild_id = ? )  as owner " +
                 "from user a  " +
                 "join album_rating c on a.discord_id = c.discord_id " +
                 "join album d on c.album_id = d.id " +
@@ -219,7 +220,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
 
                 short release_year = resultSet.getShort("release_year");
                 Year releaseYear = release_year == 0 ? null : Year.of(release_year);
-                Long discord_id = resultSet.getLong("discord_id");
+                long discord_id = resultSet.getLong("discord_id");
                 boolean isThisGuild = resultSet.getBoolean("owner");
                 AlbumRatings albumRatings = retunMap.get(album);
                 if (albumRatings == null) {
@@ -238,12 +239,12 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     @Override
     public List<ScoredAlbumRatings> getGlobalTopRatings(Connection connection) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
-        String s = "select *  from (select  album_name, count(*) as  coun, sum(rating) as agg, avg(rating) as ave, name,c.url " +
+        String s = "select *  from (select  album_name, count(*) as  coun, 0, avg(rating) as ave, name,c.url " +
                 "from album_rating a " +
                 "join artist b on a.artist_id = b.id " +
                 "join album c on a.album_id = c.id " +
                 "group by album_id) main " +
-                "order by (main.coun * main.agg * main.ave)  desc limit 200";
+                "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             getScoredAlbums(returnList, resultSet);
@@ -254,10 +255,11 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
         }
         return returnList;
     }
-
+        //
     @Override
     public List<ScoredAlbumRatings> getServerTopRatings(Connection connection, long guildId) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
+
         String s = "select *  from (select  album_name, count(*) as  coun, sum(rating) as agg, avg(rating) as ave, name,c.url " +
                 "from album_rating a " +
                 "join artist b on a.artist_id = b.id " +
@@ -265,7 +267,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
                 "join user_guild d on a.discord_id = d.discord_id " +
                 " where guild_id = ? " +
                 "group by album_id) main " +
-                "order by (main.coun * main.agg * main.ave)  desc limit 200";
+                "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, guildId);
             ResultSet resultSet = preparedStatement.executeQuery();
