@@ -62,12 +62,12 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
 
     @Override
     public String getDescription() {
-        return ("How many times the guild has heard an album (temp)!");
+        return ("How many times the guild has heard an album! (Using local database)");
     }
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("lwkalbum", "lwka", "lwhoknowsalbum");
+        return Arrays.asList("wkalbum", "wka", "whoknowsalbum");
     }
 
     @Override
@@ -98,7 +98,22 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.getService().getWhoKnowsAlbums(10, albumId, ap.getE().getGuild().getIdLong()) : this.getService().getWhoKnowsAlbums(Integer.MAX_VALUE, albumId, ap.getE().getGuild().getIdLong());
         wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist() + " - " + ap.getAlbum());
+        try {
+            AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(ap.getLastFMData().getName(), ap.getArtist(), ap.getAlbum());
+            if (playsAlbumArtist.getPlays() > 0) {
+                Optional<ReturnNowPlaying> any = wrapperReturnNowPlaying.getReturnNowPlayings().stream().filter(x -> x.getDiscordId() == ap.getLastFMData().getDiscordId()).findAny();
+                if (any.isPresent()) {
+                    any.get().setPlayNumber(playsAlbumArtist.getPlays());
+                } else {
+                    wrapperReturnNowPlaying.getReturnNowPlayings().add(new ReturnNowPlaying(ap.getLastFMData().getDiscordId(), ap.getLastFMData().getName(), ap.getArtist() + " - " + ap.getAlbum(), playsAlbumArtist.getPlays()));
+                    wrapperReturnNowPlaying.setRows(wrapperReturnNowPlaying.getRows() + 1);
 
+                }
+                wrapperReturnNowPlaying.getReturnNowPlayings().sort(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed());
+            }
+        } catch (LastFmException exception) {
+            //Ignored
+        }
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(ap.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(who.getArtist() + " - " + ap.getAlbum()));
             return null;

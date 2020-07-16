@@ -499,7 +499,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
 
         queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
-        queryString.append("\n  and similarity(c.name,?) > 0.4");
+        queryString.append("\n  and similarity(c.name,?) > 0.8");
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString.toString())) {
             int i = 1;

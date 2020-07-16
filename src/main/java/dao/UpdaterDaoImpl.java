@@ -602,7 +602,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString(), Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(+1, nonExistingId.getArtist());
+            String artist = nonExistingId.getArtist();
+            preparedStatement.setString(+1, artist);
             preparedStatement.setString(2, nonExistingId.getUrl());
             preparedStatement.setBoolean(3, nonExistingId.isUpdateBit());
             preparedStatement.execute();
@@ -613,7 +614,10 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 nonExistingId.setArtistId(generatedKeys.getLong("GENERATED_KEY"));
             } else {
                 try {
-                    long artistId = getArtistId(connection, nonExistingId.getArtist());
+                    if (artist.length() > 400) {
+                        artist = artist.substring(0, 400);
+                    }
+                    long artistId = getArtistId(connection, artist);
                     nonExistingId.setArtistId(artistId);
                 } catch (InstanceNotFoundException e) {
                     throw new SQLException("Creating user failed, no ID obtained.");

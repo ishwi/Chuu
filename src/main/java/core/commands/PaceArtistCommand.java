@@ -18,6 +18,7 @@ import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.apache.commons.text.similarity.LevenshteinDetailedDistance;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -87,12 +88,13 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
 
         TimeFrameEnum time = params.getInnerParams().getTimeFrame();
         LastFMData lastFMData = params.getInnerParams().getLastFMData();
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getInnerParams().getArtist(), 0, null);
+        String artist = params.getInnerParams().getArtist();
+        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
 
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !params.getInnerParams().isNoredirect());
-        BlockingQueue<UrlCapsule> queue = new DiscardableQueue<>(x ->
-                !x.getArtistName().equals(scrobbledArtist.getArtist()
-                ), x -> x, 1);
+        BlockingQueue<UrlCapsule> queue = new DiscardableQueue<>(
+                x -> !x.getArtistName().equalsIgnoreCase(scrobbledArtist.getArtist())
+                , x -> x, 1);
         String lastfm = lastFMData.getName();
         lastFM.getChart(lastfm,
                 time.toApiFormat(),
@@ -104,9 +106,11 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         List<UrlCapsule> objects = new ArrayList<>();
         queue.drainTo(objects);
         if (objects.isEmpty()) {
-            sendMessageQueue(e, "NOT FOUND ");
+            sendMessageQueue(e, artist + " was not found on your top 1k artists" + time.getDisplayString() + ".");
+            return;
         }
         UrlCapsule urlCapsule = objects.get(0);
+        scrobbledArtist.setArtist(urlCapsule.getArtistName());
         int metricPlays = urlCapsule.getPlays();
         int artistPlays;
         if (time.equals(TimeFrameEnum.ALL)) {

@@ -48,7 +48,7 @@ public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> 
 
     @Override
     public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *artist* *[d,w,m,q,s,y]*** username\n" +
+        return "**" + commandName + " *artist* *[d,w,m,q,s,y]* *username***\n" +
                 "\tIf a timeframe it's not specified defaults to " + defaultTFE.toString() + "\n" +
                 "\tIf an username it's not provided it defaults to authors account, only ping and tag format (user#number)\n " +
                 "\tDue to being able to provide an artist name and the timeframe, some" +

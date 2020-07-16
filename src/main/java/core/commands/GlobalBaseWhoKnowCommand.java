@@ -69,7 +69,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
                     x.setDiscordName("Private User #" + atomicInteger.getAndIncrement());
                     break;
                 case DISCORD_NAME:
-                    x.setDiscordName(getUserString(ap.getE(), x.getDiscordId()) + "");
+                    x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername());
                     break;
                 case TAG:
                     x.setDiscordName(ap.getE().getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag());

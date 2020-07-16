@@ -23,12 +23,10 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class HelpCommand extends ConcurrentCommand<CommandParameters> {
     private static final String NO_NAME = "No name provided for this command. Sorry!";
@@ -168,15 +166,29 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
                 description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
                 usageInstructions = (usageInstructions == null || usageInstructions
                         .isEmpty()) ? NO_USAGE : usageInstructions;
-
+                boolean resend = false;
+                String realUsageInstructions = usageInstructions;
+                String remainingUsageInstructions = null;
+                if (realUsageInstructions.length() > 1600) {
+                    int i = usageInstructions.substring(0, 1600).lastIndexOf("\n");
+                    realUsageInstructions = realUsageInstructions.substring(0, i);
+                    remainingUsageInstructions = usageInstructions.substring(i);
+                    resend = true;
+                }
                 //TODO: Replace with a PrivateMessage
+                boolean finalResend = resend;
+                String finalRemainingUsageInstructions = remainingUsageInstructions;
                 channel.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n")
                         .append("**Description:** ").append(description).append("\n")
                         .append("**Aliases:** ").append(String.valueOf(prefix))
                         .append(String.join(", " + prefix, c.getAliases())).append("\n")
                         .append("**Usage:** ")
-                        .append(prefix).append(usageInstructions)
-                        .build()).queue();
+                        .append(prefix).append(realUsageInstructions)
+                        .build()).queue(x -> {
+                    if (finalResend) {
+                        channel.sendMessage(finalRemainingUsageInstructions).queue();
+                    }
+                });
                 return;
             }
         }
