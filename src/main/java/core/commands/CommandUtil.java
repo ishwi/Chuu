@@ -1,5 +1,6 @@
 package core.commands;
 
+import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.spotify.Spotify;
@@ -238,11 +239,11 @@ public class CommandUtil {
     }
 
     public static String getLastFmArtistUserUrl(String artist, String username) {
-        return getLastFmUser(username) + "/library/music/" + encodeUrl(artist);
+        return Chuu.getLastFmId(username) + "/library/music/" + encodeUrl(artist);
     }
 
     public static String getLastFmUser(String username) {
-        return "https://www.last.fm/user/" + encodeUrl(username);
+        return "https://www.last.fm/user/" + encodeUrl(Chuu.getLastFmId(username));
     }
 
     public static String singlePlural(int count, String singular, String plural) {
@@ -303,10 +304,6 @@ public class CommandUtil {
     public static DiscordUserDisplay getUserInfoConsideringGuildOrNot(MessageReceivedEvent e, long discordID) {
         DiscordUserDisplay discordUserDisplay = handleUser(e, discordID);
         return new DiscordUserDisplay(cleanMarkdownCharacter(discordUserDisplay.getUsername()), discordUserDisplay.getUrlImage());
-    }
-
-    public static String sanitizeUserString(String message) {
-        return message.replace("@", "@\u200E");
     }
 
     public static String getLastFMArtistTrack(String artist, String track) {

@@ -1,5 +1,6 @@
 package core.imagerenderer;
 
+import core.Chuu;
 import dao.entities.ResultWrapper;
 import dao.entities.UserArtistComparison;
 import dao.entities.UserInfo;
@@ -70,8 +71,10 @@ public class TasteRenderer {
         Color colorB1 = new Color(rgb2[0], rgb2[1], rgb2[2], 0.8f);
 
         g.setFont(usernameFont);
-        int widht1 = g.getFontMetrics().stringWidth(userInfoLiust.get(0).getUsername());
-        int width2 = g.getFontMetrics().stringWidth(userInfoLiust.get(1).getUsername());
+        String username = userInfoLiust.get(0).getUsername();
+        String username1 = userInfoLiust.get(1).getUsername();
+        int widht1 = g.getFontMetrics().stringWidth(username);
+        int width2 = g.getFontMetrics().stringWidth(username1);
         int totalwidth = widht1 + width2 + 4;
         int disponibleSize = rectangleWidth + 8;
 
@@ -79,8 +82,8 @@ public class TasteRenderer {
             startFont -= 2;
             usernameFont = new Font("Roboto Medium", Font.PLAIN, startFont);
             g.setFont(usernameFont);
-            widht1 = g.getFontMetrics().stringWidth(userInfoLiust.get(0).getUsername());
-            width2 = g.getFontMetrics().stringWidth(userInfoLiust.get(1).getUsername());
+            widht1 = g.getFontMetrics().stringWidth(username);
+            width2 = g.getFontMetrics().stringWidth(username1);
             totalwidth = widht1 + width2 + 4;
         }
         int totalCount = userInfoLiust.stream().mapToInt(UserInfo::getPlayCount).sum();

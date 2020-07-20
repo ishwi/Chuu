@@ -2008,5 +2008,21 @@ public class ChuuService {
         }
     }
 
+    public Set<String> getPrivateLastfmIds() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getPrivateLastfmIds(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 
+
+    public void setPrivateLastfm(long discordId, boolean privateLastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setUserProperty(connection, discordId, "private_lastfm", privateLastfmId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }

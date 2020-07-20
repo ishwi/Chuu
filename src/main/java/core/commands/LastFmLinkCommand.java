@@ -50,6 +50,7 @@ public class LastFmLinkCommand extends ConcurrentCommand<ChuuDataParams> {
             return;
         }
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, parse.getLastFMData().getDiscordId());
+
         sendMessageQueue(e, userInfoConsideringGuildOrNot.getUsername() + "'s Last.fm page is: " + CommandUtil.getLastFmUser(parse.getLastFMData().getName()));
     }
 }

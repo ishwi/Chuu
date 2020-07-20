@@ -24,7 +24,8 @@ public enum UserConfigType {
     REMAINING_MODE("rest"),
     CHART_SIZE("size"),
     PRIVACY_MODE("privacy"),
-    NOTIFY_RATING("rating-notify");
+    NOTIFY_RATING("rating-notify"),
+    PRIVATE_LASTFM("private-lastfm");
 
     private static final Map<String, UserConfigType> ENUM_MAP;
     static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
@@ -66,6 +67,7 @@ public enum UserConfigType {
             case PRIVATE_UPDATE:
             case NOTIFY_IMAGE:
             case NOTIFY_RATING:
+            case PRIVATE_LASTFM:
                 return bool.asMatchPredicate();
             case CHART_SIZE:
                 return ChartParserAux.chartSizePattern.asMatchPredicate();
@@ -105,6 +107,8 @@ public enum UserConfigType {
                 return "Sets how will you appear in the global leaderboard, changing this means users from other servers might be able to contact you directly";
             case NOTIFY_RATING:
                 return "Whether you will get notified or not when a url you have submitted to the random command gets rated by someone else (true = notify, false = don't)";
+            case PRIVATE_LASTFM:
+                return "Setting this to true will mean that your last.fm name will stay private and will not be shared with anyone. (This is different from privacy settings since it affects commands within a server and not cross server)";
             default:
                 return "";
         }
@@ -170,6 +174,9 @@ public enum UserConfigType {
                         case NOTIFY_RATING:
                             privateUpdate = lastFMData != null && lastFMData.isRatingNotify();
                             return String.format("**%s** -> %s", key, privateUpdate);
+                        case PRIVATE_LASTFM:
+                            boolean privateLastfmId = lastFMData != null && lastFMData.isPrivateLastfmId();
+                            return String.format("**%s** -> %s", key, privateLastfmId);
                     }
                     return null;
                 }).

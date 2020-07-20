@@ -53,6 +53,8 @@ public class Chuu {
     private static final LongAdder lastFMMetric = new LongAdder();
     private static Map<Long, RateLimiter> ratelimited;
     private static Map<Long, Character> prefixMap;
+    private static Set<String> privateLastFms;
+    public static final String DEFAULT_LASTFM_ID = "chuubot";
     public static final MultiValuedMap<Long, MyCommand<?>> disabledServersMap = new HashSetValuedHashMap<>();
     public final static MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = new HashSetValuedHashMap<>();
     public final static MultiValuedMap<Pair<Long, Long>, MyCommand<?>> enabledChannelsMap = new HashSetValuedHashMap<>();
@@ -141,6 +143,12 @@ public class Chuu {
         return prefixMap;
     }
 
+    public static String getLastFmId(String lastfmId) {
+        if (privateLastFms.contains(lastfmId)) {
+            return DEFAULT_LASTFM_ID;
+        }
+        return lastfmId;
+    }
 
     public static void incrementMetric() {
         lastFMMetric.increment();
@@ -372,6 +380,7 @@ public class Chuu {
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
                     initDisabledCommands(dao, shard);
+                    initPrivateLastfms(dao);
                     prefixCommand.onStartup(shard);
                     if (!isTest) {
                         commandAdministrator.onStartup(shardManager);
@@ -401,6 +410,18 @@ public class Chuu {
         } catch (LoginException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
+        }
+    }
+
+    private static void initPrivateLastfms(ChuuService dao) {
+        privateLastFms = dao.getPrivateLastfmIds();
+    }
+
+    public static void changePrivacyLastfm(String lastfmId, boolean mode) {
+        if (mode) {
+            privateLastFms.add(lastfmId);
+        } else {
+            privateLastFms.remove(lastfmId);
         }
     }
 

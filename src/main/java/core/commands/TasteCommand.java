@@ -1,5 +1,6 @@
 package core.commands;
 
+import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.TasteRenderer;
@@ -74,7 +75,7 @@ public class TasteCommand extends ConcurrentCommand<TwoUsersParamaters> {
         switch (CommandUtil.getEffectiveMode(params.getFirstUser().getRemainingImagesMode(), params)) {
             case PIE:
             case IMAGE:
-                doImage(e, resultWrapper);
+                doImage(e, resultWrapper, ogDiscordID, secondDiscordId);
                 break;
             case LIST:
                 doList(e, ogDiscordID, secondDiscordId, resultWrapper);
@@ -82,11 +83,19 @@ public class TasteCommand extends ConcurrentCommand<TwoUsersParamaters> {
         }
     }
 
-    private void doImage(MessageReceivedEvent e, ResultWrapper<UserArtistComparison> resultWrapper) throws LastFmException {
+    private void doImage(MessageReceivedEvent e, ResultWrapper<UserArtistComparison> resultWrapper, long firstId, long secondId) throws LastFmException {
         List<String> users = new ArrayList<>();
         users.add(resultWrapper.getResultList().get(0).getUserA());
         users.add(resultWrapper.getResultList().get(0).getUserB());
         List<UserInfo> userInfoList = lastFM.getUserInfo(users);
+        UserInfo userInfo = userInfoList.get(0);
+        if (Chuu.getLastFmId(userInfo.getUsername()).equals(Chuu.DEFAULT_LASTFM_ID)) {
+            userInfo.setUsername(CommandUtil.getUserInfoNotStripped(e, firstId).getUsername());
+        }
+        UserInfo userInfo1 = userInfoList.get(1);
+        if (Chuu.getLastFmId(userInfo1.getUsername()).equals(Chuu.DEFAULT_LASTFM_ID)) {
+            userInfo1.setUsername(CommandUtil.getUserInfoNotStripped(e, secondId).getUsername());
+        }
         BufferedImage image = TasteRenderer.generateTasteImage(resultWrapper, userInfoList);
         sendImage(image, e);
     }

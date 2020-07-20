@@ -65,3 +65,6 @@ alter table weekly_billboard_artist_global_listeners
 
 alter table user
     add column notify_rating boolean NOT NULL DEFAULT true;
+
+alter table user
+    add column private_lastfm boolean NOT NULL DEFAULT false;

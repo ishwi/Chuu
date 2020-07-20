@@ -14,10 +14,10 @@ public class ProfileEntity {
     private int artist;
     private int crowns;
     private int uniques;
-    private int obscurityScore;
+    private int randomCount;
     private String date;
 
-    public ProfileEntity(String username, String discordName, String crownArtist, String uniqueArtist, String uniqueUrl, String crownUrl, String lastfmUrl, String discordUrl, int scrobbles, int albums, int artist, int crowns, int uniques, int obscurityScore, String date) {
+    public ProfileEntity(String username, String discordName, String crownArtist, String uniqueArtist, String uniqueUrl, String crownUrl, String lastfmUrl, String discordUrl, int scrobbles, int albums, int artist, int crowns, int uniques, int randomCount, String date) {
         this.username = username;
         this.discordName = discordName;
         this.crownArtist = crownArtist;
@@ -32,7 +32,7 @@ public class ProfileEntity {
         this.artist = artist;
         this.crowns = crowns;
         this.uniques = uniques;
-        this.obscurityScore = obscurityScore;
+        this.randomCount = randomCount;
     }
 
     public String getDate() {
@@ -147,11 +147,11 @@ public class ProfileEntity {
         this.uniques = uniques;
     }
 
-    public int getObscurityScore() {
-        return obscurityScore;
+    public int getRandomCount() {
+        return randomCount;
     }
 
-    public void setObscurityScore(int obscurityScore) {
-        this.obscurityScore = obscurityScore;
+    public void setRandomCount(int randomCount) {
+        this.randomCount = randomCount;
     }
 }

@@ -1,5 +1,6 @@
 package core.commands;
 
+import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ChartParserAux;
@@ -162,6 +163,18 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                     sendMessageQueue(e, "Now you will get notified whenever an url you uploaded to the random command gets rated");
                 } else {
                     sendMessageQueue(e, "Now you will not get notified whenever an url you uploaded to the random command gets rated");
+                }
+                break;
+            case PRIVATE_LASTFM:
+                b = Boolean.parseBoolean(value);
+                String name = getService().findLastFMData(e.getAuthor().getIdLong()).getName();
+                getService().setPrivateLastfm(e.getAuthor().getIdLong(), b);
+                Chuu.changePrivacyLastfm(name, b);
+                if (b) {
+
+                    sendMessageQueue(e, "Successfully made private the lastfm profile for user " + getUserString(e, e.getAuthor().getIdLong()));
+                } else {
+                    sendMessageQueue(e, "Successfully made non private the the lastfm profile for user " + getUserString(e, e.getAuthor().getIdLong()));
                 }
                 break;
         }

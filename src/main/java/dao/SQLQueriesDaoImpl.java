@@ -2102,6 +2102,25 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         return returnList;
     }
 
+    @Override
+    public Set<String> getPrivateLastfmIds(Connection connection) {
+
+        Set<String> returnList = new HashSet<>();
+
+        String s = "select lastfm_id from user where private_lastfm";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                returnList.add(resultSet.getString(1));
+            }
+        } catch (
+                SQLException throwables) {
+
+            throw new ChuuServiceException(throwables);
+        }
+        return returnList;
+    }
+
 
     private void getScoredAlbums(List<ScoredAlbumRatings> returnList, ResultSet resultSet) throws SQLException {
 

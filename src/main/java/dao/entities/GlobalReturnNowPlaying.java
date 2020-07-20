@@ -1,5 +1,6 @@
 package dao.entities;
 
+import core.Chuu;
 import core.commands.CommandUtil;
 
 import java.util.function.Consumer;
@@ -21,7 +22,7 @@ public class GlobalReturnNowPlaying extends ReturnNowPlaying {
         String discordName = CommandUtil.markdownLessString(getDiscordName());
         if (discordName.startsWith("Private User #")) {
             url = CommandUtil
-                    .getLastFmArtistUserUrl(getArtist(), "chuu");
+                    .getLastFmArtistUserUrl(getArtist(), Chuu.DEFAULT_LASTFM_ID);
         } else {
             url = CommandUtil
                     .getLastFmArtistUserUrl(getArtist(), getLastFMId());

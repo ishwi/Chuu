@@ -104,8 +104,8 @@ public class ProfileMaker {
         GraphicUtils.drawStringNicely(g, s, 1300 - width, baseline, image);
         baseline += increment;
 
-        GraphicUtils.drawStringNicely(g, "Obscurity Score", 25, baseline, image);
-        s = String.valueOf(entity.getObscurityScore());
+        GraphicUtils.drawStringNicely(g, "Total random urls submitted", 25, baseline, image);
+        s = String.valueOf(entity.getRandomCount());
         width = g.getFontMetrics(g.getFont()).stringWidth(s);
         GraphicUtils.drawStringNicely(g, s, 1300 - width, baseline, image);
 

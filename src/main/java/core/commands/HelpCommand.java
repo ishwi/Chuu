@@ -172,7 +172,8 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
                 if (realUsageInstructions.length() > 1600) {
                     int i = usageInstructions.substring(0, 1600).lastIndexOf("\n");
                     realUsageInstructions = realUsageInstructions.substring(0, i);
-                    remainingUsageInstructions = usageInstructions.substring(i);
+                    remainingUsageInstructions = "-" + usageInstructions.substring(i);
+                    ;
                     resend = true;
                 }
                 //TODO: Replace with a PrivateMessage

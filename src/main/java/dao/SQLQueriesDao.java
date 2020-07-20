@@ -5,6 +5,7 @@ import dao.entities.*;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 interface SQLQueriesDao {
 
@@ -124,5 +125,7 @@ interface SQLQueriesDao {
     List<ScoredAlbumRatings> getGlobalTopRandomUrls(Connection connection);
 
     List<ScoredAlbumRatings> getUserTopRatedUrlsByEveryoneElse(Connection connection, long discordId);
+
+    Set<String> getPrivateLastfmIds(Connection connection);
 
 }
