@@ -1964,8 +1964,8 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     @Override
     public List<GlobalStreakEntities> getArtistTopStreaks(Connection connection, Long comboFilter, Long guildId, long artistId) {
         List<GlobalStreakEntities> returnList = new ArrayList<>();
-        @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id," +
-                "first_scrobble_in_streak FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
+        @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id" +
+                "FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
 
         if (guildId != null) {
             queryString += " join user_guild e on d.discord_id = e.discord_id where e.guild_id = ? ";
@@ -1978,7 +1978,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         }
         queryString += " and a.artist_id = ? ";
 
-        queryString += " order by  artist_combo desc,album_combo desc, track_combo desc,first_scrobble_in_streak asc ";
+        queryString += " order by  artist_combo desc,album_combo desc, track_combo desc ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
@@ -1998,13 +1998,12 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
                 String trackName = resultSet.getString("track_name");
 
                 String albumName = resultSet.getString("album_name");
-                Timestamp init = resultSet.getTimestamp("first_scrobble_in_streak");
                 PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString("privacy_mode"));
                 long discordId = resultSet.getLong("discord_id");
                 String lastfm_id = resultSet.getString("lastfm_id");
 
 
-                GlobalStreakEntities streakEntity = new GlobalStreakEntities(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, Instant.ofEpochMilli(init.getTime()), privacyMode, discordId, lastfm_id);
+                GlobalStreakEntities streakEntity = new GlobalStreakEntities(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, null, privacyMode, discordId, lastfm_id);
                 returnList.add(streakEntity);
             }
 

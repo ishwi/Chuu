@@ -130,7 +130,8 @@ public class AlbumDaoImpl implements AlbumDao {
                 "";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setLong(+1, x.getArtistId());
-            preparedStatement.setString(2, x.getAlbum());
+            String album = x.getAlbum();
+            preparedStatement.setString(2, album);
             preparedStatement.setString(3, x.getUrl());
             String albumMbid = x.getAlbumMbid();
             if (albumMbid == null || albumMbid.isBlank()) {
@@ -146,10 +147,13 @@ public class AlbumDaoImpl implements AlbumDao {
                 x.setAlbumId(generatedKeys.getLong("GENERATED_KEY"));
             } else {
                 try {
-                    long albumId = getAlbumIdByName(connection, x.getAlbum(), x.getArtistId());
+                    if (album.length() > 400) {
+                        album = album.substring(0,400);
+                    }
+                    long albumId = getAlbumIdByName(connection, album, x.getArtistId());
                     x.setAlbumId(albumId);
                 } catch (InstanceNotFoundException e) {
-                    Chuu.getLogger().warn("ERROR CREATING {} {} {}", x, x.getAlbum(), x.getArtist());
+                    Chuu.getLogger().warn("ERROR CREATING {} {} {}", x, album, x.getArtist());
                     //throw new SQLException("Creating user failed, no ID obtained.");
                 }
             }

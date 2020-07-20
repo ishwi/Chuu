@@ -119,5 +119,12 @@ public class LastFMData {
         return ratingNotify;
     }
 
+    public String getEffectiveLastFmName() {
+        if (isPrivateUpdate()) {
+            return "chuubot";
+        }
+        return getName();
+    }
+
 
 }

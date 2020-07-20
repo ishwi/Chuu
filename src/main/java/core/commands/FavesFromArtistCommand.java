@@ -71,7 +71,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         List<Track> ai;
         String lastFmName = returned.getLastFMData().getName();
 
-        ai = lastFM.getTopArtistTracks(lastFmName, who.getArtist(), timeframew.toApiFormat());
+        ai = lastFM.getTopArtistTracks(lastFmName, who.getArtist(), timeframew.toApiFormat(), artist);
 
         final String userString = getUserString(e, userId, lastFmName);
         if (ai.isEmpty()) {

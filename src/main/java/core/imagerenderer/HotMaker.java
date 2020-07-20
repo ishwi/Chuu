@@ -101,10 +101,11 @@ public class HotMaker {
             innerYCounter = (int) (rankY + stringBounds.getHeight() * 0.5);
             int previousWeek = hot.getPreviousWeek();
             if (previousWeek == 0) {
+                String numberSubtitle = hot.getPeak() < hot.getPosition() ? "Re-Enter" : "New";
                 g.setColor(newColor);
                 g.setFont(g.getFont().deriveFont(14f).deriveFont(Font.BOLD));
-                stringBounds = g.getFontMetrics().getStringBounds("New", g);
-                g.drawString("New", (int) (FIRST_COLUMN_MIDDLE - stringBounds.getWidth() / 2), innerYCounter + 10);
+                stringBounds = g.getFontMetrics().getStringBounds(numberSubtitle, g);
+                g.drawString(numberSubtitle, (int) (FIRST_COLUMN_MIDDLE - stringBounds.getWidth() / 2), innerYCounter + 10);
             } else {
                 if (previousWeek > hot.getPosition()) {
                     g.drawImage(upboats, FIRST_COLUMN_MIDDLE - upboats.getWidth() / 2, innerYCounter - 2, null);

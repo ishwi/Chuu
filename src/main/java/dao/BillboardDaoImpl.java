@@ -42,18 +42,13 @@ public class BillboardDaoImpl implements BillboardDao {
     public List<BillboardEntity> getBillboard(Connection connection, int week_id, long idLong, boolean doListeners) {
         String table = doListeners ? "weekly_billboard_listeners" : "weekly_billboard_scrobbles";
         String metric = doListeners ? "listeners" : "scrobble_count";
+        String streakFunction = doListeners ? "streak_billboard_track" : "streak_billboard_track_scrobbles";
         @Language("MariaDB") String queryString =
                 "SELECT \n" +
                         "\ta.id,b.name,b.url,week_id,track_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
                         " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id and t.track_name = a.track_name and week_id = a.week_id - 1   ) as last_week,\n" +
                         "(select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id and t.track_name = a.track_name ) as peak,\n" +
-                        "(WITH RECURSIVE cte (week_id) AS\n" +
-                        "(\n" +
-                        "  SELECT week_id from " + table + " where id = @t  and week_id = @t2\n" +
-                        "  UNION ALL\n" +
-                        "  SELECT  b.week_id  from  cte  t join " + table + " b on b.week_id = t.week_id -1 and b.id = @t \n" +
-                        ")\n" +
-                        "SELECT count(*) FROM cte)  streak  \n" +
+                        streakFunction + "(a.id) as streak  \n" +
                         "  from " + table + " a  join artist b on a.artist_id = b.id where guild_id = ? and week_id = ?  order by position asc ," + metric + " desc  \n" +
                         "  \n" +
                         "  \n" +
@@ -95,18 +90,14 @@ public class BillboardDaoImpl implements BillboardDao {
     public List<BillboardEntity> getArtistBillboard(Connection connection, int week_id, long idLong, boolean doListeners) {
         String table = doListeners ? "weekly_billboard_artist_listeners" : "weekly_billboard_artist_scrobbles";
         String metric = doListeners ? "listeners" : "scrobble_count";
+        String streakFunction = doListeners ? "streak_billboard_artist" : "streak_billboard_artist_scrobbles";
+
         @Language("MariaDB") String queryString =
                 "SELECT \n" +
                         "\ta.id,b.name,b.url,week_id," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
                         " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id  and week_id = a.week_id - 1   ) as last_week,\n" +
                         "(select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id ) as peak,\n" +
-                        "(WITH RECURSIVE cte (week_id) AS\n" +
-                        "(\n" +
-                        "  SELECT week_id from " + table + " where id = @t  and week_id = @t2\n" +
-                        "  UNION ALL\n" +
-                        "  SELECT  b.week_id  from  cte  t join " + table + " b on b.week_id = t.week_id -1 and b.id = @t\n" +
-                        ")\n" +
-                        "SELECT count(*) FROM cte)  streak  \n" +
+                        streakFunction + "(a.id) as streak  \n" +
                         "  from " + table + " a  join artist b on a.artist_id = b.id where guild_id = ? and week_id = ?  order by position asc ," + metric + " desc  \n" +
                         "  \n" +
                         "  \n" +
@@ -147,18 +138,14 @@ public class BillboardDaoImpl implements BillboardDao {
     public List<BillboardEntity> getGlobalArtistBillboard(Connection connection, int week_id, boolean doListeners) {
         String table = doListeners ? "weekly_billboard_artist_global_listeners" : "weekly_billboard_artist_global_scrobbles";
         String metric = doListeners ? "listeners" : "scrobble_count";
+        String streakFunction = doListeners ? "streak_global_billboard_artist" : "streak_global_billboard_artist_scrobbles";
+
         @Language("MariaDB") String queryString =
                 "SELECT \n" +
                         "\ta.id,b.name,b.url,week_id," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
                         " (select min(position) from " + table + " t where t.artist_id = a.artist_id and week_id = a.week_id - 1   ) as last_week,\n" +
                         "(select min(position) from " + table + " t where t.artist_id = a.artist_id ) as peak,\n" +
-                        "(WITH RECURSIVE cte (week_id) AS\n" +
-                        "(\n" +
-                        "  SELECT week_id from " + table + " where id = @t  and week_id = @t2\n" +
-                        "  UNION ALL\n" +
-                        "  SELECT  b.week_id  from  cte  t join " + table + " b on b.week_id = t.week_id -1 and b.id = @t \n" +
-                        ")\n" +
-                        "SELECT count(*) FROM cte)  streak  \n" +
+                        streakFunction + "(a.id) as streak  \n" +
                         "  from " + table + " a  join artist b on a.artist_id = b.id where week_id = ?  order by position asc ," + metric + " desc  \n" +
                         "  \n" +
                         "  \n" +
@@ -196,18 +183,15 @@ public class BillboardDaoImpl implements BillboardDao {
     public List<BillboardEntity> getAlbumBillboard(Connection connection, int week_id, long idLong, boolean doListeners) {
         String table = doListeners ? "weekly_billboard_album_listeners" : "weekly_billboard_album_scrobbles";
         String metric = doListeners ? "listeners" : "scrobble_count";
+        String streakFunction = doListeners ? "streak_billboard_album_listeners" : "streak_billboard_album_scrobbles";
+
         @Language("MariaDB") String queryString =
                 "SELECT \n" +
                         "\ta.id,b.name,c.url,week_id,a.album_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
                         " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id and t.album_name = t.album_name  and week_id = a.week_id - 1   ) as last_week,\n" +
                         "(select min(position) from " + table + " t where t.artist_id = a.artist_id and  t.album_name = a.album_name and t.guild_id = a.guild_id ) as peak,\n" +
-                        "(WITH RECURSIVE cte (week_id) AS\n" +
-                        "(\n" +
-                        "  SELECT week_id from " + table + " where id = @t  and week_id = @t2\n" +
-                        "  UNION ALL\n" +
-                        "  SELECT  b.week_id  from  cte  t join " + table + " b on b.week_id = t.week_id -1 and b.id = @t\n" +
-                        ")\n" +
-                        "SELECT count(*) FROM cte)  streak  \n" +
+                        streakFunction + "(a.id) as streak  \n" +
+
                         "  from " + table + " a  join artist b on a.artist_id = b.id " +
                         " left join album c on a.artist_id = c.artist_id and c.album_name = a.album_name" +
                         " where guild_id = ? and week_id = ?  order by position asc ," + metric + " desc  \n" +
@@ -236,18 +220,15 @@ public class BillboardDaoImpl implements BillboardDao {
     public List<BillboardEntity> getGlobalAlbumBillboard(Connection connection, int week_id, boolean doListeners) {
         String table = doListeners ? "weekly_billboard_album_global_listeners" : "weekly_billboard_album_global_scrobbles";
         String metric = doListeners ? "listeners" : "scrobble_count";
+        String streakFunction = doListeners ? "streak_global_billboard_album_listeners" : "streak_global_billboard_album_scrobbles";
+
         @Language("MariaDB") String queryString =
                 "SELECT \n" +
                         "\ta.id,b.name,c.url,week_id,a.album_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
                         " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.album_name = t.album_name  and week_id = a.week_id - 1   ) as last_week,\n" +
                         "(select min(position) from " + table + " t where t.artist_id = a.artist_id and  t.album_name = t.album_name  ) as peak,\n" +
-                        "(WITH RECURSIVE cte (week_id) AS\n" +
-                        "(\n" +
-                        "  SELECT week_id from " + table + " where id = @t  and week_id = @t2\n" +
-                        "  UNION ALL\n" +
-                        "  SELECT  b.week_id  from  cte  t join " + table + " b on b.week_id = t.week_id -1 and b.id = @t\n" +
-                        ")\n" +
-                        "SELECT count(*) FROM cte)  streak  \n" +
+                        streakFunction + "(a.id) as streak  \n" +
+
                         "  from " + table + " a  join artist b on a.artist_id = b.id " +
                         " left join album c on a.artist_id = c.artist_id and c.album_name = a.album_name" +
                         " where week_id = ?  order by position asc ," + metric + " desc  \n" +
@@ -539,18 +520,14 @@ public class BillboardDaoImpl implements BillboardDao {
     public List<BillboardEntity> getGlobalBillboard(Connection connection, int weekId, boolean doListeners) {
         String table = doListeners ? "weekly_billboard_global_listeners" : "weekly_billboard_global_scrobbles";
         String metric = doListeners ? "listeners" : "scrobble_count";
+        String streakFunction = doListeners ? "streak_global_billboard_track" : "streak_billboard_global_track_scrobbles";
+
         @Language("MariaDB") String queryString =
                 "SELECT \n" +
                         "\ta.id,b.name,b.url,week_id,track_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
                         " (select min(position) from " + table + " t where t.artist_id = a.artist_id  and t.track_name = a.track_name and week_id = a.week_id - 1   ) as last_week,\n" +
                         "(select min(position) from " + table + " t where t.artist_id = a.artist_id and t.track_name = a.track_name ) as peak,\n" +
-                        "(WITH RECURSIVE cte (week_id) AS\n" +
-                        "(\n" +
-                        "  SELECT week_id from " + table + " where id = @t  and week_id = @t2\n" +
-                        "  UNION ALL\n" +
-                        "  SELECT  b.week_id  from  cte  t join " + table + " b on b.week_id = t.week_id -1 and b.id = @t\n" +
-                        ")\n" +
-                        "SELECT count(*) FROM cte)  streak  \n" +
+                        streakFunction + "(a.id) as streak  \n" +
                         "  from " + table + " a  join artist b on a.artist_id = b.id where week_id = ?  order by position asc ," + metric + " desc  \n" +
                         "  \n" +
                         "  \n" +

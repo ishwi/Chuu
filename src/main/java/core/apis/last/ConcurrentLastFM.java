@@ -1074,7 +1074,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     }
 
-    public List<Track> getTopArtistTracks(String username, String artist, String weekly) throws LastFmException {
+    public List<Track> getTopArtistTracks(String username, String artist, String weekly, String correction) throws LastFmException {
         final int SIZE_LIMIT = 10;
 
         List<Track> trackList = new ArrayList<>();
@@ -1109,7 +1109,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             obj = obj.getJSONObject("toptracks");
 //			if (page== 2)
 //				requestedSize = obj.getJSONObject("@attr").getInt("total");
-            limit = Math.min(10, obj.getJSONObject("@attr").getInt("totalPages"));
+            limit = Math.min(5, obj.getJSONObject("@attr").getInt("totalPages"));
             if (limit == 0) {
                 //TODO CHECK
                 return trackList;
@@ -1126,7 +1126,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
                 String artistName = trackObj.getJSONObject("artist").getString("name");
 
-                if (artistName.equalsIgnoreCase(artist)) {
+                if (artistName.equalsIgnoreCase(artist) || correction.equalsIgnoreCase(artist)) {
                     String trackName = trackObj.getString("name");
                     int duration = trackObj.getInt("duration");
                     Track track = new Track(artist, trackName, userplaycount, false, duration);
