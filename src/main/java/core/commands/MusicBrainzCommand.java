@@ -23,6 +23,7 @@ import org.knowm.xchart.PieChart;
 import java.time.Year;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -70,42 +71,56 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartYearParameters param) throws LastFmException {
         BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
-        boolean isByTime = param.isByTime();
 
-        BiFunction<JSONObject, Integer, UrlCapsule> parser;
-        if (param.getTimeFrameEnum().equals(TimeFrameEnum.DAY)) {
-            if (isByTime)
-                parser = TrackDurationAlbumArtistChart.getDailyArtistAlbumDurationParser(param, lastFM.getTrackDurations(param.getLastfmID(), TimeFrameEnum.WEEK));
-            else {
-                parser = AlbumChart.getDailyAlbumParser(param);
-            }
+        boolean isByTime = param.isByTime();
+        List<AlbumInfo> nonEmptyMbid;
+        List<AlbumInfo> emptyMbid;
+
+        if (!isByTime && param.getTimeFrameEnum().equals(TimeFrameEnum.ALL)) {
+            List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumByMbid(param.getLastfmID());
+            AtomicInteger atomicInteger = new AtomicInteger(0);
+
+            nonEmptyMbid = userAlbumByMbid.stream().peek(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays())))
+                    .map(x -> new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist()))
+                    .filter(albumInfo -> !(albumInfo.getMbid() == null || albumInfo.getMbid().isEmpty()))
+                    .collect(Collectors.toList());
+            emptyMbid = Collections.emptyList();
         } else {
-            if (isByTime)
-                parser = TrackDurationAlbumArtistChart.getTimedParser(param);
-            else {
-                parser = ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID());
+            BiFunction<JSONObject, Integer, UrlCapsule> parser;
+            if (param.getTimeFrameEnum().equals(TimeFrameEnum.DAY)) {
+                if (isByTime)
+                    parser = TrackDurationAlbumArtistChart.getDailyArtistAlbumDurationParser(param, lastFM.getTrackDurations(param.getLastfmID(), TimeFrameEnum.WEEK));
+                else {
+                    parser = AlbumChart.getDailyAlbumParser(param);
+                }
+            } else {
+                if (isByTime)
+                    parser = TrackDurationAlbumArtistChart.getTimedParser(param);
+                else {
+                    parser = ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID());
+                }
             }
+
+            lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum().toApiFormat(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
+            //List of obtained elements
+            Map<Boolean, List<AlbumInfo>> results =
+                    queue.stream()
+                            .map(capsule ->
+                                    new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()))
+                            .collect(Collectors.partitioningBy(albumInfo -> albumInfo.getMbid().isEmpty()));
+
+            nonEmptyMbid = results.get(false);
+            emptyMbid = results.get(true);
         }
 
-        lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum().toApiFormat(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
         Year year = param.getYear();
-        //List of obtained elements
-        Map<Boolean, List<AlbumInfo>> results =
-                queue.stream()
-                        .map(capsule ->
-                                new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()))
-                        .collect(Collectors.partitioningBy(albumInfo -> albumInfo.getMbid().isEmpty()));
-
-        List<AlbumInfo> nonEmptyMbid = results.get(false);
-        List<AlbumInfo> emptyMbid = results.get(true);
-
-
         List<AlbumInfo> albumsMbizMatchingYear;
         if (isByTime) {
             return handleTimedChart(param, nonEmptyMbid, emptyMbid, queue);
         }
         albumsMbizMatchingYear = mb.listOfYearReleases(nonEmptyMbid, year);
         List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(emptyMbid, year);
+        //CompletableFuture.supplyAsync( x -> getService().insertAlbum(x))
         emptyMbid.removeAll(mbFoundBYName);
 
         int discogsMetrics = 0;

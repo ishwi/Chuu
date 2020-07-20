@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.imageio.ImageIO;
 import javax.validation.constraints.NotNull;
@@ -69,13 +70,14 @@ public class CommandUtil {
             if (!newUrl.isEmpty()) {
                 dao.upsertUrl(newUrl, scrobbledArtist.getArtistId());
             } else {
-                newUrl = spotify.getArtistUrlImage(scrobbledArtist.getArtist());
+                Pair<String, String> urlAndId = spotify.getUrlAndId(scrobbledArtist.getArtist());
+                newUrl = urlAndId.getLeft();
                 if (newUrl.isBlank()) {
                     scrobbledArtist.setUrl("");
                     scrobbledArtist.setUpdateBit(false);
                     dao.upsertArtistSad(scrobbledArtist);
                 } else {
-                    dao.upsertSpotify(newUrl, scrobbledArtist.getArtistId());
+                    dao.upsertSpotify(newUrl, scrobbledArtist.getArtistId(), urlAndId.getRight());
                 }
             }
         } catch (DiscogsServiceException ignored) {

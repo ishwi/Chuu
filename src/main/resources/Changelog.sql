@@ -68,3 +68,9 @@ alter table user
 
 alter table user
     add column private_lastfm boolean NOT NULL DEFAULT false;
+
+alter table artist
+    add column `mbid` varchar(36) character set ascii DEFAULT NULL;
+
+alter table artist
+    add column `spotify_id` varchar(40) character set ascii DEFAULT NULL;

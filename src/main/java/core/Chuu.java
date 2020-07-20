@@ -6,6 +6,7 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.*;
 import core.exceptions.ChuuServiceException;
 import core.otherlisteners.AwaitReady;
+import core.scheduledtasks.ArtistMbidUpdater;
 import core.scheduledtasks.ImageUpdaterThread;
 import core.scheduledtasks.SpotifyUpdaterThread;
 import core.scheduledtasks.UpdaterThread;
@@ -397,7 +398,7 @@ public class Chuu {
 
 
             scheduledExecutorService.scheduleAtFixedRate(
-                    new UpdaterThread(dao, true), 0, 60,
+                    new UpdaterThread(dao, true), 0, 120,
                     TimeUnit.SECONDS);
 
             if (!isTest) {
@@ -406,6 +407,7 @@ public class Chuu {
                         new SpotifyUpdaterThread(dao), 20, 21,
                         TimeUnit.MINUTES);
             }
+            scheduledExecutorService.scheduleAtFixedRate(new ArtistMbidUpdater(dao), 1, 2, TimeUnit.MINUTES);
 
         } catch (LoginException e) {
             Chuu.getLogger().warn(e.getMessage(), e);

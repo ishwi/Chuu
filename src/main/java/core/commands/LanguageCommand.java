@@ -4,7 +4,6 @@ import core.apis.last.TopEntity;
 import core.apis.last.chartentities.ChartUtil;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.imagerenderer.BandRendered;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.IPieableLanguage;
 import core.imagerenderer.util.IPieableMap;
@@ -22,14 +21,10 @@ import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -84,11 +79,18 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
 
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(3000);
         String name = parameters.getLastFMData().getName();
-        lastFM.getChart(name, parameters.getTime().toApiFormat(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(parameters.getTime(), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, name), queue);
-
         Long discordId = parameters.getLastFMData().getDiscordId();
-        List<AlbumInfo> withMbid = queue.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid(), null, null)).collect(Collectors.toList());
-        Map<Language, Long> languageCountByMbid = this.mb.getLanguageCountByMbid(withMbid);
+        List<AlbumInfo> albumInfos;
+        if (parameters.getTime().equals(TimeFrameEnum.ALL)) {
+            albumInfos = getService().getUserAlbumByMbid(name).stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
+                    new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
+
+        } else {
+            lastFM.getChart(name, parameters.getTime().toApiFormat(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(parameters.getTime(), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, name), queue);
+
+            albumInfos = queue.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid(), null, null)).collect(Collectors.toList());
+        }
+        Map<Language, Long> languageCountByMbid = this.mb.getLanguageCountByMbid(albumInfos);
 
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         String userName = userInformation.getUsername();

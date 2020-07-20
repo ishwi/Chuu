@@ -597,7 +597,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public void insertArtistSad(Connection connection, ScrobbledArtist nonExistingId) {
         StringBuilder mySql =
-                new StringBuilder("INSERT INTO artist (name,url,url_status) VALUES (?,?,?)");
+                new StringBuilder("INSERT INTO artist (name,url,url_status,mbid) VALUES (?,?,?,?)");
         mySql.append(" on duplicate key update correction_status = correction_status");
 
         try {
@@ -606,6 +606,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
             preparedStatement.setString(+1, artist);
             preparedStatement.setString(2, nonExistingId.getUrl());
             preparedStatement.setBoolean(3, nonExistingId.isUpdateBit());
+            preparedStatement.setString(4, nonExistingId.getArtistMbid());
+
             preparedStatement.execute();
 
             ResultSet ids = preparedStatement.getResultSet();
@@ -843,10 +845,11 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
-    public void updateUrlStatus(Connection con, long artistId) {
-        String queryString = "UPDATE artist SET url_status = 0 WHERE id = ?";
+    public void updateUrlStatus(Connection con, long artistId, String spotifyId) {
+        String queryString = "UPDATE artist SET url_status = 0, spotify_id = ?  WHERE id = ?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
-            preparedStatement.setLong(1, artistId);
+            preparedStatement.setString(1, spotifyId);
+            preparedStatement.setLong(2, artistId);
             preparedStatement.execute();
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1222,7 +1225,58 @@ public class UpdaterDaoImpl implements UpdaterDao {
         }
     }
 
+    @Override
+    public UsersWrapper getRandomUser(Connection connection) {
+        @Language("MariaDB") String queryString =
+                "SELECT a.discord_id,a.role, a.lastfm_id,(if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) controling " +
+                        "FROM user a   " +
+                        "ORDER BY  rand() LIMIT 1";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
+            /* Fill "preparedStatement". */
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+
+                String name = resultSet.getString("a.lastFm_Id");
+                long discordID = resultSet.getLong("a.discord_ID");
+                Timestamp timestamp = resultSet.getTimestamp("updating");
+                Timestamp controlTimestamp = resultSet.getTimestamp("controling");
+                Role role = Role.valueOf(resultSet.getString("a.role"));
+
+                return new UpdaterUserWrapper(discordID, name, ((int) timestamp.toInstant()
+                        .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()), role);
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return null;
+
+    }
+
+    @Override
+    public void updateMbids(Connection connection, List<ScrobbledArtist> artistData) {
+        StringBuilder mySql =
+                new StringBuilder("INSERT INTO artist (name,mbid) VALUES (?,?)");
+
+        mySql.append(",(?,?)".repeat(Math.max(0, artistData.size() - 1)));
+        mySql.append(" on duplicate key update mbid = values(mbid) ");
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            for (int i = 0; i < artistData.size(); i++) {
+                preparedStatement.setString(2 * i + 1, artistData.get(i).getArtist());
+                preparedStatement.setString(2 * i + 2, artistData.get(i).getArtistMbid());
+            }
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
 }
 
 

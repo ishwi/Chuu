@@ -89,7 +89,7 @@ interface UpdaterDao {
 
     void deleteAliasById(Connection connection, long aliasId) throws InstanceNotFoundException;
 
-    void updateUrlStatus(Connection connection, long artistId);
+    void updateUrlStatus(Connection connection, long artistId,String spotifyId);
 
     OptionalLong checkArtistUrlExists(Connection connection, long artistId, String urlParsed);
 
@@ -133,4 +133,8 @@ interface UpdaterDao {
     void insertCombo(Connection connection, StreakEntity combo, long discordID, long artistId, @Nullable Long albumId);
 
     void addUrlRating(Connection connection, long author, int rating, String url);
+
+    UsersWrapper getRandomUser(Connection connection);
+
+    void updateMbids(Connection connection, List<ScrobbledArtist> artistData);
 }

@@ -128,4 +128,6 @@ interface SQLQueriesDao {
 
     Set<String> getPrivateLastfmIds(Connection connection);
 
+    List<ScrobbledAlbum> getUserAlbums(Connection connection, String lastfmId);
+
 }

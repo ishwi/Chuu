@@ -71,7 +71,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         String s = "You can also introduce a number to vary the number of genres shown in the pie," +
                 "defaults to 10";
 
-        TimerFrameParser timerFrameParser = new TimerFrameParser(getService(), TimeFrameEnum.YEAR);
+        TimerFrameParser timerFrameParser = new TimerFrameParser(getService(), TimeFrameEnum.ALL);
         timerFrameParser.addOptional(new OptionalEntity("--artist", "use artists instead of albums for the genres"));
         timerFrameParser.addOptional(new OptionalEntity("--list", "display in list format"));
 
@@ -122,8 +122,15 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
             }
             map = musicBrainz.genreCountByartist(albumInfos);
         } else {
-            List<AlbumInfo> albumInfos = lastFM.getTopAlbums(username, timeframe.toApiFormat(), 3000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
-                    .collect(Collectors.toList());
+            List<AlbumInfo> albumInfos;
+            if (timeframe.equals(TimeFrameEnum.ALL)) {
+                albumInfos = getService().getUserAlbumByMbid(username).stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
+                        new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
+
+            } else {
+                albumInfos = lastFM.getTopAlbums(username, timeframe.toApiFormat(), 3000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
+                        .collect(Collectors.toList());
+            }
             if (albumInfos.isEmpty()) {
                 sendMessageQueue(e, "Was not able to find any genre in " + usableString + "'s top 3000 albums" + returned.getTime().getDisplayString() + " on Musicbrainz");
                 return;

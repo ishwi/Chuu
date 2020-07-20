@@ -18,5 +18,15 @@ public class ArtistSongParser extends ArtistAlbumParser {
         return new ArtistAlbumParameters(e, np.getArtistName(), np.getSongName(), lastFMData);
     }
 
+    @Override
+    public void setUpErrorMessages() {
+        super.setUpErrorMessages();
+        errorMessages.replace(5, "You need to use - to separate artist and song!");
+        errorMessages
+                .replace(7, "You need to add the escape character **\"\\\\\"** in the **\"-\"** that appear on the album or song.\n " +
+                        "\tFor example: Artist - So**\\\\-**ng  ");
+
+    }
+
 
 }

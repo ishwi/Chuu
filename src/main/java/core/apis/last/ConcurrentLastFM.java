@@ -866,8 +866,11 @@ public class ConcurrentLastFM {//implements LastFMService {
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject artistObj = arr.getJSONObject(i);
                 String artistName = artistObj.getString("name");
+                String mbid = artistObj.getString("mbid");
                 int count = artistObj.getInt("playcount");
-                scrobbledArtistData.add(new ScrobbledArtist(artistName, count, null));
+                ScrobbledArtist e = new ScrobbledArtist(artistName, count, null);
+                e.setArtistMbid(mbid);
+                scrobbledArtistData.add(e);
             }
         }
         return scrobbledArtistData;

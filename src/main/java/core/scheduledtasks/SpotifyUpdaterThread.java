@@ -4,6 +4,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Set;
 
@@ -30,7 +31,8 @@ public class SpotifyUpdaterThread implements Runnable {
             String url;
             System.out.println("Working with artist " + artistDatum.getArtist());
 
-            url = spotifyApi.getArtistUrlImage(artistDatum.getArtist());
+            Pair<String, String> urlAndId = spotifyApi.getUrlAndId(artistDatum.getArtist());
+            url = urlAndId.getLeft();
             if (url != null) {
                 if (url.isEmpty()) {
                     artistDatum.setUrl("");
@@ -38,7 +40,7 @@ public class SpotifyUpdaterThread implements Runnable {
                     dao.updateImageStatus(artistDatum.getArtistId(), "", false);
                 } else {
                     System.out.println("INSERTED : " + artistDatum.getArtist());
-                    dao.upsertSpotify(url, artistDatum.getArtistId());
+                    dao.upsertSpotify(url, artistDatum.getArtistId(), urlAndId.getRight());
                 }
             }
 

@@ -2,6 +2,7 @@ package core.commands;
 
 import com.neovisionaries.i18n.CountryCode;
 import core.apis.last.TopEntity;
+import core.apis.last.chartentities.AlbumChart;
 import core.apis.last.chartentities.ChartUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -37,7 +39,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
 
     @Override
     public ChartableParser<ChartableGenreParameters> getParser() {
-        return new GenreChartParser(getService(), TimeFrameEnum.WEEK, lastFM);
+        return new GenreChartParser(getService(), TimeFrameEnum.ALL, lastFM);
     }
 
     @Override
@@ -58,19 +60,33 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartableGenreParameters params) throws LastFmException {
 
-        BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(4000);
         String name = params.getLastfmID();
-        lastFM.getChart(name, params.getTimeFrameEnum().toApiFormat(), 4000, 1,
-                TopEntity.ALBUM,
-                ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, name), queue);
+        List<AlbumInfo> albums;
+        BlockingQueue<UrlCapsule> queue;
+        if (params.getTimeFrameEnum().equals(TimeFrameEnum.ALL)) {
 
-        ArrayList<UrlCapsule> c = new ArrayList<>();
-        queue.drainTo(c);
-        List<AlbumInfo> collect = c.stream()
-                .filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid())).collect(Collectors.toList());
-        Set<String> strings = this.mb.albumsGenre(collect, params.getGenreParameters().getGenre());
+            List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumByMbid(name);
+            albums = userAlbumByMbid.stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
+                    new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
+            queue = userAlbumByMbid.stream().map(x -> new AlbumChart(x.getUrl(), 0, x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), params.isWriteTitles(), params.isWritePlays())).collect(Collectors.toCollection(LinkedBlockingDeque::new));
+
+
+        } else {
+            queue = new ArrayBlockingQueue<>(4000);
+
+            lastFM.getChart(name, params.getTimeFrameEnum().toApiFormat(), 4000, 1,
+                    TopEntity.ALBUM,
+                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, name), queue);
+            ArrayList<UrlCapsule> c = new ArrayList<>();
+            queue.drainTo(c);
+            albums = c.stream()
+                    .filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid())).collect(Collectors.toList());
+        }
+
+
+        Set<String> strings = this.mb.albumsGenre(albums, params.getGenreParameters().getGenre());
         AtomicInteger ranker = new AtomicInteger(0);
-        LinkedBlockingQueue<UrlCapsule> collect1 = c.stream()
+        LinkedBlockingQueue<UrlCapsule> collect1 = queue.stream()
                 .filter(x -> x.getMbid() != null && !x.getMbid().isBlank() && strings.contains(x.getMbid()))
                 .sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
                 .peek(x -> x.setPos(ranker.getAndIncrement()))

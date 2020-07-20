@@ -10,6 +10,7 @@ import com.wrapper.spotify.requests.authorization.client_credentials.ClientCrede
 import com.wrapper.spotify.requests.data.search.SearchItemRequest;
 import com.wrapper.spotify.requests.data.search.simplified.SearchAlbumsRequest;
 import core.Chuu;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.core5.http.ParseException;
 
 import java.io.IOException;
@@ -137,6 +138,32 @@ public class Spotify {
     }
 
     public String getArtistUrlImage(String artist) {
+        Artist[] artists = searchArtist(artist);
+        if (artist == null) {
+            return "";
+        }
+        for (Artist item : artists) {
+            Image[] images = item.getImages();
+            if (images.length != 0)
+                return images[0].getUrl();
+        }
+        return "";
+    }
+
+    public Pair<String, String> getUrlAndId(String artist) {
+        Artist[] artists = searchArtist(artist);
+        if (artist == null) {
+            return Pair.of("", "");
+        }
+        for (Artist item : artists) {
+            Image[] images = item.getImages();
+            if (images.length != 0)
+                return Pair.of(images[0].getUrl(), item.getId());
+        }
+        return Pair.of("", "");
+    }
+
+    private Artist[] searchArtist(String artist) {
         initRequest();
         artist = artist.contains(":") ? "\"" + artist + "\"" : artist;
         SearchItemRequest tracksRequest =
@@ -148,15 +175,11 @@ public class Spotify {
         String returned = "";
         try {
             SearchResult searchResult = tracksRequest.execute();
-
-            for (Artist item : searchResult.getArtists().getItems()) {
-                Image[] images = item.getImages();
-                if (images.length != 0)
-                    returned = images[0].getUrl();
-            }
+            return searchResult.getArtists().getItems();
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
         }
-        return returned;
+        return null;
     }
+
 }

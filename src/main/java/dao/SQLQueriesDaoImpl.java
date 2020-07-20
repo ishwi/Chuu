@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.sql.*;
-import java.time.Instant;
 import java.util.*;
 
 public class SQLQueriesDaoImpl implements SQLQueriesDao {
@@ -2119,6 +2118,33 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             throw new ChuuServiceException(throwables);
         }
         return returnList;
+    }
+
+    @Override
+    public List<ScrobbledAlbum> getUserAlbums(Connection connection, String lastfmId) {
+
+        List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
+        String s = "select b.album_name,c.name,b.url,b.mbid,a.playnumber  from scrobbled_album a join album b on a.album_id = b.id join artist c on a.artist_id = c.id  where a.lastfm_id = ? order by a.playnumber desc";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            preparedStatement.setString(1, lastfmId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String album = resultSet.getString(1);
+                String artist = resultSet.getString(2);
+                String url = resultSet.getString(3);
+                String mbid = resultSet.getString(4);
+                int playnumber = resultSet.getInt(5);
+
+                ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, artist, url, mbid);
+                scrobbledAlbum.setCount(playnumber);
+                scrobbledAlbums.add(scrobbledAlbum);
+            }
+        } catch (
+                SQLException throwables) {
+
+            throw new ChuuServiceException(throwables);
+        }
+        return scrobbledAlbums;
     }
 
 

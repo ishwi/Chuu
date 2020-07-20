@@ -457,9 +457,9 @@ public class ChuuService {
 
     }
 
-    public void upsertSpotify(String url, long artistId, long discordId) {
+    public void upsertSpotify(String url, long artistId, long discordId, String spotifyId) {
         try (Connection connection = dataSource.getConnection()) {
-            updaterDao.updateUrlStatus(connection, artistId);
+            updaterDao.updateUrlStatus(connection, artistId, spotifyId);
             if (url != null && !url.isBlank()) {
                 updaterDao.upsertSpotify(connection, url, artistId, discordId);
             }
@@ -468,8 +468,8 @@ public class ChuuService {
         }
     }
 
-    public void upsertSpotify(String url, long artistId) {
-        this.upsertSpotify(url, artistId, Chuu.getShardManager().getShards().get(0).getSelfUser().getIdLong());
+    public void upsertSpotify(String url, long artistId, String spotifyId) {
+        this.upsertSpotify(url, artistId, Chuu.getShardManager().getShards().get(0).getSelfUser().getIdLong(), spotifyId);
     }
 
     public void addLogo(long guildId, BufferedImage in) {
@@ -2025,4 +2025,31 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+
+    public UsersWrapper getRandomUser() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return updaterDao.getRandomUser(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void updateMbids(List<ScrobbledArtist> artistData) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.updateMbids(connection, artistData);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScrobbledAlbum> getUserAlbumByMbid(String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getUserAlbums(connection, lastfmId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 }
