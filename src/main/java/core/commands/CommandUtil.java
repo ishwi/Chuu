@@ -241,7 +241,7 @@ public class CommandUtil {
     }
 
     public static String getLastFmArtistUserUrl(String artist, String username) {
-        return Chuu.getLastFmId(username) + "/library/music/" + encodeUrl(artist);
+        return getLastFmUser(username) + "/library/music/" + encodeUrl(artist);
     }
 
     public static String getLastFmUser(String username) {

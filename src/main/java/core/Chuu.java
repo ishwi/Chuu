@@ -54,7 +54,7 @@ public class Chuu {
     private static final LongAdder lastFMMetric = new LongAdder();
     private static Map<Long, RateLimiter> ratelimited;
     private static Map<Long, Character> prefixMap;
-    private static Set<String> privateLastFms;
+    private static Set<String> privateLastFms = new HashSet<>();
     public static final String DEFAULT_LASTFM_ID = "chuubot";
     public static final MultiValuedMap<Long, MyCommand<?>> disabledServersMap = new HashSetValuedHashMap<>();
     public final static MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = new HashSetValuedHashMap<>();
@@ -418,7 +418,7 @@ public class Chuu {
     }
 
     private static void initPrivateLastfms(ChuuService dao) {
-        privateLastFms = dao.getPrivateLastfmIds();
+        privateLastFms.addAll(dao.getPrivateLastfmIds());
     }
 
     public static void changePrivacyLastfm(String lastfmId, boolean mode) {

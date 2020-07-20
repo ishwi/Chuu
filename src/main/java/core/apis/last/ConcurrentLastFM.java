@@ -1129,7 +1129,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
                 String artistName = trackObj.getJSONObject("artist").getString("name");
 
-                if (artistName.equalsIgnoreCase(artist) || correction.equalsIgnoreCase(artist)) {
+                if (artistName.equalsIgnoreCase(artist) || correction.equalsIgnoreCase(artistName)) {
                     String trackName = trackObj.getString("name");
                     int duration = trackObj.getInt("duration");
                     Track track = new Track(artist, trackName, userplaycount, false, duration);

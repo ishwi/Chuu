@@ -1964,7 +1964,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     public List<GlobalStreakEntities> getArtistTopStreaks(Connection connection, Long comboFilter, Long guildId, long artistId) {
         List<GlobalStreakEntities> returnList = new ArrayList<>();
         @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id" +
-                "FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
+                " FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
 
         if (guildId != null) {
             queryString += " join user_guild e on d.discord_id = e.discord_id where e.guild_id = ? ";

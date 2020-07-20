@@ -153,7 +153,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
                         setAuthor(String.format("%s's top streaks in %s ", scrobbledArtist.getArtist(), CommandUtil.cleanMarkdownCharacter(title)))
                 .setThumbnail(scrobbledArtist.getUrl())
                 .setDescription(a)
-                .setFooter(String.format("%s has a total of %d %s!", CommandUtil.cleanMarkdownCharacter(title), topStreaks.size(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
+                .setFooter(String.format("%s has a total of %d %s %s!", CommandUtil.cleanMarkdownCharacter(title), topStreaks.size(), scrobbledArtist.getArtist(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
         MessageBuilder messageBuilder = new MessageBuilder();
         e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 new Reactionary<>(topStreaks, message1, 5, embedBuilder));
