@@ -130,4 +130,6 @@ interface SQLQueriesDao {
 
     List<ScrobbledAlbum> getUserAlbums(Connection connection, String lastfmId);
 
+
+    ResultWrapper<ScrobbledAlbum> getGuildTopAlbum(Connection connection, Long guildID, int limit, boolean doCount);
 }

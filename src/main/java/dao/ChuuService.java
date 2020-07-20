@@ -2052,4 +2052,12 @@ public class ChuuService {
         }
     }
 
+    public ResultWrapper<ScrobbledAlbum> getGuildAlbumTop(Long guildID, int limit, boolean doCount) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getGuildTopAlbum(connection, guildID, limit, doCount);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }

@@ -13,6 +13,11 @@ import java.util.List;
 public class ChartYearParser extends ChartableParser<ChartYearParameters> {
     private final int searchSpace;
 
+    public ChartYearParser(ChuuService dao, TimeFrameEnum defaultTFE) {
+        super(dao, defaultTFE);
+        this.searchSpace = 1;
+    }
+
     public ChartYearParser(ChuuService dao, int searchSpace) {
         super(dao, TimeFrameEnum.WEEK);
         this.searchSpace = searchSpace;

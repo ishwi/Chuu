@@ -377,6 +377,8 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new RandomLinkRatingCommand(dao)))
                 .addEventListeners(help.registerCommand(new TopRatedRandomUrls(dao)))
                 .addEventListeners(help.registerCommand(new MyTopRatedRandomUrls(dao)))
+                .addEventListeners(help.registerCommand(new GuildTopAlbumsCommand(dao)))
+                .addEventListeners(help.registerCommand(new ServerAOTY(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
