@@ -1483,69 +1483,84 @@ public class ChuuService {
                 Map<Boolean, List<RYMImportRating>> map = ratings.stream().collect(Collectors.partitioningBy(albumRating -> albumRating.getId() == -1L));
                 List<RYMImportRating> knownAlbums = map.get(false);
                 List<RYMImportRating> unknownAlbums = map.get(true);
+                if (!unknownAlbums.isEmpty()) {
+                    rymDao.setServerTempTable(connection, unknownAlbums);
+                    //Returns a map with rym_id -> artist_id
 
-                rymDao.setServerTempTable(connection, unknownAlbums);
-                //Returns a map with rym_id -> artist_id
+
+                    Map<Long, Long> artists = new HashMap<>(ratings.size());
+
+                    Map<Long, Long> artistsByLocalizedJoinedNames = rymDao.findArtistsByLocalizedJoinedNames(connection);
+                    addToMap(connection, artists, artistsByLocalizedJoinedNames);
+
+                    Map<Long, Long> artistsByLocalizedNames = rymDao.findArtistsByLocalizedNames(connection);
+                    addToMap(connection, artists, artistsByLocalizedNames);
+
+                    Map<Long, Long> artistsByJoinedNames = rymDao.findArtistsByJoinedNames(connection);
+                    addToMap(connection, artists, artistsByJoinedNames);
+
+                    Map<Long, Long> artistsByNames = rymDao.findArtistsByNames(connection);
+                    addToMap(connection, artists, artistsByNames);
 
 
-                Map<Long, Long> artists = rymDao.findArtists(connection);
+                    Map<Boolean, List<RYMImportRating>> map1 = unknownAlbums.stream().collect(Collectors.partitioningBy(x -> {
+                        Long aLong = artists.get(x.getRYMid());
+                        return aLong != null && aLong > 0;
+                    }));
 
-                Map<Boolean, List<RYMImportRating>> map1 = unknownAlbums.stream().collect(Collectors.partitioningBy(x -> {
-                    Long aLong = artists.get(x.getRYMid());
-                    return aLong != null && aLong > 0;
-                }));
+                    // List of artist that were found in last step
+                    List<RYMImportRating> ratingsWithKnownArtist = map1.get(true);
+                    //We set the found id
+                    for (RYMImportRating RYMImportRating : ratingsWithKnownArtist) {
+                        Long aLong = artists.get(RYMImportRating.getRYMid());
+                        RYMImportRating.setArtist_id(aLong);
+                    }
+                    //This were not found
+                    List<RYMImportRating> ratingsWithUnknownArtist = map1.get(false);
 
-                // List of artist that were found in last step
-                List<RYMImportRating> ratingsWithKnownArtist = map1.get(true);
-                //We set the found id
-                for (RYMImportRating RYMImportRating : ratingsWithKnownArtist) {
-                    Long aLong = artists.get(RYMImportRating.getRYMid());
-                    RYMImportRating.setArtist_id(aLong);
+                    //This were the ids that were found, we reduce a bit the size of the table
+                    Collection<Long> rymIdsToDelete = artists.keySet();
+                    rymDao.deletePartialTempTable(connection, Set.copyOf(rymIdsToDelete));
+
+                    //Over the remaining items we do an auxiliar search
+                    Map<Long, Long> artistsAuxiliar = rymDao.findArtistsAuxiliar(connection);
+                    map1 = ratingsWithUnknownArtist.stream().collect(Collectors.partitioningBy(x -> {
+                        Long aLong = artistsAuxiliar.get(x.getRYMid());
+                        return aLong != null && aLong > 0;
+                    }));
+
+                    //These were found on the auxiliar search
+                    List<RYMImportRating> auxiliarFoundArtists = map1.get(true);
+                    List<RYMImportRating> notFoundAuxiiliar = map1.get(false);
+                    for (RYMImportRating RYMImportRating : auxiliarFoundArtists) {
+                        Long aLong = artistsAuxiliar.get(RYMImportRating.getRYMid());
+                        RYMImportRating.setArtist_id(aLong);
+                    }
+
+                    ratingsWithUnknownArtist.addAll(notFoundAuxiiliar);
+                    ratingsWithKnownArtist.addAll(auxiliarFoundArtists);
+
+
+                    for (RYMImportRating RYMImportRating : ratingsWithUnknownArtist) {
+                        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(RYMImportRating.getFirstName() + " " + RYMImportRating.getLastName(), 0, null);
+                        updaterDao.insertArtistSad(connection, scrobbledArtist);
+                        RYMImportRating.setArtist_id(scrobbledArtist.getArtistId());
+                    }
+                    //KnownAlbumvs vs Ratings WithKnownArtist
+                    // Now we have on ratingsw with known artists all ratings with unknown album
+                    ratingsWithKnownArtist.addAll(ratingsWithUnknownArtist);
+
+                    for (RYMImportRating RYMImportRating : ratingsWithKnownArtist) {
+                        updaterDao.insertAlbumSad(connection, RYMImportRating);
+                    }
+
+                    knownAlbums.addAll(ratingsWithKnownArtist);
+                    knownAlbums = knownAlbums.stream()
+                            .collect(Collectors.groupingBy(RYMImportRating::getId, Collectors.toList())).entrySet().stream()
+                            // Dont think is equivalent :thinking:
+                            .map(rymImportRatings -> rymImportRatings.getValue().stream().max(Comparator.comparingInt(RYMImportRating::getRating)).orElse(null))
+                            .filter(Objects::nonNull).collect(Collectors.toList());
                 }
-                //This were not found
-                List<RYMImportRating> ratingsWithUnknownArtist = map1.get(false);
-
-                //This were the ids that were found, we reduce a bit the size of the table
-                Collection<Long> rymIdsToDelete = artists.keySet();
-                rymDao.deletePartialTempTable(connection, Set.copyOf(rymIdsToDelete));
-
-                //Over the remaining items we do an auxiliar search
-                Map<Long, Long> artistsAuxiliar = rymDao.findArtistsAuxiliar(connection);
-                map1 = ratingsWithUnknownArtist.stream().collect(Collectors.partitioningBy(x -> {
-                    Long aLong = artistsAuxiliar.get(x.getRYMid());
-                    return aLong != null && aLong > 0;
-                }));
-
-                //These were found on the auxiliar search
-                List<RYMImportRating> auxiliarFoundArtists = map1.get(true);
-                List<RYMImportRating> notFoundAuxiiliar = map1.get(false);
-                for (RYMImportRating RYMImportRating : auxiliarFoundArtists) {
-                    Long aLong = artistsAuxiliar.get(RYMImportRating.getRYMid());
-                    RYMImportRating.setArtist_id(aLong);
-                }
-                ratingsWithUnknownArtist.addAll(notFoundAuxiiliar);
-                ratingsWithKnownArtist.addAll(auxiliarFoundArtists);
-
-
-                for (RYMImportRating RYMImportRating : ratingsWithUnknownArtist) {
-                    ScrobbledArtist scrobbledArtist = new ScrobbledArtist(RYMImportRating.getFirstName() + " " + RYMImportRating.getLastName(), 0, null);
-                    updaterDao.insertArtistSad(connection, scrobbledArtist);
-                    RYMImportRating.setArtist_id(scrobbledArtist.getArtistId());
-                }
-                //KnownAlbumvs vs Ratings WithKnownArtist
-                // Now we have on ratingsw with known artists all ratings with unknown album
-                ratingsWithKnownArtist.addAll(ratingsWithUnknownArtist);
-
-                for (RYMImportRating RYMImportRating : ratingsWithKnownArtist) {
-                    updaterDao.insertAlbumSad(connection, RYMImportRating);
-                }
-
-                knownAlbums.addAll(ratingsWithKnownArtist);
-                knownAlbums = knownAlbums.stream()
-                        .collect(Collectors.groupingBy(RYMImportRating::getId, Collectors.toList())).entrySet().stream()
-                        // Dont think is equivalent :thinking:
-                        .map(rymImportRatings -> rymImportRatings.getValue().stream().max(Comparator.comparingInt(RYMImportRating::getRating)).orElse(null))
-                        .filter(Objects::nonNull).collect(Collectors.toList());
 
                 updaterDao.deleteAllRatings(connection, userId);
                 Savepoint savepoint = connection.setSavepoint();
@@ -1564,6 +1579,11 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    private void addToMap(Connection connection, Map<Long, Long> artists, Map<Long, Long> artistsByLocalizedNames) {
+        artists.putAll(artistsByLocalizedNames.entrySet().stream().filter(x -> x.getValue() != 1).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        rymDao.deletePartialTempTable(connection, artistsByLocalizedNames.entrySet().stream().filter(x -> x.getValue() != 1).map(Map.Entry::getKey).collect(Collectors.toSet()));
     }
 
     public AlbumRatings getRatingsByName(long idLong, String album, long artistId) {

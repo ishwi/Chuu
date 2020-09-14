@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -74,9 +75,11 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         if (combo.getAlbCounter() > 1) {
             albumId = CommandUtil.albumvalidate(getService(), artist, lastFM, combo.getCurrentAlbum());
         }
-        if (combo.getaCounter() >= 20) {
-            if (combo.gettCounter() > 5050) {
-                //Handle this case if it didnt existed
+
+        if (combo.getaCounter() >= 3) {
+            if (combo.gettCounter() >= StreakEntity.MAX_STREAK) {
+                //Only one allowed Max Streak per user
+                combo.setStreakStart(Instant.EPOCH);
             }
             Long finalAlbumId = albumId;
             CompletableFuture.runAsync(() -> getService().insertCombo(combo, discordID, artist.getArtistId(), finalAlbumId));

@@ -1140,7 +1140,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
     public void insertAlbumSad(Connection connection, RYMImportRating x) {
         StringBuilder mySql =
                 new StringBuilder("INSERT IGNORE INTO album (artist_id,album_name,rym_id,release_year) VALUES (?,?,?,?)");
-        mySql.append(" ON DUPLICATE KEY UPDATE release_year =  LEAST(release_year,values(release_year))");
+        mySql.append(" ON DUPLICATE KEY UPDATE release_year =  LEAST(release_year,values(release_year)), rym_id = if(rym_id is null,values(rym_id),rym_id)");
+
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString(), Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setLong(+1, x.getArtist_id());

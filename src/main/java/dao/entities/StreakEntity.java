@@ -3,13 +3,14 @@ package dao.entities;
 import java.time.Instant;
 
 public class StreakEntity {
+    public static final short MAX_STREAK = 6001;
     private final String currentArtist;
     private final int aCounter;
     private final String currentAlbum;
     private final int albCounter;
     private final String currentSong;
     private final int tCounter;
-    private final Instant streakStart;
+    private Instant streakStart;
 
     public StreakEntity(String currentArtist, int aCounter, String currentAlbum, int albCounter, String currentSong, int tCounter, Instant streakStart) {
         this.currentArtist = currentArtist;
@@ -47,5 +48,9 @@ public class StreakEntity {
 
     public Instant getStreakStart() {
         return streakStart;
+    }
+
+    public void setStreakStart(Instant streakStart) {
+        this.streakStart = streakStart;
     }
 }

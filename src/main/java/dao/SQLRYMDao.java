@@ -13,6 +13,14 @@ public interface SQLRYMDao {
 
     Map<Long, Long> findArtists(Connection connection);
 
+    Map<Long, Long> findArtistsByLocalizedJoinedNames(Connection connection);
+
+    Map<Long, Long> findArtistsByLocalizedNames(Connection connection);
+
+    Map<Long, Long> findArtistsByJoinedNames(Connection connection);
+
+    Map<Long, Long> findArtistsByNames(Connection connection);
+
     Map<Long, Long> findArtistsAuxiliar(Connection connection);
 
     void insertRatings(Connection connection, List<RYMImportRating> knownAlbums, long ownerId);

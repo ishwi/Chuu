@@ -31,7 +31,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
 
             queryBody =
                     "                                insert into temp_rating(rym_id,last_name,first_name,first_localized_name,last_localized_name) values %s";
-            String sql = String.format(queryBody, ratings.isEmpty() ? null : String.join(",", Collections.nCopies(ratings.size(), "(?,?,?,?,?)")));
+            String sql = String.format(queryBody, ratings.isEmpty() ? (null) : String.join(",", Collections.nCopies(ratings.size(), "(?,?,?,?,?)")));
             try (PreparedStatement preparedStatement2 = connection.prepareStatement(sql)) {
 
                 int i = 1;
@@ -75,6 +75,95 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
         }
         return returnedMap;
     }
+
+    @Override
+    public Map<Long, Long> findArtistsByLocalizedJoinedNames(Connection connection) {
+        HashMap<Long, Long> returnedMap = new HashMap<>();
+        String s = "Select b.id,a.rym_id from temp_rating a left join artist b " +
+                " on  " +
+                " concat(a.first_localized_name,' ',a.last_localized_name)= name ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                long artist_id = resultSet.getLong(1);
+                long rymId = resultSet.getLong(2);
+                returnedMap.put(rymId, artist_id);
+
+            }
+        } catch (SQLException throwables) {
+            throw new ChuuServiceException(throwables);
+        }
+        return returnedMap;
+    }
+
+    @Override
+    public Map<Long, Long> findArtistsByLocalizedNames(Connection connection) {
+        HashMap<Long, Long> returnedMap = new HashMap<>();
+        String s = "Select b.id,a.rym_id from temp_rating a left join artist b " +
+                " on  " +
+                "a.last_localized_name = name ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                long artist_id = resultSet.getLong(1);
+                long rymId = resultSet.getLong(2);
+                returnedMap.put(rymId, artist_id);
+
+            }
+        } catch (SQLException throwables) {
+            throw new ChuuServiceException(throwables);
+        }
+        return returnedMap;
+    }
+
+    @Override
+    public Map<Long, Long> findArtistsByJoinedNames(Connection connection) {
+        HashMap<Long, Long> returnedMap = new HashMap<>();
+        String s = "Select b.id,a.rym_id from temp_rating a left join artist b " +
+                " on  " +
+                "a.last_name = name ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                long artist_id = resultSet.getLong(1);
+                long rymId = resultSet.getLong(2);
+                returnedMap.put(rymId, artist_id);
+
+            }
+        } catch (SQLException throwables) {
+            throw new ChuuServiceException(throwables);
+        }
+        return returnedMap;
+    }
+
+    @Override
+    public Map<Long, Long> findArtistsByNames(Connection connection) {
+        HashMap<Long, Long> returnedMap = new HashMap<>();
+        String s = "Select b.id,a.rym_id from temp_rating a left join artist b " +
+                " on  " +
+                " concat(a.first_name,' ',a.last_name)= name ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                long artist_id = resultSet.getLong(1);
+                long rymId = resultSet.getLong(2);
+                returnedMap.put(rymId, artist_id);
+
+            }
+        } catch (SQLException throwables) {
+            throw new ChuuServiceException(throwables);
+        }
+        return returnedMap;
+    }
+
 
     @Override
     public Map<Long, Long> findArtistsAuxiliar(Connection connection) {
