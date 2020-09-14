@@ -61,9 +61,11 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
             LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
             List<Affinity> serverAffinity = getService().getServerAffinity(lastFMData.getName(), e.getGuild().getIdLong(), AffinityCommand.DEFAULT_THRESHOLD);
             if (serverAffinity.isEmpty()) {
-                sendMessageQueue(e, "Couldn't get you any recommendation :(");
-                return;
-
+                serverAffinity = getService().getServerAffinity(lastFMData.getName(), e.getGuild().getIdLong(), 1);
+                if (serverAffinity.isEmpty()) {
+                    sendMessageQueue(e, "Couldn't get you any recommendation :(");
+                    return;
+                }
             }
             TreeMap<Float, Affinity> integerAffinityTreeMap = new TreeMap<>();
             float counter = 1;

@@ -9,6 +9,7 @@ import core.parsers.params.WordParameter;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class SetCommand extends ConcurrentCommand<WordParameter> {
     public SetCommand(ChuuService dao) {

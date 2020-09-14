@@ -3,7 +3,7 @@ package dao.entities;
 import java.util.regex.Pattern;
 
 public class Genre {
-    private static Pattern regex = Pattern.compile("(?:(?: and )|[ _&/-])");
+    private static final Pattern regex = Pattern.compile("(?:(?: and )|[ _&/-])");
     private String genreName;
     private String representativeArtist;
 
@@ -41,7 +41,7 @@ public class Genre {
 
         Genre genre = (Genre) o;
 
-        return mapString(genreName).equals(mapString(genre.genreName));
+        return mapString(genreName).equalsIgnoreCase(mapString(genre.genreName));
     }
 
     private String mapString(String string) {

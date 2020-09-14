@@ -188,7 +188,7 @@ public class BillboardDaoImpl implements BillboardDao {
         @Language("MariaDB") String queryString =
                 "SELECT \n" +
                         "\ta.id,b.name,c.url,week_id,a.album_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
-                        " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id and t.album_name = t.album_name  and week_id = a.week_id - 1   ) as last_week,\n" +
+                        " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id and t.album_name = a.album_name  and week_id = a.week_id - 1   ) as last_week,\n" +
                         "(select min(position) from " + table + " t where t.artist_id = a.artist_id and  t.album_name = a.album_name and t.guild_id = a.guild_id ) as peak,\n" +
                         streakFunction + "(a.id) as streak  \n" +
 
@@ -225,8 +225,8 @@ public class BillboardDaoImpl implements BillboardDao {
         @Language("MariaDB") String queryString =
                 "SELECT \n" +
                         "\ta.id,b.name,c.url,week_id,a.album_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
-                        " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.album_name = t.album_name  and week_id = a.week_id - 1   ) as last_week,\n" +
-                        "(select min(position) from " + table + " t where t.artist_id = a.artist_id and  t.album_name = t.album_name  ) as peak,\n" +
+                        " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.album_name = a.album_name  and week_id = a.week_id - 1   ) as last_week,\n" +
+                        "(select min(position) from " + table + " t where t.artist_id = a.artist_id and  t.album_name = a.album_name  ) as peak,\n" +
                         streakFunction + "(a.id) as streak  \n" +
 
                         "  from " + table + " a  join artist b on a.artist_id = b.id " +

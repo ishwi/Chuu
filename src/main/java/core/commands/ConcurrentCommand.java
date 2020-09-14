@@ -19,14 +19,6 @@ abstract class ConcurrentCommand<T extends CommandParameters> extends MyCommand<
 
     @Override
     protected void measureTime(MessageReceivedEvent e) {
-        executor.execute(() -> {
-                    long startTime = System.currentTimeMillis();
-                    handleCommand(e);
-                    long endTime = System.currentTimeMillis();
-                    long timeElapsed = endTime - startTime;
-                    System.out.println("Execution time in milliseconds " + getName() + " : " + timeElapsed);
-                    System.out.println();
-                }
-        );
+        executor.execute(() -> super.measureTime(e));
     }
 }

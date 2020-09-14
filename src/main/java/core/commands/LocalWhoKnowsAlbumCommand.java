@@ -92,14 +92,19 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
         long albumId = CommandUtil.albumvalidate(getService(), ap
                 .getScrobbledArtist(), lastFM, ap.getAlbum());
         if (albumId == -1) {
-            sendMessageQueue(ap.getE(), "Coudn't confirm the album " + ap.getAlbum() + " by " + ap.getScrobbledArtist().getArtist() + " exists :(");
+            sendMessageQueue(ap.getE(), "Couldn't confirm the album " + ap.getAlbum() + " by " + ap.getScrobbledArtist().getArtist() + " exists :(");
             return null;
         }
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.getService().getWhoKnowsAlbums(10, albumId, ap.getE().getGuild().getIdLong()) : this.getService().getWhoKnowsAlbums(Integer.MAX_VALUE, albumId, ap.getE().getGuild().getIdLong());
         wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist() + " - " + ap.getAlbum());
         try {
+
             AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(ap.getLastFMData().getName(), ap.getArtist(), ap.getAlbum());
+            if (playsAlbumArtist.getAlbumUrl() != null && !playsAlbumArtist.getAlbumUrl().isBlank()) {
+                getService().updateAlbumImage(albumId, playsAlbumArtist.getAlbumUrl());
+                wrapperReturnNowPlaying.setUrl(playsAlbumArtist.getAlbumUrl());
+            }
             if (playsAlbumArtist.getPlays() > 0) {
                 Optional<ReturnNowPlaying> any = wrapperReturnNowPlaying.getReturnNowPlayings().stream().filter(x -> x.getDiscordId() == ap.getLastFMData().getDiscordId()).findAny();
                 if (any.isPresent()) {

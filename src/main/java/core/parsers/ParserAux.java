@@ -7,6 +7,7 @@ import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.concurrent.Task;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +42,8 @@ public class ParserAux {
                 if (join.isBlank()) {
                     return e.getAuthor();
                 }
+
+
                 Member memberByTag = null;
                 if (user.matcher(join).matches()) {
                     memberByTag = e.getGuild().getMemberByTag(join);
@@ -188,19 +191,17 @@ public class ParserAux {
             }
             return getLastFMData(first.map(Member::getUser), message, dao, e);
 
-        } else {
-            List<Member> membersByName = e.getGuild().getMembersByName(message, true);
-            if (!membersByName.isEmpty()) {
-                Optional<Member> user = membersByName.stream().findFirst();
-                if (!biPredicate.test(user.get())) {
-                    throw new InstanceNotFoundException(user.get().getIdLong());
-                }
-                return getLastFMData(Optional.of(user.get().getUser()), message, dao, e);
-            } else {
-                long discordIdFromLastfm = dao.getDiscordIdFromLastfm(message, e.getGuild().getIdLong());
-                return getLastFMData(Optional.ofNullable(e.getGuild().getJDA().getUserById(discordIdFromLastfm)), message, dao, e);
-            }
         }
+        List<Member> membersByName = e.getGuild().getMembersByName(message, true);
+        if (!membersByName.isEmpty()) {
+            Optional<Member> user = membersByName.stream().findFirst();
+            if (!biPredicate.test(user.get())) {
+                throw new InstanceNotFoundException(user.get().getIdLong());
+            }
+            return getLastFMData(Optional.of(user.get().getUser()), message, dao, e);
+        }
+        long discordIdFromLastfm = dao.getDiscordIdFromLastfm(message, e.getGuild().getIdLong());
+        return getLastFMData(Optional.ofNullable(e.getGuild().getJDA().getUserById(discordIdFromLastfm)), message, dao, e);
     }
 
     public String[] getMessage() {

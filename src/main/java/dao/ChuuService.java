@@ -2060,4 +2060,15 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+
+    public void updateAlbumImage(long albumId, String albumUrl) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            updaterDao.updateAlbumImage(connection, albumId, albumUrl);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
 }

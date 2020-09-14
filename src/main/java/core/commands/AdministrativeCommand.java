@@ -79,6 +79,22 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
             Guild guild = jda.getGuildById(key);
             if (guild != null) {
                 //Get all members in guild
+
+                //Task<Void> voidTask = guild.loadMembers(Chuu::caching);
+//                //Get all members in guild
+//                voidTask.onSuccess((Void t) -> {
+//                    List<Long> usersToDelete;
+//                    List<Member> memberList = guild.getMembers();
+//                    //Gets all ids
+//                    List<Long> guildList = memberList.stream().map(x -> x.getUser().getIdLong())
+//                            .collect(Collectors.toList());
+//
+//                    //if user in app but not in guild -> mark to delete
+//                    usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser))
+//                            .collect(Collectors.toList());
+//                    usersToDelete.forEach(u -> getService().removeUserFromOneGuildConsequent(u, key));
+//                    Chuu.getLogger().info("Deleted Users: {}", usersToDelete.size());
+//                });
                 List<Member> memberList = guild.getMembers();
                 //Gets all ids
                 List<Long> guildList = memberList.stream().map(x -> x.getUser().getIdLong())

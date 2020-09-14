@@ -1277,6 +1277,25 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
 
     }
+
+    @Override
+    public void updateAlbumImage(Connection connection, long albumId, String albumUrl) {
+        @Language("MariaDB") String queryString = "UPDATE album SET url = ? WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+
+            int i = 1;
+            preparedStatement.setLong(i++, albumId);
+            preparedStatement.setString(i++, albumUrl);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
 }
 
 

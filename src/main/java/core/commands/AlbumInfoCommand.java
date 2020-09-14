@@ -75,7 +75,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                             (String.format("%02d:%02d minutes", albumSummary.getTotalDuration() / 60, albumSummary.getTotalDuration() % 60))
                             , true);
         }
-        embedBuilder.setImage(albumSummary.getAlbumUrl().isBlank() ? null : albumSummary.getAlbumUrl())
+        embedBuilder.setImage(albumSummary.getAlbumUrl())
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(artist.getUrl());
         messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();

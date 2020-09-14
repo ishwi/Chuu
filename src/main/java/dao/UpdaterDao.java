@@ -137,4 +137,7 @@ interface UpdaterDao {
     UsersWrapper getRandomUser(Connection connection);
 
     void updateMbids(Connection connection, List<ScrobbledArtist> artistData);
+
+    void updateAlbumImage(Connection connection, long albumId, String albumUrl);
+
 }

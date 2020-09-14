@@ -64,7 +64,7 @@ public class ServerAOTY extends ChartableCommand<ChartYearParameters> {
         }
         List<AlbumInfo> nonEmptyMbid;
 
-        ResultWrapper<ScrobbledAlbum> rapper = getService().getGuildAlbumTop(params.getE().getGuild().getIdLong(), 10_000, false);
+        ResultWrapper<ScrobbledAlbum> rapper = getService().getGuildAlbumTop(params.getE().getGuild().getIdLong(), 4_000, false);
         List<ScrobbledAlbum> userAlbumByMbid = rapper.getResultList();
         AtomicInteger atomicInteger = new AtomicInteger(0);
 

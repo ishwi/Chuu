@@ -5,6 +5,7 @@ import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.*;
 import core.exceptions.ChuuServiceException;
+import core.exceptions.InstanceNotFoundException;
 import core.otherlisteners.AwaitReady;
 import core.scheduledtasks.ArtistMbidUpdater;
 import core.scheduledtasks.ImageUpdaterThread;
@@ -13,6 +14,7 @@ import core.scheduledtasks.UpdaterThread;
 import dao.ChuuService;
 import dao.entities.Metrics;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -24,6 +26,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
@@ -54,7 +57,7 @@ public class Chuu {
     private static final LongAdder lastFMMetric = new LongAdder();
     private static Map<Long, RateLimiter> ratelimited;
     private static Map<Long, Character> prefixMap;
-    private static Set<String> privateLastFms = new HashSet<>();
+    private static final Set<String> privateLastFms = new HashSet<>();
     public static final String DEFAULT_LASTFM_ID = "chuubot";
     public static final MultiValuedMap<Long, MyCommand<?>> disabledServersMap = new HashSetValuedHashMap<>();
     public final static MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = new HashSetValuedHashMap<>();
@@ -236,11 +239,13 @@ public class Chuu {
             logger.info("Made {} petitions in the last 5 minutes", l);
         }, 5, 5, TimeUnit.MINUTES);
         ratelimited = dao.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
+
         MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
 
         AtomicInteger counter = new AtomicInteger(0);
         IEventManager customManager = new CustomInterfacedEventManager(0);
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL)
+                //.setMemberCachePolicy(Chuu.cacheMember)
                 .disableCache(EnumSet.allOf(CacheFlag.class))
                 .setBulkDeleteSplittingEnabled(false)
                 .setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
@@ -398,7 +403,6 @@ public class Chuu {
 
             shardManager = builder.build();
 
-
             scheduledExecutorService.scheduleAtFixedRate(
                     new UpdaterThread(dao, true), 0, 120,
                     TimeUnit.SECONDS);
@@ -476,4 +480,24 @@ public class Chuu {
     public static ChuuService getDao() {
         return dao;
     }
+/*
+    public static MemberCachePolicy cacheMember = Chuu::caching;
+
+    public static boolean caching(Member l) {
+        Chuu.logger.warn("testing user " + l.getEffectiveName());
+
+        Member prevOccurence = l.getGuild().getMemberCache().getElementById(l.getId());
+        if (prevOccurence != null) {
+            Chuu.logger.warn("Member already on cache " + l.getEffectiveName());
+            return true;
+        }
+        try {
+            dao.findLastFMData(l.getUser().getIdLong());
+            Chuu.logger.warn("Member added " + l.getEffectiveName());
+            return true;
+        } catch (InstanceNotFoundException exception) {
+            Chuu.logger.warn("Rejected " + l.getEffectiveName());
+            return false;
+        }
+    }*/
 }

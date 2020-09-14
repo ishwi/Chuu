@@ -48,10 +48,10 @@ public class OnlyChartSizeParser extends ChartableParser<ChartSizeParameters> {
             this.sendError(getErrorMessage(6), e);
             return null;
         }
-        ChartMode guildEmbedConfig;
-        LastFMData lastfmFromID = findLastfmFromID(e.getAuthor(), e);
 
-        return new ChartSizeParameters(e, x, y, lastfmFromID.getChartMode(), lastfmFromID);
+        LastFMData lastFMData = atTheEndOneUser(e, chartParserAux.getMessage());
+
+        return new ChartSizeParameters(e, x, y, lastFMData.getChartMode(), lastFMData);
     }
 
     @Override

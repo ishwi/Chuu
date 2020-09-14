@@ -385,10 +385,10 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
                 "        a.gid as mbiz  \n" +
                 " FROM\n" +
                 " musicbrainz.artist a join \n" +
-                " musicbrainz.area b" +
-                " join musicbrainz.iso_3166_1 c  on b.id=c.area " +
+                " musicbrainz.area b " +
                 " on a.area = b.id" +
-                "  WHERE b.type = 1" +
+                " join musicbrainz.iso_3166_1 c  on b.id=c.area " +
+                "  WHERE b.type = 1 or b.type" +
                 "   and c.code = ? " +
                 "   and a.gid in (");
 
