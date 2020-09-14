@@ -132,7 +132,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         embedBuilder.setTitle(getTitle(ap, usable)).
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
                 .setColor(CommandUtil.randomColor());
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel())
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build())
                 .queue(message1 ->
                         new Reactionary<>(wrapperReturnNowPlaying
                                 .getReturnNowPlayings(), message1, embedBuilder));

@@ -121,7 +121,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
                         .setThumbnail(giverUI.getUrlImage())
                         .setColor(CommandUtil.randomColor())
                         .setDescription(s);
-                new MessageBuilder(embedBuilder.build()).sendTo(e.getChannel()).queue();
+                e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
             }
         }
     }

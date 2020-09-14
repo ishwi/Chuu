@@ -153,6 +153,6 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
                 .addField("Total Artist Plays:", String.valueOf(currentPresence.getSum()), false);
 
         MessageBuilder messageBuilder = new MessageBuilder();
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
     }
 }

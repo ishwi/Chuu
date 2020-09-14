@@ -126,6 +126,6 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                 .addField("Bio:", CommandUtil.cleanMarkdownCharacter(summary.getSummary()), false)
                 .setImage(scrobbledArtist.getUrl())
                 .setColor(CommandUtil.randomColor());
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
     }
 }

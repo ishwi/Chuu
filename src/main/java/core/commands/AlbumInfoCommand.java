@@ -78,7 +78,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
         embedBuilder.setImage(albumSummary.getAlbumUrl())
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(artist.getUrl());
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
 
     }
 }

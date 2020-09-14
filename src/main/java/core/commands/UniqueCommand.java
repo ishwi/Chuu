@@ -78,7 +78,7 @@ public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setFooter(String.format("%s has %d%s unique artists!%n", CommandUtil.markdownLessUserString(userInfo.getUsername(), resultWrapper.getDiscordId(), e), rows, isGlobal() ? " global" : ""), null);
 
         MessageBuilder messageBuilder = new MessageBuilder();
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(m ->
                 new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder));
 
     }

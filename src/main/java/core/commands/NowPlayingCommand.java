@@ -39,7 +39,7 @@ public class NowPlayingCommand extends NpCommand {
                 .setDescription(a);
 
         MessageBuilder messageBuilder = new MessageBuilder();
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
     }
 
     @Override

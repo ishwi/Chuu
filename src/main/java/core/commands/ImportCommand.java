@@ -196,7 +196,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
                 .setTitle("Import In Progress")
                 .setFooter("Total users to import: " + arr.length())
                 .setThumbnail("https://cdnjs.cloudflare.com/ajax/libs/prettyPhoto/3.1.6/images/prettyPhoto/dark_rounded/loader.gif");
-        Message complete = messageBuilder.setEmbed(embedBuilder.build()).sendTo(privateChannel).complete();
+        Message complete = e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).complete();
 
         final Queue<Callback> queue = new ArrayDeque<>();
         final int[] counter = new int[]{0};

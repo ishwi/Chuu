@@ -80,7 +80,7 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
         }
 
         MessageBuilder messageBuilder = new MessageBuilder();
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
 
 
     }

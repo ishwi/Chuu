@@ -154,7 +154,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
         embedBuilder.setImage(validable.getUrl());
         embedBuilder.setTitle("Who knows " + artist + " globally?");
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
 
     }
 

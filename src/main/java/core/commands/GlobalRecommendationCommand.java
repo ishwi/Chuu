@@ -139,7 +139,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
                 embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
                         .setColor(CommandUtil.randomColor())
                         .setDescription(s);
-                new MessageBuilder(embedBuilder.build()).sendTo(e.getChannel()).queue();
+                e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
             }
         }
     }

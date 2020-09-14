@@ -151,7 +151,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
                         (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
                 .setTitle(title)
                 .setDescription(a);
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(mes ->
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(mes ->
                 new Reactionary<>(list, mes, embedBuilder));
     }
 }

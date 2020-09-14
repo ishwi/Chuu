@@ -79,6 +79,6 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
                 .addField("Total artists:", artistCount + " artists", true)
                 .build();
 
-        new MessageBuilder().setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
     }
 }

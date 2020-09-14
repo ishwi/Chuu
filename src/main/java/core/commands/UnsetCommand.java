@@ -55,7 +55,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("User Deletion Confirmation")
                 .setDescription(String.format("%s, are you sure you want to delete all your info from the bot?", userString));
-        new MessageBuilder(embedBuilder.build()).sendTo(e.getChannel())
+        e.getChannel().sendMessage(new MessageBuilder(embedBuilder.build()).build())
                 .queue(message -> new Confirmator(embedBuilder, message, idLong,
                         () -> getService().removeUserCompletely(idLong), () -> {
                 }

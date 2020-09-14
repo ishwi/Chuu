@@ -111,7 +111,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
                 .setAuthor(String.format("%s's artist resume in %s", (uInfo.getUsername()), s), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
                 .setThumbnail(thumbnail)
                 .setFooter(footer);
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(message ->
                 new Reactionary<>(collect, message, embedBuilder));
     }
 

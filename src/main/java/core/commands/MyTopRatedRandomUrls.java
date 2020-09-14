@@ -86,10 +86,7 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
                 .setThumbnail(url)
                 .setColor(CommandUtil.randomColor());
 
-        new
-                MessageBuilder().
-                setEmbed(embedBuilder.build()).
-                sendTo(e.getChannel()).
+        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).
                 queue(message ->
                         new Reactionary<>(list, message, embedBuilder));
     }

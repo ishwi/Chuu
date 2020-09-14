@@ -122,7 +122,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
                 .setFooter(String.format("%s has %d%s%s", CommandUtil.markdownLessUserString(userName, discordId, e), count, count == 1 ? " language" : " languages", usableTime), null)
                 .setTitle(title)
                 .setDescription(a);
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(mes ->
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(mes ->
                 new Reactionary<>(stringedList, mes, 15, embedBuilder));
     }
 

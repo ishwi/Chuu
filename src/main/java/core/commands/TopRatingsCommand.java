@@ -77,7 +77,7 @@ public class TopRatingsCommand extends ListCommand<ScoredAlbumRatings, CommandPa
                 .setFooter(String.format(e.getJDA().getSelfUser().getName() + " users have rated a total of %s albums with an average of %s!", rymServerStats.getNumberOfRatings(), formatter.format(rymServerStats.getAverage() / 2f)), null)
                 .setColor(CommandUtil.randomColor());
 
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(message ->
                 new Reactionary<>(list, message, embedBuilder));
     }
 }

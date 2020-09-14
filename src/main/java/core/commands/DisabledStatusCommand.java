@@ -114,6 +114,6 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
         embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "'s commands status")
                 .setThumbnail(e.getGuild().getIconUrl());
         MessageBuilder messageBuilder = new MessageBuilder();
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
     }
 }

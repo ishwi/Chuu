@@ -122,12 +122,9 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
                 .
 
                         getName()) + "** has set their last FM name \n Updating your library, wait a moment");
-        mes.sendTo(e.getChannel()).
-
+        e.getChannel().sendMessage(mes.build()).
                 queue(t -> e.getChannel().
-
                         sendTyping().
-
                         queue());
         LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false);
         lastFMData.setGuildID(guildID);

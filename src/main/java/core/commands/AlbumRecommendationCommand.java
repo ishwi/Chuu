@@ -156,7 +156,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
                 .setColor(CommandUtil.randomColor())
                 .setDescription(a);
         MessageBuilder messageBuilder = new MessageBuilder();
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(mes ->
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(mes ->
                 new Reactionary<>(stringedList, mes, 10, embedBuilder));
     }
 }

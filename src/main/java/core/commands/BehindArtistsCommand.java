@@ -114,7 +114,7 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
                 .getLastFmUser(ogLastFmId))
                 .setThumbnail(userUrl2)
                 .setFooter(CommandUtil.markdownLessUserString(userName2, resultWrapper.getQuriedId(), e) + " is behind in " + rows + " artists!\n", null);
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(m ->
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(m ->
                 new Reactionary<>(resultWrapper.getList(), m, embedBuilder));
 
     }

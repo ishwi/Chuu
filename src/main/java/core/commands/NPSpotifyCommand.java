@@ -32,7 +32,7 @@ public class NPSpotifyCommand extends NpCommand {
                     .getSongName())));
             return;
         }
-        messageBuilder.setContent(uri).sendTo(e.getChannel()).queue();
+        e.getChannel().sendMessage(messageBuilder.setContent(uri).build()).queue();
     }
 
     @Override

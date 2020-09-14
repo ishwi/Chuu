@@ -156,7 +156,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setFooter("Account created on " + date);
 
         MessageBuilder mes = new MessageBuilder();
-        mes.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue();
+        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
     }
 
     @Override

@@ -40,7 +40,9 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
         embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "'s " + getEntryName(params) + " leaderboard")
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setFooter(e.getGuild().getName() + " has " + list.size() + " registered users!\n", null);
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel()).queue(message ->
+
+
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(message ->
                 new Reactionary<>(list, message, embedBuilder));
     }
 }

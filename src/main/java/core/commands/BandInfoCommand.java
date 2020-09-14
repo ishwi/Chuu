@@ -125,7 +125,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         embedBuilder.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.cleanMarkdownCharacter(ai.getArtist()) + " albums").
                 setThumbnail(CommandUtil.noImageUrl(ap.getScrobbledArtist().getUrl())).setDescription(str)
                 .setColor(CommandUtil.randomColor());
-        messageBuilder.setEmbed(embedBuilder.build()).sendTo(e.getChannel())
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build())
                 .queue(message ->
                         new Reactionary<>(collect, message, 10, embedBuilder));
     }

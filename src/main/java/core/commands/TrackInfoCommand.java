@@ -47,7 +47,7 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws InstanceNotFoundException, LastFmException {
+    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
         TrackExtended trackInfo = this.lastFM.getTrackInfoExtended(lastFMData.getName(), artist.getArtist(), song);
 
@@ -85,8 +85,8 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
         embedBuilder.setImage(trackInfo.getImageUrl() == null || trackInfo.getImageUrl().isBlank() ? null : trackInfo.getImageUrl())
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(artist.getUrl());
-        messageBuilder.setEmbed(embedBuilder.build()).
-                sendTo(e.getChannel()).
+        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).
+
                 queue();
 
     }
