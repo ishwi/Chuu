@@ -203,7 +203,9 @@ public class ChuuService {
                 connection.setAutoCommit(false);
 
                 userGuildDao.insertUserData(connection, data);
-                userGuildDao.addGuild(connection, data.getDiscordId(), data.getGuildID());
+                if (!userGuildDao.isUserServerBanned(connection, data.getDiscordId(), data.getGuildID())) {
+                    userGuildDao.addGuild(connection, data.getDiscordId(), data.getGuildID());
+                }
                 connection.commit();
 
             } catch (SQLException e) {
@@ -2092,5 +2094,34 @@ public class ChuuService {
         }
 
 
+    }
+
+    public void serverBlock(long discordId, long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            removeFromGuild(discordId, guildId);
+            userGuildDao.serverBlock(connection, discordId, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public void serverUnblock(long discordId, long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.serverUnblock(connection, discordId, guildId);
+            userGuildDao.addGuild(connection, discordId, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public boolean isUserServerBanned(long userId, long guildID) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.isUserServerBanned(connection, userId, guildID);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 }

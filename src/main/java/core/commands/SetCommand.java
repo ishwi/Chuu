@@ -110,6 +110,10 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             //If it was registered in at least other  guild theres no need to update
             if (getService().getGuildList(userId).stream().anyMatch(guild -> guild != guildID)) {
                 //Adds the user to the guild
+                if (getService().isUserServerBanned(userId, guildID)) {
+                    sendMessageQueue(e, String.format("%s, you have been not allowed to appear on the server leaderboards as a choice of this server admins. Rest of commands should work fine.", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName())));
+                    return;
+                }
                 getService().addGuildUser(userId, guildID);
                 sendMessageQueue(e, String.format("%s, you are good to go!", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName())));
                 return;
@@ -129,9 +133,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
         LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false);
         lastFMData.setGuildID(guildID);
 
-        getService().
-
-                insertNewUser(lastFMData);
+        getService().insertNewUser(lastFMData);
 
         try {
 

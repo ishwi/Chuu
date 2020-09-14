@@ -932,3 +932,13 @@ create table user_billboard_data_scrobbles
     CONSTRAINT user_billboard_data_scrobbles_week_id FOREIGN KEY (week_id) REFERENCES week (id) ON UPDATE CASCADE ON DELETE CASCADE,
     index lookup_user_billboard_scrobble (`lastfm_id`, week_id)
 );
+
+
+CREATE TABLE server_blocked
+(
+    discord_id BIGINT(20) NOT NULL,
+    guild_id   BIGINT(20) NOT NULL,
+    PRIMARY KEY (discord_id, guild_id),
+    CONSTRAINT server_blocked_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE
+
+);

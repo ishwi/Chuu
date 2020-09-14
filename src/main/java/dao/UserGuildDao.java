@@ -78,4 +78,10 @@ interface UserGuildDao {
     <T extends Enum<T>> void setGuildProperty(Connection connection, long discordId, String propertyName, @Nullable T value);
 
     void setChartDefaults(Connection connection, long discordId, int x, int y);
+
+    void serverBlock(Connection connection, long discordId, long guildId);
+
+    boolean isUserServerBanned(Connection connection, long userId, long guildID);
+
+    void serverUnblock(Connection connection, long discordId, long guildId);
 }

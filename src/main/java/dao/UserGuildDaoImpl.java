@@ -754,4 +754,57 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
     }
 
+    @Override
+    public void serverBlock(Connection connection, long discordId, long guildId) {
+        @Language("MariaDB") String queryString = "insert into server_blocked(discord_id,guild_id)  values (?,?) ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, discordId);
+            preparedStatement.setLong(i, guildId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public boolean isUserServerBanned(Connection connection, long userId, long guildID) {
+        @Language("MariaDB") String queryString = "select exists( select guild_id,discord_id from server_blocked where guild_id = ? and discord_id = ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            preparedStatement.setLong(1, guildID);
+            preparedStatement.setLong(2, userId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (!resultSet.next()) {
+                return false;
+            }
+            return resultSet.getBoolean(1);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public void serverUnblock(Connection connection, long discordId, long guildId) {
+        @Language("MariaDB") String queryString = "delete  from server_blocked where discord_id = ? and guild_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, discordId);
+            preparedStatement.setLong(i, guildId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 }

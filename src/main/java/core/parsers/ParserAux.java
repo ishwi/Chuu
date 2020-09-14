@@ -7,6 +7,7 @@ import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.concurrent.Task;
 
 import java.util.ArrayList;
@@ -19,6 +20,9 @@ import java.util.regex.Pattern;
 public class ParserAux {
     private String[] message;
     private static final Pattern user = Pattern.compile("(.{2,32})#(\\d{4})");
+    private static final Pattern discordId = Pattern.compile("\\d{17,}");
+
+
     private final boolean doExpensiveSearch;
 
     public ParserAux(String[] message) {
@@ -55,6 +59,15 @@ public class ParserAux {
                         if (membersByName.isEmpty()) {
                             List<Member> membersByNickname = e.getGuild().getMembersByNickname(join, true);
                             if (membersByNickname.isEmpty()) {
+                                try {
+                                    long l = Long.parseLong(join);
+                                    User userById = e.getJDA().getUserById(l);
+                                    if (userById != null) {
+                                        return userById;
+                                    }
+                                } catch (NumberFormatException ignored) {
+                                    //
+                                }
                                 return e.getAuthor();
                             }
                             return membersByEffectiveName.get(0).getUser();
@@ -75,11 +88,26 @@ public class ParserAux {
         List<String> tempArray = new ArrayList<>();
         boolean hasMatched = false;
         for (String s : message) {
-            if (!hasMatched && user.matcher(s).matches()) {
-                User userByTag = e.getJDA().getUserByTag(s);
-                if (userByTag != null) {
-                    hasMatched = true;
-                    sample = userByTag;
+            if (!hasMatched) {
+                if (user.matcher(s).matches()) {
+                    User userByTag = e.getJDA().getUserByTag(s);
+                    if (userByTag != null) {
+                        hasMatched = true;
+                        sample = userByTag;
+                    }
+                } else if (discordId.matcher(s).matches()) {
+                    try {
+                        long l = Long.parseLong(s);
+                        User userById = e.getJDA().getUserById(l);
+                        if (userById != null) {
+                            sample = userById;
+                            hasMatched = true;
+                        }
+                    } catch (NumberFormatException ignored) {
+                        //
+                    }
+                } else {
+                    tempArray.add(s);
                 }
             } else {
                 tempArray.add(s);

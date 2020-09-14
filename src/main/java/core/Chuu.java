@@ -386,6 +386,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new GuildTopAlbumsCommand(dao)))
                 .addEventListeners(help.registerCommand(new ServerAOTY(dao)))
                 .addEventListeners(evalCommand)
+                .addEventListeners(help.registerCommand(new ServerBanCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
