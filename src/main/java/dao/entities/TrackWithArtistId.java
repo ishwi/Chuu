@@ -5,14 +5,16 @@ public class TrackWithArtistId extends Track {
     private int plays;
     private String album;
     private long albumId;
+    private int utc;
 
-    public TrackWithArtistId(String artist, String name, int plays, boolean isLoved, int duration) {
+    public TrackWithArtistId(String artist, String name, int plays, boolean isLoved, int duration, int utc) {
         super(artist, name, plays, isLoved, duration);
+        this.utc = utc;
     }
 
 
-    public TrackWithArtistId(Track other) {
-        this(other.getArtist(), other.getName(), other.getPlays(), other.isLoved(), other.getDuration());
+    public TrackWithArtistId(Track other, int utc) {
+        this(other.getArtist(), other.getName(), other.getPlays(), other.isLoved(), other.getDuration(), utc);
     }
 
     public long getArtistId() {
@@ -46,5 +48,13 @@ public class TrackWithArtistId extends Track {
 
     public void setAlbumId(long albumId) {
         this.albumId = albumId;
+    }
+
+    public int getUtc() {
+        return utc;
+    }
+
+    public void setUtc(int utc) {
+        this.utc = utc;
     }
 }

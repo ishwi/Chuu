@@ -1897,6 +1897,8 @@ public class ChuuService {
     public void insertUserData(int week_id, String lastfmId, List<TrackWithArtistId> list) {
         try (Connection connection = dataSource.getConnection()) {
             billboardDao.insertUserData(connection, list, lastfmId, week_id);
+            billboardDao.groupUserData(connection, lastfmId, week_id);
+
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

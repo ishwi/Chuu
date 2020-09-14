@@ -9,6 +9,7 @@ import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -368,8 +369,8 @@ public class BillboardDaoImpl implements BillboardDao {
     public void insertUserData(Connection connection, List<TrackWithArtistId> trackList, String lastfmId, int weekId) {
 
         StringBuilder mySql =
-                new StringBuilder("INSERT INTO  user_billboard_data" +
-                        "                  (week_id,artist_id,track_name,scrobble_count,lastfm_id,album_name) VALUES (?,?,?,?,?,?) ");
+                new StringBuilder("INSERT INTO  user_billboard_data_scrobbles" +
+                        "                  (week_id,artist_id,track_name,lastfm_id,album_name,timestamp) VALUES (?,?,?,?,?,?) ");
 
         mySql.append(", (?,?,?,?,?,?)".repeat(Math.max(0, trackList.size() - 1)));
 
@@ -381,11 +382,10 @@ public class BillboardDaoImpl implements BillboardDao {
 
                 preparedStatement.setLong(6 * i + 2, trackWithArtistId.getArtistId());
                 preparedStatement.setString(6 * i + 3, trackWithArtistId.getName());
-                preparedStatement.setInt(6 * i + 4, trackWithArtistId.getPlays());
-                preparedStatement.setString(6 * i + 5, lastfmId);
+                preparedStatement.setString(6 * i + 4, lastfmId);
                 String album = trackWithArtistId.getAlbum();
-                preparedStatement.setString(6 * i + 6, album.isBlank() ? null : album);
-
+                preparedStatement.setString(6 * i + 5, album.isBlank() ? null : album);
+                preparedStatement.setTimestamp(6 * i + 6, Timestamp.from(Instant.ofEpochSecond(trackWithArtistId.getUtc())));
             }
             preparedStatement.execute();
         } catch (SQLException e) {
@@ -751,6 +751,26 @@ public class BillboardDaoImpl implements BillboardDao {
 
     ;
 */
+
+    }
+
+    @Override
+    public void groupUserData(Connection connection, String lastfmId, int week_id) {
+
+        StringBuilder sql = new StringBuilder("INSERT INTO  user_billboard_data" +
+                "                  (week_id,artist_id,track_name,lastfm_id,album_name,scrobble_count) select week_id,artist_id,track_name,lastfm_id,album_name,count(*) from " +
+                "user_billboard_data_scrobbles where week_id = ? and lastfm_id = ? group by artist_id,track_name");
+
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(String.valueOf(sql));
+            preparedStatement.setInt(1, week_id);
+            preparedStatement.setString(2, lastfmId);
+            preparedStatement.execute();
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
 
     }
 }

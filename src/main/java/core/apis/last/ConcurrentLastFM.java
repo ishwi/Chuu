@@ -1,6 +1,5 @@
 package core.apis.last;
 
-import com.google.gson.JsonObject;
 import core.Chuu;
 import core.apis.ClientSingleton;
 import core.apis.last.chartentities.ChartUtil;
@@ -9,11 +8,9 @@ import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ArtistException;
 import core.apis.last.exceptions.ExceptionEntity;
 import core.apis.last.exceptions.TrackException;
-import core.commands.CommandUtil;
 import core.exceptions.*;
 import core.parsers.params.ChartParameters;
 import dao.entities.*;
-import jdk.jfr.Timestamp;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.jetbrains.annotations.NotNull;
@@ -1218,7 +1215,8 @@ public class ConcurrentLastFM {//implements LastFMService {
                 String trackName = trackObj.getString("name");
                 JSONObject artistObj = trackObj.getJSONObject("artist");
                 String artistName = artistObj.getString("name");
-                TrackWithArtistId track = new TrackWithArtistId(artistName, trackName, 0, false, 0);
+                int utc = trackObj.getJSONObject("date").getInt("uts");
+                TrackWithArtistId track = new TrackWithArtistId(artistName, trackName, 0, false, 0, utc);
                 JSONObject albumObj = trackObj.optJSONObject("album");
                 if (albumObj != null) {
                     track.setAlbum(albumObj.getString("#text"));
@@ -1229,6 +1227,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         }
         return list;
     }
+
 
     public List<TimestampWrapper<Track>> getTracksAndTimestamps(String username, int from, int to) throws
             LastFmException {

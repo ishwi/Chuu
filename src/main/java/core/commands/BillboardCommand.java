@@ -127,9 +127,10 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
                 inProcessSets.add(guildId);
             }
             try {
-                Thread.sleep(10000L);
                 sendMessageQueue(e, "Didn't have the top from this week, will start to make it now.");
                 Map<String, List<TrackWithArtistId>> toValidate = new HashMap<>();
+
+                //TODO IDK ish maybe dont store the whole server scrobbles in memory at the same time!!
                 all.parallelStream().forEach(x -> {
                     if (!usersBeeingProcessed.contains(x.getDiscordID()))
                         if (getService().getUserData(weekId, x.getLastFMName()).isEmpty()) {
@@ -138,13 +139,15 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
                                 List<TrackWithArtistId> tracksAndTimestamps = lastFM.getWeeklyBillboard(x.getLastFMName(),
                                         (int) weekBeggining.toEpochSecond(OffsetDateTime.now().getOffset())
                                         , (int) weekStart.toLocalDate().atStartOfDay().toEpochSecond(OffsetDateTime.now().getOffset()));
-                                List<TrackWithArtistId> value = tracksAndTimestamps.stream().collect(Collectors.groupingBy(
+
+
+                                /*List<TrackWithArtistId> value = tracksAndTimestamps.stream().collect(Collectors.groupingBy(
                                         t -> t, Collectors.counting())).entrySet().stream().map(u -> {
                                     TrackWithArtistId key = u.getKey();
                                     key.setPlays(Math.toIntExact(u.getValue()));
                                     return key;
-                                }).collect(Collectors.toList());
-                                toValidate.put(x.getLastFMName(), value);
+                                }).collect(Collectors.toList());*/
+                                toValidate.put(x.getLastFMName(), tracksAndTimestamps);
                             } catch (LastFmException ignored) {
 
                             } finally {
@@ -201,8 +204,6 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
 
 
                 sendMessageQueue(e, "Successfully Generated these week's charts");
-            } catch (InterruptedException interruptedException) {
-                interruptedException.printStackTrace();
             } finally {
                 inProcessSets.remove(guildId);
             }
@@ -223,12 +224,12 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
                     .stream().map(x -> String.format(". **[%s](%s):**\n Rank: %d | Previous Week: %s | Peak: %s | Weeks on top: %s | %s: %d\n",
                             x.getArtist() == null ? CommandUtil.cleanMarkdownCharacter(x.getName()) : CommandUtil.cleanMarkdownCharacter(x.getName() + " - " + x.getArtist()),
                             x.getArtist() == null ? CommandUtil.getLastFmArtistUrl(x.getName()) : CommandUtil.getLastFMArtistTrack(x.getArtist(), x.getName()),
-                            x.getPosition(),
-                            x.getPreviousWeek() == 0 ? "--" : x.getPreviousWeek(),
-                            x.getPeak() == 0 ? "--" : x.getPeak(),
-                            x.getStreak() == 0 ? "--" : x.getStreak(),
-                            doListeners ? "Listeners" : "Scrobbles",
-                            x.getListeners()
+                    x.getPosition(),
+                    x.getPreviousWeek() == 0 ? "--" : x.getPreviousWeek(),
+                    x.getPeak() == 0 ? "--" : x.getPeak(),
+                    x.getStreak() == 0 ? "--" : x.getStreak(),
+                    doListeners ? "Listeners" : "Scrobbles",
+                    x.getListeners()
 
                     )).collect(Collectors.toList());
             StringBuilder a = new StringBuilder();
