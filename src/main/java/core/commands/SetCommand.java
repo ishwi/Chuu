@@ -145,6 +145,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             e.getChannel().sendTyping().queue();
             List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
             getService().albumUpdate(albumData, artistData, lastFmID);
+            //  e.getGuild().loadMembers((Chuu::caching));
         } catch (
                 LastFMNoPlaysException ex) {
             sendMessageQueue(e, "Finished updating " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + "'s library, you are good to go!");

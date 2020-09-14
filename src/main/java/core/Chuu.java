@@ -244,6 +244,7 @@ public class Chuu {
 
         AtomicInteger counter = new AtomicInteger(0);
         IEventManager customManager = new CustomInterfacedEventManager(0);
+        EvalCommand evalCommand = new EvalCommand(dao);
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL)
                 //.setMemberCachePolicy(Chuu.cacheMember)
                 .disableCache(EnumSet.allOf(CacheFlag.class))
@@ -384,6 +385,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new MyTopRatedRandomUrls(dao)))
                 .addEventListeners(help.registerCommand(new GuildTopAlbumsCommand(dao)))
                 .addEventListeners(help.registerCommand(new ServerAOTY(dao)))
+                .addEventListeners(evalCommand)
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
@@ -393,6 +395,7 @@ public class Chuu {
                     if (!isTest) {
                         commandAdministrator.onStartup(shardManager);
                     }
+                    evalCommand.setOwnerId(shard);
 
                     shardManager.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
                     updatePresence("Chuu");

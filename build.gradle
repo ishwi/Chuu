@@ -23,6 +23,7 @@ targetCompatibility = 11
 repositories {
     mavenCentral()
     jcenter()
+    maven { url 'https://dl.bintray.com/natanbc/maven' }
 
 }
 compileJava {
@@ -99,6 +100,10 @@ dependencies {
     //a
     testCompile group: 'com.pholser', name: 'junit-quickcheck-core', version: '0.9.2'
     testCompile "org.mockito:mockito-core:3.3.3"
+    compile 'com.github.natanbc:java-eval:1.0'
+
+
+    // https://mvnrepository.com/artifact/org.codehaus.groovy/groovy-all
 
 
 }
