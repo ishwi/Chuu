@@ -28,7 +28,7 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
 
     @Override
     void setUpOptionals() {
-        this.opts.add(new OptionalEntity("--repeated", "gives you a repeated recommendation"));
+        this.opts.add(new OptionalEntity("repeated", "gives you a repeated recommendation"));
     }
 
     @Override

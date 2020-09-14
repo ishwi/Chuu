@@ -31,8 +31,8 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
     @Override
     public Parser<CommandParameters> getParser() {
         NoOpParser noOpParser = new NoOpParser();
-        noOpParser.addOptional(new OptionalEntity("--myself", " show your top rated urls "));
-        noOpParser.addOptional(new OptionalEntity("--server", " show ratings from users only in this server"));
+        noOpParser.addOptional(new OptionalEntity("myself", " show your top rated urls "));
+        noOpParser.addOptional(new OptionalEntity("server", " show ratings from users only in this server"));
         return noOpParser;
     }
 
@@ -57,8 +57,8 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
         if (params == null) {
             return;
         }
-        boolean server = params.hasOptional("--server");
-        boolean myself = params.hasOptional("--myself");
+        boolean server = params.hasOptional("server");
+        boolean myself = params.hasOptional("myself");
         List<ScoredAlbumRatings> ratings;
 
         String title;

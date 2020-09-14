@@ -36,7 +36,7 @@ public class TasteCommand extends ConcurrentCommand<TwoUsersParamaters> {
 
     @Override
     public Parser<TwoUsersParamaters> getParser() {
-        TwoUsersParser twoUsersParser = new TwoUsersParser(getService(), new OptionalEntity("--list", "display in a list format"));
+        TwoUsersParser twoUsersParser = new TwoUsersParser(getService(), new OptionalEntity("list", "display in a list format"));
         twoUsersParser.setExpensiveSearch(true);
         return twoUsersParser;
     }
@@ -62,7 +62,7 @@ public class TasteCommand extends ConcurrentCommand<TwoUsersParamaters> {
         String ogLastFmId = params.getFirstUser().getName();
         long secondDiscordId = params.getSecondUser().getDiscordId();
         String secondlastFmId = params.getSecondUser().getName();
-        boolean isList = params.hasOptional("--list");
+        boolean isList = params.hasOptional("list");
 
         lastfMNames = Arrays.asList(ogLastFmId, secondlastFmId);
 

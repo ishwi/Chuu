@@ -55,7 +55,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     @Override
     public Parser<ArtistParameters> getParser() {
         ArtistParser artistTimeFrameParser = new ArtistParser(getService(), lastFM);
-        artistTimeFrameParser.addOptional(new OptionalEntity("--list", "display in list format"));
+        artistTimeFrameParser.addOptional(new OptionalEntity("list", "display in list format"));
         artistTimeFrameParser.setExpensiveSearch(true);
         return artistTimeFrameParser;
     }
@@ -77,8 +77,8 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         long idLong = ap.getLastFMData().getDiscordId();
         final String username = ap.getLastFMData().getName();
 
-        boolean b = ap.hasOptional("--list");
-        boolean b1 = ap.hasOptional("--pie");
+        boolean b = ap.hasOptional("list");
+        boolean b1 = ap.hasOptional("pie");
         int limit = b || b1 ? Integer.MAX_VALUE : 4;
         ScrobbledArtist who = ap.getScrobbledArtist();
         List<AlbumUserPlays> userTopArtistAlbums = getService().getUserTopArtistAlbums(limit, who.getArtistId(), idLong);

@@ -20,9 +20,9 @@ public class GayParser extends ChartableParser<GayParams> {
 
     @Override
     void setUpOptionals() {
-        this.opts.add(new OptionalEntity("--plays", "display play count"));
-        this.opts.add(new OptionalEntity("--titles", "display titles"));
-        this.opts.add(new OptionalEntity("--artist", "use artists instead of albums"));
+        this.opts.add(new OptionalEntity("plays", "display play count"));
+        this.opts.add(new OptionalEntity("titles", "display titles"));
+        this.opts.add(new OptionalEntity("artist", "use artists instead of albums"));
     }
 
     @Override

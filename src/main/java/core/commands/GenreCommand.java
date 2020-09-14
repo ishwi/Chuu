@@ -72,8 +72,8 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                 "defaults to 10";
 
         TimerFrameParser timerFrameParser = new TimerFrameParser(getService(), TimeFrameEnum.ALL);
-        timerFrameParser.addOptional(new OptionalEntity("--artist", "use artists instead of albums for the genres"));
-        timerFrameParser.addOptional(new OptionalEntity("--list", "display in list format"));
+        timerFrameParser.addOptional(new OptionalEntity("artist", "use artists instead of albums for the genres"));
+        timerFrameParser.addOptional(new OptionalEntity("list", "display in list format"));
 
 
         return new NumberParser<>(timerFrameParser,
@@ -112,7 +112,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         String usableString = userInfo.getUsername();
         String urlImage = userInfo.getUrlImage();
         Map<Genre, Integer> map;
-        boolean doArtits = parse.hasOptional("--artist");
+        boolean doArtits = parse.hasOptional("artist");
         if (doArtits) {
             List<ArtistInfo> albumInfos = lastFM.getTopArtists(username, timeframe.toApiFormat(), 3000).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                     .collect(Collectors.toList());
@@ -142,7 +142,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
             return;
         }
 
-        if (parse.hasOptional("--list")) {
+        if (parse.hasOptional("list")) {
             List<String> collect = map.entrySet()
                     .stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).map(x -> ". **" + WordUtils.capitalizeFully(CommandUtil.cleanMarkdownCharacter(x.getKey().getGenreName())) + "** - " + x.getValue() + "\n").collect(Collectors.toList());
             if (collect.isEmpty()) {

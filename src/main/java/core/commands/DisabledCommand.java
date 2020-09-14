@@ -55,7 +55,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
         }
 
         List<MyCommand<?>> commandsToAllow;
-        if (parse.hasOptional("--category")) {
+        if (parse.hasOptional("category")) {
             commandsToAllow = e.getJDA().getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).
                     filter(x -> x.getCategory().equals(parse.getCommand().getCategory())).collect(Collectors.toList());
         } else {

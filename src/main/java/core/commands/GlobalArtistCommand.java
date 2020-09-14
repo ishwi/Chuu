@@ -42,7 +42,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
     @Override
     public Parser<ArtistParameters> getParser() {
         ArtistParser parser = new ArtistParser(getService(), lastFM);
-        parser.addOptional(new OptionalEntity("--nobotted", "discard users that have been manually flagged as potentially botted accounts"));
+        parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
         return parser;
     }
 
@@ -70,7 +70,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         ScrobbledArtist validable = new ScrobbledArtist(returned.getArtist(), 0, "");
         CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
         returned.setScrobbledArtist(validable);
-        boolean b = !returned.hasOptional("--nobotted");
+        boolean b = !returned.hasOptional("nobotted");
         List<GlobalCrown> globalArtistRanking = getService().getGlobalArtistRanking(validable.getArtistId(), b, e.getAuthor().getIdLong());
         String artist = CommandUtil.cleanMarkdownCharacter(validable.getArtist());
         if (globalArtistRanking.isEmpty()) {

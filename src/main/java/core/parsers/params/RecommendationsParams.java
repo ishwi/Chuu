@@ -19,7 +19,7 @@ public class RecommendationsParams extends TwoUsersParamaters {
 
 
     public boolean isShowRepeated() {
-        return hasOptional("--repeated");
+        return hasOptional("repeated");
     }
 
     public int getRecCount() {

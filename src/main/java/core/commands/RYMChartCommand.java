@@ -25,12 +25,12 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
     @Override
     public ChartableParser<ChartSizeParameters> getParser() {
         OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(getService(), TimeFrameEnum.ALL);
-        onlyChartSizeParser.addOptional(new OptionalEntity("--global", " show ratings from all bot users instead of only from this server"));
-        onlyChartSizeParser.addOptional(new OptionalEntity("--server", " show ratings from users only in this server"));
-        onlyChartSizeParser.addOptional(new OptionalEntity("--usestars", "show stars instead of numbers on global and server chart"));
+        onlyChartSizeParser.addOptional(new OptionalEntity("global", " show ratings from all bot users instead of only from this server"));
+        onlyChartSizeParser.addOptional(new OptionalEntity("server", " show ratings from users only in this server"));
+        onlyChartSizeParser.addOptional(new OptionalEntity("usestars", "show stars instead of numbers on global and server chart"));
 
-        onlyChartSizeParser.replaceOptional("--plays", new OptionalEntity("--noratings", "don't display ratings"));
-        onlyChartSizeParser.addOptional(new OptionalEntity("--plays", "shows this with ratings", true, "--noratings"));
+        onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noratings", "don't display ratings"));
+        onlyChartSizeParser.addOptional(new OptionalEntity("plays", "shows this with ratings", true, "noratings"));
         return onlyChartSizeParser;
     }
 
@@ -52,8 +52,8 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartSizeParameters params) {
         List<ScoredAlbumRatings> selfRatingsScore;
-        boolean server = params.hasOptional("--server");
-        boolean global = params.hasOptional("--global");
+        boolean server = params.hasOptional("server");
+        boolean global = params.hasOptional("global");
         if (server && params.getE().isFromGuild()) {
             long idLong = params.getE().getGuild().getIdLong();
             selfRatingsScore = getService().getServerTopRatings(idLong);
@@ -65,8 +65,8 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
             }
         }
         AtomicInteger atomicInteger = new AtomicInteger(0);
-        boolean b = params.hasOptional("--noratings");
-        boolean s = params.hasOptional("--usestars");
+        boolean b = params.hasOptional("noratings");
+        boolean s = params.hasOptional("usestars");
 
 
         LinkedBlockingDeque<UrlCapsule> collect = selfRatingsScore.stream().map(x -> {
@@ -82,7 +82,7 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
             RYMChartEntity rymChartEntity = new RYMChartEntity(x.getUrl(), atomicInteger.getAndIncrement(), x.getArtist(), x.getName(), params.isWriteTitles(), !b, useAverage, average, x.getNumberOfRatings());
             rymChartEntity.setPlays(score);
             return rymChartEntity;
-        }).limit(params.getX() * params.getY()).collect(Collectors.toCollection(LinkedBlockingDeque<UrlCapsule>::new));
+        }).limit(params.getX() * params.getY()).collect(Collectors.toCollection(LinkedBlockingDeque<UrlCapsule>::new));// They in fact cannot be inferred you dumbass.
         return new CountWrapper<>(collect.size(), collect);
     }
 
@@ -91,8 +91,8 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartSizeParameters params, int count) {
         String title;
         String url;
-        boolean isServer = params.hasOptional("--server") && params.getE().isFromGuild();
-        boolean isGlobal = !isServer && (params.hasOptional("--global") || (params.hasOptional("--server") && !params.getE().isFromGuild()));
+        boolean isServer = params.hasOptional("server") && params.getE().isFromGuild();
+        boolean isGlobal = !isServer && (params.hasOptional("global") || (params.hasOptional("server") && !params.getE().isFromGuild()));
         if (isServer) {
             title = "server";
             url = params.getE().getGuild().getIconUrl();

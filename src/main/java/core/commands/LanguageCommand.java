@@ -51,7 +51,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
     @Override
     public Parser<TimeFrameParameters> getParser() {
         TimerFrameParser timerFrameParser = new TimerFrameParser(getService(), TimeFrameEnum.ALL);
-        timerFrameParser.addOptional(new OptionalEntity("--pie", "display it as a chart pie"));
+        timerFrameParser.addOptional(new OptionalEntity("pie", "display it as a chart pie"));
         return timerFrameParser;
     }
 
@@ -101,7 +101,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
             return;
         }
         StringBuilder a = new StringBuilder();
-        if (parameters.hasOptional("--pie")) {
+        if (parameters.hasOptional("pie")) {
             doPie(languageCountByMbid, parameters);
             return;
         }

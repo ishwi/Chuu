@@ -40,13 +40,13 @@ public class GlobalCrownsCommand extends CrownsCommand {
         }
         return getService().getGlobalCrowns(params.getInnerParams().getLastFMData().getName(),
                 Math.toIntExact(threshold),
-                !params.hasOptional("--nobotted"), params.getE().getAuthor().getIdLong());
+                !params.hasOptional("nobotted"), params.getE().getAuthor().getIdLong());
     }
 
     @Override
     public Parser<NumberParameters<ChuuDataParams>> getParser() {
         Parser<NumberParameters<ChuuDataParams>> parser = super.getParser();
-        parser.addOptional(new OptionalEntity("--nobotted", "discard users that have been manually flagged as potentially botted accounts"));
+        parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
         return parser;
     }
 

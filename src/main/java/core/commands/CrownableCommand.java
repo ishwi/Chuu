@@ -37,12 +37,12 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce the playcount to only show crowns achievable within that number of plays, defaults to a number big enough to not filter anything";
         OnlyUsernameParser onlyUsernameParser = new OnlyUsernameParser(getService());
-        onlyUsernameParser.addOptional(new OptionalEntity("--nofirst", "show only the artists in which you are not first"));
-        onlyUsernameParser.addOptional(new OptionalEntity("--server", "make the ranking only count for this server"));
-        onlyUsernameParser.addOptional(new OptionalEntity("--secondonly", "only shows artist where you are second"));
-        onlyUsernameParser.addOptional(new OptionalEntity("--second", "do the same as --secondonly"));
-        onlyUsernameParser.addOptional(new OptionalEntity("--onlysecond", "do the same as --secondonly"));
-        onlyUsernameParser.addOptional(new OptionalEntity("--server", "make the ranking only count for this server"));
+        onlyUsernameParser.addOptional(new OptionalEntity("nofirst", "show only the artists in which you are not first"));
+        onlyUsernameParser.addOptional(new OptionalEntity("server", "make the ranking only count for this server"));
+        onlyUsernameParser.addOptional(new OptionalEntity("secondonly", "only shows artist where you are second"));
+        onlyUsernameParser.addOptional(new OptionalEntity("second", "do the same as --secondonly"));
+        onlyUsernameParser.addOptional(new OptionalEntity("onlysecond", "do the same as --secondonly"));
+        onlyUsernameParser.addOptional(new OptionalEntity("server", "make the ranking only count for this server"));
 
         return new NumberParser<>(onlyUsernameParser,
                 (long) Integer.MAX_VALUE,
@@ -54,10 +54,10 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
     @Override
     public List<CrownableArtist> getList(NumberParameters<ChuuDataParams> outerParams) {
         ChuuDataParams params = outerParams.getInnerParams();
-        Long guildId = params.getE().isFromGuild() ? outerParams.hasOptional("--server") ? params.getE().getGuild().getIdLong() : null : null;
-        boolean onlySecond = outerParams.hasOptional("--secondonly") || outerParams.hasOptional("--second") || outerParams.hasOptional("--onlysecond");
+        Long guildId = params.getE().isFromGuild() ? outerParams.hasOptional("server") ? params.getE().getGuild().getIdLong() : null : null;
+        boolean onlySecond = outerParams.hasOptional("secondonly") || outerParams.hasOptional("second") || outerParams.hasOptional("onlysecond");
         int crownDistance = Math.toIntExact(outerParams.getExtraParam());
-        return getService().getCrownable(params.getLastFMData().getDiscordId(), guildId, crownDistance != Integer.MAX_VALUE || outerParams.hasOptional("--nofirst"), onlySecond, crownDistance);
+        return getService().getCrownable(params.getLastFMData().getDiscordId(), guildId, crownDistance != Integer.MAX_VALUE || outerParams.hasOptional("nofirst"), onlySecond, crownDistance);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
             sendMessageQueue(e, "Found no users :(");
             return;
         }
-        boolean isServer = params.hasOptional("--server") && e.isFromGuild();
+        boolean isServer = params.hasOptional("server") && e.isFromGuild();
 
         MessageBuilder messageBuilder = new MessageBuilder();
 
@@ -93,7 +93,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         } else {
             s = params.getE().getJDA().getSelfUser().getName();
         }
-        boolean onlySecond = outerParmams.hasOptional("--secondonly") || outerParmams.hasOptional("--second") || outerParmams.hasOptional("--onlysecond");
+        boolean onlySecond = outerParmams.hasOptional("secondonly") || outerParmams.hasOptional("second") || outerParmams.hasOptional("onlysecond");
 
         String thumbnail = isServer && e.isFromGuild() ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl();
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(params.getE(), params.getLastFMData().getDiscordId());
@@ -101,7 +101,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         String conditionalFiltering = outerParmams.getExtraParam() != Integer.MAX_VALUE ? "and you are less than " + outerParmams.getExtraParam() + " plays away from first" : "";
         if (onlySecond) {
             footer = String.format("Displaying artist where %s is the second top listener %s in %s", uInfo.getUsername(), conditionalFiltering, s);
-        } else if (outerParmams.hasOptional("--nofirst")) {
+        } else if (outerParmams.hasOptional("nofirst")) {
             footer = String.format("Displaying artist where %s is yet to be the top listener %s in %s", uInfo.getUsername(), conditionalFiltering, s);
         } else {
             footer = String.format("Displaying rank of %s's artist %s in %s", uInfo.getUsername(), conditionalFiltering, s);

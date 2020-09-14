@@ -43,11 +43,11 @@ public class ChartParameters extends CommandParameters {
         this.y = y;
         this.chartMode = chartMode;
         this.lastFMData = lastFMData;
-        this.optionals.put(new OptionalEntity("--notitles", ""), !writeTitles);
-        this.optionals.put(new OptionalEntity("--plays", ""), writePlays);
-        this.optionals.put(new OptionalEntity("--list", ""), isList);
-        this.optionals.put(new OptionalEntity("--pie", ""), isPieFormat());
-        this.optionals.put(new OptionalEntity("--aside", ""), isAside());
+        this.optionals.put(new OptionalEntity("notitles", ""), !writeTitles);
+        this.optionals.put(new OptionalEntity("plays", ""), writePlays);
+        this.optionals.put(new OptionalEntity("list", ""), isList);
+        this.optionals.put(new OptionalEntity("pie", ""), isPieFormat());
+        this.optionals.put(new OptionalEntity("aside", ""), isAside());
 
 
     }
@@ -88,20 +88,20 @@ public class ChartParameters extends CommandParameters {
     }
 
     public boolean isWriteTitles() {
-        return !hasOptional("--notitles");
+        return !hasOptional("notitles");
     }
 
 
     public boolean isWritePlays() {
-        return hasOptional("--plays");
+        return hasOptional("plays");
     }
 
     public boolean isList() {
-        return hasOptional("--list");
+        return hasOptional("list");
     }
 
     public boolean isAside() {
-        return hasOptional("--aside");
+        return hasOptional("aside");
     }
 
     public long getDiscordId() {
@@ -117,7 +117,7 @@ public class ChartParameters extends CommandParameters {
 
 
     public boolean isPieFormat() {
-        return hasOptional("--pie");
+        return hasOptional("pie");
     }
 
     public ChartMode chartMode() {

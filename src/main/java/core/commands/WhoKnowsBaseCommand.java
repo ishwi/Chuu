@@ -37,15 +37,15 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         ((DaoParser<?>) parser).setExpensiveSearch(true);
         ((DaoParser<?>) parser).setAllowUnaothorizedUsers(true);
         pie = new PieableListKnows<>(parser);
-        parser.addOptional(new OptionalEntity("--list", "display in list format"));
+        parser.addOptional(new OptionalEntity("list", "display in list format"));
         this.respondInPrivate = false;
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
     }
 
     public static WhoKnowsMode getEffectiveMode(WhoKnowsMode whoKnowsMode, CommandParameters chartParameters) {
-        boolean pie = chartParameters.hasOptional("--pie");
-        boolean list = chartParameters.hasOptional("--list");
+        boolean pie = chartParameters.hasOptional("pie");
+        boolean list = chartParameters.hasOptional("list");
         if ((whoKnowsMode.equals(WhoKnowsMode.LIST) && !list && !pie) || (!whoKnowsMode.equals(WhoKnowsMode.LIST) && list)) {
             return WhoKnowsMode.LIST;
         } else if (whoKnowsMode.equals(WhoKnowsMode.PIE) && !pie || !whoKnowsMode.equals(WhoKnowsMode.PIE) && pie) {

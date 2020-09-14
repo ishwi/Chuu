@@ -58,17 +58,16 @@ public abstract class Parser<T extends CommandParameters> {
 
         for (String s : subMessage) {
             //eghh asdhi
-            OptionalEntity optionalEntity = new OptionalEntity(s, "");
-            if (opts.contains(optionalEntity)) {
-                optionals.add(optionalEntity.getValue());
+            if (OptionalEntity.isWordAValidOptional(opts, s)) {
+                optionals.add(OptionalEntity.getOptPartFromValid(s));
             } else {
                 subMessageBuilding.add(s);
             }
-
         }
 
         Set<OptionalEntity> defaults = opts.stream().filter(OptionalEntity::isEnabledByDefault).collect(Collectors.toSet());
-        for (OptionalEntity aDefault : defaults) {
+        for (
+                OptionalEntity aDefault : defaults) {
             if (!optionals.contains(aDefault.getBlockedBy())) {
                 optionals.add(aDefault.getValue());
             }

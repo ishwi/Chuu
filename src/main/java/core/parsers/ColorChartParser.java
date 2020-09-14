@@ -24,15 +24,15 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
 
     @Override
     void setUpOptionals() {
-        this.opts.add(new OptionalEntity("--plays", "display play count"));
-        this.opts.add(new OptionalEntity("--titles", "display titles"));
-        this.opts.add(new OptionalEntity("--artist", "use artists instead of albums"));
-        this.opts.add(new OptionalEntity("--linear", "sort line by line "));
-        this.opts.add(new OptionalEntity("--column", "sort column by column"));
-        this.opts.add(new OptionalEntity("--color", "sort by color"));
-        this.opts.add(new OptionalEntity("--ordered", "sort by plays"));
-        this.opts.add(new OptionalEntity("--strict", "reduce the error range to make the color more accurate"));
-        this.opts.add(new OptionalEntity("--inverse", " inverse the color ordering on the sorts that use color"));
+        this.opts.add(new OptionalEntity("plays", "display play count"));
+        this.opts.add(new OptionalEntity("titles", "display titles"));
+        this.opts.add(new OptionalEntity("artist", "use artists instead of albums"));
+        this.opts.add(new OptionalEntity("linear", "sort line by line "));
+        this.opts.add(new OptionalEntity("column", "sort column by column"));
+        this.opts.add(new OptionalEntity("color", "sort by color"));
+        this.opts.add(new OptionalEntity("ordered", "sort by plays"));
+        this.opts.add(new OptionalEntity("strict", "reduce the error range to make the color more accurate"));
+        this.opts.add(new OptionalEntity("inverse", " inverse the color ordering on the sorts that use color"));
     }
 
     @Override

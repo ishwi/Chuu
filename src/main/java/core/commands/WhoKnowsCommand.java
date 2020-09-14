@@ -46,7 +46,7 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
     @Override
     public Parser<ArtistParameters> getParser() {
         return new ArtistParser(getService(), lastFM,
-                new OptionalEntity("--list", "display in list format"));
+                new OptionalEntity("list", "display in list format"));
     }
 
     @Override

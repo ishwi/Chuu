@@ -43,8 +43,8 @@ public class BandInfoServerCommand extends BandInfoCommand {
     void bandLogic(ArtistParameters ap) {
 
 
-        boolean b = ap.hasOptional("--list");
-        boolean b1 = ap.hasOptional("--pie");
+        boolean b = ap.hasOptional("list");
+        boolean b1 = ap.hasOptional("pie");
         int limit = b || b1 ? Integer.MAX_VALUE : 4;
         ScrobbledArtist who = ap.getScrobbledArtist();
         List<AlbumUserPlays> userTopArtistAlbums = getService().getServerTopArtistAlbums(limit, who.getArtistId(), ap.getE().getGuild().getIdLong());

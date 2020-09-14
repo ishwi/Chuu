@@ -59,7 +59,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     @Override
     public Parser<CountryParameters> getParser() {
         CountryParser countryParser = new CountryParser(getService());
-        countryParser.addOptional(new OptionalEntity("--image", "show this with a chart instead of a list "));
+        countryParser.addOptional(new OptionalEntity("image", "show this with a chart instead of a list "));
         return countryParser;
     }
 
@@ -133,7 +133,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
             sendMessageQueue(e, userName + " doesnt have any artist from " + countryRep + ": " + usableTime);
             return;
         }
-        if (parameters.hasOptional("--image")) {
+        if (parameters.hasOptional("image")) {
             doImage(list, queue, parameters);
             return;
         }

@@ -43,7 +43,7 @@ public class UnreachableTests {
 
     @Test
     public void OptionalEntityEquals() {
-        OptionalEntity optionalEntity = new OptionalEntity("--test", "testdef");
+        OptionalEntity optionalEntity = new OptionalEntity("test", "testdef");
         Assert.assertEquals(optionalEntity, optionalEntity);
         Assert.assertNotEquals(optionalEntity, optionalEntity.getDefinition());
         Assert.assertNotEquals(null, optionalEntity);

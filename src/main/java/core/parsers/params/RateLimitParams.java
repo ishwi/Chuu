@@ -14,7 +14,7 @@ public class RateLimitParams extends CommandParameters {
     }
 
     public boolean isDeleting() {
-        return hasOptional("--delete");
+        return hasOptional("delete");
     }
 
     public long getDiscordId() {

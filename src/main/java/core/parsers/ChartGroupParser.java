@@ -16,7 +16,7 @@ public class ChartGroupParser extends ChartableParser<ChartGroupParameters> {
     public ChartGroupParser(ChuuService dao, TimeFrameEnum defaultTFE) {
         super(dao, defaultTFE);
         this.inner = new ChartParser(dao, defaultTFE);
-        this.inner.addOptional(new OptionalEntity("--notime", "dont display time spent"));
+        this.inner.addOptional(new OptionalEntity("notime", "dont display time spent"));
         this.opts.addAll(this.inner.opts);
     }
 
@@ -25,7 +25,7 @@ public class ChartGroupParser extends ChartableParser<ChartGroupParameters> {
         ChartParameters chartParameters;
         try {
             chartParameters = inner.parse(e);
-            return new ChartGroupParameters(e, chartParameters.getLastfmID(), chartParameters.getDiscordId(), chartParameters.getTimeFrameEnum(), chartParameters.getX(), chartParameters.getY(), !chartParameters.hasOptional("--notime"), chartParameters.chartMode(), chartParameters.getLastFMData());
+            return new ChartGroupParameters(e, chartParameters.getLastfmID(), chartParameters.getDiscordId(), chartParameters.getTimeFrameEnum(), chartParameters.getX(), chartParameters.getY(), !chartParameters.hasOptional("notime"), chartParameters.chartMode(), chartParameters.getLastFMData());
 
         } catch (LastFmException lastFmException) {
             throw new ChuuServiceException("Improvable Exception");

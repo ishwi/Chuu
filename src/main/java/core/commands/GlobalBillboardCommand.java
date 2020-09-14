@@ -74,7 +74,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
             sendMessageQueue(e, "A full week needs to be completed before this command can work");
             return;
         }
-        boolean doListeners = !params.hasOptional("--scrobbles");
+        boolean doListeners = !params.hasOptional("scrobbles");
 
         List<BillboardEntity> entities = getEntities(week.getId() - 1, doListeners);
         if (entities.isEmpty()) {

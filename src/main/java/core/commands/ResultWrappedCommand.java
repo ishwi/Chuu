@@ -28,7 +28,7 @@ public abstract class ResultWrappedCommand<T, Y extends CommandParameters> exten
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         Y parameters = parser.parse(e);
-        if (parameters.hasOptional("--pie")) {
+        if (parameters.hasOptional("pie")) {
             doPie(getList(parameters), parameters);
             return;
         }

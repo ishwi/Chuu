@@ -57,8 +57,8 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
     @Override
     public ChartableParser<ChartParameters> getParser() {
         ChartParser chartParser = new ChartParser(getService());
-        chartParser.replaceOptional("--list", new OptionalEntity("--image", "show this with a chart instead of a list "));
-        chartParser.addOptional(new OptionalEntity("--list", "shows this in list mode", true, "--image"));
+        chartParser.replaceOptional("list", new OptionalEntity("image", "show this with a chart instead of a list "));
+        chartParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, "image"));
         chartParser.setExpensiveSearch(false);
         return chartParser;
     }

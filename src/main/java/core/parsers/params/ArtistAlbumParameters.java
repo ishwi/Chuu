@@ -33,7 +33,7 @@ public class ArtistAlbumParameters extends ChuuDataParams {
     }
 
     public boolean isNoredirect() {
-        return hasOptional("--noredirect");
+        return hasOptional("noredirect");
     }
 
 }

@@ -44,7 +44,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
                 1L,
                 Integer.MAX_VALUE,
                 map, s, false, true);
-        parser.addOptional(new OptionalEntity("--repeated", "gives you a repeated recommendation"));
+        parser.addOptional(new OptionalEntity("repeated", "gives you a repeated recommendation"));
         return parser;
     }
 
@@ -101,7 +101,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
         firstDiscordID = e.getAuthor().getIdLong();
         secondDiscordID = affinity.getDiscordId();
 
-        List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, params.hasOptional("--repeated"), Math.toIntExact(outerParms.getExtraParam()));
+        List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, params.hasOptional("repeated"), Math.toIntExact(outerParms.getExtraParam()));
 
         String receiver = "you";
         if (firstDiscordID != e.getAuthor().getIdLong()) {

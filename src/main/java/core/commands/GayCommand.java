@@ -126,7 +126,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
                 };
 
         queue = new DiscardByQueue(getService(), discogsApi, spotify, discardGenerator.apply(gayColours, params), factoryFunction, params.getX() * params.getY());
-        if (params.hasOptional("--artist")) {
+        if (params.hasOptional("artist")) {
             count = lastFM.getChart(params.getLastfmID(),
                     params.getTimeFrameEnum().toApiFormat(),
                     3000,

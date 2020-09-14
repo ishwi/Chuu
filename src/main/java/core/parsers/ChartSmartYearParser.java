@@ -42,8 +42,8 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
     @Override
     void setUpOptionals() {
         super.setUpOptionals();
-        opts.add(new OptionalEntity("--nolimit", "make the chart as big as possible"));
-        opts.add(new OptionalEntity("--time", "make the chart to be sorted by duration (quite inaccurate)"));
+        opts.add(new OptionalEntity("nolimit", "make the chart as big as possible"));
+        opts.add(new OptionalEntity("time", "make the chart to be sorted by duration (quite inaccurate)"));
     }
 
     @Override
@@ -64,7 +64,7 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
         }
 
         if (chartSize != null) {
-            boolean conflictFlag = e.getMessage().getContentRaw().contains("--nolimit");
+            boolean conflictFlag = e.getMessage().getContentRaw().contains("nolimit");
             if (conflictFlag) {
                 sendError(getErrorMessage(7), e);
                 return null;

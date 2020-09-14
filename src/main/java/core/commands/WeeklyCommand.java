@@ -29,7 +29,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> getParser() {
-        return new OnlyUsernameParser(getService(), new OptionalEntity("--image", "displays it as a bar chart"));
+        return new OnlyUsernameParser(getService(), new OptionalEntity("image", "displays it as a bar chart"));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
 
         String lastFmName = returned.getLastFMData().getName();
         long discordID = returned.getLastFMData().getDiscordId();
-        boolean isBarChart = returned.hasOptional("--image");
+        boolean isBarChart = returned.hasOptional("image");
 
         Map<Track, Integer> durationsFromWeek = lastFM.getTrackDurations(lastFmName, TimeFrameEnum.WEEK);
 

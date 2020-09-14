@@ -66,9 +66,9 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
                 100L,
                 map, s, false, true, false);
 
-        extraParser.addOptional(new OptionalEntity("--scrobbles", "sort the top by scrobble count, not listeners"));
-        extraParser.addOptional(new OptionalEntity("--full", "in case of doing the image show first 100 songs in the image"));
-        extraParser.addOptional(new OptionalEntity("--list", "display it in an embed"));
+        extraParser.addOptional(new OptionalEntity("scrobbles", "sort the top by scrobble count, not listeners"));
+        extraParser.addOptional(new OptionalEntity("full", "in case of doing the image show first 100 songs in the image"));
+        extraParser.addOptional(new OptionalEntity("list", "display it in an embed"));
         return extraParser;
     }
 
@@ -110,7 +110,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
         }
         Week week = getService().getCurrentWeekId();
         int weekId = week.getId();
-        boolean doListeners = !params.hasOptional("--scrobbles");
+        boolean doListeners = !params.hasOptional("scrobbles");
         List<BillboardEntity> entities = getEntities(weekId, guildId, doListeners);
         Date weekStart = week.getWeekStart();
         LocalDateTime weekBeggining = weekStart.toLocalDate().minus(1, ChronoUnit.WEEKS).atStartOfDay();
@@ -216,7 +216,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     protected void doBillboard(MessageReceivedEvent e, NumberParameters<CommandParameters> params, boolean doListeners, List<BillboardEntity> entities, LocalDateTime weekStart, LocalDateTime weekBeggining, String name) {
-        if (params.hasOptional("--list")) {
+        if (params.hasOptional("list")) {
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             List<String> artistAliases = entities
@@ -251,7 +251,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             String daySecond = weekStart.toLocalDate().getDayOfMonth() + CommandUtil.getDayNumberSuffix(weekStart.toLocalDate().getDayOfMonth());
 
 
-            int size = params.hasOptional("--full") ? 100 : Math.toIntExact(params.getExtraParam());
+            int size = params.hasOptional("full") ? 100 : Math.toIntExact(params.getExtraParam());
             sendImage(HotMaker.doHotMaker(name + "'s " + getTitle() + "chart", dayOne + " " + one + " -  " + daySecond + " " + second, entities, doListeners, size, logo), e);
         }
     }

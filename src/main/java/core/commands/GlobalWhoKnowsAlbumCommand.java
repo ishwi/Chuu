@@ -56,7 +56,7 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
         long albumId = CommandUtil.albumvalidate(getService(), scrobbledArtist, lastFM, params.getAlbum());
         WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
-        boolean b = params.hasOptional("--nobotted");
+        boolean b = params.hasOptional("nobotted");
         long author = params.getE().getAuthor().getIdLong();
         int limit = effectiveMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE;
         WrapperReturnNowPlaying wrapperReturnNowPlaying =

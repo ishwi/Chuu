@@ -49,7 +49,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);
-        parser.addOptional(new OptionalEntity("--server", "only include people in this server"));
+        parser.addOptional(new OptionalEntity("server", "only include people in this server"));
         return parser;
     }
 
@@ -78,7 +78,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
         Long guildId = null;
         String title;
         String validUrl;
-        if (e.isFromGuild() && params.hasOptional("--server")) {
+        if (e.isFromGuild() && params.hasOptional("server")) {
             Guild guild = e.getGuild();
             guildId = guild.getIdLong();
             title = guild.getName();

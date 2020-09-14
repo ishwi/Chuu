@@ -49,7 +49,7 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
         long artistId = scrobbledArtist.getArtistId();
         WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
-        boolean b = params.hasOptional("--nobotted");
+        boolean b = params.hasOptional("nobotted");
         long author = params.getE().getAuthor().getIdLong();
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.getService().globalWhoKnows(artistId, !b, author) : this.getService().globalWhoKnows(artistId, Integer.MAX_VALUE, !b, author);

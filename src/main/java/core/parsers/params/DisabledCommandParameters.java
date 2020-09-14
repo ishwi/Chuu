@@ -25,7 +25,7 @@ public class DisabledCommandParameters extends CommandParameters {
     }
 
     public boolean isOnlyChannel() {
-        return hasOptional("--channel");
+        return hasOptional("channel");
     }
 
     public Long getChannelId() {

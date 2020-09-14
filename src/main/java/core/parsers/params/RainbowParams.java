@@ -17,28 +17,28 @@ public class RainbowParams extends ChartParameters {
 
     @Override
     public boolean isWritePlays() {
-        return hasOptional("--plays");
+        return hasOptional("plays");
     }
 
     @Override
     public boolean isWriteTitles() {
-        return hasOptional("--titles");
+        return hasOptional("titles");
     }
 
     public boolean isArtist() {
-        return hasOptional("--artist");
+        return hasOptional("artist");
     }
 
     public boolean isInverse() {
-        return hasOptional("--inverse");
+        return hasOptional("inverse");
     }
 
     public boolean isColumn() {
-        return hasOptional("--column");
+        return hasOptional("column");
     }
 
     public boolean isLinear() {
-        return hasOptional("--linear");
+        return hasOptional("linear");
     }
 
     @Override
@@ -60,7 +60,7 @@ public class RainbowParams extends ChartParameters {
     }
 
     public boolean isColor() {
-        return hasOptional("--color");
+        return hasOptional("color");
     }
 
     @Override

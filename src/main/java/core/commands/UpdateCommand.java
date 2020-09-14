@@ -35,14 +35,14 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
     public UpdateCommand(ChuuService dao) {
         super(dao);
-        parser = new OnlyUsernameParser(dao, new OptionalEntity("--force", "Does a full heavy update"));
+        parser = new OnlyUsernameParser(dao, new OptionalEntity("force", "Does a full heavy update"));
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotifyApi = SpotifySingleton.getInstance();
     }
 
     @Override
     public Parser<ChuuDataParams> getParser() {
-        return new OnlyUsernameParser(getService(), new OptionalEntity("--force", "Does a full heavy update"));
+        return new OnlyUsernameParser(getService(), new OptionalEntity("force", "Does a full heavy update"));
     }
 
     @Override
@@ -66,7 +66,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
             return;
         }
         getService().findLastFMData(discordID);
-        boolean force = params.hasOptional("--force");
+        boolean force = params.hasOptional("force");
         String userString = getUserString(e, discordID, lastFmName);
         if (e.isFromGuild()) {
             if (getService().getAll(e.getGuild().getIdLong()).stream()

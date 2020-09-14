@@ -24,7 +24,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
     public GlobalBaseWhoKnowCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = true;
-        parser.addOptional(new OptionalEntity("--nobotted", "discard users that have been manually flagged as potentially botted accounts"));
+        parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
     }
 
 

@@ -37,9 +37,9 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
     @Override
     public ChartableParser<ChartSizeParameters> getParser() {
         OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(getService(), TimeFrameEnum.ALL,
-                new OptionalEntity("--global", " shows artist from all bot users instead of only from this server"));
-        onlyChartSizeParser.replaceOptional("--plays", new OptionalEntity("--noplays", "don't display plays"));
-        onlyChartSizeParser.addOptional(new OptionalEntity("--plays", "shows this with plays", true, "--noplays"));
+                new OptionalEntity("global", " shows artist from all bot users instead of only from this server"));
+        onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noplays", "don't display plays"));
+        onlyChartSizeParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
         onlyChartSizeParser.setAllowUnaothorizedUsers(true);
         return onlyChartSizeParser;
     }
@@ -59,7 +59,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartSizeParameters gp) {
         ChartMode effectiveMode = getEffectiveMode(gp);
-        ResultWrapper<ScrobbledArtist> guildTop = getService().getGuildTop(gp.hasOptional("--global") ? null : gp.getE().getGuild().getIdLong(),
+        ResultWrapper<ScrobbledArtist> guildTop = getService().getGuildTop(gp.hasOptional("global") ? null : gp.getE().getGuild().getIdLong(),
                 gp.getX() * gp.getY(),
                 !(effectiveMode.equals(ChartMode.IMAGE) && gp.chartMode().equals(ChartMode.IMAGE) || gp.chartMode().equals(ChartMode.IMAGE_ASIDE)));
         AtomicInteger counter = new AtomicInteger(0);
@@ -101,7 +101,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
     public void doPie(PieChart pieChart, ChartSizeParameters gp, int count) {
         String urlImage;
         String subtitle;
-        if (gp.hasOptional("--global")) {
+        if (gp.hasOptional("global")) {
             subtitle = configPieChart(pieChart, gp, count, gp.getE().getJDA().getSelfUser().getName());
             urlImage = gp.getE().getJDA().getSelfUser().getAvatarUrl();
 
@@ -131,7 +131,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
     @Override
     public void noElementsMessage(ChartSizeParameters gp) {
         MessageReceivedEvent e = gp.getE();
-        if (gp.hasOptional("--global")) {
+        if (gp.hasOptional("global")) {
             sendMessageQueue(e, "No one has listened a single artist in the whole bot");
         } else {
             sendMessageQueue(e, "No one has listened a single artist in this server");

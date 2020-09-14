@@ -50,7 +50,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> getParser() {
-        return new OptionableParser(new OptionalEntity("--recent", "show last song from ALL users"));
+        return new OptionableParser(new OptionalEntity("recent", "show last song from ALL users"));
     }
 
 
@@ -69,7 +69,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
 
 
         CommandParameters parameters = parser.parse(e);
-        boolean showFresh = !parameters.hasOptional("--recent");
+        boolean showFresh = !parameters.hasOptional("recent");
 
         List<UsersWrapper> list = getService().getAll(e.getGuild().getIdLong());
         if (list.size() > 50) {

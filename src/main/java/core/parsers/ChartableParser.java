@@ -32,11 +32,11 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
 
     @Override
     void setUpOptionals() {
-        opts.add(new OptionalEntity("--notitles", "dont display titles"));
-        opts.add(new OptionalEntity("--plays", "display play count"));
-        opts.add(new OptionalEntity("--list", "display it as an embed"));
-        opts.add(new OptionalEntity("--pie", "display it as a chart pie"));
-        opts.add(new OptionalEntity("--aside", "show titles on the side"));
+        opts.add(new OptionalEntity("notitles", "dont display titles"));
+        opts.add(new OptionalEntity("plays", "display play count"));
+        opts.add(new OptionalEntity("list", "display it as an embed"));
+        opts.add(new OptionalEntity("pie", "display it as a chart pie"));
+        opts.add(new OptionalEntity("aside", "show titles on the side"));
     }
 
 

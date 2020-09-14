@@ -21,16 +21,16 @@ public class GayParams extends ChartParameters {
 
     @Override
     public boolean isWritePlays() {
-        return hasOptional("--plays");
+        return hasOptional("plays");
     }
 
     @Override
     public boolean isWriteTitles() {
-        return hasOptional("--titles");
+        return hasOptional("titles");
     }
 
     public boolean isArtist() {
-        return hasOptional("--artist");
+        return hasOptional("artist");
     }
 
 

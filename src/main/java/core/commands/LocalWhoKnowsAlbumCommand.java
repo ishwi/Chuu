@@ -55,7 +55,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
 
     @Override
     public Parser<ArtistAlbumParameters> getParser() {
-        ArtistAlbumParser parser = new ArtistAlbumParser(getService(), lastFM, new OptionalEntity("--list", "display in list format"));
+        ArtistAlbumParser parser = new ArtistAlbumParser(getService(), lastFM, new OptionalEntity("list", "display in list format"));
         parser.setExpensiveSearch(true);
         return parser;
     }

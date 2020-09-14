@@ -17,7 +17,7 @@ public class TimezoneParser extends Parser<TimezoneParams> {
 
     @Override
     void setUpOptionals() {
-        this.opts.add(new OptionalEntity("--nam", "lol"));
+        this.opts.add(new OptionalEntity("nam", "lol"));
     }
 
     @Override

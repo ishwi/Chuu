@@ -56,7 +56,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);
-        artistParametersArtistParserNumberParser.addOptional(new OptionalEntity("--server", "only include people in this server"));
+        artistParametersArtistParserNumberParser.addOptional(new OptionalEntity("server", "only include people in this server"));
         return artistParametersArtistParserNumberParser;
     }
 
@@ -84,7 +84,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         }
         Long guildId = null;
         String title;
-        if (e.isFromGuild() && params.hasOptional("--server")) {
+        if (e.isFromGuild() && params.hasOptional("server")) {
             Guild guild = e.getGuild();
             guildId = guild.getIdLong();
             title = guild.getName();

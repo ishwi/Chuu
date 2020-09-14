@@ -21,11 +21,11 @@ public class ChartYearParameters extends ChartParameters {
     }
 
     public boolean isByTime() {
-        return hasOptional("--time");
+        return hasOptional("time");
     }
 
     public boolean isCareAboutSized() {
-        return !hasOptional("--nolimit");
+        return !hasOptional("nolimit");
     }
 
 }
