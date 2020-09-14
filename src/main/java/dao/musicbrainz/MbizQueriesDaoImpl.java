@@ -248,15 +248,19 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
     @Override
     public Map<Country, Integer> countryCount(Connection connection, List<ArtistInfo> releaseInfo) {
         Map<Country, Integer> returnMap = new HashMap<>();
-        StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "       c.code as code, b.name as neim, count(*) as count\n \n" +
+        StringBuilder queryString = new StringBuilder("select main.neim,main.code,count(*) as count from (\n" +
+                "SELECT \n" +
+                "      (case \n" +
+                "\t  when b.type = 1 then c.code\n" +
+                "\t  else coalesce(calculate_country(b.id),'NOTVALID') end)" +
+                " as code, b.name as neim \n" +
+                " \n" +
                 " FROM\n" +
                 " musicbrainz.artist a join \n" +
                 " musicbrainz.area b" +
-                " join musicbrainz.iso_3166_1 c  on b.id=c.area " +
-                " on a.area = b.id" +
-                "  WHERE b.type = 1" +
-                "	 and " +
+                " left join musicbrainz.iso_3166_1 c  on b.id=c.area " +
+                " on a.area = b.id and b.type = 1" +
+                "  WHERE " +
                 "    a.gid in (");
 
         for (ArtistInfo ignored : releaseInfo) {
@@ -264,7 +268,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
         }
 
         queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
-        queryString.append(" \n GROUP BY  b.name,c.code");
+        queryString.append(") main   GROUP BY  main.neim,main.code\n");
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString.toString())) {
             int i = 1;
@@ -277,6 +281,9 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             while (resultSet.next()) {
 
                 String coutryName = resultSet.getString("neim");
+                if (coutryName.equals("NOTVALID")) {
+                    continue;
+                }
                 String code = resultSet.getString("code");
 
                 int frequency = resultSet.getInt("count");
@@ -387,9 +394,9 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
                 " musicbrainz.artist a join \n" +
                 " musicbrainz.area b " +
                 " on a.area = b.id" +
-                " join musicbrainz.iso_3166_1 c  on b.id=c.area " +
-                "  WHERE b.type = 1 or b.type" +
-                "   and c.code = ? " +
+                " left join musicbrainz.iso_3166_1 c  on b.id=c.area  and b.type = 1" +
+                "  left join country_lookup d on b.id = d.id and b.type != 1     " +
+                "   where  (c.code = ? or d.country =?) " +
                 "   and a.gid in (");
 
         for (ArtistInfo ignored : allUserArtist) {
@@ -402,6 +409,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString.toString())) {
             int i = 1;
             preparedStatement.setString(i++, country.getAlpha2());
+            preparedStatement.setString(i++, country.getAlpha2());
+
             for (ArtistInfo albumInfo : allUserArtist) {
                 preparedStatement.setObject(i++, java.util.UUID.fromString(albumInfo.getMbid()));
             }

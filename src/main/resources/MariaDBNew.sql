@@ -942,3 +942,44 @@ CREATE TABLE server_blocked
     CONSTRAINT server_blocked_fk_user FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON DELETE CASCADE ON UPDATE CASCADE
 
 );
+
+
+
+CREATE FUNCTION calculate_country(area bigint) RETURNS int
+    language sql
+    RETURN
+
+        (WITH RECURSIVE area_descendants AS (
+    SELECT entity0 AS parent, entity1 AS descendant, 1 AS depth
+      FROM l_area_area laa
+      JOIN link ON laa.link = link.id
+     WHERE link.link_type = 356
+       AND entity1 IN (area)
+     UNION
+    SELECT entity0 AS parent, descendant, (depth + 1) AS depth
+      FROM l_area_area laa
+      JOIN link ON laa.link = link.id
+      JOIN area_descendants ON area_descendants.parent = laa.entity1
+     WHERE link.link_type = 356
+       AND entity0 != descendant
+)
+SELECT iso.code
+FROM area_descendants ad
+         JOIN iso_3166_1 iso ON iso.area = ad.parent);
+        (WITH RECURSIVE cte (week_id, artist_id, album_name) AS
+                            (SELECT week_id,
+                                    artist_id,
+                                    album_name
+                             FROM weekly_billboard_album_global_listeners
+                             WHERE id = bill_id
+                             UNION ALL
+                             SELECT b.week_id,
+                                    b.artist_id,
+                                    b.album_name
+                             FROM cte t
+                                      JOIN weekly_billboard_album_global_listeners b ON b.week_id = t.week_id - 1
+                                 AND t.artist_id = b.artist_id
+                                 AND t.album_name = b.album_name)
+         SELECT count(*)
+         FROM cte);
+-- End of streak functions calculation
