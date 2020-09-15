@@ -69,7 +69,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
             return;
         }
         String contentRaw = e.getMessage().getContentRaw();
-        if (contentRaw.length() <= 5)
+        if (contentRaw.length() < 5)
             return;
         contentRaw = contentRaw.substring(5).trim();
 
@@ -77,28 +77,29 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
             contentRaw = contentRaw.replaceAll("```(java)?", "");
         }
         EvalContext evalContext = new EvalContext(e.getJDA(), e, e.getAuthor(), e.isFromGuild() ? e.getGuild() : null, null, getService(), lastFM);
-
-        JavaEvaluator javaEvaluator = new JavaEvaluator();
-        CompilationResult r = javaEvaluator.compile()
-                .addCompilerOptions("-Xlint:unchecked")
-                .source("Eval", JAVA_EVAL_IMPORTS + "\n\n" +
-                        "public class Eval {\n" +
-                        "   public static Object run(EvalContext ctx) throws Throwable {\n" +
-                        "       try {\n" +
-                        "           return null;\n" +
-                        "       } finally {\n" +
-                        "           " + (contentRaw + ";").replaceAll(";{2,}", ";") + "\n" +
-                        "       }\n" +
-                        "   }\n" +
-                        "}"
-                )
-                .execute();
-
-        EvalClassLoader ecl = new EvalClassLoader();
-        r.getClasses().forEach((name, bytes) -> ecl.define(bytes));
         try {
+            JavaEvaluator javaEvaluator = new JavaEvaluator();
+            CompilationResult r = javaEvaluator.compile()
+                    .addCompilerOptions("-Xlint:unchecked")
+                    .source("Eval", JAVA_EVAL_IMPORTS + "\n\n" +
+                            "public class Eval {\n" +
+                            "   public static Object run(EvalContext ctx) throws Throwable {\n" +
+                            "       try {\n" +
+                            "           return null;\n" +
+                            "       } finally {\n" +
+                            "           " + (contentRaw + ";").replaceAll(";{2,}", ";") + "\n" +
+                            "       }\n" +
+                            "   }\n" +
+                            "}"
+                    )
+                    .execute();
+
+            EvalClassLoader ecl = new EvalClassLoader();
+            r.getClasses().forEach((name, bytes) -> ecl.define(bytes));
+
             ecl.loadClass("core.commands.Eval").getMethod("run", EvalContext.class).invoke(null, evalContext);
-        } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException noSuchMethodException) {
+        } catch (Exception noSuchMethodException) {
+            sendMessageQueue(e, "```\n" + noSuchMethodException.getCause() + "```");
             noSuchMethodException.printStackTrace();
         }
 
