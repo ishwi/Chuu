@@ -39,7 +39,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
 
     @Override
     public ChartableParser<ChartableGenreParameters> getParser() {
-        return new GenreChartParser(getService(), TimeFrameEnum.ALL, lastFM);
+        return new GenreChartParser(getService(), TimeFrameEnum.WEEK, lastFM);
     }
 
     @Override
@@ -77,8 +77,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
             lastFM.getChart(name, params.getTimeFrameEnum().toApiFormat(), 4000, 1,
                     TopEntity.ALBUM,
                     ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, name), queue);
-            ArrayList<UrlCapsule> c = new ArrayList<>();
-            queue.drainTo(c);
+            ArrayList<UrlCapsule> c = new ArrayList<>(queue);
             albums = c.stream()
                     .filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid())).collect(Collectors.toList());
         }

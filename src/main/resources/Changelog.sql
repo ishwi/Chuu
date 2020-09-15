@@ -79,7 +79,6 @@ alter table artist
 -- 2020/09/14
 -- Might need these queries to delete duplicated rows;
 -- create table temp_combos  as (select *  from top_combos a where (artist_combo,discord_id,artist_id) not in (select max(artist_combo),discord_id,artist_id from top_combos b  where b.discord_id = a.discord_id and b.artist_id = a.artist_id));
--- delete from top_combos where  exists (select 1 from temp_combos  where id = top_combos.id) ;
 
 
 -- delete from top_combos
