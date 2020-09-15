@@ -36,7 +36,6 @@ public class GraphicUtils {
     static final File CacheDirectory;
 
 
-
     private GraphicUtils() {
     }
 
@@ -299,7 +298,6 @@ public class GraphicUtils {
     }
 
 
-
     static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
 
         Color temp = g.getColor();
@@ -391,7 +389,7 @@ public class GraphicUtils {
         if (url == null || url.isBlank()) {
             return null;
         }
-        String path = url.replaceAll("[\\\\/:;]", "_");
+        String path = url.replaceAll("[\\\\/:;?<>\"|*]", "_");
         path = path.substring(0, Math.min(path.length(), 150));
         File file = new File(CacheDirectory, path);
         if (file.exists()) {
