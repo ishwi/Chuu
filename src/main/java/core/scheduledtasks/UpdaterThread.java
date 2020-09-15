@@ -10,6 +10,7 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.CommandUtil;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmEntityNotFoundException;
+import core.services.UpdaterService;
 import dao.ChuuService;
 import dao.entities.*;
 
@@ -58,79 +59,92 @@ public class UpdaterThread implements Runnable {
         try {
             System.out.println("THREAD WORKING ) + " + LocalDateTime.now().toString());
             UpdaterUserWrapper userWork;
+
             float chance = r.nextFloat();
             userWork = dao.getLessUpdated();
-
-            String lastFMName = userWork.getLastFMName();
+            boolean removeFlag = true;
             try {
-                if (isIncremental && chance <= 0.95f) {
-
-                    TimestampWrapper<List<ScrobbledAlbum>> albumDataList = lastFM
-                            .getNewWhole(lastFMName,
-                                    userWork.getTimestamp());
-
-
-                    // Correction with current last fm implementation should return the same name so
-                    // no correction gives
-                    List<ScrobbledAlbum> albumData = albumDataList.getWrapped();
-                    List<ScrobbledArtist> artistData = groupAlbumsToArtist(albumData);
-                    albumData = albumData.stream().filter(x -> x != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
-                    Map<String, ScrobbledArtist> changedName = new HashMap<>();
-                    for (Iterator<ScrobbledArtist> iterator = artistData.iterator(); iterator.hasNext(); ) {
-                        ScrobbledArtist datum = iterator.next();
-                        try {
-                            String artist = datum.getArtist();
-                            CommandUtil.validate(dao, datum, lastFM, discogsApi, spotify);
-                            String newArtist = datum.getArtist();
-                            if (!artist.equals(newArtist)) {
-                                ScrobbledArtist e = new ScrobbledArtist(newArtist, 0, null);
-                                e.setArtistId(datum.getArtistId());
-                                changedName.put(artist, e);
-                            }
-                        } catch (LastFmEntityNotFoundException ex) {
-                            Chuu.getLogger().error("WTF ARTIST DELETED" + datum.getArtist());
-                            iterator.remove();
-                        }
-                    }
-
-                    albumData.forEach(x -> {
-                        ScrobbledArtist scrobbledArtist = changedName.get(x.getArtist());
-                        if (scrobbledArtist != null) {
-                            x.setArtist(scrobbledArtist.getArtist());
-                            x.setArtistId(scrobbledArtist.getArtistId());
-                        }
-                    });
-
-                    dao.incrementalUpdate(new TimestampWrapper<>(artistData, albumDataList.getTimestamp()), lastFMName, albumData);
-
-                    System.out.println("Updated Info Incrementally of " + lastFMName
-                            + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-                    System.out.println(" Number of rows updated :" + albumData.size());
-
-                } else {
-
-                    List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMName, TimeFrameEnum.ALL.toApiFormat());
-                    dao.insertArtistDataList(artistData, lastFMName);
-                    System.out.println(" Updated  ) " + lastFMName + " artists");
-
-                    List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFMName, TimeFrameEnum.ALL.toApiFormat());
-                    dao.albumUpdate(albumData, artistData, lastFMName);
-                    System.out.println(" Updated  ) " + lastFMName + " albums");
-
+                if (!UpdaterService.lockAndContinue(userWork.getLastFMName())) {
+                    removeFlag = false;
+                    Chuu.getLogger().warn("User was being updated" + userWork.getLastFMName());
+                    return;
                 }
-            } catch (LastFMNoPlaysException e) {
-                // dao.updateUserControlTimestamp(userWork.getLastFMName(),userWork.getTimestampControl());
-                dao.updateUserTimeStamp(lastFMName, userWork.getTimestamp(),
-                        (int) (Instant.now().getEpochSecond() + 4000));
-                System.out.println("No plays " + lastFMName
-                        + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-            } catch (LastFmEntityNotFoundException e) {
-                dao.removeUserCompletely(userWork.getDiscordID());
-            }
 
+                String lastFMName = userWork.getLastFMName();
+                try {
+                    if (isIncremental && chance <= 0.95f) {
+
+                        TimestampWrapper<List<ScrobbledAlbum>> albumDataList = lastFM
+                                .getNewWhole(lastFMName,
+                                        userWork.getTimestamp());
+
+
+                        // Correction with current last fm implementation should return the same name so
+                        // no correction gives
+                        List<ScrobbledAlbum> albumData = albumDataList.getWrapped();
+                        List<ScrobbledArtist> artistData = groupAlbumsToArtist(albumData);
+                        albumData = albumData.stream().filter(x -> x != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
+                        Map<String, ScrobbledArtist> changedName = new HashMap<>();
+                        for (Iterator<ScrobbledArtist> iterator = artistData.iterator(); iterator.hasNext(); ) {
+                            ScrobbledArtist datum = iterator.next();
+                            try {
+                                String artist = datum.getArtist();
+                                CommandUtil.validate(dao, datum, lastFM, discogsApi, spotify);
+                                String newArtist = datum.getArtist();
+                                if (!artist.equals(newArtist)) {
+                                    ScrobbledArtist e = new ScrobbledArtist(newArtist, 0, null);
+                                    e.setArtistId(datum.getArtistId());
+                                    changedName.put(artist, e);
+                                }
+                            } catch (LastFmEntityNotFoundException ex) {
+                                Chuu.getLogger().error("WTF ARTIST DELETED" + datum.getArtist());
+                                iterator.remove();
+                            }
+                        }
+
+                        albumData.forEach(x -> {
+                            ScrobbledArtist scrobbledArtist = changedName.get(x.getArtist());
+                            if (scrobbledArtist != null) {
+                                x.setArtist(scrobbledArtist.getArtist());
+                                x.setArtistId(scrobbledArtist.getArtistId());
+                            }
+                        });
+
+                        dao.incrementalUpdate(new TimestampWrapper<>(artistData, albumDataList.getTimestamp()), lastFMName, albumData);
+
+                        System.out.println("Updated Info Incrementally of " + lastFMName
+                                + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+                        System.out.println(" Number of rows updated :" + albumData.size());
+
+                    } else {
+
+                        List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMName, TimeFrameEnum.ALL.toApiFormat());
+                        dao.insertArtistDataList(artistData, lastFMName);
+                        System.out.println(" Updated  ) " + lastFMName + " artists");
+
+                        List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFMName, TimeFrameEnum.ALL.toApiFormat());
+                        dao.albumUpdate(albumData, artistData, lastFMName);
+                        System.out.println(" Updated  ) " + lastFMName + " albums");
+
+                    }
+                } catch (LastFMNoPlaysException e) {
+                    // dao.updateUserControlTimestamp(userWork.getLastFMName(),userWork.getTimestampControl());
+                    dao.updateUserTimeStamp(lastFMName, userWork.getTimestamp(),
+                            (int) (Instant.now().getEpochSecond() + 4000));
+                    System.out.println("No plays " + lastFMName
+                            + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+                } catch (LastFmEntityNotFoundException e) {
+                    dao.removeUserCompletely(userWork.getDiscordID());
+                }
+            } finally {
+                if (removeFlag) {
+                    UpdaterService.remove(userWork.getLastFMName());
+                }
+            }
         } catch (Throwable e) {
             System.out.println("Error while updating" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
             Chuu.getLogger().warn(e.getMessage(), e);
         }
+
     }
 }

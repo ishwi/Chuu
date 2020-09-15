@@ -674,8 +674,9 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 ", a.privacy_mode," +
                 "a.notify_rating, " +
                 " private_lastfm " +
-                "FROM user a join user_guild b on a.discord_id = b.discord_id join guild c on c.guild_id = b.guild_id " +
-                " WHERE a.discord_id = ? AND c.guild_id = ? ";
+                "FROM user a join guild c" +
+
+                " WHERE a.discord_id = ? AND  c.guild_id = ? ";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 

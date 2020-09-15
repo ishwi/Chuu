@@ -48,6 +48,15 @@ public class ScrobbledAlbum extends ScrobbledArtist {
     public long getAlbumId() {
         return albumId;
     }
+
+    @Override
+    public String toString() {
+        return "ScrobbledAlbum{" +
+                "albumId=" + albumId +
+                ", album='" + album + '\'' +
+                ", albumMbid='" + albumMbid + '\'' +
+                '}';
+    }
 }
 
 

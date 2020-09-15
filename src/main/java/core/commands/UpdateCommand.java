@@ -13,6 +13,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.services.UpdaterService;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -78,71 +79,79 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
             sendMessageQueue(e, "You are not registered yet, go to any server and register there!");
             return;
         }
-        long userAlbumCount = getService().getUserAlbumCount(discordID);
-        int userArtistCount = getService().getUserArtistCount(lastFmName, 0);
-
-        if (force || userAlbumCount < 0.86 * userArtistCount) {
-            if (!force) {
-                sendMessageQueue(e, "Will run a full update to index your albums. Takes a while :pensive:");
-            }
-            e.getChannel().sendTyping().queue();
-            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
-            getService().insertArtistDataList(artistData, lastFmName);
-            e.getChannel().sendTyping().queue();
-            //sendMessageQueue(e, "Finished updating your artist, now the album process will start");
-            List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
-            e.getChannel().sendTyping().queue();
-            getService().albumUpdate(albumData, artistData, lastFmName);
-        } else {
-            UpdaterUserWrapper userUpdateStatus = null;
-
-            try {
-                userUpdateStatus = getService().getUserUpdateStatus(discordID);
-                TimestampWrapper<List<ScrobbledAlbum>> albumDataList = lastFM
-                        .getNewWhole(lastFmName,
-                                userUpdateStatus.getTimestamp());
-
-
-                // Correction with current last fm implementation should return the same name so
-                // no correction gives
-                List<ScrobbledAlbum> albumData = albumDataList.getWrapped();
-                List<ScrobbledArtist> artistData = groupAlbumsToArtist(albumData);
-                albumData = albumData.stream().filter(x -> x != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
-                Map<String, ScrobbledArtist> changedName = new HashMap<>();
-                for (Iterator<ScrobbledArtist> iterator = artistData.iterator(); iterator.hasNext(); ) {
-                    ScrobbledArtist datum = iterator.next();
-                    try {
-                        String artist = datum.getArtist();
-                        CommandUtil.validate(getService(), datum, lastFM, discogsApi, spotifyApi);
-                        String newArtist = datum.getArtist();
-                        if (!artist.equals(newArtist)) {
-                            ScrobbledArtist scrobbledArtist = new ScrobbledArtist(newArtist, 0, null);
-                            scrobbledArtist.setArtistId(datum.getArtistId());
-                            changedName.put(artist, scrobbledArtist);
-                        }
-                    } catch (LastFmEntityNotFoundException ex) {
-                        Chuu.getLogger().error("WTF ARTIST DELETED" + datum.getArtist());
-                        iterator.remove();
-                    }
-                }
-
-                albumData.forEach(x -> {
-                    ScrobbledArtist scrobbledArtist = changedName.get(x.getArtist());
-                    if (scrobbledArtist != null) {
-                        x.setArtist(scrobbledArtist.getArtist());
-                        x.setArtistId(scrobbledArtist.getArtistId());
-                    }
-                });
-
-                getService().incrementalUpdate(new TimestampWrapper<>(artistData, albumDataList.getTimestamp()), lastFmName, albumData);                //getService().incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
-            } catch (LastFMNoPlaysException ex) {
-                getService().updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
-                        (int) (Instant.now().getEpochSecond() + 4000));
-                sendMessageQueue(e, "You were already up to date! If you consider you are not really up to date run this command again with **`--force`**");
+        boolean removeFlag = true;
+        try {
+            if (!UpdaterService.lockAndContinue(lastFmName)) {
+                removeFlag = false;
+                sendMessageQueue(e, "You were already being updated. Wait a few seconds");
                 return;
             }
+
+
+            if (force) {
+                e.getChannel().sendTyping().queue();
+                List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
+                getService().insertArtistDataList(artistData, lastFmName);
+                e.getChannel().sendTyping().queue();
+                //sendMessageQueue(e, "Finished updating your artist, now the album process will start");
+                List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
+                e.getChannel().sendTyping().queue();
+                getService().albumUpdate(albumData, artistData, lastFmName);
+            } else {
+                UpdaterUserWrapper userUpdateStatus = null;
+
+                try {
+                    userUpdateStatus = getService().getUserUpdateStatus(discordID);
+                    TimestampWrapper<List<ScrobbledAlbum>> albumDataList = lastFM
+                            .getNewWhole(lastFmName,
+                                    userUpdateStatus.getTimestamp());
+
+
+                    // Correction with current last fm implementation should return the same name so
+                    // no correction gives
+                    List<ScrobbledAlbum> albumData = albumDataList.getWrapped();
+                    List<ScrobbledArtist> artistData = groupAlbumsToArtist(albumData);
+                    albumData = albumData.stream().filter(x -> x != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
+                    Map<String, ScrobbledArtist> changedName = new HashMap<>();
+                    for (Iterator<ScrobbledArtist> iterator = artistData.iterator(); iterator.hasNext(); ) {
+                        ScrobbledArtist datum = iterator.next();
+                        try {
+                            String artist = datum.getArtist();
+                            CommandUtil.validate(getService(), datum, lastFM, discogsApi, spotifyApi);
+                            String newArtist = datum.getArtist();
+                            if (!artist.equals(newArtist)) {
+                                ScrobbledArtist scrobbledArtist = new ScrobbledArtist(newArtist, 0, null);
+                                scrobbledArtist.setArtistId(datum.getArtistId());
+                                changedName.put(artist, scrobbledArtist);
+                            }
+                        } catch (LastFmEntityNotFoundException ex) {
+                            Chuu.getLogger().error("WTF ARTIST DELETED" + datum.getArtist());
+                            iterator.remove();
+                        }
+                    }
+
+                    albumData.forEach(x -> {
+                        ScrobbledArtist scrobbledArtist = changedName.get(x.getArtist());
+                        if (scrobbledArtist != null) {
+                            x.setArtist(scrobbledArtist.getArtist());
+                            x.setArtistId(scrobbledArtist.getArtistId());
+                        }
+                    });
+
+                    getService().incrementalUpdate(new TimestampWrapper<>(artistData, albumDataList.getTimestamp()), lastFmName, albumData);                //getService().incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
+                } catch (LastFMNoPlaysException ex) {
+                    getService().updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
+                            (int) (Instant.now().getEpochSecond() + 4000));
+                    sendMessageQueue(e, "You were already up to date! If you consider you are not really up to date run this command again with **`--force`**");
+                    return;
+                }
+            }
+            sendMessageQueue(e, "Successfully updated " + userString + " info!");
+        } finally {
+            if (removeFlag) {
+                UpdaterService.remove(lastFmName);
+            }
         }
-        sendMessageQueue(e, "Successfully updated " + userString + " info!");
 
 
     }

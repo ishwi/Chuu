@@ -5,7 +5,6 @@ import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.*;
 import core.exceptions.ChuuServiceException;
-import core.exceptions.InstanceNotFoundException;
 import core.otherlisteners.AwaitReady;
 import core.scheduledtasks.ArtistMbidUpdater;
 import core.scheduledtasks.ImageUpdaterThread;
@@ -14,7 +13,6 @@ import core.scheduledtasks.UpdaterThread;
 import dao.ChuuService;
 import dao.entities.Metrics;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -26,7 +24,6 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
-import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
@@ -387,6 +384,10 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new ServerAOTY(dao)))
                 .addEventListeners(evalCommand)
                 .addEventListeners(help.registerCommand(new ServerBanCommand(dao)))
+                .addEventListeners(help.registerCommand(new DiscoveredAlbumCommand(dao)))
+                .addEventListeners(help.registerCommand(new DiscoveredArtistCommand(dao)))
+                .addEventListeners(help.registerCommand(new DiscoveredRatioCommand(dao)))
+                .addEventListeners(help.registerCommand(new DiscoveredAlbumRatioCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {

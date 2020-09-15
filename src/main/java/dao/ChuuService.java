@@ -1,6 +1,7 @@
 package dao;
 
 import com.sun.istack.NotNull;
+import com.wrapper.spotify.model_objects.specification.Artist;
 import core.Chuu;
 import core.commands.BillboardEntity;
 import dao.entities.RYMImportRating;
@@ -37,6 +38,7 @@ public class ChuuService {
     private final UserGuildDao userGuildDao;
     private final AlbumDao albumDao;
     private final BillboardDao billboardDao;
+    private final DiscoveralDao discoveralDao;
 
     public ChuuService(SimpleDataSource dataSource) {
 
@@ -48,6 +50,8 @@ public class ChuuService {
         this.rymDao = new SQLRYMDaoImpl();
         this.updaterDao = new UpdaterDaoImpl();
         this.billboardDao = new BillboardDaoImpl();
+        this.discoveralDao = new DiscoveralDaoImpl();
+
 
     }
 
@@ -61,6 +65,7 @@ public class ChuuService {
         this.userGuildDao = new UserGuildDaoImpl();
         this.updaterDao = new UpdaterDaoImpl();
         this.billboardDao = new BillboardDaoImpl();
+        this.discoveralDao = new DiscoveralDaoImpl();
 
     }
 
@@ -2120,6 +2125,51 @@ public class ChuuService {
 
         try (Connection connection = dataSource.getConnection()) {
             return userGuildDao.isUserServerBanned(connection, userId, guildID);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScrobbledAlbum> getDiscoveredAlbums(Collection<ScrobbledAlbum> scrobbledArtists, String lastfmId) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            discoveralDao.setDiscoveredAlbumTempTable(connection, scrobbledArtists, lastfmId);
+            Map<AlbumInfo, ScrobbledAlbum> scrobbledAlbumLookup = scrobbledArtists.stream().collect(Collectors.toMap(x -> new AlbumInfo(x.getAlbum(), x.getArtist()), x -> x, (x, y) -> {
+                x.setCount(x.getCount() + y.getCount());
+                return x;
+            }));
+            List<AlbumInfo> discoveredAlbums = discoveralDao.calculateDiscoveryFromAlbumTemp(connection, lastfmId);
+            discoveralDao.deleteDiscoveryAlbumTempTable(connection);
+            return scrobbledAlbumLookup.entrySet().stream().filter(x -> discoveredAlbums.contains(x.getKey())).map(Map.Entry::getValue).collect(Collectors.toList());
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScrobbledArtist> getDiscoveredArtists(Collection<ScrobbledArtist> scrobbledArtists, String lastfmId) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            discoveralDao.setDiscoveredArtistTempTable(connection, scrobbledArtists, lastfmId);
+            Map<ArtistInfo, ScrobbledArtist> lookupScrobbleArtists = scrobbledArtists.stream().collect(Collectors.toMap(x -> new ArtistInfo(null, x.getArtist()), x -> x, (x, y) -> {
+                x.setCount(x.getCount() + y.getCount());
+                return x;
+            }));
+            Set<ArtistInfo> discoveredArtists = discoveralDao.calculateDiscoveryFromArtistTemp(connection, lastfmId);
+
+            Map<ArtistInfo, ArtistInfo> urlLookup = discoveredArtists.stream().collect(Collectors.toMap(x -> x, x -> x));
+
+
+            discoveralDao.deleteDiscoveryArtistTable(connection);
+
+            return lookupScrobbleArtists.entrySet().stream().filter(x -> {
+                boolean contains = discoveredArtists.contains(x.getKey());
+                if (contains) {
+                    x.getValue().setUrl(urlLookup.get(x.getKey()).getArtistUrl());
+                }
+                return contains;
+            }).map(Map.Entry::getValue).collect(Collectors.toList());
+
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

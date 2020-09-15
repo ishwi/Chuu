@@ -2213,6 +2213,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
 
+
     private void getScoredAlbums(List<ScoredAlbumRatings> returnList, ResultSet resultSet) throws SQLException {
 
         while (resultSet.next()) {
@@ -2225,6 +2226,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
 }
+
 
 
 

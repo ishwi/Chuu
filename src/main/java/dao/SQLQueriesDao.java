@@ -3,6 +3,7 @@ package dao;
 import dao.entities.*;
 
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -132,4 +133,6 @@ interface SQLQueriesDao {
 
 
     ResultWrapper<ScrobbledAlbum> getGuildTopAlbum(Connection connection, Long guildID, int limit, boolean doCount);
+
+
 }
