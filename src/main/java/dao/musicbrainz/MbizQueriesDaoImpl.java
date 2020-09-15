@@ -1,7 +1,6 @@
 package dao.musicbrainz;
 
 import com.neovisionaries.i18n.CountryCode;
-import com.wrapper.spotify.model_objects.specification.Artist;
 import core.Chuu;
 import core.exceptions.ChuuServiceException;
 import dao.entities.*;
@@ -632,6 +631,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
     }
 
+
     private void prepareRealeaseYearStatement(List<AlbumInfo> releaseInfo, Year
             year, List<AlbumInfo> returnList, PreparedStatement preparedStatement) throws SQLException {
         preparedStatement.setInt(1 + releaseInfo.size() * 2, year.get(ChronoField.YEAR));
@@ -1155,6 +1155,41 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
         return list.stream().collect(Collectors.toMap(genre -> genre, genre -> returnMap.getOrDefault(genre, 0), Integer::sum));
     }
 
+    @Override
+    public MusicbrainzFullAlbumEntity retrieveAlbumInfo(Connection connection, FullAlbumEntityExtended albumInfo) {
+        List<String> tags = new ArrayList<>();
+        Year year = null;
+        String queryString = "SELECT " +
+                "    d.first_release_date_year as year,f.name \n" +
+                "FROM\n" +
+                "    musicbrainz.release b " +
+                "        JOIN\n" +
+                "    musicbrainz.release_group c ON b.release_group = c.id\n" +
+                "        JOIN\n" +
+                "    musicbrainz.release_group_meta d ON c.id = d.id " +
+
+                "   left join  musicbrainz.release_group_tag e ON c.id = e.release_group\n" +
+                "        left JOIN\n" +
+                "    musicbrainz.tag f ON e.tag = f.id\n" +
+                " where b.gid = ? ";
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setObject(1, java.util.UUID.fromString(albumInfo.getMbid()));
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                if (year == null) {
+                    year = Year.of(resultSet.getInt(1));
+                }
+                tags.add(resultSet.getString(2));
+            }
+            return new MusicbrainzFullAlbumEntity(albumInfo, tags, year);
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+    }
+
     private void prepareRealeaseYearStatementAverage(List<AlbumInfo> releaseInfo, Year
             year, List<CountWrapper<AlbumInfo>> returnList, PreparedStatement preparedStatement) throws
             SQLException {
@@ -1194,5 +1229,6 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
             returnList.add(new CountWrapper<>(average, ai));
         }
     }
+
 
 }

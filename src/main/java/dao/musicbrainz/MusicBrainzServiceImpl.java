@@ -254,7 +254,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
     @Override
     public List<TrackInfo> getAlbumInfoByNames(List<UrlCapsule> urlCapsules) {
         try (Connection connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
+            connection.setReadOnly(true);
             return mbizQueriesDao.getAlbumInfoByName(connection, urlCapsules);
         } catch (
                 SQLException e) {
@@ -265,8 +265,22 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
     @Override
     public void getAlbumInfoByMbid(List<UrlCapsule> urlCapsules) {
         try (Connection connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
+            connection.setReadOnly(true);
             mbizQueriesDao.getAlbumInfoByMbid(connection, urlCapsules);
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public MusicbrainzFullAlbumEntity getAlbumInfo(FullAlbumEntityExtended albumInfo) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (albumInfo.getMbid() == null || albumInfo.getMbid().isBlank()) {
+                return new MusicbrainzFullAlbumEntity(albumInfo, Collections.emptyList(), null);
+            }
+            return mbizQueriesDao.retrieveAlbumInfo(connection, albumInfo);
         } catch (
                 SQLException e) {
             throw new ChuuServiceException(e);

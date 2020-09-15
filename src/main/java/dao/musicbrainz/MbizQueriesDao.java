@@ -60,4 +60,6 @@ interface MbizQueriesDao {
 
     Map<Genre, Integer> genreCountByArtist(Connection connection, List<ArtistInfo> releaseInfo);
 
+    MusicbrainzFullAlbumEntity retrieveAlbumInfo(Connection connection, FullAlbumEntityExtended albumInfo);
+
 }

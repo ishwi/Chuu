@@ -9,7 +9,6 @@ import core.parsers.params.WordParameter;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.LocalDateTime;
@@ -17,7 +16,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class SetCommand extends ConcurrentCommand<WordParameter> {
     public SetCommand(ChuuService dao) {
@@ -142,7 +140,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             getService().insertArtistDataList(artistData, lastFmID);
             sendMessageQueue(e, "Finished updating your artist, now the album process will start");
             e.getChannel().sendTyping().queue();
-            List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
+            List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
             getService().albumUpdate(albumData, artistData, lastFmID);
             //  e.getGuild().loadMembers((Chuu::caching));
         } catch (

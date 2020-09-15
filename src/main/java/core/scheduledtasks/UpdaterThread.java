@@ -122,7 +122,7 @@ public class UpdaterThread implements Runnable {
                         dao.insertArtistDataList(artistData, lastFMName);
                         System.out.println(" Updated  ) " + lastFMName + " artists");
 
-                        List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFMName, TimeFrameEnum.ALL.toApiFormat());
+                        List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMName, TimeFrameEnum.ALL.toApiFormat());
                         dao.albumUpdate(albumData, artistData, lastFMName);
                         System.out.println(" Updated  ) " + lastFMName + " albums");
 

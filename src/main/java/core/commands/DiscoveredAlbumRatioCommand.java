@@ -8,7 +8,6 @@ import core.parsers.params.TimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.ScoredAlbumRatings;
 import dao.entities.ScrobbledAlbum;
-import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -55,9 +54,10 @@ public class DiscoveredAlbumRatioCommand extends ConcurrentCommand<TimeFramePara
             sendMessageQueue(e, "Surprisingly you have discovered a 100% of your albums");
             return;
         }
-        List<ScrobbledAlbum> allArtists = lastFM.getALlAlbums(parse.getLastFMData().getName(), parse.getTime().toApiFormat());
+        List<ScrobbledAlbum> allArtists = lastFM.getAllAlbums(parse.getLastFMData().getName(), parse.getTime().toApiFormat());
         int size = getService().getDiscoveredAlbums(allArtists, parse.getLastFMData().getName()).size();
-        sendMessageQueue(e, String.format("You have discovered **%s** new albums%s, making it a **%s%%** of new albums discovered.", size, parse.getTime().getDisplayString(), ScoredAlbumRatings.formatter.format(size * 100. / allArtists.size())));
+        String userString = getUserString(e, parse.getLastFMData().getDiscordId());
+        sendMessageQueue(e, String.format("%s has discovered **%s** new %s%s, making that **%s%%** of new albums discovered.", userString, size, CommandUtil.singlePlural(size, "album", "albums"), parse.getTime().getDisplayString(), ScoredAlbumRatings.formatter.format(size * 100. / allArtists.size())));
 
     }
 }

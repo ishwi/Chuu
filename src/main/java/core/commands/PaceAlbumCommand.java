@@ -9,9 +9,11 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.AlbumTimeFrameParser;
 import core.parsers.ArtistTimeFrameParser;
 import core.parsers.NumberParser;
 import core.parsers.Parser;
+import core.parsers.params.AlbumTimeFrameParameters;
 import core.parsers.params.ArtistTimeFrameParameters;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.NumberParameters;
@@ -36,16 +38,17 @@ import java.util.function.BiFunction;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
-public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<ArtistTimeFrameParameters>> {
+public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTimeFrameParameters>> {
 
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
-    public PaceArtistCommand(ChuuService dao) {
+    public PaceAlbumCommand(ChuuService dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotify = SpotifySingleton.getInstance();
     }
+
 
     @Override
     protected CommandCategory getCategory() {
@@ -53,11 +56,11 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
     }
 
     @Override
-    public Parser<NumberParameters<ArtistTimeFrameParameters>> getParser() {
+    public Parser<NumberParameters<AlbumTimeFrameParameters>> getParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can introduce a goal that will be the number of scrobbles that you want to obtain.";
-        return new NumberParser<>(new ArtistTimeFrameParser(getService(), lastFM),
+        return new NumberParser<>(new AlbumTimeFrameParser(getService(), lastFM),
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);
@@ -65,22 +68,22 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
 
     @Override
     public String getDescription() {
-        return "Like pace but for a given artists and with more limited time windows";
+        return "Like pace but for a given album and with more limited time windows";
     }
 
     @Override
     public List<String> getAliases() {
-        return List.of("artistpace", "apace", "pacea");
+        return List.of("albumpace", "albpace", "pacealb");
     }
 
     @Override
     public String getName() {
-        return "Artist Pace";
+        return "Album Pace";
     }
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<ArtistTimeFrameParameters> params = parser.parse(e);
+        NumberParameters<AlbumTimeFrameParameters> params = parser.parse(e);
         if (params == null) {
             return;
         }
@@ -91,35 +94,39 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
 
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !params.getInnerParams().isNoredirect());
+        String album = params.getInnerParams().getAlbum();
+        String finalAlbum = album;
         BlockingQueue<UrlCapsule> queue = new DiscardableQueue<>(
-                x -> !x.getArtistName().equalsIgnoreCase(scrobbledArtist.getArtist())
+                x -> !(x.getArtistName().equalsIgnoreCase(scrobbledArtist.getArtist()) && x.getAlbumName().equalsIgnoreCase(finalAlbum))
                 , x -> x, 1);
         String lastfm = lastFMData.getName();
         lastFM.getChart(lastfm,
                 time.toApiFormat(),
                 1000,
                 1,
-                TopEntity.ARTIST,
-                ChartUtil.getParser(time, TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, lastfm),
+                TopEntity.ALBUM,
+                ChartUtil.getParser(time, TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, lastfm),
                 queue);
         List<UrlCapsule> objects = new ArrayList<>();
         queue.drainTo(objects);
         if (objects.isEmpty()) {
-            sendMessageQueue(e, artist + " was not found on your top 1k artists" + time.getDisplayString() + ".");
+            sendMessageQueue(e, artist + " was not found on your top 1k albums" + time.getDisplayString() + ".");
             return;
         }
         UrlCapsule urlCapsule = objects.get(0);
         scrobbledArtist.setArtist(urlCapsule.getArtistName());
         int metricPlays = urlCapsule.getPlays();
-        int artistPlays;
+        int albumPlays;
         if (time.equals(TimeFrameEnum.ALL)) {
-            artistPlays = metricPlays;
+            albumPlays = metricPlays;
         } else {
-            artistPlays = lastFM.getArtistSummary(scrobbledArtist.getArtist(), lastfm).getUserPlayCount();
+            FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(lastfm, scrobbledArtist.getArtist(), album);
+            albumPlays = albumSummary.getTotalscrobbles();
+            album = albumSummary.getAlbum();
         }
         Long goal = params.getExtraParam();
         if (goal == null) {
-            goal = (long) (Math.ceil(artistPlays / 1_000.) * 1_000);
+            goal = (long) (Math.ceil(albumPlays / 1_000.) * 1_000);
 
         }
         final long unitNumber = 1;
@@ -163,7 +170,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         LocalDateTime compareTime = LocalDateTime.ofEpochSecond(timestamp, 0, ZoneOffset.ofHours(1));
         totalUnits = between.apply(compareTime, now);
         double ratio = ((double) metricPlays) / totalUnits;
-        double remainingUnits = (goal - artistPlays) / ratio;
+        double remainingUnits = (goal - albumPlays) / ratio;
         String userString = getUserString(e, lastFMData.getDiscordId(), lastfm);
 
         String timeFrame;
@@ -173,11 +180,12 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         String format = now.plus((long) remainingUnits, days).format(formatter);
         String unit = days.name().toLowerCase();
         String s = String.format("**%s** has a rate of **%s** scrobbles of **%s** per %s%s, so they are on pace to hit **%d** scrobbles by **%s**. (They have %d %s scrobbles)",
-                userString, new DecimalFormat("#0.00").format(ratio), scrobbledArtist.getArtist(),
+                userString, new DecimalFormat("#0.00").format(ratio), scrobbledArtist.getArtist() + " - " + album,
                 unit.substring(0, unit.length() - 1),
-                timeFrame, goal, format, artistPlays, scrobbledArtist.getArtist());
+                timeFrame, goal, format, albumPlays, album);
 
         sendMessageQueue(e, s);
 
     }
+
 }

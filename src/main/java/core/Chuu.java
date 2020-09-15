@@ -388,6 +388,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new DiscoveredArtistCommand(dao)))
                 .addEventListeners(help.registerCommand(new DiscoveredRatioCommand(dao)))
                 .addEventListeners(help.registerCommand(new DiscoveredAlbumRatioCommand(dao)))
+                .addEventListeners(help.registerCommand(new PaceAlbumCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {

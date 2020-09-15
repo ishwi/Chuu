@@ -5,7 +5,10 @@ import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.FullAlbumEntityExtended;
 import dao.entities.LastFMData;
+import dao.entities.MusicbrainzFullAlbumEntity;
 import dao.entities.ScrobbledArtist;
+import dao.musicbrainz.MusicBrainzService;
+import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -14,9 +17,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AlbumInfoCommand extends AlbumPlaysCommand {
+    private final MusicBrainzService mb;
 
     public AlbumInfoCommand(ChuuService dao) {
         super(dao);
+        mb = MusicBrainzServiceSingleton.getInstance();
     }
 
 
@@ -54,7 +59,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                 .collect(Collectors.joining(" - "));
         StringBuilder trackList = new StringBuilder();
 
-
+        MusicbrainzFullAlbumEntity albumInfo = mb.getAlbumInfo(albumSummary);
         albumSummary.getTrackList().forEach(x ->
                 trackList.append(x.getPosition()).append(". ")
                         .append(CommandUtil.cleanMarkdownCharacter(x.getName()))
@@ -69,6 +74,16 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                 .addField("Listeners:", String.valueOf(albumSummary.getListeners()), true)
                 .addField("Scrobbles:", String.valueOf(albumSummary.getTotalscrobbles()), true)
                 .addField("Tags:", tagsField, false);
+        if (!albumInfo.getTags().isEmpty()) {
+            String collect = albumInfo.getTags().stream().limit(5)
+                    .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + CommandUtil.getMusicbrainzTagUrl(tag) + ")")
+                    .collect(Collectors.joining(" - "));
+            embedBuilder.addField("MusicBrainz Tags: ", collect, false);
+        }
+        if (albumInfo.getYear() != null) {
+            embedBuilder.addField("Year:", String.valueOf(albumInfo.getYear()), false);
+        }
+
         if (!albumSummary.getTrackList().isEmpty()) {
             embedBuilder.addField("Track List:", trackList.toString().substring(0, Math.min(trackList.length(), 1000)), false)
                     .addField("Total Duration:",

@@ -240,6 +240,10 @@ public class CommandUtil {
         return "https://www.last.fm/tag/" + encodeUrl(tag);
     }
 
+    public static String getMusicbrainzTagUrl(String tag) {
+        return "https://musicbrainz.org/tag/" + encodeUrl(tag);
+    }
+
     public static String getLastFmArtistUserUrl(String artist, String username) {
         return getLastFmUser(username) + "/library/music/" + encodeUrl(artist);
     }

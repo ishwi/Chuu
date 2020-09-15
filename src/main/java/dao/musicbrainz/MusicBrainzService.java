@@ -58,6 +58,8 @@ public interface MusicBrainzService {
     void getAlbumInfoByMbid(List<UrlCapsule> urlCapsules);
 
 
+    MusicbrainzFullAlbumEntity getAlbumInfo(FullAlbumEntityExtended albumInfo);
+
     List<CountWrapper<AlbumInfo>> findArtistByReleaseLowerCaseWithAverage(List<AlbumInfo> emptyMbid, Year year);
 
     List<CountWrapper<AlbumInfo>> findArtistByReleaseWithAverage(List<AlbumInfo> emptyMbid, Year year);

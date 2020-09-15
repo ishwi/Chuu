@@ -21,6 +21,16 @@ public class FullAlbumEntity {
         this.username = username;
     }
 
+    public FullAlbumEntity(FullAlbumEntity other) {
+        this.artist = other.artist;
+        this.album = other.album;
+        this.totalPlayNumber = other.totalPlayNumber;
+        this.albumUrl = other.albumUrl;
+        this.username = other.username;
+        this.trackList = other.trackList;
+        this.artistUrl = other.artistUrl;
+        this.mbid = other.mbid;
+    }
 
     public String getUsername() {
         return username;

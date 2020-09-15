@@ -94,7 +94,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                 getService().insertArtistDataList(artistData, lastFmName);
                 e.getChannel().sendTyping().queue();
                 //sendMessageQueue(e, "Finished updating your artist, now the album process will start");
-                List<ScrobbledAlbum> albumData = lastFM.getALlAlbums(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
+                List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
                 e.getChannel().sendTyping().queue();
                 getService().albumUpdate(albumData, artistData, lastFmName);
             } else {

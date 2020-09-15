@@ -23,6 +23,7 @@ import org.json.JSONTokener;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Time;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -837,6 +838,14 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     @NotNull
     public List<ScrobbledArtist> getAllArtists(String user, String period) throws LastFmException {
+
+        if (period.equals("day")) {
+            return getDailyT(TopEntity.ARTIST, user, capsule -> {
+                ScrobbledArtist scrobbledArtist = new ScrobbledArtist(capsule.getArtistName(), capsule.getPlays(), null);
+                scrobbledArtist.setArtistMbid(capsule.getMbid());
+                return scrobbledArtist;
+            }, 3000);
+        }
         String url = BASE + GET_ARTIST + user + apiKey + ENDING + "&period=" + period;
 
         int page = 1;
@@ -874,7 +883,15 @@ public class ConcurrentLastFM {//implements LastFMService {
     }
 
     @NotNull
-    public List<ScrobbledAlbum> getALlAlbums(String user, String period) throws LastFmException {
+    public List<ScrobbledAlbum> getAllAlbums(String user, String period) throws LastFmException {
+        if (period.equals("day")) {
+            return getDailyT(TopEntity.ALBUM, user, capsule -> {
+                ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(capsule.getAlbumName(), capsule.getArtistName(), capsule.getUrl(), capsule.getMbid());
+                scrobbledAlbum.setCount(capsule.getPlays());
+                return scrobbledAlbum;
+            }, 3000);
+        }
+
         String url = BASE + GET_ALBUMS + user + apiKey + ENDING + "&period=" + period;
 
         int page = 1;
@@ -1305,7 +1322,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         JSONArray images = obj.getJSONArray("image");
         String correctedArtist = obj.getString("artist");
         String correctedAlbum = obj.getString("name");
-
+        String mbid = obj.optString("mbid");
         String image_url = images.getJSONObject(images.length() - 1).getString("#text");
         int playCount;
         if (!obj.has("userplaycount")) {
@@ -1324,6 +1341,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                 .map(x -> x.getString("name")).collect(Collectors.toList());
 //TODO MBIZ
         FullAlbumEntityExtended fae = new FullAlbumEntityExtended(correctedArtist, correctedAlbum, playCount, image_url, lastfmId, listeners, totalPlayCount);
+        fae.setMbid(mbid);
         fae.setTagList(tags);
         if (obj.has("tracks")) {
             JSONArray arr = obj.getJSONObject("tracks").getJSONArray("track");
