@@ -405,6 +405,29 @@ public class UpdaterDaoImpl implements UpdaterDao {
         }
     }
 
+
+    @Override
+    public RandomUrlEntity getRandomUrlFromServer(Connection con, long discordId) {
+        String queryString = "SELECT * FROM randomlinks WHERE discord_id IN \n" +
+                "(SELECT discord_id FROM (SELECT a.discord_id,count(*)   , -log(1-rand()) / log(count(*) + 1)    AS ra FROM randomlinks a join user_guild b on b.guild_id = ? GROUP BY discord_id having COUNT(*) > 0 ORDER BY ra LIMIT 1) t) or discord_id is null  \n" +
+                " ORDER BY rand() LIMIT 1;";
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, discordId);
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (!resultSet.next())
+                return null;
+
+            String url = resultSet.getString("url");
+            Long discordID = resultSet.getLong("discord_Id");
+            Long guildId = resultSet.getLong("guild_Id");
+            return new RandomUrlEntity(url, discordID, guildId);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     @Override
     public RandomUrlEntity findRandomUrlById(Connection con, String urlQ) {
         @Language("MariaDB") String queryString = "SELECT * " +

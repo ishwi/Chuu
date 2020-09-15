@@ -63,6 +63,12 @@ public class CountryParser extends DaoParser<CountryParameters> {
                 countryCode = "gb";
                 country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
 
+            } else if (countryCode.equalsIgnoreCase("northen macedonia")) {
+                countryCode = "mk";
+                country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
+            } else if (countryCode.equalsIgnoreCase("eSwatini ")) {
+                countryCode = "sz";
+                country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
             } else {
                 String finalCountryCode = countryCode;
                 Optional<Locale> opt = Arrays.stream(Locale.getISOCountries()).map(x -> new Locale("en", x)).
@@ -96,7 +102,10 @@ public class CountryParser extends DaoParser<CountryParameters> {
 //            // No political statement at all, just bugfixing
 //            country = CountryCode.PS;
 //        }
-        return new CountryParameters(e, lastFMData, country, timeFrameEnum);
+        return new
+
+                CountryParameters(e, lastFMData, country, timeFrameEnum);
+
     }
 
     @Override

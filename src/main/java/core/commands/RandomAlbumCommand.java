@@ -49,7 +49,12 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
         String url = params.getUrl();
         if (url.length() == 0) {
             //get randomurl
-            RandomUrlEntity randomUrl = getService().getRandomUrl();
+            RandomUrlEntity randomUrl;
+            if (params.hasOptional("server") && e.isFromGuild()) {
+                randomUrl = getService().getRandomUrlFromServer(e.getGuild().getIdLong());
+            } else {
+                randomUrl = getService().getRandomUrl();
+            }
             if (randomUrl == null) {
                 sendMessageQueue(e, "The pool of urls was empty, add one first!");
                 return;

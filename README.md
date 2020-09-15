@@ -1,6 +1,7 @@
 # Chuu
 
 Chuu is a discord bot that integrates [Last.fm]([https://www.last.fm/](https://www.last.fm/)) with discord.
+Also has some unique integrations with RateYourMusic.com.
 There are a ton of available commands like:
   
  -Your top of albums that were released in a given year<br>
@@ -8,7 +9,7 @@ There are a ton of available commands like:
  -Artist, albums and songs leaderboards (crowns)<br>
  -Unique artists within a server<br>
  -Genre information about your artist/albums<br>
- -70+ more commands!
+ -80+ more commands!
 
 ## Invite Link
 

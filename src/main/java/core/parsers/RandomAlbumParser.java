@@ -21,6 +21,12 @@ public class RandomAlbumParser extends Parser<UrlParameters> {
             .compile("(http://(.*\\.bandcamp\\.com/|.*\\.bandcamp\\.com/track/.*|.*\\.bandcamp\\.com/album/.*))|(https://(.*\\.bandcamp\\.com/|.*\\.bandcamp\\.com/track/.*|.*\\.bandcamp\\.com/album/.*))");
 
     @Override
+    void setUpOptionals() {
+        super.setUpOptionals();
+        this.opts.add(new OptionalEntity("server", "only include urls from people in this server"));
+    }
+
+    @Override
     protected void setUpErrorMessages() {
         errorMessages.put(1, "Invalid url, only accepts spotify uri or url, yt url, deezer's url,bandcamp's and  soundcloud's url");
     }
@@ -67,8 +73,8 @@ public class RandomAlbumParser extends Parser<UrlParameters> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *url***\n" +
-               "\t if no link is provided you get a random link\n" +
-               "\t the accepted links so far are: Spotify's uri and url, youtube's url ,bandcamp's, deezer's url and  soundcloud's url\n";
+                "\t if no link is provided you get a random link\n" +
+                "\t the accepted links so far are: Spotify's uri and url, youtube's url ,bandcamp's, deezer's url and  soundcloud's url\n";
     }
 }
 
