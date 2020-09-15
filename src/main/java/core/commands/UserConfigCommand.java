@@ -7,6 +7,7 @@ import core.parsers.ChartParserAux;
 import core.parsers.Parser;
 import core.parsers.UserConfigParser;
 import core.parsers.exceptions.InvalidChartValuesException;
+import core.parsers.params.NPMode;
 import core.parsers.params.UserConfigParameters;
 import core.parsers.params.UserConfigType;
 import dao.ChuuService;
@@ -18,6 +19,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
 import java.awt.*;
+import java.util.EnumSet;
 import java.util.List;
 
 public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
@@ -176,6 +178,17 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 } else {
                     sendMessageQueue(e, "Successfully made non private the the lastfm profile for user " + getUserString(e, e.getAuthor().getIdLong()));
                 }
+                break;
+            case NP:
+                String[] split = value.trim().replaceAll(" +", " ").split("[|,& ]+");
+                EnumSet<NPMode> modes = EnumSet.noneOf(NPMode.class);
+                for (String mode : split) {
+                    NPMode npMode = NPMode.valueOf(mode.replace("-", "_").toUpperCase());
+                    modes.add(npMode);
+                }
+                getService().changeNpMode(e.getAuthor().getIdLong(), modes);
+                String strModes = NPMode.getListedName(modes);
+                sendMessageQueue(e, String.format("Successfully changed to the following %s: %s", CommandUtil.singlePlural(modes.size(), "mode", "modes"), strModes));
                 break;
         }
     }

@@ -4,6 +4,7 @@ import com.sun.istack.NotNull;
 import com.wrapper.spotify.model_objects.specification.Artist;
 import core.Chuu;
 import core.commands.BillboardEntity;
+import core.parsers.params.NPMode;
 import dao.entities.RYMImportRating;
 import dao.entities.ScoredAlbumRatings;
 import core.exceptions.ChuuServiceException;
@@ -1602,11 +1603,11 @@ public class ChuuService {
         rymDao.deletePartialTempTable(connection, artistsByLocalizedNames.entrySet().stream().filter(x -> x.getValue() != 1).map(Map.Entry::getKey).collect(Collectors.toSet()));
     }
 
-    public AlbumRatings getRatingsByName(long idLong, String album, long artistId) {
+    public AlbumRatings getRatingsByName(long guildId, String album, long artistId) {
 
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return rymDao.getRatingsByName(connection, idLong, album, artistId);
+            return rymDao.getRatingsByName(connection, guildId, album, artistId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1662,6 +1663,15 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return rymDao.getServerStats(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public RYMAlbumStats getServerAlbumStats(long guildId, long artistId, long albumId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return rymDao.getServerAlbumStats(connection, guildId, artistId, albumId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -2178,6 +2188,34 @@ public class ChuuService {
                 return contains;
             }).map(Map.Entry::getValue).collect(Collectors.toList());
 
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public EnumSet<NPMode> getNPModes(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            long rawModes = userGuildDao.getNPRaw(connection, discordId);
+            return NPMode.getNPMode(rawModes);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
+
+    public void changeNpMode(long discordId, EnumSet<NPMode> modes) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setNpRaw(connection, discordId, NPMode.getRaw(modes.toArray(NPMode[]::new)));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public Rating getUserAlbumRating(long discordId, long albumId, long artistId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return rymDao.getUserAlbumRating(connection, discordId, albumId, artistId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

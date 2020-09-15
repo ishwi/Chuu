@@ -25,13 +25,15 @@ public enum UserConfigType {
     CHART_SIZE("size"),
     PRIVACY_MODE("privacy"),
     NOTIFY_RATING("rating-notify"),
-    PRIVATE_LASTFM("private-lastfm");
+    PRIVATE_LASTFM("private-lastfm"),
+    NP("np");
 
     private static final Map<String, UserConfigType> ENUM_MAP;
     static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
     static final Pattern chartMode = Pattern.compile("(Image|Image-info|Image-Aside|Image-aside-info|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
     static final Pattern whoknowsMode = Pattern.compile("(Image|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
-    static final Pattern privatyMode = Pattern.compile("(Normal|Tag|Last-name|Discord-Name)", Pattern.CASE_INSENSITIVE);
+    static final Pattern privacyMode = Pattern.compile("(Normal|Tag|Last-name|Discord-Name)", Pattern.CASE_INSENSITIVE);
+    static final Pattern npMode = Pattern.compile("((Normal|Previous|Tags|Crown|Lfm-Listeners|Country|Gender|Artist-Pic|Lfm-Scrobbles|Album-Rym|Artist-Rank|Server-Album-Rym|Bot-Album-Rym|Album-Rank|Album-Crown|Global-Crown|Global-Rank|Global-Album-Crown|Global-Album-Rank|Server-Listeners|Server-Scrobbles|Bot-Listeners|Bot-Scrobbles)[ |&,]*)+", Pattern.CASE_INSENSITIVE);
 
 
     static {
@@ -63,7 +65,7 @@ public enum UserConfigType {
             case WHOKNOWS_MODE:
                 return whoknowsMode.asMatchPredicate();
             case PRIVACY_MODE:
-                return privatyMode.asMatchPredicate();
+                return privacyMode.asMatchPredicate();
             case PRIVATE_UPDATE:
             case NOTIFY_IMAGE:
             case NOTIFY_RATING:
@@ -71,6 +73,8 @@ public enum UserConfigType {
                 return bool.asMatchPredicate();
             case CHART_SIZE:
                 return ChartParserAux.chartSizePattern.asMatchPredicate();
+            case NP:
+                return npMode.asMatchPredicate();
             default:
                 return (s) -> true;
 
@@ -109,6 +113,8 @@ public enum UserConfigType {
                 return "Whether you will get notified or not when a url you have submitted to the random command gets rated by someone else (true = notify, false = don't)";
             case PRIVATE_LASTFM:
                 return "Setting this to true will mean that your last.fm name will stay private and will not be shared with anyone. (This is different from privacy settings since it affects commands within a server and not cross server)";
+            case NP:
+                return "Setting this will alter the appearance of your np commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
             default:
                 return "";
         }
@@ -177,6 +183,10 @@ public enum UserConfigType {
                         case PRIVATE_LASTFM:
                             boolean privateLastfmId = lastFMData != null && lastFMData.isPrivateLastfmId();
                             return String.format("**%s** -> %s", key, privateLastfmId);
+                        case NP:
+                            EnumSet<NPMode> modes = dao.getNPModes(discordId);
+                            String strModes = NPMode.getListedName(modes);
+                            return String.format("**%s** -> %s", key, strModes);
                     }
                     return null;
                 }).

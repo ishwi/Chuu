@@ -84,4 +84,8 @@ interface UserGuildDao {
     boolean isUserServerBanned(Connection connection, long userId, long guildID);
 
     void serverUnblock(Connection connection, long discordId, long guildId);
+
+    long getNPRaw(Connection connection, long discordId);
+
+    void setNpRaw(Connection connection, long discordId, long raw);
 }

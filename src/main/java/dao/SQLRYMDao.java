@@ -27,7 +27,10 @@ public interface SQLRYMDao {
 
     void cleanUp(Connection connection);
 
-    AlbumRatings getRatingsByName(Connection connection, long idLong, String album, long artistId);
+    AlbumRatings getRatingsByName(Connection connection, long guildId, String album, long artistId);
+
+    Rating getUserAlbumRating(Connection connection, long userId, long albumId, long artistId);
+
 
     void deletePartialTempTable(Connection connection, Set<Long> idsToWipe);
 
@@ -48,4 +51,6 @@ public interface SQLRYMDao {
     RymStats getRYMBotStats(Connection connection);
 
     List<AlbumPlays> unratedAlbums(Connection connection, long discordId);
+
+    RYMAlbumStats getServerAlbumStats(Connection connection, long guildId, long artistId, long albumId);
 }

@@ -1,19 +1,18 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
-import core.parsers.params.GuildConfigParams;
-import core.parsers.params.GuildConfigType;
 import core.parsers.params.UserConfigParameters;
 import core.parsers.params.UserConfigType;
 import dao.ChuuService;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class UserConfigParser extends DaoParser<UserConfigParameters> {
+    private static final Set<String> multipleWordsConfigs = Stream.of(UserConfigType.NP).map(UserConfigType::getCommandName).collect(Collectors.toSet());
+
     public UserConfigParser(ChuuService dao, OptionalEntity... opts) {
         super(dao, opts);
     }
@@ -32,13 +31,17 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> {
             }
             return null;
         }
-        if (words.length != 2) {
+        if ((words.length == 0) || (words.length > 2 && !multipleWordsConfigs.contains(words[0]))) {
             String list = UserConfigType.list(dao, e.getAuthor().getIdLong());
             sendError("The config format must be the following: **`Command`**  **`Value`**\n do " + prefix + "help config for more info.\nCurrent Values:\n" + list, e);
             return null;
         }
         String command = words[0];
-        String args = words[1];
+        StringBuilder argsB = new StringBuilder();
+        for (int i = 1; i < words.length; i++) {
+            argsB.append(words[i]).append(" ");
+        }
+        String args = argsB.toString();
 
         UserConfigType userConfigType = UserConfigType.get(command);
         if (userConfigType == null) {

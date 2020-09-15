@@ -808,4 +808,45 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
     }
 
+    @Override
+    public long getNPRaw(Connection connection, long discordId) {
+        @Language("MariaDB") String queryString = "select  np_mode from user where discord_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i, discordId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public void setNpRaw(Connection connection, long discordId, long raw) {
+        String queryString = "UPDATE user SET np_mode = ? WHERE discord_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, raw);
+            preparedStatement.setLong(i, discordId);
+
+
+            preparedStatement.executeUpdate();
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
 }

@@ -82,7 +82,7 @@ public class LoveMaker {
         g.setFont(firstUserFont.deriveFont(SUBTITLE_IMAGE_SIZE));
         Rectangle2D f = GraphicUtils.fitAndGetBounds(firstUser.getUsername(), g, IMAGE_SIZE, 18f);
 
-        Font secondUserFont = chooseFont(firstUser.getUsername());
+        Font secondUserFont = chooseFont(secondUser.getUsername());
         g.setFont(secondUserFont.deriveFont(SUBTITLE_IMAGE_SIZE));
         Rectangle2D n = GraphicUtils.fitAndGetBounds(secondUser.getUsername(), g, IMAGE_SIZE, 18f);
 

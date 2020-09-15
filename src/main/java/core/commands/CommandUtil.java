@@ -356,7 +356,7 @@ public class CommandUtil {
         future.join().delete().queue();
     }
 
-    static String getDayNumberSuffix(int day) {
+    public static String getDayNumberSuffix(int day) {
         if (day >= 11 && day <= 13) {
             return "th";
         }

@@ -5,6 +5,7 @@ import core.exceptions.ChuuServiceException;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -221,7 +222,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     }
 
     @Override
-    public AlbumRatings getRatingsByName(Connection connection, long idLong, String album, long artistId) {
+    public AlbumRatings getRatingsByName(Connection connection, long guildId, String album, long artistId) {
 
         String s = "Select a.discord_id,d.rym_id,d.album_name,c.rating,d.release_year, exists (select discord_id  from user_guild where discord_id = a.discord_id and guild_id = ? )  as owner " +
                 "from user a  " +
@@ -233,7 +234,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
-            preparedStatement.setLong(1, idLong);
+            preparedStatement.setLong(1, guildId);
             preparedStatement.setString(2, album);
 
             preparedStatement.setLong(3, artistId);
@@ -263,6 +264,31 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
         } catch (SQLException throwables) {
             throw new ChuuServiceException(throwables);
         }
+    }
+
+    @Override
+    @Nullable
+    public Rating getUserAlbumRating(Connection connection, long userId, long albumId, long artistId) {
+        String s = "Select c.rating " +
+                "from  album_rating c  " +
+                "where c.artist_id = ?" +
+                " and c.album_id = ? and c.discord_id = ?  " +
+                " order by  c.rating desc ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            preparedStatement.setLong(1, artistId);
+            preparedStatement.setLong(2, albumId);
+            preparedStatement.setLong(3, userId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return new Rating(userId, resultSet.getByte(1), true);
+            }
+            return null;
+        } catch (SQLException throwables) {
+            throw new ChuuServiceException(throwables);
+        }
+
     }
 
     @Override
@@ -505,6 +531,33 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
             throw new ChuuServiceException(throwables);
         }
         return returnList;
+
+    }
+
+    @Override
+    public RYMAlbumStats getServerAlbumStats(Connection connection, long guildId, long artistId, long albumId) {
+        String s = "Select avg(c.rating),count(c.rating)  " +
+                "from user a join user_guild b on a.discord_id = b.discord_id " +
+                "  " +
+                "join album_rating c on b.discord_id = c.discord_id " +
+                "where c.artist_id = ?" +
+                "and b.guild_id = ? " +
+                "and c.album_id = ? " +
+                " order by  c.rating desc ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            preparedStatement.setLong(1, artistId);
+            preparedStatement.setLong(2, guildId);
+            preparedStatement.setLong(3, albumId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return new RYMAlbumStats(resultSet.getDouble(0), resultSet.getInt(1));
+            }
+            return new RYMAlbumStats(0d, 0);
+        } catch (SQLException throwables) {
+            throw new ChuuServiceException(throwables);
+        }
 
     }
 
