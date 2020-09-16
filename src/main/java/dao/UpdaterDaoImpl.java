@@ -409,8 +409,8 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public RandomUrlEntity getRandomUrlFromServer(Connection con, long discordId) {
         String queryString = "SELECT * FROM randomlinks WHERE discord_id IN \n" +
-                "(SELECT discord_id FROM (SELECT a.discord_id,count(*)   , -log(1-rand()) / log(count(*) + 1)    AS ra FROM randomlinks a join user_guild b on b.guild_id = ? GROUP BY discord_id having COUNT(*) > 0 ORDER BY ra LIMIT 1) t) or discord_id is null  \n" +
-                " ORDER BY rand() LIMIT 1;";
+                "(SELECT discord_id FROM (SELECT a.discord_id,count(*)   , -log(1-rand()) / log(count(*) + 1)  AS ra FROM randomlinks a join user_guild b on  a.discord_id = b.discord_id  where b.guild_id = ? GROUP BY discord_id having COUNT(*) > 0 ORDER BY ra LIMIT 1) t)   \n" +
+                " ORDER BY rand() LIMIT 1";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             preparedStatement.setLong(1, discordId);
             /* Execute query. */
@@ -611,7 +611,6 @@ public class UpdaterDaoImpl implements UpdaterDao {
                     }
                 }
             }
-            collect = null;
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -802,7 +801,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 long aliasId = resultSet.getLong(1);
                 String alias = resultSet.getString(2);
                 long artistId = resultSet.getLong(3);
-                Long discordID = resultSet.getLong(4);
+                long discordID = resultSet.getLong(4);
                 Timestamp date = resultSet.getTimestamp(5);
                 String artistName = resultSet.getString(6);
                 return new AliasEntity(aliasId, alias, artistId, discordID, date.toLocalDateTime(), artistName);
@@ -1161,12 +1160,9 @@ public class UpdaterDaoImpl implements UpdaterDao {
 
     @Override
     public void insertAlbumSad(Connection connection, RYMImportRating x) {
-        StringBuilder mySql =
-                new StringBuilder("INSERT IGNORE INTO album (artist_id,album_name,rym_id,release_year) VALUES (?,?,?,?)");
-        mySql.append(" ON DUPLICATE KEY UPDATE release_year =  LEAST(release_year,values(release_year)), rym_id = if(rym_id is null,values(rym_id),rym_id)");
 
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString(), Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT IGNORE INTO album (artist_id,album_name,rym_id,release_year) VALUES (?,?,?,?)" + " ON DUPLICATE KEY UPDATE release_year =  LEAST(release_year,values(release_year)), rym_id = if(rym_id is null,values(rym_id),rym_id)", Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setLong(+1, x.getArtist_id());
             preparedStatement.setString(2, x.getTitle());
             preparedStatement.setLong(3, x.getRYMid());
@@ -1311,9 +1307,11 @@ public class UpdaterDaoImpl implements UpdaterDao {
             /* Fill "preparedStatement". */
 
             int i = 1;
-            preparedStatement.setLong(i++, albumId);
             preparedStatement.setString(i++, albumUrl);
-            preparedStatement.executeUpdate();
+            preparedStatement.setLong(i, albumId);
+            int i1 = preparedStatement.executeUpdate();
+            Chuu.getLogger().warn(String.valueOf(i1));
+
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

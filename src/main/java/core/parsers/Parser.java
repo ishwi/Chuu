@@ -118,7 +118,7 @@ public abstract class Parser<T extends CommandParameters> {
         StringBuilder s = new StringBuilder();
         for (OptionalEntity opt : opts) {
             if (!opt.isEnabledByDefault()) {
-                s.append(opt.getDefinition());
+                s.append("--").append(opt.getDefinition());
             }
         }
         return getUsageLogic(commandName) + s;

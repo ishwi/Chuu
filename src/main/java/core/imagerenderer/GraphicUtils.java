@@ -1,5 +1,6 @@
 package core.imagerenderer;
 
+import core.Chuu;
 import core.apis.youtube.Search;
 import core.exceptions.ChuuServiceException;
 import core.imagerenderer.stealing.blur.GaussianFilter;
@@ -302,12 +303,16 @@ public class GraphicUtils {
 
         Color temp = g.getColor();
         int length = g.getFontMetrics().stringWidth(string);
-        Color col1 = new Color(bufferedImage.getRGB(
-                Math.min(bufferedImage.getWidth() - 1, Math.max(0, x))
-                , y));
-        Color col2 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 1, x + length / 2), y));
-        Color col3 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 1, x + length), y));
-        g.setColor(getBetter(col1, col2, col3));
+        try {
+            Color col1 = new Color(bufferedImage.getRGB(
+                    Math.min(bufferedImage.getWidth() - 1, Math.max(0, x))
+                    , y));
+            Color col2 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 5, x + length / 2), y));
+            Color col3 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 5, x + length), y));
+            g.setColor(getBetter(col1, col2, col3));
+        } catch (ArrayIndexOutOfBoundsException debugger) {
+            Chuu.getLogger().warn(x + " " + y + " " + " " + length + " " + bufferedImage.getWidth() + " " + bufferedImage.getHeight());
+        }
         g.drawString(string, x, y);
         g.setColor(temp);
 

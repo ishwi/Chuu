@@ -70,7 +70,7 @@ public class NPModeBuilder {
 
     private final NowPlayingArtist np;
     private final MessageReceivedEvent e;
-    private String[] footerSpaces;
+    private final String[] footerSpaces;
     private final long discordId;
     private final String userName;
     private final EnumSet<NPMode> npModes;
@@ -82,7 +82,7 @@ public class NPModeBuilder {
     private final ConcurrentLastFM lastFM;
     private final String serverName;
     private final MusicBrainzService mb;
-    private List<String> outputList;
+    private final List<String> outputList;
 
     public NPModeBuilder(NowPlayingArtist np, MessageReceivedEvent e, String[] footerSpaces, long discordId, String userName, EnumSet<NPMode> npModes, String lastFMName, EmbedBuilder embedBuilder, ScrobbledArtist scrobbledArtist, Long albumId, ChuuService service, ConcurrentLastFM lastFM, String serverName, MusicBrainzService mb, List<String> outputList) {
         this.np = np;
@@ -131,9 +131,10 @@ public class NPModeBuilder {
                 NPMode npMode : npModes) {
             Integer index = footerIndexes.get(npMode);
             assert index != null;
-            long guildId = e.getGuild().getIdLong();
+            long guildId = e.isFromGuild() ? e.getGuild().getIdLong() : -1L;
             switch (npMode) {
                 case NORMAL:
+                case ARTIST_PIC:
                     break;
                 case PREVIOUS:
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
@@ -159,6 +160,7 @@ public class NPModeBuilder {
                                 tags.addAll(lastFM.getTrackTags(5, TopEntity.ARTIST, np.getArtistName(), null));
                             }
                             if (!tags.isEmpty()) {
+
                                 String tagsField = EmbedBuilder.ZERO_WIDTH_SPACE + " • " + String.join(" - ", tags);
                                 tagsField += '\n';
                                 footerSpaces[index] = tagsField;
@@ -448,8 +450,6 @@ public class NPModeBuilder {
                     })));
 
                     break;
-                case ARTIST_PIC:
-                    break;
                 case UNKNOWN:
                     throw new IllegalStateException();
             }
@@ -457,9 +457,7 @@ public class NPModeBuilder {
         return CompletableFuture.allOf(completableFutures.toArray(CompletableFuture<?>[]::new)).exceptionally(x -> null).thenAccept((x) -> {
             previousNewLinesToAdd.forEach(this::addNewLineToPrevious);
             List<String> collect = Arrays.stream(footerSpaces).filter(Objects::nonNull).collect(Collectors.toList());
-            boolean even = collect.size() % 2 == 0;
 
-            int counter = 0;
             for (int i = 0; i < collect.size(); i++) {
                 if (npModes.contains(NPMode.TAGS) && (i == 0)) {
                     continue;

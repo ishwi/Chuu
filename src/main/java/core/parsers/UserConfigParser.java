@@ -41,7 +41,7 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> {
         for (int i = 1; i < words.length; i++) {
             argsB.append(words[i]).append(" ");
         }
-        String args = argsB.toString();
+        String args = argsB.toString().trim();
 
         UserConfigType userConfigType = UserConfigType.get(command);
         if (userConfigType == null) {
