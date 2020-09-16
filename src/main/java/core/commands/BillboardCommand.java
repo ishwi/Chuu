@@ -1,9 +1,5 @@
 package core.commands;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.HotMaker;
@@ -14,8 +10,10 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
+import core.services.BillboardHoarder;
 import dao.ChuuService;
-import dao.entities.*;
+import dao.entities.UsersWrapper;
+import dao.entities.Week;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -23,10 +21,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.awt.image.BufferedImage;
 import java.sql.Date;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
@@ -34,17 +33,13 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class BillboardCommand extends ConcurrentCommand<NumberParameters<CommandParameters>> {
 
-    private final Spotify spotify;
-    private final DiscogsApi discogsApi;
     private final static ConcurrentSkipListSet<Long> inProcessSets = new ConcurrentSkipListSet<>();
-    private final static ConcurrentSkipListSet<Long> usersBeeingProcessed = new ConcurrentSkipListSet<>();
 
 
     public BillboardCommand(ChuuService dao) {
 
         super(dao);
-        spotify = SpotifySingleton.getInstance();
-        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+
         respondInPrivate = false;
 
     }
@@ -114,122 +109,50 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
         List<BillboardEntity> entities = getEntities(weekId, guildId, doListeners);
         Date weekStart = week.getWeekStart();
         LocalDateTime weekBeggining = weekStart.toLocalDate().minus(1, ChronoUnit.WEEKS).atStartOfDay();
+
         if (entities.isEmpty() && weekId == 1 && this instanceof BillboardAlbumCommand && !getService().getBillboard(weekId, guildId, doListeners).isEmpty()) {
             sendMessageQueue(e, "The album trend couldn't be computed this week because it was the first one.");
             return;
         }
         if (entities.isEmpty()) {
-            synchronized (inProcessSets) {
+            try {
                 if (inProcessSets.contains(guildId)) {
                     sendMessageQueue(e, "This weekly chart is still being calculated, wait a few seconds/minutes more pls.");
                     return;
                 }
                 inProcessSets.add(guildId);
-            }
-            try {
                 sendMessageQueue(e, "Didn't have the top from this week, will start to make it now.");
-                Map<String, List<TrackWithArtistId>> toValidate = new HashMap<>();
-
-                //TODO IDK ish maybe dont store the whole server scrobbles in memory at the same time!!
-                all.parallelStream().forEach(x -> {
-                    if (!usersBeeingProcessed.contains(x.getDiscordID()))
-                        if (getService().getUserData(weekId, x.getLastFMName()).isEmpty()) {
-                            try {
-                                usersBeeingProcessed.add(x.getDiscordID());
-                                List<TrackWithArtistId> tracksAndTimestamps = lastFM.getWeeklyBillboard(x.getLastFMName(),
-                                        (int) weekBeggining.toEpochSecond(OffsetDateTime.now().getOffset())
-                                        , (int) weekStart.toLocalDate().atStartOfDay().toEpochSecond(OffsetDateTime.now().getOffset()));
-
-
-                                /*List<TrackWithArtistId> value = tracksAndTimestamps.stream().collect(Collectors.groupingBy(
-                                        t -> t, Collectors.counting())).entrySet().stream().map(u -> {
-                                    TrackWithArtistId key = u.getKey();
-                                    key.setPlays(Math.toIntExact(u.getValue()));
-                                    return key;
-                                }).collect(Collectors.toList());*/
-                                toValidate.put(x.getLastFMName(), tracksAndTimestamps);
-                            } catch (LastFmException ignored) {
-
-                            } finally {
-                                usersBeeingProcessed.remove(x.getDiscordID());
-                            }
-                        }
-                });
-
-                Map<String, Set<TrackWithArtistId>> indexMap = toValidate.values().stream().flatMap(Collection::stream).collect(Collectors.groupingBy(Track::getArtist, Collectors.toSet()));
-
-                List<ScrobbledArtist> artists = indexMap.keySet().stream().map(x -> new ScrobbledArtist(x, 0, null)).collect(Collectors.toList());
-                getService().filldArtistIds(artists);
-                Map<Boolean, List<ScrobbledArtist>> collect1 = artists.stream().collect(Collectors.partitioningBy(x -> x.getArtistId() != -1L && x.getArtistId() != 0));
-                List<ScrobbledArtist> foundArtists = collect1.get(true);
-                Map<String, String> changedUserNames = new HashMap<>();
-                collect1.get(false).stream().map(x -> {
-                    try {
-                        String artist = x.getArtist();
-                        CommandUtil.validate(getService(), x, lastFM, discogsApi, spotify);
-                        String newArtist = x.getArtist();
-                        if (!Objects.equals(artist, newArtist)) {
-                            changedUserNames.put(artist, newArtist);
-                        }
-                        return x;
-                    } catch (LastFmException lastFmException) {
-                        return null;
-                    }
-                }).filter(Objects::nonNull).forEach(foundArtists::add);
-                Map<String, Long> mapId = foundArtists.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, ScrobbledArtist::getArtistId, (x, y) -> x));
-
-
-                for (Map.Entry<String, List<TrackWithArtistId>> tbInserted : toValidate.entrySet()) {
-                    String lastfmId = tbInserted.getKey();
-                    List<TrackWithArtistId> data = tbInserted.getValue();
-                    data = data.stream().peek(x -> {
-                        Long aLong = mapId.get(x.getArtist());
-                        if (aLong == null) {
-                            String s = changedUserNames.get(x.getArtist());
-                            if (s != null) {
-                                aLong = mapId.get(s);
-                            }
-                            if (aLong == null) {
-                                aLong = -1L;
-                            }
-                        }
-                        x.setArtistId(aLong);
-                    }).filter(x -> x.getArtistId() != -1L).collect(Collectors.toList());
-                    getService().insertUserData(weekId, lastfmId, data);
-                }
+                BillboardHoarder billboardHoarder = new BillboardHoarder(all, getService(), week, lastFM);
+                billboardHoarder.hoardUsers();
                 getService().insertBillboardData(weekId, guildId);
-
-
-                entities = getEntities(weekId, guildId, doListeners);
-
-
-                sendMessageQueue(e, "Successfully Generated these week's charts");
             } finally {
                 inProcessSets.remove(guildId);
             }
         }
+        entities = getEntities(weekId, guildId, doListeners);
         if (entities.isEmpty()) {
             sendMessageQueue(e, "Didn't found any scrobble in this server users");
             return;
         }
+        sendMessageQueue(e, "Successfully Generated these week's charts");
         String name = e.getGuild().getName();
         doBillboard(e, params, doListeners, entities, weekStart.toLocalDate().atStartOfDay(), weekBeggining, name);
     }
 
+
     protected void doBillboard(MessageReceivedEvent e, NumberParameters<CommandParameters> params, boolean doListeners, List<BillboardEntity> entities, LocalDateTime weekStart, LocalDateTime weekBeggining, String name) {
         if (params.hasOptional("list")) {
-
             EmbedBuilder embedBuilder = new EmbedBuilder();
             List<String> artistAliases = entities
                     .stream().map(x -> String.format(". **[%s](%s):**\n Rank: %d | Previous Week: %s | Peak: %s | Weeks on top: %s | %s: %d\n",
                             x.getArtist() == null ? CommandUtil.cleanMarkdownCharacter(x.getName()) : CommandUtil.cleanMarkdownCharacter(x.getName() + " - " + x.getArtist()),
                             x.getArtist() == null ? CommandUtil.getLastFmArtistUrl(x.getName()) : CommandUtil.getLastFMArtistTrack(x.getArtist(), x.getName()),
-                    x.getPosition(),
-                    x.getPreviousWeek() == 0 ? "--" : x.getPreviousWeek(),
-                    x.getPeak() == 0 ? "--" : x.getPeak(),
-                    x.getStreak() == 0 ? "--" : x.getStreak(),
-                    doListeners ? "Listeners" : "Scrobbles",
-                    x.getListeners()
+                            x.getPosition(),
+                            x.getPreviousWeek() == 0 ? "--" : x.getPreviousWeek(),
+                            x.getPeak() == 0 ? "--" : x.getPeak(),
+                            x.getStreak() == 0 ? "--" : x.getStreak(),
+                            doListeners ? "Listeners" : "Scrobbles",
+                            x.getListeners()
 
                     )).collect(Collectors.toList());
             StringBuilder a = new StringBuilder();
