@@ -33,6 +33,14 @@ public enum NPMode {
     GENDER(18),
     COUNTRY(19),
     ARTIST_PIC(20),
+    RANDOM(21),
+    ALBUM_PLAYS(22),
+    ARTIST_PLAYS(23),
+    SONG_PLAYS(24),
+    SONG_DURATION(24),
+    HIGHEST_STREAK(25),
+    HIGHEST_SERVER_STREAK(26),
+    HIGHEST_BOT_STREAK(27),
     UNKNOWN(-1);
 
     private final int offset;
@@ -114,4 +122,107 @@ public enum NPMode {
     }
 
 
+    public String getHelpMessage() {
+        String returnal;
+        switch (this) {
+            case NORMAL:
+                returnal = "The normal np behaviour.";
+                break;
+            case PREVIOUS:
+                returnal = "Will include an extra field showing your previous song.";
+                break;
+            case TAGS:
+                returnal = "Give you some genre tags for your song/album/artist.";
+                break;
+            case CROWN:
+                returnal = "Tells you who holds the crown in this server.";
+                break;
+            case LFM_LISTENERS:
+                returnal = "Number of listeners of this artist in last.fm.";
+                break;
+            case LFM_SCROBBLES:
+                returnal = "Number of scrobbles of this artist in last.fm.";
+                break;
+            case ALBUM_RYM:
+                returnal = "Your rating in RYM of the current album";
+                break;
+            case ARTIST_RANK:
+                returnal = "Your position towards the crown of the artist in this server.";
+                break;
+            case SERVER_ALBUM_RYM:
+                returnal = "Number of ratings and average of an album in this server.";
+                break;
+            case BOT_ALBUM_RYM:
+                returnal = "Number of ratings and average of an album in the bot.";
+                break;
+            case ALBUM_RANK:
+                returnal = "Your position towards the crown of the album in this server.";
+                break;
+            case ALBUM_CROWN:
+                returnal = "Tells you who holds the album crown in this server.";
+                break;
+            case GLOBAL_CROWN:
+                returnal = "Tells you who holds the crown in the bot.";
+                break;
+            case GLOBAL_RANK:
+                returnal = "Your position towards the crown of the artist in the bot.";
+                break;
+            case GLOBAL_ALBUM_CROWN:
+                returnal = "Tells you who holds the album crown in the bot.";
+                break;
+            case GLOBAL_ALBUM_RANK:
+                returnal = "Your position towards the crown of the album in the bot.";
+                break;
+            case SERVER_LISTENERS:
+                returnal = "Number of listeners of this artist in this server.";
+                break;
+            case SERVER_SCROBBLES:
+                returnal = "Number of scrobbles of this artist in this server.";
+                break;
+            case BOT_LISTENERS:
+                returnal = "Number of listeners of this artist in the bot.";
+                break;
+            case BOT_SCROBBLES:
+                returnal = "Number of scrobbles of this artist in the bot.";
+                break;
+            case GENDER:
+                returnal = "Gender of the artist.";
+                break;
+            case COUNTRY:
+                returnal = "Country of the artist.";
+                break;
+            case ARTIST_PIC:
+                returnal = "Includes a small pic of the artist in the footer.";
+                break;
+            case RANDOM:
+                returnal = "Will randomly select at most 5 other configs each time you do the np command.";
+                break;
+            case ALBUM_PLAYS:
+                returnal = "Your scrobble count in the album.";
+                break;
+            case ARTIST_PLAYS:
+                returnal = "Your scrobble count in the artist.";
+                break;
+            case SONG_PLAYS:
+                returnal = "Your scrobble count in the song.";
+                break;
+            case SONG_DURATION:
+                returnal = "The song duration.";
+                break;
+            case HIGHEST_STREAK:
+                returnal = "Your highest streak of this artist.";
+                break;
+            case HIGHEST_SERVER_STREAK:
+                returnal = "The highest streak of this artist in this server.";
+                break;
+            case HIGHEST_BOT_STREAK:
+                returnal = "The highest streak of this artist in the bot.";
+                break;
+            case UNKNOWN:
+            default:
+                throw new IllegalStateException("Unexpected value: " + this);
+        }
+        return returnal;
+
+    }
 }

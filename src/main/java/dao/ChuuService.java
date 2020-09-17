@@ -1,7 +1,6 @@
 package dao;
 
 import com.sun.istack.NotNull;
-import com.wrapper.spotify.model_objects.specification.Artist;
 import core.Chuu;
 import core.commands.BillboardEntity;
 import core.parsers.params.NPMode;
@@ -2003,9 +2002,23 @@ public class ChuuService {
         }
     }
 
-    public List<GlobalStreakEntities> getArtistTopStreaks(@Nullable Long extraParam, @Nullable Long guildId, long artistId) {
+    public List<GlobalStreakEntities> getArtistTopStreaks(@Nullable Long threshold, @Nullable Long guildId, long artistId) {
+        return getArtistTopStreaks(threshold, guildId, artistId, null);
+    }
+
+
+    public List<GlobalStreakEntities> getArtistTopStreaks(@Nullable Long threshold, @Nullable Long guildId, long artistId, Integer limit) {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.getArtistTopStreaks(connection, extraParam, guildId, artistId);
+
+            return queriesDao.getArtistTopStreaks(connection, threshold, guildId, artistId, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<StreakEntity> getUserArtistTopStreaks(long discordID, long artistId, Integer limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getUserArtistTopStreaks(connection, artistId, limit, discordID);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -2207,7 +2220,7 @@ public class ChuuService {
     public void changeNpMode(long discordId, EnumSet<NPMode> modes) {
 
         try (Connection connection = dataSource.getConnection()) {
-            userGuildDao.setNpRaw(connection, discordId, NPMode.getRaw(modes.toArray(NPMode[]::new)));
+            userGuildDao.setNpRaw(connection, discordId,  NPMode.getRaw(modes.toArray(NPMode[]::new)));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

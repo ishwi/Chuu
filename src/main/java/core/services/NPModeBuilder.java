@@ -1,5 +1,6 @@
 package core.services;
 
+import com.google.common.collect.Sets;
 import com.neovisionaries.i18n.CountryCode;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
@@ -19,6 +20,8 @@ import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -28,34 +31,38 @@ import static core.commands.AlbumRatings.getStartsFromScore;
 public class NPModeBuilder {
     static {
         try {
-            List<Object> tags = List.of(NPMode.TAGS, 0,
-                    NPMode.CROWN, 1,
-                    NPMode.ARTIST_RANK, 2,
-                    NPMode.GLOBAL_CROWN, 3,
-                    NPMode.GLOBAL_RANK, 4,
-                    NPMode.ALBUM_CROWN, 5,
-                    NPMode.ALBUM_RANK, 6,
-                    NPMode.GLOBAL_ALBUM_CROWN, 7,
-                    NPMode.GLOBAL_ALBUM_RANK, 8,
-                    NPMode.LFM_LISTENERS, 9,
-                    NPMode.LFM_SCROBBLES, 10,
-                    NPMode.BOT_LISTENERS, 11,
-                    NPMode.BOT_SCROBBLES, 12,
-                    NPMode.SERVER_LISTENERS, 13,
-                    NPMode.SERVER_SCROBBLES, 14,
-                    NPMode.GENDER, 15,
-                    NPMode.COUNTRY, 16,
-                    NPMode.BOT_ALBUM_RYM, 17,
-                    NPMode.SERVER_ALBUM_RYM, 18,
-                    NPMode.ALBUM_RYM, 19);
+            List<NPMode> tags = List.of(NPMode.TAGS,
+                    NPMode.ARTIST_PLAYS,
+                    NPMode.ALBUM_PLAYS,
+                    NPMode.SONG_PLAYS,
+                    NPMode.CROWN,
+                    NPMode.ARTIST_RANK,
+                    NPMode.GLOBAL_CROWN,
+                    NPMode.GLOBAL_RANK,
+                    NPMode.ALBUM_CROWN,
+                    NPMode.ALBUM_RANK,
+                    NPMode.GLOBAL_ALBUM_CROWN,
+                    NPMode.GLOBAL_ALBUM_RANK,
+                    NPMode.LFM_LISTENERS,
+                    NPMode.LFM_SCROBBLES,
+                    NPMode.BOT_LISTENERS,
+                    NPMode.BOT_SCROBBLES,
+                    NPMode.SERVER_LISTENERS,
+                    NPMode.SERVER_SCROBBLES,
+                    NPMode.GENDER,
+                    NPMode.COUNTRY,
+                    NPMode.BOT_ALBUM_RYM,
+                    NPMode.SERVER_ALBUM_RYM,
+                    NPMode.ALBUM_RYM,
+                    NPMode.SONG_DURATION,
+                    NPMode.HIGHEST_STREAK,
+                    NPMode.HIGHEST_SERVER_STREAK,
+                    NPMode.HIGHEST_BOT_STREAK);
 
             Map<NPMode, Integer> temp = new HashMap<>();
-            for (int i = 0; i < tags.size(); i += 2) {
-                Object np = tags.get(i);
-                Object c = tags.get(i + 1);
-                assert np instanceof NPMode;
-                assert c instanceof Integer;
-                temp.put((NPMode) np, (Integer) c);
+            for (int i = 0; i < tags.size(); i++) {
+                NPMode npMode = tags.get(i);
+                temp.put(npMode, i);
             }
             footerIndexes = temp;
         } catch (Exception e) {
@@ -125,6 +132,7 @@ public class NPModeBuilder {
         AtomicBoolean botStats = new AtomicBoolean(false);
         AtomicBoolean lfmStats = new AtomicBoolean(false);
         AtomicBoolean mbLock = new AtomicBoolean(false);
+        AtomicBoolean trackLock = new AtomicBoolean(false);
 
 
         for (
@@ -135,6 +143,7 @@ public class NPModeBuilder {
             switch (npMode) {
                 case NORMAL:
                 case ARTIST_PIC:
+                case RANDOM:
                     break;
                 case PREVIOUS:
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
@@ -153,14 +162,13 @@ public class NPModeBuilder {
                         try {
                             Set<String> tags = new HashSet<>(5);
                             tags.addAll(lastFM.getTrackTags(1, TopEntity.TRACK, np.getArtistName(), np.getSongName()));
-                            if (tags.size() < 5 && !np.getAlbumName().isBlank()) {
-                                tags.addAll(lastFM.getTrackTags(1, TopEntity.ALBUM, np.getArtistName(), np.getAlbumName()));
-                            }
                             if (tags.size() < 5) {
                                 tags.addAll(lastFM.getTrackTags(5, TopEntity.ARTIST, np.getArtistName(), null));
                             }
                             if (!tags.isEmpty()) {
-
+                                if (tags.size() > 5) {
+                                    tags = tags.stream().limit(5).collect(Collectors.toSet());
+                                }
                                 String tagsField = EmbedBuilder.ZERO_WIDTH_SPACE + " • " + String.join(" - ", tags);
                                 tagsField += '\n';
                                 footerSpaces[index] = tagsField;
@@ -238,17 +246,17 @@ public class NPModeBuilder {
                             break;
                         }
                         completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
-                            if (npModes.contains(NPMode.BOT_LISTENERS)) {
+                            if (npModes.contains(NPMode.SERVER_LISTENERS)) {
                                 long artistFrequencies = service.getArtistFrequencies(guildId, scrobbledArtist.getArtistId());
-                                footerSpaces[footerIndexes.get(NPMode.BOT_LISTENERS)] =
+                                footerSpaces[footerIndexes.get(NPMode.SERVER_LISTENERS)] =
                                         (String.format("%d %s listeners", artistFrequencies, serverName));
                             }
-                            if (npModes.contains(NPMode.BOT_SCROBBLES)) {
+                            if (npModes.contains(NPMode.SERVER_SCROBBLES)) {
                                 long serverArtistPlays = service.getServerArtistPlays(guildId, scrobbledArtist.getArtistId());
-                                footerSpaces[footerIndexes.get(NPMode.BOT_SCROBBLES)] =
+                                footerSpaces[footerIndexes.get(NPMode.SERVER_SCROBBLES)] =
                                         (String.format("%d %s plays", serverArtistPlays, serverName));
-                                if (npModes.contains(NPMode.BOT_LISTENERS)) {
-                                    addNewLineToPrevious(footerIndexes.get(NPMode.BOT_SCROBBLES));
+                                if (npModes.contains(NPMode.SERVER_LISTENERS)) {
+                                    addNewLineToPrevious(footerIndexes.get(NPMode.SERVER_LISTENERS));
                                 }
                             }
                         })));
@@ -256,6 +264,7 @@ public class NPModeBuilder {
                     break;
                 case LFM_LISTENERS:
                 case LFM_SCROBBLES:
+                case ARTIST_PLAYS:
                     if (!lfmStats.compareAndSet(false, true)) {
                         break;
                     }
@@ -267,6 +276,9 @@ public class NPModeBuilder {
                             if (npModes.contains(NPMode.LFM_LISTENERS))
                                 footerSpaces[footerIndexes.get(NPMode.LFM_LISTENERS)] =
                                         (String.format("%d %s listeners", artistFrequencies, "Last.fm"));
+                            if (npModes.contains(NPMode.ARTIST_PLAYS))
+                                footerSpaces[footerIndexes.get(NPMode.ARTIST_PLAYS)] =
+                                        (String.format("%d %s", summary.getUserPlayCount(), CommandUtil.singlePlural(summary.getUserPlayCount(), "play", "plays")));
                             if (npModes.contains(NPMode.LFM_SCROBBLES)) {
                                 footerSpaces[footerIndexes.get(NPMode.LFM_SCROBBLES)] =
                                         (String.format("%d %s plays", serverArtistPlays, "Last.fm"));
@@ -297,13 +309,17 @@ public class NPModeBuilder {
                                 List<Rating> userRatings = albumRatings.getUserRatings();
                                 if (npModes.contains(NPMode.SERVER_ALBUM_RYM)) {
                                     List<Rating> serverList = userRatings.stream().filter(Rating::isSameGuild).collect(Collectors.toList());
-                                    footerSpaces[footerIndexes.get(NPMode.SERVER_ALBUM_RYM)] =
-                                            (String.format("%s Average: %s | Ratings: %d", serverName, average.format(serverList.stream().mapToDouble(rating -> rating.getRating() / 2f).average().orElse(0)), serverList.size()));
+                                    if (!serverList.isEmpty()) {
+                                        footerSpaces[footerIndexes.get(NPMode.SERVER_ALBUM_RYM)] =
+                                                (String.format("%s Average: %s | Ratings: %d", serverName, average.format(serverList.stream().mapToDouble(rating -> rating.getRating() / 2f).average().orElse(0)), serverList.size()));
+                                    }
                                 }
                                 if (npModes.contains(NPMode.BOT_ALBUM_RYM)) {
-                                    footerSpaces[footerIndexes.get(NPMode.BOT_ALBUM_RYM)] =
-                                            (String.format("%s Average: %s | Ratings: %d", e.getJDA().getSelfUser().getName()
-                                                    , average.format(userRatings.stream().mapToDouble(rating -> rating.getRating() / 2f).average().orElse(0)), userRatings.size()));
+                                    if (!userRatings.isEmpty()) {
+                                        footerSpaces[footerIndexes.get(NPMode.BOT_ALBUM_RYM)] =
+                                                (String.format("%s Average: %s | Ratings: %d", e.getJDA().getSelfUser().getName()
+                                                        , average.format(userRatings.stream().mapToDouble(rating -> rating.getRating() / 2f).average().orElse(0)), userRatings.size()));
+                                    }
 
                                 }
                                 if (npModes.contains(NPMode.ALBUM_RYM)) {
@@ -400,7 +416,6 @@ public class NPModeBuilder {
                                         ReturnNowPlaying searching = returnNowPlayings.get(i);
                                         if (searching.getDiscordId() == discordId) {
                                             footerSpaces[footerIndexes.get(NPMode.GLOBAL_ALBUM_RANK)] = "Global Album Rank: " + (i + 1) + CommandUtil.getDayNumberSuffix(i + 1) + "/" + returnNowPlayings.size();
-
                                             if (npModes.contains(NPMode.GLOBAL_ALBUM_RANK)) {
                                                 previousNewLinesToAdd.add(footerIndexes.get(NPMode.GLOBAL_ALBUM_CROWN));
                                             }
@@ -450,32 +465,132 @@ public class NPModeBuilder {
                     })));
 
                     break;
-                case UNKNOWN:
-                    throw new IllegalStateException();
+                case ALBUM_PLAYS:
+                    if (albumId != null) {
+                        break;
+                    }
+                    completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
+                        try {
+                            AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(lastFMName, scrobbledArtist.getArtist(), np.getAlbumName());
+                            int plays = playsAlbumArtist.getPlays();
+                            if (plays != 0) {
+                                footerSpaces[footerIndexes.get(NPMode.ALBUM_PLAYS)] =
+                                        (String.format("%d %s", plays, CommandUtil.singlePlural(plays, "play", "plays")));
+                            }
+                        } catch (LastFmException ignored) {
+                        }
+                    })));
+                    break;
+                case SONG_PLAYS:
+                case SONG_DURATION:
+
+                    if (!trackLock.compareAndSet(false, true)) {
+                        break;
+                    }
+                    completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
+                        try {
+                            Track trackInfo = lastFM.getTrackInfo(lastFMName, scrobbledArtist.getArtist(), np.getSongName());
+                            int plays = trackInfo.getPlays();
+                            if (plays != 0) {
+                                footerSpaces[footerIndexes.get(NPMode.ALBUM_PLAYS)] =
+                                        (String.format("%d %s", plays, CommandUtil.singlePlural(plays, "play", "plays")));
+                            }
+                            if (trackInfo.getDuration() != 0)
+                                footerSpaces[footerIndexes.get(NPMode.SONG_DURATION)] =
+                                        (String.format("%02d:%02d minutes", trackInfo.getDuration() / 60000, trackInfo.getDuration() / 1000 % 60));
+                        } catch (LastFmException ignored) {
+                        }
+                    })));
+                    break;
+                case HIGHEST_STREAK:
+                    completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
+                        List<StreakEntity> userArtistTopStreaks = service.getUserArtistTopStreaks(discordId, scrobbledArtist.getArtistId(), 1);
+                        if (!userArtistTopStreaks.isEmpty()) {
+                            StreakEntity globalStreakEntities = userArtistTopStreaks.get(0);
+                            footerSpaces[footerIndexes.get(NPMode.HIGHEST_STREAK)] =
+                                    (String.format("%s \uD83D\uDD25 %d %s", userName, globalStreakEntities.getaCounter(), CommandUtil.singlePlural(globalStreakEntities.getaCounter(), "play", "plays")));
+                        }
+                    })));
+                    break;
+                case HIGHEST_SERVER_STREAK:
+                    if (e.isFromGuild()) {
+                        completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
+                            List<GlobalStreakEntities> artistTopStreaks = service.getArtistTopStreaks(null, e.getGuild().getIdLong(), scrobbledArtist.getArtistId(), 1);
+                            if (!artistTopStreaks.isEmpty()) {
+                                Consumer<GlobalStreakEntities> consumer = GlobalStreakEntities.consumer.apply(e, new AtomicInteger(0), x -> true);
+                                GlobalStreakEntities globalStreakEntities = artistTopStreaks.get(0);
+                                globalStreakEntities.setDisplayer(consumer);
+                                String name = globalStreakEntities.getName().replace("*", "").substring(2).trim();
+                                footerSpaces[footerIndexes.get(NPMode.HIGHEST_SERVER_STREAK)] =
+                                        (String.format("%s \uD83D\uDD25 %d %s (%s)", e.getGuild().getName(), globalStreakEntities.getaCounter(), CommandUtil.singlePlural(globalStreakEntities.getaCounter(), "play", "plays"), name));
+                            }
+                        })));
+                    }
+                    break;
+                case HIGHEST_BOT_STREAK:
+                    completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
+                        List<GlobalStreakEntities> artistTopStreaks = service.getArtistTopStreaks(null, null, scrobbledArtist.getArtistId(), 1);
+                        if (!artistTopStreaks.isEmpty()) {
+                            Consumer<GlobalStreakEntities> consumer = GlobalStreakEntities.consumer.apply(e, new AtomicInteger(0), x -> false);
+                            GlobalStreakEntities globalStreakEntities = artistTopStreaks.get(0);
+                            globalStreakEntities.setDisplayer(consumer);
+                            String name = globalStreakEntities.getName().replace("*", "").substring(2).trim();
+                            footerSpaces[footerIndexes.get(NPMode.HIGHEST_BOT_STREAK)] =
+                                    (String.format("Global \uD83D\uDD25 %d %s (%s)", globalStreakEntities.getaCounter(), CommandUtil.singlePlural(globalStreakEntities.getaCounter(), "play", "plays"), name));
+                        }
+                    })));
+                    break;
             }
         }
-        return CompletableFuture.allOf(completableFutures.toArray(CompletableFuture<?>[]::new)).exceptionally(x -> null).thenAccept((x) -> {
-            previousNewLinesToAdd.forEach(this::addNewLineToPrevious);
-            List<String> collect = Arrays.stream(footerSpaces).filter(Objects::nonNull).collect(Collectors.toList());
+        return CompletableFuture.allOf(completableFutures.toArray(CompletableFuture<?>[]::new)).
 
-            for (int i = 0; i < collect.size(); i++) {
-                if (npModes.contains(NPMode.TAGS) && (i == 0)) {
-                    continue;
-                }
-                Predicate<Integer> tester = (npModes.contains(NPMode.TAGS) ? (j) -> j % 2 != 0 : (j) -> j % 2 == 0);
-                String current = collect.get(i);
-                if (tester.test(i)) {
-                    if (current.endsWith("\n")) {
-                        collect.set(i, current.substring(0, current.length() - 1));
+                exceptionally(x -> null).
+
+                thenAccept((x) ->
+
+                {
+                    previousNewLinesToAdd.forEach(this::addNewLineToPrevious);
+                    List<String> collect = Arrays.stream(footerSpaces).filter(Objects::nonNull).collect(Collectors.toList());
+
+                    for (int i = 0; i < collect.size(); i++) {
+                        if (npModes.contains(NPMode.TAGS) && (i == 0)) {
+                            continue;
+                        }
+                        Predicate<Integer> tester = (npModes.contains(NPMode.TAGS) ? (j) -> j % 2 != 0 : (j) -> j % 2 == 0);
+                        String current = collect.get(i);
+                        if (tester.test(i)) {
+                            if (current.endsWith("\n")) {
+                                collect.set(i, current.substring(0, current.length() - 1));
+                            }
+                        } else {
+                            if (!current.endsWith("\n")) {
+                                collect.set(i, current + "\n");
+                            }
+                        }
                     }
-                } else {
-                    if (!current.endsWith("\n")) {
-                        collect.set(i, current + "\n");
+                    outputList.addAll(collect);
+                    EnumSet<NPMode> checker = EnumSet.copyOf(this.npModes);
+                    checker.remove(NPMode.TAGS);
+                    if (
+
+                            Sets.difference(checker, EnumSet.of(NPMode.HIGHEST_BOT_STREAK, NPMode.HIGHEST_SERVER_STREAK, NPMode.HIGHEST_STREAK)).isEmpty()
+                                    || Sets.difference(checker, EnumSet.of(NPMode.CROWN, NPMode.GLOBAL_CROWN)).isEmpty()
+                                    || Sets.difference(checker, EnumSet.of(NPMode.BOT_LISTENERS, NPMode.BOT_SCROBBLES)).isEmpty()
+                                    || Sets.difference(checker, EnumSet.of(NPMode.SERVER_LISTENERS, NPMode.SERVER_SCROBBLES)).isEmpty()
+                                    || Sets.difference(checker, EnumSet.of(NPMode.LFM_LISTENERS, NPMode.LFM_SCROBBLES)).isEmpty()
+                                    || Sets.difference(checker, EnumSet.of(NPMode.CROWN, NPMode.ALBUM_CROWN, NPMode.GLOBAL_CROWN, NPMode.GLOBAL_ALBUM_CROWN)).isEmpty()
+                                    || Sets.difference(checker, EnumSet.of(NPMode.SONG_DURATION, NPMode.SONG_PLAYS)).isEmpty()
+
+
+                    ) {
+                        for (int i = 0, outputListSize = outputList.size(); i < outputListSize; i++) {
+                            String s = outputList.get(i);
+                            if (!s.endsWith("\n")) {
+                                outputList.set(i, s + "\n");
+                            }
+                        }
                     }
-                }
-            }
-            outputList.addAll(collect);
-        });
+                });
     }
 
     public void addNewLineToPrevious(int currentIndex) {

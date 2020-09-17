@@ -7,12 +7,14 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
-import core.parsers.*;
+import core.parsers.ArtistParser;
+import core.parsers.NumberParser;
+import core.parsers.OptionalEntity;
+import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.GlobalStreakEntities;
-import dao.entities.PrivacyMode;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -95,7 +97,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         ArtistParameters innerParams = params.getInnerParams();
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(innerParams.getArtist(), 0, "");
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !innerParams.isNoredirect());
-        List<GlobalStreakEntities> topStreaks = getService().getArtistTopStreaks(params.getExtraParam(), guildId, scrobbledArtist.getArtistId());
+        List<GlobalStreakEntities> topStreaks = getService().getArtistTopStreaks(params.getExtraParam(), guildId, scrobbledArtist.getArtistId(), null);
 
         Set<Long> showableUsers;
         if (params.getE().isFromGuild()) {
@@ -107,31 +109,8 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         AtomicInteger atomicInteger = new AtomicInteger(1);
         AtomicInteger positionCounter = new AtomicInteger(1);
 
-        Consumer<GlobalStreakEntities> consumer = (x) -> {
-            PrivacyMode privacyMode = x.getPrivacyMode();
-            if (showableUsers.contains(x.getDiscordId())) {
-                privacyMode = PrivacyMode.DISCORD_NAME;
-            }
-            int andIncrement = positionCounter.getAndIncrement();
-            String dayNumberSuffix = CommandUtil.getDayNumberSuffix(andIncrement);
-            switch (privacyMode) {
 
-                case STRICT:
-                case NORMAL:
-                    x.setCalculatedDisplayName(dayNumberSuffix + " **Private User #" + atomicInteger.getAndIncrement() + "**");
-                    break;
-                case DISCORD_NAME:
-                    x.setCalculatedDisplayName(dayNumberSuffix + " **" + getUserString(params.getE(), x.getDiscordId()) + "**");
-                    break;
-                case TAG:
-                    x.setCalculatedDisplayName(dayNumberSuffix + " **" + params.getE().getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag() + "**");
-                    break;
-                case LAST_NAME:
-                    x.setCalculatedDisplayName(dayNumberSuffix + " **" + x.getLastfmId() + " (last.fm)**");
-                    break;
-            }
-
-        };
+        Consumer<GlobalStreakEntities> consumer = GlobalStreakEntities.consumer.apply(e, positionCounter, showableUsers::contains);
         topStreaks
                 .forEach(x ->
                         x.setDisplayer(consumer)

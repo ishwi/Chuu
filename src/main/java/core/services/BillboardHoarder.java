@@ -28,6 +28,7 @@ public class BillboardHoarder {
     private final Week week;
     private final ConcurrentLastFM lastFM;
     private final int weekId;
+    private final Map<String, Long> dbIdMap = new HashMap<>();
 
     public BillboardHoarder(List<UsersWrapper> users, ChuuService service, Week week, ConcurrentLastFM lastFM) {
         this.users = users;
@@ -69,6 +70,11 @@ public class BillboardHoarder {
     }
 
     private void doArtistValidation(List<TrackWithArtistId> toValidate) {
+        toValidate = toValidate.stream().peek(x -> {
+            Long aLong1 = dbIdMap.get(x.getArtist());
+            if (aLong1 != null)
+                x.setArtistId(aLong1);
+        }).filter(x -> x.getArtistId() == -1L || x.getAlbumId() == 0L).collect(Collectors.toList());
 
         List<ScrobbledArtist> artists = toValidate.stream().map(Track::getArtist).distinct().map(x -> new ScrobbledArtist(x, 0, null)).collect(Collectors.toList());
         service.filldArtistIds(artists);
@@ -106,6 +112,7 @@ public class BillboardHoarder {
             if (x.getArtistId() == -1L) {
                 iterator.remove();
             }
+            this.dbIdMap.put(x.getArtist(), x.getArtistId());
         }
     }
 }

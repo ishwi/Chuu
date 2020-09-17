@@ -33,7 +33,9 @@ public enum UserConfigType {
     static final Pattern chartMode = Pattern.compile("(Image|Image-info|Image-Aside|Image-aside-info|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
     static final Pattern whoknowsMode = Pattern.compile("(Image|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
     static final Pattern privacyMode = Pattern.compile("(Normal|Tag|Last-name|Discord-Name)", Pattern.CASE_INSENSITIVE);
-    static final Pattern npMode = Pattern.compile("((Normal|Previous|Tags|Crown|Lfm-Listeners|Country|Gender|Artist-Pic|Lfm-Scrobbles|Album-Rym|Artist-Rank|Server-Album-Rym|Bot-Album-Rym|Album-Rank|Album-Crown|Global-Crown|Global-Rank|Global-Album-Crown|Global-Album-Rank|Server-Listeners|Server-Scrobbles|Bot-Listeners|Bot-Scrobbles)[ |&,]*)+", Pattern.CASE_INSENSITIVE);
+    static final Pattern npMode = Pattern.compile("((" +
+            EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
+            ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
 
 
     static {

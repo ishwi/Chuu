@@ -115,11 +115,12 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             return;
         }
         if (entities.isEmpty()) {
+
+            if (inProcessSets.contains(guildId)) {
+                sendMessageQueue(e, "This weekly chart is still being calculated, wait a few seconds/minutes more pls.");
+                return;
+            }
             try {
-                if (inProcessSets.contains(guildId)) {
-                    sendMessageQueue(e, "This weekly chart is still being calculated, wait a few seconds/minutes more pls.");
-                    return;
-                }
                 inProcessSets.add(guildId);
                 sendMessageQueue(e, "Didn't have the top from this week, will start to make it now.");
                 BillboardHoarder billboardHoarder = new BillboardHoarder(all, getService(), week, lastFM);
@@ -128,13 +129,14 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             } finally {
                 inProcessSets.remove(guildId);
             }
+            entities = getEntities(weekId, guildId, doListeners);
+            if (entities.isEmpty()) {
+                sendMessageQueue(e, "Didn't found any scrobble in this server users");
+                return;
+            }
+            sendMessageQueue(e, "Successfully Generated these week's charts");
         }
-        entities = getEntities(weekId, guildId, doListeners);
-        if (entities.isEmpty()) {
-            sendMessageQueue(e, "Didn't found any scrobble in this server users");
-            return;
-        }
-        sendMessageQueue(e, "Successfully Generated these week's charts");
+
         String name = e.getGuild().getName();
         doBillboard(e, params, doListeners, entities, weekStart.toLocalDate().atStartOfDay(), weekBeggining, name);
     }

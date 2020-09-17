@@ -389,6 +389,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new DiscoveredRatioCommand(dao)))
                 .addEventListeners(help.registerCommand(new DiscoveredAlbumRatioCommand(dao)))
                 .addEventListeners(help.registerCommand(new PaceAlbumCommand(dao)))
+                .addEventListeners(help.registerCommand(new NPModeSetterCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
@@ -416,10 +417,9 @@ public class Chuu {
             if (!isTest) {
                 scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 20, 12, TimeUnit.MINUTES);
                 scheduledExecutorService.scheduleAtFixedRate(
-                        new SpotifyUpdaterThread(dao), 20, 21,
-                        TimeUnit.MINUTES);
+                        new SpotifyUpdaterThread(dao), 5, 5, TimeUnit.MINUTES);
             }
-            scheduledExecutorService.scheduleAtFixedRate(new ArtistMbidUpdater(dao), 1, 2, TimeUnit.MINUTES);
+            scheduledExecutorService.scheduleAtFixedRate(new ArtistMbidUpdater(dao), 10, 20, TimeUnit.MINUTES);
 
         } catch (LoginException e) {
             Chuu.getLogger().warn(e.getMessage(), e);

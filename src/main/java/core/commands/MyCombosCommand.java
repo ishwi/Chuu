@@ -86,6 +86,6 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setFooter(String.format("%s has a total of %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), streaks.size(), CommandUtil.singlePlural(streaks.size(), "streak", "streaks")));
         MessageBuilder messageBuilder = new MessageBuilder();
         e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                new Reactionary<>(userStreaks, message1, 5, embedBuilder));
+                new Reactionary<>(streaks, message1, 5, embedBuilder));
     }
 }

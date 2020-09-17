@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
-    private final Class<T> clazz;
+    protected final Class<T> clazz;
 
     public EnumParser(Class<T> tClass) {
         this.clazz = tClass;
@@ -36,7 +36,7 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
             sendError("Pls introduce one of the following: " + String.join(",", collect), e);
             return null;
         }
-        return new EnumParameters<T>(e, Enum.valueOf(clazz, first.get().toUpperCase().replaceAll("-", "_")));
+        return new EnumParameters<>(e, Enum.valueOf(clazz, first.get().toUpperCase().replaceAll("-", "_")));
 
 
     }
@@ -46,7 +46,7 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
         List<String> collect = EnumSet.allOf(clazz).stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).collect(Collectors.toList());
 
         return "**" + commandName + " *config_value*** \n" +
-                "\tConfig value being one of: **" + String.join("** ,**", collect) + "**";
+                "\tConfig value being one of: **" + String.join("**, **", collect) + "**";
     }
 }
 

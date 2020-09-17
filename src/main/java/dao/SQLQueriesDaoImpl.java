@@ -1650,7 +1650,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             ResultSet resultSet = preparedStatement.executeQuery();
             String url = "";
             String artistName = "";
-            String albumName = "";
+            String albumName;
             List<ReturnNowPlaying> returnList = new ArrayList<>();
 
 
@@ -1961,7 +1961,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
     }
 
     @Override
-    public List<GlobalStreakEntities> getArtistTopStreaks(Connection connection, Long comboFilter, Long guildId, long artistId) {
+    public List<GlobalStreakEntities> getArtistTopStreaks(Connection connection, Long comboFilter, Long guildId, long artistId, Integer limit) {
         List<GlobalStreakEntities> returnList = new ArrayList<>();
         @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id" +
                 " FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
@@ -1978,6 +1978,9 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         queryString += " and a.artist_id = ? ";
 
         queryString += " order by  artist_combo desc,album_combo desc, track_combo desc ";
+        if (limit != null) {
+            queryString += " limit " + limit;
+        }
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
@@ -2011,6 +2014,50 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         }
         return returnList;
 
+
+    }
+
+    @Override
+    public List<StreakEntity> getUserArtistTopStreaks(Connection connection, long artistId, Integer limit, long discordId) {
+        List<StreakEntity> returnList = new ArrayList<>();
+        @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name" +
+                " FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id     ";
+
+
+        queryString += " where 1=1";
+
+        queryString += " and a.artist_id = ? and a.discord_id = ? ";
+
+        queryString += " order by  artist_combo desc,album_combo desc, track_combo desc ";
+        if (limit != null) {
+            queryString += " limit " + limit;
+        }
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, artistId);
+            preparedStatement.setLong(i, discordId);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int artistCombo = resultSet.getInt("artist_combo");
+                int albumCombo = resultSet.getInt("album_combo");
+                int trackCombo = resultSet.getInt("track_combo");
+                String artistName = resultSet.getString("name");
+                String trackName = resultSet.getString("track_name");
+
+                String albumName = resultSet.getString("album_name");
+
+
+                StreakEntity streakEntity = new StreakEntity(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, null);
+                returnList.add(streakEntity);
+            }
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnList;
 
     }
 
@@ -2211,7 +2258,6 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         }
         return new ResultWrapper<>(count, list);
     }
-
 
 
     private void getScoredAlbums(List<ScoredAlbumRatings> returnList, ResultSet resultSet) throws SQLException {

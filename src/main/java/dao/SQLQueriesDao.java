@@ -3,7 +3,6 @@ package dao;
 import dao.entities.*;
 
 import java.sql.Connection;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -117,7 +116,11 @@ interface SQLQueriesDao {
 
     String getReverseCorrection(Connection connection, String correction);
 
-    List<GlobalStreakEntities> getArtistTopStreaks(Connection connection, Long extraParam, Long guildId, long artistId);
+
+    List<GlobalStreakEntities> getArtistTopStreaks(Connection connection, Long extraParam, Long guildId, long artistId, Integer limit);
+
+    List<StreakEntity> getUserArtistTopStreaks(Connection connection, long artistId, Integer limit, long discordId);
+
 
     List<ScoredAlbumRatings> getServerTopRandomUrls(Connection connection, long guildId);
 

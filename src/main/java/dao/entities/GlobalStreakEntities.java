@@ -1,10 +1,17 @@
 package dao.entities;
 
+import com.wrapper.spotify.model_objects.specification.User;
 import core.commands.CommandUtil;
+import core.parsers.params.CommandParameters;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class GlobalStreakEntities extends StreakEntity {
     private final PrivacyMode privacyMode;
@@ -13,6 +20,32 @@ public class GlobalStreakEntities extends StreakEntity {
     private Consumer<GlobalStreakEntities> displayer;
     private String calculatedDisplayName;
 
+    public static TriFunction<MessageReceivedEvent, AtomicInteger, Predicate<Long>, Consumer<GlobalStreakEntities>> consumer = (e, c, p) -> (x) -> {
+        PrivacyMode privacyMode = x.getPrivacyMode();
+        if (p.test(x.getDiscordId())) {
+            privacyMode = PrivacyMode.DISCORD_NAME;
+        }
+
+        int andIncrement = c.getAndIncrement();
+        String dayNumberSuffix = CommandUtil.getDayNumberSuffix(andIncrement);
+        switch (privacyMode) {
+
+            case STRICT:
+            case NORMAL:
+                x.setCalculatedDisplayName(dayNumberSuffix + " **Private User #" + c.getAndIncrement() + "**");
+                break;
+            case DISCORD_NAME:
+                x.setCalculatedDisplayName(dayNumberSuffix + " **" + CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername() + "**");
+                break;
+            case TAG:
+                x.setCalculatedDisplayName(dayNumberSuffix + " **" + e.getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag() + "**");
+                break;
+            case LAST_NAME:
+                x.setCalculatedDisplayName(dayNumberSuffix + " **" + x.getLastfmId() + " (last.fm)**");
+                break;
+        }
+
+    };
 
     public GlobalStreakEntities(String currentArtist, int aCounter, String currentAlbum, int albCounter, String currentSong, int tCounter, Instant streakStart, PrivacyMode privacyMode, long discordId, String lastfmId) {
         super(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter, streakStart);

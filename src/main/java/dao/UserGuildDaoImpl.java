@@ -100,7 +100,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             int defaultY = resultSet.getInt(i++);
             PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(i++));
             boolean ratingNotify = resultSet.getBoolean(i++);
-            boolean privateLastfmId = resultSet.getBoolean(i++);
+            boolean privateLastfmId = resultSet.getBoolean(i);
 
 
             return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId);
@@ -275,6 +275,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
         String queryString = "INSERT IGNORE INTO  user_guild"
                 + " ( discord_id,guild_id) " + " VALUES (?, ?) ";
 
+        searchUserGuild(con, userId, guildId, queryString);
+    }
+
+    private void searchUserGuild(Connection con, long userId, long guildId, String queryString) {
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -403,7 +407,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 throw new InstanceNotFoundException("Not found ");
             }
             long aLong = resultSet.getLong(1);
-            String string = resultSet.getString(2);
+            // String string = resultSet.getString(2);
             Role role = Role.valueOf(resultSet.getString(3));
             boolean privateUpdate = resultSet.getBoolean(4);
             boolean imageNOtify = resultSet.getBoolean(5);
@@ -486,6 +490,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
         String queryString = "INSERT IGNORE INTO  command_guild_disabled"
                 + " (guild_id,command_name) VALUES (?, ?) ";
 
+        executeLongString(connection, discordId, commandName, queryString);
+    }
+
+    private void executeLongString(Connection connection, long discordId, String commandName, String queryString) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -543,16 +551,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
         String queryString = "DELETE FROM command_guild_disabled"
                 + " WHERE guild_id = ?  and command_name = ? ";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-            /* Fill "preparedStatement". */
-            int i = 1;
-            preparedStatement.setLong(i++, discordId);
-            preparedStatement.setString(i, commandName);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
+        executeLongString(connection, discordId, commandName, queryString);
     }
 
     @Override
@@ -708,7 +707,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             int defaultY = resultSet.getInt(i++);
             PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(i++));
             boolean ratingNotify = resultSet.getBoolean(i++);
-            boolean privateLastfmId = resultSet.getBoolean(i++);
+            boolean privateLastfmId = resultSet.getBoolean(i);
 
             return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId);
 
@@ -758,17 +757,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void serverBlock(Connection connection, long discordId, long guildId) {
         @Language("MariaDB") String queryString = "insert into server_blocked(discord_id,guild_id)  values (?,?) ";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-            /* Fill "preparedStatement". */
-            int i = 1;
-            preparedStatement.setLong(i++, discordId);
-            preparedStatement.setLong(i, guildId);
-            preparedStatement.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
+        searchUserGuild(connection, discordId, guildId, queryString);
     }
 
     @Override
@@ -795,17 +784,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void serverUnblock(Connection connection, long discordId, long guildId) {
         @Language("MariaDB") String queryString = "delete  from server_blocked where discord_id = ? and guild_id = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-            /* Fill "preparedStatement". */
-            int i = 1;
-            preparedStatement.setLong(i++, discordId);
-            preparedStatement.setLong(i, guildId);
-            preparedStatement.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
+        searchUserGuild(connection, discordId, guildId, queryString);
     }
 
     @Override
@@ -832,20 +811,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public void setNpRaw(Connection connection, long discordId, long raw) {
         String queryString = "UPDATE user SET np_mode = ? WHERE discord_id = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-            /* Fill "preparedStatement". */
-            int i = 1;
-            preparedStatement.setLong(i++, raw);
-            preparedStatement.setLong(i, discordId);
-
-
-            preparedStatement.executeUpdate();
-
-
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
+        searchUserGuild(connection, raw, discordId, queryString);
 
     }
 

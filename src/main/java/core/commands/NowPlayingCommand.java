@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class NowPlayingCommand extends NpCommand {
     private final DiscogsApi discogsApi;
@@ -77,6 +78,11 @@ public class NowPlayingCommand extends NpCommand {
         String[] footerSpaces = new String[NPModeBuilder.getSize()];
         List<String> outputList = new ArrayList<>();
         Arrays.fill(footerSpaces, null);
+        if (npModes.contains(NPMode.RANDOM)) {
+            List<NPMode> allModes = EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).filter(x -> !x.equals(NPMode.RANDOM)).collect(Collectors.toList());
+
+            npModes = EnumSet.copyOf(IntStream.range(0, CommandUtil.rand.nextInt(4) + 1).mapToObj(x -> allModes.get(CommandUtil.rand.nextInt(allModes.size()))).collect(Collectors.toSet()));
+        }
         NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, lastFMName, embedBuilder, scrobbledArtist, albumId, getService(), lastFM, serverName, mb, outputList);
         CompletableFuture<?> completableFutures = npModeBuilder.buildNp();
 
@@ -99,6 +105,9 @@ public class NowPlayingCommand extends NpCommand {
         }
 
         String footer = String.join(" • ", footerMax);
+        if (!footer.isBlank() && !footer.startsWith(EmbedBuilder.ZERO_WIDTH_SPACE)) {
+            footer = EmbedBuilder.ZERO_WIDTH_SPACE + " • " + footer;
+        }
         MessageBuilder messageBuilder = new MessageBuilder();
         embedBuilder.setFooter(footer, npModes.contains(NPMode.ARTIST_PIC) && !scrobbledArtist.getUrl().
 
