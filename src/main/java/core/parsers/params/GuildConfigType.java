@@ -20,7 +20,9 @@ import java.util.stream.Stream;
 public enum GuildConfigType {
     CROWNS_THRESHOLD("crowns"), CHART_MODE("chart"), WHOKNOWS_MODE("whoknows"), REMAINING_MODE("rest"),
     NP("np");
-
+    static final Pattern npMode = Pattern.compile("((" + "CLEAR|" +
+            EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
+            ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
 
     private static final Map<String, GuildConfigType> ENUM_MAP;
     private static final Pattern number = Pattern.compile("\\d+");
@@ -55,6 +57,8 @@ public enum GuildConfigType {
             case REMAINING_MODE:
             case WHOKNOWS_MODE:
                 return UserConfigType.whoknowsMode.asMatchPredicate();
+            case NP:
+                return GuildConfigType.npMode.asMatchPredicate();
             default:
                 return (s) -> true;
         }
@@ -80,7 +84,7 @@ public enum GuildConfigType {
                 return "Set the mode for all charts of the remaining images of the users in this server. While this is set any user configuration will be overridden \n" +
                         "\t\tThe possible values for the rest of the commands are the following:" + collect;
             case NP:
-                return "Setting this will alter the appearance of this server np commands. You can select up to 10 different from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+                return "Setting this will alter the appearance of this server np commands. You can select up to 10 different from the following list and mix them up:\n" + "CLEAR | " + NPMode.getListedName(EnumSet.allOf(NPMode.class));
 
             default:
                 return "";
@@ -131,7 +135,12 @@ public enum GuildConfigType {
                             return String.format("**%s** -> %s", key, whoknowsmode);
                         case NP:
                             EnumSet<NPMode> npModes = dao.getServerNPModes(guildId);
-                            String strModes = NPMode.getListedName(npModes);
+                            String strModes;
+                            if (npModes.contains(NPMode.UNKNOWN)) {
+                                strModes = "NOT SET";
+                            } else {
+                                strModes = NPMode.getListedName(npModes);
+                            }
                             return String.format("**%s** -> %s", key, strModes);
                     }
                     return null;

@@ -8,9 +8,13 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GuildConfigParser extends DaoParser<GuildConfigParams> {
+    private static final Set<String> multipleWordsConfigs = Stream.of(GuildConfigType.NP).map(GuildConfigType::getCommandName).collect(Collectors.toSet());
+
     public GuildConfigParser(ChuuService dao, OptionalEntity... opts) {
         super(dao, opts);
     }
@@ -33,14 +37,18 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
             }
             return null;
         }
-        if (words.length != 2) {
+        if ((words.length == 0) || (words.length > 2 && !multipleWordsConfigs.contains(words[0]))) {
             String prefix = e.getMessage().getContentRaw().substring(0, 1);
             String list = GuildConfigType.list(dao, e.getGuild().getIdLong());
             sendError("The config format must be the following: **`Command`**  **`Value`**\n do " + prefix + "help sconfig for more info.\nCurrent Values:\n" + list, e);
             return null;
         }
         String command = words[0];
-        String args = words[1];
+        StringBuilder argsB = new StringBuilder();
+        for (int i = 1; i < words.length; i++) {
+            argsB.append(words[i]).append(" ");
+        }
+        String args = argsB.toString().trim();
 
         GuildConfigType guildConfigType = GuildConfigType.get(command);
         if (guildConfigType == null) {

@@ -2245,7 +2245,11 @@ public class ChuuService {
 
     public void setServerNPModes(long guildId, EnumSet<NPMode> modes) {
         try (Connection connection = dataSource.getConnection()) {
-            userGuildDao.setServerNpRaw(connection, guildId, NPMode.getRaw(modes.toArray(NPMode[]::new)));
+            if (modes.size() == 1 && modes.contains(NPMode.UNKNOWN)) {
+                userGuildDao.setServerNpRaw(connection, guildId, -1L);
+            } else {
+                userGuildDao.setServerNpRaw(connection, guildId, NPMode.getRaw(modes.toArray(NPMode[]::new)));
+            }
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

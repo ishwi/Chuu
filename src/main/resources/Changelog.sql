@@ -135,4 +135,4 @@ alter table user
     add column np_mode bigint(20) not NULL DEFAULT 1;
 
 alter table guild
-    add column np_mode bigint(20) not NULL DEFAULT 1;
+    add column np_mode bigint(20) not NULL DEFAULT -1;

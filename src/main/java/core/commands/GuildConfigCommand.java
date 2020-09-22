@@ -1,5 +1,6 @@
 package core.commands;
 
+import com.google.common.collect.Sets;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.GuildConfigParser;
@@ -109,15 +110,23 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 String[] split = value.trim().replaceAll(" +", " ").split("[|,& ]+");
                 EnumSet<NPMode> modes = EnumSet.noneOf(NPMode.class);
                 for (String mode : split) {
+                    if (mode.equalsIgnoreCase("CLEAR")) {
+                        modes = EnumSet.of(NPMode.UNKNOWN);
+                        break;
+                    }
                     NPMode npMode = NPMode.valueOf(mode.replace("-", "_").toUpperCase());
                     modes.add(npMode);
                 }
                 if (modes.size() > 15) {
                     sendMessageQueue(e, "You can't set more than 15 as a default for the server");
                 } else {
-                    getService().setServerNPModes(e.getAuthor().getIdLong(), modes);
+                    getService().setServerNPModes(e.getGuild().getIdLong(), modes);
                     String strModes = NPMode.getListedName(modes);
-                    sendMessageQueue(e, String.format("Successfully changed the server config to the following %s: %s", CommandUtil.singlePlural(modes.size(), "mode", "modes"), strModes));
+                    if (Sets.difference(modes, EnumSet.of(NPMode.UNKNOWN)).isEmpty()) {
+                        sendMessageQueue(e, "Successfully cleared the server config");
+                    } else {
+                        sendMessageQueue(e, String.format("Successfully changed the server config to the following %s: %s", CommandUtil.singlePlural(modes.size(), "mode", "modes"), strModes));
+                    }
                 }
                 break;
         }

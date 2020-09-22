@@ -48,9 +48,12 @@ public class NowPlayingCommand extends NpCommand {
         String urlHolder = userInformation.getUrlImage();
         String userName = userInformation.getUsername();
 
+        EnumSet<NPMode> npModes = EnumSet.noneOf(NPMode.class);
+        if (e.isFromGuild()) {
+            npModes = getService().getServerNPModes(e.getGuild().getIdLong());
+        }
 
-        EnumSet<NPMode> npModes = getService().getServerNPModes(discordId);
-        if (npModes.isEmpty() || npModes.size() == 1 && npModes.contains(NPMode.NORMAL)) {
+        if (npModes.isEmpty() || npModes.size() == 1 && npModes.contains(NPMode.UNKNOWN)) {
             npModes = getService().getNPModes(discordId);
         }
 

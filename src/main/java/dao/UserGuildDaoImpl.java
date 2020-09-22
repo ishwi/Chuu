@@ -827,7 +827,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             if (resultSet.next()) {
                 return resultSet.getLong(1);
             }
-            return 1;
+            return -1;
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -837,7 +837,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void setServerNpRaw(Connection connection, long guild_id, long raw) {
-        String queryString = "UPDATE user SET np_mode = ? WHERE guild_id = ?";
+        String queryString = "UPDATE guild SET np_mode = ? WHERE guild_id = ?";
 
         updateUserGuild(connection, raw, guild_id, queryString);
 

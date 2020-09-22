@@ -103,8 +103,10 @@ public enum NPMode {
      */
     @Nonnull
     public static EnumSet<NPMode> getNPMode(long modeRaw) {
-        if (modeRaw == 0)
+        if (modeRaw == 0L)
             return EnumSet.noneOf(NPMode.class);
+        if (modeRaw == -1L)
+            return EnumSet.of(NPMode.UNKNOWN);
         EnumSet<NPMode> modes = EnumSet.noneOf(NPMode.class);
         for (NPMode mode : NPMode.values()) {
             if (mode != UNKNOWN && (modeRaw & mode.raw) == mode.raw)
