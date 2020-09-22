@@ -85,16 +85,21 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
         // Gets play number for each registered artist
         AlbumUserPlays urlContainter = new AlbumUserPlays("", "");
-        List<Long> usersThatKnow = getService().whoKnows(artist.getArtistId(), id, 25).getReturnNowPlayings().stream()
+        Set<Long> usersThatKnow = getService().whoKnows(artist.getArtistId(), id, 25).getReturnNowPlayings().stream()
                 .map(ReturnNowPlaying::getDiscordId)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
-        userList = userList.stream().filter(x -> usersThatKnow.contains(x.getDiscordID()) || x.getDiscordID() == ap.getLastFMData().getDiscordId() || x.getDiscordID() == e.getAuthor().getIdLong()).collect(Collectors.toList());
+        usersThatKnow.add(ap.getLastFMData().getDiscordId());
+        usersThatKnow.add(e.getAuthor().getIdLong());
+
+        userList = userList.stream()
+                .filter(x ->
+                        usersThatKnow.contains(x.getDiscordID()) || x.getDiscordID() == ap.getLastFMData().getDiscordId() || x.getDiscordID() == e.getAuthor().getIdLong())
+                .collect(Collectors.toList());
         if (userList.isEmpty()) {
             Chuu.getLogger().error("Something went real wrong");
             sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.cleanMarkdownCharacter(ap.getArtist()), CommandUtil.cleanMarkdownCharacter(ap.getAlbum())));
             return null;
-
         }
         Map<UsersWrapper, Integer> userMapPlays = fillPlayCounter(userList, artist.getArtist(), ap.getAlbum(), urlContainter);
 

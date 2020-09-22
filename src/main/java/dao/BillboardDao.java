@@ -2,6 +2,7 @@ package dao;
 
 import core.commands.BillboardEntity;
 import dao.entities.PreBillboardUserData;
+import dao.entities.PreBillboardUserDataTimestamped;
 import dao.entities.TrackWithArtistId;
 import dao.entities.Week;
 
@@ -26,6 +27,8 @@ public interface BillboardDao {
 
     void insertBillboardDataListeners(Connection connection, int week_id, long guildId);
 
+
+    List<PreBillboardUserDataTimestamped> getUngroupedUserData(Connection connection, String lastfmId, int weekId);
 
     List<PreBillboardUserData> getUserData(Connection connection, String lastfmId, int weekId);
 

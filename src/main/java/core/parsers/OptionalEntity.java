@@ -30,7 +30,7 @@ public class OptionalEntity {
     }
 
     public String getDefinition() {
-        return "\tCan use **" + value + "** to " + definition + "\n";
+        return "\tCan use **" + "--" + value + "** to " + definition + "\n";
     }
 
     @Override
@@ -43,6 +43,7 @@ public class OptionalEntity {
         if (o == this) {
             return true;
         }
+
         if (!(o instanceof OptionalEntity)) {
             return false;
         }

@@ -48,8 +48,11 @@ public class NowPlayingCommand extends NpCommand {
         String urlHolder = userInformation.getUrlImage();
         String userName = userInformation.getUsername();
 
-        EnumSet<NPMode> npModes = getService().getNPModes(discordId);
 
+        EnumSet<NPMode> npModes = getService().getServerNPModes(discordId);
+        if (npModes.isEmpty() || npModes.size() == 1 && npModes.contains(NPMode.NORMAL)) {
+            npModes = getService().getNPModes(discordId);
+        }
 
         String title = String.format("%s's %s song:", userName, nowPlayingArtist.isNowPlaying() ? "current" : "last");
         String lastFMName = nowPlayingArtist.getUsername();
@@ -105,13 +108,20 @@ public class NowPlayingCommand extends NpCommand {
         }
 
         String footer = String.join(" • ", footerMax);
+        // The first line needs the zws to align up with the rest of the lines
         if (!footer.isBlank() && !footer.startsWith(EmbedBuilder.ZERO_WIDTH_SPACE)) {
             footer = EmbedBuilder.ZERO_WIDTH_SPACE + " • " + footer;
         }
-        MessageBuilder messageBuilder = new MessageBuilder();
-        embedBuilder.setFooter(footer, npModes.contains(NPMode.ARTIST_PIC) && !scrobbledArtist.getUrl().
 
-                isBlank() ? scrobbledArtist.getUrl() : null);
+        //
+        String url = npModes.contains(NPMode.ARTIST_PIC) && scrobbledArtist.getUrl() != null && !scrobbledArtist.getUrl().isBlank()
+                ? scrobbledArtist.getUrl()
+                : null;
+        if (url != null && footer.isBlank()) {
+            footer += EmbedBuilder.ZERO_WIDTH_SPACE;
+        }
+        MessageBuilder messageBuilder = new MessageBuilder();
+        embedBuilder.setFooter(footer, url);
 
         e.getChannel().
 

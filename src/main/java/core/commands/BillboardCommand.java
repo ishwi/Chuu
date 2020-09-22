@@ -178,7 +178,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
 
 
             int size = params.hasOptional("full") ? 100 : Math.toIntExact(params.getExtraParam());
-            sendImage(HotMaker.doHotMaker(name + "'s " + getTitle() + "chart", dayOne + " " + one + " -  " + daySecond + " " + second, entities, doListeners, size, logo), e);
+            sendImage(HotMaker.doHotMaker(name + "'s " + getTitle() + "chart", dayOne + " " + one + " - " + daySecond + " " + second, entities, doListeners, size, logo), e);
         }
     }
 

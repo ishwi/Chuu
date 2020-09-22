@@ -278,7 +278,7 @@ public class NPModeBuilder {
                                         (String.format("%d %s listeners", artistFrequencies, "Last.fm"));
                             if (npModes.contains(NPMode.ARTIST_PLAYS))
                                 footerSpaces[footerIndexes.get(NPMode.ARTIST_PLAYS)] =
-                                        (String.format("%d %s", summary.getUserPlayCount(), CommandUtil.singlePlural(summary.getUserPlayCount(), "play", "plays")));
+                                        (String.format("%d artist %s", summary.getUserPlayCount(), CommandUtil.singlePlural(summary.getUserPlayCount(), "play", "plays")));
                             if (npModes.contains(NPMode.LFM_SCROBBLES)) {
                                 footerSpaces[footerIndexes.get(NPMode.LFM_SCROBBLES)] =
                                         (String.format("%d %s plays", serverArtistPlays, "Last.fm"));
@@ -475,7 +475,7 @@ public class NPModeBuilder {
                             int plays = playsAlbumArtist.getPlays();
                             if (plays != 0) {
                                 footerSpaces[footerIndexes.get(NPMode.ALBUM_PLAYS)] =
-                                        (String.format("%d %s", plays, CommandUtil.singlePlural(plays, "play", "plays")));
+                                        (String.format("%d album %s", plays, CommandUtil.singlePlural(plays, "play", "plays")));
                             }
                         } catch (LastFmException ignored) {
                         }
@@ -492,12 +492,14 @@ public class NPModeBuilder {
                             Track trackInfo = lastFM.getTrackInfo(lastFMName, scrobbledArtist.getArtist(), np.getSongName());
                             int plays = trackInfo.getPlays();
                             if (plays != 0) {
-                                footerSpaces[footerIndexes.get(NPMode.ALBUM_PLAYS)] =
-                                        (String.format("%d %s", plays, CommandUtil.singlePlural(plays, "play", "plays")));
+                                if (npModes.contains(NPMode.SONG_PLAYS))
+                                    footerSpaces[footerIndexes.get(NPMode.SONG_PLAYS)] =
+                                            (String.format("%d song %s", plays, CommandUtil.singlePlural(plays, "play", "plays")));
                             }
                             if (trackInfo.getDuration() != 0)
-                                footerSpaces[footerIndexes.get(NPMode.SONG_DURATION)] =
-                                        (String.format("%02d:%02d minutes", trackInfo.getDuration() / 60000, trackInfo.getDuration() / 1000 % 60));
+                                if (npModes.contains(NPMode.SONG_DURATION))
+                                    footerSpaces[footerIndexes.get(NPMode.SONG_DURATION)] =
+                                            (String.format("%02d:%02d minutes", trackInfo.getDuration() / 60000, trackInfo.getDuration() / 1000 % 60));
                         } catch (LastFmException ignored) {
                         }
                     })));

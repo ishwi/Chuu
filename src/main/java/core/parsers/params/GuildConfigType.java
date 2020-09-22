@@ -18,7 +18,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum GuildConfigType {
-    CROWNS_THRESHOLD("crowns"), CHART_MODE("chart"), WHOKNOWS_MODE("whoknows"), REMAINING_MODE("rest");
+    CROWNS_THRESHOLD("crowns"), CHART_MODE("chart"), WHOKNOWS_MODE("whoknows"), REMAINING_MODE("rest"),
+    NP("np");
 
 
     private static final Map<String, GuildConfigType> ENUM_MAP;
@@ -78,6 +79,9 @@ public enum GuildConfigType {
                 collect += "\n\t\t\t**Clear**: Sets the default mode";
                 return "Set the mode for all charts of the remaining images of the users in this server. While this is set any user configuration will be overridden \n" +
                         "\t\tThe possible values for the rest of the commands are the following:" + collect;
+            case NP:
+                return "Setting this will alter the appearance of this server np commands. You can select up to 10 different from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+
             default:
                 return "";
         }
@@ -125,6 +129,10 @@ public enum GuildConfigType {
                                 whoknowsmode = modes2.toString();
                             }
                             return String.format("**%s** -> %s", key, whoknowsmode);
+                        case NP:
+                            EnumSet<NPMode> npModes = dao.getServerNPModes(guildId);
+                            String strModes = NPMode.getListedName(npModes);
+                            return String.format("**%s** -> %s", key, strModes);
                     }
                     return null;
                 }).collect(Collectors.joining("\n"));

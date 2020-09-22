@@ -129,8 +129,10 @@ from area
 where type != 1;
 
 
-
 -- 2020/09/15
 
 alter table user
+    add column np_mode bigint(20) not NULL DEFAULT 1;
+
+alter table guild
     add column np_mode bigint(20) not NULL DEFAULT 1;

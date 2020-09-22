@@ -1586,6 +1586,7 @@ public class ChuuService {
                 } catch (SQLTransactionRollbackException exception) {
                     connection.rollback(savepoint);
                     rymDao.insertRatings(connection, knownAlbums, userId);
+
                     connection.commit();
                 }
                 //connection.rollback();
@@ -1919,6 +1920,14 @@ public class ChuuService {
         }
     }
 
+    public List<PreBillboardUserDataTimestamped> getUngroupedUserData(int week_id, String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return billboardDao.getUngroupedUserData(connection, lastfmId, week_id);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void insertUserData(int week_id, String lastfmId, List<TrackWithArtistId> list) {
         try (Connection connection = dataSource.getConnection()) {
             billboardDao.insertUserData(connection, list, lastfmId, week_id);
@@ -2220,7 +2229,7 @@ public class ChuuService {
     public void changeNpMode(long discordId, EnumSet<NPMode> modes) {
 
         try (Connection connection = dataSource.getConnection()) {
-            userGuildDao.setNpRaw(connection, discordId,  NPMode.getRaw(modes.toArray(NPMode[]::new)));
+            userGuildDao.setNpRaw(connection, discordId, NPMode.getRaw(modes.toArray(NPMode[]::new)));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -2232,5 +2241,24 @@ public class ChuuService {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+    }
+
+    public void setServerNPModes(long guildId, EnumSet<NPMode> modes) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setServerNpRaw(connection, guildId, NPMode.getRaw(modes.toArray(NPMode[]::new)));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public EnumSet<NPMode> getServerNPModes(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            long rawModes = userGuildDao.getServerNPRaw(connection, guildId);
+            return NPMode.getNPMode(rawModes);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
     }
 }

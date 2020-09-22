@@ -6,6 +6,7 @@ import core.parsers.GuildConfigParser;
 import core.parsers.Parser;
 import core.parsers.params.GuildConfigParams;
 import core.parsers.params.GuildConfigType;
+import core.parsers.params.NPMode;
 import dao.ChuuService;
 import dao.entities.ChartMode;
 import dao.entities.RemainingImagesMode;
@@ -13,6 +14,7 @@ import dao.entities.WhoKnowsMode;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
+import java.util.EnumSet;
 import java.util.List;
 
 public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
@@ -101,6 +103,21 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                     sendMessageQueue(e, "The mode of the remaining image commands was set to: **" + WordUtils.capitalizeFully(remainingImagesMode.toString()) + "**");
                 } else {
                     sendMessageQueue(e, "The mode of the remaining image commands to the default");
+                }
+                break;
+            case NP:
+                String[] split = value.trim().replaceAll(" +", " ").split("[|,& ]+");
+                EnumSet<NPMode> modes = EnumSet.noneOf(NPMode.class);
+                for (String mode : split) {
+                    NPMode npMode = NPMode.valueOf(mode.replace("-", "_").toUpperCase());
+                    modes.add(npMode);
+                }
+                if (modes.size() > 15) {
+                    sendMessageQueue(e, "You can't set more than 15 as a default for the server");
+                } else {
+                    getService().setServerNPModes(e.getAuthor().getIdLong(), modes);
+                    String strModes = NPMode.getListedName(modes);
+                    sendMessageQueue(e, String.format("Successfully changed the server config to the following %s: %s", CommandUtil.singlePlural(modes.size(), "mode", "modes"), strModes));
                 }
                 break;
         }

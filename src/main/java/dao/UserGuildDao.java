@@ -88,4 +88,8 @@ interface UserGuildDao {
     long getNPRaw(Connection connection, long discordId);
 
     void setNpRaw(Connection connection, long discordId, long raw);
+
+    long getServerNPRaw(Connection connection, long guildId);
+
+    void setServerNpRaw(Connection connection, long guild_id, long raw);
 }

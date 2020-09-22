@@ -3,6 +3,7 @@ package dao;
 import core.commands.BillboardEntity;
 import core.exceptions.ChuuServiceException;
 import dao.entities.PreBillboardUserData;
+import dao.entities.PreBillboardUserDataTimestamped;
 import dao.entities.TrackWithArtistId;
 import dao.entities.Week;
 import org.intellij.lang.annotations.Language;
@@ -331,6 +332,35 @@ public class BillboardDaoImpl implements BillboardDao {
             preparedStatement.setInt(4, week_id);
 
             preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public List<PreBillboardUserDataTimestamped> getUngroupedUserData(Connection connection, String lastfmId, int weekId) {
+
+        @Language("MariaDB") String queryString = "SELECT artist_id,track_name,`timestamp`  from user_billboard_data_scrobbles where week_id = ? and lastfm_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setInt(1, weekId);
+            preparedStatement.setString(2, lastfmId);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<PreBillboardUserDataTimestamped> a = new ArrayList<>();
+            while (resultSet.next()) {
+                String track_name = resultSet.getString("track_name");
+                long artist = resultSet.getLong("artist_id");
+                Timestamp timestamp = resultSet.getTimestamp("timestamp");
+
+                a.add(new PreBillboardUserDataTimestamped(artist, lastfmId, track_name, 1, timestamp));
+            }
+
+            return a;
+
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

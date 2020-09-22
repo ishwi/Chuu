@@ -275,10 +275,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
         String queryString = "INSERT IGNORE INTO  user_guild"
                 + " ( discord_id,guild_id) " + " VALUES (?, ?) ";
 
-        searchUserGuild(con, userId, guildId, queryString);
+        updateUserGuild(con, userId, guildId, queryString);
     }
 
-    private void searchUserGuild(Connection con, long userId, long guildId, String queryString) {
+    private void updateUserGuild(Connection con, long userId, long guildId, String queryString) {
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -757,7 +757,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void serverBlock(Connection connection, long discordId, long guildId) {
         @Language("MariaDB") String queryString = "insert into server_blocked(discord_id,guild_id)  values (?,?) ";
-        searchUserGuild(connection, discordId, guildId, queryString);
+        updateUserGuild(connection, discordId, guildId, queryString);
     }
 
     @Override
@@ -784,7 +784,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void serverUnblock(Connection connection, long discordId, long guildId) {
         @Language("MariaDB") String queryString = "delete  from server_blocked where discord_id = ? and guild_id = ?";
-        searchUserGuild(connection, discordId, guildId, queryString);
+        updateUserGuild(connection, discordId, guildId, queryString);
     }
 
     @Override
@@ -799,7 +799,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             if (resultSet.next()) {
                 return resultSet.getLong(1);
             }
-            return 0;
+            return 1;
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -811,8 +811,37 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public void setNpRaw(Connection connection, long discordId, long raw) {
         String queryString = "UPDATE user SET np_mode = ? WHERE discord_id = ?";
 
-        searchUserGuild(connection, raw, discordId, queryString);
+        updateUserGuild(connection, raw, discordId, queryString);
 
     }
+
+    @Override
+    public long getServerNPRaw(Connection connection, long guildId) {
+        @Language("MariaDB") String queryString = "select  np_mode from guild where guild_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i, guildId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+            return 1;
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public void setServerNpRaw(Connection connection, long guild_id, long raw) {
+        String queryString = "UPDATE user SET np_mode = ? WHERE guild_id = ?";
+
+        updateUserGuild(connection, raw, guild_id, queryString);
+
+    }
+
 
 }

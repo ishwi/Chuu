@@ -2,6 +2,7 @@ package core.commands;
 
 import com.github.natanbc.javaeval.CompilationResult;
 import com.github.natanbc.javaeval.JavaEvaluator;
+import core.Chuu;
 import core.commands.utils.EvalClassLoader;
 import core.commands.utils.EvalContext;
 import core.exceptions.InstanceNotFoundException;
@@ -10,6 +11,8 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
@@ -17,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class EvalCommand extends ConcurrentCommand<CommandParameters> {
     private static Long ownerId;
@@ -96,6 +100,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
 
             EvalClassLoader ecl = new EvalClassLoader();
             r.getClasses().forEach((name, bytes) -> ecl.define(bytes));
+            var a = core.Chuu.getPrefixMap();
 
             ecl.loadClass("core.commands.Eval").getMethod("run", EvalContext.class).invoke(null, evalContext);
         } catch (Exception noSuchMethodException) {

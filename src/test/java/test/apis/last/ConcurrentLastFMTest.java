@@ -74,7 +74,7 @@ public class ConcurrentLastFMTest {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
 
         try {
-            List<Track> secondsTimeFrameCount = lastFM.getTopArtistTracks("lukyfan", "Northlane", "7day");
+            List<Track> secondsTimeFrameCount = lastFM.getTopArtistTracks("lukyfan", "Northlane", "7day", "Northlane");
 
         } catch (LastFmException ignored) {
         }

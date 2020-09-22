@@ -42,14 +42,16 @@ public class CoverCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws InstanceNotFoundException, LastFmException {
+    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
         String albumUrl = lastFM.getAlbumSummary(params.getLastFMData().getName(), artist.getArtist(), album).getAlbumUrl();
         if (albumUrl == null || albumUrl.isBlank()) {
-            sendMessageQueue(e, "There is no image for " + album + " on last.fm at the moment.\n" +
-                    String.format("Consider submitting one: https://www.last.fm/music/%s/%s/+images/upload", URLEncoder.encode(artist.getArtist(), StandardCharsets.UTF_8), URLEncoder.encode(album, StandardCharsets.UTF_8)));
+            sendMessageQueue(e,
+                    String.format("There is no image for %s on last.fm at the moment.\nConsider submitting one: https://www.last.fm/music/%s/%s/+images/upload"
+                            , album, URLEncoder.encode(artist.getArtist(), StandardCharsets.UTF_8), URLEncoder.encode(album, StandardCharsets.UTF_8)));
             return;
         }
         try {
+            albumUrl = albumUrl.replaceAll("i/u/[\\d\\w]+/","i/u/4096x4096/");
             InputStream file = new URL(albumUrl).openStream();
             e.getChannel().sendFile(file, "cat.png").append(String.format("**%s** - **%s**", artist.getArtist(), album)).queue();
         } catch (IOException ioException) {
