@@ -4,6 +4,8 @@ import com.neovisionaries.i18n.CountryCode;
 import core.Chuu;
 import core.exceptions.ChuuServiceException;
 import dao.entities.*;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -197,11 +199,11 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
 
     @Override
-    public Map<Genre, Integer> genreCount(Connection con, List<AlbumInfo> releaseInfo) {
-        Map<Genre, Integer> returnMap = new HashMap<>();
+    public MultiValuedMap<Genre, String> genreCount(Connection con, List<AlbumInfo> releaseInfo) {
+        MultiValuedMap<Genre, String> returnMap = new HashSetValuedHashMap<>();
         List<Genre> list = new ArrayList<>();
         StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "       c.name as neim, count(*) as count\n \n" +
+                "       c.name as neim, d.gid as mbid\n \n" +
                 " FROM\n" +
                 " musicbrainz.release d join \n" +
                 " musicbrainz.release_group a " +
@@ -218,7 +220,6 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
         }
 
         queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
-        queryString.append("\n Group by c.name");
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString.toString())) {
             int i = 1;
@@ -230,18 +231,16 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
             while (resultSet.next()) {
 
-                String mbid = resultSet.getString("neim");
-                int count = resultSet.getInt("count");
-                Genre genre = new Genre(mbid, "");
-                list.add(genre);
-                returnMap.put(genre, count);
+                String genreName = resultSet.getString("neim");
+                String mbid = resultSet.getString("mbid");
+                Genre genre = new Genre(genreName, "");
+                returnMap.put(genre, mbid);
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }
-        return list.stream().collect(Collectors.toMap(genre -> genre, genre -> returnMap.getOrDefault(genre, 0), Integer::sum));
-
+        return returnMap;
     }
 
     @Override
@@ -284,6 +283,8 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
                     continue;
                 }
                 String code = resultSet.getString("code");
+                if (code == null)
+                    continue;
 
                 int frequency = resultSet.getInt("count");
 
@@ -486,7 +487,7 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
     }
 
     @Override
-    public Set<String> getArtistOfGenre(Connection connection, String genre, List<AlbumInfo> releaseInfo) {
+    public Set<String> getAlbumsOfGenre(Connection connection, String genre, List<AlbumInfo> releaseInfo) {
         Set<String> uuids = new HashSet<>();
         StringBuilder queryString = new StringBuilder("SELECT \n" +
                 "       d.gid" +
@@ -527,6 +528,47 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
         }
         return uuids;
     }
+
+    @Override
+    public Set<String> getArtistOfGenre(Connection connection, String genre, List<ArtistInfo> releaseInfo) {
+        Set<String> uuids = new HashSet<>();
+        StringBuilder queryString = new StringBuilder("SELECT \n" +
+                "       d.gid" +
+                " FROM\n" +
+                " musicbrainz.artist d join \n" +
+                "musicbrainz.artist_tag b ON d.id = b.artist\n" +
+                "        JOIN\n" +
+                "    musicbrainz.tag c ON b.tag = c.id\n" +
+                "WHERE\n" +
+                "    d.gid in (");
+
+        for (ArtistInfo ignored : releaseInfo) {
+            queryString.append(" ? ,");
+        }
+
+
+        queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
+        queryString.append("\n  and similarity(c.name,?) > 0.8");
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString.toString())) {
+            int i = 1;
+
+            for (ArtistInfo artistInfo : releaseInfo) {
+                preparedStatement.setObject(i++, java.util.UUID.fromString(artistInfo.getMbid()));
+            }
+            preparedStatement.setString(i, genre);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                UUID id = resultSet.getObject("gid", UUID.class);
+                uuids.add(id.toString());
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return uuids;
+    }
+
 
     @Override
     public List<Track> getAlbumTrackListMbid(Connection connection, String mbid) {
@@ -1112,11 +1154,10 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
     }
 
     @Override
-    public Map<Genre, Integer> genreCountByArtist(Connection connection, List<ArtistInfo> releaseInfo) {
-        Map<Genre, Integer> returnMap = new HashMap<>();
-        List<Genre> list = new ArrayList<>();
+    public MultiValuedMap<Genre, String> genreCountByArtist(Connection connection, List<ArtistInfo> releaseInfo) {
+        MultiValuedMap<Genre, String> returnMap = new HashSetValuedHashMap<>();
         StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "       c.name as neim, count(*) as count\n \n" +
+                "       c.name as neim,d.gid as mbid\n \n" +
                 " FROM\n" +
                 " musicbrainz.artist d join \n" +
                 "musicbrainz.artist_tag b ON d.id = b.artist\n" +
@@ -1130,7 +1171,6 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
         }
 
         queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
-        queryString.append("\n Group by c.name");
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString.toString())) {
             int i = 1;
@@ -1142,17 +1182,16 @@ public class MbizQueriesDaoImpl implements MbizQueriesDao {
 
             while (resultSet.next()) {
 
-                String mbid = resultSet.getString("neim");
-                int count = resultSet.getInt("count");
-                Genre genre = new Genre(mbid, "");
-                list.add(genre);
-                returnMap.put(genre, count);
+                String genreName = resultSet.getString("neim");
+                String mbid = resultSet.getString("mbid");
+                Genre genre = new Genre(genreName, "");
+                returnMap.put(genre, mbid);
             }
         } catch (SQLException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }
-        return list.stream().collect(Collectors.toMap(genre -> genre, genre -> returnMap.getOrDefault(genre, 0), Integer::sum));
+        return returnMap;
     }
 
     @Override

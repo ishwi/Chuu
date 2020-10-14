@@ -9,7 +9,8 @@ import dao.entities.RemainingImagesMode;
 import dao.entities.WhoKnowsMode;
 import org.apache.commons.text.WordUtils;
 
-import java.lang.reflect.Type;
+import java.time.DateTimeException;
+import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.function.Function;
@@ -26,7 +27,8 @@ public enum UserConfigType {
     PRIVACY_MODE("privacy"),
     NOTIFY_RATING("rating-notify"),
     PRIVATE_LASTFM("private-lastfm"),
-    NP("np");
+    NP("np"),
+    TIMEZONE("timezone");
 
     private static final Map<String, UserConfigType> ENUM_MAP;
     static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
@@ -37,6 +39,16 @@ public enum UserConfigType {
             EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
             ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
 
+    static final Predicate<String> stringPredicate = (x) ->
+    {
+        try {
+            ZoneOffset.of(x);
+            return true;
+        } catch (DateTimeException e) {
+            return false;
+        }
+    };
+
 
     static {
         ENUM_MAP = Stream.of(UserConfigType.values())
@@ -44,7 +56,6 @@ public enum UserConfigType {
     }
 
     private final String commandName;
-    private Type paramType;
 
     UserConfigType(String command) {
         commandName = command;
@@ -77,6 +88,8 @@ public enum UserConfigType {
                 return ChartParserAux.chartSizePattern.asMatchPredicate();
             case NP:
                 return npMode.asMatchPredicate();
+            case TIMEZONE:
+                return stringPredicate;
             default:
                 return (s) -> true;
 
@@ -117,8 +130,10 @@ public enum UserConfigType {
                 return "Setting this to true will mean that your last.fm name will stay private and will not be shared with anyone. (This is different from privacy settings since it affects commands within a server and not cross server)";
             case NP:
                 return "Setting this will alter the appearance of your np commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+            case TIMEZONE:
+                return "TIMEZONE ";
             default:
-                return "";
+                throw new IllegalStateException();
         }
     }
 
@@ -189,6 +204,8 @@ public enum UserConfigType {
                             EnumSet<NPMode> modes = dao.getNPModes(discordId);
                             String strModes = NPMode.getListedName(modes);
                             return String.format("**%s** -> %s", key, strModes);
+                        case TIMEZONE:
+                            return "";
                     }
                     return null;
                 }).

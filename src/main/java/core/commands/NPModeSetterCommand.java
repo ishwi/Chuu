@@ -3,8 +3,8 @@ package core.commands;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.EnumListParser;
-import core.parsers.params.EnumListParameters;
 import core.parsers.Parser;
+import core.parsers.params.EnumListParameters;
 import core.parsers.params.NPMode;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -20,8 +20,12 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
         String[] split = value.trim().replaceAll(" +", " ").split("[|,& ]+");
         EnumSet<NPMode> modes = EnumSet.noneOf(NPMode.class);
         for (String mode : split) {
-            NPMode npMode = NPMode.valueOf(mode.replace("-", "_").toUpperCase());
-            modes.add(npMode);
+            try {
+                NPMode npMode = NPMode.valueOf(mode.replace("-", "_").toUpperCase());
+                modes.add(npMode);
+            } catch (IllegalArgumentException ignored) {
+                //Ignore
+            }
         }
         return modes;
     };

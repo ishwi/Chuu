@@ -55,7 +55,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("crownsalbum", "crownsal");
+        return Arrays.asList("albumcrowns", "crownsalbum", "crownsal");
     }
 
     @Override

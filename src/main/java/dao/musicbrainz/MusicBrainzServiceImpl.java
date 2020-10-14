@@ -4,6 +4,7 @@ import com.neovisionaries.i18n.CountryCode;
 import core.exceptions.ChuuServiceException;
 import dao.SimpleDataSource;
 import dao.entities.*;
+import org.apache.commons.collections4.MultiValuedMap;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -123,10 +124,22 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
     }
 
     @Override
-    public Map<Genre, Integer> genreCount(List<AlbumInfo> releaseInfo) {
+    public Map<Genre, List<AlbumInfo>> genreCount(List<AlbumInfo> releaseInfo) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return mbizQueriesDao.genreCount(connection, releaseInfo);
+            Map<String, AlbumInfo> missing = new HashMap<>();
+            Map<String, AlbumInfo> mbidIndexMap = releaseInfo.stream().collect(Collectors.toMap(EntityInfo::getMbid, x -> x, (x, y) -> {
+                missing.put(y.getMbid(), y);
+                return x;
+            }));
+            MultiValuedMap<Genre, String> genresAndMbids = mbizQueriesDao.genreCount(connection, releaseInfo);
+            return genresAndMbids.asMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry<Genre, Collection<String>> k) -> k.getValue().stream().map(key -> {
+                AlbumInfo ai = mbidIndexMap.get(key);
+                if (ai == null) {
+                    return missing.get(key);
+                }
+                return ai;
+            }).collect(Collectors.toList())));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -134,10 +147,22 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
     }
 
     @Override
-    public Map<Genre, Integer> genreCountByartist(List<ArtistInfo> releaseInfo) {
+    public Map<Genre, List<ArtistInfo>> genreCountByartist(List<ArtistInfo> releaseInfo) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return mbizQueriesDao.genreCountByArtist(connection, releaseInfo);
+            Map<String, ArtistInfo> missing = new HashMap<>();
+            Map<String, ArtistInfo> mbidIndexMap = releaseInfo.stream().collect(Collectors.toMap(EntityInfo::getMbid, x -> x, (x, y) -> {
+                missing.put(y.getMbid(), y);
+                return x;
+            }));
+            MultiValuedMap<Genre, String> genresAndMbids = mbizQueriesDao.genreCountByArtist(connection, releaseInfo);
+            return genresAndMbids.asMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry<Genre, Collection<String>> k) -> k.getValue().stream().map(key -> {
+                ArtistInfo artistInfo = mbidIndexMap.get(key);
+                if (artistInfo == null) {
+                    return missing.get(key);
+                }
+                return artistInfo;
+            }).collect(Collectors.toList())));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -152,7 +177,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             if (releaseInfo.isEmpty()) {
                 return new HashSet<>();
             }
-            return mbizQueriesDao.getArtistOfGenre(connection, genre, releaseInfo);
+            return mbizQueriesDao.getAlbumsOfGenre(connection, genre, releaseInfo);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -353,6 +378,22 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
 
         } catch (
                 SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public Set<String> artistGenres(List<ArtistInfo> artists, String genre) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            if (artists.isEmpty()) {
+                return new HashSet<>();
+            }
+            return mbizQueriesDao.getArtistOfGenre(connection, genre, artists);
+
+        } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
 

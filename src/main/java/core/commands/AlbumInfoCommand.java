@@ -2,11 +2,9 @@ package core.commands;
 
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.TagAlbumService;
 import dao.ChuuService;
-import dao.entities.FullAlbumEntityExtended;
-import dao.entities.LastFMData;
-import dao.entities.MusicbrainzFullAlbumEntity;
-import dao.entities.ScrobbledArtist;
+import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -94,6 +92,9 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(artist.getUrl());
         e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
+        if (!albumSummary.getTagList().isEmpty()) {
+            executor.submit(new TagAlbumService(getService(), lastFM, albumSummary.getTagList(), new AlbumInfo(albumSummary.getMbid(), albumSummary.getAlbum(), albumSummary.getArtist())));
 
+        }
     }
 }

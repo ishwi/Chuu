@@ -20,10 +20,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.sql.Time;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -148,6 +148,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                     throw new LastFmEntityNotFoundException(new ExceptionEntity("Whatever"));
                 }
                 if (Math.floor((float) responseCode / 100) == 4) {
+                    Chuu.getLogger().warn("Error {} with url {}", responseCode, method.getURI().getEscapedURI());
                     throw new UnknownLastFmException(jsonObject.toString(), responseCode);
                 }
                 return jsonObject;

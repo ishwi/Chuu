@@ -59,6 +59,10 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
         Set<Color> colorList = new HashSet<>();
         for (String s : subMessage) {
             try {
+                Pattern compile = Pattern.compile("[0-9a-fA-F]+");
+                if (compile.matcher(s).matches()) {
+                    s = "#" + s;
+                }
                 Color color = ColorFactory.valueOf(s);
                 colorList.add(color);
             } catch (IllegalArgumentException ex) {

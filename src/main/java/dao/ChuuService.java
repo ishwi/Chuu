@@ -3,12 +3,10 @@ package dao;
 import com.sun.istack.NotNull;
 import core.Chuu;
 import core.commands.BillboardEntity;
-import core.parsers.params.NPMode;
-import dao.entities.RYMImportRating;
-import dao.entities.ScoredAlbumRatings;
 import core.exceptions.ChuuServiceException;
 import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
+import core.parsers.params.NPMode;
 import dao.entities.*;
 import dao.musicbrainz.AffinityDao;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -2264,5 +2262,132 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    public void setTimezoneUser(TimeZone timeZone, long idLong) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setTimezoneUser(connection, timeZone, idLong);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public TimeZone getUserTimezone(long userId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.getTimezone(connection, userId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScrobbledAlbum> fillAlbumIdsByMBID(List<AlbumInfo> collect) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.fillAlbumsByMBID(connection, collect);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void insertAlbumTags(Map<Genre, List<ScrobbledAlbum>> genres) {
+        try (Connection connection = dataSource.getConnection()) {
+            Map<String, String> correctedTags = updaterDao.validateTags(connection, new ArrayList<>(genres.keySet()));
+            if (genres.values().stream().mapToLong(List::size).sum() != 0) {
+                updaterDao.insertAlbumTags(connection, genres, correctedTags);
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void insertArtistTags(Map<Genre, List<ScrobbledArtist>> genres) {
+        try (Connection connection = dataSource.getConnection()) {
+            Map<String, String> correctedTags = updaterDao.validateTags(connection, new ArrayList<>(genres.keySet()));
+            if (genres.values().stream().mapToLong(List::size).sum() != 0) {
+                updaterDao.insertArtistTags(connection, genres, correctedTags);
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public WrapperReturnNowPlaying whoKnowsGenre(String genre, long guildId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.whoKnowsTag(connection, genre, guildId, limit);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public WrapperReturnNowPlaying whoKnowsGenre(String genre, long guildId) {
+        return this.whoKnowsGenre(genre, guildId, 10);
+    }
+
+    public List<ScrobbledArtist> getTopInTag(String genre, Long guildId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getTopTag(connection, genre, guildId, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public Optional<ScrobbledArtist> getTopInTag(String genre, Long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<ScrobbledArtist> topTag = queriesDao.getTopTag(connection, genre, guildId, 1);
+            if (topTag.isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.of(topTag.get(0));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void addBannedTag(String tag, long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.addBannedTag(connection, tag);
+            updaterDao.removeArtistTag(connection, tag);
+            updaterDao.removeAlbumTag(connection, tag);
+            updaterDao.logBannedTag(connection, tag, discordId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
+
+    public Set<String> getBannedTags() {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getBannedTags(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<AlbumInfo> getAlbumsWithTags(List<AlbumInfo> albums, long discordId, String tag) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getAlbumsWithTag(connection, albums, discordId, tag);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScrobbledArtist> getUserArtistByMbid(String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getUserArtists(connection, lastfmId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public List<ArtistInfo> getArtistWithTag(List<ArtistInfo> artists, long discordId, String genre) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getArtistWithTag(connection, artists, discordId, genre);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 }

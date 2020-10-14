@@ -33,9 +33,9 @@ public interface MusicBrainzService {
 
     List<AlbumInfo> findArtistByReleaseCurrentYear(List<AlbumInfo> releaseInfo);
 
-    Map<Genre, Integer> genreCount(List<AlbumInfo> releaseInfo);
+    Map<Genre, List<AlbumInfo>> genreCount(List<AlbumInfo> releaseInfo);
 
-    Map<Genre, Integer> genreCountByartist(List<ArtistInfo> releaseInfo);
+    Map<Genre, List<ArtistInfo>> genreCountByartist(List<ArtistInfo> releaseInfo);
 
     List<Track> getAlbumTrackList(String artist, String album);
 
@@ -69,6 +69,8 @@ public interface MusicBrainzService {
     Map<Language, Long> getLanguageCountByMbid(List<AlbumInfo> withMbid);
 
     List<AlbumGenre> getAlbumRecommendationsByGenre(Map<Genre, Integer> map, List<ScrobbledArtist> recs);
+
+    Set<String> artistGenres(List<ArtistInfo> artists, String genre);
 
 }
 

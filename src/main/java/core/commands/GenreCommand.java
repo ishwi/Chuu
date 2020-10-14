@@ -11,6 +11,8 @@ import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.TimeFrameParameters;
+import core.services.TagAlbumService;
+import core.services.TagArtistService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
@@ -20,7 +22,6 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 import org.knowm.xchart.PieChart;
-import org.knowm.xchart.PieSeries;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -28,10 +29,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
@@ -48,8 +45,6 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         pieable = (chart, params, data) -> {
             data.entrySet().stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).sequential().limit(params.getExtraParam())
                     .forEach(entry -> {
-
-
                         Genre genre = entry.getKey();
                         int plays = entry.getValue();
                         chart.addSeries(genre.getGenreName() + "\u200B", plays);
@@ -120,7 +115,9 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                 sendMessageQueue(e, "Was not able to find any genre in " + usableString + "'s top 3000 artists" + returned.getTime().getDisplayString() + " on Musicbrainz");
                 return;
             }
-            map = musicBrainz.genreCountByartist(albumInfos);
+            Map<Genre, List<ArtistInfo>> genreListMap = musicBrainz.genreCountByartist(albumInfos);
+            executor.submit(new TagArtistService(getService(), lastFM, genreListMap));
+            map = genreListMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size()));
         } else {
             List<AlbumInfo> albumInfos;
             if (timeframe.equals(TimeFrameEnum.ALL)) {
@@ -135,7 +132,9 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                 sendMessageQueue(e, "Was not able to find any genre in " + usableString + "'s top 3000 albums" + returned.getTime().getDisplayString() + " on Musicbrainz");
                 return;
             }
-            map = musicBrainz.genreCount(albumInfos);
+            Map<Genre, List<AlbumInfo>> genreListMap = musicBrainz.genreCount(albumInfos);
+            executor.submit(new TagAlbumService(getService(), lastFM, genreListMap));
+            map = genreListMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size()));
         }
         if (map.isEmpty()) {
             sendMessageQueue(e, "Was not able to find any genre in " + usableString + "'s top 3000 " + (doArtits ? "artists" : "albums") + returned.getTime().getDisplayString() + " on Musicbrainz");

@@ -82,7 +82,7 @@ public abstract class Parser<T extends CommandParameters> {
 
     protected abstract T parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException;
 
-    String[] getSubMessage(Message message) {
+    public String[] getSubMessage(Message message) {
         return getSubMessage(message.getContentRaw());
 
     }

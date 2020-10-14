@@ -11,13 +11,13 @@ import dao.entities.UpdaterStatus;
 import dao.entities.UrlCapsule;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import static core.apis.last.queues.TrackGroupAlbumQueue.defaultTrackImage;
 
 public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
     private static final long serialVersionUID = 1L;
@@ -49,7 +49,9 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
     public boolean offer(@NotNull UrlCapsule item) {
         CompletableFuture<UrlCapsule> future = CompletableFuture.supplyAsync(() -> {
             if (needsImages) {
-                item.setUrl(null);
+                if ((item.getUrl() != null && item.getUrl().isBlank()) || (item.getUrl() != null && item.getUrl().equalsIgnoreCase(defaultTrackImage))) {
+                    item.setUrl(null);
+                }
                 getUrl(item);
             }
             return item;

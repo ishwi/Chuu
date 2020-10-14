@@ -11,11 +11,11 @@ import dao.ChuuService;
 import dao.entities.*;
 
 import java.sql.Date;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BillboardHoarder {
@@ -29,6 +29,15 @@ public class BillboardHoarder {
     private final ConcurrentLastFM lastFM;
     private final int weekId;
     private final Map<String, Long> dbIdMap = new HashMap<>();
+    private final java.util.function.Function<TimeZone, Function<LocalDate, ZoneOffset>> phaserBuilder = (t) -> (LocalDate l) -> {
+        try {
+            return ZoneOffset.ofTotalSeconds(t.getOffset(l.getEra().getValue(), l.getYear(), l.getMonth().getValue(), l.getDayOfMonth(), l.getDayOfWeek().getValue(), 0) / 1000);
+        } catch (DateTimeException ex) {
+            System.out.println("asodjua");
+        }
+        return null;
+    };
+
 
     public BillboardHoarder(List<UsersWrapper> users, ChuuService service, Week week, ConcurrentLastFM lastFM) {
         this.users = users;
@@ -45,8 +54,8 @@ public class BillboardHoarder {
 
 
         Date weekStart = week.getWeekStart();
-        LocalDateTime weekBeginning = weekStart.toLocalDate().minus(1, ChronoUnit.WEEKS).atStartOfDay();
-
+        LocalDate l = weekStart.toLocalDate();
+        LocalDateTime weekBeginning = l.minus(1, ChronoUnit.WEEKS).atStartOfDay();
         users.parallelStream()
                 .filter(usersWrapper -> !usersBeingProcessed.contains(usersWrapper.getDiscordID()))
                 .filter(usersWrapper -> service.getUserData(weekId, usersWrapper.getLastFMName()).isEmpty())
@@ -54,10 +63,11 @@ public class BillboardHoarder {
                     try {
                         usersBeingProcessed.add(usersWrapper.getDiscordID());
                         String lastFMName = usersWrapper.getLastFMName();
+                        TimeZone t = usersWrapper.getTimeZone();
                         List<TrackWithArtistId> tracksAndTimestamps = lastFM.getWeeklyBillboard(lastFMName,
-                                (int) weekBeginning.toEpochSecond(OffsetDateTime.now().getOffset())
-                                , (int) weekStart.toLocalDate().atStartOfDay().toEpochSecond(OffsetDateTime.now().getOffset()));
-
+                                (int) OffsetDateTime.of(weekBeginning, ZoneOffset.ofTotalSeconds(usersWrapper.getTimeZone().getOffset(Calendar.getInstance().getTimeInMillis()) / 1000)).toInstant().getEpochSecond()
+                                , (int) OffsetDateTime.of(weekStart.toLocalDate().atStartOfDay(), ZoneOffset.ofTotalSeconds(usersWrapper.getTimeZone().getOffset(Calendar.getInstance().getTimeInMillis()) / 1000)).toInstant().getEpochSecond()
+                        );
                         doArtistValidation(tracksAndTimestamps);
                         service.insertUserData(weekId, lastFMName, tracksAndTimestamps);
 
@@ -74,8 +84,8 @@ public class BillboardHoarder {
             Long aLong1 = dbIdMap.get(x.getArtist());
             if (aLong1 != null)
                 x.setArtistId(aLong1);
-        }).filter(x -> x.getArtistId() == -1L || x.getAlbumId() == 0L).collect(Collectors.toList());
-
+        }).filter(x -> x.getArtistId() == -1L || x.getArtistId() == 0L).collect(Collectors.toList());
+        Set<String> tobeRemoved = new HashSet<>();
         List<ScrobbledArtist> artists = toValidate.stream().map(Track::getArtist).distinct().map(x -> new ScrobbledArtist(x, 0, null)).collect(Collectors.toList());
         service.filldArtistIds(artists);
         Map<Boolean, List<ScrobbledArtist>> collect1 = artists.stream().collect(Collectors.partitioningBy(x -> x.getArtistId() != -1L && x.getArtistId() != 0));
@@ -91,6 +101,7 @@ public class BillboardHoarder {
                 }
                 return x;
             } catch (LastFmException lastFmException) {
+                tobeRemoved.add(x.getArtist());
                 return null;
             }
         }).filter(Objects::nonNull).forEach(foundArtists::add);
@@ -99,6 +110,10 @@ public class BillboardHoarder {
         for (Iterator<TrackWithArtistId> iterator = toValidate.iterator(); iterator.hasNext(); ) {
             TrackWithArtistId x = iterator.next();
             Long aLong = mapId.get(x.getArtist());
+            if (tobeRemoved.contains(x.getArtist())) {
+                iterator.remove();
+                continue;
+            }
             if (aLong == null) {
                 String s = changedUserNames.get(x.getArtist());
                 if (s != null) {

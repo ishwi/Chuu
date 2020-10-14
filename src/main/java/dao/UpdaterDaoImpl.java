@@ -1,11 +1,11 @@
 package dao;
 
 import core.Chuu;
-import dao.entities.RYMImportRating;
 import core.exceptions.ChuuServiceException;
 import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.intellij.lang.annotations.Language;
 
 import javax.annotation.Nullable;
@@ -54,7 +54,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public UpdaterUserWrapper getLessUpdated(Connection connection) {
         @Language("MariaDB") String queryString =
-                "SELECT a.discord_id,a.role, a.lastfm_id,(if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) controling " +
+                "SELECT a.discord_id,a.role, a.lastfm_id,(if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) controling,timezone " +
                         "FROM user a   " +
                         " WHERE NOT private_update " +
                         "ORDER BY  control_timestamp LIMIT 1";
@@ -71,9 +71,11 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 Timestamp timestamp = resultSet.getTimestamp("updating");
                 Timestamp controlTimestamp = resultSet.getTimestamp("controling");
                 Role role = Role.valueOf(resultSet.getString("a.role"));
+                TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString("timezone"), "GMT"));
+
 
                 return new UpdaterUserWrapper(discordID, name, ((int) timestamp.toInstant()
-                        .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()), role);
+                        .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()), role, tz);
             }
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -737,7 +739,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     public UpdaterUserWrapper getUserUpdateStatus(Connection connection, long discordId) throws
             InstanceNotFoundException {
         @Language("MariaDB") String queryString =
-                "SELECT a.discord_id, a.role, a.lastfm_id, (if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating ,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) control " +
+                "SELECT a.discord_id, a.role, a.lastfm_id, (if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating ,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) control, timezone " +
                         "FROM user a   " +
                         " WHERE a.discord_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -754,9 +756,10 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 Timestamp timestamp = resultSet.getTimestamp("updating");
                 Timestamp controlTimestamp = resultSet.getTimestamp("control");
                 Role role = Role.valueOf(resultSet.getString("a.role"));
+                TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString("timezone"), "GMT"));
 
                 return new UpdaterUserWrapper(discordID, name, ((int) timestamp.toInstant()
-                        .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()), role);
+                        .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()), role, tz);
             }
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1249,7 +1252,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     @Override
     public UsersWrapper getRandomUser(Connection connection) {
         @Language("MariaDB") String queryString =
-                "SELECT a.discord_id,a.role, a.lastfm_id,(if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) controling " +
+                "SELECT a.discord_id,a.role, a.lastfm_id,(if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) controling,timezone " +
                         "FROM user a   " +
                         "ORDER BY  rand() LIMIT 1";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -1265,9 +1268,10 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 Timestamp timestamp = resultSet.getTimestamp("updating");
                 Timestamp controlTimestamp = resultSet.getTimestamp("controling");
                 Role role = Role.valueOf(resultSet.getString("a.role"));
+                TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString("timezone"), "GMT"));
 
                 return new UpdaterUserWrapper(discordID, name, ((int) timestamp.toInstant()
-                        .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()), role);
+                        .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()), role, tz);
             }
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1310,7 +1314,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
             preparedStatement.setString(i++, albumUrl);
             preparedStatement.setLong(i, albumId);
             int i1 = preparedStatement.executeUpdate();
-            Chuu.getLogger().warn(String.valueOf(i1));
+//            Chuu.getLogger().warn(String.valueOf(i1));
 
 
         } catch (SQLException e) {
@@ -1318,6 +1322,186 @@ public class UpdaterDaoImpl implements UpdaterDao {
         }
 
 
+    }
+
+    @Override
+    public List<ScrobbledAlbum> fillAlbumsByMBID(Connection connection, List<AlbumInfo> list) {
+        String queryString = "SELECT id,artist_id,mbid,url FROM  album WHERE mbid IN (%s)  ";
+        String sql = String.format(queryString, list.isEmpty() ? null : preparePlaceHolders(list.size()));
+        List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+
+            for (int i = 0; i < list.size(); i++) {
+                preparedStatement.setString(i + 1, list.get(i).getMbid());
+            }
+            /* Fill "preparedStatement". */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            Map<String, ScrobbledAlbum> collect = list.stream().collect(Collectors.toMap(EntityInfo::getMbid, x -> new ScrobbledAlbum(x.getArtist(), 0, null, -1, x.getName(), null), (x, y) -> x));
+
+            while (resultSet.next()) {
+                long id = resultSet.getLong("id");
+                long artistId = resultSet.getLong("artist_id");
+                String mbid = resultSet.getString("mbid");
+                String url = resultSet.getString("url");
+                ScrobbledAlbum scrobbledAlbum = collect.get(mbid);
+                scrobbledAlbum.setArtistId(artistId);
+                scrobbledAlbum.setAlbumId(id);
+                scrobbledAlbum.setUrl(url);
+                scrobbledAlbum.setAlbumMbid(mbid);
+                scrobbledAlbums.add(scrobbledAlbum);
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return scrobbledAlbums;
+    }
+
+    @Override
+    public void insertAlbumTags(Connection connection, Map<Genre, List<ScrobbledAlbum>> genres, Map<String, String> correctedTags) {
+
+        List<Pair<Genre, ScrobbledAlbum>> list = genres.entrySet().stream().flatMap(x -> x.getValue().stream().map(t -> Pair.of(x.getKey(), t))).collect(Collectors.toList());
+        StringBuilder mySql =
+                new StringBuilder("INSERT ignore INTO  album_tags" +
+                        "                  (artist_id,album_id,tag) VALUES (?, ?, ?) ");
+
+        mySql.append(", (?,?,?)".repeat(Math.max(0, list.size() - 1)));
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            for (int i = 0; i < list.size(); i++) {
+                preparedStatement.setLong(3 * i + 1, list.get(i).getRight().getArtistId());
+                preparedStatement.setLong(3 * i + 2, list.get(i).getRight().getAlbumId());
+                String genreName = list.get(i).getLeft().getGenreName();
+                String s = correctedTags.get(genreName);
+                if (s != null) {
+                    genreName = s;
+                }
+                preparedStatement.setString(3 * i + 3, genreName);
+            }
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public void insertArtistTags(Connection connection, Map<Genre, List<ScrobbledArtist>> genres, Map<String, String> correctedTags) {
+
+        List<Pair<Genre, ScrobbledArtist>> list = genres.entrySet().stream().flatMap(x -> x.getValue().stream().map(t -> Pair.of(x.getKey(), t))).collect(Collectors.toList());
+        StringBuilder mySql =
+                new StringBuilder("INSERT ignore INTO  artist_tags" +
+                        "                  (artist_id,tag) VALUES (?, ?) ");
+
+        mySql.append(", (?,?)".repeat(Math.max(0, list.size() - 1)));
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            for (int i = 0; i < list.size(); i++) {
+                preparedStatement.setLong(2 * i + 1, list.get(i).getRight().getArtistId());
+                String genreName = list.get(i).getLeft().getGenreName();
+                String s = correctedTags.get(genreName);
+                if (s != null) {
+                    genreName = s;
+                }
+                preparedStatement.setString(2 * i + 2, genreName);
+            }
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+
+    @Override
+    public Map<String, String> validateTags(Connection connection, List<Genre> genreList) {
+        Map<String, String> returnMap = new HashMap<>();
+        String queryString = "Select invalid,correction from corrected_tags where invalid in (%s)";
+        String sql = String.format(queryString, genreList.isEmpty() ? null : preparePlaceHolders(genreList.size()));
+        List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            for (int i = 0; i < genreList.size(); i++) {
+                preparedStatement.setString(i + 1, genreList.get(i).getGenreName());
+            }
+            /* Fill "preparedStatement". */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String invalid = resultSet.getString("invalid");
+                String correction = resultSet.getString("correction");
+                returnMap.put(invalid, correction);
+
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnMap;
+    }
+
+    @Override
+    public void addBannedTag(Connection connection, String tag) {
+        StringBuilder mySql =
+                new StringBuilder("INSERT ignore INTO  banned_tags  (tag) VALUES (?) ");
+
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            preparedStatement.setString(1, tag);
+            preparedStatement.executeUpdate();
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void logBannedTag(Connection connection, String tag, long discordId) {
+        StringBuilder mySql =
+                new StringBuilder("INSERT ignore INTO  log_tags  (tag,discord_id) VALUES (?,?) ");
+
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            preparedStatement.setString(1, tag);
+            preparedStatement.setLong(2, discordId);
+
+            preparedStatement.executeUpdate();
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void removeArtistTag(Connection connection, String tag) {
+        StringBuilder mySql =
+                new StringBuilder("delete from artist_tags  where tag = ? ");
+
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            preparedStatement.setString(1, tag);
+            preparedStatement.executeUpdate();
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void removeAlbumTag(Connection connection, String tag) {
+        StringBuilder mySql =
+                new StringBuilder("delete from album_tags  where tag = ? ");
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            preparedStatement.setString(1, tag);
+            preparedStatement.executeUpdate();
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 }
 

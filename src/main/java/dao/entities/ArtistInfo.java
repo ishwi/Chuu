@@ -4,6 +4,7 @@ public class ArtistInfo extends EntityInfo {
 	private String artistUrl;
 
 
+
 	public ArtistInfo(String artistUrl, String artistName) {
 		super(null, artistName);
 		this.artistUrl = artistUrl;

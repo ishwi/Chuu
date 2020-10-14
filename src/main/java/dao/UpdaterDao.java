@@ -142,4 +142,19 @@ interface UpdaterDao {
 
     void updateAlbumImage(Connection connection, long albumId, String albumUrl);
 
+    List<ScrobbledAlbum> fillAlbumsByMBID(Connection connection, List<AlbumInfo> collect);
+
+    void insertAlbumTags(Connection connection, Map<Genre, List<ScrobbledAlbum>> genres, Map<String, String> correctedTags);
+
+    void insertArtistTags(Connection connection, Map<Genre, List<ScrobbledArtist>> genres, Map<String, String> correctedTags);
+
+    Map<String, String> validateTags(Connection connection, List<Genre> keySet);
+
+    void addBannedTag(Connection connection, String contentRaw);
+
+    void logBannedTag(Connection connection, String contentRaw, long discordId);
+
+    void removeArtistTag(Connection connection, String tag);
+
+    void removeAlbumTag(Connection connection, String tag);
 }

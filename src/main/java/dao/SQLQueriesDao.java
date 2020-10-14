@@ -2,6 +2,7 @@ package dao;
 
 import dao.entities.*;
 
+import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
@@ -137,5 +138,17 @@ interface SQLQueriesDao {
 
     ResultWrapper<ScrobbledAlbum> getGuildTopAlbum(Connection connection, Long guildID, int limit, boolean doCount);
 
+
+    List<ScrobbledArtist> getTopTag(Connection connection, String genre, @Nullable Long guildId, int limit);
+
+    WrapperReturnNowPlaying whoKnowsTag(Connection connection, String genre, long guildId, int limit);
+
+    Set<String> getBannedTags(Connection connection);
+
+    List<AlbumInfo> getAlbumsWithTag(Connection connection, List<AlbumInfo> albums, long discordId, String tag);
+
+    List<ScrobbledArtist> getUserArtists(Connection connection, String lastfmId);
+
+    List<ArtistInfo> getArtistWithTag(Connection connection, List<ArtistInfo> artists, long discordId, String genre);
 
 }

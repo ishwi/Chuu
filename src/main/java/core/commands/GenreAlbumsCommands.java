@@ -1,15 +1,13 @@
 package core.commands;
 
-import com.neovisionaries.i18n.CountryCode;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.AlbumChart;
 import core.apis.last.chartentities.ChartUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
-import core.parsers.params.ChartParameters;
-import core.parsers.params.ChartableGenreParameters;
 import core.parsers.GenreChartParser;
-import core.parsers.params.CountryParameters;
+import core.parsers.params.ChartableGenreParameters;
+import core.services.TagAlbumService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
@@ -18,10 +16,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -49,7 +44,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
 
     @Override
     public List<String> getAliases() {
-        return List.of("albumgenres", "ag");
+        return List.of("albumgenres", "albg", "alg");
     }
 
     @Override
@@ -81,16 +76,21 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
             albums = c.stream()
                     .filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid())).collect(Collectors.toList());
         }
-
-
+        List<AlbumInfo> albumsWithTags = getService().getAlbumsWithTags(queue.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).collect(Collectors.toList()), params.getDiscordId(), params.getGenreParameters().getGenre());
+        Set<AlbumInfo> albumInfos = new HashSet<>(albumsWithTags);
+        albums.removeIf(albumInfos::contains);
         Set<String> strings = this.mb.albumsGenre(albums, params.getGenreParameters().getGenre());
+
         AtomicInteger ranker = new AtomicInteger(0);
         LinkedBlockingQueue<UrlCapsule> collect1 = queue.stream()
-                .filter(x -> x.getMbid() != null && !x.getMbid().isBlank() && strings.contains(x.getMbid()))
+                .filter(x -> x.getMbid() != null && !x.getMbid().isBlank() && strings.contains(x.getMbid()) || albumInfos.contains(new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())))
                 .sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
                 .peek(x -> x.setPos(ranker.getAndIncrement()))
                 .limit(params.getX() * params.getY())
                 .collect(Collectors.toCollection(LinkedBlockingQueue::new));
+
+        executor.submit(
+                new TagAlbumService(getService(), lastFM, collect1.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).collect(Collectors.toList()), params.getGenreParameters().getGenre()));
         return new CountWrapper<>(strings.size(), collect1);
     }
 

@@ -57,11 +57,19 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
     @Override
     public List<UrlCapsule> setUp() {
         // We assume if an album has tracks with mbid then the whole album should have tracks with mbid
+
+
+        //AlbumInfo -> AlbumChart
         Map<AlbumInfo, UrlCapsule> albumMap = this.albumEntities.stream().collect(Collectors.toMap(o ->
                 new AlbumInfo(o.getAlbumName(), o.getArtistName()), o -> o));
+
+        // Album Url -> AlbumChart
         Map<String, UrlCapsule> urlMap = this.albumEntities.stream()
                 .filter(x -> !x.getUrl().isBlank() && !x.getUrl().equals(defaultTrackImage))
                 .collect(Collectors.toMap(UrlCapsule::getUrl, o -> o));
+
+
+        //Track Url -> TrackChart
         Map<String, List<UrlCapsule>> possibleAlbumsUrl = artistMap.values()
                 .stream()
                 .filter(x -> !x.getUrl().isBlank() && !x.getUrl().equals(defaultTrackImage))
@@ -75,7 +83,6 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
             UrlCapsule urlCapsule = albumsGruoped.get(0);
             UrlCapsule urlCapsule1 = urlMap.get(urlCapsule.getUrl());
             albumsGruoped.forEach(x -> x.setAlbumName(urlCapsule1.getAlbumName()));
-
             mbidGrouped.addAll(albumsGruoped);
         }
         Set<UrlCapsule> tracksFoundByURL = possibleAlbumsUrl.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());

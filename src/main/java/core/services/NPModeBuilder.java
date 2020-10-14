@@ -5,6 +5,8 @@ import com.neovisionaries.i18n.CountryCode;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.TopEntity;
+import core.apis.spotify.Spotify;
+import core.apis.spotify.SpotifySingleton;
 import core.commands.CommandUtil;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
@@ -74,7 +76,7 @@ public class NPModeBuilder {
 
     static final Map<NPMode, Integer> footerIndexes;
 
-
+    private final Spotify spotifyApi;
     private final NowPlayingArtist np;
     private final MessageReceivedEvent e;
     private final String[] footerSpaces;
@@ -107,6 +109,7 @@ public class NPModeBuilder {
         this.serverName = serverName;
         this.mb = mb;
         this.outputList = outputList;
+        this.spotifyApi = SpotifySingleton.getInstance();
     }
 
     public static int getSize() {
@@ -133,6 +136,7 @@ public class NPModeBuilder {
         AtomicBoolean lfmStats = new AtomicBoolean(false);
         AtomicBoolean mbLock = new AtomicBoolean(false);
         AtomicBoolean trackLock = new AtomicBoolean(false);
+        AtomicBoolean embedLock = new AtomicBoolean(false);
 
 
         for (
@@ -144,17 +148,33 @@ public class NPModeBuilder {
                 case NORMAL:
                 case ARTIST_PIC:
                 case RANDOM:
+                case UNKNOWN:
                     break;
                 case PREVIOUS:
+                case SPOTIFY_LINK:
+                    if (embedLock.compareAndSet(false, true)) {
+                        break;
+                    }
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
-                        try {
-                            StringBuilder t = new StringBuilder();
-                            NowPlayingArtist np = lastFM.getRecent(lastFMName, 2).get(1);
-                            t.append("**").append(CommandUtil.cleanMarkdownCharacter(np.getArtistName()))
-                                    .append("** | ").append(CommandUtil.cleanMarkdownCharacter(np.getAlbumName())).append("\n");
-                            embedBuilder.addField("Previous: **" + np.getSongName() + "**", t.toString(), false);
-                        } catch (LastFmException ignored) {
+                        if (npModes.contains(NPMode.PREVIOUS)) {
+                            try {
+
+                                StringBuilder t = new StringBuilder();
+                                NowPlayingArtist np = lastFM.getRecent(lastFMName, 2).get(1);
+                                t.append("**").append(CommandUtil.cleanMarkdownCharacter(np.getArtistName()))
+                                        .append("** | ").append(CommandUtil.cleanMarkdownCharacter(np.getAlbumName())).append("\n");
+
+                                embedBuilder.getDescriptionBuilder().append("\n**Previous:** ***").append(np.getSongName()).append("***\n").append(t.toString());
+
+                            } catch (LastFmException ignored) {
+                            }
                         }
+                        if (npModes.contains(NPMode.SPOTIFY_LINK)) {
+                            String uri = spotifyApi.searchItems(np.getSongName(), np.getArtistName(), np.getAlbumName());
+                            if (!uri.isBlank())
+                                embedBuilder.getDescriptionBuilder().append("\n***__[Listen on Spotify](").append(uri).append(")__***");
+                        }
+
                     })));
                     break;
                 case TAGS:
@@ -292,7 +312,6 @@ public class NPModeBuilder {
 
                     })));
                     break;
-
                 case ALBUM_RYM:
                 case SERVER_ALBUM_RYM:
                 case BOT_ALBUM_RYM:

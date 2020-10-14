@@ -136,3 +136,6 @@ alter table user
 
 alter table guild
     add column np_mode bigint(20) not NULL DEFAULT -1;
+
+alter table user
+    add column timezone varchar(100) null;

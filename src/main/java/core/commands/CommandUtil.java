@@ -4,10 +4,7 @@ import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.spotify.Spotify;
-import core.exceptions.DiscogsServiceException;
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmEntityNotFoundException;
-import core.exceptions.LastFmException;
+import core.exceptions.*;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.*;
@@ -175,56 +172,27 @@ public class CommandUtil {
         return scrobbledArtist;
     }
 
-    public static void validateAlbum(ChuuService dao, String artist, String album, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck, boolean findCorrection) {
-     /*   if (findCorrection) {
-            String dbCorrection = dao.findCorrection(scrobbledArtist.getArtist());
-            if (dbCorrection != null) {
-                scrobbledArtist.setArtist(dbCorrection);
-            }
-        }
-        boolean existed;
-        boolean corrected = false;
-        //Find by id//
-        // Doesnt exist? -> search for lastfm correction
-        UpdaterStatus status = null;
-        try {
-            status = dao.getUpdaterStatusByName(scrobbledArtist.getArtist());
-            scrobbledArtist.setArtistId(status.getArtistId());
-            existed = true;
-        } catch (InstanceNotFoundException e) {
-            //Artist doesnt exists
-            String originalArtist = scrobbledArtist.getArtist();
-            String correction = lastFM.getCorrection(originalArtist);
-            if (!correction.equalsIgnoreCase(originalArtist)) {
-                scrobbledArtist.setArtist(correction);
-                corrected = true;
-            }
-            try {
-                status = dao.getUpdaterStatusByName(correction);
-                scrobbledArtist.setArtistId(status.getArtistId());
-                existed = true;
-            } catch (InstanceNotFoundException ex) {
-                scrobbledArtist.setArtist(correction);
-                //Mutates id
-                dao.upsertArtistSad(scrobbledArtist);
-                existed = false;
-            }
-            if (corrected) {
-                dao.insertCorrection(scrobbledArtist.getArtistId(), originalArtist);
-            }
+    public static ScrobbledAlbum validateAlbum(ChuuService dao, String artist, String album, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck, boolean findCorrection) throws LastFmException {
+        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, "");
+        CommandUtil.validate(dao, scrobbledArtist, lastFM, discogsApi, spotify, doUrlCheck, findCorrection);
+        long albumvalidate = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, album);
+        ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), null, null);
+        scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
+        scrobbledAlbum.setAlbumId(albumvalidate);
+        return scrobbledAlbum;
+    }
 
-
+    public static ScrobbledAlbum lightAlbumValidate(ChuuService dao, String artist, String album, ConcurrentLastFM lastFM) throws LastFmException {
+        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, "");
+        CommandUtil.validate(dao, scrobbledArtist, lastFM, null, null, false, true);
+        long albumvalidate = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, album);
+        if (albumvalidate == -1L) {
+            throw new LastFMServiceException("");
         }
-        if (doUrlCheck) {
-            if (!existed || (status.getArtistUrl() == null))
-                scrobbledArtist.setUrl(CommandUtil.updateUrl(discogsApi, scrobbledArtist, dao, spotify));
-            else {
-                scrobbledArtist.setUrl(status.getArtistUrl());
-            }
-            if (scrobbledArtist.getUrl() == null || scrobbledArtist.getUrl().isBlank()) {
-                scrobbledArtist.setUrl(null);
-            }
-        }*/
+        ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), null, null);
+        scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
+        scrobbledAlbum.setAlbumId(albumvalidate);
+        return scrobbledAlbum;
     }
 
 

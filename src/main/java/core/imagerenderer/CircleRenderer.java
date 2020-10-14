@@ -2,14 +2,16 @@ package core.imagerenderer;
 
 import core.Chuu;
 import core.commands.CommandUtil;
+import core.services.ClockService;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
-import org.apache.batik.gvt.renderer.ImageRenderer;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.batik.util.XMLResourceDescriptor;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -20,24 +22,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.WeekFields;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.UUID;
 
 public class CircleRenderer {
 
-    private static final String MAP_ROUND = "images/Clock.svg";
-    private static final String[] textDescArray = new String[]{"text2527", "text2525", "text2523", "text2521", "text2519", "text2517", "text2539"};
-    private static final String[] colourArray = new String[]{"rect6278", "rect6280", "rect6282", "rect6284", "rect6286", "rect6288"};
+    private static final String CLOCK_SVG = "images/Clock.svg";
 
     private CircleRenderer() {
     }
 
 
-    public static byte[] generateImage(Map<Integer, Long> hourFrequency, Integer key) {
+    public static byte[] generateImage(ClockService.ClockMode clockMode, Map<Integer, Long> hourFrequency, Integer key, TimeZone timeZone) {
 
         // make a Document with the base map
 
@@ -46,7 +48,7 @@ public class CircleRenderer {
         Document doc;
         try {
             doc = f.createDocument("t.svg",
-                    WorldMapRenderer.class.getClassLoader().getResourceAsStream(MAP_ROUND));
+                    WorldMapRenderer.class.getClassLoader().getResourceAsStream(CLOCK_SVG));
         } catch (IOException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             return null;
@@ -57,24 +59,35 @@ public class CircleRenderer {
 
         // find the existing stylesheet in the document
         long i = hourFrequency.values().stream().mapToLong(x -> x).max().orElse(0);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM yyyy");
 
 
-        int week = key % 100;
-        int year = (key - (week)) / 1000;
-        WeekFields weekFields = WeekFields.of(Locale.getDefault());
+        String s1;
+        if (clockMode.equals(ClockService.ClockMode.BY_WEEK)) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM yyyy");
+            int week = key % 100;
+            int year = (key - (week)) / 1000;
+            WeekFields weekFields = WeekFields.of(Locale.getDefault());
+            ZonedDateTime ldt = Instant.now().atZone(timeZone.toZoneId())
+                    .withYear(year)
+                    .with(weekFields.weekOfYear(), week)
+                    .with(weekFields.dayOfWeek(), 1);
+            String one = formatter.format(ldt.toLocalDate());
+            String dayOne = String.format("%02d", ldt.getDayOfMonth()) + CommandUtil.getDayNumberSuffix(ldt.getDayOfMonth());
+            LocalDate temporal = ldt.plus(1, ChronoUnit.WEEKS).toLocalDate();
+            String second = formatter.format(temporal);
+            String daySecond = String.format("%02d", temporal.getDayOfMonth()) + CommandUtil.getDayNumberSuffix(temporal.getDayOfMonth());
+            s1 = dayOne + " " + one + " - " + daySecond + " " + second;
+        } else {
+            int dayOfweek = key;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd");
 
-        LocalDateTime ldt = LocalDateTime.now()
-                .withYear(year)
-                .with(weekFields.weekOfYear(), week)
-                .with(weekFields.dayOfWeek(), 1);
-
-        String one = formatter.format(ldt.toLocalDate());
-        String dayOne = String.format("%02d", ldt.getDayOfMonth()) + CommandUtil.getDayNumberSuffix(ldt.getDayOfMonth());
-        LocalDate temporal = ldt.plus(1, ChronoUnit.WEEKS).toLocalDate();
-        String second = formatter.format(temporal);
-        String daySecond = String.format("%02d", temporal.getDayOfMonth()) + CommandUtil.getDayNumberSuffix(temporal.getDayOfMonth());
-        String s1 = dayOne + " " + one + " - " + daySecond + " " + second;
+            ZonedDateTime ldt = LocalDateTime.now().atZone(timeZone.toZoneId())
+                    .withDayOfYear(dayOfweek)
+                    .withYear(Year.now().getValue());
+            String day = formatter.format(ldt.toLocalDate());
+            String month = DateTimeFormatter.ofPattern("MMM").format(ldt.toLocalDate());
+            s1 = month + " " + day + CommandUtil.getDayNumberSuffix(Integer.parseInt(day));
+        }
         doc.getElementById("lpm").setTextContent(s1);
         for (Map.Entry<Integer, Long> integerIntegerEntry : hourFrequency.entrySet()) {
             Integer hour = integerIntegerEntry.getKey();
@@ -99,7 +112,7 @@ public class CircleRenderer {
 //        my SVG has 3.5 * 2.0 Inches (252 * 144 Pixels) size.
 //
 
-        int RESOLUTION_DPI = 600;
+        int RESOLUTION_DPI = 72;
         float SCALE_BY_RESOLUTION = RESOLUTION_DPI / 72f;
         float scaledWidth = 240 * SCALE_BY_RESOLUTION;
         float scaledHeight = 260 * SCALE_BY_RESOLUTION;

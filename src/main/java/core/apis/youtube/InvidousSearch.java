@@ -2,27 +2,25 @@ package core.apis.youtube;
 
 import core.Chuu;
 import core.apis.ClientSingleton;
-import core.apis.last.exceptions.ExceptionEntity;
+import core.commands.CommandUtil;
 import core.exceptions.ChuuServiceException;
-import core.exceptions.LastFmEntityNotFoundException;
-import core.exceptions.UnknownLastFmException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class InvidousSearch implements YoutubeSearch {
-
-    private static final String BASE_ENDPOINT = "https://invidio.us";
+    public static final List<String> domains = List.of("invidious.snopyta.org", "invidious.xyz");
+    private static final String BASE_ENDPOINT = "https://";
+    private static final String SEARCH_ENDPOINT = "/api/v1/search";
     private final HttpClient httpClient;
-    private final String SEARCH_ENDPOINT = BASE_ENDPOINT + "/api/v1/search";
 
     public InvidousSearch() {
         httpClient = ClientSingleton.getInstance();
@@ -31,8 +29,8 @@ public class InvidousSearch implements YoutubeSearch {
     @Override
     public String doSearch(String queryTerm) {
         String responseUrl = "";
-
-        String q = SEARCH_ENDPOINT + "?q=" + URLEncoder
+        String api = BASE_ENDPOINT + domains.get(CommandUtil.rand.nextInt(domains.size())) + SEARCH_ENDPOINT;
+        String q = api + "?q=" + URLEncoder
                 .encode(queryTerm, StandardCharsets.UTF_8) + "&fields=videoId";
         GetMethod method = new GetMethod(q);
         try {

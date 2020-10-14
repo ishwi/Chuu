@@ -9,6 +9,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.TagArtistService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
@@ -127,5 +128,8 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                 .setImage(scrobbledArtist.getUrl())
                 .setColor(CommandUtil.randomColor());
         e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
+        if (!summary.getTags().isEmpty()) {
+            executor.submit(new TagArtistService(getService(), lastFM, summary.getTags(), new ArtistInfo(scrobbledArtist.getUrl(), summary.getArtistname(), summary.getMbid())));
+        }
     }
 }

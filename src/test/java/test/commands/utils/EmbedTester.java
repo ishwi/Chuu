@@ -1,6 +1,7 @@
 package test.commands.utils;
 
 import dao.entities.TriFunction;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageHistory;
@@ -46,88 +47,88 @@ public class EmbedTester {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-        private  final TriFunction<String, Pattern, Predicate<Matcher>, Boolean> internalFunction = (string, regex, matcherPredicate) -> {
-            if (string != null) {
-                if (regex != null) {
-                    Matcher matcher = regex.matcher(string);
-                    Assert.assertTrue(matcher.matches());
-                    if (matcherPredicate != null) {
-                        return matcherPredicate.test(matcher);
-                    }
+    private final TriFunction<String, Pattern, Predicate<Matcher>, Boolean> internalFunction = (string, regex, matcherPredicate) -> {
+        if (string != null) {
+            if (regex != null) {
+                Matcher matcher = regex.matcher(string);
+                Assert.assertTrue(matcher.matches());
+                if (matcherPredicate != null) {
+                    return matcherPredicate.test(matcher);
                 }
             }
-            return true;
-        };
-        private  final FieldMatcher internalMatcher = (field, string, pattern, matcherPredicate) -> {
-            if (field != null && field.getName() != null && field.getName().equals(string)) {
-                Matcher matcher = pattern.matcher(field.getValue());
-                return (matcher.matches()) && matcherPredicate.test(matcher);
+        }
+        return true;
+    };
+    private final FieldMatcher internalMatcher = (field, string, pattern, matcherPredicate) -> {
+        if (field != null && field.getName() != null && field.getName().equals(string)) {
+            Matcher matcher = pattern.matcher(field.getValue());
+            return (matcher.matches()) && matcherPredicate.test(matcher);
+        }
+        return false;
+    };
+
+    public void GeneralFunction() {
+        long id = TestResources.channelWorker.sendMessage(command).complete().getIdLong();
+        await().atMost(timeout, TimeUnit.SECONDS).until(() ->
+        {
+            MessageHistory complete = TestResources.channelWorker.getHistoryAfter(id, 20).complete();
+            return complete.getRetrievedHistory().size() == 1;
+        });
+
+        Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
+
+        if (!message.getEmbeds().isEmpty()) {
+
+            MessageEmbed messageEmbed = message.getEmbeds().get(0);
+            MessageEmbed.Footer footer = messageEmbed.getFooter();
+
+            Assert.assertTrue(internalFunction
+                    .apply(footer == null ? null : footer.getText(), footerPatern, footerMatch));
+            Assert.assertTrue(internalFunction.apply(messageEmbed.getTitle(), titlePattern, titleMatch));
+
+            String description = messageEmbed.getDescription();
+
+            if (description != null) {
+                description = description.replaceAll("\\*", "");
+                String[] split = description.split("\n");
+                for (String s : split) {
+                    Assert.assertTrue(internalFunction.apply(s, descriptionPattern, descriptionMatch));
+                }
             }
-            return false;
-        };
 
-        public void GeneralFunction(){
-            long id = TestResources.channelWorker.sendMessage(command).complete().getIdLong();
-            await().atMost(timeout, TimeUnit.SECONDS).until(() ->
-            {
-                MessageHistory complete = TestResources.channelWorker.getHistoryAfter(id, 20).complete();
-                return complete.getRetrievedHistory().size() == 1;
-            });
-
-            Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
-
-            if (!message.getEmbeds().isEmpty()) {
-
-                MessageEmbed messageEmbed = message.getEmbeds().get(0);
-                MessageEmbed.Footer footer = messageEmbed.getFooter();
-
-                Assert.assertTrue(internalFunction
-                        .apply(footer == null ? null : footer.getText(), footerPatern, footerMatch));
-                Assert.assertTrue(internalFunction.apply(messageEmbed.getTitle(), titlePattern, titleMatch));
-
-                String description = messageEmbed.getDescription();
-
-                if (description != null) {
-                    description = description.replaceAll("\\*", "");
-                    String[] split = description.split("\n");
-                    for (String s : split) {
-                        Assert.assertTrue(internalFunction.apply(s, descriptionPattern, descriptionMatch));
-                    }
+            if (hasThumbnail) {
+                if (messageEmbed.getThumbnail() == null) {
+                    Assert.assertNull(thumbnailUrl);
+                } else {
+                    Assert.assertEquals(messageEmbed.getThumbnail().getUrl(), thumbnailUrl);
                 }
-
-                if (hasThumbnail) {
-                    if (messageEmbed.getThumbnail() == null) {
-                        Assert.assertNull(thumbnailUrl);
-                    } else {
-                        Assert.assertEquals(messageEmbed.getThumbnail().getUrl(), thumbnailUrl);
-                    }
-                }
-                if (fieldRowMatcher != null) {
-                    List<FieldRowMatcher> localFieldRowMatcher = new ArrayList<>(fieldRowMatcher);
-                    List<MessageEmbed.Field> fields = new ArrayList<>(messageEmbed.getFields());
-                    for (int i = 0; i < fields.size(); i++) {
-                        for (int j = 0; j < localFieldRowMatcher.size(); j++) {
-                            FieldRowMatcher fieldRowMatcher = localFieldRowMatcher.get(j);
-                            if (internalMatcher
-                                    .apply(fields.get(i), fieldRowMatcher.getTitle(), fieldRowMatcher
-                                            .getPattern(), fieldRowMatcher
-                                            .getPredicate())) {
-                                fields.remove(i--);
-                                localFieldRowMatcher.remove(j);
-                                break;
-                            }
+            }
+            if (fieldRowMatcher != null) {
+                List<FieldRowMatcher> localFieldRowMatcher = new ArrayList<>(fieldRowMatcher);
+                List<MessageEmbed.Field> fields = new ArrayList<>(messageEmbed.getFields());
+                for (int i = 0; i < fields.size(); i++) {
+                    for (int j = 0; j < localFieldRowMatcher.size(); j++) {
+                        FieldRowMatcher fieldRowMatcher = localFieldRowMatcher.get(j);
+                        if (internalMatcher
+                                .apply(fields.get(i), fieldRowMatcher.getTitle(), fieldRowMatcher
+                                        .getPattern(), fieldRowMatcher
+                                        .getPredicate())) {
+                            fields.remove(i--);
+                            localFieldRowMatcher.remove(j);
+                            break;
                         }
                     }
-                    Assert.assertEquals(0, fields.size());
-                    Assert.assertEquals(0, localFieldRowMatcher.size());
                 }
-
-            } else {
-                Assert.assertTrue(internalFunction.apply(message.getContentStripped(), noEmbbed, noEmbbedMatcher));
+                Assert.assertEquals(0, fields.size());
+                Assert.assertEquals(0, localFieldRowMatcher.size());
             }
 
-
+        } else {
+            Assert.assertTrue(internalFunction.apply(message.getContentStripped(), noEmbbed, noEmbbedMatcher));
         }
+
+
+    }
 }
 
 

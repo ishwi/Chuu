@@ -10,17 +10,14 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.AlbumTimeFrameParser;
-import core.parsers.ArtistTimeFrameParser;
 import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.params.AlbumTimeFrameParameters;
-import core.parsers.params.ArtistTimeFrameParameters;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.apache.commons.text.similarity.LevenshteinDetailedDistance;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -110,7 +107,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         List<UrlCapsule> objects = new ArrayList<>();
         queue.drainTo(objects);
         if (objects.isEmpty()) {
-            sendMessageQueue(e, artist + " was not found on your top 1k albums" + time.getDisplayString() + ".");
+            sendMessageQueue(e, String.format("%s - %s was not found on your top 1k albums%s.", artist, album, time.getDisplayString()));
             return;
         }
         UrlCapsule urlCapsule = objects.get(0);
@@ -121,7 +118,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
             albumPlays = metricPlays;
         } else {
             FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(lastfm, scrobbledArtist.getArtist(), album);
-            albumPlays = albumSummary.getTotalscrobbles();
+            albumPlays = albumSummary.getTotalPlayNumber();
             album = albumSummary.getAlbum();
         }
         Long goal = params.getExtraParam();

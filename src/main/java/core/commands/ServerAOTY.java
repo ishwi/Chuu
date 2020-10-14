@@ -1,9 +1,7 @@
 package core.commands;
 
 import core.apis.last.chartentities.AlbumChart;
-import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
-import core.parsers.ChartSmartYearParser;
 import core.parsers.ChartYearParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearParameters;
@@ -57,7 +55,7 @@ public class ServerAOTY extends ChartableCommand<ChartYearParameters> {
     }
 
     @Override
-    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartYearParameters params) throws LastFmException {
+    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartYearParameters params) {
         BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
         if (!params.getTimeFrameEnum().equals(TimeFrameEnum.ALL)) {
             sendMessageQueue(params.getE(), "Only alltime is supported for this command");
@@ -68,7 +66,8 @@ public class ServerAOTY extends ChartableCommand<ChartYearParameters> {
         List<ScrobbledAlbum> userAlbumByMbid = rapper.getResultList();
         AtomicInteger atomicInteger = new AtomicInteger(0);
 
-        nonEmptyMbid = userAlbumByMbid.stream().peek(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), params.isWriteTitles(), params.isWritePlays())))
+        nonEmptyMbid = userAlbumByMbid.stream()
+                .peek(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), params.isWriteTitles(), params.isWritePlays())))
                 .map(x -> new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist()))
                 .filter(albumInfo -> !(albumInfo.getMbid() == null || albumInfo.getMbid().isEmpty()))
                 .collect(Collectors.toList());

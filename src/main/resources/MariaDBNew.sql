@@ -944,5 +944,45 @@ CREATE TABLE server_blocked
 );
 
 
-
-
+create table album_tags
+(
+    id        bigint(20)   not null AUTO_INCREMENT,
+    artist_id BIGINT(20)   NOT NULL,
+    album_id  BIGINT(20)   NOT NULL,
+    tag       varchar(100) not null,
+    UNIQUE (artist_id, album_id, tag),
+    primary key (id),
+    CONSTRAINT album_tags_fk_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT album_tags_fk_album_id FOREIGN KEY (album_id) REFERENCES album (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+create table corrected_tags
+(
+    id         bigint(20)   not null auto_increment,
+    invalid    varchar(100) not null,
+    correction varchar(100) not null,
+    primary key (id),
+    UNIQUE (invalid, correction)
+);
+create table artist_tags
+(
+    id        bigint(20)   not null AUTO_INCREMENT,
+    artist_id BIGINT(20)   NOT NULL,
+    tag       varchar(100) not null,
+    UNIQUE (artist_id, tag),
+    primary key (id),
+    CONSTRAINT artist_tags_fk_artist_id FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+create table banned_tags
+(
+    id  bigint(20)   not null auto_increment,
+    tag varchar(100) not null,
+    primary key (id),
+    unique (tag)
+);
+create table log_tags
+(
+    id         bigint(20)   not null auto_increment,
+    tag        varchar(100) not null,
+    discord_id bigint(20),
+    primary key (id)
+);

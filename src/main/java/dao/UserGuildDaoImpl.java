@@ -15,9 +15,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class UserGuildDaoImpl implements UserGuildDao {
 
@@ -241,7 +239,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public List<UsersWrapper> getAll(Connection connection, long guildId) {
-        String queryString = "SELECT a.discord_id, a.lastfm_id,a.role FROM user a JOIN (SELECT discord_id FROM user_guild WHERE guild_id = ? ) b ON a.discord_id = b.discord_id";
+        String queryString = "SELECT a.discord_id, a.lastfm_id,a.role,a.timezone FROM user a JOIN (SELECT discord_id FROM user_guild WHERE guild_id = ? ) b ON a.discord_id = b.discord_id";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -263,8 +261,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
             String name = resultSet.getString("a.lastFm_Id");
             long discordID = resultSet.getLong("a.discord_ID");
             Role role = Role.valueOf(resultSet.getString(3));
+            TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(4), "GMT"));
 
-            returnList.add(new UsersWrapper(discordID, name, role));
+
+            returnList.add(new UsersWrapper(discordID, name, role, tz));
         }
         return returnList;
     }
@@ -434,7 +434,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public List<UsersWrapper> getAll(Connection connection) {
-        String queryString = "SELECT a.discord_id, a.lastfm_id, a.role FROM user a ";
+        String queryString = "SELECT a.discord_id, a.lastfm_id, a.role, timezone FROM user a ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -840,6 +840,58 @@ public class UserGuildDaoImpl implements UserGuildDao {
         String queryString = "UPDATE guild SET np_mode = ? WHERE guild_id = ?";
 
         updateUserGuild(connection, raw, guild_id, queryString);
+
+    }
+
+    @Override
+    public void setTimezoneUser(Connection connection, TimeZone timeZone, long userId) {
+        String queryString = "UPDATE user SET timezone = ? WHERE discord_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setString(i++, timeZone.getID());
+            preparedStatement.setLong(i, userId);
+
+            /* Execute query. */
+            preparedStatement.executeUpdate();
+
+            /* Get generated identifier. */
+
+            /* Return booking. */
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public TimeZone getTimezone(Connection connection, long userId) {
+        String queryString = "Select timezone from user WHERE discord_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i, userId);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.next()) {
+                return TimeZone.getTimeZone("GMT");
+            } else {
+                String string = resultSet.getString(1);
+                return TimeZone.getTimeZone(Objects.requireNonNullElse(string, "GMT"));
+            }
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
 
     }
 

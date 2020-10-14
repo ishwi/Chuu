@@ -1,5 +1,7 @@
 package dao.entities;
 
+import core.commands.CommandUtil;
+
 import java.util.Objects;
 
 public class ScrobbledArtist {
@@ -103,5 +105,17 @@ public class ScrobbledArtist {
         if (!Objects.equals(discordID, that.discordID)) return false;
         if (!Objects.equals(artist, that.artist)) return false;
         return Objects.equals(url, that.url);
+    }
+
+    @Override
+    public String toString() {
+
+        return ". " +
+                "[" +
+                CommandUtil.cleanMarkdownCharacter(artist) +
+                "](" + CommandUtil.getLastFmArtistUrl(artist) +
+                ")" +
+                " - " + count + " plays" +
+                "\n";
     }
 }

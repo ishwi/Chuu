@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("UnstableApiUsage")
 public class Chuu {
 
     public static final Character DEFAULT_PREFIX = '!';
@@ -390,6 +391,12 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new DiscoveredAlbumRatioCommand(dao)))
                 .addEventListeners(help.registerCommand(new PaceAlbumCommand(dao)))
                 .addEventListeners(help.registerCommand(new NPModeSetterCommand(dao)))
+                .addEventListeners(help.registerCommand(new ClockCommand(dao)))
+                .addEventListeners(help.registerCommand(new TimezoneCommand(dao)))
+                .addEventListeners(help.registerCommand(new WhoKnowsTagCommand(dao)))
+                .addEventListeners(help.registerCommand(new WhoIsTagCommand(dao)))
+                .addEventListeners(help.registerCommand(new BanTagCommand(dao)))
+                .addEventListeners(help.registerCommand(new GenreArtistsCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {

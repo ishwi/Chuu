@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.util.List;
+import java.util.TimeZone;
 
 interface UserGuildDao {
 
@@ -92,4 +93,8 @@ interface UserGuildDao {
     long getServerNPRaw(Connection connection, long guildId);
 
     void setServerNpRaw(Connection connection, long guild_id, long raw);
+
+    void setTimezoneUser(Connection connection, TimeZone timeZone, long idLong);
+
+    TimeZone getTimezone(Connection connection, long userId);
 }

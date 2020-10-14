@@ -106,7 +106,8 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
         List<AlbumInfo> albumInfos = lastFM.getTopAlbums(firstLastFMId, TimeFrameEnum.ALL.toApiFormat(), 500).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
 
-        Map<Genre, Integer> map = mb.genreCount(albumInfos).entrySet().stream()
+        Map<Genre, Integer> map = mb.genreCount(albumInfos).entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size()))
+                .entrySet().stream()
                 .sorted(Comparator.comparingInt((ToIntFunction<Map.Entry<Genre, Integer>>) Map.Entry::getValue).reversed())
                 .limit(15).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 

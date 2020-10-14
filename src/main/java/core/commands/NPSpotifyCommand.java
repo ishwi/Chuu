@@ -27,7 +27,7 @@ public class NPSpotifyCommand extends NpCommand {
                 .searchItems(nowPlayingArtist.getSongName(), nowPlayingArtist.getArtistName(), nowPlayingArtist
                         .getAlbumName());
 
-        if (uri.equals("")) {
+        if (uri.isBlank()) {
             sendMessageQueue(e, String.format("Was not able to find %s - %s on spotify", CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getArtistName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist
                     .getSongName())));
             return;

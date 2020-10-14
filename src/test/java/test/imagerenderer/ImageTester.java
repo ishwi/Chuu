@@ -8,23 +8,17 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.CommandUtil;
 import core.exceptions.LastFmException;
-import core.imagerenderer.CircleRenderer;
-import core.imagerenderer.GraphicUtils;
-import core.imagerenderer.stealing.jiff.GifSequenceWriter;
 import dao.ChuuService;
 import dao.entities.PreBillboardUserDataTimestamped;
 import dao.entities.ScrobbledArtist;
 import dao.entities.Track;
 import dao.entities.TrackWithArtistId;
-import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
@@ -32,12 +26,9 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.*;
-import java.util.List;
-import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -82,7 +73,7 @@ public class ImageTester {
                 try {
                     parse = dateTimeFormatter.parse(country[length - 1], LocalDateTime::from);
                 } catch (Exception e) {
-              //      System.out.println("");
+                    //      System.out.println("");
                     continue;
                 }
                 ZoneOffset of = ZoneOffset.of("+01:00");
@@ -107,39 +98,39 @@ public class ImageTester {
             a();
         }
 /*        // List<PreBillboardUserDataTimestamped> ishwaracoello = (List<PreBillboardUserDataTimestamped>) objectinputstream.readObject();
-        List<PreBillboardUserDataTimestamped> ishwaracoello = service.getUngroupedUserData(2, "ishwaracoello");*/
-        List<PreBillboardUserDataTimestamped> ishwaracoello = fromCsv();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageOutputStream output = ImageIO.createImageOutputStream(baos);
-
-        GifSequenceWriter writer =
-                new GifSequenceWriter(output, BufferedImage.TYPE_4BYTE_ABGR, 20, false);
-        HashMap<Integer, List<PreBillboardUserDataTimestamped>> collect = ishwaracoello.stream().
-                collect(Collectors.groupingBy(x -> {
-                    int i = x.getTimestamp().toLocalDateTime().toLocalDate().get(weekOfYear);
-                    int y = x.getTimestamp().toLocalDateTime().toLocalDate().getYear();
-
-                    return y * 1000 + i;
-                }, HashMap::new, Collectors.toList()));
-        collect.entrySet().parallelStream().sorted(Map.Entry.comparingByKey()).forEachOrdered(
-                t -> {
-                    Integer key = t.getKey();
-                    List<PreBillboardUserDataTimestamped> value = t.getValue();
-                    HashMap<Integer, Long> collect1 = value.stream().collect(Collectors.groupingBy(x -> x.getTimestamp().toLocalDateTime().getHour(), HashMap::new, Collectors.counting()));
-                    byte[] bytes = CircleRenderer.generateImage(collect1, key);
-                    ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-                    try {
-                        BufferedImage read = ImageIO.read(bais);
-                        Graphics2D g = read.createGraphics();
-                        System.out.println(read.getType());
-                        GraphicUtils.setQuality(g);
-                        g.dispose();
-                        writer.writeToSequence(read);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-        );
+//        List<PreBillboardUserDataTimestamped> ishwaracoello = service.getUngroupedUserData(2, "ishwaracoello");*/
+//        List<PreBillboardUserDataTimestamped> ishwaracoello = fromCsv();
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        ImageOutputStream output = ImageIO.createImageOutputStream(baos);
+//
+//        GifSequenceWriter writer =
+//                new GifSequenceWriter(output, BufferedImage.TYPE_4BYTE_ABGR, 20, false);
+//        HashMap<Integer, List<PreBillboardUserDataTimestamped>> collect = ishwaracoello.stream().
+//                collect(Collectors.groupingBy(x -> {
+//                    int i = x.getTimestamp().toLocalDateTime().toLocalDate().get(weekOfYear);
+//                    int y = x.getTimestamp().toLocalDateTime().toLocalDate().getYear();
+//
+//                    return y * 1000 + i;
+//                }, HashMap::new, Collectors.toList()));
+//        collect.entrySet().parallelStream().sorted(Map.Entry.comparingByKey()).forEachOrdered(
+//                t -> {
+//                    Integer key = t.getKey();
+//                    List<PreBillboardUserDataTimestamped> value = t.getValue();
+//                    HashMap<Integer, Long> collect1 = value.stream().collect(Collectors.groupingBy(x -> x.getTimestamp().toLocalDateTime().getHour(), HashMap::new, Collectors.counting()));
+//                    byte[] bytes = CircleRenderer.generateImage(ClockService.ClockMode.BY_DAY, collect1, key);
+//                    ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+//                    try {
+//                        BufferedImage read = ImageIO.read(bais);
+//                        Graphics2D g = read.createGraphics();
+//                        System.out.println(read.getType());
+//                        GraphicUtils.setQuality(g);
+//                        g.dispose();
+//                        writer.writeToSequence(read);
+//                    } catch (IOException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                }
+//        );
 
 
         // create a new BufferedOutputStream with the last argument
@@ -148,13 +139,13 @@ public class ImageTester {
         // between frames, which loops continuously
 
 
-        // write out the first image to our sequence...
-
-        writer.close();
-        output.close();
-        byte[] bytes = baos.toByteArray();
-        FileUtils.writeByteArrayToFile(File.createTempFile(UUID.randomUUID().toString(), ".gif"), bytes);
-
+//        // write out the first image to our sequence...
+//
+//        writer.close();
+//        output.close();
+//        byte[] bytes = baos.toByteArray();
+//        FileUtils.writeByteArrayToFile(File.createTempFile(UUID.randomUUID().toString(), ".gif"), bytes);
+//
 
     }
 

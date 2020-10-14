@@ -1,19 +1,23 @@
 package core.parsers.params;
 
+import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.Nullable;
 
-public class GenreParameters extends CommandParameters {
+public class GenreParameters extends ChuuDataParams {
     private final String genre;
     private final boolean autoDetected;
     private final NowPlayingArtist np;
+    private final User user;
 
-    public GenreParameters(MessageReceivedEvent e, String genre, boolean autoDetected, @Nullable NowPlayingArtist np) {
-        super(e);
+    public GenreParameters(MessageReceivedEvent e, String genre, boolean autoDetected, @Nullable NowPlayingArtist np, @Nullable LastFMData lastFMData, User user) {
+        super(e, lastFMData);
         this.genre = genre;
         this.autoDetected = autoDetected;
         this.np = np;
+        this.user = user;
     }
 
     public String getGenre() {
@@ -26,5 +30,9 @@ public class GenreParameters extends CommandParameters {
 
     public NowPlayingArtist getNp() {
         return np;
+    }
+
+    public User getUser() {
+        return user;
     }
 }

@@ -6,7 +6,6 @@ import org.apache.commons.text.WordUtils;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public enum NPMode {
@@ -41,6 +40,7 @@ public enum NPMode {
     HIGHEST_STREAK(25),
     HIGHEST_SERVER_STREAK(26),
     HIGHEST_BOT_STREAK(27),
+    SPOTIFY_LINK(28),
     UNKNOWN(-1);
 
     private final int offset;
@@ -52,31 +52,6 @@ public enum NPMode {
         this.raw = 1 << offset;
     }
 
-    public int getOffset() {
-        return offset;
-    }
-
-    public long getRaw() {
-        return raw;
-    }
-
-
-    /**
-     * Gets the first {@link NPMode Permission} relating to the provided offset.
-     * <br>If there is no {@link NPMode Permssions} that matches the provided
-     * offset, {@link NPMode#NORMAL NPMode.NORMAL} is returned.
-     *
-     * @param offset The offset to match a {@link NPMode NPMode} to.
-     * @return {@link NPMode NPMode} relating to the provided offset.
-     */
-    @Nonnull
-    public static NPMode getFromOffset(int offset) {
-        for (NPMode perm : values()) {
-            if (perm.offset == offset)
-                return perm;
-        }
-        return UNKNOWN;
-    }
 
     /**
      * This is effectively the opposite of {@link #getNPMode(long)} (long)}, this takes 1 or more {@link NPMode Modes}
@@ -219,6 +194,9 @@ public enum NPMode {
                 break;
             case HIGHEST_BOT_STREAK:
                 returnal = "The highest streak of this artist in the bot.";
+                break;
+            case SPOTIFY_LINK:
+                returnal = "A link if available of the song on spotify.";
                 break;
             case UNKNOWN:
             default:

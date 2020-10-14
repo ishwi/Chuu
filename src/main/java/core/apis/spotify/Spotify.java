@@ -45,10 +45,9 @@ public class Spotify {
             // Set access token for further "spotifyApi" object usage
             spotifyApi.setAccessToken(clientCredentials.getAccessToken());
             this.time = LocalDateTime.now().plusSeconds(clientCredentials.getExpiresIn() - 140L);
-
-            System.out.println("Expires in: " + clientCredentials.getExpiresIn());
+            Chuu.getLogger().info("Spotify Expires in: " + clientCredentials.getExpiresIn());
         } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
+            Chuu.getLogger().warn(e.getMessage(), e);
         }
     }
 
@@ -116,11 +115,8 @@ public class Spotify {
 
     public String searchItems(String track, String artist, String album) {
         initRequest();
-        artist = artist.contains(":") ? "\"" + artist + "\"" : artist;
         SearchItemRequest tracksRequest =
-                spotifyApi.searchItem("album:" + album + " artist:" + artist + " track:" + track, "album,artist,track").
-                        market(CountryCode.NZ)
-                        .limit(1)
+                spotifyApi.searchItem(track + " " + artist, "track").limit(1)
                         .offset(0)
                         .build();
         String returned = "";
