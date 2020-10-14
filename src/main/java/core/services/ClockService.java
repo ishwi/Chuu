@@ -1,5 +1,6 @@
 package core.services;
 
+import core.Chuu;
 import core.imagerenderer.CircleRenderer;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.stealing.jiff.GifSequenceWriter;
@@ -82,7 +83,7 @@ public class ClockService {
 
         } catch (
                 IOException exception) {
-            exception.printStackTrace();
+            Chuu.getLogger().warn(exception.getMessage(), exception);
         }
         byte[] bytes = baos.toByteArray();
         if (bytes.length == 0)

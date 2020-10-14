@@ -7,7 +7,6 @@ import core.parsers.Parser;
 import core.parsers.UrlParser;
 import core.parsers.params.UrlParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -104,7 +103,8 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
                 usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser))
                         .collect(Collectors.toList());
                 usersToDelete.forEach(u -> getService().removeUserFromOneGuildConsequent(u, key));
-                Chuu.getLogger().info("Deleted Users: {}", usersToDelete.size());
+                if (!usersToDelete.isEmpty())
+                    Chuu.getLogger().info("Deleted Users: {}", usersToDelete.size());
 
 
             } else {

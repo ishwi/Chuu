@@ -4,6 +4,7 @@ import core.Chuu;
 import core.commands.CommandUtil;
 import core.services.ClockService;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
+import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
@@ -13,14 +14,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -29,7 +24,6 @@ import java.time.temporal.WeekFields;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.UUID;
 
 public class CircleRenderer {
 
@@ -128,16 +122,9 @@ public class CircleRenderer {
 
 
         try {
-            DOMSource source = new DOMSource(doc);
-
-            FileWriter writer = new FileWriter(new File("C:\\Users\\ish\\Documents\\ttest\\" + UUID.randomUUID().toString()));
-            StreamResult result = new StreamResult(writer);
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.transform(source, result);
             s.transcode(input, output);
             return ostream.toByteArray();
-        } catch (Exception e) {
+        } catch (TranscoderException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             return null;
         }
