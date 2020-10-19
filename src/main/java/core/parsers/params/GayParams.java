@@ -11,7 +11,7 @@ public class GayParams extends ChartParameters {
 
 
     private int x;
-    private final GayType gayType;
+    private GayType gayType;
 
     public GayParams(MessageReceivedEvent e, String lastfmID, long discordId, GayType gayType, TimeFrameEnum timeFrameEnum, int y, int x, ChartMode chartMode, LastFMData lastFMData) {
         super(e, lastfmID, discordId, chartMode, lastFMData, timeFrameEnum, x, y);
@@ -57,5 +57,9 @@ public class GayParams extends ChartParameters {
 
     public GayType getGayType() {
         return gayType;
+    }
+
+    public void setGayType(GayType gayType) {
+        this.gayType = gayType;
     }
 }

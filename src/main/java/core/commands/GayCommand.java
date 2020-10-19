@@ -17,6 +17,7 @@ import core.parsers.params.GayParams;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -57,7 +58,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("pride", "gay");
+        return List.of("pride", "gay", "flag", "trans", "ace", "lesbian", "nonbinary", "nb");
     }
 
     @Override
@@ -78,8 +79,14 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
                 // We only consider colours that havent been filled yet
                 .filter(x -> x.getValue() < perRow.getX())
                 .map(rainbowColor -> {
-
-                            double strictThreshold = perRow.getGayType() == GayType.LGTBQ ? ColorChartCommand.STRICT_THRESHOLD : ColorChartCommand.STRICT_THRESHOLD - 2;
+                            double strictThreshold;
+                            if (perRow.getGayType() == GayType.LGTBQ) {
+                                strictThreshold = ColorChartCommand.STRICT_THRESHOLD;
+                            } else if (perRow.getGayType() == GayType.BI || perRow.getGayType() == GayType.TRANS) {
+                                strictThreshold = ColorChartCommand.STRICT_THRESHOLD - 2;
+                            } else {
+                                strictThreshold = ColorChartCommand.STRICT_THRESHOLD + 4;
+                            }
                             //We obtain the set of colours of the pallete of the image
                             List<Color> dominantColor1 = preComputedChartEntity.getDominantColor();
                             Set<Color> dominantColor = new HashSet<>(dominantColor1 == null || dominantColor1.isEmpty() ? Collections.emptyList() : List.of(dominantColor1.get(0)));
@@ -88,8 +95,9 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
                                 dominantColor.add(averageColor);
                             }
                             // THe minimun distance of matching images if it were any that was below the threshold
+                            double finalStrictThreshold = strictThreshold;
                             Optional<Pair<Color, Double>> min = dominantColor.stream().map(color -> Pair.of(rainbowColor.getKey(), GraphicUtils.getDistance(rainbowColor.getKey(), color)))
-                                    .filter(x -> x.getRight() < strictThreshold).min(Comparator.comparingDouble(Pair::getRight));
+                                    .filter(x -> x.getRight() < finalStrictThreshold).min(Comparator.comparingDouble(Pair::getRight));
                             return Pair.of(rainbowColor, min);
                         }
 
@@ -111,7 +119,26 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(GayParams params) throws LastFmException {
-
+        Message message = params.getE().getMessage();
+        String[] subMessage = parser.getSubMessage(message);
+        if (subMessage.length == 0) {
+            String substring = params.getE().getMessage().getContentRaw().substring(1).split("\\s+")[0].toLowerCase();
+            switch (substring) {
+                case "trans":
+                    params.setGayType(GayType.TRANS);
+                    break;
+                case "ace":
+                    params.setGayType(GayType.ACE);
+                    break;
+                case "nonbinary":
+                case "nb":
+                    params.setGayType(GayType.NB);
+                    break;
+                case "lesbian":
+                    params.setGayType(GayType.LESBIAN);
+                    break;
+            }
+        }
         DiscardByQueue queue;
         List<Color> palettes = params.getGayType().getPalettes();
         Map<Color, Integer> gayColours = palettes.stream().collect(Collectors.toMap(x -> x, x -> 0, (x, y) -> x - params.getX()));

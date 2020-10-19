@@ -2,9 +2,7 @@ package core.commands;
 
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.parsers.OnlyUsernameParser;
-import core.parsers.OptionalEntity;
-import core.parsers.Parser;
+import core.parsers.*;
 import core.parsers.params.ChuuDataParams;
 import core.services.BillboardHoarder;
 import core.services.ClockService;
@@ -53,6 +51,7 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+
         ChuuDataParams parse = parser.parse(e);
         if (parse == null) {
             return;

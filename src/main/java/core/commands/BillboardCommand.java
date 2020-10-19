@@ -110,14 +110,16 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             if (LocalDate.now().getDayOfWeek().equals(DayOfWeek.MONDAY)) {
                 int offset = timeZone.getOffset(LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC).getEpochSecond() * 1000);
                 if (offset > 0) {
-                    LocalDateTime plus = LocalDate.now().atStartOfDay().plus(offset, ChronoUnit.MILLIS);
-                    if (plus.isBefore(LocalDateTime.now())) {
+                    ZonedDateTime plus = LocalDate.now().atStartOfDay().atZone(ZoneId.of("UTC")).plus(offset, ChronoUnit.MILLIS);
+                    if (plus.isAfter(ZonedDateTime.now())) {
                         long remaining = offset - LocalTime.now().toNanoOfDay() / 1_000_000;
-                        String format = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(remaining),
-                                TimeUnit.MILLISECONDS.toMinutes(remaining) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(remaining)),
-                                TimeUnit.MILLISECONDS.toSeconds(remaining) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(remaining)));
-                        sendMessageQueue(e, "The week hasn't ended for a user because they have set a different timezone!" + "\nYou will have to wait " + format);
-                        return;
+                        if (remaining > 0) {
+                            String format = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(remaining),
+                                    TimeUnit.MILLISECONDS.toMinutes(remaining) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(remaining)),
+                                    TimeUnit.MILLISECONDS.toSeconds(remaining) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(remaining)));
+                            sendMessageQueue(e, "The week hasn't ended for a user because they have set a different timezone!" + "\nYou will have to wait " + format);
+                            return;
+                        }
                     }
                 }
             }

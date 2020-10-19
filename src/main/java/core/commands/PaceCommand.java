@@ -113,34 +113,34 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         int timestamp;
         switch (naturalTimeFrameEnum) {
             case YEAR:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant().getEpochSecond();
+                timestamp = (int) now.minus(unitNumber, ChronoUnit.YEARS).toEpochSecond();
                 break;
             case QUARTER:
-                timestamp = (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+                timestamp = (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toEpochSecond();
                 break;
             case MONTH:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+                timestamp = (int) now.minus(unitNumber, ChronoUnit.MONTHS).toEpochSecond();
                 break;
             case ALL:
                 timestamp = 0;
                 break;
             case SEMESTER:
-                timestamp = (int) now.minus(unitNumber * 2, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+                timestamp = (int) now.minus(unitNumber * 6, ChronoUnit.MONTHS).toEpochSecond();
                 break;
             case WEEK:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.WEEKS).toInstant().getEpochSecond();
+                timestamp = (int) now.minus(unitNumber, ChronoUnit.WEEKS).toEpochSecond();
                 break;
             case DAY:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.DAYS).toInstant().getEpochSecond();
+                timestamp = (int) now.minus(unitNumber, ChronoUnit.DAYS).toEpochSecond();
                 break;
             case HOUR:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.HOURS).toInstant().getEpochSecond();
+                timestamp = (int) now.minus(unitNumber, ChronoUnit.HOURS).toEpochSecond();
                 break;
             case MINUTE:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.MINUTES).toInstant().getEpochSecond();
+                timestamp = (int) now.minus(unitNumber, ChronoUnit.MINUTES).toEpochSecond();
                 break;
             case SECOND:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.SECONDS).toInstant().getEpochSecond();
+                timestamp = (int) now.minus(unitNumber, ChronoUnit.SECONDS).toEpochSecond();
                 break;
             default:
                 throw new IllegalArgumentException();

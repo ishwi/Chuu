@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.regex.Pattern;
 
 public class GayParser extends ChartableParser<GayParams> {
-    private final static Pattern gayRegex = Pattern.compile("((lgtb).*|(gay)|(bi)(?:sexual)?|(trans)(?:exual)?)", Pattern.CASE_INSENSITIVE);
+    private final static Pattern gayRegex = Pattern.compile("((lgtb).*|(gay)|(bi)(?:sexual)?|(trans)(?:exual)?|(non( )?binary)|(nb)|(lesb)(ian)?|(ace|asexual))", Pattern.CASE_INSENSITIVE);
 
     public GayParser(ChuuService service, TimeFrameEnum defaultTimeFrame) {
         super(service, defaultTimeFrame);
@@ -30,10 +30,17 @@ public class GayParser extends ChartableParser<GayParams> {
         TimeFrameEnum timeFrame = this.defaultTFE;
 
         Pair<String[], GayType> gayPair = filterMessage(subMessage, gayRegex.asMatchPredicate(), s1 -> {
+            s1 = s1.toLowerCase();
             if (s1.startsWith("bi")) {
                 return GayType.BI;
             } else if (s1.startsWith("trans")) {
                 return GayType.TRANS;
+            } else if (s1.startsWith("nb") || s1.equals("nonbinary") || s1.equals("non binary")) {
+                return GayType.NB;
+            } else if (s1.startsWith("lesb")) {
+                return GayType.LESBIAN;
+            } else if (s1.startsWith("ace") || s1.startsWith("asexual")) {
+                return GayType.ACE;
             }
             return GayType.LGTBQ;
         }, GayType.LGTBQ);
@@ -55,7 +62,7 @@ public class GayParser extends ChartableParser<GayParams> {
 
     @Override
     public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *[d,w,m,q,s,y,a]* *[LGTBQ,BI,TRANS]* *number_of_columns*  *Username* ** \n" +
+        return "**" + commandName + " *[d,w,m,q,s,y,a]* *[LGTBQ,BI,TRANS,NB,LESBIAN,ACE,]* *number_of_columns*  *Username* ** \n" +
                 "\tIf time is not specified defaults to " + defaultTFE.name().toLowerCase() + "\n" +
                 "\tIf username is not specified defaults to authors account \n" +
                 "\tIf number of columns is not specified it defaults to 5 items per row\n";

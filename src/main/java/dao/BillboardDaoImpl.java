@@ -8,6 +8,7 @@ import dao.entities.TrackWithArtistId;
 import dao.entities.Week;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 import java.time.Instant;
@@ -338,6 +339,55 @@ public class BillboardDaoImpl implements BillboardDao {
     }
 
     @Override
+    public List<PreBillboardUserDataTimestamped> getUngroupedUserData(Connection connection, @Nullable Integer from, @Nullable Integer to, String lastfmId) {
+
+        @Language("MariaDB") String queryString = "SELECT artist_id,track_name,`timestamp`  from user_billboard_data_scrobbles where lastfm_id = ?";
+        if (from != null && to != null) {
+            queryString += " and timestamp between ? and ?  ";
+
+        } else {
+            if (from != null) {
+                queryString += " and timestamp >= ? ";
+            }
+            if (to != null) {
+                queryString += " and timestamp <= ? ";
+            }
+        }
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setString(i++, lastfmId);
+            if (from != null) {
+                preparedStatement.setTimestamp(i++, Timestamp.from(Instant.ofEpochSecond(from)));
+            }
+            if (to != null) {
+                preparedStatement.setTimestamp(i, Timestamp.from(Instant.ofEpochSecond(to)));
+            }
+            /* Execute query. */
+            return getPreBillboardUserDataTimestampeds(lastfmId, preparedStatement);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @NotNull
+    private List<PreBillboardUserDataTimestamped> getPreBillboardUserDataTimestampeds(String lastfmId, PreparedStatement preparedStatement) throws SQLException {
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<PreBillboardUserDataTimestamped> a = new ArrayList<>();
+        while (resultSet.next()) {
+            String track_name = resultSet.getString("track_name");
+            long artist = resultSet.getLong("artist_id");
+            Timestamp timestamp = resultSet.getTimestamp("timestamp");
+
+            a.add(new PreBillboardUserDataTimestamped(artist, lastfmId, track_name, 1, timestamp));
+        }
+
+        return a;
+    }
+
+    @Override
     public List<PreBillboardUserDataTimestamped> getUngroupedUserData(Connection connection, String lastfmId, int weekId) {
 
         @Language("MariaDB") String queryString = "SELECT artist_id,track_name,`timestamp`  from user_billboard_data_scrobbles where week_id = ? and lastfm_id = ? ";
@@ -348,17 +398,7 @@ public class BillboardDaoImpl implements BillboardDao {
             preparedStatement.setString(2, lastfmId);
 
             /* Execute query. */
-            ResultSet resultSet = preparedStatement.executeQuery();
-            List<PreBillboardUserDataTimestamped> a = new ArrayList<>();
-            while (resultSet.next()) {
-                String track_name = resultSet.getString("track_name");
-                long artist = resultSet.getLong("artist_id");
-                Timestamp timestamp = resultSet.getTimestamp("timestamp");
-
-                a.add(new PreBillboardUserDataTimestamped(artist, lastfmId, track_name, 1, timestamp));
-            }
-
-            return a;
+            return getPreBillboardUserDataTimestampeds(lastfmId, preparedStatement);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

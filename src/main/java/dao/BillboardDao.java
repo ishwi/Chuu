@@ -5,6 +5,7 @@ import dao.entities.PreBillboardUserData;
 import dao.entities.PreBillboardUserDataTimestamped;
 import dao.entities.TrackWithArtistId;
 import dao.entities.Week;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.util.List;
@@ -27,6 +28,8 @@ public interface BillboardDao {
 
     void insertBillboardDataListeners(Connection connection, int week_id, long guildId);
 
+
+    List<PreBillboardUserDataTimestamped> getUngroupedUserData(Connection connection, @Nullable Integer from, @Nullable Integer to, String lastfmId);
 
     List<PreBillboardUserDataTimestamped> getUngroupedUserData(Connection connection, String lastfmId, int weekId);
 

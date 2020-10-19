@@ -116,7 +116,7 @@ public class Spotify {
     public String searchItems(String track, String artist, String album) {
         initRequest();
         SearchItemRequest tracksRequest =
-                spotifyApi.searchItem(track + " " + artist, "track").limit(1)
+                spotifyApi.searchItem("track:" + track + " artist:" + artist, "track").limit(1)
                         .offset(0)
                         .build();
         String returned = "";
