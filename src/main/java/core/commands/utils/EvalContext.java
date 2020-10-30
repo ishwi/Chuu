@@ -28,8 +28,8 @@ public class EvalContext {
         this.lastFM = lastFM;
     }
 
-    public void sendMessage(String message) {
-        e.getChannel().sendMessage(message).queue();
+    public void sendMessage(Object message) {
+        e.getChannel().sendMessage(message.toString()).queue();
     }
 
 }

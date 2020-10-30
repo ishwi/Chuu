@@ -27,10 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 
 public class ImportCommand extends ConcurrentCommand<UrlParameters> {
     private final ImportFunctional consumer = (u, m, message, embedBuilder, author, pos, errorCounter) -> () -> {
@@ -101,7 +98,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
 
         //Never registered before
-        LastFMData lastFMData = new LastFMData(lastfmid, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false);
+        LastFMData lastFMData = new LastFMData(lastfmid, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, TimeZone.getDefault());
         lastFMData.setGuildID(guildID);
 
         getService().
@@ -211,7 +208,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
             long userId = Long.parseLong(jsonObject.optString("discordUserID"));
             String lastfmid = jsonObject.getString("lastFMUsername");
-            LastFMData lastFMData = new LastFMData(lastfmid, userId, guildID, respondInPrivate, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false);
+            LastFMData lastFMData = new LastFMData(lastfmid, userId, guildID, respondInPrivate, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, TimeZone.getDefault());
             queue.add(consumer.executeCallback(lastFMData, stringBuilder, complete, embedBuilder, e.getAuthor(), i, counter));
 
         }

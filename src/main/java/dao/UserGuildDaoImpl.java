@@ -68,7 +68,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
         /* Create "queryString". */
-        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm FROM user WHERE discord_id = ?";
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone FROM user WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -98,10 +98,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
             int defaultY = resultSet.getInt(i++);
             PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(i++));
             boolean ratingNotify = resultSet.getBoolean(i++);
-            boolean privateLastfmId = resultSet.getBoolean(i);
+            boolean privateLastfmId = resultSet.getBoolean(i++);
+            TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(i), "GMT"));
 
 
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId);
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, tz);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -391,7 +392,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image,a.chart_mode,a.whoknows_mode,a.remaining_mode,a.default_x,a.default_y,a.privacy_mode,a.notify_rating,a.private_lastfm " +
+        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image,a.chart_mode,a.whoknows_mode,a.remaining_mode,a.default_x,a.default_y,a.privacy_mode,a.notify_rating,a.private_lastfm,timezone " +
                 "FROM   user a" +
                 " WHERE  a.lastfm_id = ? ";
 
@@ -419,9 +420,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
             PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(11));
             boolean ratingNotify = resultSet.getBoolean(12);
             boolean privateLastfmId = resultSet.getBoolean(13);
+            TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(14), "GMT"));
 
 
-            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId);
+            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, tz);
 
 
             /* Get results. */
@@ -693,7 +695,8 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 ", default_x, default_y " +
                 ", a.privacy_mode," +
                 "a.notify_rating, " +
-                " private_lastfm " +
+                " private_lastfm," +
+                "timezone " +
                 "FROM user a join guild c" +
 
                 " WHERE a.discord_id = ? AND  c.guild_id = ? ";
@@ -728,9 +731,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
             int defaultY = resultSet.getInt(i++);
             PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(i++));
             boolean ratingNotify = resultSet.getBoolean(i++);
-            boolean privateLastfmId = resultSet.getBoolean(i);
+            boolean privateLastfmId = resultSet.getBoolean(i++);
+            TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(i), "GMT"));
 
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId);
+
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, tz);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

@@ -7,9 +7,11 @@ import dao.entities.*;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.TimeZone;
+
 public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
     private static final QuadFunction<MessageReceivedEvent, ChartMode, WhoKnowsMode, RemainingImagesMode, LastFMData> DEFAULT_DATA = (e, c, w, r) ->
-            new LastFMData(null, 537353774205894676L, e.isFromGuild() ? e.getGuild().getIdLong() : 693124899220226178L, false, false, w, c, r, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false);
+            new LastFMData(null, 537353774205894676L, e.isFromGuild() ? e.getGuild().getIdLong() : 693124899220226178L, false, false, w, c, r, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, TimeZone.getDefault());
     final ChuuService dao;
     private boolean expensiveSearch = false;
     private boolean allowUnaothorizedUsers = false;

@@ -9,7 +9,7 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -51,8 +51,8 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
             return;
         }
         LastFMData lastFMData = getService().findLastFMData(parameters.getUser().getIdLong());
-        OffsetDateTime date = parameters.getDate();
-        int i = lastFM.scrobblesSince(lastFMData.getName(), date);
+        ZonedDateTime date = parameters.getDate().atZoneSameInstant(lastFMData.getTimeZone().toZoneId());
+        int i = lastFM.scrobblesSince(lastFMData.getName(), date.toOffsetDateTime());
         String username = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getUser().getIdLong()).getUsername();
         String mmmmD = date.format(DateTimeFormatter.ofPattern("MMMM d"));
         sendMessageQueue(e, String.format("%s has a total of %d scrobbles since %s%s %d %s", username, i, mmmmD, CommandUtil.getDayNumberSuffix(date.getDayOfMonth()),

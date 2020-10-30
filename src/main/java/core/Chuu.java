@@ -375,12 +375,10 @@ public class Chuu {
                     new UpdaterThread(dao, true), 0, 120,
                     TimeUnit.SECONDS);
 
-            if (!isTest) {
-                scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 20, 12, TimeUnit.MINUTES);
-                scheduledExecutorService.scheduleAtFixedRate(
-                        new SpotifyUpdaterThread(dao), 5, 5, TimeUnit.MINUTES);
-            }
-            scheduledExecutorService.scheduleAtFixedRate(new ArtistMbidUpdater(dao), 10, 20, TimeUnit.MINUTES);
+            scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 20, 12, TimeUnit.MINUTES);
+            scheduledExecutorService.scheduleAtFixedRate(
+                    new SpotifyUpdaterThread(dao), 5, 5, TimeUnit.MINUTES);
+            scheduledExecutorService.scheduleAtFixedRate(new ArtistMbidUpdater(dao), 10, 2000, TimeUnit.MINUTES);
         } catch (LoginException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);

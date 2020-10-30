@@ -89,6 +89,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         AtomicInteger navigationCounter = new AtomicInteger(0);
         AtomicInteger statIgnore = new AtomicInteger(0);
         EmbedBuilder embedBuilder = new EmbedBuilder().setTitle("Reports Review");
+        // TODO :DD
         LocalDateTime localDateTime = LocalDateTime.now();
         Set<Long> skippedIds = new HashSet<>();
         try {

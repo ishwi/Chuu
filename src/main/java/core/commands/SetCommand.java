@@ -16,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 public class SetCommand extends ConcurrentCommand<WordParameter> {
     public SetCommand(ChuuService dao) {
@@ -128,7 +129,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
                 queue(t -> e.getChannel().
                         sendTyping().
                         queue());
-        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false);
+        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, TimeZone.getDefault());
         lastFMData.setGuildID(guildID);
 
         getService().insertNewUser(lastFMData);
