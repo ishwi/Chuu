@@ -19,6 +19,8 @@ public class MessageDisablingService {
     public final MultiValuedMap<Pair<Long, Long>, MyCommand<?>> enabledChannelsMap = new HashSetValuedHashMap<>();
     public final Set<Long> dontRespondOnErrorSet = new HashSet<>();
 
+    public MessageDisablingService() {
+    }
 
     public MessageDisablingService(ShardManager jda, ChuuService dao) {
         Map<String, MyCommand<?>> commandsByName = jda.getShards().get(0).getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).collect(Collectors.toMap(MyCommand::getName, x -> x));

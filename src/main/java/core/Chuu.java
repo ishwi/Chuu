@@ -59,7 +59,7 @@ public class Chuu {
 
     private static ChuuService dao;
     private static MessageDeletionService messageDeletionService;
-    private static MessageDisablingService messageDisablingService;
+    private static MessageDisablingService messageDisablingService = new MessageDisablingService();
 
 
     public static ScheduledExecutorService getScheduledExecutorService() {
