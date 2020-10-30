@@ -25,6 +25,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -39,13 +40,22 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
     MyCommand(ChuuService dao) {
         this.dao = dao;
         lastFM = LastFMFactory.getNewInstance();
-        this.parser = getParser();
-        this.category = getCategory();
+        this.parser = initParser();
+        this.category = initCategory();
     }
 
-    protected abstract CommandCategory getCategory();
+    private static void logCommand(ChuuService service, MessageReceivedEvent e, MyCommand<?> command, long exectTime) {
+        service.logCommand(e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : null, command.getName(), exectTime, Instant.now());
 
-    public abstract Parser<T> getParser();
+    }
+
+    protected abstract CommandCategory initCategory();
+
+    public abstract Parser<T> initParser();
+
+    public Parser<T> getParser() {
+        return parser;
+    }
 
     ChuuService getService() {
         return dao;
@@ -75,16 +85,21 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
         measureTime(e);
     }
 
+    public CommandCategory getCategory() {
+        return category;
+    }
+
+    public abstract String getName();
+
     void measureTime(MessageReceivedEvent e) {
         long startTime = System.nanoTime();
         handleCommand(e);
         long endTime = System.nanoTime();
         long timeElapsed = endTime - startTime;
-        System.out.println("Execution time in milliseconds " + getName() + " : " + timeElapsed / 1000);
-        System.out.println();
+        System.out.printf("Execution time in milliseconds %s: %d%n", getName(), timeElapsed / 1000);
+        logCommand(getService(), e, this, timeElapsed);
     }
 
-    public abstract String getName();
 
     void handleCommand(MessageReceivedEvent e) {
         try {

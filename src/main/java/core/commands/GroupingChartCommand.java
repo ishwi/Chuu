@@ -33,7 +33,7 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
     }
 
     @Override
-    public ChartableParser<ChartGroupParameters> getParser() {
+    public ChartableParser<ChartGroupParameters> initParser() {
         return new ChartGroupParser(getService(), TimeFrameEnum.WEEK);
     }
 

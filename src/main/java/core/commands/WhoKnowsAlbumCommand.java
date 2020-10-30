@@ -19,12 +19,12 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.SERVER_STATS;
     }
 
     @Override
-    public Parser<ArtistAlbumParameters> getParser() {
+    public Parser<ArtistAlbumParameters> initParser() {
         return new ArtistAlbumParser(getService(), lastFM);
     }
 

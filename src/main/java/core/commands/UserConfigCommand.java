@@ -24,12 +24,12 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CONFIGURATION;
     }
 
     @Override
-    public Parser<UserConfigParameters> getParser() {
+    public Parser<UserConfigParameters> initParser() {
         return new UserConfigParser(getService());
     }
 

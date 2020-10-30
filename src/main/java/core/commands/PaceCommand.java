@@ -36,13 +36,13 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
     //XD
-    public Parser<NumberParameters<NumberParameters<NaturalTimeParams>>> getParser() {
+    public Parser<NumberParameters<NumberParameters<NaturalTimeParams>>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(INNER_ERROR, "The number introduced must be lower");
         map.put(LIMIT_ERROR, "You introduced a real big number");

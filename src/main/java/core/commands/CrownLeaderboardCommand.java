@@ -25,7 +25,7 @@ public class CrownLeaderboardCommand extends LeaderboardCommand<NumberParameters
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CROWNS;
     }
 
@@ -35,7 +35,7 @@ public class CrownLeaderboardCommand extends LeaderboardCommand<NumberParameters
     }
 
     @Override
-    public Parser<NumberParameters<CommandParameters>> getParser() {
+    public Parser<NumberParameters<CommandParameters>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays to award a crown, " +

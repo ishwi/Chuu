@@ -26,7 +26,7 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
     }
 
     @Override
-    public ChartableParser<ChartSizeParameters> getParser() {
+    public ChartableParser<ChartSizeParameters> initParser() {
         OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(getService(), TimeFrameEnum.ALL);
         onlyChartSizeParser.addOptional(new OptionalEntity("global", " show ratings from all bot users instead of only from this server"));
         onlyChartSizeParser.addOptional(new OptionalEntity("server", " show ratings from users only in this server"));

@@ -44,12 +44,12 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.NOW_PLAYING;
     }
 
     @Override
-    public Parser<CommandParameters> getParser() {
+    public Parser<CommandParameters> initParser() {
         return new OptionableParser(new OptionalEntity("recent", "show last song from ALL users"));
     }
 

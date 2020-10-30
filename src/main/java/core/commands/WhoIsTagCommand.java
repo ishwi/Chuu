@@ -18,12 +18,12 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.BOT_INFO;
     }
 
     @Override
-    public Parser<GenreParameters> getParser() {
+    public Parser<GenreParameters> initParser() {
         GenreParser genreParser = new GenreParser(getService(), lastFM);
         genreParser.addOptional(new OptionalEntity("global", " show artist with the given tags from all bot users instead of only from this server"));
         return genreParser;

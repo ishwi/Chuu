@@ -1553,6 +1553,26 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
         }
 
     }
+
+    @Override
+    public void logCommand(Connection connection, long discordId, Long guildId, String commandName, long nanos, Instant utc) {
+        StringBuilder mySql =
+                new StringBuilder("INSERT INTO  command_logs  (discord_id,guild_id,command,nanos) VALUES (?,?,?,?) ");
+
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            preparedStatement.setLong(1, discordId);
+            preparedStatement.setLong(2, guildId);
+            preparedStatement.setString(3, commandName);
+            preparedStatement.setInt(4, Math.toIntExact(nanos));
+            preparedStatement.executeUpdate();
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
 }
 
 

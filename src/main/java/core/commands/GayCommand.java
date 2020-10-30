@@ -101,7 +101,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
     }
 
     @Override
-    public ChartableParser<GayParams> getParser() {
+    public ChartableParser<GayParams> initParser() {
         return new GayParser(getService(), TimeFrameEnum.ALL);
     }
 

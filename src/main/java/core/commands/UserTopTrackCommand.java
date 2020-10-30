@@ -50,12 +50,12 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public ChartableParser<ChartParameters> getParser() {
+    public ChartableParser<ChartParameters> initParser() {
         ChartParser chartParser = new ChartParser(getService());
         chartParser.replaceOptional("list", new OptionalEntity("image", "show this with a chart instead of a list "));
         chartParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, "image"));

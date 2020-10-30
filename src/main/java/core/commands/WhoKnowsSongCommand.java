@@ -32,12 +32,12 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.SERVER_STATS;
     }
 
     @Override
-    public Parser<ArtistAlbumParameters> getParser() {
+    public Parser<ArtistAlbumParameters> initParser() {
         ArtistSongParser parser = new ArtistSongParser(getService(), lastFM, new OptionalEntity("list", "display in list format")
                 , new OptionalEntity("pie", "display it as a chart pie"));
         parser.setExpensiveSearch(true);

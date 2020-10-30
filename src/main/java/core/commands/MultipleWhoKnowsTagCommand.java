@@ -73,12 +73,12 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<MultipleGenresParameters> getParser() {
+    public Parser<MultipleGenresParameters> initParser() {
         return new MultipleGenresParser(getService(), lastFM);
     }
 

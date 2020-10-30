@@ -18,7 +18,7 @@ public class GlobalCrownsCommand extends CrownsCommand {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CROWNS;
     }
 
@@ -44,8 +44,8 @@ public class GlobalCrownsCommand extends CrownsCommand {
     }
 
     @Override
-    public Parser<NumberParameters<ChuuDataParams>> getParser() {
-        Parser<NumberParameters<ChuuDataParams>> parser = super.getParser();
+    public Parser<NumberParameters<ChuuDataParams>> initParser() {
+        Parser<NumberParameters<ChuuDataParams>> parser = super.initParser();
         parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
         return parser;
     }

@@ -22,12 +22,12 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<NumberParameters
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<NumberParameters<ChuuDataParams>> getParser() {
+    public Parser<NumberParameters<ChuuDataParams>> initParser() {
 
 
         Map<Integer, String> map = new HashMap<>(2);

@@ -21,12 +21,12 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.STARTING;
     }
 
     @Override
-    public Parser<CommandParameters> getParser() {
+    public Parser<CommandParameters> initParser() {
         return new NoOpParser();
     }
 

@@ -27,7 +27,7 @@ public class TopCommand extends ArtistAbleCommand<TopParameters> {
     }
 
     @Override
-    public ChartableParser<TopParameters> getParser() {
+    public ChartableParser<TopParameters> initParser() {
         return new TopParser(getService());
     }
 

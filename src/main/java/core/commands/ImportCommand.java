@@ -132,12 +132,12 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CONFIGURATION;
     }
 
     @Override
-    public Parser<UrlParameters> getParser() {
+    public Parser<UrlParameters> initParser() {
         return new FileParser("json");
     }
 

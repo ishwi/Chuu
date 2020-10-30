@@ -40,12 +40,12 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.RYM_BETA;
     }
 
     @Override
-    public Parser<ArtistParameters> getParser() {
+    public Parser<ArtistParameters> initParser() {
         return new ArtistParser(getService(), lastFM);
     }
 

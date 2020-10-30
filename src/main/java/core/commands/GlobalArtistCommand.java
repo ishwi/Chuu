@@ -34,12 +34,12 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.BOT_STATS;
     }
 
     @Override
-    public Parser<ArtistParameters> getParser() {
+    public Parser<ArtistParameters> initParser() {
         ArtistParser parser = new ArtistParser(getService(), lastFM);
         parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
         return parser;

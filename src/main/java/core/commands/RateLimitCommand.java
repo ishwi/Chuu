@@ -22,12 +22,12 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.MODERATION;
     }
 
     @Override
-    public Parser<RateLimitParams> getParser() {
+    public Parser<RateLimitParams> initParser() {
         return new RateLimitParser(getService());
     }
 

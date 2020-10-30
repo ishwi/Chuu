@@ -37,12 +37,12 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<NumberParameters<TimeFrameParameters>> getParser() {
+    public Parser<NumberParameters<TimeFrameParameters>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and 5");
         String s = "A number which represent the palette to use.\n" +

@@ -20,12 +20,12 @@ public class TimeSpentCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<TimeFrameParameters> getParser() {
+    public Parser<TimeFrameParameters> initParser() {
         return new TimerFrameParser(getService(), TimeFrameEnum.WEEK);
     }
 

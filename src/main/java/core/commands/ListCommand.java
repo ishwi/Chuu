@@ -17,7 +17,7 @@ public abstract class ListCommand<T, Y extends CommandParameters> extends Concur
     }
 
     @Override
-    public abstract Parser<Y> getParser();
+    public abstract Parser<Y> initParser();
 
     @Override
     public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {

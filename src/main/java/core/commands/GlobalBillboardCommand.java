@@ -27,7 +27,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.BOT_STATS;
     }
 

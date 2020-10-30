@@ -27,12 +27,12 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.NOW_PLAYING;
     }
 
     @Override
-    public Parser<NumberParameters<ChuuDataParams>> getParser() {
+    public Parser<NumberParameters<ChuuDataParams>> initParser() {
         Map<Integer, String> map = new HashMap<>(1);
         map.put(LIMIT_ERROR, "The number introduced must be lower than 15");
         String s = "You can also introduce a number to vary the number of songs shown, defaults to " + 5 + ", max " + 15;

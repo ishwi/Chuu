@@ -51,12 +51,12 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<NumberParameters<ArtistTimeFrameParameters>> getParser() {
+    public Parser<NumberParameters<ArtistTimeFrameParameters>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can introduce a goal that will be the number of scrobbles that you want to obtain.";

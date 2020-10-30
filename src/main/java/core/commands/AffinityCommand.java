@@ -33,12 +33,12 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<AffinityParameters> getParser() {
+    public Parser<AffinityParameters> initParser() {
         return new AffinityParser(getService());
     }
 

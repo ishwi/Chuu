@@ -37,12 +37,12 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.SERVER_STATS;
     }
 
     @Override
-    public Parser<ArtistAlbumParameters> getParser() {
+    public Parser<ArtistAlbumParameters> initParser() {
         ArtistAlbumParser parser = new ArtistAlbumParser(getService(), lastFM, new OptionalEntity("list", "display in list format"));
         parser.setExpensiveSearch(true);
         return parser;

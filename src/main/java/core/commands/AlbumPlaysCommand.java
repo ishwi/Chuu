@@ -30,12 +30,12 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<ArtistAlbumParameters> getParser() {
+    public Parser<ArtistAlbumParameters> initParser() {
         return new ArtistAlbumParser(getService(), lastFM);
     }
 
@@ -67,7 +67,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
 
     }
 
-    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws InstanceNotFoundException, LastFmException {
+    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
 
         LastFMData data = params.getLastFMData();
         int a = lastFM.getPlaysAlbumArtist(data.getName(), artist.getArtist(), album).getPlays();

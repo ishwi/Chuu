@@ -55,12 +55,12 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<NumberParameters<TimeFrameParameters>> getParser() {
+    public Parser<NumberParameters<TimeFrameParameters>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and a big number");
         String s = "You can also introduce a number to vary the number of genres shown in the pie," +

@@ -15,7 +15,7 @@ public class ScrobblesLbCommand extends LeaderboardCommand<CommandParameters> {
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.SERVER_STATS;
     }
 
@@ -25,7 +25,7 @@ public class ScrobblesLbCommand extends LeaderboardCommand<CommandParameters> {
     }
 
     @Override
-    public Parser<CommandParameters> getParser() {
+    public Parser<CommandParameters> initParser() {
         return new NoOpParser();
     }
 

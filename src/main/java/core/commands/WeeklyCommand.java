@@ -28,12 +28,12 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public Parser<ChuuDataParams> getParser() {
+    public Parser<ChuuDataParams> initParser() {
         return new OnlyUsernameParser(getService(), new OptionalEntity("image", "displays it as a bar chart"));
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 

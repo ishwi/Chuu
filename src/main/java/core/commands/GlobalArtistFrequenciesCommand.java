@@ -21,18 +21,18 @@ import java.util.stream.Collectors;
 public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
     public GlobalArtistFrequenciesCommand(ChuuService dao) {
         super(dao);
-        this.pie = new PieableListResultWrapper<>(getParser(),
+        this.pie = new PieableListResultWrapper<>(initParser(),
                 ArtistPlays::getArtistName,
                 ArtistPlays::getCount);
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.BOT_STATS;
     }
 
     @Override
-    public Parser<CommandParameters> getParser() {
+    public Parser<CommandParameters> initParser() {
         return new NoOpParser();
     }
 

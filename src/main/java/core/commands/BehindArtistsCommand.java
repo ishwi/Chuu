@@ -29,12 +29,12 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<NumberParameters<TwoUsersParamaters>> getParser() {
+    public Parser<NumberParameters<TwoUsersParamaters>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to filter artist below that number ";

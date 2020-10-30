@@ -106,7 +106,7 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
     }
 
     @Override
-    public ChartableParser<ColorChartParams> getParser() {
+    public ChartableParser<ColorChartParams> initParser() {
         return new ColorChartParser(getService(), TimeFrameEnum.MONTH);
     }
 

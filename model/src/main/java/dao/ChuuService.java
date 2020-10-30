@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.sql.SQLTransactionRollbackException;
 import java.sql.Savepoint;
 import java.text.Normalizer;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -2525,6 +2526,14 @@ public class ChuuService {
     public List<String> getArtistTag(long artistId) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getArtistTag(connection, artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void logCommand(long discordId, Long guildId, String commandName, long nanos, Instant utc) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.logCommand(connection, discordId, guildId, commandName, nanos, utc);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

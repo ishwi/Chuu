@@ -37,12 +37,12 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.INFO;
     }
 
     @Override
-    public Parser<ArtistParameters> getParser() {
+    public Parser<ArtistParameters> initParser() {
         return new ArtistParser(getService(), lastFM);
     }
 

@@ -19,12 +19,12 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.RYM_BETA;
     }
 
     @Override
-    public Parser<ChuuDataParams> getParser() {
+    public Parser<ChuuDataParams> initParser() {
         return new OnlyUsernameParser(getService());
     }
 

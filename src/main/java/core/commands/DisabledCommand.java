@@ -24,12 +24,12 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CONFIGURATION;
     }
 
     @Override
-    public Parser<DisabledCommandParameters> getParser() {
+    public Parser<DisabledCommandParameters> initParser() {
         return new DisabledCommandParser();
     }
 

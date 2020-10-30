@@ -19,7 +19,7 @@ public class ArtistCommand extends ArtistAbleCommand<ChartParameters> {
     }
 
     @Override
-    public ChartableParser<ChartParameters> getParser() {
+    public ChartableParser<ChartParameters> initParser() {
         return new ChartParser(getService());
     }
 

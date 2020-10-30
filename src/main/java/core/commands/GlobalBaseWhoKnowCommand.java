@@ -22,7 +22,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.BOT_STATS;
     }
 

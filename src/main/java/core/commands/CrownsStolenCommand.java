@@ -31,12 +31,12 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CROWNS;
     }
 
     @Override
-    public Parser<NumberParameters<TwoUsersParamaters>> getParser() {
+    public Parser<NumberParameters<TwoUsersParamaters>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays to award a crown, " +

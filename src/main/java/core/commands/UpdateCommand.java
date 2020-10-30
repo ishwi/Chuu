@@ -37,12 +37,12 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.STARTING;
     }
 
     @Override
-    public Parser<ChuuDataParams> getParser() {
+    public Parser<ChuuDataParams> initParser() {
         return new OnlyUsernameParser(getService(), new OptionalEntity("force", "Does a full heavy update"));
     }
 

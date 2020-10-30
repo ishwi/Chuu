@@ -35,7 +35,7 @@ public class ServerAOTY extends ChartableCommand<ChartYearParameters> {
     }
 
     @Override
-    public ChartableParser<ChartYearParameters> getParser() {
+    public ChartableParser<ChartYearParameters> initParser() {
         return new ChartYearParser(getService(), TimeFrameEnum.ALL);
 
     }

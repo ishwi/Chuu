@@ -19,12 +19,12 @@ public class ScrobblesCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<ChuuDataParams> getParser() {
+    public Parser<ChuuDataParams> initParser() {
         return new OnlyUsernameParser(getService());
     }
 

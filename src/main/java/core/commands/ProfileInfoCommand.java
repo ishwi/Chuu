@@ -42,12 +42,12 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<ChuuDataParams> getParser() {
+    public Parser<ChuuDataParams> initParser() {
         OnlyUsernameParser parser = new OnlyUsernameParser(getService(), new OptionalEntity("list", "display in list format"));
         parser.setExpensiveSearch(true);
         return parser;

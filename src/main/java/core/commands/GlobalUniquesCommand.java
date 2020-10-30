@@ -14,7 +14,7 @@ public class GlobalUniquesCommand extends UniqueCommand {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 

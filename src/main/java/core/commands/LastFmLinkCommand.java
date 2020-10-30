@@ -17,12 +17,12 @@ public class LastFmLinkCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.BOT_INFO;
     }
 
     @Override
-    public Parser<ChuuDataParams> getParser() {
+    public Parser<ChuuDataParams> initParser() {
         return new OnlyUsernameParser(getService());
     }
 

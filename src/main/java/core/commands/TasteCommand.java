@@ -31,12 +31,12 @@ public class TasteCommand extends ConcurrentCommand<TwoUsersParamaters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<TwoUsersParamaters> getParser() {
+    public Parser<TwoUsersParamaters> initParser() {
         TwoUsersParser twoUsersParser = new TwoUsersParser(getService(), new OptionalEntity("list", "display in a list format"));
         twoUsersParser.setExpensiveSearch(true);
         return twoUsersParser;

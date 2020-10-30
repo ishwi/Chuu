@@ -18,12 +18,12 @@ public class PrivacySetterCommand extends ConcurrentCommand<EnumParameters<Priva
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CONFIGURATION;
     }
 
     @Override
-    public Parser<EnumParameters<PrivacyMode>> getParser() {
+    public Parser<EnumParameters<PrivacyMode>> initParser() {
         return new EnumParser<>(PrivacyMode.class);
     }
 

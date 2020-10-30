@@ -32,12 +32,12 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.DISCOVERY;
     }
 
     @Override
-    public Parser<RecommendationsParams> getParser() {
+    public Parser<RecommendationsParams> initParser() {
         return new RecommendationParser(getService(), 1);
     }
 

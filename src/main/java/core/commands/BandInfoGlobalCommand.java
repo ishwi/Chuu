@@ -18,7 +18,7 @@ public class BandInfoGlobalCommand extends BandInfoCommand {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.BOT_STATS;
     }
 

@@ -22,12 +22,12 @@ public class TopServerRatingsCommand extends ListCommand<ScoredAlbumRatings, Com
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.RYM_BETA;
     }
 
     @Override
-    public Parser<CommandParameters> getParser() {
+    public Parser<CommandParameters> initParser() {
         return new NoOpParser();
     }
 

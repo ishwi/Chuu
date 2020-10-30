@@ -25,7 +25,7 @@ public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
     }
 
     @Override
-    public ChartableParser<ChartParameters> getParser() {
+    public ChartableParser<ChartParameters> initParser() {
         return new ChartParser(getService());
     }
 

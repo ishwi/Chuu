@@ -17,12 +17,12 @@ abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.NOW_PLAYING;
     }
 
     @Override
-    public Parser<NowPlayingParameters> getParser() {
+    public Parser<NowPlayingParameters> initParser() {
         return new NpParser(getService(), lastFM);
     }
 

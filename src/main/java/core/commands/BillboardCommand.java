@@ -44,12 +44,12 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.SERVER_STATS;
     }
 
     @Override
-    public Parser<NumberParameters<CommandParameters>> getParser() {
+    public Parser<NumberParameters<CommandParameters>> initParser() {
 
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and 100");

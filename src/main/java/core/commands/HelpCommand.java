@@ -48,12 +48,12 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.BOT_INFO;
     }
 
     @Override
-    public Parser<CommandParameters> getParser() {
+    public Parser<CommandParameters> initParser() {
         return new NoOpParser();
     }
 
@@ -173,7 +173,6 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
                     int i = usageInstructions.substring(0, 1600).lastIndexOf("\n");
                     realUsageInstructions = realUsageInstructions.substring(0, i);
                     remainingUsageInstructions = "-" + usageInstructions.substring(i);
-                    ;
                     resend = true;
                 }
                 //TODO: Replace with a PrivateMessage

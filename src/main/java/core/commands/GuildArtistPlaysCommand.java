@@ -27,12 +27,12 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.SERVER_STATS;
     }
 
     @Override
-    public Parser<ArtistParameters> getParser() {
+    public Parser<ArtistParameters> initParser() {
         return new ArtistParser(getService(), lastFM);
     }
 

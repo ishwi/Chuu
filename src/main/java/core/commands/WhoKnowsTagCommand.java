@@ -58,12 +58,12 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.SERVER_STATS;
     }
 
     @Override
-    public Parser<GenreParameters> getParser() {
+    public Parser<GenreParameters> initParser() {
         return new GenreParser(getService(), lastFM);
     }
 

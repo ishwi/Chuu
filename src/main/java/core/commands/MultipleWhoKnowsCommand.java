@@ -54,12 +54,12 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.SERVER_STATS;
     }
 
     @Override
-    public Parser<MultiArtistParameters> getParser() {
+    public Parser<MultiArtistParameters> initParser() {
         return new MultipleArtistsParser(getService(), lastFM);
     }
 

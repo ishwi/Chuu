@@ -19,12 +19,12 @@ public class TimezoneCommand extends ConcurrentCommand<TimezoneParams> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CONFIGURATION;
     }
 
     @Override
-    public Parser<TimezoneParams> getParser() {
+    public Parser<TimezoneParams> initParser() {
         return new TimezoneParser();
     }
 

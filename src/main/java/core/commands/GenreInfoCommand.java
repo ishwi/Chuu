@@ -20,12 +20,12 @@ public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.INFO;
     }
 
     @Override
-    public Parser<GenreParameters> getParser() {
+    public Parser<GenreParameters> initParser() {
         return new GenreParser(getService(), lastFM);
     }
 

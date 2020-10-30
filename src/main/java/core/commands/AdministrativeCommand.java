@@ -33,12 +33,12 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CONFIGURATION;
     }
 
     @Override
-    public Parser<UrlParameters> getParser() {
+    public Parser<UrlParameters> initParser() {
         return new UrlParser();
     }
 

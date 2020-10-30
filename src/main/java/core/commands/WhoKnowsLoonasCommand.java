@@ -340,12 +340,12 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.SERVER_STATS;
     }
 
     @Override
-    public Parser<LOONAParameters> getParser() {
+    public Parser<LOONAParameters> initParser() {
         return new LOOONAParser(getService());
     }
 

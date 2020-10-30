@@ -34,7 +34,7 @@ public class WastedTrackCommand extends ChartableCommand<ChartGroupParameters> {
     }
 
     @Override
-    public ChartableParser<ChartGroupParameters> getParser() {
+    public ChartableParser<ChartGroupParameters> initParser() {
         return new ChartGroupParser(getService(), TimeFrameEnum.WEEK);
     }
 

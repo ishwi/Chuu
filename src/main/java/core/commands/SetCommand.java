@@ -31,12 +31,12 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.STARTING;
     }
 
     @Override
-    public Parser<WordParameter> getParser() {
+    public Parser<WordParameter> initParser() {
         return new SetParser();
     }
 

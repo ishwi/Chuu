@@ -26,12 +26,12 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.DISCOVERY;
     }
 
     @Override
-    public Parser<NumberParameters<UrlParameters>> getParser() {
+    public Parser<NumberParameters<UrlParameters>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 0 and 10");
         String s = "You should introduce a number to rate the given url";

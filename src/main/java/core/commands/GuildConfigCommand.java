@@ -27,12 +27,12 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CONFIGURATION;
     }
 
     @Override
-    public Parser<GuildConfigParams> getParser() {
+    public Parser<GuildConfigParams> initParser() {
         return new GuildConfigParser(getService());
     }
 

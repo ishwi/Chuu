@@ -29,12 +29,12 @@ public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<Word
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.NOW_PLAYING;
     }
 
     @Override
-    public Parser<ExtraParameters<WordParameter, User>> getParser() {
+    public Parser<ExtraParameters<WordParameter, User>> initParser() {
         return new UsernameAndNpQueryParser(getService(), lastFM);
     }
 

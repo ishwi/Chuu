@@ -67,7 +67,7 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
 
 
     @Override
-    public Parser<ArtistParameters> getParser() {
+    public Parser<ArtistParameters> initParser() {
         return new ArtistParser(getService(), lastFM);
     }
 }

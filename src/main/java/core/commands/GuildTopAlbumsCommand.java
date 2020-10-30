@@ -27,7 +27,7 @@ public class GuildTopAlbumsCommand extends GuildTopCommand {
 
 
     @Override
-    public ChartableParser<ChartSizeParameters> getParser() {
+    public ChartableParser<ChartSizeParameters> initParser() {
         OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(getService(), TimeFrameEnum.ALL,
                 new OptionalEntity("global", " shows albums from all bot users instead of only from this server"));
         onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noplays", "don't display plays"));

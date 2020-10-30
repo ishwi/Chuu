@@ -994,4 +994,14 @@ create table banned_artist_tags
     discord_id bigint(20),
     artist_id  bigint(20) references artist (id),
     primary key (id)
-)
+);
+create table command_logs
+(
+    id         bigint(20)  not null auto_increment,
+    discord_id bigint(20)  not null,
+    guild_id   bigint(20)  null,
+    command    varchar(30) not null,
+    nanos      int         not null,
+    moment     datetime    not null default UTC_TIMESTAMP(),
+    primary key (id)
+);

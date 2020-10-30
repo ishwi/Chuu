@@ -28,12 +28,12 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.ARTIST_IMAGES;
     }
 
     @Override
-    public Parser<ArtistUrlParameters> getParser() {
+    public Parser<ArtistUrlParameters> initParser() {
         return new ArtistUrlParser(getService());
     }
 

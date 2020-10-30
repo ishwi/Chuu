@@ -47,12 +47,12 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.BOT_STATS;
     }
 
     @Override
-    public Parser<NumberParameters<ArtistParameters>> getParser() {
+    public Parser<NumberParameters<ArtistParameters>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to only get streak with more than that number of plays. ";

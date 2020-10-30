@@ -25,7 +25,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.INFO;
     }
 

@@ -21,7 +21,7 @@ public class CoverCommand extends AlbumPlaysCommand {
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.INFO;
     }
 

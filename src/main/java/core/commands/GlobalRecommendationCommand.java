@@ -31,12 +31,12 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.DISCOVERY;
     }
 
     @Override
-    public Parser<NumberParameters<ChuuDataParams>> getParser() {
+    public Parser<NumberParameters<ChuuDataParams>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and smaller than 25");
         String s = "You can also introduce a number to vary the number of recommendations that you will receive, " +

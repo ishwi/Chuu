@@ -6,6 +6,7 @@ import dao.exceptions.InstanceNotFoundException;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -162,4 +163,6 @@ interface UpdaterDao {
     void removeTagArtist(Connection connection, String tag, long artistId);
 
     void removeTagAlbum(Connection connection, String tag, long artistId);
+
+    void logCommand(Connection connection, long discordId, Long guildId, String commandName, long nanos, Instant utc);
 }

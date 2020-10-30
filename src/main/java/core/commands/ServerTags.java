@@ -33,12 +33,12 @@ public class ServerTags extends ResultWrappedCommand<ArtistPlays, CommandParamet
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.SERVER_STATS;
     }
 
     @Override
-    public Parser<CommandParameters> getParser() {
+    public Parser<CommandParameters> initParser() {
         NoOpParser noOpParser = new NoOpParser();
         noOpParser.addOptional(new OptionalEntity("count", "to display number of artists instead of scrobbles"));
         return noOpParser;

@@ -22,12 +22,12 @@ public class AlbumCrownsLeaderboardCommand extends LeaderboardCommand<NumberPara
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CROWNS;
     }
 
     @Override
-    public Parser<NumberParameters<CommandParameters>> getParser() {
+    public Parser<NumberParameters<CommandParameters>> initParser() {
 
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");

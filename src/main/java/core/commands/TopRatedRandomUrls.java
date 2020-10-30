@@ -19,12 +19,12 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.BOT_STATS;
     }
 
     @Override
-    public Parser<CommandParameters> getParser() {
+    public Parser<CommandParameters> initParser() {
         NoOpParser noOpParser = new NoOpParser();
         noOpParser.addOptional(new OptionalEntity("myself", " show your top rated urls "));
         noOpParser.addOptional(new OptionalEntity("server", " show ratings from users only in this server"));

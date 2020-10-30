@@ -43,7 +43,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
     }
 
     @Override
-    public ChartableParser<ChartYearParameters> getParser() {
+    public ChartableParser<ChartYearParameters> initParser() {
         ChartYearParser chartYearParser = new ChartYearParser(getService(), searchSpace);
         chartYearParser.addOptional(new OptionalEntity("time", "make the chart to be sorted by duration (quite inaccurate)"));
 

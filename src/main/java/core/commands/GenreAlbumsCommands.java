@@ -34,7 +34,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
     }
 
     @Override
-    public ChartableParser<ChartableGenreParameters> getParser() {
+    public ChartableParser<ChartableGenreParameters> initParser() {
         return new GenreChartParser(getService(), TimeFrameEnum.WEEK, lastFM);
     }
 

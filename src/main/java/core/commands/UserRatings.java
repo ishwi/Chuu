@@ -26,12 +26,12 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.RYM_BETA;
     }
 
     @Override
-    public Parser<RYMRatingParams> getParser() {
+    public Parser<RYMRatingParams> initParser() {
         return new RYMRatingParser(getService());
     }
 

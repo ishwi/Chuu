@@ -48,12 +48,12 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<TimeFrameParameters> getParser() {
+    public Parser<TimeFrameParameters> initParser() {
         TimerFrameParser timerFrameParser = new TimerFrameParser(getService(), TimeFrameEnum.ALL);
         timerFrameParser.addOptional(new OptionalEntity("pie", "display it as a chart pie"));
         return timerFrameParser;

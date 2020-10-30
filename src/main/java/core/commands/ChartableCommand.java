@@ -9,6 +9,7 @@ import core.imagerenderer.util.IPieableList;
 import core.imagerenderer.util.PieableListChart;
 import core.otherlisteners.Reactionary;
 import core.parsers.ChartableParser;
+import core.parsers.DaoParser;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.ChartMode;
@@ -35,16 +36,16 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     public ChartableCommand(ChuuService dao) {
         super(dao);
         this.pie = getPie();
-        getParser().setExpensiveSearch(true);
+        ((DaoParser<?>) getParser()).setExpensiveSearch(true);
     }
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CHARTS;
     }
 
-    public abstract ChartableParser<T> getParser();
+    public abstract ChartableParser<T> initParser();
 
     ChartMode getEffectiveMode(ChartParameters chartParameters) {
         ChartMode chartMode = chartParameters.chartMode();

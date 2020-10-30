@@ -43,7 +43,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
     }
 
     @Override
-    public ChartableParser<RainbowParams> getParser() {
+    public ChartableParser<RainbowParams> initParser() {
         return new RainbowParser(getService(), TimeFrameEnum.ALL);
 
     }

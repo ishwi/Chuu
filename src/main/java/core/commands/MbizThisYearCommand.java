@@ -17,7 +17,7 @@ public class MbizThisYearCommand extends MusicBrainzCommand {
     }
 
     @Override
-    public ChartableParser<ChartYearParameters> getParser() {
+    public ChartableParser<ChartYearParameters> initParser() {
         return new ChartSmartYearParser(getService());
     }
 

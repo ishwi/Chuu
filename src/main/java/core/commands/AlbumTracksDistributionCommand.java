@@ -49,7 +49,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
@@ -59,7 +59,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    public Parser<ArtistAlbumParameters> getParser() {
+    public Parser<ArtistAlbumParameters> initParser() {
         ArtistAlbumParser parser = new ArtistAlbumParser(getService(), lastFM);
         parser.addOptional(new OptionalEntity("list", "display in list format"));
 

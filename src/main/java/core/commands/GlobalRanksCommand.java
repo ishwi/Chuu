@@ -17,12 +17,12 @@ public class GlobalRanksCommand extends ConcurrentCommand<CommandParameters> {
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<CommandParameters> getParser() {
+    public Parser<CommandParameters> initParser() {
         return null;
     }
 

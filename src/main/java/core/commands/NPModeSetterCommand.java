@@ -35,12 +35,12 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CONFIGURATION;
     }
 
     @Override
-    public Parser<EnumListParameters<NPMode>> getParser() {
+    public Parser<EnumListParameters<NPMode>> initParser() {
         return new EnumListParser<>("NP Modes", NPMode.class, EnumSet.of(NPMode.UNKNOWN), mapper);
     }
 

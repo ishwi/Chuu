@@ -19,7 +19,7 @@ public class BandInfoServerCommand extends BandInfoCommand {
     }
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.SERVER_STATS;
     }
 

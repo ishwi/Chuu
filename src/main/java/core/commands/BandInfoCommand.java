@@ -49,12 +49,12 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
     }
 
     @Override
-    public Parser<ArtistParameters> getParser() {
+    public Parser<ArtistParameters> initParser() {
         ArtistParser artistTimeFrameParser = new ArtistParser(getService(), lastFM);
         artistTimeFrameParser.addOptional(new OptionalEntity("list", "display in list format"));
         artistTimeFrameParser.setExpensiveSearch(true);

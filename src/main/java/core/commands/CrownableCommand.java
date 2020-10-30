@@ -30,12 +30,12 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
 
 
     @Override
-    protected CommandCategory getCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.CROWNS;
     }
 
     @Override
-    public Parser<NumberParameters<ChuuDataParams>> getParser() {
+    public Parser<NumberParameters<ChuuDataParams>> initParser() {
 
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
