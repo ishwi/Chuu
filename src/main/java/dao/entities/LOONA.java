@@ -70,7 +70,7 @@ public enum LOONA {
             case HEEJIN:
                 return "HEEJIN";
             case CHOERRY:
-                return "CHOERY";
+                return "CHOERRY";
 
             case HASEUL:
                 return "HASEUL";
@@ -98,9 +98,9 @@ public enum LOONA {
             case GROUP:
                 return LOONA.MAIN.getParser();
             case SUBUNIT:
-                return s -> s.equalsIgnoreCase("subunit");
+                return s -> s.equalsIgnoreCase("subunit") || s.equalsIgnoreCase("subunits");
             case MEMBER:
-                return s -> s.equalsIgnoreCase("member");
+                return s -> s.equalsIgnoreCase("member") || s.equalsIgnoreCase("members");
             case MISC:
                 return LOONA.MISC.getParser();
             default:

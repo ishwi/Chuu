@@ -119,7 +119,15 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         }
         LOONAParameters.Mode mode = parse.getMode();
         List<WrapperReturnNowPlaying> whoKnowsArtistSet = getService().getWhoKnowsArtistSet(artists, e.getGuild().getIdLong(), limit, nullableOwner);
-        whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername()));
+        Map<Long, String> mapper = new HashMap<>();
+        whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).forEach(x -> {
+            String s = mapper.get(x.getDiscordId());
+            if (s == null) {
+                s = CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername();
+                mapper.put(x.getDiscordId(), s);
+            }
+            x.setDiscordName(s);
+        });
 
         switch (display) {
             case COLLAGE:
@@ -128,7 +136,10 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                 int y = 5;
                 if (mode == LOONAParameters.Mode.GROUPED) {
                     if (subCommand == LOONAParameters.SubCommand.GROUPED) {
-                        Map<LOONA, List<ReturnNowPlaying>> groupedByType = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()), Collectors.toList()));
+                        Map<LOONA, List<ReturnNowPlaying>> groupedByType = whoKnowsArtistSet
+                                .stream()
+                                .flatMap(x -> x.getReturnNowPlayings().stream())
+                                .collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()), Collectors.toList()));
                         whoKnowsArtistSet = groupedByType.entrySet().stream()
 
                                 .sorted(Comparator.comparingInt((Map.Entry<LOONA, List<ReturnNowPlaying>> t) -> t.getValue().stream().mapToInt(ReturnNowPlaying::getPlayNumber).sum()).reversed())
@@ -156,7 +167,8 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                         }
 
                     } else if (subCommand == LOONAParameters.SubCommand.GENERAL) {
-                        Map<LOONA.Type, List<ReturnNowPlaying>> groupedByType = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()).getType(), Collectors.toList()));
+                        Map<LOONA.Type, List<ReturnNowPlaying>> groupedByType = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream())
+                                .collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()).getType(), Collectors.toList()));
                         whoKnowsArtistSet = groupedByType.entrySet().stream()
 
                                 .sorted(Comparator.comparingInt((Map.Entry<LOONA.Type, List<ReturnNowPlaying>> t) -> t.getValue().stream().mapToInt(ReturnNowPlaying::getPlayNumber).sum()).reversed())
