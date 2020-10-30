@@ -6,12 +6,14 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class AwaitReady extends ListenerAdapter {
     private final AtomicInteger counter;
     private final Consumer<ShardManager> runnable;
+    private final AtomicBoolean inited = new AtomicBoolean(false);
 
     public AwaitReady(AtomicInteger counter, Consumer<ShardManager> runnable) {
         this.counter = counter;
@@ -25,7 +27,8 @@ public class AwaitReady extends ListenerAdapter {
     @Override
     public void onReady(@Nonnull ReadyEvent event) {
         int i = counter.incrementAndGet();
-        if (i == event.getJDA().getShardInfo().getShardTotal()) {
+        if (!inited.get() && i >= event.getJDA().getShardInfo().getShardTotal()) {
+            inited.set(true);
             ShardManager jda = Chuu.getShardManager();
             runnable.accept(jda);
         }

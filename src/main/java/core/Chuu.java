@@ -10,6 +10,8 @@ import core.scheduledtasks.ArtistMbidUpdater;
 import core.scheduledtasks.ImageUpdaterThread;
 import core.scheduledtasks.SpotifyUpdaterThread;
 import core.scheduledtasks.UpdaterThread;
+import core.services.MessageDeletionService;
+import core.services.MessageDisablingService;
 import dao.ChuuService;
 import dao.entities.Metrics;
 import net.dv8tion.jda.api.entities.Activity;
@@ -25,9 +27,6 @@ import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,10 +56,10 @@ public class Chuu {
     private static Map<Long, Character> prefixMap;
     private static final Set<String> privateLastFms = new HashSet<>();
     public static final String DEFAULT_LASTFM_ID = "chuubot";
-    public static final MultiValuedMap<Long, MyCommand<?>> disabledServersMap = new HashSetValuedHashMap<>();
-    public final static MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = new HashSetValuedHashMap<>();
-    public final static MultiValuedMap<Pair<Long, Long>, MyCommand<?>> enabledChannelsMap = new HashSetValuedHashMap<>();
+
     private static ChuuService dao;
+    private static MessageDeletionService messageDeletionService;
+    private static MessageDisablingService messageDisablingService;
 
 
     public static ScheduledExecutorService getScheduledExecutorService() {
@@ -80,57 +79,7 @@ public class Chuu {
     }
 
     //Returns if its disabled or enabled now
-    public static void toggleCommandChannelDisabledness(MyCommand<?> myCommand, long guildId, long channelId, boolean expectedResult, ChuuService service) {
-        Pair<Long, Long> channel = Pair.of(guildId, channelId);
-        boolean serverSet = disabledServersMap.containsMapping(guildId, myCommand);
-        if (expectedResult) {
-            disabledServersMap.removeMapping(channel, myCommand);
-            service.deleteChannelCommandStatus(guildId, channelId, myCommand.getName());
-            if (serverSet) {
-                enabledChannelsMap.put(channel, myCommand);
-                service.insertChannelCommandStatus(guildId, channelId, myCommand.getName(), true);
 
-            }  //Do Nothing
-
-            // If this command was disabled server wide
-        } else {
-            enabledChannelsMap.removeMapping(channel, myCommand);
-            service.deleteChannelCommandStatus(guildId, channelId, myCommand.getName());
-            if (!serverSet) {
-                disabledChannelsMap.put(channel, myCommand);
-                service.insertChannelCommandStatus(guildId, channelId, myCommand.getName(), false);
-
-            }
-        }
-    }
-
-
-    public static boolean isMessageAllowed(MyCommand<?> command, MessageReceivedEvent e) {
-        if (!e.isFromGuild()) {
-            return true;
-        }
-        long guildId = e.getGuild().getIdLong();
-        long channelId = e.getChannel().getIdLong();
-        return (!(disabledServersMap.get(guildId).contains(command) || disabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command)))
-                || enabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command);
-    }
-
-    //Returns if its disabled or enabled now
-    public static void toggleCommandDisabledness(MyCommand<?> myCommand, long guildId, boolean expectedResult, ChuuService service) {
-        if (expectedResult) {
-            disabledServersMap.removeMapping(guildId, myCommand);
-            service.deleteServerCommandStatus(guildId, myCommand.getName());
-
-            Set<Long> collect = disabledChannelsMap.entries().stream().filter(x -> x.getKey().getLeft().equals(guildId)).map(x -> x.getKey().getRight()).collect(Collectors.toSet());
-            disabledChannelsMap.entries().removeIf(x -> x.getKey().getLeft().equals(guildId));
-            collect.forEach(y -> service.deleteChannelCommandStatus(guildId, y, myCommand.getName()));
-            service.deleteServerCommandStatus(guildId, myCommand.getName());
-
-        } else {
-            disabledServersMap.put(guildId, myCommand);
-            service.insertServerDisabled(guildId, myCommand.getName());
-        }
-    }
 
     public static Character getCorrespondingPrefix(MessageReceivedEvent e) {
         if (!e.isFromGuild())
@@ -397,11 +346,16 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new WhoIsTagCommand(dao)))
                 .addEventListeners(help.registerCommand(new BanTagCommand(dao)))
                 .addEventListeners(help.registerCommand(new GenreArtistsCommand(dao)))
+                .addEventListeners(help.registerCommand(new WhoKnowsLoonasCommand(dao)))
+                .addEventListeners(help.registerCommand(new MultipleWhoKnowsCommand(dao)))
+                .addEventListeners(help.registerCommand(new MultipleWhoIsTagCommand(dao)))
+                .addEventListeners(help.registerCommand(new MultipleWhoKnowsTagCommand(dao)))
+                .addEventListeners(help.registerCommand(new BanArtistTagCommand(dao)))
+                .addEventListeners(help.registerCommand(new ServerTags(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
-                    initDisabledCommands(dao, shard);
-                    initPrivateLastfms(dao);
+                    messageDisablingService = new MessageDisablingService(shard, dao);
                     prefixCommand.onStartup(shard);
                     if (!isTest) {
                         commandAdministrator.onStartup(shardManager);
@@ -414,9 +368,9 @@ public class Chuu {
 
 
         try {
-
+            initPrivateLastfms(dao);
+            messageDeletionService = new MessageDeletionService(dao.getServersWithDeletableMessages());
             shardManager = builder.build();
-
             scheduledExecutorService.scheduleAtFixedRate(
                     new UpdaterThread(dao, true), 0, 120,
                     TimeUnit.SECONDS);
@@ -427,12 +381,12 @@ public class Chuu {
                         new SpotifyUpdaterThread(dao), 5, 5, TimeUnit.MINUTES);
             }
             scheduledExecutorService.scheduleAtFixedRate(new ArtistMbidUpdater(dao), 10, 20, TimeUnit.MINUTES);
-
         } catch (LoginException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }
     }
+
 
     private static void initPrivateLastfms(ChuuService dao) {
         privateLastFms.addAll(dao.getPrivateLastfmIds());
@@ -446,16 +400,6 @@ public class Chuu {
         }
     }
 
-    private static void initDisabledCommands(ChuuService dao, ShardManager jda) {
-        Map<String, MyCommand<?>> commandsByName = jda.getShards().get(0).getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).collect(Collectors.toMap(MyCommand::getName, x -> x));
-        MultiValuedMap<Long, String> serverDisables = dao.initServerCommandStatuses();
-        serverDisables.entries().forEach(x -> Chuu.disabledServersMap.put(x.getKey(), commandsByName.get(x.getValue())));
-        MultiValuedMap<Pair<Long, Long>, String> channelDisables = dao.initServerChannelsCommandStatuses(false);
-        channelDisables.entries().forEach(x -> Chuu.disabledChannelsMap.put(x.getKey(), commandsByName.get(x.getValue())));
-        MultiValuedMap<Pair<Long, Long>, String> channelEnables = dao.initServerChannelsCommandStatuses(true);
-        channelEnables.entries().forEach(x -> Chuu.enabledChannelsMap.put(x.getKey(), commandsByName.get(x.getValue())));
-
-    }
 
     public static Logger getLogger() {
         return logger;
@@ -492,6 +436,14 @@ public class Chuu {
 
     public static ChuuService getDao() {
         return dao;
+    }
+
+    public static MessageDeletionService getMessageDeletionService() {
+        return messageDeletionService;
+    }
+
+    public static MessageDisablingService getMessageDisablingService() {
+        return messageDisablingService;
     }
 /*
     public static MemberCachePolicy cacheMember = Chuu::caching;

@@ -11,12 +11,13 @@ import core.imagerenderer.WhoKnowsMaker;
 import core.imagerenderer.util.IPieableList;
 import core.imagerenderer.util.PieableListKnows;
 import core.otherlisteners.Reactionary;
-import core.parsers.ArtistAlbumParser;
 import core.parsers.DaoParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import dao.entities.*;
+import dao.entities.ReturnNowPlaying;
+import dao.entities.WhoKnowsMode;
+import dao.entities.WrapperReturnNowPlaying;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -92,7 +93,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         }
     }
 
-    void doImage(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
+    BufferedImage doImage(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         MessageReceivedEvent e = ap.getE();
 
         BufferedImage logo = null;
@@ -106,6 +107,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title, logo);
         sendImage(image, e);
 
+        return logo;
     }
 
     void doList(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {

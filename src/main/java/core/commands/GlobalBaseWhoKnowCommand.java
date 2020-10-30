@@ -1,23 +1,16 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
 import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.OptionalEntity;
-import core.parsers.Parser;
-import core.parsers.params.ArtistParameters;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> extends WhoKnowsBaseCommand<T> {
@@ -34,7 +27,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
     }
 
     @Override
-    void doImage(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
+    BufferedImage doImage(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         MessageReceivedEvent e = ap.getE();
 
         BufferedImage logo = null;
@@ -45,6 +38,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title, logo);
         sendImage(image, e);
 
+        return logo;
     }
 
     @Override

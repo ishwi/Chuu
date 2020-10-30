@@ -3,10 +3,10 @@ package core.commands;
 import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.MessageDisablingService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -54,9 +54,10 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
 
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = Chuu.disabledChannelsMap;
-        MultiValuedMap<Pair<Long, Long>, MyCommand<?>> enabledChannelsMap = Chuu.enabledChannelsMap;
-        MultiValuedMap<Long, MyCommand<?>> disabledServersMap = Chuu.disabledServersMap;
+        MessageDisablingService messageDisablingService = Chuu.getMessageDisablingService();
+        MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = messageDisablingService.disabledChannelsMap;
+        MultiValuedMap<Pair<Long, Long>, MyCommand<?>> enabledChannelsMap = messageDisablingService.enabledChannelsMap;
+        MultiValuedMap<Long, MyCommand<?>> disabledServersMap = messageDisablingService.disabledServersMap;
         Map<Long, GuildChannel> channelMap = e.getGuild().getChannels().stream().collect(Collectors.toMap(ISnowflake::getIdLong, x ->
                 x));
         List<? extends MyCommand<?>>
@@ -79,7 +80,14 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
         Map<GuildChannel, StringBuilder> fieldBuilder = new HashMap<>();
         String globalDisabled = disabledServerCommands.stream().map(x -> x.getAliases().get(0)).collect(Collectors.joining(", "));
         if (!globalDisabled.isBlank()) {
-            embedBuilder.addField("**Commands disabled in the whole server**", globalDisabled, false);
+            if (globalDisabled.length() > 1024) {
+                String substring = globalDisabled.substring(0, 1024);
+                int i = substring.lastIndexOf(",");
+                embedBuilder.addField("**Commands disabled in the whole server**", substring.substring(0, i), false);
+                embedBuilder.addField(EmbedBuilder.ZERO_WIDTH_SPACE, globalDisabled.substring(i), false);
+            } else {
+                embedBuilder.addField("**...**", globalDisabled, false);
+            }
         }
         for (Map.Entry<GuildChannel, List<MyCommand<?>>> guildChannelListEntry : channelSpecificDisables.entrySet()) {
             GuildChannel key = guildChannelListEntry.getKey();
@@ -104,7 +112,17 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
             stringBuilder.append(guildChannelListEntry.getValue().stream().map(x -> x.getAliases().get(0)).collect(Collectors.joining(", ")));
             stringBuilder.append("\n");
         }
-        fieldBuilder.forEach((x, y) -> embedBuilder.addField("**Channel " + x.getName() + "**", y.toString(), false));
+        fieldBuilder.forEach((x, y) -> {
+            String value = y.toString();
+            if (value.length() > 1024) {
+                String substring = value.substring(0, 1024);
+                int i = substring.lastIndexOf(",");
+                embedBuilder.addField("**Channel " + x.getName() + "**", value.substring(0, i), false);
+                embedBuilder.addField(EmbedBuilder.ZERO_WIDTH_SPACE, value.substring(i), false);
+            } else {
+                embedBuilder.addField("**Channel " + x.getName() + "**", value, false);
+            }
+        });
 
         if (embedBuilder.getFields().isEmpty()) {
             sendMessageQueue(e, " This server has not disabled any command");

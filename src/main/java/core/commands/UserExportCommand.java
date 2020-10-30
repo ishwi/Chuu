@@ -29,7 +29,7 @@ public class UserExportCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected CommandCategory getCategory() {
-        return CommandCategory.MODERATION;
+        return CommandCategory.CONFIGURATION;
     }
 
     @Override

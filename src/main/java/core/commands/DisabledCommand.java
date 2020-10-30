@@ -6,6 +6,7 @@ import core.exceptions.LastFmException;
 import core.parsers.DisabledCommandParser;
 import core.parsers.Parser;
 import core.parsers.params.DisabledCommandParameters;
+import core.services.MessageDisablingService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -50,13 +51,16 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
     @Override
     void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
         DisabledCommandParameters parse = parser.parse(e);
+        MessageDisablingService messageDisablingService = Chuu.getMessageDisablingService();
         if (parse == null) {
             return;
         }
 
         List<MyCommand<?>> commandsToAllow;
-        if (parse.hasOptional("category")) {
-            commandsToAllow = e.getJDA().getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).
+        if (parse.hasOptional("all")) {
+            commandsToAllow = e.getJDA().getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?> && !(x instanceof DisabledCommand)).map(x -> (MyCommand<?>) x).collect(Collectors.toList());
+        } else if (parse.hasOptional("category")) {
+            commandsToAllow = e.getJDA().getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?> && !(x instanceof DisabledCommand)).map(x -> (MyCommand<?>) x).
                     filter(x -> x.getCategory().equals(parse.getCommand().getCategory())).collect(Collectors.toList());
         } else {
             commandsToAllow = new ArrayList<>(Collections.singletonList(parse.getCommand()));
@@ -76,15 +80,17 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
         };
 
 
-        Map<Boolean, List<MyCommand<?>>> collect = commandsToAllow.stream().collect(Collectors.partitioningBy(x -> transformation.test(Chuu.isMessageAllowed(x, e))));
+        Map<Boolean, List<MyCommand<?>>> collect = commandsToAllow.stream().collect(Collectors.partitioningBy(x -> transformation.test(messageDisablingService.isMessageAllowed(x, e))));
         List<MyCommand<?>> previouslyAllowedCommands = collect.get(true);
         for (MyCommand<?> command : commandsToAllow) {
             boolean messageAllowed = previouslyAllowedCommands.contains(command);
-
-            if (parse.isOnlyChannel()) {
-                Chuu.toggleCommandChannelDisabledness(command, parse.getGuildId(), parse.getChannelId(), messageAllowed, getService());
+            if (parse.isExceptThis()) {
+                messageDisablingService.toggleCommandDisabledness(command, parse.getGuildId(), messageAllowed, getService());
+                messageDisablingService.toggleCommandChannelDisabledness(command, parse.getGuildId(), parse.getChannelId(), !messageAllowed, getService());
+            } else if (parse.isOnlyChannel()) {
+                messageDisablingService.toggleCommandChannelDisabledness(command, parse.getGuildId(), parse.getChannelId(), messageAllowed, getService());
             } else {
-                Chuu.toggleCommandDisabledness(command, parse.getGuildId(), messageAllowed, getService());
+                messageDisablingService.toggleCommandDisabledness(command, parse.getGuildId(), messageAllowed, getService());
             }
         }
         Character prefix = Chuu.getCorrespondingPrefix(e);

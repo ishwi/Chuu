@@ -93,6 +93,12 @@ public abstract class Parser<T extends CommandParameters> {
 
     }
 
+    public boolean hasOptional(String optional, MessageReceivedEvent e) {
+        String[] subMessage = getSubMessage(e.getMessage());
+        List<String> arrayList = Arrays.asList(subMessage);
+        return arrayList.stream().anyMatch(x -> OptionalEntity.isWordAValidOptional(opts, x) && opts.contains(new OptionalEntity(optional, null)));
+    }
+
     public String getErrorMessage(int code) {
         return errorMessages.get(code);
     }

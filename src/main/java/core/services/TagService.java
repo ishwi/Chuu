@@ -5,6 +5,7 @@ import dao.ChuuService;
 import dao.entities.EntityInfo;
 import dao.entities.Genre;
 import dao.entities.ScrobbledArtist;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,7 +33,12 @@ abstract class TagService<T extends EntityInfo, Y extends ScrobbledArtist> imple
         List<T> entities = this.genres.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
         Map<T, Y> validate = validate(entities);
         Set<String> bannedTags = dao.getBannedTags();
-        Map<Genre, List<Y>> validatedEntities = this.genres.entrySet().stream().filter(x -> !bannedTags.contains(x.getKey().getGenreName())).collect(Collectors.toMap(Map.Entry::getKey, k -> k.getValue().stream().map(validate::get).collect(Collectors.toList())));
+        Set<Pair<String, String>> artistBannedTags = dao.getArtistBannedTags();
+
+        Map<Genre, List<Y>> validatedEntities = this.genres.entrySet().stream()
+                .filter(x -> !bannedTags.contains(x.getKey().getGenreName().toLowerCase()))
+                .filter(x -> x.getValue().stream().noneMatch(a -> artistBannedTags.contains(Pair.of(a.getArtist().toLowerCase(), x.getKey().getGenreName().toLowerCase()))))
+                .collect(Collectors.toMap(Map.Entry::getKey, k -> k.getValue().stream().map(validate::get).collect(Collectors.toList())));
         insertGenres(validatedEntities);
     }
 

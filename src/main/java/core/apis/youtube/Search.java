@@ -108,17 +108,17 @@ public class Search implements YoutubeSearch {
             // non-authenticated requests. See:
             // https://console.developers.google.com/
             String apiKey = this.apiKey;
-            search.setKey(apiKey);
-            search.setQ(queryTerm);
+            search.setKey(apiKey)
+                    .setQ(queryTerm)
+                    .setSafeSearch("strict").
+                    // Restrict the search results to only include videos. See:
+                    // https://developers.google.com/youtube/v3/docs/search/list#type
+                            setType(Collections.singletonList("video")).
 
-            // Restrict the search results to only include videos. See:
-            // https://developers.google.com/youtube/v3/docs/search/list#type
-            search.setType(Collections.singletonList("video"));
-
-            // To increase efficiency, only retrieve the fields that the
-            // application uses.
-            search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
-            search.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
+                    // To increase efficiency, only retrieve the fields that the
+                    // application uses.
+                            setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)").
+                    setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
 
             // Call the API and print results.
             SearchListResponse searchResponse = search.execute();

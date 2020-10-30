@@ -5,7 +5,7 @@ import core.commands.CommandUtil;
 import java.awt.*;
 
 public class ReturnNowPlaying {
-    private final String artist;
+    private String artist;
     private long discordId;
     private String discordName;
     private Color roleColor;
@@ -64,13 +64,17 @@ public class ReturnNowPlaying {
         this.playNumber = playNumber;
     }
 
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
     @Override
     public String toString() {
         return ". " +
-               "[" + CommandUtil.cleanMarkdownCharacter(discordName) + "](" +
-               CommandUtil
-                       .getLastFmArtistUserUrl(artist, lastFMId) +
-               ") - " +
-               playNumber + " plays\n";
+                "[" + CommandUtil.cleanMarkdownCharacter(discordName) + "](" +
+                CommandUtil
+                        .getLastFmArtistUserUrl(artist, lastFMId) +
+                ") - " +
+                playNumber + " plays\n";
     }
 }

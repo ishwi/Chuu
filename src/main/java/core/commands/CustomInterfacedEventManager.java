@@ -15,12 +15,8 @@ import net.dv8tion.jda.internal.JDAImpl;
 
 import javax.annotation.Nonnull;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class CustomInterfacedEventManager implements IEventManager {
 
@@ -108,8 +104,9 @@ public class CustomInterfacedEventManager implements IEventManager {
             String substring = contentRaw.substring(1).split("\\s+")[0];
             MyCommand<?> myCommand = commandListeners.get(substring.toLowerCase());
             if (myCommand != null) {
-                if (!Chuu.isMessageAllowed(myCommand, mes)) {
-                    mes.getChannel().sendMessage("This command is disabled in this channel.").queue();
+                if (!Chuu.getMessageDisablingService().isMessageAllowed(myCommand, mes)) {
+                    if (Chuu.getMessageDisablingService().doResponse(mes))
+                        mes.getChannel().sendMessage("This command is disabled in this channel.").queue();
                     return;
                 }
                 try {

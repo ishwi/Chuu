@@ -139,3 +139,12 @@ alter table guild
 
 alter table user
     add column timezone varchar(100) null;
+
+alter table guild
+    add column disabled_response boolean not null default false;
+
+alter table guild
+    add column delete_message boolean not null default false;
+
+alter table guild
+    add column disabled_warning boolean not null default false;

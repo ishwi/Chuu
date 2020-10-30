@@ -28,6 +28,14 @@ public class DisabledCommandParameters extends CommandParameters {
         return hasOptional("channel");
     }
 
+    public boolean isAll() {
+        return hasOptional("all");
+    }
+
+    public boolean isExceptThis() {
+        return hasOptional("exceptthis");
+    }
+
     public Long getChannelId() {
         return channelId;
     }

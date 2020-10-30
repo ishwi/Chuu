@@ -417,10 +417,10 @@ public class ChuuService {
         }
     }
 
-    public String getArtistUrl(String url) {
+    public String getArtistUrl(String artist) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return updaterDao.getArtistUrl(connection, url);
+            return updaterDao.getArtistUrl(connection, artist);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
 
@@ -922,6 +922,15 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.getArtistsFrequencies(connection, guildID);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public ResultWrapper<ArtistPlays> getServerTags(long guildID, boolean doCount) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getServerTags(connection, guildID, doCount);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1468,6 +1477,30 @@ public class ChuuService {
     public void setServerChartMode(long guildId, @Nullable ChartMode chartMode) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setGuildProperty(connection, guildId, "chart_mode", chartMode);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setServerDeleteMessage(long guildId, boolean deleteMode) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildProperty(connection, guildId, "delete_message", deleteMode);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setServerShowDisabledWarning(long guildId, boolean disabledWarning) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildProperty(connection, guildId, "disabled_warning", disabledWarning);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setServer(long guildId, boolean deleteMode) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildProperty(connection, guildId, "delete_message", deleteMode);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -2333,6 +2366,14 @@ public class ChuuService {
         }
     }
 
+    public List<ScrobbledArtist> getTopInTag(Set<String> genre, Long guildId, int limit, SearchMode mode) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getTopTagSet(connection, genre, guildId, limit, mode);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public Optional<ScrobbledArtist> getTopInTag(String genre, Long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             List<ScrobbledArtist> topTag = queriesDao.getTopTag(connection, genre, guildId, 1);
@@ -2345,12 +2386,38 @@ public class ChuuService {
         }
     }
 
+    public Optional<ScrobbledArtist> getTopInTag(Set<String> genre, Long guildId, SearchMode mode) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<ScrobbledArtist> topTag = queriesDao.getTopTagSet(connection, genre, guildId, 1, mode);
+            if (topTag.isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.of(topTag.get(0));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
     public void addBannedTag(String tag, long discordId) {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.addBannedTag(connection, tag);
-            updaterDao.removeArtistTag(connection, tag);
-            updaterDao.removeAlbumTag(connection, tag);
+            updaterDao.removeTagWholeArtist(connection, tag);
+            updaterDao.removeTagWholeAlbum(connection, tag);
             updaterDao.logBannedTag(connection, tag, discordId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
+
+    public void addArtistBannedTag(String tag, long artistId, long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.addArtistBannedTag(connection, tag, artistId);
+            updaterDao.removeTagArtist(connection, tag, artistId);
+            updaterDao.removeTagWholeAlbum(connection, tag);
+            updaterDao.logBannedTag(connection, tag + ": " + discordId, discordId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -2386,6 +2453,78 @@ public class ChuuService {
     public List<ArtistInfo> getArtistWithTag(List<ArtistInfo> artists, long discordId, String genre) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getArtistWithTag(connection, artists, discordId, genre);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public Set<Long> getServersWithDeletableMessages() {
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.getGuildsWithDeletableMessages(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
+
+    public Set<Long> getServersDontRespondOnErrros() {
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.getGuildsDontRespondOnErrros(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+
+    public Map<Genre, Integer> genreCountsByArtist(List<ArtistInfo> artistInfos) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.genreCountsByArtist(connection, artistInfos);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public Map<Genre, Integer> genreCountsByAlbum(List<AlbumInfo> albumInfos) {
+        try (Connection connection = dataSource.getConnection()) {
+            return albumDao.genreCountsByAlbum(connection, albumInfos);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<WrapperReturnNowPlaying> getWhoKnowsArtistSet(Set<String> artists, long guildId, int limit, @Nullable String user) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.whoknowsSet(connection, artists, guildId, limit, user);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public WrapperReturnNowPlaying getWhoKnowsTagSet(Set<String> tags, long guildId, int limit, @Nullable String user, SearchMode searchMode) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.whoknowsTagsSet(connection, tags, guildId, limit, user, searchMode);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public Set<Pair<String, String>> getArtistBannedTags() {
+
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getArtistBannedTags(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public List<String> getArtistTag(long artistId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getArtistTag(connection, artistId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

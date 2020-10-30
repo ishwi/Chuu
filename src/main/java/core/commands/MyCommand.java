@@ -11,10 +11,13 @@ import dao.ChuuService;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.imageio.ImageIO;
@@ -22,6 +25,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
 public abstract class MyCommand<T extends CommandParameters> extends ListenerAdapter {
@@ -87,8 +91,9 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
         } catch (LastFMNoPlaysException ex) {
             String username = ex.getUsername();
             if (e.isFromGuild()) {
+                long idLong = e.getGuild().getIdLong();
                 try {
-                    long discordIdFromLastfm = dao.getDiscordIdFromLastfm(ex.getUsername(), e.getGuild().getIdLong());
+                    long discordIdFromLastfm = dao.getDiscordIdFromLastfm(ex.getUsername(), idLong);
                     username = getUserString(e, discordIdFromLastfm, username);
                 } catch (InstanceNotFoundException ignored) {
                     // We left the inital value
@@ -127,7 +132,23 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
             parser.sendError("Internal Chuu Error", e);
             Chuu.getLogger().warn(ex.getMessage(), ex);
         }
+        if (e.isFromGuild())
+            deleteMessage(e, e.getGuild().getIdLong());
+    }
 
+    private void deleteMessage(MessageReceivedEvent e, long guildId) {
+        if (Chuu.getMessageDeletionService().isMarked(guildId) && e.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+            e.getMessage().delete().queueAfter(5, TimeUnit.SECONDS, (vo) -> {
+            }, (throwable) -> {
+                if (throwable instanceof ErrorResponseException) {
+                    ErrorResponse errorResponse = ((ErrorResponseException) throwable).getErrorResponse();
+                    if (errorResponse.equals(ErrorResponse.MISSING_PERMISSIONS)) {
+                        Chuu.getMessageDeletionService().removeServerToDelete(guildId);
+                        sendMessageQueue(e, "Can't delete messages anymore so from now one won't delete any more message");
+                    }
+                }
+            });
+        }
     }
 
     abstract void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException;
@@ -138,10 +159,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
     }
 
     private void sendMessageQueue(MessageReceivedEvent e, Message message) {
-        if (e.isFromType(ChannelType.PRIVATE))
-            e.getPrivateChannel().sendMessage(message).queue();
-        else
-            e.getTextChannel().sendMessage(message).queue();
+        e.getChannel().sendMessage(message).queue();
     }
 
     public String getUserString(MessageReceivedEvent e, long discordId) {
@@ -184,7 +202,8 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
         sendImage(image, e, chartQuality, null);
     }
 
-    void sendImage(BufferedImage image, MessageReceivedEvent e, ChartQuality chartQuality, EmbedBuilder embedBuilder) {
+    void sendImage(BufferedImage image, MessageReceivedEvent e, ChartQuality chartQuality, EmbedBuilder
+            embedBuilder) {
         if (image == null) {
             sendMessageQueue(e, "Something went wrong generating the image");
             return;

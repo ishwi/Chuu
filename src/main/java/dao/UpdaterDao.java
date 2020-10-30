@@ -1,6 +1,5 @@
 package dao;
 
-import dao.entities.RYMImportRating;
 import core.exceptions.DuplicateInstanceException;
 import core.exceptions.InstanceNotFoundException;
 import dao.entities.*;
@@ -154,7 +153,13 @@ interface UpdaterDao {
 
     void logBannedTag(Connection connection, String contentRaw, long discordId);
 
-    void removeArtistTag(Connection connection, String tag);
+    void removeTagWholeArtist(Connection connection, String tag);
 
-    void removeAlbumTag(Connection connection, String tag);
+    void removeTagWholeAlbum(Connection connection, String tag);
+
+    void addArtistBannedTag(Connection connection, String tag, long artistId);
+
+    void removeTagArtist(Connection connection, String tag, long artistId);
+
+    void removeTagAlbum(Connection connection, String tag, long artistId);
 }

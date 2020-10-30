@@ -3,12 +3,16 @@ package dao;
 import core.Chuu;
 import core.exceptions.ChuuServiceException;
 import dao.entities.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static dao.UpdaterDaoImpl.preparePlaceHolders;
 
 public class SQLQueriesDaoImpl implements SQLQueriesDao {
 
@@ -167,13 +171,32 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         return getArtistPlaysResultWrapper(connection, guildId, normalQuery, countQuery);
     }
 
+    @Override
+    public ResultWrapper<ArtistPlays> getServerTags(Connection connection, Long guildId, boolean doCount) {
+        @Language("MariaDB") String queryBody =
+                "FROM  (SELECT a.artist_id,tag,playnumber " +
+                        "FROM scrobbled_artist a" +
+                        " JOIN user b  " +
+                        " ON a.lastfm_id = b.lastfm_id " +
+                        " JOIN user_guild c " +
+                        " ON b.discord_id = c.discord_id" +
+                        " join artist_tags d on a.artist_id = d.artist_id " +
+                        " WHERE c.guild_id = ?) main" +
+                        " JOIN artist t ON " +
+                        " main.artist_id = t.id ";
+
+        String normalQuery = "SELECT (tag) as name, " + (doCount ? "count(*)" : "sum(main.playnumber)") + " AS orden " + queryBody + " GROUP BY main.tag ORDER BY orden DESC  Limit 200";
+        String countQuery = "Select count(*) " + queryBody;
+        return getArtistPlaysResultWrapper(connection, guildId, normalQuery, countQuery);
+    }
+
     @NotNull
     private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(int rows, PreparedStatement preparedStatement) throws SQLException {
         ResultSet resultSet;
         resultSet = preparedStatement.executeQuery();
         List<ArtistPlays> returnList = new ArrayList<>();
         while (resultSet.next()) {
-            String name = resultSet.getString("b.name");
+            String name = resultSet.getString("name");
             int count = resultSet.getInt("orden");
             returnList.add(new ArtistPlays(name, count));
         }
@@ -2275,7 +2298,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             queryString += " join user_guild d on c.discord_id = d.discord_id " +
                     "where e.tag = ? and d.guild_id = ?";
         } else {
-            queryString += "where e.tag = ? and d.guild_id = ?";
+            queryString += "where e.tag = ? ";
 
         }
         queryString += " group by a.artist_id " +
@@ -2358,7 +2381,7 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                bannedTags.add(resultSet.getString(1));
+                bannedTags.add(resultSet.getString(1).toLowerCase());
             }
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -2475,6 +2498,280 @@ public class SQLQueriesDaoImpl implements SQLQueriesDao {
         return returnInfoes;
 
     }
+
+    @Override
+    public Map<Genre, Integer> genreCountsByArtist(Connection connection, List<ArtistInfo> artistInfos) {
+
+        @Language("MariaDB") String queryString = "SELECT tag,count(*) as coun FROM artist a join artist_tags b  on a.id = b.artist_id WHERE name IN (%s) group by b.tag";
+        String sql = String.format(queryString, artistInfos.isEmpty() ? null : preparePlaceHolders(artistInfos.size()));
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            for (int i = 0; i < artistInfos.size(); i++) {
+                preparedStatement.setString(i + 1, artistInfos.get(i).getArtist());
+            }
+
+            /* Fill "preparedStatement". */
+
+
+            Map<Genre, Integer> returnList = new HashMap<>();
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                String tag = resultSet.getString("tag");
+                int count = resultSet.getInt("coun");
+
+                returnList.put(new Genre(tag, null), count);
+
+            }
+            return returnList;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<WrapperReturnNowPlaying> whoknowsSet(Connection connection, Set<String> artists, long guildId, int limit, @Nullable String user) {
+        Map<String, String> urlMap = new HashMap<>();
+
+        @Language("MariaDB")
+        String queryString =
+                "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id " +
+                        "FROM  scrobbled_artist a" +
+                        " JOIN artist a2 ON a.artist_id = a2.id  " +
+                        "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
+                        "JOIN user_guild d on c.discord_ID = d.discord_Id " +
+                        "where d.guild_Id = ? " +
+                        "and  (name) in  (%s) " +
+                        "ORDER BY a.playNumber desc ";
+        String sql = String.format(queryString, artists.isEmpty() ? null : preparePlaceHolders(artists.size()));
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i, guildId);
+
+            for (String artist : artists) {
+                preparedStatement.setString(++i, artist);
+            }
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            String url = "";
+            String artistName = "";
+            List<ReturnNowPlaying> returnList = new ArrayList<>();
+
+
+
+            /* Get results. */
+            int j = 0;
+            while (resultSet.next() && (j < limit)) {
+                String lastfmId = resultSet.getString("a.lastFM_ID");
+                if (user != null) {
+                    if (!lastfmId.equals(user)) {
+                        continue;
+                    }
+                }
+                url = resultSet.getString("a2.url");
+                artistName = resultSet.getString("a2.name");
+                urlMap.put(artistName, url);
+                int playNumber = resultSet.getInt("a.playNumber");
+                long discordId = resultSet.getLong("c.discord_ID");
+
+                returnList.add(new ReturnNowPlaying(discordId, lastfmId, artistName, playNumber));
+
+            }
+
+            return returnList
+                    .stream().collect(
+                            Collectors.collectingAndThen(
+                                    Collectors.groupingBy(ReturnNowPlaying::getArtist,
+                                            Collectors.collectingAndThen(
+                                                    Collectors.toList(), list -> {
+                                                        if (list.isEmpty()) {
+                                                            return null;
+                                                        }
+                                                        ReturnNowPlaying a = list.get(0);
+                                                        return new WrapperReturnNowPlaying(list, list.size(), urlMap.get(a.getArtist()), a.getArtist());
+                                                    })),
+                                    result -> result.values().stream().filter(Objects::nonNull)
+
+                                            .sorted(Comparator.comparingInt
+                                                    ((WrapperReturnNowPlaying t) ->
+                                                            t.getReturnNowPlayings().stream().mapToInt(ReturnNowPlaying::getPlayNumber).sum()).reversed())
+                                            .limit(limit)
+                                            .collect(Collectors.toList())));
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public WrapperReturnNowPlaying whoknowsTagsSet(Connection connection, Set<String> tags, long guildId, int limit, String user, SearchMode searchMode) {
+
+        @Language("MariaDB")
+        String queryString =
+                "SELECT b.lastfm_id, sum(b.playnumber) plays, c.discord_id \n" +
+                        "FROM  artist_tags a \n" +
+                        "JOIN artist a2 ON a.artist_id = a2.id  \n" +
+                        "JOIN scrobbled_artist b on b.artist_id = a2.id \n" +
+                        "JOIN `user` c on c.lastfm_id = b.lastfm_id \n" +
+                        "JOIN user_guild d on c.discord_ID = d.discord_Id \n" +
+                        "where d.guild_Id = ? \n" +
+                        "and  (tag) in  (%s) \n" +
+                        "and  (%s)  = all  (select tags from artist_tags where artist_id = a2.id) \n" +
+
+                        " group by b.lastfm_id,c.discord_id \n";
+
+        if (searchMode == SearchMode.EXCLUSIVE) {
+            queryString += " having count(distinct tag) = ? ";
+
+        }
+        queryString += "ORDER BY plays desc ";
+        String sql = String.format(queryString, tags.isEmpty() ? null : preparePlaceHolders(tags.size()));
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i, guildId);
+
+            for (String artist : tags) {
+                preparedStatement.setString(++i, artist);
+            }
+            if (searchMode == SearchMode.EXCLUSIVE) {
+                preparedStatement.setInt(++i, tags.size());
+            }
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            String url = "";
+            String artistName = "";
+            List<ReturnNowPlaying> returnList = new ArrayList<>();
+
+
+            int j = 0;
+            while (resultSet.next() && (j < limit)) {
+                String lastfmId = resultSet.getString("b.lastfm_id");
+                int playNumber = resultSet.getInt("plays");
+                long discordId = resultSet.getLong("c.discord_ID");
+                returnList.add(new ReturnNowPlaying(discordId, lastfmId, null, playNumber));
+            }
+            return new WrapperReturnNowPlaying(returnList, returnList.size(), null, null);
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<ScrobbledArtist> getTopTagSet(Connection connection, Set<String> tags, Long guildId, int limit, SearchMode mode) {
+        List<ScrobbledArtist> scrobbledArtists = new ArrayList<>();
+        String queryString = " " +
+                "Select a.artist_id,sum(playNumber) plays,b.url,b.name" +
+                " from scrobbled_artist a " +
+                "join artist_tags e on a.artist_id = e.artist_id  " +
+                "join artist b on a.artist_id = b.id" +
+                " join user c on a.lastfm_id = c.lastfm_id ";
+
+        if (guildId != null) {
+            queryString += " join user_guild d on c.discord_id = d.discord_id " +
+                    "where e.tag in (%s) and d.guild_id = ?";
+        } else {
+            queryString += "where e.tag in (%s) and d.guild_id = ?";
+
+        }
+        queryString += " group by a.artist_id ";
+        if (mode == SearchMode.EXCLUSIVE) {
+            queryString += " having count(distinct tag) = ? ";
+
+        }
+        queryString += "order by plays desc limit ?";
+        String sql = String.format(queryString, tags.isEmpty() ? null : preparePlaceHolders(tags.size()));
+
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            int i = 0;
+
+            for (String tag : tags) {
+                preparedStatement.setString(++i, tag);
+            }
+            if (guildId != null) {
+                preparedStatement.setLong(++i, guildId);
+            }
+            if (mode == SearchMode.EXCLUSIVE) {
+                preparedStatement.setInt(++i, tags.size());
+            }
+
+            preparedStatement.setInt(++i, limit);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String artistName = resultSet.getString("b.name");
+                String artistUrl = resultSet.getString("b.url");
+                int plays = resultSet.getInt("plays");
+                long artist_id = resultSet.getInt("a.artist_id");
+
+                ScrobbledArtist value = new ScrobbledArtist(null, artistName, plays);
+                value.setUrl(artistUrl);
+                value.setArtistId(artist_id);
+                scrobbledArtists.add(value);
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return scrobbledArtists;
+    }
+
+    @Override
+    public Set<Pair<String, String>> getArtistBannedTags(Connection connection) {
+        Set<Pair<String, String>> bannedTags = new HashSet<>();
+        String queryString = "Select tag,name from banned_artist_tags a join artist b on a.artist_id = b.id";
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String tag = resultSet.getString(1);
+                String artist = resultSet.getString(2);
+
+                bannedTags.add(Pair.of(artist.toLowerCase(), tag.toLowerCase()));
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return bannedTags;
+    }
+
+    @Override
+    public List<String> getArtistTag(Connection connection, long artistId) {
+        @Language("MariaDB") String queryString = "SELECT tag FROM artist_tags WHERE artist_id = ? ";
+        List<String> returnList = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i, artistId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String name = resultSet.getString("tag");
+                returnList.add(name);
+            }
+            return returnList;
+
+        } catch (SQLException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
 
     private void getScoredAlbums(List<ScoredAlbumRatings> returnList, ResultSet resultSet) throws SQLException {
 

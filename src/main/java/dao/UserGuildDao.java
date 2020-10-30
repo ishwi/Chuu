@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 
 interface UserGuildDao {
@@ -69,7 +70,9 @@ interface UserGuildDao {
 
     void setUserProperty(Connection connection, long discordId, String additional_embed, boolean chartEmbed);
 
-    <T extends Enum<T>> void  setUserProperty(Connection connection, long discordId, String propertyName, T value);
+    void setGuildProperty(Connection connection, long guildId, String property, boolean value);
+
+    <T extends Enum<T>> void setUserProperty(Connection connection, long discordId, String propertyName, T value);
 
 
     GuildProperties getGuild(Connection connection, long discordId) throws InstanceNotFoundException;
@@ -97,4 +100,8 @@ interface UserGuildDao {
     void setTimezoneUser(Connection connection, TimeZone timeZone, long idLong);
 
     TimeZone getTimezone(Connection connection, long userId);
+
+    Set<Long> getGuildsWithDeletableMessages(Connection connection);
+
+    Set<Long> getGuildsDontRespondOnErrros(Connection connection);
 }

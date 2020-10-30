@@ -1475,7 +1475,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
-    public void removeArtistTag(Connection connection, String tag) {
+    public void removeTagWholeArtist(Connection connection, String tag) {
         StringBuilder mySql =
                 new StringBuilder("delete from artist_tags  where tag = ? ");
 
@@ -1491,7 +1491,7 @@ public class UpdaterDaoImpl implements UpdaterDao {
     }
 
     @Override
-    public void removeAlbumTag(Connection connection, String tag) {
+    public void removeTagWholeAlbum(Connection connection, String tag) {
         StringBuilder mySql =
                 new StringBuilder("delete from album_tags  where tag = ? ");
         try {
@@ -1502,6 +1502,57 @@ public class UpdaterDaoImpl implements UpdaterDao {
                 SQLException e) {
             throw new ChuuServiceException(e);
         }
+    }
+
+    @Override
+    public void addArtistBannedTag(Connection connection, String tag, long artistId) {
+        StringBuilder mySql =
+                new StringBuilder("INSERT ignore INTO  banned_artist_tags  (tag,artist_id) VALUES (?,?) ");
+
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            preparedStatement.setString(1, tag);
+            preparedStatement.setLong(2, artistId);
+
+            preparedStatement.executeUpdate();
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public void removeTagArtist(Connection connection, String tag, long artistId) {
+        StringBuilder mySql =
+                new StringBuilder("delete from artist_tags  where tag = ? and artist_id = ?  ");
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            preparedStatement.setString(1, tag);
+            preparedStatement.setLong(2, artistId);
+            preparedStatement.executeUpdate();
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public void removeTagAlbum(Connection connection, String tag, long artistId) {
+        StringBuilder mySql =
+                new StringBuilder("delete from album_tags  where tag = ? and artist_id = ?  ");
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            preparedStatement.setString(1, tag);
+            preparedStatement.setLong(2, artistId);
+            preparedStatement.executeUpdate();
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
     }
 }
 

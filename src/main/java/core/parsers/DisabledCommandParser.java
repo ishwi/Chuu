@@ -1,12 +1,9 @@
 package core.parsers;
 
-import core.Chuu;
 import core.commands.DisabledCommand;
-import core.commands.HelpCommand;
 import core.commands.MyCommand;
 import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.parsers.Parser;
 import core.parsers.params.DisabledCommandParameters;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -14,7 +11,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DisabledCommandParser extends Parser<DisabledCommandParameters> {
 
@@ -27,6 +23,9 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> {
     void setUpOptionals() {
         opts.add(new OptionalEntity("channel", "only does the toggle in this specific channel instead of in the whole server"));
         opts.add(new OptionalEntity("category", "disable all commands from the category of the command introduced"));
+        opts.add(new OptionalEntity("all", "disable all commands from all categories of the command introduced"));
+        opts.add(new OptionalEntity("exceptthis", "disable all commands from all categories ofs the command introduced"));
+
 
     }
 
@@ -38,8 +37,12 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> {
             return null;
         }
         if (words.length != 1) {
-            sendError("Only introduce the alias of the command to be disabled", e);
-            return null;
+            if (hasOptional("all", e)) {
+                return new DisabledCommandParameters(e, null, e.getGuild().getIdLong(), e.getChannel().getIdLong());
+            } else {
+                sendError("Only introduce the alias of the command to be disabled", e);
+                return null;
+            }
         }
         String word = words[0];
         if (acceptecChars.contains(word.charAt(0))) {

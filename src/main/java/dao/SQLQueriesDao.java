@@ -1,6 +1,7 @@
 package dao;
 
 import dao.entities.*;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
@@ -65,6 +66,8 @@ interface SQLQueriesDao {
     ResultWrapper<ArtistPlays> getArtistPlayCount(Connection connection, Long guildId);
 
     ResultWrapper<ArtistPlays> getArtistsFrequencies(Connection connection, Long guildId);
+
+    ResultWrapper<ArtistPlays> getServerTags(Connection connection, Long guildId, boolean doCount);
 
     ResultWrapper<ArtistPlays> getGlobalArtistPlayCount(Connection connection);
 
@@ -150,5 +153,18 @@ interface SQLQueriesDao {
     List<ScrobbledArtist> getUserArtists(Connection connection, String lastfmId);
 
     List<ArtistInfo> getArtistWithTag(Connection connection, List<ArtistInfo> artists, long discordId, String genre);
+
+    Map<Genre, Integer> genreCountsByArtist(Connection connection, List<ArtistInfo> artistInfos);
+
+
+    List<WrapperReturnNowPlaying> whoknowsSet(Connection connection, Set<String> artists, long guildId, int limit, @Nullable String user);
+
+    WrapperReturnNowPlaying whoknowsTagsSet(Connection connection, Set<String> tags, long guildId, int limit, String user, SearchMode mode);
+
+    List<ScrobbledArtist> getTopTagSet(Connection connection, Set<String> genre, Long guildId, int limit, SearchMode mode);
+
+    Set<Pair<String, String>> getArtistBannedTags(Connection connection);
+
+    List<String> getArtistTag(Connection connection, long artistId);
 
 }

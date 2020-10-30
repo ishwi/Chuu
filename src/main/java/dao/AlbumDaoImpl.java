@@ -148,7 +148,7 @@ public class AlbumDaoImpl implements AlbumDao {
             } else {
                 try {
                     if (album.length() > 400) {
-                        album = album.substring(0,400);
+                        album = album.substring(0, 400);
                     }
                     long albumId = getAlbumIdByName(connection, album, x.getArtistId());
                     x.setAlbumId(albumId);
@@ -318,5 +318,38 @@ public class AlbumDaoImpl implements AlbumDao {
         }
     }
 
+    @Override
+    public Map<Genre, Integer> genreCountsByAlbum(Connection connection, List<AlbumInfo> albumInfos) {
+
+        @Language("MariaDB") String queryString = "SELECT tag,count(*) as coun FROM album a join artist b on a.artist_id =b.id join album_tags c  on a.id = c.album_id WHERE (name,album_name)  IN (%s) group by tag";
+        String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQuery(albumInfos.size()));
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            for (int i = 0; i < albumInfos.size(); i++) {
+                preparedStatement.setString(2 * i + 1, albumInfos.get(i).getArtist());
+                preparedStatement.setString(2 * i + 2, albumInfos.get(i).getName());
+            }
+
+            /* Fill "preparedStatement". */
+
+
+            Map<Genre, Integer> returnList = new HashMap<>();
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                String tag = resultSet.getString("tag");
+                int count = resultSet.getInt("coun");
+
+                returnList.put(new Genre(tag, null), count);
+
+            }
+            return returnList;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 
 }

@@ -1,7 +1,6 @@
 package core.commands;
 
 import core.apis.youtube.InvidousSearch;
-import core.apis.youtube.Search;
 import core.apis.youtube.SearchSingleton;
 import core.apis.youtube.YoutubeSearch;
 import core.exceptions.InstanceNotFoundException;
@@ -20,6 +19,7 @@ import java.util.List;
 public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<WordParameter, User>> {
     private final YoutubeSearch youtubeSearch;
     private final YoutubeSearch optionalSearch;
+    public static final boolean ONLY_YT = false;
 
     public YoutubeSearchCommand(ChuuService dao) {
         super(dao);
@@ -57,7 +57,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<Word
         }
         String query = returned.getInnerParams().getWord();
         String s;
-        if (CommandUtil.rand.nextBoolean()) {
+        if (ONLY_YT || CommandUtil.rand.nextBoolean()) {
             s = youtubeSearch.doSearch(query);
         } else {
             s = optionalSearch.doSearch(query);

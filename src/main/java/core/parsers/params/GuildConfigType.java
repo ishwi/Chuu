@@ -8,7 +8,6 @@ import dao.entities.RemainingImagesMode;
 import dao.entities.WhoKnowsMode;
 import org.apache.commons.text.WordUtils;
 
-import java.lang.reflect.Type;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.function.Function;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum GuildConfigType {
-    CROWNS_THRESHOLD("crowns"), CHART_MODE("chart"), WHOKNOWS_MODE("whoknows"), REMAINING_MODE("rest"),
+    CROWNS_THRESHOLD("crowns"), CHART_MODE("chart"), WHOKNOWS_MODE("whoknows"), REMAINING_MODE("rest"), DELETE_MESSAGE("delete-message"), SHOW_DISABLED_WARNING("disabled-warning"),
     NP("np");
     static final Pattern npMode = Pattern.compile("((" + "CLEAR|" +
             EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
@@ -33,7 +32,6 @@ public enum GuildConfigType {
     }
 
     private final String commandName;
-    private Type paramType;
 
     GuildConfigType(String command) {
         commandName = command;
@@ -47,49 +45,6 @@ public enum GuildConfigType {
         return commandName;
     }
 
-
-    public Predicate<String> getParser() {
-        switch (this) {
-            case CROWNS_THRESHOLD:
-                return number.asMatchPredicate();
-            case CHART_MODE:
-                return UserConfigType.chartMode.asMatchPredicate();
-            case REMAINING_MODE:
-            case WHOKNOWS_MODE:
-                return UserConfigType.whoknowsMode.asMatchPredicate();
-            case NP:
-                return GuildConfigType.npMode.asMatchPredicate();
-            default:
-                return (s) -> true;
-        }
-    }
-
-    public String getExplanation() {
-        switch (this) {
-            case CROWNS_THRESHOLD:
-                return "A positive number that represent the minimum number of scrobbles for a crown to count";
-            case CHART_MODE:
-                String collect = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
-                collect += "\n\t\t\t**Clear**: Sets the default mode ";
-                return "Set the mode for all charts of all users in this server. While this is set any user configuration will be overridden.\n" +
-                        "\t\tThe possible values for the chart mode are the following:" + collect;
-            case WHOKNOWS_MODE:
-                collect = EnumSet.allOf(WhoKnowsMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
-                collect += "\n\t\t\t**Clear**: Sets the default mode";
-                return "Set the mode for all who knows of all users in this server. While this is set any user configuration will be overridden.\n" +
-                        "\t\tThe possible values for the who knows mode are the following:" + collect;
-            case REMAINING_MODE:
-                collect = EnumSet.allOf(RemainingImagesMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
-                collect += "\n\t\t\t**Clear**: Sets the default mode";
-                return "Set the mode for all charts of the remaining images of the users in this server. While this is set any user configuration will be overridden \n" +
-                        "\t\tThe possible values for the rest of the commands are the following:" + collect;
-            case NP:
-                return "Setting this will alter the appearance of this server np commands. You can select up to 10 different from the following list and mix them up:\n" + "CLEAR | " + NPMode.getListedName(EnumSet.allOf(NPMode.class));
-
-            default:
-                return "";
-        }
-    }
 
     public static String list(ChuuService dao, long guildId) {
         GuildProperties guildProperties;
@@ -133,6 +88,12 @@ public enum GuildConfigType {
                                 whoknowsmode = modes2.toString();
                             }
                             return String.format("**%s** -> %s", key, whoknowsmode);
+                        case DELETE_MESSAGE:
+                            boolean del = guildProperties.isDeleteMessages();
+                            return String.format("**%s** -> %s", key, del);
+                        case SHOW_DISABLED_WARNING:
+                            boolean showWarnings = guildProperties.isShowWarnings();
+                            return String.format("**%s** -> %s", key, showWarnings);
                         case NP:
                             EnumSet<NPMode> npModes = dao.getServerNPModes(guildId);
                             String strModes;
@@ -146,5 +107,54 @@ public enum GuildConfigType {
                     return null;
                 }).collect(Collectors.joining("\n"));
 
+    }
+
+    public Predicate<String> getParser() {
+        switch (this) {
+            case CROWNS_THRESHOLD:
+                return number.asMatchPredicate();
+            case CHART_MODE:
+                return UserConfigType.chartMode.asMatchPredicate();
+            case REMAINING_MODE:
+            case WHOKNOWS_MODE:
+                return UserConfigType.whoknowsMode.asMatchPredicate();
+            case DELETE_MESSAGE:
+            case SHOW_DISABLED_WARNING:
+                return UserConfigType.bool.asMatchPredicate();
+            case NP:
+                return GuildConfigType.npMode.asMatchPredicate();
+            default:
+                return (s) -> true;
+        }
+    }
+
+    public String getExplanation() {
+        switch (this) {
+            case CROWNS_THRESHOLD:
+                return "A positive number that represent the minimum number of scrobbles for a crown to count";
+            case CHART_MODE:
+                String collect = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                collect += "\n\t\t\t**Clear**: Sets the default mode ";
+                return "Set the mode for all charts of all users in this server. While this is set any user configuration will be overridden.\n" +
+                        "\t\tThe possible values for the chart mode are the following:" + collect;
+            case WHOKNOWS_MODE:
+                collect = EnumSet.allOf(WhoKnowsMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                collect += "\n\t\t\t**Clear**: Sets the default mode";
+                return "Set the mode for all who knows of all users in this server. While this is set any user configuration will be overridden.\n" +
+                        "\t\tThe possible values for the who knows mode are the following:" + collect;
+            case REMAINING_MODE:
+                collect = EnumSet.allOf(RemainingImagesMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                collect += "\n\t\t\t**Clear**: Sets the default mode";
+                return "Set the mode for all charts of the remaining images of the users in this server. While this is set any user configuration will be overridden \n" +
+                        "\t\tThe possible values for the rest of the commands are the following:" + collect;
+            case DELETE_MESSAGE:
+                return "Whether you want the bot to delete the original message the user wrote.";
+            case SHOW_DISABLED_WARNING:
+                return "Whether you want the bot to show a warning when you try to run a disabled command.";
+            case NP:
+                return "Setting this will alter the appearance of this server np commands. You can select up to 10 different from the following list and mix them up:\n" + "CLEAR | " + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+            default:
+                return "";
+        }
     }
 }

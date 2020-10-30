@@ -1,12 +1,11 @@
 package dao;
 
 import core.exceptions.InstanceNotFoundException;
-import dao.entities.Album;
-import dao.entities.AlbumUserPlays;
-import dao.entities.ScrobbledAlbum;
+import dao.entities.*;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 public interface AlbumDao {
 
@@ -30,4 +29,5 @@ public interface AlbumDao {
 
     List<AlbumUserPlays> getGlobalTopArtistAlbums(Connection connection, long artistId, int limit);
 
+    Map<Genre, Integer> genreCountsByAlbum(Connection connection, List<AlbumInfo> albumInfos);
 }

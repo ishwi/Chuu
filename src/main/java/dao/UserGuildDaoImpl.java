@@ -619,6 +619,23 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
+    public void setGuildProperty(Connection connection, long guildId, String property, boolean value) {
+        @Language("MariaDB") String queryString = "UPDATE  guild SET  " + property + " = ? WHERE guild_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setBoolean(i++, value);
+            preparedStatement.setLong(i, guildId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
     public <T extends Enum<T>> void setUserProperty(Connection connection, long discordId, String propertyName, T value) {
         @Language("MariaDB") String queryString = "UPDATE  user SET  " + propertyName + " = ? WHERE discord_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -636,7 +653,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public GuildProperties getGuild(Connection connection, long discordId) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "select guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode from guild where guild_id = ? ";
+        @Language("MariaDB") String queryString = "select guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning from guild where guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -653,9 +670,13 @@ public class UserGuildDaoImpl implements UserGuildDao {
             String chart_mode = resultSet.getString("chart_mode");
             ChartMode chartMode = chart_mode == null ? null : ChartMode.valueOf(chart_mode);
             String remaining_mode = resultSet.getString("remaining_mode");
+            boolean deleteMessages = resultSet.getBoolean("delete_message");
+            boolean disabledWarning = resultSet.getBoolean("disabled_warning");
+
+
             RemainingImagesMode remainingImagesMode = remaining_mode == null ? null : RemainingImagesMode.valueOf(remaining_mode);
 
-            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, remainingImagesMode);
+            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, remainingImagesMode, deleteMessages, disabledWarning);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -895,5 +916,41 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     }
 
+    @Override
+    public Set<Long> getGuildsWithDeletableMessages(Connection connection) {
+        String queryString = "Select guild_id from guild WHERE delete_message = true";
+        return getIdList(connection, queryString);
+    }
+
+    @Override
+    public Set<Long> getGuildsDontRespondOnErrros(Connection connection) {
+        String queryString = "Select guild_id from guild WHERE disabled_warning = true";
+        return getIdList(connection, queryString);
+    }
+
+    @NotNull
+    private Set<Long> getIdList(Connection connection, String queryString) {
+        Set<Long> returnSet = new HashSet<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                long guildId = resultSet.getLong("guild_id");
+
+                returnSet.add(guildId);
+
+            }
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnSet;
+    }
 
 }
+
+

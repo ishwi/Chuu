@@ -986,3 +986,12 @@ create table log_tags
     discord_id bigint(20),
     primary key (id)
 );
+
+create table banned_artist_tags
+(
+    id         bigint(20)   not null auto_increment,
+    tag        varchar(100) not null,
+    discord_id bigint(20),
+    artist_id  bigint(20) references artist (id),
+    primary key (id)
+)

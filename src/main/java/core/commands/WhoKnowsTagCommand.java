@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.Chuu;
 import core.exceptions.InstanceNotFoundException;
 import core.parsers.GenreParser;
 import core.parsers.Parser;
@@ -15,7 +14,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+
+import static core.commands.MultipleWhoKnowsTagCommand.formatTag;
 
 public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
     public WhoKnowsTagCommand(ChuuService dao) {
@@ -27,7 +27,9 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
         LastFMData lastFMData = params.getLastFMData();
         if (lastFMData == null) {
             try {
-                return getService().computeLastFmData(params.getUser().getIdLong(), params.getE().getGuild().getIdLong()).getWhoKnowsMode();
+                if (params.getE().isFromGuild())
+                    return getService().computeLastFmData(params.getE().getAuthor().getIdLong(), params.getE().getGuild().getIdLong()).getWhoKnowsMode();
+                return WhoKnowsMode.IMAGE;
             } catch (InstanceNotFoundException exception) {
                 return WhoKnowsMode.IMAGE;
             }
@@ -46,15 +48,7 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
             sendMessageQueue(e, "No one knows " + CommandUtil.cleanMarkdownCharacter(params.getGenre()));
             return null;
         }
-        wrapperReturnNowPlaying.getReturnNowPlayings()
-                .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername()));
-        try {
-            Optional<ScrobbledArtist> scrobbledArtist = completableFuture.get();
-            scrobbledArtist.ifPresent((sc) -> wrapperReturnNowPlaying.setUrl(sc.getUrl()));
-        } catch (InterruptedException | ExecutionException interruptedException) {
-            Chuu.getLogger().warn(interruptedException.getMessage(), interruptedException);
-        }
-        return wrapperReturnNowPlaying;
+        return formatTag(e, completableFuture, wrapperReturnNowPlaying);
     }
 
     @Override

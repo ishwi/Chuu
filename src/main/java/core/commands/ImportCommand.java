@@ -136,7 +136,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
     @Override
     protected CommandCategory getCategory() {
-        return CommandCategory.MODERATION;
+        return CommandCategory.CONFIGURATION;
     }
 
     @Override

@@ -3,6 +3,7 @@ package core.services;
 import com.google.common.collect.Sets;
 import com.neovisionaries.i18n.CountryCode;
 import core.Chuu;
+import core.apis.ExecutorsSingleton;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.TopEntity;
 import core.apis.spotify.Spotify;
@@ -21,6 +22,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -92,6 +94,7 @@ public class NPModeBuilder {
     private final String serverName;
     private final MusicBrainzService mb;
     private final List<String> outputList;
+    private final ExecutorService executor;
 
     public NPModeBuilder(NowPlayingArtist np, MessageReceivedEvent e, String[] footerSpaces, long discordId, String userName, EnumSet<NPMode> npModes, String lastFMName, EmbedBuilder embedBuilder, ScrobbledArtist scrobbledArtist, Long albumId, ChuuService service, ConcurrentLastFM lastFM, String serverName, MusicBrainzService mb, List<String> outputList) {
         this.np = np;
@@ -110,6 +113,7 @@ public class NPModeBuilder {
         this.mb = mb;
         this.outputList = outputList;
         this.spotifyApi = SpotifySingleton.getInstance();
+        executor = ExecutorsSingleton.getInstance();
     }
 
     public static int getSize() {
@@ -186,6 +190,7 @@ public class NPModeBuilder {
                                 tags.addAll(lastFM.getTrackTags(5, TopEntity.ARTIST, np.getArtistName(), null));
                             }
                             if (!tags.isEmpty()) {
+                                executor.submit(new TagArtistService(service, lastFM, new ArrayList<>(tags), new ArtistInfo(null, np.getArtistName())));
                                 if (tags.size() > 5) {
                                     tags = tags.stream().limit(5).collect(Collectors.toSet());
                                 }
