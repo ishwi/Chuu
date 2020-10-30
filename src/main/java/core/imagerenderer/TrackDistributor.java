@@ -1,9 +1,9 @@
 package core.imagerenderer;
 
 import core.Chuu;
-import core.exceptions.ChuuServiceException;
 import dao.entities.FullAlbumEntity;
 import dao.entities.Track;
+import dao.exceptions.ChuuServiceException;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -92,7 +92,7 @@ public class TrackDistributor {
 
         Font font;
         if (trackList.stream().anyMatch(x -> NORMAL_FONT.canDisplayUpTo(x.getName()) != -1) || (NORMAL_FONT
-                                                                                                        .canDisplayUpTo(fae.getArtist()) != -1) || (NORMAL_FONT.canDisplayUpTo(fae.getAlbum()) != -1)) {
+                .canDisplayUpTo(fae.getArtist()) != -1) || (NORMAL_FONT.canDisplayUpTo(fae.getAlbum()) != -1)) {
             font = JAPANESE_FONT;
         } else {
             font = NORMAL_FONT;
@@ -174,7 +174,7 @@ public class TrackDistributor {
             g.fillRect(15, startingPoint, rectWidth, 38);
 
             GraphicUtils.drawStringNicely(g, track.getName(), 25, startingPoint +
-                                                                  (TILE_SIZE - 5 - g.getFontMetrics().getHeight()) / 2 + g.getFontMetrics().getAscent()
+                            (TILE_SIZE - 5 - g.getFontMetrics().getHeight()) / 2 + g.getFontMetrics().getAscent()
                     , dist);
             g.setFont(ogFont);
 
@@ -182,7 +182,7 @@ public class TrackDistributor {
 
             GraphicUtils.drawStringNicely(g, plays, 15 + rectWidth - g.getFontMetrics()
                             .stringWidth(plays) - 5, startingPoint +
-                                                     (TILE_SIZE - 5 - g.getFontMetrics().getHeight()) / 2 + g.getFontMetrics().getAscent()
+                            (TILE_SIZE - 5 - g.getFontMetrics().getHeight()) / 2 + g.getFontMetrics().getAscent()
                     , dist);
             startingPoint += TILE_SIZE;
 

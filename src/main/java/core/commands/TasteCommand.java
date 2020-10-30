@@ -1,7 +1,6 @@
 package core.commands;
 
 import core.Chuu;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.TasteRenderer;
 import core.otherlisteners.Reactionary;
@@ -14,6 +13,8 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.ResultWrapper;
 import dao.entities.UserArtistComparison;
 import dao.entities.UserInfo;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -104,7 +105,7 @@ public class TasteCommand extends ConcurrentCommand<TwoUsersParamaters> {
         StringBuilder stringBuilder = new StringBuilder();
         List<String> strings = resultWrapper.getResultList().stream().map(x -> String.format(". [%s](%s) - %d vs %d plays%n",
                 x.getArtistID(),
-                CommandUtil.getLastFmArtistUrl(x.getArtistID()),
+                LinkUtils.getLastFmArtistUrl(x.getArtistID()),
                 x.getCountA(), x.getCountB())).collect(Collectors.toList());
         for (int i = 0, size = strings.size(); i < 10 && i < size; i++) {
             String text = strings.get(i);

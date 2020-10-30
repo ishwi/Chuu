@@ -28,8 +28,8 @@ import java.util.*;
 
 public class WorldMapRenderer {
 
-    private static final String MAP_ROUND = "images/BlankMap-World.svg";
     public static final List<String[]> palettes = initializePallete();
+    private static final String MAP_ROUND = "images/BlankMap-World.svg";
     private static final String[] textDescArray = new String[]{"text2527", "text2525", "text2523", "text2521", "text2519", "text2517", "text2539"};
     private static final String[] colourArray = new String[]{"rect6278", "rect6280", "rect6282", "rect6284", "rect6286", "rect6288"};
 

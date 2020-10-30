@@ -3,16 +3,16 @@ package core.apis.last.queues;
 import core.apis.discogs.DiscogsApi;
 import core.apis.last.chartentities.TrackDurationAlbumArtistChart;
 import core.apis.last.chartentities.TrackDurationChart;
+import core.apis.last.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import dao.ChuuService;
 import dao.entities.AlbumInfo;
 import dao.entities.EntityInfo;
+import dao.entities.ScrobbledAlbum;
 import dao.entities.TrackInfo;
-import dao.entities.UrlCapsule;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 
-import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,8 +22,8 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
-    private final transient List<UrlCapsule> albumEntities;
     public static final String defaultTrackImage = "https://lastfm.freetls.fastly.net/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png";
+    private final transient List<UrlCapsule> albumEntities;
     MusicBrainzService mbiz;
 
     public TrackGroupAlbumQueue(ChuuService dao, DiscogsApi discogsApi, Spotify spotify, int requested, List<UrlCapsule> albumEntities) {
@@ -93,7 +93,7 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
         List<UrlCapsule> noMbid = partitioned.get(false);
 
         if (haveMbid.size() != 0) {
-            mbiz.getAlbumInfoByMbid(haveMbid);
+            convert(haveMbid);
             mbidGrouped = TrackDurationAlbumArtistChart.getGrouped(haveMbid);
         }
         cleanGrouped(noMbid, albumMap, mbidGrouped, false);
@@ -102,7 +102,7 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
         if (noMbid.size() != 0) {
             joinAlbumInfos(urlCapsule -> new TrackInfo(urlCapsule.getArtistName(), null, urlCapsule.getAlbumName(), null),
                     t -> t,
-                    mbiz::getAlbumInfoByNames,
+                    this::wrapper,
                     noMbid, (trackInfo, urlCapsule) -> {
                         urlCapsule.setAlbumName(trackInfo.getAlbum());
                         urlCapsule.setMbid(trackInfo.getAlbumMid());
@@ -172,6 +172,24 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
         this.ready = true;
         this.count = collect.size();
         return collect;
+    }
+
+    private List<TrackInfo> wrapper(List<UrlCapsule> wrapped) {
+        List<AlbumInfo> mappedAlbums = wrapped.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).collect(Collectors.toList());
+        return mbiz.getAlbumInfoByNames(mappedAlbums);
+    }
+
+    private void convert(List<UrlCapsule> capsules) {
+        Map<ScrobbledAlbum, UrlCapsule> map = capsules.stream().collect(Collectors.toMap(x -> new ScrobbledAlbum(x.getAlbumName(), x.getArtistName(), x.getUrl(), x.getMbid()), x -> x));
+        mbiz.getAlbumInfoByMbid(List.copyOf(map.keySet()));
+        map.keySet().forEach(x -> {
+            UrlCapsule urlCapsule = map.get(x);
+            assert urlCapsule != null;
+            urlCapsule.setAlbumName(x.getAlbum());
+            urlCapsule.setArtistName(x.getArtist());
+            urlCapsule.setMbid(x.getAlbumMbid());
+            urlCapsule.setPlays(x.getCount());
+        });
     }
 
     private void cleanGrouped

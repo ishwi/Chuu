@@ -4,12 +4,12 @@ import com.github.natanbc.javaeval.CompilationResult;
 import com.github.natanbc.javaeval.JavaEvaluator;
 import core.commands.utils.EvalClassLoader;
 import core.commands.utils.EvalContext;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class EvalCommand extends ConcurrentCommand<CommandParameters> {
-    private static Long ownerId;
     private static final String JAVA_EVAL_IMPORTS = "" +
             "package core.commands;\n " +
             "import dao.ChuuService;\n" +
@@ -31,6 +30,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
             "import net.dv8tion.jda.api.entities.User;\n" +
             "import net.dv8tion.jda.api.events.message.MessageReceivedEvent;\n";
     private static final Pattern emmbed = Pattern.compile("```(:?java)?[\\s\\S]*```");
+    private static Long ownerId;
 
     public EvalCommand(ChuuService dao) {
 

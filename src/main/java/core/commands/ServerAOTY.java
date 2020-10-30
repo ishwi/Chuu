@@ -1,6 +1,7 @@
 package core.commands;
 
 import core.apis.last.chartentities.AlbumChart;
+import core.apis.last.chartentities.UrlCapsule;
 import core.imagerenderer.GraphicUtils;
 import core.parsers.ChartYearParser;
 import core.parsers.ChartableParser;

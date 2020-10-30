@@ -1,13 +1,13 @@
 package test.commands;
 
+import net.dv8tion.jda.api.entities.Member;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedWithFieldsUtils;
 import test.commands.utils.FieldRowMatcher;
 import test.commands.utils.TestResources;
-import net.dv8tion.jda.api.entities.Member;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;

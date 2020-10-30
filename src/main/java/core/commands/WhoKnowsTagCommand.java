@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.GenreParser;
 import core.parsers.Parser;
 import core.parsers.params.GenreParameters;
@@ -9,6 +8,7 @@ import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;

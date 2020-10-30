@@ -2,10 +2,14 @@ package core.parsers.params;
 
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.TopEntity;
+import core.apis.last.chartentities.UrlCapsule;
 import core.commands.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.OptionalEntity;
-import dao.entities.*;
+import dao.entities.ChartMode;
+import dao.entities.DiscordUserDisplay;
+import dao.entities.LastFMData;
+import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONObject;
@@ -75,12 +79,12 @@ public class ChartParameters extends CommandParameters {
         return x;
     }
 
-    public int getY() {
-        return y;
-    }
-
     public void setX(int x) {
         this.x = x;
+    }
+
+    public int getY() {
+        return y;
     }
 
     public void setY(int y) {

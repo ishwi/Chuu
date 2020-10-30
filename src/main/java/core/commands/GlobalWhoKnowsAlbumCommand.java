@@ -2,7 +2,6 @@ package core.commands;
 
 import core.exceptions.LastFmException;
 import core.parsers.ArtistAlbumParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;

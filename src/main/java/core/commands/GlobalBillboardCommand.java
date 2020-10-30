@@ -1,37 +1,18 @@
 package core.commands;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.imagerenderer.HotMaker;
-import core.otherlisteners.Reactionary;
-import core.parsers.NoOpParser;
-import core.parsers.NumberParser;
-import core.parsers.OptionalEntity;
-import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
-import dao.entities.*;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
+import dao.entities.BillboardEntity;
+import dao.entities.Week;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.awt.image.BufferedImage;
-import java.sql.Date;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
-import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class GlobalBillboardCommand extends BillboardCommand {
 

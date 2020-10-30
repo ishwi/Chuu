@@ -2,7 +2,6 @@ package core.commands;
 
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
@@ -11,6 +10,8 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.entities.StreakEntity;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -97,7 +98,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         if (combo.getaCounter() > 1) {
             description.append("**Artist**: ")
                     .append(combo.getaCounter()).append(combo.getaCounter() >= 6000 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ")
-                    .append("**[").append(aString).append("](").append(CommandUtil.getLastFmArtistUrl(combo.getCurrentArtist())).append(")**").append("\n");
+                    .append("**[").append(aString).append("](").append(LinkUtils.getLastFmArtistUrl(combo.getCurrentArtist())).append(")**").append("\n");
         }
         if (combo.getAlbCounter() > 1) {
             description.append("**Album**: ")
@@ -105,13 +106,13 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                     .append(combo.getAlbCounter() >= 6000 ? "+" : "")
                     .append(combo.getAlbCounter() != 1 ? " consecutive plays - " : " play - ")
                     .append("**[").append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentAlbum())).append("](")
-                    .append(CommandUtil.getLastFmArtistAlbumUrl(combo.getCurrentArtist(), combo.getCurrentAlbum())).append(")**")
+                    .append(LinkUtils.getLastFmArtistAlbumUrl(combo.getCurrentArtist(), combo.getCurrentAlbum())).append(")**")
                     .append("\n");
         }
         if (combo.gettCounter() > 1) {
             description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 6000 ? "+" : "")
                     .append(combo.gettCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
-                    .append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentSong())).append("](").append(CommandUtil.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
+                    .append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentSong())).append("](").append(LinkUtils.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
         }
 
         MessageEmbed build = embedBuilder.setDescription(description)

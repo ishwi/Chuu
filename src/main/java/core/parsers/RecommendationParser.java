@@ -1,9 +1,9 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.params.RecommendationsParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;

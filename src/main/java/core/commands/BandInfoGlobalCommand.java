@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.LastFmException;
 import core.imagerenderer.BandRendered;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;

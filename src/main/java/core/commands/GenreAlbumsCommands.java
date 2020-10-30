@@ -3,6 +3,7 @@ package core.commands;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.AlbumChart;
 import core.apis.last.chartentities.ChartUtil;
+import core.apis.last.chartentities.UrlCapsule;
 import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
 import core.parsers.GenreChartParser;

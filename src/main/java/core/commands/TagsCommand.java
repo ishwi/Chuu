@@ -4,7 +4,6 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
@@ -12,6 +11,8 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -69,7 +70,7 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
 
         String correctedArtist = CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist());
         List<String> artistTags = getService().getArtistTag(scrobbledArtist.getArtistId())
-                .stream().map(x -> ". **" + CommandUtil.getLastFmTagUrl(x) + "**\n").collect(Collectors.toList());
+                .stream().map(x -> ". **" + LinkUtils.getLastFmTagUrl(x) + "**\n").collect(Collectors.toList());
         if (artistTags.isEmpty()) {
             sendMessageQueue(e, correctedArtist + " doesn't have any tags.");
             return;

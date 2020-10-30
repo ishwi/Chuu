@@ -1,12 +1,12 @@
 package core.commands;
 
 import core.Chuu;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.UrlParser;
 import core.parsers.params.UrlParameters;
 import dao.ChuuService;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;

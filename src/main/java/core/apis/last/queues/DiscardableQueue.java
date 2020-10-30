@@ -1,7 +1,7 @@
 package core.apis.last.queues;
 
 import core.Chuu;
-import dao.entities.UrlCapsule;
+import core.apis.last.chartentities.UrlCapsule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

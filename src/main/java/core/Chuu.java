@@ -4,7 +4,6 @@ import com.google.common.util.concurrent.RateLimiter;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.*;
-import core.exceptions.ChuuServiceException;
 import core.otherlisteners.AwaitReady;
 import core.scheduledtasks.ArtistMbidUpdater;
 import core.scheduledtasks.ImageUpdaterThread;
@@ -14,6 +13,7 @@ import core.services.MessageDeletionService;
 import core.services.MessageDisablingService;
 import dao.ChuuService;
 import dao.entities.Metrics;
+import dao.exceptions.ChuuServiceException;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -48,15 +48,14 @@ import java.util.stream.Collectors;
 public class Chuu {
 
     public static final Character DEFAULT_PREFIX = '!';
+    public static final String DEFAULT_LASTFM_ID = "chuubot";
+    private static final LongAdder lastFMMetric = new LongAdder();
+    private static final Set<String> privateLastFms = new HashSet<>();
     private static ShardManager shardManager;
     private static Logger logger;
     private static ScheduledExecutorService scheduledExecutorService;
-    private static final LongAdder lastFMMetric = new LongAdder();
     private static Map<Long, RateLimiter> ratelimited;
     private static Map<Long, Character> prefixMap;
-    private static final Set<String> privateLastFms = new HashSet<>();
-    public static final String DEFAULT_LASTFM_ID = "chuubot";
-
     private static ChuuService dao;
     private static MessageDeletionService messageDeletionService;
     private static MessageDisablingService messageDisablingService = new MessageDisablingService();
@@ -404,7 +403,7 @@ public class Chuu {
     }
 
     private static Map<Long, Character> initPrefixMap(ChuuService dao) {
-        return (dao.getGuildPrefixes());
+        return (dao.getGuildPrefixes(Chuu.DEFAULT_PREFIX));
     }
 
     public static Properties readToken() {

@@ -4,7 +4,10 @@ import dao.ChuuService;
 import dao.entities.RandomUrlEntity;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RandomTest {
@@ -25,9 +28,7 @@ public class RandomTest {
         }
         long count = test.entrySet().stream().filter(x -> x.getKey() == null).count();
         System.out.println(count);
-        test.entrySet().stream().filter(x -> x.getKey() != null).sorted(Comparator.comparingInt(randomUrlEntityIntegerEntry -> -randomUrlEntityIntegerEntry.getValue())).forEach((key) -> {
-            System.out.println(key.getKey().getDiscordId() + " - " + key.getKey().getUrl() + " - " + key.getValue());
-        });
+        test.entrySet().stream().filter(x -> x.getKey() != null).sorted(Comparator.comparingInt(randomUrlEntityIntegerEntry -> -randomUrlEntityIntegerEntry.getValue())).forEach((key) -> System.out.println(key.getKey().getDiscordId() + " - " + key.getKey().getUrl() + " - " + key.getValue()));
         for (int i = 0; i < 10; i++) {
             System.out.println();
         }

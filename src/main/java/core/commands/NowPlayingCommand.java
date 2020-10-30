@@ -5,20 +5,24 @@ import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
-import core.parsers.params.NPMode;
 import core.services.NPModeBuilder;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
+import dao.entities.NPMode;
 import dao.entities.NowPlayingArtist;
 import dao.entities.ScrobbledArtist;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.LongAdder;
@@ -67,7 +71,7 @@ public class NowPlayingCommand extends NpCommand {
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setAuthor(title, CommandUtil.getLastFmUser(lastFMName), urlHolder)
                 .setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
-                .setTitle(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getSongName()), CommandUtil.getLastFMArtistTrack(nowPlayingArtist.getArtistName(), nowPlayingArtist.getSongName()))
+                .setTitle(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getSongName()), LinkUtils.getLastFMArtistTrack(nowPlayingArtist.getArtistName(), nowPlayingArtist.getSongName()))
                 .setDescription(a);
 
 

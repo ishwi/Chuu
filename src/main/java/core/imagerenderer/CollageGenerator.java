@@ -2,7 +2,7 @@ package core.imagerenderer;
 
 import core.Chuu;
 import core.apis.ExecutorsSingleton;
-import core.exceptions.ChuuServiceException;
+import dao.exceptions.ChuuServiceException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;

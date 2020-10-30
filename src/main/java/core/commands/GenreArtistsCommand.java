@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.ArtistChart;
 import core.apis.last.chartentities.ChartUtil;
+import core.apis.last.chartentities.UrlCapsule;
 import core.apis.last.queues.ArtistQueue;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;

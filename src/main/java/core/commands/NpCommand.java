@@ -1,12 +1,12 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.NpParser;
 import core.parsers.Parser;
 import core.parsers.params.NowPlayingParameters;
 import dao.ChuuService;
 import dao.entities.NowPlayingArtist;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> {

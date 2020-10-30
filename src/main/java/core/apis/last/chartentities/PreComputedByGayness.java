@@ -1,7 +1,5 @@
 package core.apis.last.chartentities;
 
-import dao.entities.UrlCapsule;
-import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

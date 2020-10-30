@@ -1,9 +1,9 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

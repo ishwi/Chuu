@@ -25,11 +25,11 @@ public class Validator<T> extends ReactionListener {
     private final long whom;
     private final MessageChannel messageChannel;
     private final Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap;
-    private T currentElement;
     private final boolean allowOtherUsers;
     private final boolean renderInSameElement;
     private final Queue<MessageReactionAddEvent> tbp = new LinkedBlockingDeque<>();
     private final AtomicBoolean hasCleaned = new AtomicBoolean(false);
+    private T currentElement;
 
     public Validator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, MessageChannel channel, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap, boolean allowOtherUsers, boolean renderInSameElement) {
         super(who, null, 30, channel.getJDA());
@@ -108,7 +108,7 @@ public class Validator<T> extends ReactionListener {
             return;
         }
         if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUserIdLong() != whom) ||
-            event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong() || !event.getReaction().getReactionEmote().isEmoji())
+                event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong() || !event.getReaction().getReactionEmote().isEmoji())
             return;
         BiFunction<T, MessageReactionAddEvent, Boolean> action = this.actionMap.get(event.getReaction().getReactionEmote().getAsCodepoints());
         if (action == null)

@@ -1,12 +1,12 @@
 package test.scheduledtasks;
 
-import core.exceptions.InstanceNotFoundException;
 import core.scheduledtasks.ImageUpdaterThread;
 import core.scheduledtasks.SpotifyUpdaterThread;
 import core.scheduledtasks.UpdaterThread;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UpdaterStatus;
 import dao.entities.UpdaterUserWrapper;
+import dao.exceptions.InstanceNotFoundException;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -65,7 +65,7 @@ public class ThreadTester {
         imageUpdaterThread.run();
         for (ScrobbledArtist nullUrl : nullUrls) {
             UpdaterStatus updaterStatus = TestResources.dao.getUpdaterStatusByName(nullUrl.getArtist());
-            Assert.assertTrue(updaterStatus.getArtistUrl() == "" || updaterStatus.getArtistUrl() != null);
+            Assert.assertTrue(updaterStatus.getArtistUrl().equals("") || updaterStatus.getArtistUrl() != null);
 
         }
     }

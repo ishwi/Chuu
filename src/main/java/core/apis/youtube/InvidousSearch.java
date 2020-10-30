@@ -3,7 +3,7 @@ package core.apis.youtube;
 import core.Chuu;
 import core.apis.ClientSingleton;
 import core.commands.CommandUtil;
-import core.exceptions.ChuuServiceException;
+import dao.exceptions.ChuuServiceException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONArray;

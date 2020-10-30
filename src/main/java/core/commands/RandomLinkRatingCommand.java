@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.NumberParser;
 import core.parsers.Parser;
@@ -11,6 +10,7 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
 import dao.entities.RandomUrlEntity;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -110,7 +110,7 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
 
         } catch (
                 InstanceNotFoundException ex) {
-        // Well
+            // Well
         }
     }
 }

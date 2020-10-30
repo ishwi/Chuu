@@ -1,11 +1,11 @@
 package test.commands;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedWithFieldsUtils;
 import test.commands.utils.FieldRowMatcher;
 import test.commands.utils.TestResources;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;

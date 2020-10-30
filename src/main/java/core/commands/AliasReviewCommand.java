@@ -1,8 +1,6 @@
 package core.commands;
 
 import core.Chuu;
-import core.exceptions.DuplicateInstanceException;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
@@ -12,6 +10,8 @@ import dao.ChuuService;
 import dao.entities.AliasEntity;
 import dao.entities.LastFMData;
 import dao.entities.Role;
+import dao.exceptions.DuplicateInstanceException;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;

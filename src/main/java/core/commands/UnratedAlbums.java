@@ -1,14 +1,11 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.AlbumPlays;
-import dao.entities.AlbumUserPlays;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -73,7 +70,7 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
         embedBuilder.setDescription(a);
         embedBuilder.setColor(CommandUtil.randomColor());
         embedBuilder.setTitle(dp.getUsername() + "'s Unrated Albums");
-        embedBuilder.setFooter("You can link your rym account using " + prefix + "rymimport\n You have "  + list.size() + " unrated albums", null);
+        embedBuilder.setFooter("You can link your rym account using " + prefix + "rymimport\n You have " + list.size() + " unrated albums", null);
         embedBuilder.setThumbnail(dp.getUrlImage());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->

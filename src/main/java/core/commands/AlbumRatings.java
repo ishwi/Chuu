@@ -4,9 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.imagerenderer.ChartLine;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
@@ -15,10 +13,11 @@ import dao.ChuuService;
 import dao.entities.FullAlbumEntityExtended;
 import dao.entities.Rating;
 import dao.entities.ScrobbledArtist;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
@@ -35,6 +34,17 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotify = SpotifySingleton.getInstance();
+    }
+
+    @NotNull
+    public static Function<Byte, String> getStartsFromScore() {
+        return (score) -> {
+            float number = score / 2f;
+            String starts = "★".repeat((int) number);
+            if (number % 1 != 0)
+                starts += "✮";
+            return starts;
+        };
     }
 
     @Override
@@ -81,7 +91,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
         Function<Byte, String> starFormatter = getStartsFromScore();
         FullAlbumEntityExtended chuu1 = lastFM.getAlbumSummary("chuu", scrobbledArtist.getArtist(), album);
         List<Rating> userRatings = ratingss.getUserRatings();
-        String lastFmArtistAlbumUrl = CommandUtil.getLastFmArtistAlbumUrl(artist, album);
+        String lastFmArtistAlbumUrl = LinkUtils.getLastFmArtistAlbumUrl(artist, album);
         List<String> stringList = userRatings.stream().filter(Rating::isSameGuild).map(x -> ". **[" +
                 getUserString(e, x.getDiscordId()) +
                 "](" + lastFmArtistAlbumUrl +
@@ -118,16 +128,5 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
                 new Reactionary<>(stringList, message1, embedBuilder));
 
 
-    }
-
-    @NotNull
-    public static Function<Byte, String> getStartsFromScore() {
-        return (score) -> {
-                float number = score / 2f;
-                String starts = "★".repeat((int) number);
-                if (number % 1 != 0)
-                    starts += "✮";
-                return starts;
-            };
     }
 }

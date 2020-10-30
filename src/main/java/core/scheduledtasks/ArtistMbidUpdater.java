@@ -3,7 +3,6 @@ package core.scheduledtasks;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
-import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;

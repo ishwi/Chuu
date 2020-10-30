@@ -1,7 +1,6 @@
 package core.imagerenderer;
 
 
-import core.Chuu;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ArtistAlbums;
 import dao.entities.ReturnNowPlaying;

@@ -5,7 +5,6 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
@@ -15,6 +14,8 @@ import dao.ChuuService;
 import dao.entities.AlbumRatings;
 import dao.entities.Rating;
 import dao.entities.ScrobbledArtist;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -97,7 +98,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
             counter.addAndGet(serverList.size());
             String s = ratings.getReleaseYear() != null ? " \\(" + ratings.getReleaseYear().toString() + "\\)" : "";
             return ". **[" + ratings.getAlbumName() + s +
-                    "](" + CommandUtil.getLastFmArtistAlbumUrl(artist, ratings.getAlbumName()) +
+                    "](" + LinkUtils.getLastFmArtistAlbumUrl(artist, ratings.getAlbumName()) +
                     ")** - " + format +
                     "\n\n";
         }).collect(Collectors.toList());
@@ -107,7 +108,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
         }
 
 
-        embedBuilder.setTitle(String.format("%s albums rated in %s", artist, e.getGuild().getName()), CommandUtil.getLastFmArtistUrl(artist))
+        embedBuilder.setTitle(String.format("%s albums rated in %s", artist, e.getGuild().getName()), LinkUtils.getLastFmArtistUrl(artist))
                 .setFooter(String.format("%s has been rated %d times in this server", artist, counter.get()))
                 .setDescription(a)
                 .setColor(CommandUtil.randomColor())

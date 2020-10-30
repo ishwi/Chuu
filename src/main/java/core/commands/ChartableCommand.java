@@ -1,6 +1,6 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
+import core.apis.last.chartentities.UrlCapsule;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
@@ -14,7 +14,7 @@ import dao.ChuuService;
 import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
-import dao.entities.UrlCapsule;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -37,7 +37,6 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         this.pie = getPie();
         getParser().setExpensiveSearch(true);
     }
-
 
 
     @Override
@@ -127,6 +126,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         MessageReceivedEvent e = parameters.getE();
         if (queue.size() < x * y) {
             x = Math.max((int) Math.ceil(Math.sqrt(queue.size())), 1);
+            //noinspection SuspiciousNameCombination
             y = x;
         }
         if (x * y > 100) {

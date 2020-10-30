@@ -4,7 +4,6 @@ package core.parsers.params;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.EnumSet;
-import java.util.function.Function;
 
 public class EnumListParameters<T extends Enum<T>> extends CommandParameters {
 

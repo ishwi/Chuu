@@ -2,13 +2,13 @@ package core.imagerenderer;
 
 import core.Chuu;
 import core.apis.last.chartentities.PreComputedChartEntity;
-import dao.entities.UrlCapsule;
+import core.apis.last.chartentities.UrlCapsule;
 import org.imgscalr.Scalr;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,8 +23,8 @@ class ThreadQueue implements Runnable {
     final int y;
     final int x;
     final AtomicInteger iterations;
-    private final boolean asideMode;
     final Font START_FONT;
+    private final boolean asideMode;
     int START_FONT_SIZE = 24;
     final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, START_FONT_SIZE);
     final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, START_FONT_SIZE);
@@ -47,6 +47,27 @@ class ThreadQueue implements Runnable {
         START_FONT = new Font("Noto Sans", Font.PLAIN, START_FONT_SIZE);
     }
 
+    protected static OptionalInt maxWidth(BlockingQueue<UrlCapsule> queue, int imageHeight, int columns) {
+        Graphics2D g1 = new BufferedImage(10000, 10000, BufferedImage.TYPE_INT_ARGB).createGraphics();
+        int actualSize = columns * imageHeight;
+        int heightPerItem = actualSize / queue.size();
+        LinkedBlockingQueue<UrlCapsule> c = new LinkedBlockingQueue<>();
+        queue.drainTo(c);
+        OptionalInt max = Arrays.stream(c.toArray(UrlCapsule[]::new)).mapToInt(x -> {
+            String join = x.getLines().stream().map(ChartLine::getLine).collect(Collectors.joining(" - "));
+            Font font = GraphicUtils.chooseFont(join).deriveFont(Font.BOLD, imageHeight / columns == 300 ? 22 : 8);
+            g1.setFont(font);
+
+
+            while (g1.getFontMetrics().getStringBounds(join, g1).getHeight() >= heightPerItem) {
+                g1.setFont(g1.getFont().deriveFont((float) g1.getFont().getSize() - 1.0f));
+            }
+            g1.setFont(font);
+            return (int) g1.getFontMetrics().getStringBounds(join, g1).getWidth();
+        }).max();
+        queue.addAll(c);
+        return max;
+    }
 
     final void drawImage(BufferedImage image, UrlCapsule capsule, int x, int y) {
         if (image.getHeight() != imageSize || image.getWidth() != imageSize) {
@@ -216,28 +237,6 @@ class ThreadQueue implements Runnable {
             g.setFont(ogFont);
             g.setColor(temp);
         }
-    }
-
-    protected static OptionalInt maxWidth(BlockingQueue<UrlCapsule> queue, int imageHeight, int columns) {
-        Graphics2D g1 = new BufferedImage(10000, 10000, BufferedImage.TYPE_INT_ARGB).createGraphics();
-        int actualSize = columns * imageHeight;
-        int heightPerItem = actualSize / queue.size();
-        LinkedBlockingQueue<UrlCapsule> c = new LinkedBlockingQueue<>();
-        queue.drainTo(c);
-        OptionalInt max = Arrays.stream(c.toArray(UrlCapsule[]::new)).mapToInt(x -> {
-            String join = x.getLines().stream().map(ChartLine::getLine).collect(Collectors.joining(" - "));
-            Font font = GraphicUtils.chooseFont(join).deriveFont(Font.BOLD, imageHeight / columns == 300 ? 22 : 8);
-            g1.setFont(font);
-
-
-            while (g1.getFontMetrics().getStringBounds(join, g1).getHeight() >= heightPerItem) {
-                g1.setFont(g1.getFont().deriveFont((float) g1.getFont().getSize() - 1.0f));
-            }
-            g1.setFont(font);
-            return (int) g1.getFontMetrics().getStringBounds(join, g1).getWidth();
-        }).max();
-        queue.addAll(c);
-        return max;
     }
 
     void drawNames(UrlCapsule capsule, int y, int x, Graphics2D g, int imageWidth, BufferedImage image) {

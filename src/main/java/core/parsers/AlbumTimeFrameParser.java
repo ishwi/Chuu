@@ -1,15 +1,14 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.AlbumTimeFrameParameters;
 import core.parsers.params.ArtistAlbumParameters;
-import core.parsers.params.ArtistTimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.entities.TimeFrameEnum;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

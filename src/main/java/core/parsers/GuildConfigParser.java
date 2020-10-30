@@ -2,7 +2,6 @@ package core.parsers;
 
 import core.parsers.params.GuildConfigParams;
 import core.parsers.params.GuildConfigType;
-import core.parsers.params.UserConfigType;
 import dao.ChuuService;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

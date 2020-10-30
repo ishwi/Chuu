@@ -1,9 +1,9 @@
 package test.commands;
 
+import org.junit.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedUtils;
-import org.junit.Test;
 
 public class TopTracksParser extends CommandTest {
 	@Override

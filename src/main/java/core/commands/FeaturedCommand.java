@@ -7,7 +7,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.PresenceInfo;
-import dao.entities.ScrobbledArtist;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -23,7 +23,6 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
     private static final String DEFAULT_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/180902_%EC%8A%A4%EC%B9%B4%EC%9D%B4%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C_%EC%9D%B4%EB%8B%AC%EC%9D%98_%EC%86%8C%EB%85%80_yyxy.jpg/800px-180902_%EC%8A%A4%EC%B9%B4%EC%9D%B4%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C_%EC%9D%B4%EB%8B%AC%EC%9D%98_%EC%86%8C%EB%85%80_yyxy.jpg";
     private static final String DEFAULT_ARTIST = "LOOΠΔ";
     private static final String DEFAULT_USER = "Chuu";
-    private static boolean doSeasonal = false;
     private static final List<String> seasonalContent = List.of("Totalitarian Dystopia - Acrania",
             "Murder Junkies - GG Allin",
             "The Murder of Liddle Towers / Police Oppression - Angelic Upstarts",
@@ -77,7 +76,7 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
             "...Is Toxic to Pigs?? - Xylitol",
             "Sound & Fury - Youth Brigade",
             "Raste - Benjamin Zephaniah");
-
+    private static boolean doSeasonal = false;
     private PresenceInfo currentPresence;
 
     public FeaturedCommand(ChuuService dao, ScheduledExecutorService scheduledManager) {
@@ -146,7 +145,7 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
-                .setTitle(e.getJDA().getSelfUser().getName() + "'s Featured Artist:", CommandUtil
+                .setTitle(e.getJDA().getSelfUser().getName() + "'s Featured Artist:", LinkUtils
                         .getLastFmArtistUrl(currentPresence.getArtist()))
                 .addField(doSeasonal ? ":sunglasses:" : "Artist:", CommandUtil.cleanMarkdownCharacter(currentPresence.getArtist()), false)
                 .addField("User:", userString, false)

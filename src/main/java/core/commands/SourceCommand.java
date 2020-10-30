@@ -1,11 +1,11 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
@@ -15,13 +15,13 @@ public class SourceCommand extends ConcurrentCommand<CommandParameters> {
     private static final String REPO_URL = "https://github.com/ishwi/discordBot";
 
 
+    public SourceCommand(ChuuService dao) {
+        super(dao);
+    }
+
     @Override
     protected CommandCategory getCategory() {
         return CommandCategory.BOT_INFO;
-    }
-
-    public SourceCommand(ChuuService dao) {
-        super(dao);
     }
 
     @Override

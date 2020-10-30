@@ -1,11 +1,11 @@
 package test.commands;
 
-import test.commands.parsers.NullReturnParsersTest;
-import test.commands.utils.CommandTest;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import org.junit.Assert;
 import org.junit.Test;
+import test.commands.parsers.NullReturnParsersTest;
+import test.commands.utils.CommandTest;
 import test.commands.utils.TestResources;
 
 import java.util.concurrent.TimeUnit;

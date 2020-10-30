@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
@@ -51,7 +50,7 @@ public class CoverCommand extends AlbumPlaysCommand {
             return;
         }
         try {
-            albumUrl = albumUrl.replaceAll("i/u/[\\d\\w]+/","i/u/4096x4096/");
+            albumUrl = albumUrl.replaceAll("i/u/[\\d\\w]+/", "i/u/4096x4096/");
             InputStream file = new URL(albumUrl).openStream();
             e.getChannel().sendFile(file, "cat.png").append(String.format("**%s** - **%s**", artist.getArtist(), album)).queue();
         } catch (IOException ioException) {

@@ -5,7 +5,6 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.BandRendered;
 import core.imagerenderer.GraphicUtils;
@@ -17,6 +16,8 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -116,8 +117,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         StringBuilder str = new StringBuilder();
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        List<String> collect = ai.getAlbumList().stream().map(x -> (String.format(".[%s](%s) - %d plays%n", x.getAlbum(), CommandUtil
-                .getLastFmArtistAlbumUrl(ai.getArtist(), x.getAlbum()), x.getPlays()))).collect(Collectors.toList());
+        List<String> collect = ai.getAlbumList().stream().map(x -> (String.format(".[%s](%s) - %d plays%n", x.getAlbum(), LinkUtils.getLastFmArtistAlbumUrl(ai.getArtist(), x.getAlbum()), x.getPlays()))).collect(Collectors.toList());
         for (int i = 0; i < collect.size() && i < 10; i++) {
             String s = collect.get(i);
             str.append(i + 1).append(s);

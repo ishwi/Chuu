@@ -1,6 +1,7 @@
 package core.commands;
 
 import dao.ChuuService;
+import dao.entities.BillboardEntity;
 
 import java.util.List;
 

@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
@@ -9,6 +8,7 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
 import dao.entities.RandomUrlEntity;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;

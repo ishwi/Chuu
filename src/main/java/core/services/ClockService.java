@@ -22,17 +22,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ClockService {
-    public enum ClockMode {
-        BY_WEEK, BY_DAY
-    }
-
+    public static final Function<TimeZone, Function<PreBillboardUserDataTimestamped, OffsetDateTime>> dateTimeFunctionComposer = (t) -> (x) -> x.getTimestamp().toInstant().atZone(t.toZoneId()).toOffsetDateTime();
     private final ClockMode clockMode;
     private final List<PreBillboardUserDataTimestamped> data;
-    TemporalField weekOfYear = WeekFields.of(Locale.getDefault()).weekOfYear();
     private final TimeZone timeZone;
-    public static final Function<TimeZone, Function<PreBillboardUserDataTimestamped, OffsetDateTime>> dateTimeFunctionComposer = (t) -> (x) -> x.getTimestamp().toInstant().atZone(t.toZoneId()).toOffsetDateTime();
     private final Function<PreBillboardUserDataTimestamped, OffsetDateTime> dateTimeFunction;
-
+    TemporalField weekOfYear = WeekFields.of(Locale.getDefault()).weekOfYear();
     public ClockService(ClockMode clockMode, List<PreBillboardUserDataTimestamped> data, TimeZone timeZone) {
         this.clockMode = clockMode;
         this.data = data;
@@ -40,7 +35,6 @@ public class ClockService {
         dateTimeFunction = dateTimeFunctionComposer.apply(timeZone);
 
     }
-
 
     public byte[] clockDoer() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -100,5 +94,9 @@ public class ClockService {
 
     private Integer byDay(PreBillboardUserDataTimestamped x) {
         return dateTimeFunction.apply(x).getDayOfYear();
+    }
+
+    public enum ClockMode {
+        BY_WEEK, BY_DAY
     }
 }

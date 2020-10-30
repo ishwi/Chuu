@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.IPieableMap;
@@ -15,6 +14,7 @@ import core.services.TagAlbumService;
 import core.services.TagArtistService;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;

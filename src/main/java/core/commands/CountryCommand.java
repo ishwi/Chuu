@@ -1,11 +1,8 @@
 package core.commands;
 
-import core.Chuu;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.WorldMapRenderer;
 import core.parsers.NumberParser;
-import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.NumberParameters;
@@ -14,14 +11,12 @@ import dao.ChuuService;
 import dao.entities.ArtistInfo;
 import dao.entities.Country;
 import dao.entities.TimeFrameEnum;
+import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,8 +34,6 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
         this.musicBrainz = MusicBrainzServiceSingleton.getInstance();
 
     }
-
-
 
 
     @Override

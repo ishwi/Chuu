@@ -1,6 +1,6 @@
 package core.commands;
 
-import core.parsers.params.NPMode;
+import dao.entities.NPMode;
 
 import java.util.EnumSet;
 

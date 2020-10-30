@@ -1,13 +1,16 @@
 package core.commands;
 
 import core.apis.last.chartentities.RYMChartEntity;
-import core.exceptions.LastFmException;
+import core.apis.last.chartentities.UrlCapsule;
 import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.ChartSizeParameters;
 import dao.ChuuService;
-import dao.entities.*;
+import dao.entities.CountWrapper;
+import dao.entities.DiscordUserDisplay;
+import dao.entities.ScoredAlbumRatings;
+import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
 
@@ -82,7 +85,7 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
             RYMChartEntity rymChartEntity = new RYMChartEntity(x.getUrl(), atomicInteger.getAndIncrement(), x.getArtist(), x.getName(), params.isWriteTitles(), !b, useAverage, average, x.getNumberOfRatings());
             rymChartEntity.setPlays(score);
             return rymChartEntity;
-        }).limit(params.getX() * params.getY()).collect(Collectors.toCollection(LinkedBlockingDeque<UrlCapsule>::new));// They in fact cannot be inferred you dumbass.
+        }).limit(params.getX() * params.getY()).collect(Collectors.toCollection(LinkedBlockingDeque::new));// They in fact cannot be inferred you dumbass.
         return new CountWrapper<>(collect.size(), collect);
     }
 

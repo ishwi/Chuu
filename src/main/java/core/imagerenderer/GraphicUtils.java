@@ -2,14 +2,12 @@ package core.imagerenderer;
 
 import core.Chuu;
 import core.apis.youtube.Search;
-import core.exceptions.ChuuServiceException;
 import core.imagerenderer.stealing.blur.GaussianFilter;
 import core.imagerenderer.util.CIELab;
 import core.imagerenderer.util.D;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
-import org.apache.commons.lang3.tuple.Pair;
-import org.beryx.awt.color.ColorFactory;
+import dao.exceptions.ChuuServiceException;
 import org.imgscalr.Scalr;
 
 import javax.annotation.Nullable;
@@ -21,21 +19,33 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Properties;
+import java.util.Random;
 
 public class GraphicUtils {
 
     static final Random ran = new Random();
+    static final File CacheDirectory;
+    static final BufferedImage noArtistImage;
     private static final Font NORMAL_FONT = new Font("Noto Sans", Font.PLAIN, 14);
     private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, 14);
+    //private static final Font UNICODE_FONT = new Font("Sun-ExtA", Font.PLAIN, 14);
     private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, 14);
     private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 14);
-    //private static final Font UNICODE_FONT = new Font("Sun-ExtA", Font.PLAIN, 14);
 
-    static final File CacheDirectory;
-
+    static {
+        try (InputStream in = Search.class.getResourceAsStream("/" + "all.properties")) {
+            Properties properties = new Properties();
+            properties.load(in);
+            String cache_folder = properties.getProperty("CACHE_FOLDER");
+            CacheDirectory = new File(cache_folder);
+            assert CacheDirectory.isDirectory();
+            noArtistImage = ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png"));
+        } catch (IOException e) {
+            throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
+        }
+    }
 
     private GraphicUtils() {
     }
@@ -80,7 +90,6 @@ public class GraphicUtils {
                 alpha);
     }
 
-
     public static Color averageColor(BufferedImage bi) {
         long sumr = 0, sumg = 0, sumb = 0;
         int width = bi.getWidth();
@@ -124,21 +133,6 @@ public class GraphicUtils {
             }
         }
         return font;
-    }
-
-    static final BufferedImage noArtistImage;
-
-    static {
-        try (InputStream in = Search.class.getResourceAsStream("/" + "all.properties")) {
-            Properties properties = new Properties();
-            properties.load(in);
-            String cache_folder = properties.getProperty("CACHE_FOLDER");
-            CacheDirectory = new File(cache_folder);
-            assert CacheDirectory.isDirectory();
-            noArtistImage = ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png"));
-        } catch (IOException e) {
-            throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
-        }
     }
 
     public static void inserArtistImage(String urlImage, Graphics2D g) {

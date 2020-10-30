@@ -1,9 +1,9 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.ExtraParameters;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -24,23 +24,22 @@ import java.util.stream.Collectors;
  */
 public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParameters, T extends Parser<Y>, J> extends Parser<Z> {
 
+    public static final int LIMIT_ERROR = 999;
+    public static final int INNER_ERROR = 1000;
     private final T innerParser;
     private final J def;
     private final Predicate<String> predicate;
     private final Predicate<J> checkPredicate;
-    public static final int LIMIT_ERROR = 999;
-    public static final int INNER_ERROR = 1000;
     private final Function<List<J>, J> chooserPredicate;
 
     private final Function<String, J> fromString;
     private final String fieldName;
     private final String fieldDescription;
-    private Function<J, String> toString;
     private final boolean panicOnMultiple;
     private final boolean catchFirst;
-
     private final BiPredicate<Y, J> innerPredicate;
     private final BiFunction<Y, J, Z> finalReducer;
+    private final Function<J, String> toString;
 
     public ExtraParser(T innerParser,
                        J defaultItem,

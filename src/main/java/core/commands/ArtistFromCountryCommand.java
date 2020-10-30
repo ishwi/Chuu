@@ -5,9 +5,9 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.ChartUtil;
+import core.apis.last.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
@@ -19,9 +19,9 @@ import core.parsers.params.ChartParameters;
 import core.parsers.params.CountryParameters;
 import dao.ChuuService;
 import dao.entities.ArtistUserPlays;
-import dao.entities.ChartMode;
 import dao.entities.DiscordUserDisplay;
-import dao.entities.UrlCapsule;
+import dao.entities.ScrobbledArtist;
+import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -118,7 +118,12 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         lastFM.getChart(name, parameters.getTimeFrame().toApiFormat(), 2000, 1, TopEntity.ARTIST, ChartUtil.getParser(parameters.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, name), queue);
 
         Long discordId = parameters.getLastFMData().getDiscordId();
-        List<ArtistUserPlays> list = this.mb.getArtistFromCountry(country, queue, discordId);
+        List<ScrobbledArtist> artistInfos = queue.stream().map(x -> {
+            ScrobbledArtist scrobbledArtist = new ScrobbledArtist(x.getArtistName(), x.getPlays(), null);
+            scrobbledArtist.setArtistMbid(scrobbledArtist.getArtistMbid());
+            return scrobbledArtist;
+        }).collect(Collectors.toList());
+        List<ArtistUserPlays> list = this.mb.getArtistFromCountry(country, artistInfos, discordId);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();

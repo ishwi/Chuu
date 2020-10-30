@@ -1,20 +1,16 @@
 package core.commands;
 
 import core.Chuu;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ChartParserAux;
 import core.parsers.Parser;
 import core.parsers.UserConfigParser;
 import core.parsers.exceptions.InvalidChartValuesException;
-import core.parsers.params.NPMode;
 import core.parsers.params.UserConfigParameters;
 import core.parsers.params.UserConfigType;
 import dao.ChuuService;
-import dao.entities.ChartMode;
-import dao.entities.PrivacyMode;
-import dao.entities.RemainingImagesMode;
-import dao.entities.WhoKnowsMode;
+import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 

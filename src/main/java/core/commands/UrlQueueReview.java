@@ -1,7 +1,6 @@
 package core.commands;
 
 import core.Chuu;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
@@ -12,6 +11,8 @@ import dao.ImageQueue;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.TriFunction;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
@@ -29,13 +30,13 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
-    private final AtomicBoolean isActive = new AtomicBoolean(false);
     private static final String ACCEPT = "U+2714";
     private static final String DELETE = "U+1f469U+200dU+2696U+fe0f";
     private static final String RIGHT_ARROW = "U+27a1";
+    private final AtomicBoolean isActive = new AtomicBoolean(false);
     private final TriFunction<JDA, Integer, Supplier<Integer>, BiFunction<ImageQueue, EmbedBuilder, EmbedBuilder>> builder = (jda, totalCount, pos) -> (reportEntity, embedBuilder) ->
             embedBuilder.clearFields()
-                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(reportEntity.getArtistName()), CommandUtil.getLastFmArtistUrl(reportEntity.getArtistName())), false)
+                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(reportEntity.getArtistName()), LinkUtils.getLastFmArtistUrl(reportEntity.getArtistName())), false)
                     .addField("Author", CommandUtil.getGlobalUsername(jda, reportEntity.getUploader()), true)
                     .addField("#Times user got reported:", String.valueOf(reportEntity.getUserReportCount()), true)
                     .setFooter(String.format("%d/%d%nUse \uD83D\uDC69\u200D\u2696\ufe0f to reject this image", pos.get() + 1, totalCount))

@@ -11,8 +11,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import static core.imagerenderer.GraphicUtils.chooseFont;
-
 public class LoveMaker {
 
     private final static int X_SIZE = 1400;

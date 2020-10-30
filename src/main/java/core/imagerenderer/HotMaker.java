@@ -1,6 +1,6 @@
 package core.imagerenderer;
 
-import core.commands.BillboardEntity;
+import dao.entities.BillboardEntity;
 import org.beryx.awt.color.ColorFactory;
 import org.imgscalr.Scalr;
 import org.jetbrains.annotations.Nullable;

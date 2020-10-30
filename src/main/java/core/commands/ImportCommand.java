@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
@@ -9,14 +8,13 @@ import core.parsers.FileParser;
 import core.parsers.Parser;
 import core.parsers.params.UrlParameters;
 import dao.ChuuService;
+import dao.entities.Role;
 import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,6 +28,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ImportCommand extends ConcurrentCommand<UrlParameters> {
+
+
     private final ImportFunctional consumer = (u, m, message, embedBuilder, author, pos, errorCounter) -> () -> {
         embedBuilder.setDescription("Processing user #" + pos);
         message.editMessage(embedBuilder.build()).queue();
@@ -238,5 +238,11 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
             e.getAuthor().openPrivateChannel()
                     .flatMap(p -> complete.editMessage(embedBuilder.setDescription(description).build())).queue();
         }
+    }
+
+    @FunctionalInterface
+    public interface ImportFunctional {
+        Callback executeCallback(LastFMData a, StringBuilder b, Message message, EmbedBuilder embedBuilder, User user, int position, int[] errorCounter);
+
     }
 }

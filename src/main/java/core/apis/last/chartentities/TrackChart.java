@@ -5,7 +5,7 @@ import core.commands.CommandUtil;
 import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartParameters;
 import dao.entities.NowPlayingArtist;
-import dao.entities.UrlCapsule;
+import dao.utils.LinkUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -70,7 +70,7 @@ public class TrackChart extends UrlCapsule {
         return String.format(". **[%s - %s](%s)** - **%d** %s%n",
                 CommandUtil.cleanMarkdownCharacter(getArtistName())
                 , CommandUtil.cleanMarkdownCharacter(getAlbumName()),
-                CommandUtil.getLastFMArtistTrack(getArtistName(), getAlbumName()),
+                LinkUtils.getLastFMArtistTrack(getArtistName(), getAlbumName()),
                 getPlays(), CommandUtil.singlePlural(getPlays(), "play", "plays"));
     }
 

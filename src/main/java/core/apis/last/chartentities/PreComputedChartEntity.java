@@ -3,7 +3,6 @@ package core.apis.last.chartentities;
 import core.imagerenderer.ChartLine;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.stealing.colorpicker.ColorThiefCustom;
-import dao.entities.UrlCapsule;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 

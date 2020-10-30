@@ -3,13 +3,13 @@ package core.commands;
 import core.apis.youtube.InvidousSearch;
 import core.apis.youtube.SearchSingleton;
 import core.apis.youtube.YoutubeSearch;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.UsernameAndNpQueryParser;
 import core.parsers.params.ExtraParameters;
 import core.parsers.params.WordParameter;
 import dao.ChuuService;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -17,9 +17,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<WordParameter, User>> {
+    public static final boolean ONLY_YT = false;
     private final YoutubeSearch youtubeSearch;
     private final YoutubeSearch optionalSearch;
-    public static final boolean ONLY_YT = false;
 
     public YoutubeSearchCommand(ChuuService dao) {
         super(dao);

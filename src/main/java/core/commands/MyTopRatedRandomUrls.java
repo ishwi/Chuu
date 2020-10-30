@@ -1,17 +1,14 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
-import core.parsers.NoOpParser;
 import core.parsers.OnlyUsernameParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -24,6 +21,29 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
         super(dao);
     }
 
+    static void RandomUrlDisplay(MessageReceivedEvent e, List<ScoredAlbumRatings> ratings, String title, String url) {
+        List<String> list = ratings.stream().map(x ->
+                ". ***[" + x.getUrl()
+                        +
+                        "](" + x.getUrl() +
+                        ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", ScoredAlbumRatings.formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
+                        "\n").collect(Collectors.toList());
+        StringBuilder a = new StringBuilder();
+        for (
+                int i = 0;
+                i < 10 && i < list.size(); i++) {
+            a.append(i + 1).append(list.get(i));
+        }
+
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setDescription(a).setTitle(title)
+                .setThumbnail(url)
+                .setColor(CommandUtil.randomColor());
+
+        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).
+                queue(message ->
+                        new Reactionary<>(list, message, embedBuilder));
+    }
 
     @Override
     protected CommandCategory getCategory() {
@@ -65,29 +85,5 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
 
 
         RandomUrlDisplay(e, ratings, title + "'s top rated urls by everyone else", url);
-    }
-
-    static void RandomUrlDisplay(MessageReceivedEvent e, List<ScoredAlbumRatings> ratings, String title, String url) {
-        List<String> list = ratings.stream().map(x ->
-                ". ***[" + x.getUrl()
-                        +
-                        "](" + x.getUrl() +
-                        ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", ScoredAlbumRatings.formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
-                        "\n").collect(Collectors.toList());
-        StringBuilder a = new StringBuilder();
-        for (
-                int i = 0;
-                i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i));
-        }
-
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setDescription(a).setTitle(title)
-                .setThumbnail(url)
-                .setColor(CommandUtil.randomColor());
-
-        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).
-                queue(message ->
-                        new Reactionary<>(list, message, embedBuilder));
     }
 }

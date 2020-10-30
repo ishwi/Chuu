@@ -2,7 +2,6 @@ package core.commands;
 
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
@@ -10,8 +9,10 @@ import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -140,7 +141,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
         {
             String link;
             String albumLink = spotify.getAlbumLink(t.getArtist(), t.getAlbum());
-            link = Objects.requireNonNullElseGet(albumLink, () -> CommandUtil.getLastFmArtistAlbumUrl(t.getArtist(), t.getAlbum()));
+            link = Objects.requireNonNullElseGet(albumLink, () -> LinkUtils.getLastFmArtistAlbumUrl(t.getArtist(), t.getAlbum()));
             return String.format(". **[%s - %s](%s)**\n", CommandUtil.cleanMarkdownCharacter(t.getArtist()), t.getAlbum(), link);
         }).limit(rp.getRecCount())
                 .collect(Collectors.toList());

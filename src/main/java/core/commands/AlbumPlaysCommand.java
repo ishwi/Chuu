@@ -4,7 +4,6 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
@@ -12,6 +11,7 @@ import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;

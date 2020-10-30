@@ -6,12 +6,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class OptionalEntity {
+    private static final Pattern options = Pattern.compile("(?:--|~~|—)(\\w+)");
     private final String value;
     private final String definition;
     private final boolean isEnabledByDefault;
     private final String blockedBy;
-
-    private static final Pattern options = Pattern.compile("(?:--|~~|—)(\\w+)");
 
 
     public OptionalEntity(String value, String definition) {
@@ -27,6 +26,26 @@ public class OptionalEntity {
         this.isEnabledByDefault = isEnabledByDefault;
         this.blockedBy = blockedBy;
 
+    }
+
+    public static boolean isWordAValidOptional(Set<OptionalEntity> optPool, String toTest) {
+        Matcher matcher = options.matcher(toTest);
+        return matcher.matches() && optPool.contains(new OptionalEntity(matcher.group(1), ""));
+
+    }
+
+    /**
+     * @param valid Needs to be a previously validated with {@link #options}
+     * @return the substring without the optional prefixes
+     */
+    //Valid needs to
+    public static String getOptPartFromValid(@NotNull String valid) {
+
+        Matcher matcher = options.matcher(valid);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        }
+        throw new IllegalStateException();
     }
 
     public String getDefinition() {
@@ -60,25 +79,5 @@ public class OptionalEntity {
 
     public String getBlockedBy() {
         return blockedBy;
-    }
-
-    public static boolean isWordAValidOptional(Set<OptionalEntity> optPool, String toTest) {
-        Matcher matcher = options.matcher(toTest);
-        return matcher.matches() && optPool.contains(new OptionalEntity(matcher.group(1), ""));
-
-    }
-
-    /**
-     * @param valid Needs to be a previously validated with {@link #options}
-     * @return the substring without the optional prefixes
-     */
-    //Valid needs to
-    public static String getOptPartFromValid(@NotNull String valid) {
-
-        Matcher matcher = options.matcher(valid);
-        if (matcher.matches()) {
-            return matcher.group(1);
-        }
-        throw new IllegalStateException();
     }
 }

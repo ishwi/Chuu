@@ -1,9 +1,9 @@
 package core.apis.last.queues;
 
 import core.apis.discogs.DiscogsApi;
+import core.apis.last.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import dao.ChuuService;
-import dao.entities.UrlCapsule;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -20,6 +20,8 @@ public abstract class GroupingQueue extends ArtistQueue {
     public final int requested;
     public final transient Map<String, UrlCapsule> artistMap = new ConcurrentHashMap<>();
     private final transient AtomicInteger counter = new AtomicInteger(0);
+    boolean ready = false;
+    int count = 0;
 
     public GroupingQueue(ChuuService dao, DiscogsApi discogsApi, Spotify spotify, int requested) {
         super(dao, discogsApi, spotify);
@@ -31,9 +33,6 @@ public abstract class GroupingQueue extends ArtistQueue {
     public abstract BiFunction<UrlCapsule, UrlCapsule, UrlCapsule> reductorFunction();
 
     public abstract Comparator<UrlCapsule> comparator();
-
-    boolean ready = false;
-    int count = 0;
 
     @Override
     public int size() {

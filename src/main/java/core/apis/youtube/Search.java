@@ -19,7 +19,7 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import core.Chuu;
-import core.exceptions.ChuuServiceException;
+import dao.exceptions.ChuuServiceException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,14 +36,13 @@ import java.util.Properties;
  */
 public class Search implements YoutubeSearch {
 
+    static final String BASE_URL = "https://www.youtube.com/watch?v=";
     /**
      * Define a global variable that identifies the name of a file that
      * contains the developer's API key.
      */
     private static final String PROPERTIES_FILENAME = "all.properties";
-
     private static final long NUMBER_OF_VIDEOS_RETURNED = 25;
-    static final String BASE_URL = "https://www.youtube.com/watch?v=";
     /**
      * Define a global instance of a Youtube object, which will be used
      * to make YouTube Data API requests.

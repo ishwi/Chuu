@@ -23,6 +23,10 @@ public class TagAlbumService extends TagService<AlbumInfo, ScrobbledAlbum> {
                 .collect(Collectors.toMap((t) -> new Genre(t, null), t -> Collections.singletonList(albumInfo))));
     }
 
+    public TagAlbumService(ChuuService dao, ConcurrentLastFM lastFM, List<AlbumInfo> collect, String genre) {
+        super(dao, lastFM, collect, genre);
+    }
+
     @Override
     protected void insertGenres(Map<Genre, List<ScrobbledAlbum>> genres) {
         dao.insertAlbumTags(genres);
@@ -54,10 +58,5 @@ public class TagAlbumService extends TagService<AlbumInfo, ScrobbledAlbum> {
             }
         }).filter(Objects::nonNull).forEach(x -> scrobbledAlbumMap.put(x.getKey(), x.getValue()));
         return scrobbledAlbumMap;
-    }
-
-
-    public TagAlbumService(ChuuService dao, ConcurrentLastFM lastFM, List<AlbumInfo> collect, String genre) {
-        super(dao, lastFM, collect, genre);
     }
 }

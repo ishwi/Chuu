@@ -1,8 +1,9 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.parsers.*;
+import core.parsers.OnlyUsernameParser;
+import core.parsers.OptionalEntity;
+import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.services.BillboardHoarder;
 import core.services.ClockService;
@@ -11,6 +12,7 @@ import dao.entities.PreBillboardUserDataTimestamped;
 import dao.entities.Role;
 import dao.entities.UsersWrapper;
 import dao.entities.Week;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

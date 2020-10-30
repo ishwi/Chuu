@@ -1,6 +1,7 @@
 package core.commands;
 
 import dao.ChuuService;
+import dao.entities.BillboardEntity;
 
 import java.util.List;
 
@@ -18,7 +19,6 @@ public class GlobalAlbumBillboardCommand extends GlobalBillboardCommand {
     public List<String> getAliases() {
         return List.of("globalalbumbillboard", "globaltrendalbum", "galbtrend", "gtrendalb");
     }
-
 
 
     @Override

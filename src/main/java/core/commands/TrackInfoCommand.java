@@ -1,7 +1,6 @@
 package core.commands;
 
 import core.apis.last.TrackExtended;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
@@ -9,6 +8,7 @@ import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -57,17 +57,17 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
         String tagsField = trackInfo.getTags().isEmpty()
                 ? ""
                 : trackInfo.getTags().stream()
-                .map(tag -> String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(tag), CommandUtil.getLastFmTagUrl(tag)))
+                .map(tag -> String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(tag), LinkUtils.getLastFmTagUrl(tag)))
                 .collect(Collectors.joining(" - "));
 
         MessageBuilder messageBuilder = new MessageBuilder();
-        embedBuilder.setTitle(trackInfo.getName(), CommandUtil.getLastFMArtistTrack(trackInfo.getArtist(), trackInfo.getName()))
+        embedBuilder.setTitle(trackInfo.getName(), LinkUtils.getLastFMArtistTrack(trackInfo.getArtist(), trackInfo.getName()))
                 .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(trackInfo.getArtist()),
-                        CommandUtil.getLastFmArtistUrl(trackInfo.getArtist())), false);
+                        LinkUtils.getLastFmArtistUrl(trackInfo.getArtist())), false);
         if (trackInfo.getAlbumName() != null) {
             embedBuilder.
                     addField("Album:",
-                            String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(trackInfo.getAlbumName()), CommandUtil.getLastFmArtistAlbumUrl(trackInfo.getArtist(), trackInfo.getAlbumName())),
+                            String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(trackInfo.getAlbumName()), LinkUtils.getLastFmArtistAlbumUrl(trackInfo.getArtist(), trackInfo.getAlbumName())),
                             false);
         }
         embedBuilder

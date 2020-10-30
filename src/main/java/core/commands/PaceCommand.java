@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.PaceParser;
 import core.parsers.Parser;
@@ -9,6 +8,7 @@ import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.UserInfo;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.text.DecimalFormat;

@@ -8,6 +8,7 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -58,7 +59,7 @@ public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlay
         }
 
         List<String> collect = list.stream().map(x -> String.format(". [%s](%s) - %d plays %n",
-                CommandUtil.cleanMarkdownCharacter(x.getArtistName()), CommandUtil.getLastFmArtistUrl(x.getArtistName()), x.getCount()))
+                CommandUtil.cleanMarkdownCharacter(x.getArtistName()), LinkUtils.getLastFmArtistUrl(x.getArtistName()), x.getCount()))
                 .collect(Collectors.toList());
         EmbedBuilder embedBuilder = initList(collect)
                 .setTitle("Total artist plays")

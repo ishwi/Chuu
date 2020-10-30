@@ -1,20 +1,18 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
-import dao.entities.ChartMode;
-import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 
 public abstract class ChartableParser<T extends ChartParameters> extends DaoParser<T> {
-    final TimeFrameEnum defaultTFE;
     public static final int DEFAULT_X = 5;
     public static final int DEFAULT_Y = 5;
+    final TimeFrameEnum defaultTFE;
 
     public ChartableParser(ChuuService dao, TimeFrameEnum defaultTFE) {
         super(dao);

@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.HotMaker;
 import core.otherlisteners.Reactionary;
@@ -12,8 +11,11 @@ import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import core.services.BillboardHoarder;
 import dao.ChuuService;
+import dao.entities.BillboardEntity;
 import dao.entities.UsersWrapper;
 import dao.entities.Week;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -167,7 +169,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             List<String> artistAliases = entities
                     .stream().map(x -> String.format(". **[%s](%s):**\n Rank: %d | Previous Week: %s | Peak: %s | Weeks on top: %s | %s: %d\n",
                             x.getArtist() == null ? CommandUtil.cleanMarkdownCharacter(x.getName()) : CommandUtil.cleanMarkdownCharacter(x.getName() + " - " + x.getArtist()),
-                            x.getArtist() == null ? CommandUtil.getLastFmArtistUrl(x.getName()) : CommandUtil.getLastFMArtistTrack(x.getArtist(), x.getName()),
+                            x.getArtist() == null ? LinkUtils.getLastFmArtistUrl(x.getName()) : LinkUtils.getLastFMArtistTrack(x.getArtist(), x.getName()),
                             x.getPosition(),
                             x.getPreviousWeek() == 0 ? "--" : x.getPreviousWeek(),
                             x.getPeak() == 0 ? "--" : x.getPeak(),

@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
@@ -9,6 +8,7 @@ import dao.ChuuService;
 import dao.entities.ArtistSummary;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;

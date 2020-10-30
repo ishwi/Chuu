@@ -1,12 +1,12 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.EnumListParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumListParameters;
-import core.parsers.params.NPMode;
 import dao.ChuuService;
+import dao.entities.NPMode;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.EnumSet;

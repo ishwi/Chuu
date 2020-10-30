@@ -1,12 +1,9 @@
 package core.parsers.params;
 
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.ChartParserAux;
 import dao.ChuuService;
-import dao.entities.ChartMode;
-import dao.entities.LastFMData;
-import dao.entities.RemainingImagesMode;
-import dao.entities.WhoKnowsMode;
+import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.WordUtils;
 
 import java.time.DateTimeException;
@@ -30,7 +27,6 @@ public enum UserConfigType {
     NP("np"),
     TIMEZONE("timezone");
 
-    private static final Map<String, UserConfigType> ENUM_MAP;
     static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
     static final Pattern chartMode = Pattern.compile("(Image|Image-info|Image-Aside|Image-aside-info|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
     static final Pattern whoknowsMode = Pattern.compile("(Image|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
@@ -38,7 +34,6 @@ public enum UserConfigType {
     static final Pattern npMode = Pattern.compile("((" +
             EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
             ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
-
     static final Predicate<String> stringPredicate = (x) ->
     {
         try {
@@ -48,7 +43,7 @@ public enum UserConfigType {
             return false;
         }
     };
-
+    private static final Map<String, UserConfigType> ENUM_MAP;
 
     static {
         ENUM_MAP = Stream.of(UserConfigType.values())
@@ -63,78 +58,6 @@ public enum UserConfigType {
 
     public static UserConfigType get(String name) {
         return ENUM_MAP.get(name);
-    }
-
-    public String getCommandName() {
-        return commandName;
-    }
-
-
-    public Predicate<String> getParser() {
-        switch (this) {
-            case CHART_MODE:
-                return chartMode.asMatchPredicate();
-            case REMAINING_MODE:
-            case WHOKNOWS_MODE:
-                return whoknowsMode.asMatchPredicate();
-            case PRIVACY_MODE:
-                return privacyMode.asMatchPredicate();
-            case PRIVATE_UPDATE:
-            case NOTIFY_IMAGE:
-            case NOTIFY_RATING:
-            case PRIVATE_LASTFM:
-                return bool.asMatchPredicate();
-            case CHART_SIZE:
-                return ChartParserAux.chartSizePattern.asMatchPredicate();
-            case NP:
-                return npMode.asMatchPredicate();
-            case TIMEZONE:
-                return stringPredicate;
-            default:
-                return (s) -> true;
-
-        }
-    }
-
-    public String getExplanation() {
-        switch (this) {
-            case PRIVATE_UPDATE:
-                return "If you want others users to be able to update your account with a ping and the update command (true for making it private, false for it to be public)";
-            case NOTIFY_IMAGE:
-                return "Whether you will get notified or not when a submitted image gets accepted (true = notify, false = don't)";
-            case CHART_MODE:
-                String collect = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
-                collect += "\n\t\t\t**Clear**: Sets the default mode";
-                return "Set the mode for all charts. " +
-                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                        "\t\tThe possible values for the chart mode are the following:" + collect;
-            case WHOKNOWS_MODE:
-                collect = EnumSet.allOf(WhoKnowsMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
-                collect += "\n\t\t\t**Clear**: Sets the default mode";
-                return "Set the mode for all charts. " +
-                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                        "\t\tThe possible values for the who knows mode are the following:" + collect;
-            case REMAINING_MODE:
-                collect = EnumSet.allOf(RemainingImagesMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
-                collect += "\n\t\t\t**Clear**:| Sets the default mode";
-                return "Set the mode for the rest of the commands. " +
-                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                        "\t\tThe possible values for the rest of the commands are the following:" + collect;
-            case CHART_SIZE:
-                return "Change the default chart size for chart command when you dont specify directly the size";
-            case PRIVACY_MODE:
-                return "Sets how will you appear in the global leaderboard, changing this means users from other servers might be able to contact you directly";
-            case NOTIFY_RATING:
-                return "Whether you will get notified or not when a url you have submitted to the random command gets rated by someone else (true = notify, false = don't)";
-            case PRIVATE_LASTFM:
-                return "Setting this to true will mean that your last.fm name will stay private and will not be shared with anyone. (This is different from privacy settings since it affects commands within a server and not cross server)";
-            case NP:
-                return "Setting this will alter the appearance of your np commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
-            case TIMEZONE:
-                return "TIMEZONE ";
-            default:
-                throw new IllegalStateException();
-        }
     }
 
     public static String list(ChuuService dao, long discordId) {
@@ -212,6 +135,77 @@ public enum UserConfigType {
 
                 collect(Collectors.joining("\n"));
 
+    }
+
+    public String getCommandName() {
+        return commandName;
+    }
+
+    public Predicate<String> getParser() {
+        switch (this) {
+            case CHART_MODE:
+                return chartMode.asMatchPredicate();
+            case REMAINING_MODE:
+            case WHOKNOWS_MODE:
+                return whoknowsMode.asMatchPredicate();
+            case PRIVACY_MODE:
+                return privacyMode.asMatchPredicate();
+            case PRIVATE_UPDATE:
+            case NOTIFY_IMAGE:
+            case NOTIFY_RATING:
+            case PRIVATE_LASTFM:
+                return bool.asMatchPredicate();
+            case CHART_SIZE:
+                return ChartParserAux.chartSizePattern.asMatchPredicate();
+            case NP:
+                return npMode.asMatchPredicate();
+            case TIMEZONE:
+                return stringPredicate;
+            default:
+                return (s) -> true;
+
+        }
+    }
+
+    public String getExplanation() {
+        switch (this) {
+            case PRIVATE_UPDATE:
+                return "If you want others users to be able to update your account with a ping and the update command (true for making it private, false for it to be public)";
+            case NOTIFY_IMAGE:
+                return "Whether you will get notified or not when a submitted image gets accepted (true = notify, false = don't)";
+            case CHART_MODE:
+                String collect = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                collect += "\n\t\t\t**Clear**: Sets the default mode";
+                return "Set the mode for all charts. " +
+                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
+                        "\t\tThe possible values for the chart mode are the following:" + collect;
+            case WHOKNOWS_MODE:
+                collect = EnumSet.allOf(WhoKnowsMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                collect += "\n\t\t\t**Clear**: Sets the default mode";
+                return "Set the mode for all charts. " +
+                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
+                        "\t\tThe possible values for the who knows mode are the following:" + collect;
+            case REMAINING_MODE:
+                collect = EnumSet.allOf(RemainingImagesMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                collect += "\n\t\t\t**Clear**:| Sets the default mode";
+                return "Set the mode for the rest of the commands. " +
+                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
+                        "\t\tThe possible values for the rest of the commands are the following:" + collect;
+            case CHART_SIZE:
+                return "Change the default chart size for chart command when you dont specify directly the size";
+            case PRIVACY_MODE:
+                return "Sets how will you appear in the global leaderboard, changing this means users from other servers might be able to contact you directly";
+            case NOTIFY_RATING:
+                return "Whether you will get notified or not when a url you have submitted to the random command gets rated by someone else (true = notify, false = don't)";
+            case PRIVATE_LASTFM:
+                return "Setting this to true will mean that your last.fm name will stay private and will not be shared with anyone. (This is different from privacy settings since it affects commands within a server and not cross server)";
+            case NP:
+                return "Setting this will alter the appearance of your np commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+            case TIMEZONE:
+                return "TIMEZONE ";
+            default:
+                throw new IllegalStateException();
+        }
     }
 }
 

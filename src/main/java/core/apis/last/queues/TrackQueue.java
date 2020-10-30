@@ -2,9 +2,9 @@ package core.apis.last.queues;
 
 import core.apis.discogs.DiscogsApi;
 import core.apis.last.chartentities.TrackDurationChart;
+import core.apis.last.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import dao.ChuuService;
-import dao.entities.UrlCapsule;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

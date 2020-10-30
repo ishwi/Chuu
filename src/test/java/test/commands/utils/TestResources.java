@@ -2,9 +2,9 @@ package test.commands.utils;
 
 import core.Chuu;
 import core.commands.CustomInterfacedEventManager;
-import core.exceptions.ChuuServiceException;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.ChuuServiceException;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -17,10 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -45,7 +42,7 @@ public class TestResources extends ExternalResource {
 
     public static void deleteCommonArtists() {
         dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong(), setUp, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, null, true, true, timeZone));
+                .getGuild().getIdLong(), setUp, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, null, true, true, TimeZone.getDefault()));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
         dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -53,7 +50,7 @@ public class TestResources extends ExternalResource {
 
     public static void insertOnlyKnownSecond(String second, int plays) {
         dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong(), setUp, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, true, true, timeZone));
+                .getGuild().getIdLong(), setUp, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, true, true, TimeZone.getDefault()));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         scrobbledArtistData.add(new ScrobbledArtist("guilleecs", second, plays));
         dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
@@ -62,7 +59,7 @@ public class TestResources extends ExternalResource {
 
     public static void deleteOnlyKnownSecond() {
         dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong(), setUp, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, true, true, timeZone));
+                .getGuild().getIdLong(), setUp, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, true, true, TimeZone.getDefault()));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
         dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -79,7 +76,7 @@ public class TestResources extends ExternalResource {
 
     public static void insertCommonArtistWithPlays(int plays) {
         dao.insertNewUser(new LastFMData("guilleecs", ogJDA.getSelfUser().getIdLong(), channelWorker
-                .getGuild().getIdLong(), setUp, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, null, true, true, timeZone));
+                .getGuild().getIdLong(), setUp, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, null, true, true, TimeZone.getDefault()));
         ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
         scrobbledArtistData.add(new ScrobbledArtist("guilleecs", commonArtist, plays));
         dao.insertArtistDataList(scrobbledArtistData, "guilleecs");

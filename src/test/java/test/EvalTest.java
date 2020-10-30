@@ -22,7 +22,6 @@ public class EvalTest {
     public void name(EvalContext ctx) {
 
 
-        ctx.sendMessage(String.valueOf(ctx.db.getGuildPrefixes().values().size()));
     }
 
     public JSONObject getKey(String id) {
@@ -55,7 +54,6 @@ public class EvalTest {
         for (String s1 : collect) {
 
 
-            String name = s1;
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("name", s1);
             JSONObject jsonObject1 = jsonObjectMap.get(s1);
@@ -64,71 +62,71 @@ public class EvalTest {
                 continue;
             }
             jsonObject.put("group", new JSONArray());
-            String s = name.replaceAll("[()]", "");
-            if (name.toLowerCase().contains("yyxy")) {
+            String s = s1.replaceAll("[()]", "");
+            if (s1.toLowerCase().contains("yyxy")) {
                 jsonObject.accumulate("group", getKey(Loonas.YYXY.id));
-            } else if (name.length() < 7) {
+            } else if (s1.length() < 7) {
                 jsonObject.accumulate("group", getKey(Loonas.MAIN.id));
-            } else if (one.matcher(name).find()) {
+            } else if (one.matcher(s1).find()) {
                 jsonObject.accumulate("group", getKey(Loonas.ONETHIRD.id));
             } else if (s.toLowerCase().endsWith("loona") || s.toLowerCase().endsWith("looΠΔ".toLowerCase()) || s.toLowerCase().endsWith("소녀".toLowerCase())) {
                 jsonObject.accumulate("group", getKey(Loonas.MAIN.id));
-            } else if (oneEyy.matcher(name).find()) {
+            } else if (oneEyy.matcher(s1).find()) {
                 jsonObject.accumulate("group", getKey(Loonas.OEC.id));
             } else {
-                if (kl.matcher(name).find()) {
+                if (kl.matcher(s1).find()) {
                     jsonObject.accumulate("group", getKey(Loonas.KIM_LIP.id));
                 }
-                if (gw.matcher(name).find()) {
+                if (gw.matcher(s1).find()) {
                     jsonObject.accumulate("group", getKey(Loonas.GOWON.id));
                 }
-                if (oh.matcher(name).find()) {
+                if (oh.matcher(s1).find()) {
                     jsonObject.accumulate("group", getKey(Loonas.OLIVIA.id));
                 }
                 EnumSet<Loonas> a = EnumSet.complementOf(EnumSet.of(Loonas.OLIVIA, Loonas.GOWON, Loonas.KIM_LIP));
                 for (Loonas loonas : a) {
-                    if (name.toUpperCase().contains(loonas.id)) {
+                    if (s1.toUpperCase().contains(loonas.id)) {
                         jsonObject.accumulate("group", getKey(loonas.id));
                     }
                 }
                 if (jsonObject.optJSONArray("group") == null || jsonObject.optJSONArray("group").length() == 0) {
-                    if (name.toLowerCase().contains("오드아이써클".toLowerCase())) {
+                    if (s1.toLowerCase().contains("오드아이써클".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.OEC.id));
                     }
-                    if (name.toLowerCase().contains("희진".toLowerCase())) {
+                    if (s1.toLowerCase().contains("희진".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.HEEJIN.id));
                     }
-                    if (name.toLowerCase().contains("하슬".toLowerCase())) {
+                    if (s1.toLowerCase().contains("하슬".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.HASEUL.id));
                     }
-                    if (name.toLowerCase().contains("츄".toLowerCase())) {
+                    if (s1.toLowerCase().contains("츄".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.CHUU.id));
                     }
-                    if (name.toLowerCase().contains("최리".toLowerCase())) {
+                    if (s1.toLowerCase().contains("최리".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.CHOERRY.id));
                     }
-                    if (name.toLowerCase().contains("진솔".toLowerCase())) {
+                    if (s1.toLowerCase().contains("진솔".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.JINSOUL.id));
                     }
-                    if (name.toLowerCase().contains("이브".toLowerCase())) {
+                    if (s1.toLowerCase().contains("이브".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.YVES.id));
                     }
-                    if (name.toLowerCase().contains("여진".toLowerCase())) {
+                    if (s1.toLowerCase().contains("여진".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.YEOJIN.id));
                     }
-                    if (name.toLowerCase().contains("김립".toLowerCase())) {
+                    if (s1.toLowerCase().contains("김립".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.KIM_LIP.id));
                     }
-                    if (name.toLowerCase().contains("고원".toLowerCase())) {
+                    if (s1.toLowerCase().contains("고원".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.GOWON.id));
                     }
-                    if (name.toLowerCase().contains("비비".toLowerCase())) {
+                    if (s1.toLowerCase().contains("비비".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.VIVI.id));
                     }
-                    if (name.toLowerCase().contains("올리비아".toLowerCase())) {
+                    if (s1.toLowerCase().contains("올리비아".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.OLIVIA.id));
                     }
-                    if (name.toLowerCase().contains("현진".toLowerCase())) {
+                    if (s1.toLowerCase().contains("현진".toLowerCase())) {
                         jsonObject.accumulate("group", getKey(Loonas.HYUNJIN.id));
                     }
                     if (jsonObject.getJSONArray("group").length() == 0) {

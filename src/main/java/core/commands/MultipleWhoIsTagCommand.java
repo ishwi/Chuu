@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.MultipleGenresParser;
@@ -11,6 +10,7 @@ import core.parsers.params.MultipleGenresParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.SearchMode;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

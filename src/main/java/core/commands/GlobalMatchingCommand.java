@@ -1,6 +1,6 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.NumberParser;
@@ -11,8 +11,8 @@ import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.ArtistLbGlobalEntry;
 import dao.entities.DiscordUserDisplay;
-import dao.entities.LbEntry;
 import dao.entities.PrivacyMode;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -96,7 +96,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
         }
 
         for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i).toString());
+            a.append(i + 1).append(PrivacyUtils.toString(list.get(i)));
         }
         embedBuilder.setDescription(a).setTitle("Global Matching artists with " + usableName)
                 .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService().getUserArtistCount(params.getLastFMData().getName(), 0)), null);

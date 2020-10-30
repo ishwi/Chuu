@@ -1,8 +1,8 @@
 package test.commands;
 
+import org.junit.Test;
 import test.commands.utils.CommandTest;
 import test.commands.utils.ImageUtils;
-import org.junit.Test;
 
 public class GuildCommandTest extends CommandTest {
 	@Override

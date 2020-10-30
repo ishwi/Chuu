@@ -16,7 +16,6 @@ import core.parsers.params.ColorChartParams;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
 import dao.entities.TimeFrameEnum;
-import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -36,11 +35,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
-    private final AtomicInteger maxConcurrency = new AtomicInteger(4);
-
     static final double DISTANCE_THRESHOLD = (25);
     static final double STRICT_THRESHOLD = (14);
-
+    private final AtomicInteger maxConcurrency = new AtomicInteger(4);
     private final double ERROR_MATCHING = (16);
     private final double STRICT_ERROR = (6);
     private final DiscogsApi discogsApi;

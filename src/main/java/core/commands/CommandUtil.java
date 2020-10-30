@@ -4,10 +4,15 @@ import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.spotify.Spotify;
-import core.exceptions.*;
+import core.exceptions.DiscogsServiceException;
+import core.exceptions.LastFMServiceException;
+import core.exceptions.LastFmEntityNotFoundException;
+import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -27,11 +32,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Pattern;
 
 public class CommandUtil {
 
-    private static final Pattern markdownStripper = Pattern.compile("((?<!\\\\)[*_~|`>\\[()\\]])");
     public static final Random rand = new Random();
 
     private CommandUtil() {
@@ -196,26 +199,6 @@ public class CommandUtil {
     }
 
 
-    public static String getLastFmArtistUrl(String artist) {
-        return "https://www.last.fm/music/" + encodeUrl(artist);
-    }
-
-    public static String getLastFmArtistAlbumUrl(String artist, String album) {
-        return "https://www.last.fm/music/" + encodeUrl(artist) + "/" + encodeUrl(album);
-    }
-
-    public static String getLastFmTagUrl(String tag) {
-        return "https://www.last.fm/tag/" + encodeUrl(tag);
-    }
-
-    public static String getMusicbrainzTagUrl(String tag) {
-        return "https://musicbrainz.org/tag/" + encodeUrl(tag);
-    }
-
-    public static String getLastFmArtistUserUrl(String artist, String username) {
-        return getLastFmUser(username) + "/library/music/" + encodeUrl(artist);
-    }
-
     public static String getLastFmUser(String username) {
         return "https://www.last.fm/user/" + encodeUrl(Chuu.getLastFmId(username));
     }
@@ -280,11 +263,6 @@ public class CommandUtil {
         return new DiscordUserDisplay(cleanMarkdownCharacter(discordUserDisplay.getUsername()), discordUserDisplay.getUrlImage());
     }
 
-    public static String getLastFMArtistTrack(String artist, String track) {
-        return getLastFmArtistUrl(artist) + "/_/" + encodeUrl(track);
-
-    }
-
 
     public static char getMessagePrefix(MessageReceivedEvent e) {
         return e.getMessage().getContentRaw().charAt(0);
@@ -295,7 +273,7 @@ public class CommandUtil {
     }
 
     public static String cleanMarkdownCharacter(String string) {
-        return markdownStripper.matcher(string).replaceAll("\\\\$1");
+        return LinkUtils.markdownStripper.matcher(string).replaceAll("\\\\$1");
     }
 
     public static String markdownLessString(String string) {

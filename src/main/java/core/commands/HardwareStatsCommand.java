@@ -1,18 +1,16 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
-import core.parsers.params.ChuuDataParams;
 import core.parsers.params.CommandParameters;
 import dao.BotStats;
 import dao.ChuuService;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.List;
 
 public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {

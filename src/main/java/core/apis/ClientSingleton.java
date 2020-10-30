@@ -7,26 +7,26 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 public class ClientSingleton {
 
 
-	private static HttpClient instance;
+    private static HttpClient instance;
 
-	private ClientSingleton() {
-	}
+    private ClientSingleton() {
+    }
 
-	public static synchronized HttpClient getInstance() {
+    public static synchronized HttpClient getInstance() {
 
-		if (instance == null) {
-			synchronized (core.apis.ClientSingleton.class) {
-				if (instance == null) {
-					HttpClient httpClient = new HttpClient();
-					HttpClientParams params = new HttpClientParams();
-					params.setSoTimeout(4000);
-					params.setContentCharset("UTF-8");
-					httpClient.setParams(params);
-					httpClient.setHttpConnectionManager(new MultiThreadedHttpConnectionManager());
-					instance = httpClient;
-				}
-			}
-		}
-		return instance;
-	}
+        if (instance == null) {
+            synchronized (core.apis.ClientSingleton.class) {
+                if (instance == null) {
+                    HttpClient httpClient = new HttpClient();
+                    HttpClientParams params = new HttpClientParams();
+                    params.setSoTimeout(4000);
+                    params.setContentCharset("UTF-8");
+                    httpClient.setParams(params);
+                    httpClient.setHttpConnectionManager(new MultiThreadedHttpConnectionManager());
+                    instance = httpClient;
+                }
+            }
+        }
+        return instance;
+    }
 }

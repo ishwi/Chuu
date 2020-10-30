@@ -1,15 +1,15 @@
 package test.commands;
 
-import dao.entities.UserInfo;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
+import core.exceptions.LastFmException;
+import dao.entities.UserInfo;
+import org.junit.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedTesterBuilder;
 import test.commands.utils.ImageUtils;
 import test.commands.utils.TestResources;
-import core.exceptions.LastFmException;
-import org.junit.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,7 +38,7 @@ public class ProfileCommandTest extends CommandTest {
 				.compile("Account created on (\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2})");
 		Predicate<Matcher> matcherFooter = matcher1 -> {
 			try {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD HH:mm");
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 				sdf.parse((matcher1.group(1)));
 				return true;
 			} catch (ParseException ex) {

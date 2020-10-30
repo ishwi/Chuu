@@ -1,7 +1,6 @@
 package core.commands;
 
 import core.Chuu;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
@@ -12,6 +11,8 @@ import dao.entities.LastFMData;
 import dao.entities.ReportEntity;
 import dao.entities.Role;
 import dao.entities.TriFunction;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -39,7 +40,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                     .addField("#Times user got reported:", String.valueOf(reportEntity.getUserTotalReports()), true)
                     .addField("Image score:", String.valueOf(reportEntity.getCurrentScore()), false)
                     .addField("Number of reports on this image:", String.valueOf(reportEntity.getReportCount()), true)
-                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(reportEntity.getArtistName()), CommandUtil.getLastFmArtistUrl(reportEntity.getArtistName())), false)
+                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(reportEntity.getArtistName()), LinkUtils.getLastFmArtistUrl(reportEntity.getArtistName())), false)
                     .setFooter(String.format("%d/%d%nUse \uD83D\uDC69\u200D\u2696\ufe0f to remove this image", pos.get() + 1, integer))
                     .setImage(CommandUtil.noImageUrl(reportEntity.getUrl()))
                     .setColor(CommandUtil.randomColor());

@@ -1,7 +1,6 @@
 package core.imagerenderer.util;
 
 import core.parsers.Parser;
-import core.parsers.params.ArtistParameters;
 import core.parsers.params.CommandParameters;
 import dao.entities.ReturnNowPlaying;
 import org.knowm.xchart.PieChart;

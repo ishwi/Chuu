@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.GenreParser;
 import core.parsers.OptionalEntity;
@@ -8,6 +7,7 @@ import core.parsers.Parser;
 import core.parsers.params.GenreParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;

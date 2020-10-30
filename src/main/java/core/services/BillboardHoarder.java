@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
 
 public class BillboardHoarder {
 
+    private final static ConcurrentSkipListSet<Long> usersBeingProcessed = new ConcurrentSkipListSet<>();
     private final List<UsersWrapper> users;
     private final ChuuService service;
-    private final static ConcurrentSkipListSet<Long> usersBeingProcessed = new ConcurrentSkipListSet<>();
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
     private final Week week;

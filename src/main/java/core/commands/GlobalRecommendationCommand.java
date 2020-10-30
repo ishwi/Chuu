@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
@@ -13,6 +12,8 @@ import dao.entities.Affinity;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
 import dao.entities.ScrobbledArtist;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -132,7 +133,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
             } else {
                 StringBuilder s = new StringBuilder();
                 for (ScrobbledArtist rec : recs) {
-                    s.append((String.format("# [%s](%s): %d plays%n", CommandUtil.cleanMarkdownCharacter(rec.getArtist()), CommandUtil.getLastFmArtistUrl(rec.getArtist()), rec.getCount())));
+                    s.append((String.format("# [%s](%s): %d plays%n", CommandUtil.cleanMarkdownCharacter(rec.getArtist()), LinkUtils.getLastFmArtistUrl(rec.getArtist()), rec.getCount())));
                 }
                 EmbedBuilder embedBuilder = new EmbedBuilder();
 

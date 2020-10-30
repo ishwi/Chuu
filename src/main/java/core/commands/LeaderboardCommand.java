@@ -1,5 +1,6 @@
 package core.commands;
 
+import core.commands.utils.PrivacyUtils;
 import core.otherlisteners.Reactionary;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
@@ -35,7 +36,7 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
         }
 
         for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i).toString());
+            a.append(i + 1).append(PrivacyUtils.toString(list.get(i)));
         }
         embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "'s " + getEntryName(params) + " leaderboard")
                 .setThumbnail(e.getGuild().getIconUrl())

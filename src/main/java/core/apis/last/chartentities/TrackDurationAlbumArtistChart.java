@@ -8,7 +8,7 @@ import core.parsers.params.ChartParameters;
 import dao.entities.AlbumInfo;
 import dao.entities.NowPlayingArtist;
 import dao.entities.Track;
-import dao.entities.UrlCapsule;
+import dao.utils.LinkUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -130,7 +130,7 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
         return String.format(". **[%s - %s](%s)** - **%s hours** in **%d** %s%n",
                 CommandUtil.cleanMarkdownCharacter(getArtistName()),
                 CommandUtil.cleanMarkdownCharacter(getAlbumName()),
-                CommandUtil.getLastFmArtistAlbumUrl(getArtistName(), getAlbumName()),
+                LinkUtils.getLastFmArtistAlbumUrl(getArtistName(), getAlbumName()),
                 String.format("%d:%02d", seconds / 3600, seconds / 60 % 60),
                 getPlays(),
                 CommandUtil.singlePlural(getPlays(), "play", "plays"));

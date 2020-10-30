@@ -1,12 +1,12 @@
 package core.commands;
 
 import core.Chuu;
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.MultipleGenresParser;
 import core.parsers.Parser;
 import core.parsers.params.MultipleGenresParameters;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;

@@ -4,7 +4,6 @@ import dao.entities.TriFunction;
 import org.junit.Test;
 
 import java.util.Random;
-import java.util.function.BiFunction;
 
 public class BooleanTest {
     @Test

@@ -3,10 +3,10 @@ package core.commands;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.chartentities.TrackDurationChart;
+import core.apis.last.chartentities.UrlCapsule;
 import core.apis.last.queues.GroupingQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ChartGroupParser;
 import core.parsers.ChartableParser;
@@ -15,7 +15,7 @@ import dao.ChuuService;
 import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.TimeFrameEnum;
-import dao.entities.UrlCapsule;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
@@ -62,7 +62,7 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
             countWrapper.setRows(sum);
         }
         switch (effectiveMode) {
-         
+
             case LIST:
                 doList(urlCapsules, chartGroupParameters, countWrapper.getRows());
                 return;

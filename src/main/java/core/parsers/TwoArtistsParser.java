@@ -39,6 +39,6 @@ public class TwoArtistsParser extends Parser<TwoArtistParams> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *firstArtist* *to:* *secondArtist*** \n" +
-               "\t It's also valid when the two artists are both one word long to write: " + commandName + " firstArtist secondArtist";
+                "\t It's also valid when the two artists are both one word long to write: " + commandName + " firstArtist secondArtist";
     }
 }

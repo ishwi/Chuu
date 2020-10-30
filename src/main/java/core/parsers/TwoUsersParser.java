@@ -1,9 +1,9 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.params.TwoUsersParamaters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -28,7 +28,7 @@ public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
             sendError(getErrorMessage(5), e);
             return null;
         }
-        ParserAux parserAux = new ParserAux(words,isExpensiveSearch());
+        ParserAux parserAux = new ParserAux(words, isExpensiveSearch());
         LastFMData[] datas = parserAux.getTwoUsers(dao, words, e);
         // words = parserAux.getMessage();
         if (datas == null) {

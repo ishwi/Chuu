@@ -1,10 +1,10 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.params.NaturalTimeParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NaturalTimeFrameEnum;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class NaturalTimeFrameParser extends DaoParser<NaturalTimeParams> {
@@ -31,9 +31,9 @@ public class NaturalTimeFrameParser extends DaoParser<NaturalTimeParams> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *Time* *username***\n" +
-               "\tOne of Year,Quarter,Month,All,Semester,Week,Day,Hour,Minute,Second with plural forms and abbreviations included\n " +
-               "\tIf timeframe is not specified it defaults to " + defaultTFE.toString() + "\n" +
-               "\tIf username is not specified it defaults to authors account \n";
+                "\tOne of Year,Quarter,Month,All,Semester,Week,Day,Hour,Minute,Second with plural forms and abbreviations included\n " +
+                "\tIf timeframe is not specified it defaults to " + defaultTFE.toString() + "\n" +
+                "\tIf username is not specified it defaults to authors account \n";
     }
 
 }

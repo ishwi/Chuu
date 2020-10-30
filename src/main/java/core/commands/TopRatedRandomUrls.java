@@ -1,22 +1,17 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
-import dao.entities.RymStats;
 import dao.entities.ScoredAlbumRatings;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
     public TopRatedRandomUrls(ChuuService dao) {

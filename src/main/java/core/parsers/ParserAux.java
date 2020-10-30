@@ -1,14 +1,12 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.utils.concurrent.Task;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,12 +16,10 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class ParserAux {
-    private String[] message;
     private static final Pattern user = Pattern.compile("(.{2,32})#(\\d{4})");
     private static final Pattern discordId = Pattern.compile("\\d{17,}");
-
-
     private final boolean doExpensiveSearch;
+    private String[] message;
 
     public ParserAux(String[] message) {
         this(message, false);

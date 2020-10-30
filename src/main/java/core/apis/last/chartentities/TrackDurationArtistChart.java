@@ -6,7 +6,7 @@ import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartGroupParameters;
 import dao.entities.NowPlayingArtist;
 import dao.entities.Track;
-import dao.entities.UrlCapsule;
+import dao.utils.LinkUtils;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class TrackDurationArtistChart extends TrackDurationChart {
     public String toEmbedDisplay() {
         return String.format(". **[%s](%s)** - **%s** hours in **%d** %s%n",
                 CommandUtil.cleanMarkdownCharacter(getArtistName()),
-                CommandUtil.getLastFmArtistUrl(getArtistName()),
+                LinkUtils.getLastFmArtistUrl(getArtistName()),
                 String.format("%d:%02d", seconds / 3600, seconds / 60 % 60),
                 getPlays(),
                 CommandUtil.singlePlural(getPlays(), "play", "plays"));

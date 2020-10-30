@@ -2,8 +2,8 @@ package core.imagerenderer;
 
 import core.Chuu;
 import core.apis.ExecutorsSingleton;
-import core.exceptions.ChuuServiceException;
-import dao.entities.UrlCapsule;
+import core.apis.last.chartentities.UrlCapsule;
+import dao.exceptions.ChuuServiceException;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

@@ -1,20 +1,17 @@
 package core.apis.last.queues;
 
-import com.wrapper.spotify.SpotifyApi;
 import core.apis.discogs.DiscogsApi;
 import core.apis.last.chartentities.PreComputedChartEntity;
+import core.apis.last.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import core.commands.CommandUtil;
-import core.exceptions.InstanceNotFoundException;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TriFunction;
 import dao.entities.UpdaterStatus;
-import dao.entities.UrlCapsule;
+import dao.exceptions.InstanceNotFoundException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
 

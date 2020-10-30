@@ -1,13 +1,12 @@
 package core.commands;
 
 import core.Chuu;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
+import core.parsers.CharacterParser;
 import core.parsers.Parser;
 import core.parsers.PrefixParser;
-import core.parsers.CharacterParser;
 import dao.ChuuService;
-import net.dv8tion.jda.api.JDA;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -48,7 +47,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParser> {
         if (parsed == null)
             return;
         char newPrefix = parsed.getaChar();
-        getService().addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
+        getService().addGuildPrefix(Chuu.getPrefixMap(), e.getGuild().getIdLong(), newPrefix);
         Chuu.addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
 
         sendMessageQueue(e, newPrefix + " is the new server prefix");
@@ -66,7 +65,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParser> {
         for (Guild guild : guilds) {
             long guildId = guild.getIdLong();
             if (!prefixMap.containsKey(guildId)) {
-                getService().addGuildPrefix(guildId, Chuu.DEFAULT_PREFIX);
+                getService().addGuildPrefix(prefixMap, guildId, Chuu.DEFAULT_PREFIX);
                 prefixMap.put(guildId, Chuu.DEFAULT_PREFIX);
             }
         }

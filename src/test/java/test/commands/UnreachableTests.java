@@ -3,8 +3,6 @@ package test.commands;
 import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ExceptionEntity;
 import core.commands.NPSpotifyCommand;
-import core.exceptions.InstanceNotFoundException;
-import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.OptionalEntity;
 import core.parsers.PrefixParser;
@@ -36,7 +34,7 @@ public class UnreachableTests {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void noOpParserParsing() throws LastFmException, InstanceNotFoundException {
+    public void noOpParserParsing() {
         NoOpParser noOpParser = new NoOpParser();
         noOpParser.parseLogic(null, null);
     }

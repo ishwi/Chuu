@@ -1,16 +1,12 @@
 package core.imagerenderer.util;
 
-import com.google.protobuf.MapEntry;
 import core.parsers.params.CommandParameters;
-import dao.entities.Language;
 import org.knowm.xchart.PieChart;
-import org.knowm.xchart.PieChartBuilder;
-import org.knowm.xchart.style.PieStyler;
-import org.knowm.xchart.style.Styler;
 
-import java.awt.*;
-import java.util.*;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -48,7 +44,7 @@ public interface IPieableMap<K, V, Y extends CommandParameters> extends IPieable
     }
 
     @Override
-    default  Map<Boolean, Map<String, Integer>> getData(Map<K, V> data, Function<Map<K, V>, String> keyMapping, ToIntFunction<Map<K, V>> valueMapping, Predicate<Map<K, V>> partitioner) {
+    default Map<Boolean, Map<String, Integer>> getData(Map<K, V> data, Function<Map<K, V>, String> keyMapping, ToIntFunction<Map<K, V>> valueMapping, Predicate<Map<K, V>> partitioner) {
         throw new UnsupportedOperationException();
     }
 

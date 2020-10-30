@@ -1,8 +1,8 @@
 package test.commands;
 
+import org.junit.Test;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedUtils;
-import org.junit.Test;
 
 import java.util.regex.Pattern;
 

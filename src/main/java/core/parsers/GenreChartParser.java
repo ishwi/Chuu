@@ -1,8 +1,6 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
-import core.exceptions.ChuuServiceException;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.ChartableGenreParameters;
@@ -10,6 +8,8 @@ import core.parsers.params.GenreParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
+import dao.exceptions.ChuuServiceException;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

@@ -7,22 +7,19 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class ProfileMaker {
-    private ProfileMaker() {
-
-    }
-
     private static final int X_SIZE = 1920;
     private static final int Y_SIZE = 1080;
     private static final int TEXT_END = 450 + 45;
-
     private static final int IMAGE_START = X_SIZE - TEXT_END + 55;
     private static final int ARTIST_IMAGES_SIZE = 300;
     private static final int AVATAR_SIZE = 250;
     private static final int DEFAULT_FONT = 44;
     private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 44);
-
     private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP Regular", Font.PLAIN, 44);
 
+    private ProfileMaker() {
+
+    }
 
     public static BufferedImage makeProfile(ProfileEntity entity) {
 

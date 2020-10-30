@@ -9,6 +9,7 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -67,7 +68,7 @@ public class ServerTags extends ResultWrappedCommand<ArtistPlays, CommandParamet
 
         List<String> collect = list.stream().map(x -> ". [" +
                 CommandUtil.cleanMarkdownCharacter(x.getArtistName()) +
-                "](" + CommandUtil.getLastFmTagUrl(x.getArtistName()) +
+                "](" + LinkUtils.getLastFmTagUrl(x.getArtistName()) +
                 ") - " + x.getCount() + " " +
                 buzzz + "\n").collect(Collectors.toList());
         EmbedBuilder embedBuilder = initList(collect);

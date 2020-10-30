@@ -1,12 +1,12 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.PieableListResultWrapper;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.ResultWrapper;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;

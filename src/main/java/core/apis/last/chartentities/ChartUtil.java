@@ -6,7 +6,6 @@ import core.exceptions.LastFmException;
 import core.parsers.params.ChartGroupParameters;
 import core.parsers.params.ChartParameters;
 import dao.entities.TimeFrameEnum;
-import dao.entities.UrlCapsule;
 import org.json.JSONObject;
 
 import java.util.function.BiFunction;

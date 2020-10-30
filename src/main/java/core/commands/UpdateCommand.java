@@ -5,7 +5,6 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
@@ -16,6 +15,7 @@ import core.parsers.params.ChuuDataParams;
 import core.services.UpdaterService;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Instant;
@@ -29,16 +29,16 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     private final Spotify spotifyApi;
 
 
-    @Override
-    protected CommandCategory getCategory() {
-        return CommandCategory.STARTING;
-    }
-
     public UpdateCommand(ChuuService dao) {
         super(dao);
         parser = new OnlyUsernameParser(dao, new OptionalEntity("force", "Does a full heavy update"));
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotifyApi = SpotifySingleton.getInstance();
+    }
+
+    @Override
+    protected CommandCategory getCategory() {
+        return CommandCategory.STARTING;
     }
 
     @Override

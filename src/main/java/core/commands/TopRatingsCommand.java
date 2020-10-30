@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;

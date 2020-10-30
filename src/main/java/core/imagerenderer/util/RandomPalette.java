@@ -14,27 +14,6 @@ import java.util.stream.Collectors;
 public class RandomPalette extends PieColourer {
     public static final List<List<Color>> palettes;
 
-    private final List<Color> chosenPalette;
-
-    private final PieTheme chosenTheme;
-    private final Color fontColor;
-
-
-    public static PieTheme getBetterPie(Color... color) {
-        double accum = 0;
-        for (Color col : color) {
-            accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
-        }
-        double v = accum / color.length;
-        if (v > 196) {
-            return PieTheme.PINK_THEME;
-        }
-        if (v > 128) {
-            return PieTheme.BLUE_THEME;
-        }
-        return PieTheme.DARK_THEME;
-    }
-
     static {
         List<String[]> palette = new ArrayList<>();
         palette.add(new String[]{"#ddf3f5", "a6dcef", "e36387", "f2aaaa", "cff6cf", "e5cfe5", "cfe5cf"});
@@ -53,10 +32,29 @@ public class RandomPalette extends PieColourer {
         palettes = palette.stream().map(x -> Arrays.stream(x).map(ColorFactory::valueOf).collect(Collectors.toList())).collect(Collectors.toList());
     }
 
+    private final List<Color> chosenPalette;
+    private final PieTheme chosenTheme;
+    private final Color fontColor;
+
     public RandomPalette() {
         chosenPalette = palettes.get(CommandUtil.rand.nextInt(palettes.size()));
         chosenTheme = getBetterPie(chosenPalette.toArray(Color[]::new));
         fontColor = GraphicUtils.getBetter(chosenTheme.getBackgroundColor());
+    }
+
+    public static PieTheme getBetterPie(Color... color) {
+        double accum = 0;
+        for (Color col : color) {
+            accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
+        }
+        double v = accum / color.length;
+        if (v > 196) {
+            return PieTheme.PINK_THEME;
+        }
+        if (v > 128) {
+            return PieTheme.BLUE_THEME;
+        }
+        return PieTheme.DARK_THEME;
     }
 
     @Override

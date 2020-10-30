@@ -10,17 +10,15 @@ package core.imagerenderer.stealing.blur;
  */
 class PixelUtils {
 
-	/**
-	 * Clamp a value to the range 0..255
-	 */
-	static int clamp(int c) {
-		if (c < 0)
-			return 0;
-		return Math.min(c, 255);
+    /**
+     * Clamp a value to the range 0..255
+     */
+    static int clamp(int c) {
+        if (c < 0)
+            return 0;
+        return Math.min(c, 255);
 
-	}
-
-
+    }
 
 
 }

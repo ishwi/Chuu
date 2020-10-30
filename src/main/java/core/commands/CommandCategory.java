@@ -1,8 +1,5 @@
 package core.commands;
 
-import java.util.Comparator;
-import java.util.StringJoiner;
-
 public enum CommandCategory {
     STARTING(0, "Commands to get you started"),
     NOW_PLAYING(1, "Commands related to your current playing song"),

@@ -1,7 +1,5 @@
 package core.commands;
 
-import core.apis.last.ConcurrentLastFM;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.GenreParser;
 import core.parsers.Parser;
@@ -9,6 +7,7 @@ import core.parsers.params.GenreParameters;
 import dao.ChuuService;
 import dao.entities.GenreInfo;
 import dao.entities.NowPlayingArtist;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

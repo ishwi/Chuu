@@ -1,12 +1,12 @@
 package core.parsers;
 
-import core.exceptions.ChuuServiceException;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartGroupParameters;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.TimeFrameEnum;
+import dao.exceptions.ChuuServiceException;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ChartGroupParser extends ChartableParser<ChartGroupParameters> {

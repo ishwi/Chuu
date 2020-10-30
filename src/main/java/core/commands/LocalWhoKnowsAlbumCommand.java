@@ -1,17 +1,12 @@
 package core.commands;
 
-import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.imagerenderer.GraphicUtils;
-import core.imagerenderer.WhoKnowsMaker;
 import core.imagerenderer.util.IPieableList;
 import core.imagerenderer.util.PieableListKnows;
-import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
@@ -19,19 +14,12 @@ import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.*;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.imgscalr.Scalr;
-import org.knowm.xchart.PieChart;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static core.commands.WhoKnowsCommand.getEffectiveMode;
 
 public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParameters> {
 
@@ -97,7 +85,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
         }
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.getService().getWhoKnowsAlbums(10, albumId, ap.getE().getGuild().getIdLong()) : this.getService().getWhoKnowsAlbums(Integer.MAX_VALUE, albumId, ap.getE().getGuild().getIdLong());
-        wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist() + " - " + ap.getAlbum());
+        wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist());
         try {
 
             AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(ap.getLastFMData().getName(), ap.getArtist(), ap.getAlbum());
@@ -110,7 +98,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
                 if (any.isPresent()) {
                     any.get().setPlayNumber(playsAlbumArtist.getPlays());
                 } else {
-                    wrapperReturnNowPlaying.getReturnNowPlayings().add(new ReturnNowPlaying(ap.getLastFMData().getDiscordId(), ap.getLastFMData().getName(), ap.getArtist() + " - " + ap.getAlbum(), playsAlbumArtist.getPlays()));
+                    wrapperReturnNowPlaying.getReturnNowPlayings().add(new ReturnNowPlaying(ap.getLastFMData().getDiscordId(), ap.getLastFMData().getName(), ap.getArtist(), playsAlbumArtist.getPlays()));
                     wrapperReturnNowPlaying.setRows(wrapperReturnNowPlaying.getRows() + 1);
 
                 }
@@ -123,8 +111,8 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
             sendMessageQueue(ap.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(who.getArtist() + " - " + ap.getAlbum()));
             return null;
         }
-        wrapperReturnNowPlaying.getReturnNowPlayings()
-                .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername()));
+        wrapperReturnNowPlaying.setReturnNowPlayings(wrapperReturnNowPlaying.getReturnNowPlayings().stream()
+                .map(x -> new ReturnNowPlayingAlbum(x, ap.getAlbum())).peek(x -> x.setArtist(who.getArtist())).peek(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername())).collect(Collectors.toList()));
 
         return wrapperReturnNowPlaying;
     }

@@ -2,7 +2,6 @@ package core.parsers.params;
 
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ArtistParameters extends ChuuDataParams {

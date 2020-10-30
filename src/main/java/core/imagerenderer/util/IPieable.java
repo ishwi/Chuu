@@ -9,7 +9,7 @@ import org.knowm.xchart.style.PieStyler;
 import org.knowm.xchart.style.Styler;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;

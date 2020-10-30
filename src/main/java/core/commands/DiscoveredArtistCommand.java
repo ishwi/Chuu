@@ -1,16 +1,18 @@
 package core.commands;
 
-import core.apis.last.ConcurrentLastFM;
 import core.apis.last.TopEntity;
-import core.apis.last.chartentities.AlbumChart;
 import core.apis.last.chartentities.ChartUtil;
-import core.exceptions.InstanceNotFoundException;
+import core.apis.last.chartentities.UrlCapsule;
 import core.exceptions.LastFmException;
-import core.parsers.*;
+import core.parsers.ChartParser;
+import core.parsers.ChartableParser;
+import core.parsers.OptionalEntity;
 import core.parsers.params.ChartParameters;
-import core.parsers.params.TimeFrameParameters;
 import dao.ChuuService;
-import dao.entities.*;
+import dao.entities.CountWrapper;
+import dao.entities.DiscordUserDisplay;
+import dao.entities.ScrobbledArtist;
+import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
@@ -22,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
@@ -88,7 +89,7 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
         })
                 .map(Map.Entry::getValue).sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
                 .peek(x -> x.setPos(marker.getAndIncrement())).limit(param.getX() * param.getY())
-                .collect(Collectors.toCollection(LinkedBlockingQueue<UrlCapsule>::new));
+                .collect(Collectors.toCollection(LinkedBlockingQueue::new));
         return new CountWrapper<>(discoveredArtists.size(), queue);
     }
 

@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.ChartUtil;
+import core.apis.last.chartentities.UrlCapsule;
 import core.apis.last.queues.ArtistQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -12,7 +13,6 @@ import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
-import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.concurrent.BlockingQueue;

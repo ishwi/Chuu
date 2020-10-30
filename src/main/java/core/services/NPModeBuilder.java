@@ -9,11 +9,11 @@ import core.apis.last.TopEntity;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.CommandUtil;
-import core.exceptions.InstanceNotFoundException;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
-import core.parsers.params.NPMode;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 import static core.commands.AlbumRatings.getStartsFromScore;
 
 public class NPModeBuilder {
+    static final Map<NPMode, Integer> footerIndexes;
+
     static {
         try {
             List<NPMode> tags = List.of(NPMode.TAGS,
@@ -75,8 +77,6 @@ public class NPModeBuilder {
 
 
     }
-
-    static final Map<NPMode, Integer> footerIndexes;
 
     private final Spotify spotifyApi;
     private final NowPlayingArtist np;
@@ -543,7 +543,7 @@ public class NPModeBuilder {
                         completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
                             List<GlobalStreakEntities> artistTopStreaks = service.getArtistTopStreaks(null, e.getGuild().getIdLong(), scrobbledArtist.getArtistId(), 1);
                             if (!artistTopStreaks.isEmpty()) {
-                                Consumer<GlobalStreakEntities> consumer = GlobalStreakEntities.consumer.apply(e, new AtomicInteger(0), x -> true);
+                                Consumer<GlobalStreakEntities> consumer = PrivacyUtils.consumer.apply(e, new AtomicInteger(0), x -> true);
                                 GlobalStreakEntities globalStreakEntities = artistTopStreaks.get(0);
                                 globalStreakEntities.setDisplayer(consumer);
                                 String name = globalStreakEntities.getName().replace("*", "").substring(2).trim();
@@ -557,7 +557,7 @@ public class NPModeBuilder {
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
                         List<GlobalStreakEntities> artistTopStreaks = service.getArtistTopStreaks(null, null, scrobbledArtist.getArtistId(), 1);
                         if (!artistTopStreaks.isEmpty()) {
-                            Consumer<GlobalStreakEntities> consumer = GlobalStreakEntities.consumer.apply(e, new AtomicInteger(0), x -> false);
+                            Consumer<GlobalStreakEntities> consumer = PrivacyUtils.consumer.apply(e, new AtomicInteger(0), x -> false);
                             GlobalStreakEntities globalStreakEntities = artistTopStreaks.get(0);
                             globalStreakEntities.setDisplayer(consumer);
                             String name = globalStreakEntities.getName().replace("*", "").substring(2).trim();

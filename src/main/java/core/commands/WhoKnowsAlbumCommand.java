@@ -1,33 +1,14 @@
 package core.commands;
 
 import core.Chuu;
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.imagerenderer.GraphicUtils;
-import core.imagerenderer.WhoKnowsMaker;
-import core.imagerenderer.util.IPieableList;
-import core.imagerenderer.util.PieableListKnows;
-import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.*;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.imgscalr.Scalr;
-import org.knowm.xchart.PieChart;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -109,14 +90,13 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
                 : urlContainter.getArtist();
 
         // Manipulate data in order to pass it to the image Maker
-        BufferedImage logo = CommandUtil.getLogo(getService(), e);
-        List<Map.Entry<UsersWrapper, Integer>> list = new ArrayList<>(userMapPlays.entrySet());
-        list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+        List<Map.Entry<UsersWrapper, Integer>> userCounts = new ArrayList<>(userMapPlays.entrySet());
+        userCounts.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
         WhoKnowsMode effectiveMode = WhoKnowsCommand.getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
-        List<ReturnNowPlaying> list2 = list.stream().sequential().limit(effectiveMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE).map(t -> {
+        List<ReturnNowPlaying> list2 = userCounts.stream().sequential().limit(effectiveMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE).map(t -> {
             long id2 = t.getKey().getDiscordID();
-            ReturnNowPlaying np = new ReturnNowPlaying(id2, t.getKey().getLastFMName(), correctedArtist, t.getValue());
+            ReturnNowPlaying np = new ReturnNowPlayingAlbum(id2, t.getKey().getLastFMName(), correctedArtist, t.getValue(), correctedAlbum);
             np.setDiscordName(CommandUtil.getUserInfoNotStripped(e, id2).getUsername());
             return np;
         }).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
@@ -128,7 +108,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
         doExtraThings(list2, id, artist.getArtistId(), correctedAlbum);
 
-        return new WrapperReturnNowPlaying(list2, list.size(), urlContainter.getAlbumUrl(),
+        return new WrapperReturnNowPlaying(list2, userCounts.size(), urlContainter.getAlbumUrl(),
                 correctedArtist + " - " + correctedAlbum);
     }
 

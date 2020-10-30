@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.LoveMaker;
 import core.otherlisteners.Reactionary;
@@ -12,6 +11,7 @@ import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.UserInfo;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -81,7 +81,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
         sendImage(bufferedImage, e);
     }
 
-     void doGuild(AffinityParameters ap) throws InstanceNotFoundException {
+    void doGuild(AffinityParameters ap) throws InstanceNotFoundException {
         MessageReceivedEvent e = ap.getE();
         LastFMData ogData = getService().findLastFMData(e.getAuthor().getIdLong());
         List<Affinity> serverAffinity = getService().getServerAffinity(ogData.getName(), e.getGuild().getIdLong(), ap.getThreshold());

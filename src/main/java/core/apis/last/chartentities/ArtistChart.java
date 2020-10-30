@@ -5,7 +5,7 @@ import core.commands.CommandUtil;
 import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartParameters;
 import dao.entities.NowPlayingArtist;
-import dao.entities.UrlCapsule;
+import dao.utils.LinkUtils;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class ArtistChart extends UrlCapsule {
     public String toEmbedDisplay() {
         return String.format(". **[%s](%s)** - **%d** %s%n",
                 CommandUtil.cleanMarkdownCharacter(getArtistName()),
-                CommandUtil.getLastFmArtistUrl(getArtistName()),
+                LinkUtils.getLastFmArtistUrl(getArtistName()),
                 getPlays(), CommandUtil.singlePlural(getPlays(), "play", "plays"));
     }
 

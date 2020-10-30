@@ -1,11 +1,8 @@
 package core.parsers.params;
 
-import core.exceptions.InstanceNotFoundException;
 import dao.ChuuService;
-import dao.entities.ChartMode;
-import dao.entities.GuildProperties;
-import dao.entities.RemainingImagesMode;
-import dao.entities.WhoKnowsMode;
+import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.WordUtils;
 
 import java.util.EnumSet;
@@ -40,11 +37,6 @@ public enum GuildConfigType {
     public static GuildConfigType get(String name) {
         return ENUM_MAP.get(name);
     }
-
-    public String getCommandName() {
-        return commandName;
-    }
-
 
     public static String list(ChuuService dao, long guildId) {
         GuildProperties guildProperties;
@@ -107,6 +99,10 @@ public enum GuildConfigType {
                     return null;
                 }).collect(Collectors.joining("\n"));
 
+    }
+
+    public String getCommandName() {
+        return commandName;
     }
 
     public Predicate<String> getParser() {

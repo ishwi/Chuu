@@ -2,13 +2,13 @@ package core.apis.last.queues;
 
 import core.Chuu;
 import core.apis.discogs.DiscogsApi;
+import core.apis.last.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import core.commands.CommandUtil;
-import core.exceptions.InstanceNotFoundException;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UpdaterStatus;
-import dao.entities.UrlCapsule;
+import dao.exceptions.InstanceNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;

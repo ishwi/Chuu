@@ -1,10 +1,10 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
+import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

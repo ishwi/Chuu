@@ -8,6 +8,7 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -60,7 +61,7 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
         List<ArtistPlays> resultList = list.getResultList();
 
         List<String> collect = resultList.stream().map(x -> String.format(". [%s](%s) - %d total listeners%n", CommandUtil.cleanMarkdownCharacter(x.getArtistName()),
-                CommandUtil.getLastFmArtistUrl(x.getArtistName()),
+                LinkUtils.getLastFmArtistUrl(x.getArtistName()),
                 x.getCount())).collect(Collectors.toList());
         for (int i = 0, size = collect.size(); i < 10 && i < size; i++) {
             String text = collect.get(i);

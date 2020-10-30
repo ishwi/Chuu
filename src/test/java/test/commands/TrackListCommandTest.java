@@ -1,10 +1,10 @@
 package test.commands;
 
+import org.junit.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.ImageUtils;
 import test.commands.utils.OneLineUtils;
-import org.junit.Test;
 
 import java.util.function.Predicate;
 import java.util.regex.Matcher;

@@ -4,8 +4,6 @@ import core.commands.CommandUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.internal.requests.RestActionImpl;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -18,9 +16,9 @@ public class Reactionary<T> extends ReactionListener {
     private static final String LEFT_ARROW = "U+2b05";
     private final int pageSize;
     private final List<T> list;
-    private int counter = 0;
     private final boolean numberedEntries;
     private final boolean pagingIndicator;
+    private int counter = 0;
     private boolean missingArrow = true;
 
 

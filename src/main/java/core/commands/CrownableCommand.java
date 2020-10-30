@@ -1,12 +1,16 @@
 package core.commands;
 
 import core.otherlisteners.Reactionary;
-import core.parsers.*;
+import core.parsers.NumberParser;
+import core.parsers.OnlyUsernameParser;
+import core.parsers.OptionalEntity;
+import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.CrownableArtist;
 import dao.entities.DiscordUserDisplay;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -78,7 +82,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         List<String> collect = list.stream().map(x ->
                 String.format(". [%s](%s) - **%d**/**%d** with **%d plays** %s%n",
                         CommandUtil.cleanMarkdownCharacter(x.getArtistName()),
-                        CommandUtil.getLastFmArtistUrl(x.getArtistName()),
+                        LinkUtils.getLastFmArtistUrl(x.getArtistName()),
                         x.getRank(),
                         x.getTotalListeners(),
                         x.getPlayNumber(),

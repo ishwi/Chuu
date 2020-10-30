@@ -2,6 +2,7 @@ package core.commands;
 
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.ChartUtil;
+import core.apis.last.chartentities.UrlCapsule;
 import core.apis.last.queues.GroupingQueue;
 import core.apis.last.queues.TrackGroupAlbumQueue;
 import core.exceptions.LastFmException;
@@ -10,7 +11,6 @@ import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
-import dao.entities.UrlCapsule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;

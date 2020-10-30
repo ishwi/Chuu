@@ -2,7 +2,6 @@ package test.commands;
 
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
-
 import core.exceptions.LastFmException;
 import dao.entities.NowPlayingArtist;
 import org.junit.Test;

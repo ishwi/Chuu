@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
@@ -10,6 +9,8 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.RymStats;
 import dao.entities.ScoredAlbumRatings;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -18,7 +19,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
     public UserRatings(ChuuService dao) {
@@ -77,7 +77,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         for (ScoredAlbumRatings x : myRatings) {
             String s = "# ***[" + CommandUtil.cleanMarkdownCharacter(x.getArtist()) + " - " + CommandUtil.cleanMarkdownCharacter(x.getName())
                     +
-                    "](" + CommandUtil.getLastFmArtistAlbumUrl(x.getArtist(), x.getName()) +
+                    "](" + LinkUtils.getLastFmArtistAlbumUrl(x.getArtist(), x.getName()) +
                     ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
                     "\n";
             stringList.add(s);
@@ -104,7 +104,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
             }
             s += indexer++ + ". ***[" + CommandUtil.cleanMarkdownCharacter(x.getArtist()) + " - " + CommandUtil.cleanMarkdownCharacter(x.getName())
                     +
-                    "](" + CommandUtil.getLastFmArtistAlbumUrl(x.getArtist(), x.getName()) +
+                    "](" + LinkUtils.getLastFmArtistAlbumUrl(x.getArtist(), x.getName()) +
                     ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
                     "\n";
             stringList.add(s);

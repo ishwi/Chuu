@@ -1,9 +1,9 @@
 package test.commands.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.TimezoneParser;
 import core.parsers.params.TimezoneParams;
+import dao.exceptions.InstanceNotFoundException;
 import org.junit.Test;
 
 import java.time.Instant;

@@ -1,11 +1,11 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.ColorChartParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.beryx.awt.color.ColorFactory;
 

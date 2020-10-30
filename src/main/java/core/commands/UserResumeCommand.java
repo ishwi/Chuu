@@ -2,7 +2,7 @@ package core.commands;
 
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.ChartUtil;
-import core.exceptions.InstanceNotFoundException;
+import core.apis.last.chartentities.UrlCapsule;
 import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
@@ -11,7 +11,7 @@ import core.parsers.params.TimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
-import dao.entities.UrlCapsule;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

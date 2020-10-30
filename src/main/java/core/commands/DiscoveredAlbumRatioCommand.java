@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
@@ -9,6 +8,7 @@ import dao.ChuuService;
 import dao.entities.ScoredAlbumRatings;
 import dao.entities.ScrobbledAlbum;
 import dao.entities.TimeFrameEnum;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;

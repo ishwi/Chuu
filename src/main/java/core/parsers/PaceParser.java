@@ -10,12 +10,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
+import static dao.utils.Constants.LASTFM_CREATION_DATE;
+
 // I Have sinned
 //
 
 public class PaceParser extends NumberParser<NumberParameters<NaturalTimeParams>, NumberParser<NaturalTimeParams, NaturalTimeFrameParser>> {
-
-    public static final LocalDate LASTFM_CREATION_DATE = LocalDate.of(2002, 2, 20);
 
 
     // Dont ask

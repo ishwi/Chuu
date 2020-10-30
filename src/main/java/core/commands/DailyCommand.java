@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
@@ -10,6 +9,7 @@ import dao.ChuuService;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
 import dao.entities.Track;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.text.MessageFormat;
@@ -25,11 +25,11 @@ public class DailyCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
 
-
     @Override
     protected CommandCategory getCategory() {
         return CommandCategory.USER_STATS;
     }
+
     @Override
     public Parser<ChuuDataParams> getParser() {
         return new OnlyUsernameParser(getService());

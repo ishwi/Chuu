@@ -1,10 +1,10 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.params.TimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class TimerFrameParser extends DaoParser<TimeFrameParameters> {

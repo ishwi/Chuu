@@ -4,25 +4,17 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
-import core.imagerenderer.GraphicUtils;
-import core.imagerenderer.WhoKnowsMaker;
-import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
-import dao.entities.*;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
+import dao.entities.ScrobbledArtist;
+import dao.entities.WhoKnowsMode;
+import dao.entities.WrapperReturnNowPlaying;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.imgscalr.Scalr;
-import org.knowm.xchart.PieChart;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 

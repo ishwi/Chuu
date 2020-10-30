@@ -1,9 +1,9 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -30,6 +30,6 @@ public class OnlyUsernameParser extends DaoParser<ChuuDataParams> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *username***\n" +
-               "\t If the username is not specified it defaults to author's account\n";
+                "\t If the username is not specified it defaults to author's account\n";
     }
 }

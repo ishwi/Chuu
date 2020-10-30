@@ -1,9 +1,8 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.EnumListParameters;
-import core.parsers.params.NPMode;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
@@ -14,8 +13,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class EnumListParser<T extends Enum<T>> extends Parser<EnumListParameters<T>> {
-    private final String name;
     protected final Class<T> clazz;
+    private final String name;
     private final EnumSet<T> excluded;
     private final Function<String, EnumSet<T>> mapper;
 

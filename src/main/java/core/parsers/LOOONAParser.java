@@ -1,11 +1,11 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.LOONAParameters;
 import dao.ChuuService;
 import dao.entities.LOONA;
 import dao.entities.LastFMData;
+import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

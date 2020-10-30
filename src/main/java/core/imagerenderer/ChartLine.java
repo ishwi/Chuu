@@ -30,7 +30,7 @@ public class ChartLine {
         if (!(o instanceof ChartLine)) return false;
         ChartLine chartLine = (ChartLine) o;
         return Objects.equals(getLine(), chartLine.getLine()) &&
-               getType() == chartLine.getType();
+                getType() == chartLine.getType();
     }
 
     @Override

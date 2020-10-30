@@ -15,9 +15,13 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
-import dao.entities.*;
+import dao.entities.FullAlbumEntity;
+import dao.entities.LastFMData;
+import dao.entities.ScrobbledArtist;
+import dao.entities.Track;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -26,8 +30,8 @@ import org.knowm.xchart.PieChart;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
@@ -223,7 +227,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                 StringBuilder a = new StringBuilder();
                 List<String> collect1 = fullAlbumEntity.getTrackList().stream().map(t -> ". " + "[" +
                         CommandUtil.cleanMarkdownCharacter(t.getName()) +
-                        "](" + CommandUtil.getLastFMArtistTrack(artist, t.getName()) +
+                        "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
                         ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").collect(Collectors.toList());
                 for (int i = 0; i < collect.size() && i <= 20; i++) {
                     String s = collect1.get(i);
@@ -232,7 +236,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                         .setDescription(a)
                         .setColor(CommandUtil.randomColor())
-                        .setTitle(String.format("%s tracklist", album), CommandUtil.getLastFmArtistAlbumUrl(artist, album))
+                        .setTitle(String.format("%s tracklist", album), LinkUtils.getLastFmArtistAlbumUrl(artist, album))
                         .setFooter(String.format("%s has %d total plays on the album!!%n", CommandUtil.markdownLessUserString(getUserString(e, params.getLastFMData().getDiscordId()), params.getLastFMData().getDiscordId(), e), fullAlbumEntity.getTotalPlayNumber()), null)
                         .setThumbnail(fullAlbumEntity.getAlbumUrl());
 

@@ -1,9 +1,9 @@
 package core.parsers;
 
 import core.commands.CommandUtil;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
+import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;

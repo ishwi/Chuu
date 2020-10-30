@@ -1,10 +1,10 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.params.ChartYearParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Year;
@@ -43,7 +43,7 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
             return null;
         }
         int x = (int) Math.sqrt(searchSpace);
-        ChartYearParameters chartYearParameters = new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrame, x, x, year, discordName.getChartMode(), discordName);
+        @SuppressWarnings("SuspiciousNameCombination") ChartYearParameters chartYearParameters = new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrame, x, x, year, discordName.getChartMode(), discordName);
         chartYearParameters.initParams(List.of("nolimit"));
         return chartYearParameters;
 

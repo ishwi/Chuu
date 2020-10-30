@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageGenerator;
@@ -14,6 +13,8 @@ import dao.entities.LOONA;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
+import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -383,7 +384,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     public String countString(ReturnNowPlaying returnNowPlaying) {
         return ". " +
                 "[" + CommandUtil.cleanMarkdownCharacter(returnNowPlaying.getArtist()) + "](" +
-                CommandUtil
+                LinkUtils
                         .getLastFmArtistUrl(returnNowPlaying.getArtist()) +
                 ") - " +
                 returnNowPlaying.getPlayNumber() + " listeners\n";

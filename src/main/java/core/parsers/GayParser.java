@@ -1,11 +1,11 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.params.GayParams;
 import dao.ChuuService;
 import dao.entities.GayType;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
+import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

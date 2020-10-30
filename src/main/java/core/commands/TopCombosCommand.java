@@ -1,6 +1,5 @@
 package core.commands;
 
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
@@ -13,6 +12,7 @@ import dao.ChuuService;
 import dao.entities.GlobalStreakEntities;
 import dao.entities.PrivacyMode;
 import dao.entities.UsersWrapper;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;

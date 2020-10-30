@@ -2,9 +2,9 @@ package core.parsers;
 
 import core.commands.DisabledCommand;
 import core.commands.MyCommand;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.DisabledCommandParameters;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

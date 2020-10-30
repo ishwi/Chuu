@@ -1,17 +1,6 @@
 package core.apis.last;
 
 
-import core.apis.last.chartentities.ArtistChart;
-import core.parsers.params.ChartParameters;
-import dao.entities.ArtistInfo;
-import dao.entities.NowPlayingArtist;
-import dao.entities.UrlCapsule;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 public enum TopEntity {
     ALBUM, TRACK, ARTIST;
 

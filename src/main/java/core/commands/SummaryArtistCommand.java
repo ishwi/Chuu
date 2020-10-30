@@ -4,7 +4,6 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
@@ -12,8 +11,10 @@ import core.parsers.params.ArtistParameters;
 import core.services.TagArtistService;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -80,18 +81,18 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
         String tagsField = summary.getTags().isEmpty()
                 ? ""
                 : summary.getTags().stream()
-                .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + CommandUtil.getLastFmTagUrl(tag) + ")")
+                .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
                 .collect(Collectors.joining(" - "));
 
         String similarField =
                 summary.getSimilars().isEmpty()
                         ? ""
                         : summary.getSimilars().stream()
-                        .map(art -> "[" + CommandUtil.cleanMarkdownCharacter(art) + "](" + CommandUtil.getLastFmArtistUrl(art) + ")")
+                        .map(art -> "[" + CommandUtil.cleanMarkdownCharacter(art) + "](" + LinkUtils.getLastFmArtistUrl(art) + ")")
                         .collect(Collectors.joining(" - "));
 
         MessageBuilder messageBuilder = new MessageBuilder();
-        embedBuilder.setTitle("Information about " + CommandUtil.cleanMarkdownCharacter(summary.getArtistname()), CommandUtil.getLastFmArtistUrl(scrobbledArtist.getArtist()));
+        embedBuilder.setTitle("Information about " + CommandUtil.cleanMarkdownCharacter(summary.getArtistname()), LinkUtils.getLastFmArtistUrl(scrobbledArtist.getArtist()));
 
         if (e.isFromGuild()) {
             StringBuilder serverStats = new StringBuilder();

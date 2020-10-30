@@ -1,9 +1,9 @@
 package core.parsers;
 
-import core.exceptions.InstanceNotFoundException;
 import core.parsers.params.AffinityParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -60,9 +60,9 @@ public class AffinityParser extends DaoParser<AffinityParameters> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *user1* *threshold***\n" +
-               "\t If user is not specified if will display your affinity with all users from this server, otherwise your affinity with that user\n" +
-               "\t Alternatively you could also mention two different users" +
-               "\t If a threshold is set it means that the artists below that threshold will be discarded for the comparison\n\n";
+                "\t If user is not specified if will display your affinity with all users from this server, otherwise your affinity with that user\n" +
+                "\t Alternatively you could also mention two different users" +
+                "\t If a threshold is set it means that the artists below that threshold will be discarded for the comparison\n\n";
 
     }
 }

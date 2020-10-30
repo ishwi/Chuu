@@ -1,13 +1,17 @@
 package core.commands;
 
 import core.Chuu;
-import core.exceptions.*;
+import core.exceptions.LastFMNoPlaysException;
+import core.exceptions.LastFmEntityNotFoundException;
+import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
 import core.parsers.Parser;
 import core.parsers.SetParser;
 import core.parsers.params.WordParameter;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.DuplicateInstanceException;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

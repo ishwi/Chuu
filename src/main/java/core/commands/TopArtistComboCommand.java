@@ -4,7 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.exceptions.InstanceNotFoundException;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
@@ -17,6 +17,7 @@ import dao.ChuuService;
 import dao.entities.GlobalStreakEntities;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UsersWrapper;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -37,6 +38,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
 
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
+
 
     public TopArtistComboCommand(ChuuService dao) {
         super(dao);
@@ -110,7 +112,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         AtomicInteger positionCounter = new AtomicInteger(1);
 
 
-        Consumer<GlobalStreakEntities> consumer = GlobalStreakEntities.consumer.apply(e, positionCounter, showableUsers::contains);
+        Consumer<GlobalStreakEntities> consumer = PrivacyUtils.consumer.apply(e, positionCounter, showableUsers::contains);
         topStreaks
                 .forEach(x ->
                         x.setDisplayer(consumer)

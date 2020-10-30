@@ -6,6 +6,7 @@ import core.apis.last.TopEntity;
 import core.apis.last.chartentities.ChartUtil;
 import core.apis.last.chartentities.PreComputedByGayness;
 import core.apis.last.chartentities.PreComputedChartEntity;
+import core.apis.last.chartentities.UrlCapsule;
 import core.apis.last.queues.DiscardByQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -15,7 +16,10 @@ import core.parsers.ChartableParser;
 import core.parsers.GayParser;
 import core.parsers.params.GayParams;
 import dao.ChuuService;
-import dao.entities.*;
+import dao.entities.CountWrapper;
+import dao.entities.DiscordUserDisplay;
+import dao.entities.GayType;
+import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -39,33 +43,6 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
-
-    public GayCommand(ChuuService dao) {
-        super(dao);
-        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotify = SpotifySingleton.getInstance();
-    }
-
-    @Override
-    public ChartableParser<GayParams> getParser() {
-        return new GayParser(getService(), TimeFrameEnum.ALL);
-    }
-
-    @Override
-    public String getDescription() {
-        return "Chart with a LGTBQ pallete";
-    }
-
-    @Override
-    public List<String> getAliases() {
-        return List.of("pride", "gay", "flag", "trans", "ace", "lesbian", "nonbinary", "nb");
-    }
-
-    @Override
-    public String getName() {
-        return "Pride Command";
-    }
-
     private final BiFunction<Map<Color, Integer>, GayParams, Predicate<PreComputedChartEntity>> discardGenerator = (map, perRow) -> preComputedChartEntity ->
     {
         // The Map hold a list of all rainbow values and a counter of the current values that color hold
@@ -116,6 +93,32 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
         return collect.isEmpty();
 
     };
+
+    public GayCommand(ChuuService dao) {
+        super(dao);
+        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+        spotify = SpotifySingleton.getInstance();
+    }
+
+    @Override
+    public ChartableParser<GayParams> getParser() {
+        return new GayParser(getService(), TimeFrameEnum.ALL);
+    }
+
+    @Override
+    public String getDescription() {
+        return "Chart with a LGTBQ pallete";
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("pride", "gay", "flag", "trans", "ace", "lesbian", "nonbinary", "nb");
+    }
+
+    @Override
+    public String getName() {
+        return "Pride Command";
+    }
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(GayParams params) throws LastFmException {

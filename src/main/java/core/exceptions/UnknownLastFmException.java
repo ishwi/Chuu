@@ -1,7 +1,6 @@
 package core.exceptions;
 
 public class UnknownLastFmException extends LastFmException {
-    private final int code;
     public static final int INVALID_SERVICE = 2;
     public static final int INVALID_METHOD = 3;
     public static final int AUTHENTICATOIN_FAILED = 4;
@@ -16,6 +15,7 @@ public class UnknownLastFmException extends LastFmException {
     public static final int TEMPORARY_ERROR = 16;
     public static final int SUSPENDED_API_KEY = 26;
     public static final int RATE_LIMIT_EXCEEDED = 29;
+    private final int code;
 
     public UnknownLastFmException(String message, int code) {
         super(message);

@@ -19,8 +19,8 @@ public abstract class ReactionListener implements EventListener {
     private static final String PERMS_MES = "Don't have permissions to clear reactions :(\nYou can still manually remove the reaction\n";
     private static final String DMS_MES = "Can't clear reactions on dm's, please manually remove the reaction\n";
     public final EmbedBuilder who;
-    public Message message;
     private final long activeSeconds;
+    public Message message;
     public JDA jda;
 
     public ReactionListener(EmbedBuilder who, Message message) {

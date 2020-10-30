@@ -17,6 +17,16 @@ public class UrlParser extends Parser<UrlParameters> {
         this.permCheck = permCheck;
     }
 
+    static boolean isValidURL(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            url.toURI();
+            return true;
+        } catch (Exception exception) {
+            return false;
+        }
+    }
+
     @Override
     public void setUpErrorMessages() {
         errorMessages.put(1, "Invalid url ");
@@ -51,16 +61,6 @@ public class UrlParser extends Parser<UrlParameters> {
         return new UrlParameters(e, url);
 
 
-    }
-
-    static boolean isValidURL(String urlString) {
-        try {
-            URL url = new URL(urlString);
-            url.toURI();
-            return true;
-        } catch (Exception exception) {
-            return false;
-        }
     }
 
     @Override

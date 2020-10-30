@@ -1,10 +1,8 @@
 package core.imagerenderer.util;
 
 import core.parsers.params.CommandParameters;
-import dao.entities.AlbumUserPlays;
 import org.knowm.xchart.PieChart;
 
-import java.util.List;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;

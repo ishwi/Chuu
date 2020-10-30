@@ -1,12 +1,12 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
-import core.exceptions.InstanceNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.NowPlayingParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class NpParser extends DaoParser<NowPlayingParameters> {
@@ -26,6 +26,6 @@ public class NpParser extends DaoParser<NowPlayingParameters> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *username***\n" +
-               "\t If the username is not specified it defaults to authors account\n";
+                "\t If the username is not specified it defaults to authors account\n";
     }
 }

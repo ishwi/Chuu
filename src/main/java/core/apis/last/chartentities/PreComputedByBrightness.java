@@ -1,7 +1,6 @@
 package core.apis.last.chartentities;
 
 import core.imagerenderer.GraphicUtils;
-import dao.entities.UrlCapsule;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
