@@ -6,6 +6,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.CommandUtil;
+import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.*;
@@ -56,7 +57,7 @@ public class BillboardHoarder {
         Date weekStart = week.getWeekStart();
         LocalDate l = weekStart.toLocalDate();
         LocalDateTime weekBeginning = l.minus(1, ChronoUnit.WEEKS).atStartOfDay();
-        users.parallelStream()
+        users.stream()
                 .filter(usersWrapper -> !usersBeingProcessed.contains(usersWrapper.getDiscordID()))
                 .filter(usersWrapper -> service.getUserData(weekId, usersWrapper.getLastFMName()).isEmpty())
                 .forEach(usersWrapper -> {
@@ -69,7 +70,8 @@ public class BillboardHoarder {
                                 , (int) OffsetDateTime.of(weekStart.toLocalDate().atStartOfDay(), ZoneOffset.ofTotalSeconds(usersWrapper.getTimeZone().getOffset(Calendar.getInstance().getTimeInMillis()) / 1000)).toInstant().getEpochSecond()
                         );
                         doArtistValidation(tracksAndTimestamps);
-                        service.insertUserData(weekId, lastFMName, tracksAndTimestamps);
+                        if (!tracksAndTimestamps.isEmpty())
+                            service.insertUserData(weekId, lastFMName, tracksAndTimestamps);
 
                     } catch (LastFmException ignored) {
                     } finally {
@@ -80,18 +82,18 @@ public class BillboardHoarder {
     }
 
     private void doArtistValidation(List<TrackWithArtistId> toValidate) {
-        toValidate = toValidate.stream().peek(x -> {
+        List<TrackWithArtistId> newToValidate = toValidate.stream().peek(x -> {
             Long aLong1 = dbIdMap.get(x.getArtist());
             if (aLong1 != null)
                 x.setArtistId(aLong1);
         }).filter(x -> x.getArtistId() == -1L || x.getArtistId() == 0L).collect(Collectors.toList());
         Set<String> tobeRemoved = new HashSet<>();
-        List<ScrobbledArtist> artists = toValidate.stream().map(Track::getArtist).distinct().map(x -> new ScrobbledArtist(x, 0, null)).collect(Collectors.toList());
+        List<ScrobbledArtist> artists = newToValidate.stream().map(Track::getArtist).distinct().map(x -> new ScrobbledArtist(x, 0, null)).collect(Collectors.toList());
         service.filldArtistIds(artists);
-        Map<Boolean, List<ScrobbledArtist>> collect1 = artists.stream().collect(Collectors.partitioningBy(x -> x.getArtistId() != -1L && x.getArtistId() != 0));
-        List<ScrobbledArtist> foundArtists = collect1.get(true);
+        Map<Boolean, List<ScrobbledArtist>> mappedByExistingId = artists.stream().collect(Collectors.partitioningBy(x -> x.getArtistId() != -1L && x.getArtistId() != 0));
+        List<ScrobbledArtist> foundArtists = mappedByExistingId.get(true);
         Map<String, String> changedUserNames = new HashMap<>();
-        collect1.get(false).stream().map(x -> {
+        mappedByExistingId.get(false).stream().map(x -> {
             try {
                 String artist = x.getArtist();
                 CommandUtil.validate(service, x, lastFM, discogsApi, spotify);
@@ -99,6 +101,9 @@ public class BillboardHoarder {
                 if (!Objects.equals(artist, newArtist)) {
                     changedUserNames.put(artist, newArtist);
                 }
+                return x;
+            } catch (LastFmEntityNotFoundException exception) {
+                service.upsertArtistSad(x);
                 return x;
             } catch (LastFmException lastFmException) {
                 tobeRemoved.add(x.getArtist());
@@ -108,7 +113,11 @@ public class BillboardHoarder {
         Map<String, Long> mapId = foundArtists.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, ScrobbledArtist::getArtistId, (x, y) -> x));
 
         for (Iterator<TrackWithArtistId> iterator = toValidate.iterator(); iterator.hasNext(); ) {
+
             TrackWithArtistId x = iterator.next();
+            if (x.getArtistId() > 0) {
+                continue;
+            }
             Long aLong = mapId.get(x.getArtist());
             if (tobeRemoved.contains(x.getArtist())) {
                 iterator.remove();
