@@ -1565,7 +1565,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             preparedStatement.setLong(1, discordId);
             preparedStatement.setLong(2, guildId);
             preparedStatement.setString(3, commandName);
-            preparedStatement.setInt(4, Math.toIntExact(nanos));
+            preparedStatement.setLong(4, nanos);
             preparedStatement.executeUpdate();
         } catch (
                 SQLException e) {

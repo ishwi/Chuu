@@ -148,3 +148,5 @@ alter table guild
 
 alter table guild
     add column disabled_warning boolean not null default false;
+ALTER TABLE command_logs
+    MODIFY COLUMN nanos bigint(20);
