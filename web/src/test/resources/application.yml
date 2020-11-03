@@ -1,0 +1,9 @@
+micronaut:
+  application:
+    name: web
+  caches:
+    command-info:
+      maximum-size: 1
+chuu:
+  path_to_commands: ./test.json
+  default_guild: 693124899220226178

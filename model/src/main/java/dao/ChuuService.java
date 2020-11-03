@@ -22,6 +22,7 @@ import java.text.Normalizer;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1216,6 +1217,15 @@ public class ChuuService {
 
     }
 
+    public List<ImageQueue> getAllImageQueue(Instant from, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.getUrlQueue(connection, from, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
     public Affinity getAffinity(String ogLastFmID, String receiverLastfmID, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             affinityDao.initTempTable(connection, ogLastFmID, receiverLastfmID, threshold);
@@ -1412,6 +1422,12 @@ public class ChuuService {
 
     }
 
+    /**
+     * @param queuedId  Id of the queued Url
+     * @param url       Image to be uploaded
+     * @param artistId  Id of the artist
+     * @param discordId Id of the uploader of the image
+     */
     public void acceptImageQueue(long queuedId, String url, long artistId, long discordId) {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.removeQueuedImage(connection, queuedId);
@@ -2537,5 +2553,37 @@ public class ChuuService {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+    }
+
+    public List<ReportEntity> getALLPendingReviews(int limit, Instant from) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getAllPendingReviews(connection, from, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void batchAcceptReviews(List<ImageQueueResponse> responses) {
+        try (Connection connection = dataSource.getConnection()) {
+            Map<Boolean, List<ImageQueueResponse>> collect = responses.stream().collect(Collectors.partitioningBy(x -> x.getResponseType() == ImageQueueResponse.ResponseType.ACCEPTED, Collectors.toList()));
+            collect.get(true).stream().forEach(x -> {
+                updaterDao.removeQueuedImage(connection, x.getQueuedId());
+                long onwerId = x.getOnwerId();
+                long urlId = updaterDao.upsertUrl(connection, x.getUrl(), x.getArtistId(), onwerId);
+                updaterDao.castVote(connection, urlId, onwerId, true);
+            });
+            collect.get(false).forEach(x -> updaterDao.removeQueuedImage(connection, x.getQueuedId()));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void storeDiscordRefreshToken(String accessToken, long right, int timeTillNextRefresh) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.storeDiscordRefreshToken(connection, accessToken, right, Instant.now().plus(timeTillNextRefresh, ChronoUnit.SECONDS).minus(3, ChronoUnit.MINUTES));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
     }
 }

@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
@@ -104,4 +105,6 @@ interface UserGuildDao {
     Set<Long> getGuildsWithDeletableMessages(Connection connection);
 
     Set<Long> getGuildsDontRespondOnErrros(Connection connection);
+
+    void storeDiscordRefreshToken(Connection connection, String accessToken, long right, Instant minus);
 }

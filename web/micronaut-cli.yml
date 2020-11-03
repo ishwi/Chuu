@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: ish
+testFramework: junit
+sourceLanguage: java
+buildTool: gradle
+features: [ annotation-api, app-name, cache-caffeine, gradle, http-client, java, java-application, junit, netty-server, openapi,security-annotations, security-oauth2, readme, shade, slf4j-simple, yaml ]

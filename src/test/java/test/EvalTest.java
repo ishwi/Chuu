@@ -1,7 +1,14 @@
 package test;
 
+import core.commands.CommandCategory;
+import core.commands.InviteCommand;
 import core.commands.WhoKnowsLoonasCommand;
 import core.commands.utils.EvalContext;
+import core.parsers.NoOpParser;
+import core.parsers.Parser;
+import core.parsers.params.CommandParameters;
+import dao.ChuuService;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -20,7 +27,48 @@ import java.util.stream.Collectors;
 
 public class EvalTest {
     public void name(EvalContext ctx) {
+        class WeezerCommand extends InviteCommand {
+            public WeezerCommand(ChuuService dao) {
+                super(dao);
+            }
 
+
+            @Override
+            protected CommandCategory initCategory() {
+                return CommandCategory.SERVER_STATS;
+            }
+
+            @Override
+            public Parser<CommandParameters> initParser() {
+                return new NoOpParser();
+            }
+
+            @Override
+            public String getDescription() {
+                return "weezer";
+            }
+
+            @Override
+            public List<String> getAliases() {
+                return List.of("weezer");
+            }
+
+            @Override
+            public String getName() {
+                return "weezer";
+            }
+
+            @Override
+            public void onMessageReceived(MessageReceivedEvent e) {
+                if (e.getMessage().getContentRaw().substring(1).equalsIgnoreCase("weezer - weezer")) {
+                    e.getChannel().sendMessage("https://cdn.discordapp.com/attachments/622599079918043160/709526987470930020/IMG_E0806.JPG").queue();
+                }
+            }
+        }
+
+        ctx.jda.addEventListener(new WeezerCommand(ctx.db) {
+
+        });
 
     }
 

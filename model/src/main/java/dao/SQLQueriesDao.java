@@ -5,6 +5,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -166,5 +167,7 @@ interface SQLQueriesDao {
     Set<Pair<String, String>> getArtistBannedTags(Connection connection);
 
     List<String> getArtistTag(Connection connection, long artistId);
+
+    List<ReportEntity> getAllPendingReviews(Connection connection, Instant from, int limit);
 
 }

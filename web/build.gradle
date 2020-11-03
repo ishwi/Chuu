@@ -1,0 +1,78 @@
+plugins {
+    id("com.github.johnrengelman.shadow") version "6.1.0"
+    id("io.micronaut.application") version "1.0.5"
+}
+
+version = "0.1"
+group = "ish"
+
+allprojects {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url "https://oss.jfrog.org/oss-snapshot-local" }
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+micronaut {
+    runtime("netty")
+    testRuntime("junit5")
+    processing {
+        incremental(true)
+        annotations("ish.*")
+    }
+}
+tasks.withType(JavaCompile) {
+    options.compilerArgs += "--enable-preview"
+}
+
+tasks.withType(Test) {
+    jvmArgs += "--enable-preview"
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs += '--enable-preview'
+}
+tasks.withType(JavaCompile) {
+    options.fork = true
+    options.forkOptions.jvmArgs << '-Dmicronaut.openapi.views.spec=rapidoc.enabled=true,swagger-ui.enabled=true,swagger-ui.theme=flattop'
+}
+dependencies {
+    annotationProcessor("io.micronaut.openapi:micronaut-openapi")
+    annotationProcessor("io.micronaut.security:micronaut-security-annotations")
+
+    compile project(':model')
+    implementation("io.micronaut:micronaut-validation")
+    implementation("io.micronaut:micronaut-runtime")
+    implementation("javax.annotation:javax.annotation-api")
+    implementation("io.micronaut:micronaut-http-client")
+    implementation("io.micronaut.security:micronaut-security-annotations")
+    implementation("io.micronaut.security:micronaut-security-jwt")
+
+    implementation("io.swagger.core.v3:swagger-annotations")
+    implementation("io.micronaut.cache:micronaut-cache-caffeine")
+    runtimeOnly("org.slf4j:slf4j-simple")
+    compile group: 'org.json', name: 'json', version: '20200518'
+    implementation "io.micronaut:micronaut-management"
+    implementation("io.micronaut.security:micronaut-security-jwt")
+    implementation("io.micronaut.security:micronaut-security-oauth2")
+// https://mvnrepository.com/artifact/com.github.scribejava/scribejava-apis
+    compile group: 'com.github.scribejava', name: 'scribejava-apis', version: '7.1.1'
+
+
+}
+
+application {
+    mainClass.set("ish.Application")
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion("15")
+    targetCompatibility = JavaVersion.toVersion("15")
+}
+
+tasks {
+
+}
+

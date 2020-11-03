@@ -120,6 +120,8 @@ interface UpdaterDao {
 
     ImageQueue getUrlQueue(Connection connection, LocalDateTime localDateTime, Set<Long> skippedIds);
 
+    List<ImageQueue> getUrlQueue(Connection connection, Instant until, int limit);
+
     void upsertQueueUrl(Connection connection, String url, long artistId, long discordId);
 
     OptionalLong checkQueuedUrlExists(Connection connection, long artistId, String urlParsed);
@@ -165,4 +167,5 @@ interface UpdaterDao {
     void removeTagAlbum(Connection connection, String tag, long artistId);
 
     void logCommand(Connection connection, long discordId, Long guildId, String commandName, long nanos, Instant utc);
+
 }

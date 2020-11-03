@@ -1,0 +1,385 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Hello World",
+    "description": "My API",
+    "contact": {
+      "name": "Fred",
+      "url": "https://gigantic-server.com",
+      "email": "Fred@gigagantic-server.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://foo.bar"
+    },
+    "version": "0.0"
+  },
+  "paths": {
+    "/commands/from-file": {
+      "put": {
+        "operationId": "postFile",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "postFile default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommandInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/commands/default": {
+      "get": {
+        "operationId": "defaultFile",
+        "parameters": [],
+        "responses": {
+          "default": {
+            "description": "defaultFile default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommandInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/commands": {
+      "get": {
+        "operationId": "index",
+        "parameters": [],
+        "responses": {
+          "default": {
+            "description": "index default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommandInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/commands/from-json": {
+      "put": {
+        "operationId": "accept",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CommandInfo"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "accept default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommandInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/image-queue": {
+      "get": {
+        "operationId": "index",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "index default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ImageQueue"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/image-queue/accept": {
+      "post": {
+        "operationId": "accept",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptedImageDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "accept default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/image-queue/reject/{queuedId}": {
+      "post": {
+        "operationId": "reject",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "reject default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/image-queue/batch": {
+      "post": {
+        "operationId": "batch",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ImageQueueResponse"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "batch default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/void"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Record": {
+        "type": "object"
+      },
+      "CommandInfo": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Record"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "category": {
+                "type": "string"
+              },
+              "aliases": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "instructions": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "ImageQueue": {
+        "type": "object",
+        "properties": {
+          "queuedId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "url": {
+            "type": "string"
+          },
+          "artistId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "uploader": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "artistName": {
+            "type": "string"
+          },
+          "localDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "userReportCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "void": {
+        "type": "object"
+      },
+      "AcceptedImageDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Record"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "queuedId": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "uploader": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "url": {
+                "type": "string"
+              },
+              "artistId": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          }
+        ]
+      },
+      "ImageQueueResponse": {
+        "type": "object",
+        "properties": {
+          "queuedId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "responseType": {
+            "$ref": "#/components/schemas/ImageQueueResponse.ResponseType"
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "artistId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "onwerId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        }
+      },
+      "ImageQueueResponse.ResponseType": {
+        "type": "string",
+        "enum": [
+          "ACCEPTED",
+          "REJECTED"
+        ]
+      }
+    }
+  }
+}

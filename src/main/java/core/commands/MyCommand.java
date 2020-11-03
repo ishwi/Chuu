@@ -1,8 +1,10 @@
 package core.commands;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
+import core.commands.utils.MyCommandSerializer;
 import core.exceptions.*;
 import core.imagerenderer.ChartQuality;
 import core.parsers.Parser;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
+@JsonSerialize(using = MyCommandSerializer.class)
 public abstract class MyCommand<T extends CommandParameters> extends ListenerAdapter {
     final ConcurrentLastFM lastFM;
     private final ChuuService dao;

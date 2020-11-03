@@ -1066,6 +1066,37 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
+    public List<ImageQueue> getUrlQueue(Connection connection, Instant until, int limit) {
+        List<ImageQueue> imageQueues = new ArrayList<>();
+        String queryString = "SELECT a.id,a.url,a.artist_id,a.discord_id,a.added_date, c.name,(SELECT count(*) FROM log_reported WHERE reported = a.discord_id) as reportedCount\n" +
+                "FROM queued_url a " +
+                "JOIN\n" +
+                "artist c ON a.artist_id = c.id\n" +
+                "WHERE a.added_date < ?";
+        queryString += "ORDER BY a.added_date DESC LIMIT ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setTimestamp(1, Timestamp.from(until));
+            preparedStatement.setInt(2, limit);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                long queuedId = resultSet.getLong(1);
+                String url = resultSet.getString(2);
+                long artistId = resultSet.getInt(3);
+                long uploader = resultSet.getLong(4);
+                Timestamp addedDate = resultSet.getTimestamp(5);
+                String artistName = resultSet.getString(6);
+                int userReportCount = resultSet.getInt(7);
+                imageQueues.add(new ImageQueue(queuedId, url, artistId, uploader,
+                        artistName, addedDate.toLocalDateTime(), userReportCount));
+            }
+            return imageQueues;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public void upsertQueueUrl(Connection connection, String url, long artistId, long discordId) {
         String queryString = "INSERT INTO queued_url(url,artist_id,discord_id) values (?,?,?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -1573,6 +1604,8 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
         }
 
     }
+
+
 }
 
 

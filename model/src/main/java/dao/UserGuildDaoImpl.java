@@ -15,6 +15,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.*;
+import java.time.Instant;
 import java.util.*;
 
 public class UserGuildDaoImpl implements UserGuildDao {
@@ -932,6 +933,26 @@ public class UserGuildDaoImpl implements UserGuildDao {
         String queryString = "Select guild_id from guild WHERE disabled_warning = true";
         return getIdList(connection, queryString);
     }
+
+    @Override
+    public void storeDiscordRefreshToken(Connection connection, String refreshToken, long right, Instant minus) {
+        String queryString = "insert discord_oauth(discord_id,string,refresh_moment) values (?,?,?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            /* Execute query. */
+            preparedStatement.setLong(1, right);
+            preparedStatement.setString(2, refreshToken);
+            preparedStatement.setTimestamp(3, Timestamp.from(minus));
+
+            preparedStatement.executeUpdate();
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
     @NotNull
     private Set<Long> getIdList(Connection connection, String queryString) {

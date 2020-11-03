@@ -1,11 +1,15 @@
 package core.commands.utils;
 
 import core.apis.last.ConcurrentLastFM;
+import core.commands.MyCommand;
+import core.services.CommandReportGenerator;
 import dao.ChuuService;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.stream.Collectors;
 
 public class EvalContext {
     public final JDA jda;
@@ -30,6 +34,11 @@ public class EvalContext {
 
     public void sendMessage(Object message) {
         e.getChannel().sendMessage(message.toString()).queue();
+    }
+
+    public void report() {
+        CommandReportGenerator commandReportGenerator = new CommandReportGenerator(jda.getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).collect(Collectors.toList()));
+        commandReportGenerator.generateReport();
     }
 
 }

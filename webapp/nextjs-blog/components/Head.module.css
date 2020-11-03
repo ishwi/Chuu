@@ -1,0 +1,9 @@
+.header {
+    background: rgb(87, 87, 87);
+    padding: 15px 20px;
+}
+
+.inner {
+    width: 600px;
+    margin: 0 auto;
+}

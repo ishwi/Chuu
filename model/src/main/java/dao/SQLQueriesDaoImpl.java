@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.sql.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -2769,6 +2770,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    @Override
+    public List<ReportEntity> getAllPendingReviews(Connection connection, Instant from, int limit) {
+        return null;
     }
 
 
