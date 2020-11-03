@@ -120,7 +120,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         Long discordId = parameters.getLastFMData().getDiscordId();
         List<ScrobbledArtist> artistInfos = queue.stream().map(x -> {
             ScrobbledArtist scrobbledArtist = new ScrobbledArtist(x.getArtistName(), x.getPlays(), null);
-            scrobbledArtist.setArtistMbid(scrobbledArtist.getArtistMbid());
+            scrobbledArtist.setArtistMbid(x.getMbid());
             return scrobbledArtist;
         }).collect(Collectors.toList());
         List<ArtistUserPlays> list = this.mb.getArtistFromCountry(country, artistInfos, discordId);

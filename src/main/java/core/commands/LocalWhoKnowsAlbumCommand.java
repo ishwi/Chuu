@@ -114,6 +114,9 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
         wrapperReturnNowPlaying.setReturnNowPlayings(wrapperReturnNowPlaying.getReturnNowPlayings().stream()
                 .map(x -> new ReturnNowPlayingAlbum(x, ap.getAlbum())).peek(x -> x.setArtist(who.getArtist())).peek(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername())).collect(Collectors.toList()));
 
+        String album = ap.getAlbum();
+
+        wrapperReturnNowPlaying.setArtist(who.getArtist() + " - " + ap.getAlbum());
         return wrapperReturnNowPlaying;
     }
 

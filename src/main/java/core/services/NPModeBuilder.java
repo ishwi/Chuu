@@ -156,7 +156,7 @@ public class NPModeBuilder {
                     break;
                 case PREVIOUS:
                 case SPOTIFY_LINK:
-                    if (embedLock.compareAndSet(false, true)) {
+                    if (!embedLock.compareAndSet(false, true)) {
                         break;
                     }
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
@@ -376,30 +376,7 @@ public class NPModeBuilder {
 
 
                             if (npModes.contains(NPMode.GLOBAL_CROWN)) {
-                                String holder = null;
-                                try {
-                                    LastFMData lastFMData = service.findLastFMData(globalArtistRanking.get(0).getDiscordId());
-
-                                    if (EnumSet.of(PrivacyMode.LAST_NAME, PrivacyMode.TAG, PrivacyMode.DISCORD_NAME).contains(lastFMData.getPrivacyMode())) {
-
-                                        switch (lastFMData.getPrivacyMode()) {
-                                            case DISCORD_NAME:
-                                                holder = CommandUtil.getUserInfoNotStripped(e, returnNowPlaying.getDiscordId()).getUsername();
-                                                break;
-                                            case TAG:
-                                                holder = e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
-                                                break;
-                                            case LAST_NAME:
-                                                holder = lastFMData.getName() + " (lastfm)";
-                                                break;
-                                            default:
-                                                holder =
-                                                        "Private User #1";
-                                        }
-                                    } else holder = "Private User #1";
-                                } catch (InstanceNotFoundException exception) {
-                                    exception.printStackTrace();
-                                }
+                                String holder = getPrivateString(returnNowPlaying.getDiscordId());
                                 footerSpaces[footerIndexes.get(NPMode.GLOBAL_CROWN)] =
                                         "Global \uD83D\uDC51 " + returnNowPlaying.getPlaycount() + " (" + holder + ")";
                             }
@@ -431,10 +408,10 @@ public class NPModeBuilder {
                             if (!returnNowPlayings.isEmpty()) {
 
                                 ReturnNowPlaying returnNowPlaying = returnNowPlayings.get(0);
-                                String userString = CommandUtil.getUserInfoNotStripped(e, returnNowPlaying.getDiscordId()).getUsername();
+                                String holder = getPrivateString(returnNowPlaying.getDiscordId());
                                 if (npModes.contains(NPMode.GLOBAL_ALBUM_CROWN))
                                     footerSpaces[footerIndexes.get(NPMode.GLOBAL_ALBUM_CROWN)] =
-                                            "Global Album \uD83D\uDC51 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
+                                            "Global Album \uD83D\uDC51 " + returnNowPlaying.getPlayNumber() + " (" + holder + ")";
                                 if (npModes.contains(NPMode.GLOBAL_ALBUM_RANK)) {
                                     for (int i = 0; i < returnNowPlayings.size(); i++) {
                                         ReturnNowPlaying searching = returnNowPlayings.get(i);
@@ -630,5 +607,33 @@ public class NPModeBuilder {
                 break;
             }
         }
+    }
+
+    private String getPrivateString(long discordId) {
+        String holder;
+        try {
+            LastFMData lastFMData = service.findLastFMData(discordId);
+
+            if (EnumSet.of(PrivacyMode.LAST_NAME, PrivacyMode.TAG, PrivacyMode.DISCORD_NAME).contains(lastFMData.getPrivacyMode())) {
+
+                switch (lastFMData.getPrivacyMode()) {
+                    case DISCORD_NAME:
+                        holder = CommandUtil.getUserInfoNotStripped(e, discordId).getUsername();
+                        break;
+                    case TAG:
+                        holder = e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
+                        break;
+                    case LAST_NAME:
+                        holder = lastFMData.getName() + " (lastfm)";
+                        break;
+                    default:
+                        holder =
+                                "Private User #1";
+                }
+            } else holder = "Private User #1";
+        } catch (InstanceNotFoundException exception) {
+            holder = "Private User #1";
+        }
+        return holder;
     }
 }
