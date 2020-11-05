@@ -185,7 +185,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                         " main.artist_id = t.id ";
 
         String normalQuery = "SELECT (tag) as name, " + (doCount ? "count(*)" : "sum(main.playnumber)") + " AS orden " + queryBody + " GROUP BY main.tag ORDER BY orden DESC  Limit 200";
-        String countQuery = "Select count(*) " + queryBody;
+        String countQuery = "Select 1";
         return getArtistPlaysResultWrapper(connection, guildId, normalQuery, countQuery);
     }
 

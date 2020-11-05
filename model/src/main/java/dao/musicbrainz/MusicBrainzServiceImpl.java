@@ -226,7 +226,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
 
             List<String> artistFromCountry = mbizQueriesDao.getArtistFromCountry(connection, country, artistInfos);
 
-            return queue.stream().filter(u -> u.getArtistMbid() != null && !u.getArtistMbid().isEmpty() && artistFromCountry.contains(u.getArtist()))
+            return queue.stream().filter(u -> u.getArtistMbid() != null && !u.getArtistMbid().isEmpty() && artistFromCountry.contains(u.getArtistMbid()))
                     .map(x -> new ArtistUserPlays(x.getArtist(), x.getCount(), discordId)).collect(Collectors.toList());
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
