@@ -27,6 +27,7 @@ import org.knowm.xchart.PieChart;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.function.Consumer;
 
 public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends ConcurrentCommand<T> {
     final DiscogsApi discogsApi;
@@ -117,12 +118,19 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         StringBuilder builder = new StringBuilder();
 
         MessageReceivedEvent e = ap.getE();
-
+        Consumer<ReturnNowPlaying> a = (x) -> {
+            String itemUrl = PrivacyUtils.getUrlTitle(x);
+            x.setItemUrl(itemUrl);
+        };
+        wrapperReturnNowPlaying.getReturnNowPlayings()
+                .forEach(x ->
+                        x.setDisplayer(a)
+                );
 
         int counter = 1;
         for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {
             builder.append(counter++)
-                    .append(PrivacyUtils.toString(returnNowPlaying));
+                    .append(returnNowPlaying.toString());
             if (counter == 11)
                 break;
         }

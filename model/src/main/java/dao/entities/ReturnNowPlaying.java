@@ -3,6 +3,7 @@ package dao.entities;
 import dao.utils.LinkUtils;
 
 import java.awt.*;
+import java.util.function.Consumer;
 
 public class ReturnNowPlaying {
     private String artist;
@@ -12,6 +13,8 @@ public class ReturnNowPlaying {
     private String lastFMId;
     private int playNumber;
     public static final String WILDCARD = "|RETURNNOWPLAYINGWILDCARD|";
+    String itemUrl;
+    private Consumer<ReturnNowPlaying> displayer;
 
     public ReturnNowPlaying(long discordId, String lastFMId, String artist, int playNumber) {
         this.discordId = discordId;
@@ -74,5 +77,33 @@ public class ReturnNowPlaying {
                 "[" + LinkUtils.cleanMarkdownCharacter(discordName) + "](" + WILDCARD +
                 ") - " +
                 playNumber + " plays\n";
+    }
+
+    @Override
+    public String toString() {
+        if (itemUrl == null) {
+            displayer.accept(this);
+        }
+        return ". " +
+                "**[" + LinkUtils.cleanMarkdownCharacter(discordName) + "](" +
+                itemUrl +
+                ")** - " +
+                getPlayNumber() + " plays\n";
+    }
+
+    public String getItemUrl() {
+        return itemUrl;
+    }
+
+    public void setItemUrl(String itemUrl) {
+        this.itemUrl = itemUrl;
+    }
+
+    public Consumer<ReturnNowPlaying> getDisplayer() {
+        return displayer;
+    }
+
+    public void setDisplayer(Consumer<ReturnNowPlaying> displayer) {
+        this.displayer = displayer;
     }
 }

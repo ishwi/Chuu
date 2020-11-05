@@ -1,5 +1,6 @@
 package core.commands;
 
+import core.commands.utils.PrivacyUtils;
 import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.OptionalEntity;
 import core.parsers.params.CommandParameters;
@@ -56,7 +57,6 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
             if (showableUsers.contains(x.getDiscordId())) {
                 privacyMode = PrivacyMode.DISCORD_NAME;
             }
-
             switch (privacyMode) {
                 case STRICT:
                 case NORMAL:
@@ -72,13 +72,14 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
                     x.setDiscordName(x.getLastFMId() + " (last.fm)");
                     break;
             }
-
+            String itemUrl = PrivacyUtils.getUrlTitle(x);
+            x.setItemUrl(itemUrl);
         };
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x ->
                         {
                             GlobalReturnNowPlaying x1 = (GlobalReturnNowPlaying) x;
-                            x1.setDisplayer(a);
+                            x1.setGlobalDisplayer(a);
                         }
                 );
         switch (effectiveMode) {

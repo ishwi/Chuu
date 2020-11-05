@@ -1,14 +1,12 @@
 package dao.entities;
 
-import dao.utils.Constants;
-import dao.utils.LinkUtils;
-
 import java.util.function.Consumer;
 
 public class GlobalReturnNowPlaying extends ReturnNowPlaying {
     private final PrivacyMode privacyMode;
     private String displayTitle = null;
-    private Consumer<GlobalReturnNowPlaying> displayer;
+    private static final String USERWILDCARD = "|USER|WILDCARD|TO|REPLACE";
+    private Consumer<GlobalReturnNowPlaying> globalDisplayer;
 
     public GlobalReturnNowPlaying(long discordId, String lastFMId, String artist, int playNumber, PrivacyMode privacyMode) {
         super(discordId, lastFMId, artist, playNumber);
@@ -17,19 +15,7 @@ public class GlobalReturnNowPlaying extends ReturnNowPlaying {
 
     @Override
     public String toStringWildcard() {
-        String url;
-        String discordName = LinkUtils.markdownLessString(getDiscordName());
-        if (discordName.startsWith("Private User #")) {
-            url = WILDCARD;
-            setLastFMId(Constants.USER);
-        } else {
-            url = WILDCARD;
-        }
-        return ". " +
-                "**[" + discordName + "](" +
-                url +
-                ")** - " +
-                getPlayNumber() + " plays\n";
+        return toString();
     }
 
     public PrivacyMode getPrivacyMode() {
@@ -37,8 +23,8 @@ public class GlobalReturnNowPlaying extends ReturnNowPlaying {
     }
 
 
-    public void setDisplayer(Consumer<GlobalReturnNowPlaying> displayer) {
-        this.displayer = displayer;
+    public void setGlobalDisplayer(Consumer<GlobalReturnNowPlaying> displayer) {
+        this.globalDisplayer = displayer;
     }
 
     @Override
@@ -49,8 +35,29 @@ public class GlobalReturnNowPlaying extends ReturnNowPlaying {
     @Override
     public String getDiscordName() {
         if (displayTitle == null) {
-            displayer.accept(this);
+            globalDisplayer.accept(this);
         }
         return displayTitle;
+    }
+
+    @Override
+    public String toString() {
+        if (itemUrl == null || displayTitle == null) {
+            globalDisplayer.accept(this);
+        }
+        return ". " +
+                "**[" + displayTitle + "](" +
+                itemUrl +
+                ")** - " +
+                getPlayNumber() + " plays\n";
+    }
+
+
+    public String getItemUrl() {
+        return itemUrl;
+    }
+
+    public void setItemUrl(String itemUrl) {
+        this.itemUrl = itemUrl;
     }
 }

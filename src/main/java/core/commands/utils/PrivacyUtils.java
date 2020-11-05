@@ -58,7 +58,8 @@ public class PrivacyUtils {
 
     }
 
-    public static String toString(ReturnNowPlaying returnNowPlaying) {
+
+    public static String getUrlTitle(ReturnNowPlaying returnNowPlaying) {
         String templated;
         if (returnNowPlaying instanceof ReturnNowPlayingAlbum) {
             ReturnNowPlayingAlbum p = (ReturnNowPlayingAlbum) returnNowPlaying;
@@ -69,8 +70,7 @@ public class PrivacyUtils {
         } else {
             templated = getLastFmArtistUserUrl(returnNowPlaying.getArtist(), returnNowPlaying.getLastFMId());
         }
-        return returnNowPlaying.toStringWildcard().replace(ReturnNowPlaying.WILDCARD, templated);
-
+        return templated;
     }
 }
 
