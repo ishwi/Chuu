@@ -200,6 +200,13 @@ public class ParserAux {
 
         List<UsersWrapper> all = dao.getAll(e.getGuild().getIdLong());
         Predicate<Member> biPredicate = member -> all.stream().anyMatch(x -> member != null && x.getDiscordID() == member.getIdLong());
+        if (discordId.matcher(message).matches()) {
+            Member memberById = e.getGuild().getMemberById(message);
+            if (!biPredicate.test(memberById) && memberById != null) {
+                throw new InstanceNotFoundException(memberById.getId());
+            }
+            return getLastFMData(Optional.ofNullable(memberById).map(Member::getUser), message, dao, e);
+        }
         if (user.matcher(message).matches()) {
             Member memberByTag = e.getGuild().getMemberByTag(message);
             if (!biPredicate.test(memberByTag) && memberByTag != null) {

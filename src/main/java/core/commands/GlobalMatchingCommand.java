@@ -47,7 +47,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
 
     @Override
     public String getDescription() {
-        return "Like Matching but it will only evaluate users that have a opened up their privacy settings. Do !privacy for more info.";
+        return "Like Matching but it will only evaluate users that have a opened up their privacy settings. Do the command `privacy` for more info.";
     }
 
     @Override
