@@ -62,16 +62,20 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
                 case STRICT:
                 case NORMAL:
                     x.setDiscordName("Private User #" + atomicInteger.getAndIncrement());
-                    x.setLastFMId(Chuu.getLastFmId(x.getLastFMId()));
+                    x.setLastFMId(Chuu.DEFAULT_LASTFM_ID);
                     break;
                 case DISCORD_NAME:
                     x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername());
+                    x.setLastFMId(Chuu.getLastFmId(x.getLastFMId()));
                     break;
                 case TAG:
                     x.setDiscordName(ap.getE().getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag());
+                    x.setLastFMId(Chuu.getLastFmId(x.getLastFMId()));
                     break;
                 case LAST_NAME:
                     x.setDiscordName(x.getLastFMId() + " (last.fm)");
+                    x.setLastFMId(Chuu.getLastFmId(x.getLastFMId()));
+
                     break;
             }
             String itemUrl = PrivacyUtils.getUrlTitle(x);
