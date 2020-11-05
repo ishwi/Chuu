@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -91,7 +91,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         AtomicInteger statIgnore = new AtomicInteger(0);
         EmbedBuilder embedBuilder = new EmbedBuilder().setTitle("Reports Review");
         // TODO :DD
-        LocalDateTime localDateTime = LocalDateTime.now();
+        Instant instant = Instant.now();
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = getService().getReportCount();
@@ -135,7 +135,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                                 .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
                                 .setColor(CommandUtil.randomColor());
                     },
-                    () -> getService().getNextReport(localDateTime, skippedIds),
+                    () -> getService().getNextReport(instant, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
                     , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
         } catch (Throwable ex) {

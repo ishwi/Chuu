@@ -816,7 +816,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
 
     @Override
-    public ReportEntity getReportEntity(Connection connection, LocalDateTime localDateTime, Set<Long> skippedIds) {
+    public ReportEntity getReportEntity(Connection connection, Instant instant, Set<Long> skippedIds) {
 
         String queryString = "SELECT b.id,count(*) AS reportcount,b.score,\n" +
                 "min(a.report_date) AS l,b.added_date,b.discord_id,c.name,b.url,(SELECT count(*) FROM log_reported WHERE reported = b.discord_id),b.artist_id\n" +
@@ -829,7 +829,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
         }
         queryString += "GROUP BY a.alt_id ORDER BY l DESC LIMIT 1";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setTimestamp(1, Timestamp.from(localDateTime.atOffset(ZoneOffset.UTC).toInstant()));
+            preparedStatement.setTimestamp(1, Timestamp.from(instant));
             int i = 2;
             for (Long skippedId : skippedIds) {
                 preparedStatement.setLong(i++, skippedId);

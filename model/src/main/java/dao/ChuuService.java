@@ -1198,9 +1198,9 @@ public class ChuuService {
         }
     }
 
-    public ReportEntity getNextReport(LocalDateTime localDateTime, Set<Long> skippedIds) {
+    public ReportEntity getNextReport(Instant isntant, Set<Long> skippedIds) {
         try (Connection connection = dataSource.getConnection()) {
-            return updaterDao.getReportEntity(connection, localDateTime, skippedIds);
+            return updaterDao.getReportEntity(connection, isntant, skippedIds);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
