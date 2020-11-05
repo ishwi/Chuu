@@ -1198,18 +1198,18 @@ public class ChuuService {
         }
     }
 
-    public ReportEntity getNextReport(Instant isntant, Set<Long> skippedIds) {
+    public ReportEntity getNextReport(Long maxId, Set<Long> skippedIds) {
         try (Connection connection = dataSource.getConnection()) {
-            return updaterDao.getReportEntity(connection, isntant, skippedIds);
+            return updaterDao.getReportEntity(connection, maxId, skippedIds);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
 
     }
 
-    public ImageQueue getNextQueue(LocalDateTime localDateTime, Set<Long> skippedIds) {
+    public ImageQueue getNextQueue(Long maxId, Set<Long> skippedIds) {
         try (Connection connection = dataSource.getConnection()) {
-            return updaterDao.getUrlQueue(connection, localDateTime, skippedIds);
+            return updaterDao.getUrlQueue(connection, maxId, skippedIds);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

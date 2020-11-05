@@ -1,5 +1,6 @@
 package core.commands;
 
+import core.Chuu;
 import core.commands.utils.PrivacyUtils;
 import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.OptionalEntity;
@@ -61,6 +62,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
                 case STRICT:
                 case NORMAL:
                     x.setDiscordName("Private User #" + atomicInteger.getAndIncrement());
+                    x.setLastFMId(Chuu.getLastFmId(x.getLastFMId()));
                     break;
                 case DISCORD_NAME:
                     x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername());

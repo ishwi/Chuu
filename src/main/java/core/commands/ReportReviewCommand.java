@@ -18,7 +18,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -91,7 +90,13 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         AtomicInteger statIgnore = new AtomicInteger(0);
         EmbedBuilder embedBuilder = new EmbedBuilder().setTitle("Reports Review");
         // TODO :DD
-        Instant instant = Instant.now();
+        long maxId;
+        ReportEntity nextReport = getService().getNextReport(Long.MAX_VALUE, new HashSet<>());
+        if (nextReport == null) {
+            maxId = Long.MAX_VALUE;
+        } else {
+            maxId = nextReport.getReportId();
+        }
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = getService().getReportCount();
@@ -135,7 +140,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                                 .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
                                 .setColor(CommandUtil.randomColor());
                     },
-                    () -> getService().getNextReport(instant, skippedIds),
+                    () -> getService().getNextReport(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
                     , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
         } catch (Throwable ex) {

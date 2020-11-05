@@ -11,8 +11,6 @@ import javax.annotation.Nullable;
 import java.sql.*;
 import java.text.Normalizer;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -816,20 +814,20 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
 
     @Override
-    public ReportEntity getReportEntity(Connection connection, Instant instant, Set<Long> skippedIds) {
+    public ReportEntity getReportEntity(Connection connection, long maxIdAllowed, Set<Long> skippedIds) {
 
-        String queryString = "SELECT b.id,count(*) AS reportcount,b.score,\n" +
-                "min(a.report_date) AS l,b.added_date,b.discord_id,c.name,b.url,(SELECT count(*) FROM log_reported WHERE reported = b.discord_id),b.artist_id\n" +
+        String queryString = "SELECT  b.id,count(*) AS reportcount,b.score,\n" +
+                "min(a.report_date) AS l,b.added_date,b.discord_id,c.name,b.url,(SELECT count(*) FROM log_reported WHERE reported = b.discord_id),b.artist_id,a.id\n" +
                 "FROM reported a JOIN \n" +
                 "alt_url b ON a.alt_id = b.id JOIN\n" +
                 "artist c ON b.artist_id = c.id\n" +
-                "WHERE a.report_date < ?";
+                "WHERE a.id <= ? ";
         if (!skippedIds.isEmpty()) {
             queryString += " and a.alt_id not in (" + "?,".repeat(skippedIds.size() - 1) + "?)";
         }
         queryString += "GROUP BY a.alt_id ORDER BY l DESC LIMIT 1";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setTimestamp(1, Timestamp.from(instant));
+            preparedStatement.setLong(1, maxIdAllowed);
             int i = 2;
             for (Long skippedId : skippedIds) {
                 preparedStatement.setLong(i++, skippedId);
@@ -846,9 +844,11 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                 String url = resultSet.getString(8);
                 int userReportCount = resultSet.getInt(9);
                 long artistId = resultSet.getInt(10);
+                long reportId = resultSet.getInt(11);
+
                 return new ReportEntity(url, imageOwner, artistId,
                         altUrlId, firstReport.toLocalDateTime(), artistName,
-                        imageDate.toLocalDateTime(), score, reportCount, userReportCount);
+                        imageDate.toLocalDateTime(), score, reportCount, userReportCount, reportId);
             }
             return null;
         } catch (SQLException e) {
@@ -1030,19 +1030,19 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
-    public ImageQueue getUrlQueue(Connection connection, LocalDateTime localDateTime, Set<Long> skippedIds) {
+    public ImageQueue getUrlQueue(Connection connection, long maxIdAllowed, Set<Long> skippedIds) {
 
         String queryString = "SELECT a.id,a.url,a.artist_id,a.discord_id,a.added_date, c.name,(SELECT count(*) FROM log_reported WHERE reported = a.discord_id) as reportedCount\n" +
                 "FROM queued_url a " +
                 "JOIN\n" +
                 "artist c ON a.artist_id = c.id\n" +
-                "WHERE a.added_date < ?";
+                "WHERE a.id <= ? ";
         if (!skippedIds.isEmpty()) {
             queryString += " and a.id not in (" + "?,".repeat(skippedIds.size() - 1) + "?)";
         }
         queryString += "ORDER BY a.added_date DESC LIMIT 1";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setTimestamp(1, Timestamp.from(localDateTime.atOffset(ZoneOffset.UTC).toInstant()));
+            preparedStatement.setLong(1, maxIdAllowed);
             int i = 2;
             for (Long skippedId : skippedIds) {
                 preparedStatement.setLong(i++, skippedId);

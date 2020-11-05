@@ -7,7 +7,6 @@ import dao.exceptions.InstanceNotFoundException;
 import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalLong;
@@ -87,11 +86,11 @@ interface UpdaterDao {
 
     AliasEntity getNextInAliasQueue(Connection connection);
 
-    ReportEntity getReportEntity(Connection connection, Instant localDateTime, Set<Long> skippedIds);
+    ReportEntity getReportEntity(Connection connection, long maxIdAllowed, Set<Long> skippedIds);
 
     void deleteAliasById(Connection connection, long aliasId) throws InstanceNotFoundException;
 
-    void updateUrlStatus(Connection connection, long artistId,String spotifyId);
+    void updateUrlStatus(Connection connection, long artistId, String spotifyId);
 
     OptionalLong checkArtistUrlExists(Connection connection, long artistId, String urlParsed);
 
@@ -118,7 +117,7 @@ interface UpdaterDao {
     void updateGuildCrownThreshold(Connection connection, long guildId, int newThreshold);
 
 
-    ImageQueue getUrlQueue(Connection connection, LocalDateTime localDateTime, Set<Long> skippedIds);
+    ImageQueue getUrlQueue(Connection connection, long maxIdAllowed, Set<Long> skippedIds);
 
     void upsertQueueUrl(Connection connection, String url, long artistId, long discordId);
 

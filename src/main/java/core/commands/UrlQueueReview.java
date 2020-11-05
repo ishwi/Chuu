@@ -19,7 +19,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -88,7 +87,13 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         AtomicInteger navigationCounter = new AtomicInteger(0);
         AtomicInteger statAccepeted = new AtomicInteger(0);
         EmbedBuilder embedBuilder = new EmbedBuilder().setTitle("Image Queue Review");
-        LocalDateTime localDateTime = LocalDateTime.now();
+        long maxId;
+        ImageQueue nextQueue = getService().getNextQueue(Long.MAX_VALUE, new HashSet<>());
+        if (nextQueue == null) {
+            maxId = Long.MAX_VALUE;
+        } else {
+            maxId = nextQueue.getQueuedId();
+        }
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = getService().getQueueUrlCount();
@@ -146,7 +151,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                                 .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
                                 .setColor(CommandUtil.randomColor());
                     },
-                    () -> getService().getNextQueue(localDateTime, skippedIds),
+                    () -> getService().getNextQueue(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
                     , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
         } catch (Throwable ex) {
