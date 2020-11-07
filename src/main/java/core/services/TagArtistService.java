@@ -18,8 +18,8 @@ public class TagArtistService extends TagService<ArtistInfo, ScrobbledArtist> {
     }
 
     public TagArtistService(ChuuService dao, ConcurrentLastFM lastFM, List<String> tags, ArtistInfo artistInfo) {
-        super(dao, lastFM, tags.stream()
-                .collect(Collectors.toMap((t) -> new Genre(t, null), t -> Collections.singletonList(artistInfo))));
+        super(dao, lastFM, tags.stream().map(x -> new Genre(x, null)).distinct()
+                .collect(Collectors.toMap((t) -> t, t -> Collections.singletonList(artistInfo))));
     }
 
     public TagArtistService(ChuuService dao, ConcurrentLastFM lastFM, List<ArtistInfo> collect, String genre) {

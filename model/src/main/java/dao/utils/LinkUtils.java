@@ -11,7 +11,6 @@ public class LinkUtils {
     public static String getLastFmArtistUrl(String artist) {
         return "https://www.last.fm/music/" + encodeUrl(artist);
     }
-
     public static String getLastFmArtistAlbumUrl(String artist, String album) {
         return "https://www.last.fm/music/" + encodeUrl(artist) + "/" + encodeUrl(album);
     }
@@ -25,6 +24,11 @@ public class LinkUtils {
     }
 
 
+    public static String getLastFMArtistTrack(String artist, String track) {
+        return getLastFmArtistUrl(artist) + "/_/" + encodeUrl(track);
+
+    }
+
     public static String encodeUrl(String url) {
         return URLEncoder.encode(url, StandardCharsets.UTF_8);
     }
@@ -33,10 +37,6 @@ public class LinkUtils {
         return markdownStripper.matcher(string).replaceAll("\\\\$1");
     }
 
-    public static String getLastFMArtistTrack(String artist, String track) {
-        return getLastFmArtistUrl(artist) + "/_/" + encodeUrl(track);
-
-    }
 
     public static String markdownLessString(String string) {
         if (!string.contains("\\")) {

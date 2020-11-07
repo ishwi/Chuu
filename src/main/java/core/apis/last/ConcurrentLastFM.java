@@ -138,21 +138,24 @@ public class ConcurrentLastFM {//implements LastFMService {
                 int responseCode = client.executeMethod(method);
                 parseHttpCode(responseCode);
                 JSONObject jsonObject;
+                if (responseCode == 404) {
+                    throw new LastFmEntityNotFoundException(new ExceptionEntity("Whatever"));
+                }
                 try (InputStream responseBodyAsStream = method.getResponseBodyAsStream()) {
                     jsonObject = new JSONObject(new JSONTokener(responseBodyAsStream));
                 } catch (JSONException exception) {
                     Chuu.getLogger().warn(exception.getMessage(), exception);
+                    Chuu.getLogger().warn("JSON Exception doing url: {}, code: {}, ", method.getURI().getEscapedURI(), responseCode);
                     throw new ChuuServiceException(exception);
                 }
-                if (jsonObject.has("error"))
+                if (jsonObject.has("error")) {
                     parseResponse(jsonObject, causeOfNotFound);
-                if (responseCode == 404) {
-                    throw new LastFmEntityNotFoundException(new ExceptionEntity("Whatever"));
                 }
                 if (Math.floor((float) responseCode / 100) == 4) {
                     Chuu.getLogger().warn("Error {} with url {}", responseCode, method.getURI().getEscapedURI());
                     throw new UnknownLastFmException(jsonObject.toString(), responseCode);
                 }
+
                 return jsonObject;
             } catch (IOException | LastFMServiceException e) {
                 if (e instanceof LastFMServiceException) {
@@ -1422,6 +1425,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         String url = "";
         switch (entity) {
             case ALBUM:
+                assert track != null;
                 url = BASE + GET_ALBUM_TAGS + "&artist=" +
                         URLEncoder
                                 .encode(artist, StandardCharsets.UTF_8) + "&album=" + URLEncoder
@@ -1429,6 +1433,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                         apiKey + ENDING + "&autocorrect=1";
                 break;
             case TRACK:
+                assert track != null;
                 url = BASE + GET_TRACK_TAGS + "&artist=" +
                         URLEncoder
                                 .encode(artist, StandardCharsets.UTF_8) + "&track=" + URLEncoder

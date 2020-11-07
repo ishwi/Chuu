@@ -116,7 +116,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
 
     private void build(RYMRatingParams params, MessageReceivedEvent e, NumberFormat formatter, EmbedBuilder embedBuilder, List<String> stringList, DiscordUserDisplay userInfoConsideringGuildOrNot) {
         StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < stringList.size(); i++) {
+        for (int i = 0; i < 8 && i < stringList.size(); i++) {
             a.append(stringList.get(i));
         }
         RymStats stats = getService().getUserRymStatms(params.getLastFMData().getDiscordId());
@@ -126,6 +126,6 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
                 .setFooter(userInfoConsideringGuildOrNot.getUsername() + " has rated " + stats.getNumberOfRatings() + " albums with an average of " + formatter.format(stats.getAverage() / 2f))
                 .setDescription(a);
         e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                new Reactionary<>(stringList, message1, 10, embedBuilder, false));
+                new Reactionary<>(stringList, message1, 8, embedBuilder, false));
     }
 }

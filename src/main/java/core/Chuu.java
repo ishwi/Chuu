@@ -351,6 +351,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new MultipleWhoKnowsTagCommand(dao)))
                 .addEventListeners(help.registerCommand(new BanArtistTagCommand(dao)))
                 .addEventListeners(help.registerCommand(new ServerTags(dao)))
+                .addEventListeners(help.registerCommand(new TagsCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {

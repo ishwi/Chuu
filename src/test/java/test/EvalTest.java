@@ -21,6 +21,10 @@ import java.util.stream.Collectors;
 public class EvalTest {
     public void name(EvalContext ctx) {
 
+        core.Chuu.getShardManager().getShards().forEach(jda -> {
+        });
+
+        core.Chuu.getShardManager().removeEventListener();
 
     }
 

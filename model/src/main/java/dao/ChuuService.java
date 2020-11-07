@@ -1605,9 +1605,8 @@ public class ChuuService {
 
                     knownAlbums.addAll(ratingsWithKnownArtist);
                     knownAlbums = knownAlbums.stream()
-                            .collect(Collectors.groupingBy(RYMImportRating::getId, Collectors.toList())).entrySet().stream()
-                            // Dont think is equivalent :thinking:
-                            .map(rymImportRatings -> rymImportRatings.getValue().stream().max(Comparator.comparingInt(RYMImportRating::getRating)).orElse(null))
+                            .collect(Collectors.groupingBy(RYMImportRating::getId, Collectors.toList())).values().stream()
+                            .map(rymImportRatings -> rymImportRatings.stream().max(Comparator.comparingInt(RYMImportRating::getRating)).orElse(null))
                             .filter(Objects::nonNull).collect(Collectors.toList());
                 }
 
@@ -1783,7 +1782,6 @@ public class ChuuService {
 
         Map<Boolean, List<ScrobbledAlbum>> map = list.stream().peek(x -> x.setDiscordID(id)).collect(Collectors.partitioningBy(scrobbledArtist -> scrobbledArtist.getAlbumId() == -1));
         List<ScrobbledAlbum> nonExistingId = map.get(true);
-        connection.setAutoCommit(true);
         if (!nonExistingId.isEmpty()) {
             nonExistingId.forEach(x -> {
                 albumDao.insertLastFmAlbum(connection, x);
@@ -1795,7 +1793,6 @@ public class ChuuService {
         }
         List<ScrobbledAlbum> scrobbledAlbums = map.get(false);
         scrobbledAlbums.addAll(nonExistingId);
-        connection.setAutoCommit(false);
         Savepoint savepoint = connection.setSavepoint();
         if (doDeletion) {
             albumDao.deleteAllUserAlbums(connection, id);

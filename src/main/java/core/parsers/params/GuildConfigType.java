@@ -129,20 +129,20 @@ public enum GuildConfigType {
             case CROWNS_THRESHOLD:
                 return "A positive number that represent the minimum number of scrobbles for a crown to count";
             case CHART_MODE:
-                String collect = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
-                collect += "\n\t\t\t**Clear**: Sets the default mode ";
+                String explanation = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                explanation += "\n\t\t\t**Clear**: Sets the default mode ";
                 return "Set the mode for all charts of all users in this server. While this is set any user configuration will be overridden.\n" +
-                        "\t\tThe possible values for the chart mode are the following:" + collect;
+                        "\t\tThe possible values for the chart mode are the following:" + explanation;
             case WHOKNOWS_MODE:
-                collect = EnumSet.allOf(WhoKnowsMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
-                collect += "\n\t\t\t**Clear**: Sets the default mode";
+                explanation = EnumSet.allOf(WhoKnowsMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                explanation += "\n\t\t\t**Clear**: Sets the default mode";
                 return "Set the mode for all who knows of all users in this server. While this is set any user configuration will be overridden.\n" +
-                        "\t\tThe possible values for the who knows mode are the following:" + collect;
+                        "\t\tThe possible values for the who knows mode are the following:" + explanation;
             case REMAINING_MODE:
-                collect = EnumSet.allOf(RemainingImagesMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
-                collect += "\n\t\t\t**Clear**: Sets the default mode";
+                explanation = EnumSet.allOf(RemainingImagesMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                explanation += "\n\t\t\t**Clear**: Sets the default mode";
                 return "Set the mode for all charts of the remaining images of the users in this server. While this is set any user configuration will be overridden \n" +
-                        "\t\tThe possible values for the rest of the commands are the following:" + collect;
+                        "\t\tThe possible values for the rest of the commands are the following:" + explanation;
             case DELETE_MESSAGE:
                 return "Whether you want the bot to delete the original message the user wrote.";
             case SHOW_DISABLED_WARNING:

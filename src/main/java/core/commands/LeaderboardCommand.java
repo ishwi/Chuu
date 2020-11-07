@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class LeaderboardCommand<T extends CommandParameters> extends ListCommand<LbEntry, T> {
 
@@ -35,15 +36,16 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
             return;
         }
 
-        for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(PrivacyUtils.toString(list.get(i)));
+        List<String> strings = list.stream().map(PrivacyUtils::toString).collect(Collectors.toUnmodifiableList());
+        for (int i = 0; i < 10 && i < strings.size(); i++) {
+            a.append(i + 1).append(strings.get(i));
         }
+
         embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "'s " + getEntryName(params) + " leaderboard")
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setFooter(e.getGuild().getName() + " has " + list.size() + " registered users!\n", null);
 
-
         e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(message ->
-                new Reactionary<>(list, message, embedBuilder));
+                new Reactionary<>(strings, message, embedBuilder));
     }
 }

@@ -185,7 +185,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                         " main.artist_id = t.id ";
 
         String normalQuery = "SELECT (tag) as name, " + (doCount ? "count(*)" : "sum(main.playnumber)") + " AS orden " + queryBody + " GROUP BY main.tag ORDER BY orden DESC  Limit 200";
-        String countQuery = "Select 1";
+        String countQuery = "Select 1 from user_guild where guild_id = ? ";
         return getArtistPlaysResultWrapper(connection, guildId, normalQuery, countQuery);
     }
 
@@ -960,7 +960,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ScrobbledArtist> list = new ArrayList<>();
         int count = 0;
         int i = 1;
-        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY artist_id,url  ORDER BY orden DESC  limit ?")) {
+        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY artist_id  ORDER BY orden DESC  limit ?")) {
             if (guildID != null)
                 preparedStatement1.setLong(i++, guildID);
 

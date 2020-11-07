@@ -1,5 +1,7 @@
 package dao.entities;
 
+import java.util.Objects;
+
 public class ScrobbledAlbum extends ScrobbledArtist {
     private long albumId = -1L;
     private String album;
@@ -56,6 +58,11 @@ public class ScrobbledAlbum extends ScrobbledArtist {
                 ", album='" + album + '\'' +
                 ", albumMbid='" + albumMbid + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o) && Objects.equals(album, ((ScrobbledAlbum) o).album);
     }
 }
 

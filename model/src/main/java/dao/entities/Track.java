@@ -4,7 +4,7 @@ import dao.utils.LinkUtils;
 
 public class Track {
     private final String artist;
-    private final String name;
+    private String name;
     private final int plays;
     private final boolean isLoved;
     private final int duration;
@@ -84,5 +84,9 @@ public class Track {
                 ")" +
                 " - " + plays + " plays" +
                 "\n";
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

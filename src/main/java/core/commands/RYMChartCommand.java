@@ -68,25 +68,25 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
             }
         }
         AtomicInteger atomicInteger = new AtomicInteger(0);
-        boolean b = params.hasOptional("noratings");
-        boolean s = params.hasOptional("usestars");
+        boolean isNoRatings = params.hasOptional("noratings");
+        boolean isUseStars = params.hasOptional("usestars");
 
 
-        LinkedBlockingDeque<UrlCapsule> collect = selfRatingsScore.stream().map(x -> {
+        LinkedBlockingDeque<UrlCapsule> chartRatings = selfRatingsScore.stream().map(x -> {
             boolean useAverage = false;
             double average = 0;
             int score = (int) x.getScore();
             if (server || global) {
-                useAverage = !s;
+                useAverage = !isUseStars;
                 score = (int) Math.round(x.getAverage());
                 average = x.getAverage();
 
             }
-            RYMChartEntity rymChartEntity = new RYMChartEntity(x.getUrl(), atomicInteger.getAndIncrement(), x.getArtist(), x.getName(), params.isWriteTitles(), !b, useAverage, average, x.getNumberOfRatings());
+            RYMChartEntity rymChartEntity = new RYMChartEntity(x.getUrl(), atomicInteger.getAndIncrement(), x.getArtist(), x.getName(), params.isWriteTitles(), !isNoRatings, useAverage, average, x.getNumberOfRatings());
             rymChartEntity.setPlays(score);
             return rymChartEntity;
         }).limit(params.getX() * params.getY()).collect(Collectors.toCollection(LinkedBlockingDeque::new));// They in fact cannot be inferred you dumbass.
-        return new CountWrapper<>(collect.size(), collect);
+        return new CountWrapper<>(chartRatings.size(), chartRatings);
     }
 
 

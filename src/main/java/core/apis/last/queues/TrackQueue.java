@@ -8,6 +8,7 @@ import dao.ChuuService;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -30,9 +31,9 @@ public class TrackQueue extends ArtistQueue {
     }
 
     public int setUp(int limit) {
-        ArrayList<CompletableFuture<UrlCapsule>> tempList = new ArrayList<>();
-        wrapper.drainTo(tempList);
-        List<UrlCapsule> collect = tempList.stream().map(x -> {
+        ArrayList<CompletableFuture<UrlCapsule>> temporalFutures = new ArrayList<>();
+        wrapper.drainTo(temporalFutures);
+        List<UrlCapsule> awaitedCapsules = temporalFutures.stream().map(x -> {
             try {
                 return x.get();
             } catch (InterruptedException | ExecutionException e) {
@@ -42,22 +43,17 @@ public class TrackQueue extends ArtistQueue {
         }).filter(Objects::nonNull).collect(Collectors.toList());
         wrapper.clear();
 
-        AtomicInteger counter = new AtomicInteger(0);
-        AtomicInteger secondCounter = new AtomicInteger(0);
+        AtomicInteger ranker = new AtomicInteger(0);
+        AtomicInteger secondsCounter = new AtomicInteger(0);
 
         wrapper.addAll(
-                collect.stream().sorted((o1, o2) -> {
-                    TrackDurationChart o11 = (TrackDurationChart) o1;
-                    TrackDurationChart o12 = (TrackDurationChart) o2;
-                    return Integer.compare(o12.getSeconds(), o11.getSeconds());
-                }).peek(x -> {
-                    TrackDurationChart z1 = (TrackDurationChart) x;
-                    secondCounter.addAndGet(z1.getSeconds());
-                    x.setPos(counter.getAndIncrement());
+                awaitedCapsules.stream().sorted(Comparator.comparingInt(o -> ((TrackDurationChart) o).getSeconds())).peek(x -> {
+                    secondsCounter.addAndGet(((TrackDurationChart) x).getSeconds());
+                    x.setPos(ranker.getAndIncrement());
                 }).takeWhile(y ->
                         y.getPos() < limit
                 ).map(z -> CompletableFuture.supplyAsync(() -> z)
                 ).collect(Collectors.toList()));
-        return secondCounter.get();
+        return secondsCounter.get();
     }
 }

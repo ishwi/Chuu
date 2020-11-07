@@ -16,6 +16,7 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.apache.commons.text.WordUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,9 +69,13 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
 
+
         String correctedArtist = CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist());
         List<String> artistTags = getService().getArtistTag(scrobbledArtist.getArtistId())
-                .stream().map(x -> ". **" + LinkUtils.getLastFmTagUrl(x) + "**\n").collect(Collectors.toList());
+
+                .stream().map(x -> String.format(". **[%s](%s)**%n",
+                        WordUtils.capitalizeFully(x)
+                        , LinkUtils.getLastFmTagUrl(x))).collect(Collectors.toList());
         if (artistTags.isEmpty()) {
             sendMessageQueue(e, correctedArtist + " doesn't have any tags.");
             return;

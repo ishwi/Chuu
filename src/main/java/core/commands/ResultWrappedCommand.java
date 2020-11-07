@@ -41,10 +41,10 @@ public abstract class ResultWrappedCommand<T, Y extends CommandParameters> exten
 
     }
 
-    public EmbedBuilder initList(List<String> collect) {
+    public EmbedBuilder initList(List<String> strList) {
         StringBuilder a = new StringBuilder();
-        for (int i = 0, size = collect.size(); i < 10 && i < size; i++) {
-            String text = collect.get(i);
+        for (int i = 0, size = strList.size(); i < 10 && i < size; i++) {
+            String text = strList.get(i);
             a.append(i + 1).append(text);
         }
         EmbedBuilder embedBuilder = new EmbedBuilder();

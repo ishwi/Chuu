@@ -79,11 +79,11 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     }
 
     void doImage(List<ArtistUserPlays> list, BlockingQueue<UrlCapsule> ogQuee, CountryParameters countryParameters) {
-        AtomicInteger integer = new AtomicInteger(0);
-        List<UrlCapsule> collect = ogQuee.stream()
+        AtomicInteger ranker = new AtomicInteger(0);
+        List<UrlCapsule> urlEntities = ogQuee.stream()
                 .filter(x -> list.stream().anyMatch(y -> y.getArtistName().equalsIgnoreCase(x.getArtistName())))
                 .takeWhile(x -> {
-                    x.setPos(integer.getAndIncrement());
+                    x.setPos(ranker.getAndIncrement());
                     return x.getPos() < 25;
                 })
                 .peek(x -> {
@@ -95,13 +95,13 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
                     }
                 })
                 .collect(Collectors.toList());
-        int rows = (int) Math.floor(Math.sqrt(collect.size()));
+        int rows = (int) Math.floor(Math.sqrt(urlEntities.size()));
         rows = Math.min(rows, 5);
         int cols = rows;
 
-        BufferedImage bufferedImage = CollageMaker.generateCollageThreaded(rows, cols, new LinkedBlockingDeque<>(collect), ChartQuality.PNG_BIG,
+        BufferedImage image = CollageMaker.generateCollageThreaded(rows, cols, new LinkedBlockingDeque<>(urlEntities), ChartQuality.PNG_BIG,
                 false);
-        sendImage(bufferedImage, countryParameters.getE());
+        sendImage(image, countryParameters.getE());
 
     }
 

@@ -14,16 +14,16 @@ import java.util.stream.Collectors;
 
 public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
-    private String prepareINQuery(int size) {
-        return String.join(",", Collections.nCopies(size, "(?,?)"));
+    private String prepareINQuerySingle(int size) {
+        return String.join(",", Collections.nCopies(size, "(?)"));
     }
 
 
     @Override
     public void fillIds(Connection connection, List<ScrobbledAlbum> list) {
-        String queryString = "SELECT id, album_name FROM  album WHERE  (artist_id,album_name)  IN (%s)  ";
+        String queryString = "SELECT id, album_name FROM  album WHERE  (artist_id) in (%s) and (album_name) IN (%s)  ";
 
-        String sql = String.format(queryString, list.isEmpty() ? null : prepareINQuery(list.size()));
+        String sql = String.format(queryString, list.isEmpty() ? null : prepareINQuerySingle(list.size()), list.isEmpty() ? null : prepareINQuerySingle(list.size()));
 
         UUID a = UUID.randomUUID();
         String seed = a.toString();
@@ -31,13 +31,13 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
 
             for (int i = 0; i < list.size(); i++) {
-                preparedStatement.setLong(2 * i + 1, list.get(i).getArtistId());
-                preparedStatement.setString(2 * i + 2, list.get(i).getAlbum());
+                preparedStatement.setString(i + 1, list.get(i).getArtist());
+                preparedStatement.setString(i + 1 + list.size(), list.get(i).getAlbum());
             }
 
             /* Fill "preparedStatement". */
             ResultSet resultSet = preparedStatement.executeQuery();
-            Map<String, ScrobbledAlbum> collect = list.stream().collect(Collectors.toMap(scrobbledAlbum -> scrobbledAlbum.getArtistId() + "_" + seed + "_" + scrobbledAlbum.getAlbum(), Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
+            Map<String, ScrobbledAlbum> albumMap = list.stream().collect(Collectors.toMap(scrobbledAlbum -> scrobbledAlbum.getArtistId() + "_" + seed + "_" + scrobbledAlbum.getAlbum(), Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
                 scrobbledArtist.setCount(scrobbledArtist.getCount() + scrobbledArtist2.getCount());
                 return scrobbledArtist;
             }));
@@ -46,7 +46,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
             while (resultSet.next()) {
                 long id = resultSet.getLong("id");
                 String name = resultSet.getString("album_name");
-                ScrobbledAlbum scrobbledAlbum = collect.get(id + "_" + seed + "_" + name);
+                ScrobbledAlbum scrobbledAlbum = albumMap.get(id + "_" + seed + "_" + name);
                 if (scrobbledAlbum != null) {
                     scrobbledAlbum.setArtistId(id);
                 } else {
@@ -54,7 +54,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
                     String normalizeArtistName = compile.matcher(
                             Normalizer.normalize(name, Normalizer.Form.NFKD)
                     ).replaceAll("");
-                    ScrobbledAlbum normalizedArtist = collect.get(normalizeArtistName);
+                    ScrobbledAlbum normalizedArtist = albumMap.get(normalizeArtistName);
                     if (normalizedArtist != null) {
                         normalizedArtist.setArtistId(id);
                     }
@@ -321,14 +321,14 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     @Override
     public Map<Genre, Integer> genreCountsByAlbum(Connection connection, List<AlbumInfo> albumInfos) {
 
-        @Language("MariaDB") String queryString = "SELECT tag,count(*) as coun FROM album a join artist b on a.artist_id =b.id join album_tags c  on a.id = c.album_id WHERE (name,album_name)  IN (%s) group by tag";
-        String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQuery(albumInfos.size()));
+        @Language("MariaDB") String queryString = "SELECT tag,count(*) as coun FROM album a join artist b on a.artist_id =b.id join album_tags c  on a.id = c.album_id WHERE (name) in (%s) and (album_name)  IN (%s) group by tag";
+        String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()));
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             for (int i = 0; i < albumInfos.size(); i++) {
-                preparedStatement.setString(2 * i + 1, albumInfos.get(i).getArtist());
-                preparedStatement.setString(2 * i + 2, albumInfos.get(i).getName());
+                preparedStatement.setString(i + 1, albumInfos.get(i).getArtist());
+                preparedStatement.setString(i + 1 + albumInfos.size(), albumInfos.get(i).getName());
             }
 
             /* Fill "preparedStatement". */

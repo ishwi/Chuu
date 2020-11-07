@@ -85,7 +85,6 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
         String artist = scrobbledArtist.getArtist();
         long artistId = scrobbledArtist.getArtistId();
         LastFMData data = params.getLastFMData();
-
         try {
             fullAlbumEntity = lastFM.getTracksAlbum(data.getName(), artist, album);
 
@@ -95,83 +94,26 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
             int artistPlays = getService().getArtistPlays(artistId, data.getName());
             fullAlbumEntity = new FullAlbumEntity(artist, album, artistPlays, null, data.getName());
         }
-
         Set<Track> trackList = new HashSet<>(fullAlbumEntity.getTrackList());
 
         if (trackList.isEmpty()) {
             List<Track> spoList = spotifyApi.getAlbumTrackList(artist, album);
-            if (spoList.size() > 50) {
-                sendMessageQueue(e, "Track list is too big for me to calculate all the plays");
-                return;
-            }
-            spoList.stream().map(t ->
-                    {
-                        try {
-                            Track trackInfo = lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
-                            trackInfo.setPosition(t.getPosition());
-                            return trackInfo;
-                        } catch (LastFmException ex) {
-                            return t;
-                        }
-                    }
-            ).sorted(Comparator.comparingInt(Track::getPosition)).forEach(trackList::add);
+            handleList(trackList, spoList, e, data.getName());
         }
         if (trackList.isEmpty()) {
             if (fullAlbumEntity.getMbid() != null && !fullAlbumEntity.getMbid().isBlank()) {
                 List<Track> albumTrackListMbid = mb.getAlbumTrackListMbid(fullAlbumEntity.getMbid());
-                if (albumTrackListMbid.size() > 50) {
-                    sendMessageQueue(e, "Track list is too big for me to calculate all the plays");
-                    return;
-                }
-                albumTrackListMbid.stream().map(t ->
-                        {
-                            try {
-                                Track trackInfo = lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
-                                trackInfo.setPosition(t.getPosition());
-                                return trackInfo;
-                            } catch (LastFmException ex) {
-                                return t;
-                            }
-                        }
-                ).sorted(Comparator.comparingInt(Track::getPosition)).forEach(trackList::add);
+                handleList(trackList, albumTrackListMbid, e, data.getName());
             }
             if (trackList.isEmpty()) {
                 List<Track> albumTrackList = mb.getAlbumTrackList(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum());
-                if (albumTrackList.size() > 50) {
-                    sendMessageQueue(e, "Track list is too big for me to calculate all the plays");
-                    return;
-                }
-                albumTrackList.stream().map(t ->
-                        {
-                            try {
-                                Track trackInfo = lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
-                                trackInfo.setPosition(t.getPosition());
-                                return trackInfo;
-                            } catch (LastFmException ex) {
-                                return t;
-                            }
-                        }
-                ).forEach(trackList::add);
+                handleList(trackList, albumTrackList, e, data.getName());
+
 
                 if (trackList.isEmpty()) {
                     //Force it to lowerCase
                     List<Track> albumTrackListLowerCase = mb.getAlbumTrackListLowerCase(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum());
-                    if (albumTrackListLowerCase.size() > 50) {
-                        sendMessageQueue(e, "Track list is too big for me to calculate all the plays");
-                        return;
-                    }
-                    albumTrackListLowerCase.stream().map(t ->
-                            {
-                                try {
-                                    Track trackInfo = lastFM.getTrackInfo(data.getName(), t.getArtist(), t.getName());
-                                    trackInfo.setPosition(t.getPosition());
-                                    return trackInfo;
-                                } catch (LastFmException ex) {
-                                    return t;
-                                }
-                            }
-                    ).forEach(trackList::add);
-
+                    handleList(trackList, albumTrackListLowerCase, e, data.getName());
                     if (trackList.isEmpty()) {
                         //If is still empty well fuck it
 
@@ -245,5 +187,24 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                         new Reactionary<>(collect, message, 20, embedBuilder));
                 break;
         }
+    }
+
+    private void handleList(Set<Track> trackList, List<Track> listToHandle, MessageReceivedEvent e, String lastfmName) {
+        if (listToHandle.size() > 50) {
+            sendMessageQueue(e, "Track list is too big for me to calculate all the plays");
+            return;
+        }
+        listToHandle.stream().map(t ->
+                {
+                    try {
+                        Track trackInfo = lastFM.getTrackInfo(lastfmName, t.getArtist(), t.getName());
+                        trackInfo.setPosition(t.getPosition());
+                        trackInfo.setName(t.getName());
+                        return trackInfo;
+                    } catch (LastFmException ex) {
+                        return t;
+                    }
+                }
+        ).forEach(trackList::add);
     }
 }

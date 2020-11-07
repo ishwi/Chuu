@@ -127,6 +127,9 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             Map<String, AlbumInfo> missing = new HashMap<>();
+            if (releaseInfo.isEmpty()) {
+                return new HashMap<>();
+            }
             Map<String, AlbumInfo> mbidIndexMap = releaseInfo.stream().collect(Collectors.toMap(EntityInfo::getMbid, x -> x, (x, y) -> {
                 missing.put(y.getMbid(), y);
                 return x;

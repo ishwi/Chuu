@@ -75,6 +75,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                 .addField("Tags:", tagsField, false);
         if (!albumInfo.getTags().isEmpty()) {
             String collect = albumInfo.getTags().stream().limit(5)
+                    .filter(x -> x != null && x.length() > 0)
                     .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + LinkUtils.getMusicbrainzTagUrl(tag) + ")")
                     .collect(Collectors.joining(" - "));
             embedBuilder.addField("MusicBrainz Tags: ", collect, false);
@@ -84,7 +85,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
         }
 
         if (!albumSummary.getTrackList().isEmpty()) {
-            embedBuilder.addField("Track List:", trackList.toString().substring(0, Math.min(trackList.length(), 1000)), false)
+            embedBuilder.addField("Track List:", trackList.substring(0, Math.min(trackList.length(), 1000)), false)
                     .addField("Total Duration:",
                             (String.format("%02d:%02d minutes", albumSummary.getTotalDuration() / 60, albumSummary.getTotalDuration() % 60))
                             , true);
