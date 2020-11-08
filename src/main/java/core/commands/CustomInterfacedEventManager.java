@@ -6,6 +6,8 @@ import core.Chuu;
 import core.otherlisteners.ReactionListener;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -23,6 +25,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     private final Set<EventListener> listeners = Sets.newConcurrentHashSet();
     private final Map<String, MyCommand<?>> commandListeners = new HashMap<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new HashMap<>();
+    private AdministrativeCommand administrativeCommand;
 
     public CustomInterfacedEventManager(int a) {
     }
@@ -37,7 +40,9 @@ public class CustomInterfacedEventManager implements IEventManager {
             for (String alias : aliases) {
                 commandListeners.put(alias, myCommand);
             }
-
+            if (listener instanceof AdministrativeCommand) {
+                this.administrativeCommand = (AdministrativeCommand) listener;
+            }
         }
         if (listener instanceof ReactionListener) {
             ReactionListener reactionListener = (ReactionListener) listener;
@@ -113,10 +118,9 @@ public class CustomInterfacedEventManager implements IEventManager {
                     JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
                 }
             }
-            return;
-        }
-        if (event instanceof GuildMemberRemoveEvent || event instanceof MessageReactionAddEvent || event instanceof ReadyEvent) {
-
+        } else if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {
+            administrativeCommand.onEvent(event);
+        } else if (event instanceof MessageReactionAddEvent || event instanceof ReadyEvent)
             for (EventListener listener : listeners) {
                 try {
                     listener.onEvent(event);
@@ -124,7 +128,7 @@ public class CustomInterfacedEventManager implements IEventManager {
                     JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
                 }
             }
-        }
+
     }
 
     @Nonnull

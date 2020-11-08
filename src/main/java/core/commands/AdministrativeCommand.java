@@ -6,9 +6,13 @@ import core.parsers.Parser;
 import core.parsers.UrlParser;
 import core.parsers.params.UrlParameters;
 import dao.ChuuService;
+import dao.entities.LastFMData;
+import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -24,6 +28,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
@@ -43,6 +48,27 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
         return new UrlParser();
     }
 
+    @Override
+    public void onGuildJoin(@Nonnull GuildJoinEvent event) {
+        event.getGuild().loadMembers().onSuccess(members -> {
+            Set<Long> allBot = getService().getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
+            Set<Long> thisServer = getService().getAll(event.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
+            List<Long> toInsert = members.stream().map(x -> x.getUser().getIdLong()).filter(x -> allBot.contains(x) && !thisServer.contains(x)).collect(Collectors.toList());
+            toInsert.forEach(x -> getService().addGuildUser(x, event.getGuild().getIdLong()));
+            Chuu.getLogger().info("Succesfully added {} {} to server: {}", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members"), event.getGuild().getName());
+        });
+    }
+
+    @Override
+    public void onGuildMemberJoin(@Nonnull GuildMemberJoinEvent event) {
+        try {
+            LastFMData lastFMData = getService().findLastFMData(event.getUser().getIdLong());
+            getService().addGuildUser(lastFMData.getDiscordId(), event.getGuild().getIdLong());
+            Chuu.getLogger().info("Succesfully added {} to server: {} ", lastFMData.getDiscordId(), event.getGuild().getName());
+        } catch (InstanceNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void onGuildMemberRemove(@Nonnull GuildMemberRemoveEvent event) {

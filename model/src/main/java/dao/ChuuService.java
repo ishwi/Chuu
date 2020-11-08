@@ -121,13 +121,11 @@ public class ChuuService {
             id, List<ScrobbledAlbum> albumData) {
         try (Connection connection = dataSource.getConnection()) {
             try {
-                /* Prepare connection. */
-                connection.setAutoCommit(false);
                 List<ScrobbledArtist> artistData = wrapper.getWrapped().stream().peek(x -> x.setDiscordID(id)).collect(Collectors.toList());
                 albumData = albumData.stream().filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
+                connection.setAutoCommit(true);
                 if (!artistData.isEmpty())
                     updaterDao.upsertArtist(connection, artistData);
-                connection.commit();
                 updaterDao.fillIds(connection, artistData);
                 Map<String, Long> artistIds = artistData.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, ScrobbledArtist::getArtistId, (a, b) -> {
                     assert a.equals(b);
@@ -146,23 +144,16 @@ public class ChuuService {
                     }
                     x.setArtistId(artistId);
                 });
-                            /*, (ScrobbledAlbum x, ScrobbledAlbum y) -> {
-                        return x.getArtistId();
-                    }));*/
-                //delete everything first to have a clean start
-                //albumDao.deleteAllUserAlbums(connection, id);
-                /* Do work. */
+                connection.setAutoCommit(false);
+                connection.commit();
 
-
-                Savepoint a = a(albumData, id, connection, false);
+                insertAlbums(albumData, id, connection, false);
                 try {
                     updaterDao.setUpdatedTime(connection, id, wrapper.getTimestamp(), wrapper.getTimestamp());
 
                     connection.commit();
                 } catch (SQLTransactionRollbackException exception) {
-                    connection.rollback(a);
-                    updaterDao.setUpdatedTime(connection, id, wrapper.getTimestamp(), wrapper.getTimestamp());
-                    connection.commit();
+                    connection.rollback();
                 }
             } catch (SQLException e) {
                 connection.rollback();
@@ -1744,14 +1735,10 @@ public class ChuuService {
                         artistId = handleNonExistingArtistFromAlbum(connection, x, artistId);
                         x.setArtistId(artistId);
                     });
-                            /*, (ScrobbledAlbum x, ScrobbledAlbum y) -> {
-                        return x.getArtistId();
-                    }));*/
-                    //delete everything first to have a clean start
-                    /* Do work. */
+                    connection.commit();
                     list = list.stream().filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
 
-                    a(list, id, connection);
+                    insertAlbums(list, id, connection);
                 }
                 updaterDao.setUpdatedTime(connection, id, null, null);
                 connection.commit();
@@ -1770,18 +1757,19 @@ public class ChuuService {
 
     }
 
-    private void a(List<ScrobbledAlbum> list, String id, Connection connection) throws SQLException {
-        a(list, id, connection, true);
+    private void insertAlbums(List<ScrobbledAlbum> list, String id, Connection connection) throws SQLException {
+        insertAlbums(list, id, connection, true);
     }
 
-    private Savepoint a(List<ScrobbledAlbum> list, String id, Connection connection, boolean doDeletion) throws SQLException {
+    private void insertAlbums(List<ScrobbledAlbum> list, String id, Connection connection, boolean doDeletion) throws SQLException {
         if (list.isEmpty()) {
-            return null;
+            return;
         }
         albumDao.fillIds(connection, list);
 
         Map<Boolean, List<ScrobbledAlbum>> map = list.stream().peek(x -> x.setDiscordID(id)).collect(Collectors.partitioningBy(scrobbledArtist -> scrobbledArtist.getAlbumId() == -1));
         List<ScrobbledAlbum> nonExistingId = map.get(true);
+        connection.setAutoCommit(true);
         if (!nonExistingId.isEmpty()) {
             nonExistingId.forEach(x -> {
                 albumDao.insertLastFmAlbum(connection, x);
@@ -1793,7 +1781,8 @@ public class ChuuService {
         }
         List<ScrobbledAlbum> scrobbledAlbums = map.get(false);
         scrobbledAlbums.addAll(nonExistingId);
-        Savepoint savepoint = connection.setSavepoint();
+        connection.setAutoCommit(false);
+        connection.commit();
         if (doDeletion) {
             albumDao.deleteAllUserAlbums(connection, id);
         }
@@ -1802,7 +1791,6 @@ public class ChuuService {
         List<ScrobbledAlbum> finalTruer = whyDoesThisNotHaveAnId.get(true);
         if (!finalTruer.isEmpty())
             albumDao.addSrobbledAlbums(connection, finalTruer);
-        return savepoint;
     }
 
     public WrapperReturnNowPlaying getWhoKnowsAlbums(int limit, long albumId, long guildId) {

@@ -352,6 +352,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new BanArtistTagCommand(dao)))
                 .addEventListeners(help.registerCommand(new ServerTags(dao)))
                 .addEventListeners(help.registerCommand(new TagsCommand(dao)))
+                .addEventListeners(help.registerCommand(new IndexCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
@@ -372,7 +373,7 @@ public class Chuu {
             messageDeletionService = new MessageDeletionService(dao.getServersWithDeletableMessages());
             shardManager = builder.build();
             scheduledExecutorService.scheduleAtFixedRate(
-                    new UpdaterThread(dao, true), 0, 120,
+                    new UpdaterThread(dao, true), 0, 60,
                     TimeUnit.SECONDS);
 
             scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 20, 12, TimeUnit.MINUTES);
