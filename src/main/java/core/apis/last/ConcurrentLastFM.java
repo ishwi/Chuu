@@ -887,12 +887,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 
         List<ScrobbledAlbum> list = new ArrayList<>();
         while (page <= pages) {
-            if (pages > 15) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ignored) {
-                }
-            }
 
             String urlPage = url + "&page=" + page;
             JSONObject obj;

@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class IndexCommand extends ConcurrentCommand<CommandParameters> {
     public IndexCommand(ChuuService dao) {
         super(dao);
+        this.respondInPrivate = false;
     }
 
     @Override

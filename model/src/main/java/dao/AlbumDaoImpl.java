@@ -18,26 +18,28 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
         return String.join(",", Collections.nCopies(size, "(?)"));
     }
 
+    private String prepareINQueryTuple(int size) {
+        return String.join(",", Collections.nCopies(size, "(?,?)"));
+    }
+
 
     @Override
     public void fillIds(Connection connection, List<ScrobbledAlbum> list) {
-        String queryString = "SELECT id, album_name FROM  album WHERE  (artist_id) in (%s) and (album_name) IN (%s)  ";
+        String queryString = "SELECT id,artist_id,album_name FROM  album USE INDEX (artist_id) WHERE  (artist_id,album_name) in  (%s)  ";
 
-        String sql = String.format(queryString, list.isEmpty() ? null : prepareINQuerySingle(list.size()), list.isEmpty() ? null : prepareINQuerySingle(list.size()));
+        String sql = String.format(queryString, list.isEmpty() ? null : prepareINQueryTuple(list.size()));
 
         UUID a = UUID.randomUUID();
         String seed = a.toString();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-
             for (int i = 0; i < list.size(); i++) {
-                preparedStatement.setString(i + 1, list.get(i).getArtist());
-                preparedStatement.setString(i + 1 + list.size(), list.get(i).getAlbum());
+                preparedStatement.setLong(2 * i + 1, list.get(i).getArtistId());
+                preparedStatement.setString(2 * i + 2, list.get(i).getAlbum());
             }
 
             /* Fill "preparedStatement". */
             ResultSet resultSet = preparedStatement.executeQuery();
-            Map<String, ScrobbledAlbum> albumMap = list.stream().collect(Collectors.toMap(scrobbledAlbum -> scrobbledAlbum.getArtistId() + "_" + seed + "_" + scrobbledAlbum.getAlbum(), Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
+            Map<String, ScrobbledAlbum> albumMap = list.stream().collect(Collectors.toMap(scrobbledAlbum -> scrobbledAlbum.getArtistId() + "_" + seed + "_" + scrobbledAlbum.getAlbum().toLowerCase(), Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
                 scrobbledArtist.setCount(scrobbledArtist.getCount() + scrobbledArtist2.getCount());
                 return scrobbledArtist;
             }));
@@ -45,18 +47,20 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
             while (resultSet.next()) {
                 long id = resultSet.getLong("id");
+                long artist_id = resultSet.getLong("artist_id");
+
                 String name = resultSet.getString("album_name");
-                ScrobbledAlbum scrobbledAlbum = albumMap.get(id + "_" + seed + "_" + name);
+                ScrobbledAlbum scrobbledAlbum = albumMap.get(artist_id + "_" + seed + "_" + name.toLowerCase());
                 if (scrobbledAlbum != null) {
-                    scrobbledAlbum.setArtistId(id);
+                    scrobbledAlbum.setAlbumId(id);
                 } else {
                     // name can be stripped or maybe the element is collect is the stripped one
                     String normalizeArtistName = compile.matcher(
                             Normalizer.normalize(name, Normalizer.Form.NFKD)
                     ).replaceAll("");
-                    ScrobbledAlbum normalizedArtist = albumMap.get(normalizeArtistName);
+                    ScrobbledAlbum normalizedArtist = albumMap.get(artist_id + "_" + seed + "_" + normalizeArtistName.toLowerCase());
                     if (normalizedArtist != null) {
-                        normalizedArtist.setArtistId(id);
+                        normalizedArtist.setAlbumId(id);
                     }
                 }
             }
