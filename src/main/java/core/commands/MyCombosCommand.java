@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -50,11 +51,9 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ChuuDataParams params = parser.parse(e);
-        if (params == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+
+
         Long discordID = params.getLastFMData().getDiscordId();
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
         String userName = userInformation.getUsername();

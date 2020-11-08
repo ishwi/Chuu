@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,14 +62,12 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
 
-        NumberParameters<ChuuDataParams> outer = parser.parse(e);
-        ChuuDataParams params = outer.getInnerParams();
-        if (params == null)
-            return;
-        int threshold = outer.getExtraParam() == null ? 1 : Math.toIntExact(outer.getExtraParam());
-        List<ArtistLbGlobalEntry> list = getService().globalMatchings(params.getLastFMData().getName(), e.isFromGuild() ? e.getGuild().getIdLong() : null, threshold);
+
+        ChuuDataParams innerParams = params.getInnerParams();
+        int threshold = params.getExtraParam() == null ? 1 : Math.toIntExact(params.getExtraParam());
+        List<ArtistLbGlobalEntry> list = getService().globalMatchings(innerParams.getLastFMData().getName(), e.isFromGuild() ? e.getGuild().getIdLong() : null, threshold);
         list.forEach(cl -> {
             if (cl.getPrivacyMode() == PrivacyMode.TAG) {
                 cl.setDiscordName(e.getJDA().retrieveUserById(cl.getDiscordId()).complete().getAsTag());
@@ -81,7 +80,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
         });
         MessageBuilder messageBuilder = new MessageBuilder();
 
-        Long discordId = params.getLastFMData().getDiscordId();
+        Long discordId = innerParams.getLastFMData().getDiscordId();
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         String url = userInformation.getUrlImage();
         String usableName = userInformation.getUsername();
@@ -99,7 +98,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
             a.append(i + 1).append(PrivacyUtils.toString(list.get(i)));
         }
         embedBuilder.setDescription(a).setTitle("Global Matching artists with " + usableName)
-                .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService().getUserArtistCount(params.getLastFMData().getName(), 0)), null);
+                .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService().getUserArtistCount(innerParams.getLastFMData().getName(), 0)), null);
         e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(mes ->
                 new Reactionary<>(list, mes, embedBuilder));
     }

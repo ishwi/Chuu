@@ -10,6 +10,7 @@ import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,13 +52,13 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<NumberParameters
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<ChuuDataParams> parse = parser.parse(e);
-        ChuuDataParams params = parse.getInnerParams();
-        String lastFmName = params.getLastFMData().getName();
-        long discordID = params.getLastFMData().getDiscordId();
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
+
+        ChuuDataParams innerParams = params.getInnerParams();
+        String lastFmName = innerParams.getLastFMData().getName();
+        long discordID = innerParams.getLastFMData().getDiscordId();
         String username = getUserString(e, discordID, lastFmName);
-        int threshold = parse.getExtraParam().intValue();
+        int threshold = params.getExtraParam().intValue();
 
         int plays = getService().getUserArtistCount(lastFmName, threshold == 0 ? -1 : threshold);
         String filler = "";

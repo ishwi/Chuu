@@ -10,6 +10,7 @@ import dao.entities.UserInfo;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,10 +45,9 @@ public class ScrobblesCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ChuuDataParams parse = parser.parse(e);
-        // No need for null check i think?
-        LastFMData lastFMData = parse.getLastFMData();
+    void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+
+        LastFMData lastFMData = params.getLastFMData();
         List<UserInfo> userInfoes = lastFM.getUserInfo(Collections.singletonList(lastFMData.getName()));
         UserInfo ui = userInfoes.get(0);
         String userString = getUserString(e, lastFMData.getDiscordId());

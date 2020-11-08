@@ -8,6 +8,7 @@ import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class SupportCommand extends MyCommand<CommandParameters> {
@@ -41,7 +42,7 @@ public class SupportCommand extends MyCommand<CommandParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
         sendMessageQueue(e, "For any doubt or suggestion you can contact the bot developers on:\nhttps://discord.gg/HQGqYD7");
     }
 }

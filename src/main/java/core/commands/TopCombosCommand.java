@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,12 +70,10 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<CommandParameters> params = parser.parse(e);
+    void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) throws LastFmException, InstanceNotFoundException {
+
         Long author = e.getAuthor().getIdLong();
-        if (params == null) {
-            return;
-        }
+
         Long guildId = null;
         String title;
         String validUrl;

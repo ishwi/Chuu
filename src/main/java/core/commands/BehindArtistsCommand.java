@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -60,23 +61,21 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<TwoUsersParamaters> outer = parser.parse(e);
-        if (outer == null)
-            return;
-        TwoUsersParamaters params = outer.getInnerParams();
-        long ogDiscordID = params.getFirstUser().getDiscordId();
-        String ogLastFmId = params.getFirstUser().getName();
-        long secondDiscordId = params.getSecondUser().getDiscordId();
-        String secondlastFmId = params.getSecondUser().getName();
+    public void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TwoUsersParamaters> params) throws LastFmException, InstanceNotFoundException {
+
+
+        TwoUsersParamaters innerParams = params.getInnerParams();
+        long ogDiscordID = innerParams.getFirstUser().getDiscordId();
+        String ogLastFmId = innerParams.getFirstUser().getName();
+        long secondDiscordId = innerParams.getSecondUser().getDiscordId();
+        String secondlastFmId = innerParams.getSecondUser().getName();
 
         if (ogLastFmId.equals(secondlastFmId) || ogDiscordID == secondDiscordId) {
             sendMessageQueue(e, "Sis, dont use the same person twice");
             return;
         }
 
-        Long threshold = outer.getExtraParam();
-        long idLong = params.getE().getGuild().getIdLong();
+        Long threshold = params.getExtraParam();
 
         if (threshold == null) {
             threshold = 0L;

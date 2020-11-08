@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
@@ -106,18 +107,14 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        CountryParameters parameters = parser.parse(e);
-        if (parameters == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull CountryParameters params) throws LastFmException, InstanceNotFoundException {
 
-        CountryCode country = parameters.getCode();
+        CountryCode country = params.getCode();
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(2000);
-        String name = parameters.getLastFMData().getName();
-        lastFM.getChart(name, parameters.getTimeFrame().toApiFormat(), 2000, 1, TopEntity.ARTIST, ChartUtil.getParser(parameters.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, name), queue);
+        String name = params.getLastFMData().getName();
+        lastFM.getChart(name, params.getTimeFrame().toApiFormat(), 2000, 1, TopEntity.ARTIST, ChartUtil.getParser(params.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, name), queue);
 
-        Long discordId = parameters.getLastFMData().getDiscordId();
+        Long discordId = params.getLastFMData().getDiscordId();
         List<ScrobbledArtist> artistInfos = queue.stream().map(x -> {
             ScrobbledArtist scrobbledArtist = new ScrobbledArtist(x.getArtistName(), x.getPlays(), null);
             scrobbledArtist.setArtistMbid(x.getMbid());
@@ -133,13 +130,13 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         } else {
             countryRep = ":flag_" + country.getAlpha2().toLowerCase();
         }
-        String usableTime = parameters.getTimeFrame().getDisplayString();
+        String usableTime = params.getTimeFrame().getDisplayString();
         if (list.isEmpty()) {
             sendMessageQueue(e, userName + " doesnt have any artist from " + countryRep + ": " + usableTime);
             return;
         }
-        if (parameters.hasOptional("image")) {
-            doImage(list, queue, parameters);
+        if (params.hasOptional("image")) {
+            doImage(list, queue, params);
             return;
         }
         StringBuilder a = new StringBuilder();

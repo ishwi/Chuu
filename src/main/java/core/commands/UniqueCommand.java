@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,9 +51,9 @@ public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ChuuDataParams returned = parser.parse(e);
-        String lastFmName = returned.getLastFMData().getName();
+    public void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+
+        String lastFmName = params.getLastFMData().getName();
 
         UniqueWrapper<ArtistPlays> resultWrapper = getList(e.getGuild().getIdLong(), lastFmName);
         int rows = resultWrapper.getUniqueData().size();

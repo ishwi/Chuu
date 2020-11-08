@@ -58,7 +58,7 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
     }
 
     private void cleanUp(T entity) {
-        // Do Nothing
+        //
     }
 
 

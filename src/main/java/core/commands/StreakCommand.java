@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -56,11 +57,9 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ChuuDataParams params = parser.parse(e);
-        if (params == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+
+
         String lastfmId = params.getLastFMData().getName();
         long discordID = params.getLastFMData().getDiscordId();
 

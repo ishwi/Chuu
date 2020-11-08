@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,7 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
         MessageDisablingService messageDisablingService = Chuu.getMessageDisablingService();
         MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = messageDisablingService.disabledChannelsMap;
         MultiValuedMap<Pair<Long, Long>, MyCommand<?>> enabledChannelsMap = messageDisablingService.enabledChannelsMap;

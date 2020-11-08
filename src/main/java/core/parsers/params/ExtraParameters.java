@@ -2,7 +2,9 @@ package core.parsers.params;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class ExtraParameters<T extends CommandParameters, J> extends CommandParameters {
+import javax.validation.constraints.NotNull;
+
+public class ExtraParameters<T extends CommandParameters, @NotNull J> extends CommandParameters {
     private final T innerParams;
     private final J extraParam;
 

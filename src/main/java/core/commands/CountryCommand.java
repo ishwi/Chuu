@@ -17,6 +17,7 @@ import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -75,17 +76,15 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<TimeFrameParameters> parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        Long pallete = (parse.getExtraParam());
-        TimeFrameParameters params = parse.getInnerParams();
-        String username = params.getLastFMData().getName();
-        long discordId = params.getLastFMData().getDiscordId();
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException, InstanceNotFoundException {
+
+
+        Long pallete = (params.getExtraParam());
+        TimeFrameParameters innerParams = params.getInnerParams();
+        String username = innerParams.getLastFMData().getName();
+        long discordId = innerParams.getLastFMData().getDiscordId();
         CompletableFuture<Message> future = null;
-        TimeFrameEnum time = params.getTime();
+        TimeFrameEnum time = innerParams.getTime();
         if (time.equals(TimeFrameEnum.SEMESTER) || time.equals(TimeFrameEnum.ALL)) {
             future = sendMessage(e, "Going to take a while ").submit();
         }

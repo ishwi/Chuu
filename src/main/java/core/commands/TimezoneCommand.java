@@ -8,6 +8,7 @@ import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -44,14 +45,12 @@ public class TimezoneCommand extends ConcurrentCommand<TimezoneParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        TimezoneParams parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        TimeZone timeZone = parse.getTimeZone();
-        if (parse.isCheck()) {
-            timeZone = getService().getUserTimezone(parse.getUser().getIdLong());
+    void onCommand(MessageReceivedEvent e, @NotNull TimezoneParams params) throws LastFmException, InstanceNotFoundException {
+
+
+        TimeZone timeZone = params.getTimeZone();
+        if (params.isCheck()) {
+            timeZone = getService().getUserTimezone(params.getUser().getIdLong());
             sendMessageQueue(e, String.format("%s timezone is: %s (%s)\n Current time: %s", getUserString(e, e.getAuthor().getIdLong()), timeZone.getDisplayName(), timeZone.toZoneId().getRules().getStandardOffset(Instant.now()), DateTimeFormatter.RFC_1123_DATE_TIME.format(Instant.now().atZone(timeZone.toZoneId()))));
         } else {
             getService().setTimezoneUser(timeZone, e.getAuthor().getIdLong());

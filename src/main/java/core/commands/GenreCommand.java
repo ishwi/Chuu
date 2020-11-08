@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 import org.knowm.xchart.PieChart;
 
+import javax.validation.constraints.NotNull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
@@ -97,31 +98,29 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<TimeFrameParameters> parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        TimeFrameParameters returned = parse.getInnerParams();
-        String username = returned.getLastFMData().getName();
-        long discordId = returned.getLastFMData().getDiscordId();
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException, InstanceNotFoundException {
 
-        TimeFrameEnum timeframe = returned.getTime();
+
+        TimeFrameParameters innerParams = params.getInnerParams();
+        String username = innerParams.getLastFMData().getName();
+        long discordId = innerParams.getLastFMData().getDiscordId();
+
+        TimeFrameEnum timeframe = innerParams.getTime();
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
         String usableString = userInfo.getUsername();
         String urlImage = userInfo.getUrlImage();
-        boolean mix = parse.hasOptional("mix");
-        boolean lastfm = parse.hasOptional("lastfm");
+        boolean mix = params.hasOptional("mix");
+        boolean lastfm = params.hasOptional("lastfm");
         String service = mix ? "Musicbrainz and Last.fm" : lastfm ? "Last.fm" : "Musicbrainz";
         Map<Genre, Integer> map = new HashMap<>();
-        boolean doArtists = parse.hasOptional("artist");
+        boolean doArtists = params.hasOptional("artist");
         if (doArtists) {
 
             List<ArtistInfo> artistInfos = lastFM.getTopArtists(username, timeframe.toApiFormat(), 3000);
             List<ArtistInfo> mbidArtists = artistInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                     .collect(Collectors.toList());
             if (artistInfos.isEmpty()) {
-                sendMessageQueue(e, "Was not able to find any genre in " + usableString + "'s top 3000 artists" + returned.getTime().getDisplayString() + " on " + service);
+                sendMessageQueue(e, "Was not able to find any genre in " + usableString + "'s top 3000 artists" + innerParams.getTime().getDisplayString() + " on " + service);
                 return;
             }
             if (mix || lastfm) {
@@ -146,7 +145,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                 albumMbids = albumInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty()).collect(Collectors.toList());
             }
             if (albumInfos.isEmpty()) {
-                sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 albums%s on %s", usableString, returned.getTime().getDisplayString(), service));
+                sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 albums%s on %s", usableString, innerParams.getTime().getDisplayString(), service));
                 return;
             }
             if (mix || lastfm) {
@@ -160,15 +159,15 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
 
         }
         if (map.isEmpty()) {
-            sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 %s%s on %s", usableString, doArtists ? "artists" : "albums", returned.getTime().getDisplayString(), service));
+            sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 %s%s on %s", usableString, doArtists ? "artists" : "albums", innerParams.getTime().getDisplayString(), service));
             return;
         }
 
-        if (parse.hasOptional("list")) {
+        if (params.hasOptional("list")) {
             List<String> collect = map.entrySet()
                     .stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).map(x -> ". **" + WordUtils.capitalizeFully(CommandUtil.cleanMarkdownCharacter(x.getKey().getGenreName())) + "** - " + x.getValue() + "\n").collect(Collectors.toList());
             if (collect.isEmpty()) {
-                sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 %s%s on%s", usableString, doArtists ? "artists" : "albums", returned.getTime().getDisplayString(), service));
+                sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 %s%s on%s", usableString, doArtists ? "artists" : "albums", innerParams.getTime().getDisplayString(), service));
                 return;
             }
 
@@ -188,8 +187,8 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
 
 
         } else {
-            Long extraParam = parse.getExtraParam();
-            PieChart pieChart = pieable.doPie(parse, map);
+            Long extraParam = params.getExtraParam();
+            PieChart pieChart = pieable.doPie(params, map);
             pieChart.setTitle("Top " + extraParam + " Genres from " + usableString + timeframe.getDisplayString());
             BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = bufferedImage.createGraphics();

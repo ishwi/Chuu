@@ -20,6 +20,6 @@ public class NoOpParser extends Parser<CommandParameters> {
 
     @Override
     public String getUsageLogic(String commandName) {
-        return "**" + commandName + "**\n\n";
+        return "**" + commandName + "**\n";
     }
 }

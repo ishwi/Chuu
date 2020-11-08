@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -53,11 +54,9 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<ChuuDataParams> params = parser.parse(e);
-        if (params == null) {
-            return;
-        }
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
+
+
         long limit = params.getExtraParam();
         ChuuDataParams innerParams = params.getInnerParams();
         String lastFmName = innerParams.getLastFMData().getName();

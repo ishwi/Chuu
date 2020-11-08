@@ -23,12 +23,12 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
 
     @Override
     void setUpOptionals() {
-
+        // Intentionally Empty
     }
 
     @Override
     protected void setUpErrorMessages() {
-
+        // Intentionally Empty
     }
 
     @Override

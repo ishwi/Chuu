@@ -13,6 +13,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -49,13 +50,10 @@ public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<Word
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(MessageReceivedEvent e, @NotNull ExtraParameters<WordParameter, User> params) throws LastFmException, InstanceNotFoundException {
 
-        ExtraParameters<WordParameter, User> returned = parser.parse(e);
-        if (returned == null) {
-            return;
-        }
-        String query = returned.getInnerParams().getWord();
+
+        String query = params.getInnerParams().getWord();
         String s;
         if (ONLY_YT || CommandUtil.rand.nextBoolean()) {
             s = youtubeSearch.doSearch(query);

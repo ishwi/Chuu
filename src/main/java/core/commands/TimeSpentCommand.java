@@ -10,6 +10,7 @@ import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -40,8 +41,8 @@ public class TimeSpentCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        TimeFrameParameters params = parser.parse(e);
+    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
+
         String username = params.getLastFMData().getName();
         long discordId = params.getLastFMData().getDiscordId();
         TimeFrameEnum timeframe = params.getTime();

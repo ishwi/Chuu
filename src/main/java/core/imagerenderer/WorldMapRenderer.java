@@ -105,11 +105,7 @@ public class WorldMapRenderer {
         String value = styleNode.getFirstChild().getNodeValue();
         StringBuilder sb = new StringBuilder();
         String[] palette;
-        if (paletteIndex == null)
-            palette = palettes.get(new Random().nextInt(palettes.size()));
-        else {
-            palette = palettes.get(paletteIndex);
-        }
+        palette = palettes.get(Objects.requireNonNullElseGet(paletteIndex, () -> new Random().nextInt(palettes.size())));
         Optional<Integer> max = countryFrequency.values().stream().max(Integer::compareTo);
         if (max.isEmpty())
             return null;

@@ -131,7 +131,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
                 }
             }
         } else ColorChartCommand.diagonalSort(rows, cols, collect, isLinear);
-        queue = new LinkedBlockingQueue<>(cols * rows);
+        queue = new LinkedBlockingQueue<>(Math.max(1, cols * rows));
         queue.addAll(collect);
         return new CountWrapper<>(count, queue);
     }

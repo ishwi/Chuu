@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
 
+import javax.validation.constraints.NotNull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.function.Consumer;
@@ -59,17 +60,15 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        T parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        WhoKnowsMode whoknowsMode = getWhoknowsMode(parse);
-        WrapperReturnNowPlaying wrapperReturnNowPlaying = generateWrapper(parse, whoknowsMode);
+    void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException, InstanceNotFoundException {
+
+
+        WhoKnowsMode whoknowsMode = getWhoknowsMode(params);
+        WrapperReturnNowPlaying wrapperReturnNowPlaying = generateWrapper(params, whoknowsMode);
         if (wrapperReturnNowPlaying == null) {
             return;
         }
-        generateWhoKnows(wrapperReturnNowPlaying, parse, e.getAuthor().getIdLong(), whoknowsMode);
+        generateWhoKnows(wrapperReturnNowPlaying, params, e.getAuthor().getIdLong(), whoknowsMode);
 
     }
 

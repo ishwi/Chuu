@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,11 +58,9 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
         ArtistParameters parse = this.parser.parse(e);
-        if (parse == null) {
-            return;
-        }
+
         String artist = parse.getArtist();
         char prefix = CommandUtil.getMessagePrefix(e);
 

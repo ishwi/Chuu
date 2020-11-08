@@ -10,6 +10,7 @@ import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
@@ -45,11 +46,9 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        GenreParameters params = parser.parse(e);
-        if (params == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull GenreParameters params) throws LastFmException, InstanceNotFoundException {
+
+
         String genre = params.getGenre();
         List<ScrobbledArtist> topInTag = e.isFromGuild()
                 ? getService().getTopInTag(genre, e.getGuild().getIdLong(), 400)

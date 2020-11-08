@@ -17,6 +17,7 @@ import org.imgscalr.Scalr;
 
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
+import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -129,12 +130,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-
-        UrlParameters urlParameters = parser.parse(e);
-        if (urlParameters == null)
-            return;
-
+    public void onCommand(MessageReceivedEvent e, @NotNull UrlParameters urlParameters) throws LastFmException, InstanceNotFoundException {
         String url = urlParameters.getUrl();
         if (url.length() == 0) {
             getService().removeLogo(e.getGuild().getIdLong());

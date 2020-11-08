@@ -12,6 +12,7 @@ import dao.entities.Track;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -51,10 +52,10 @@ public class DailyCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ChuuDataParams returned = parser.parse(e);
-        String lastFmName = returned.getLastFMData().getName();
-        Long discordId = returned.getLastFMData().getDiscordId();
+    void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+
+        String lastFmName = params.getLastFMData().getName();
+        Long discordId = params.getLastFMData().getDiscordId();
         String usable = getUserString(e, discordId, lastFmName);
 
         try {

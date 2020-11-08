@@ -72,7 +72,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
             sendMessageQueue(e, "Found no users :(");
             return;
         }
-        boolean isServer = params.hasOptional("server") && e.isFromGuild();
+        boolean isServer = outerParmams.hasOptional("server") && e.isFromGuild();
 
         MessageBuilder messageBuilder = new MessageBuilder();
 

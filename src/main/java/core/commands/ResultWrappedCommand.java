@@ -1,22 +1,17 @@
 package core.commands;
 
 import core.exceptions.LastFmException;
-import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.PieableListResultWrapper;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.ResultWrapper;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.util.List;
+import javax.validation.constraints.NotNull;
 
-public abstract class ResultWrappedCommand<T, Y extends CommandParameters> extends ConcurrentCommand<Y> {
+public abstract class ResultWrappedCommand<T, Y extends CommandParameters> extends PieableListCommand<ResultWrapper<T>, Y> {
     public PieableListResultWrapper<T, Y> pie;
 
     ResultWrappedCommand(ChuuService dao) {
@@ -24,53 +19,25 @@ public abstract class ResultWrappedCommand<T, Y extends CommandParameters> exten
         this.pie = null;
     }
 
-
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        Y parameters = parser.parse(e);
-        if (parameters.hasOptional("pie")) {
-            doPie(getList(parameters), parameters);
+    void onCommand(MessageReceivedEvent e, @NotNull Y params) throws LastFmException, InstanceNotFoundException {
+
+        if (params.hasOptional("pie")) {
+            doPie(getList(params), params);
             return;
         }
-        printList(getList(parameters), parameters);
+        printList(getList(params), params);
     }
 
-    private void doPie(ResultWrapper<T> list, Y parameters) {
-        PieChart pieChart = this.pie.doPie(parameters, list.getResultList());
-        doPie(pieChart, parameters, list.getRows());
-
+    @Override
+    public void doPie(ResultWrapper<T> data, Y parameters) {
+        PieChart pieChart = this.pie.doPie(parameters, data.getResultList());
+        doPie(pieChart, parameters, data.getRows());
     }
 
-    public EmbedBuilder initList(List<String> strList) {
-        StringBuilder a = new StringBuilder();
-        for (int i = 0, size = strList.size(); i < 10 && i < size; i++) {
-            String text = strList.get(i);
-            a.append(i + 1).append(text);
-        }
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setDescription(a);
-        return embedBuilder.setColor(CommandUtil.randomColor());
-    }
-
-    public void doPie(PieChart pieChart, Y chartParameters, int count) {
-        BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = bufferedImage.createGraphics();
-        String s = fillPie(pieChart, chartParameters, count);
-
-        GraphicUtils.setQuality(g);
-        pieChart.paint(g, 1000, 750);
-
-        Font annotationsFont = pieChart.getStyler().getAnnotationsFont();
-        pieChart.paint(g, 1000, 750);
-        g.setFont(annotationsFont.deriveFont(11.0f));
-        Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(s, g);
-        g.drawString(s, 1000 - 10 - (int) stringBounds.getWidth(), 740 - 2);
-        sendImage(bufferedImage, chartParameters.getE());
-    }
 
     protected abstract String fillPie(PieChart pieChart, Y params, int count);
 
-    public abstract ResultWrapper<T> getList(Y parmas) throws LastFmException;
 
     public abstract void printList(ResultWrapper<T> list, Y params);
 

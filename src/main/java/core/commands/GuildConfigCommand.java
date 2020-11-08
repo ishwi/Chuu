@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
+import javax.validation.constraints.NotNull;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -52,11 +53,9 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull GuildConfigParams params) throws LastFmException, InstanceNotFoundException {
         GuildConfigParams parse = this.parser.parse(e);
-        if (parse == null) {
-            return;
-        }
+
         GuildConfigType config = parse.getConfig();
         String value = parse.getValue();
         boolean cleansing = value.equalsIgnoreCase("clear");

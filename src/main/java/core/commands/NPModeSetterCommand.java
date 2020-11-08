@@ -9,6 +9,7 @@ import dao.entities.NPMode;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Function;
@@ -60,15 +61,10 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        EnumListParameters<NPMode> parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull EnumListParameters<NPMode> params) throws LastFmException, InstanceNotFoundException {
 
-
-        EnumSet<NPMode> modes = parse.getEnums();
-        if (parse.isHelp()) {
+        EnumSet<NPMode> modes = params.getEnums();
+        if (params.isHelp()) {
             if (modes.isEmpty()) {
                 sendMessageQueue(e, getUsageInstructions());
                 return;
@@ -77,7 +73,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
             sendMessageQueue(e, collect);
             return;
         }
-        if (parse.isListing()) {
+        if (params.isListing()) {
             modes = getService().getNPModes(e.getAuthor().getIdLong());
             String strMode = NPMode.getListedName(modes);
             sendMessageQueue(e,

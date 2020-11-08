@@ -9,6 +9,7 @@ import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,7 +45,7 @@ public class BanArtistTagCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
         Pattern regex = Pattern.compile("tag:([\\s\\S]+)artist:(.*)");
 
         String[] subMessage = parser.getSubMessage(e.getMessage());

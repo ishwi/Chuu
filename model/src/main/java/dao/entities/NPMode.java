@@ -27,8 +27,6 @@ public enum NPMode {
     GLOBAL_ALBUM_RANK(15),
     SERVER_LISTENERS(16),
     SERVER_SCROBBLES(17),
-    BOT_LISTENERS(16),
-    BOT_SCROBBLES(17),
     GENDER(18),
     COUNTRY(19),
     ARTIST_PIC(20),
@@ -36,11 +34,14 @@ public enum NPMode {
     ALBUM_PLAYS(22),
     ARTIST_PLAYS(23),
     SONG_PLAYS(24),
-    SONG_DURATION(24),
     HIGHEST_STREAK(25),
     HIGHEST_SERVER_STREAK(26),
     HIGHEST_BOT_STREAK(27),
     SPOTIFY_LINK(28),
+    SONG_DURATION(29),
+    BOT_LISTENERS(30),
+    BOT_SCROBBLES(31),
+
     UNKNOWN(-1);
 
     private final int offset;

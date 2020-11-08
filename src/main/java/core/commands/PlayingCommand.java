@@ -16,7 +16,6 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -37,7 +36,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         this.respondInPrivate = false;
         controlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(12, TimeUnit.HOURS).build(
                 new CacheLoader<>() {
-                    public LocalDateTime load(@NotNull Long guild) {
+                    public LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
                         return LocalDateTime.now().plus(12, ChronoUnit.HOURS);
                     }
                 });
@@ -65,11 +64,10 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(MessageReceivedEvent e, @javax.validation.constraints.NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
 
 
-        CommandParameters parameters = parser.parse(e);
-        boolean showFresh = !parameters.hasOptional("recent");
+        boolean showFresh = !params.hasOptional("recent");
 
         List<UsersWrapper> list = getService().getAll(e.getGuild().getIdLong());
         if (list.size() > 50) {

@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.*;
 
 public class HelpCommand extends ConcurrentCommand<CommandParameters> {
@@ -88,7 +89,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) {
+    public void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         Character prefix = Chuu.getCorrespondingPrefix(e);
         String[] args = commandArgs(e.getMessage());
 

@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -74,7 +75,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = getService().findLastFMData(idLong);
         if (lastFMData.getRole() != Role.ADMIN) {

@@ -10,6 +10,7 @@ import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,21 +50,19 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        DisabledCommandParameters parse = parser.parse(e);
+    void onCommand(MessageReceivedEvent e, @NotNull DisabledCommandParameters params) throws LastFmException, InstanceNotFoundException {
+
         MessageDisablingService messageDisablingService = Chuu.getMessageDisablingService();
-        if (parse == null) {
-            return;
-        }
+
 
         List<MyCommand<?>> commandsToAllow;
-        if (parse.hasOptional("all")) {
+        if (params.hasOptional("all")) {
             commandsToAllow = e.getJDA().getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?> && !(x instanceof DisabledCommand)).map(x -> (MyCommand<?>) x).collect(Collectors.toList());
-        } else if (parse.hasOptional("category")) {
+        } else if (params.hasOptional("category")) {
             commandsToAllow = e.getJDA().getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?> && !(x instanceof DisabledCommand)).map(x -> (MyCommand<?>) x).
-                    filter(x -> x.getCategory().equals(parse.getCommand().getCategory())).collect(Collectors.toList());
+                    filter(x -> x.getCategory().equals(params.getCommand().getCategory())).collect(Collectors.toList());
         } else {
-            commandsToAllow = new ArrayList<>(Collections.singletonList(parse.getCommand()));
+            commandsToAllow = new ArrayList<>(Collections.singletonList(params.getCommand()));
         }
         // Wont accept this command
         commandsToAllow.removeIf(x -> x.getName().equals(this.getName()));
@@ -84,13 +83,13 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
         List<MyCommand<?>> previouslyAllowedCommands = collect.get(true);
         for (MyCommand<?> command : commandsToAllow) {
             boolean messageAllowed = previouslyAllowedCommands.contains(command);
-            if (parse.isExceptThis()) {
-                messageDisablingService.toggleCommandDisabledness(command, parse.getGuildId(), messageAllowed, getService());
-                messageDisablingService.toggleCommandChannelDisabledness(command, parse.getGuildId(), parse.getChannelId(), !messageAllowed, getService());
-            } else if (parse.isOnlyChannel()) {
-                messageDisablingService.toggleCommandChannelDisabledness(command, parse.getGuildId(), parse.getChannelId(), messageAllowed, getService());
+            if (params.isExceptThis()) {
+                messageDisablingService.toggleCommandDisabledness(command, params.getGuildId(), messageAllowed, getService());
+                messageDisablingService.toggleCommandChannelDisabledness(command, params.getGuildId(), params.getChannelId(), !messageAllowed, getService());
+            } else if (params.isOnlyChannel()) {
+                messageDisablingService.toggleCommandChannelDisabledness(command, params.getGuildId(), params.getChannelId(), messageAllowed, getService());
             } else {
-                messageDisablingService.toggleCommandDisabledness(command, parse.getGuildId(), messageAllowed, getService());
+                messageDisablingService.toggleCommandDisabledness(command, params.getGuildId(), messageAllowed, getService());
             }
         }
         Character prefix = Chuu.getCorrespondingPrefix(e);

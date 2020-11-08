@@ -13,6 +13,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
@@ -47,9 +48,8 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull RateLimitParams params) throws LastFmException, InstanceNotFoundException {
 
-        RateLimitParams parse = parser.parse(e);
 
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = getService().findLastFMData(idLong);
@@ -58,11 +58,9 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
             sendMessageQueue(e, "Only bot admins can modify rate limits");
             return;
         }
-        if (parse == null) {
-            return;
-        }
+
         Map<Long, RateLimiter> ratelimited = Chuu.getRatelimited();
-        long discordId = parse.getDiscordId();
+        long discordId = params.getDiscordId();
         try {
             User complete = e.getJDA().retrieveUserById(discordId).complete();
         } catch (Exception ex) {
@@ -70,13 +68,13 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
             return;
 
         }
-        if (parse.isDeleting()) {
+        if (params.isDeleting()) {
             ratelimited.remove(discordId);
             getService().removeRateLimit(discordId);
             sendMessageQueue(e, "Successfully removed the rate limit from user " + discordId);
             return;
         }
-        Float rateLimit = parse.getRateLimit();
+        Float rateLimit = params.getRateLimit();
         RateLimiter rateLimiter = ratelimited.get(discordId);
         RateLimiter newRateLimiter = rateLimit == null ? (rateLimiter == null ? RateLimiter.create(0.1) : rateLimiter) : RateLimiter.create(rateLimit);
         ratelimited.put(discordId, newRateLimiter);

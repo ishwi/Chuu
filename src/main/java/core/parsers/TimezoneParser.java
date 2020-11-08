@@ -129,7 +129,7 @@ public class TimezoneParser extends Parser<TimezoneParams> {
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *timezone***\n" +
                 "\t The timezone can be written either as a abbreviate of the timezone (CET, PT...), the offset of the timezone" +
-                " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...) \n\n";
+                " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)\n";
 
     }
 }

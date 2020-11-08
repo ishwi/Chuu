@@ -11,6 +11,7 @@ import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class ArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
@@ -45,14 +46,12 @@ public class ArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ArtistParameters returned = parser.parse(e);
-        if (returned == null)
-            return;
-        ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), returned.getArtist(), lastFM, !returned.isNoredirect());
-        long whom = returned.getLastFMData().getDiscordId();
+    public void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+
+        ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), params.getArtist(), lastFM, !params.isNoredirect());
+        long whom = params.getLastFMData().getDiscordId();
         int a;
-        LastFMData data = returned.getLastFMData();
+        LastFMData data = params.getLastFMData();
         ArtistSummary artistSummary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data.getName());
         a = artistSummary.getUserPlayCount();
         String usernameString = getUserString(e, whom, data.getName());

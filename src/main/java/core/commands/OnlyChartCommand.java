@@ -10,6 +10,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
+import javax.validation.constraints.NotNull;
 import java.util.concurrent.BlockingQueue;
 
 public abstract class OnlyChartCommand<T extends ChartParameters> extends ChartableCommand<T> {
@@ -23,17 +24,15 @@ public abstract class OnlyChartCommand<T extends ChartParameters> extends Charta
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        T chartParameters = parser.parse(e);
-        if (chartParameters == null)
-            return;
-        CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(chartParameters);
+    void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException, InstanceNotFoundException {
+
+        CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(params);
         BlockingQueue<UrlCapsule> urlCapsules = countWrapper.getResult();
         if (urlCapsules.isEmpty()) {
-            this.noElementsMessage(chartParameters);
+            this.noElementsMessage(params);
             return;
         }
-        doImage(urlCapsules, chartParameters.getX(), chartParameters.getY(), chartParameters, countWrapper.getRows());
+        doImage(urlCapsules, params.getX(), params.getY(), params, countWrapper.getRows());
     }
 
 

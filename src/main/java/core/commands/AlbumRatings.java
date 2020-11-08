@@ -74,22 +74,19 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @javax.validation.constraints.NotNull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        ArtistAlbumParameters parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(parse.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, false, !parse.isNoredirect());
-        String album = parse.getAlbum();
-        String artist = parse.getArtist();
+
+        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
+        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, false, !params.isNoredirect());
+        String album = params.getAlbum();
+        String artist = params.getArtist();
 
         dao.entities.AlbumRatings ratingss = getService().getRatingsByName(e.getGuild().getIdLong(), album, scrobbledArtist.getArtistId());
 
         NumberFormat average = new DecimalFormat("#0.##");
         Function<Byte, String> starFormatter = getStartsFromScore();
-        FullAlbumEntityExtended chuu1 = lastFM.getAlbumSummary("chuu", scrobbledArtist.getArtist(), album);
+        FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary("chuu", scrobbledArtist.getArtist(), album);
         List<Rating> userRatings = ratingss.getUserRatings();
         String lastFmArtistAlbumUrl = LinkUtils.getLastFmArtistAlbumUrl(artist, album);
         List<String> stringList = userRatings.stream().filter(Rating::isSameGuild).map(x -> ". **[" +
@@ -107,16 +104,16 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
             a.append(i + 1).append(stringList.get(i));
         }
 
-        String chuu = chuu1.getAlbumUrl();
+        String chuu = albumSummary.getAlbumUrl();
         List<Rating> servcerList = userRatings.stream().filter(Rating::isSameGuild).collect(Collectors.toList());
         String serverName = e.getGuild().getName();
         String botName = e.getJDA().getSelfUser().getName();
         String name = String.format("%s Average: **%s** | Ratings: **%d**", serverName, average.format(servcerList.stream().mapToDouble(rating -> rating.getRating() / 2f).average().orElse(0)), servcerList.size());
         String global = String.format("%s Average: **%s** | Ratings: **%d**", botName, average.format(userRatings.stream().mapToDouble(rating -> rating.getRating() / 2f).average().orElse(0)), userRatings.size());
 
-        embedBuilder.setTitle(String.format("%s - %s Ratings in %s", chuu1.getArtist(), chuu1.getAlbum(), serverName), lastFmArtistAlbumUrl)
+        embedBuilder.setTitle(String.format("%s - %s Ratings in %s", albumSummary.getArtist(), albumSummary.getAlbum(), serverName), lastFmArtistAlbumUrl)
 
-                .setFooter(String.format("%s%s has been rated by %d %s.", chuu1.getAlbum(),
+                .setFooter(String.format("%s%s has been rated by %d %s.", albumSummary.getAlbum(),
                         ratingss.getReleaseYear() != null ? " (" + ratingss.getReleaseYear().toString() + ")" : ""
                         , userRatings.size(),
                         CommandUtil.singlePlural(userRatings.size(), "person", "people")))

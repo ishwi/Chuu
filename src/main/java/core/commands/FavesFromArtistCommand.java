@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -59,17 +60,15 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ArtistTimeFrameParameters returned = parser.parse(e);
-        if (returned == null)
-            return;
-        long userId = returned.getLastFMData().getDiscordId();
-        TimeFrameEnum timeframew = returned.getTimeFrame();
-        String artist = returned.getArtist();
+    public void onCommand(MessageReceivedEvent e, @NotNull ArtistTimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
+
+        long userId = params.getLastFMData().getDiscordId();
+        TimeFrameEnum timeframew = params.getTimeFrame();
+        String artist = params.getArtist();
         ScrobbledArtist who = new ScrobbledArtist(artist, 0, "");
         CommandUtil.validate(getService(), who, lastFM, discogs, spotify);
         List<Track> ai;
-        String lastFmName = returned.getLastFMData().getName();
+        String lastFmName = params.getLastFMData().getName();
 
         ai = lastFM.getTopArtistTracks(lastFmName, who.getArtist(), timeframew.toApiFormat(), artist);
 

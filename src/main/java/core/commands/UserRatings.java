@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -51,11 +52,9 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        RYMRatingParams params = parser.parse(e);
-        if (params == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull RYMRatingParams params) throws LastFmException, InstanceNotFoundException {
+
+
         Short rating = params.getRating();
         List<ScoredAlbumRatings> myRatings = getService().getSelfRatingsScore(params.getLastFMData().getDiscordId(), rating);
 

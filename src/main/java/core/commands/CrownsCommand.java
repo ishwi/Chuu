@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -72,14 +73,12 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<ChuuDataParams> outer = parser.parse(e);
-        if (outer == null) {
-            return;
-        }
-        ChuuDataParams params = outer.getInnerParams();
-        UniqueWrapper<ArtistPlays> uniqueDataUniqueWrapper = getList(outer);
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
+    public void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
+
+
+        ChuuDataParams innerParams = params.getInnerParams();
+        UniqueWrapper<ArtistPlays> uniqueDataUniqueWrapper = getList(params);
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, innerParams.getLastFMData().getDiscordId());
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
         List<ArtistPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();

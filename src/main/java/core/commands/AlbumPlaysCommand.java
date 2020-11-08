@@ -14,6 +14,7 @@ import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,14 +57,12 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ArtistAlbumParameters parsed = parser.parse(e);
-        if (parsed == null)
-            return;
-        ScrobbledArtist validable = new ScrobbledArtist(parsed.getArtist(), 0, "");
+    public void onCommand(MessageReceivedEvent e, @NotNull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
+
+        ScrobbledArtist validable = new ScrobbledArtist(params.getArtist(), 0, "");
         CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
-        parsed.setScrobbledArtist(validable);
-        doSomethingWithAlbumArtist(validable, parsed.getAlbum(), e, parsed.getLastFMData().getDiscordId(), parsed);
+        params.setScrobbledArtist(validable);
+        doSomethingWithAlbumArtist(validable, params.getAlbum(), e, params.getLastFMData().getDiscordId(), params);
 
     }
 

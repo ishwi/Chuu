@@ -14,6 +14,7 @@ import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
@@ -52,13 +53,9 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ArtistParameters returned = parser.parse(e);
-        if (returned == null) {
-            return;
-        }
-        String artist = returned.getArtist();
-        long userId = returned.getLastFMData().getDiscordId();
+    void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+
+        String artist = params.getArtist();
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
@@ -67,7 +64,7 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
         if (e.isFromGuild()) {
             artistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
         } else {
-            LastFMData data = returned.getLastFMData();
+            LastFMData data = params.getLastFMData();
             artistPlays = getService().getArtistPlays(scrobbledArtist.getArtistId(), data.getName());
         }
         String usableString;

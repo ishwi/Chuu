@@ -13,6 +13,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
+import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,12 +49,7 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-
-        ArtistUrlParameters params = parser.parse(e);
-        if (params == null) {
-            return;
-        }
+    public void onCommand(MessageReceivedEvent e, @NotNull ArtistUrlParameters params) throws LastFmException, InstanceNotFoundException {
         LastFMData lastFMData = params.getLastFMData();
         if (lastFMData.getRole().equals(Role.IMAGE_BLOCKED)) {
             sendMessageQueue(e, "You don't have enough permissions to add an image!");

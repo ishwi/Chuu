@@ -7,8 +7,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import dao.entities.ArtistPlays;
-import dao.entities.ResultWrapper;
+import dao.entities.TagPlays;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -19,16 +18,24 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ServerTags extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
+public class ServerTags extends PieableListCommand<List<TagPlays>, CommandParameters> {
+    public PieableListResultWrapper<TagPlays, CommandParameters> pie;
 
     public ServerTags(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
         this.pie = new PieableListResultWrapper<>(this.parser,
-                ArtistPlays::getArtistName,
-                ArtistPlays::getCount);
+                TagPlays::getTag,
+                TagPlays::getCount);
 
 
+    }
+
+
+    @Override
+    public void doPie(List<TagPlays> data, CommandParameters parameters) {
+        PieChart pieChart = this.pie.doPie(parameters, data);
+        doPie(pieChart, parameters, data.stream().mapToInt(TagPlays::getCount).sum());
     }
 
 
@@ -40,7 +47,7 @@ public class ServerTags extends ResultWrappedCommand<ArtistPlays, CommandParamet
     @Override
     public Parser<CommandParameters> initParser() {
         NoOpParser noOpParser = new NoOpParser();
-        noOpParser.addOptional(new OptionalEntity("count", "to display number of artists instead of scrobbles"));
+        noOpParser.addOptional(new OptionalEntity("plays", "to display number of artists instead of scrobbles"));
         return noOpParser;
     }
 
@@ -48,32 +55,30 @@ public class ServerTags extends ResultWrappedCommand<ArtistPlays, CommandParamet
     protected String fillPie(PieChart pieChart, CommandParameters params, int count) {
         String name = params.getE().getJDA().getSelfUser().getName();
         pieChart.setTitle(name + "'s artists frequencies");
-        return String.format("%s has %d different artists! (showing top %d)", name, count, 15);
+        return String.format("%s has %d %s! (in top 200)", name, count, params.hasOptional("plays") ? "diff. tagged artists" : "total plays on tagged");
     }
 
 
     @Override
-    public ResultWrapper<ArtistPlays> getList(CommandParameters parmas) {
-        return getService().getServerTags(parmas.getE().getGuild().getIdLong(), parmas.hasOptional("count"));
+    public List<TagPlays> getList(CommandParameters parmas) {
+        return getService().getServerTags(parmas.getE().getGuild().getIdLong(), !parmas.hasOptional("plays"));
     }
 
+
     @Override
-    public void printList(ResultWrapper<ArtistPlays> wrapper, CommandParameters params) {
-        List<ArtistPlays> list = wrapper.getResultList();
-        String buzzz = params.hasOptional("count") ? "diff. artists" : "total plays";
+    public void printList(List<TagPlays> list, CommandParameters params) {
+        String buzzz = params.hasOptional("play") ? "tags" : "plays";
         MessageReceivedEvent e = params.getE();
         if (list.isEmpty()) {
             sendMessageQueue(e, "No one has played any artist yet!");
         }
 
-        List<String> collect = list.stream().map(x -> ". [" +
-                CommandUtil.cleanMarkdownCharacter(x.getArtistName()) +
-                "](" + LinkUtils.getLastFmTagUrl(x.getArtistName()) +
-                ") - " + x.getCount() + " " +
-                buzzz + "\n").collect(Collectors.toList());
+        List<String> collect = list.stream().map(x ->
+                String.format(". [%s](%s) - %d %s\n", LinkUtils.cleanMarkdownCharacter(x.getTag()),
+                        LinkUtils.getLastFmArtistUrl(x.getTag()), x.getCount(), buzzz))
+                .collect(Collectors.toList());
         EmbedBuilder embedBuilder = initList(collect);
         embedBuilder.setTitle("Server Tags");
-        embedBuilder.setFooter(String.format("%s has %d different tags!%n", e.getGuild().getName(), wrapper.getRows()), null);
         embedBuilder.setThumbnail(e.getGuild().getIconUrl());
         MessageBuilder mes = new MessageBuilder();
         e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
@@ -95,3 +100,5 @@ public class ServerTags extends ResultWrappedCommand<ArtistPlays, CommandParamet
         return "Server Tags";
     }
 }
+
+

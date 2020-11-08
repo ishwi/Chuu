@@ -14,6 +14,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,14 +58,11 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<UrlParameters> parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<UrlParameters> params) throws LastFmException, InstanceNotFoundException {
 
-        Long rating = parse.getExtraParam();
-        String url = parse.getInnerParams().getUrl();
+
+        Long rating = params.getExtraParam();
+        String url = params.getInnerParams().getUrl();
         if (url.isBlank() || rating == null) {
             sendMessageQueue(e, "You must introduce a rating and the url to rate");
             return;

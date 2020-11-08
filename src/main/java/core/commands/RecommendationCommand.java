@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -51,14 +52,11 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        RecommendationsParams rp = parser.parse(e);
-        if (rp == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull RecommendationsParams params) throws LastFmException, InstanceNotFoundException {
+
         long firstDiscordID;
         long secondDiscordID;
-        if (rp.isNoUser()) {
+        if (params.isNoUser()) {
             LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
             List<Affinity> serverAffinity = getService().getServerAffinity(lastFMData.getName(), e.getGuild().getIdLong(), AffinityCommand.DEFAULT_THRESHOLD);
             if (serverAffinity.isEmpty()) {
@@ -90,10 +88,10 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
             firstDiscordID = e.getAuthor().getIdLong();
             secondDiscordID = affinity.getDiscordId();
         } else {
-            firstDiscordID = rp.getFirstUser().getDiscordId();
-            secondDiscordID = rp.getSecondUser().getDiscordId();
+            firstDiscordID = params.getFirstUser().getDiscordId();
+            secondDiscordID = params.getSecondUser().getDiscordId();
         }
-        List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, rp.isShowRepeated(), Math.toIntExact(rp.getRecCount()));
+        List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, params.isShowRepeated(), Math.toIntExact(params.getRecCount()));
 
         String receiver = "you";
         if (firstDiscordID != e.getAuthor().getIdLong()) {

@@ -11,6 +11,7 @@ import dao.entities.UserInfo;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -65,12 +66,9 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<NumberParameters<NaturalTimeParams>> hopefullyNoOneSeesThis = parser.parse(e);
+    void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<NumberParameters<NaturalTimeParams>> hopefullyNoOneSeesThis) throws LastFmException, InstanceNotFoundException {
 
-        if (hopefullyNoOneSeesThis == null) {
-            return;
-        }
+
         NumberParameters<NaturalTimeParams> unitCount = hopefullyNoOneSeesThis.getInnerParams();
         NaturalTimeParams naturalTimeParams = unitCount.getInnerParams();
         String lastfmId = naturalTimeParams.getLastFMData().getName();

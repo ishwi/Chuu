@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.validation.constraints.NotNull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -157,20 +158,18 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull UrlParameters params) throws LastFmException, InstanceNotFoundException {
         Member member = e.getGuild().getMember(e.getAuthor());
         if (member == null || !member.hasPermission(Permission.ADMINISTRATOR)) {
             sendMessageQueue(e, "Only an admin can export the data");
             return;
         }
-        UrlParameters parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
+
+
         long guildID = e.getGuild().getIdLong();
 
 
-        String url = parse.getUrl();
+        String url = params.getUrl();
         JSONArray arr;
         try (InputStream in = new URL(url).openStream()) {
             BufferedReader bR = new BufferedReader(new InputStreamReader(in));

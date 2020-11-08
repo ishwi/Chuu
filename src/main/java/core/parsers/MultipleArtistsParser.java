@@ -40,6 +40,6 @@ public class MultipleArtistsParser extends MultiStringParser<MultiArtistParamete
         return "**" + commandName + " *[artist artist1 artist2]* *number***\n" +
                 "\t You can give any variable number of artists, if you want to introduce a artist with multiple words you will have to surround it with quotes like for example \"hip hop\"\n" +
                 "\t If user is not specified if will grab a artist from your user, otherwise from the provided user\n" +
-                "\t If you dont give any artist you can also specify a number and it will try to get that number of artist from your recent artists, otherwise just from your last 2 artists";
+                "\t If you dont give any artist you can also specify a number and it will try to get that number of artist from your recent artists, otherwise just from your last 2 artists\n";
     }
 }

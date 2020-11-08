@@ -9,6 +9,7 @@ import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -45,15 +46,12 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        DateParameters parameters = parser.parse(e);
-        if (parameters == null) {
-            return;
-        }
-        LastFMData lastFMData = getService().findLastFMData(parameters.getUser().getIdLong());
-        ZonedDateTime date = parameters.getDate().atZoneSameInstant(lastFMData.getTimeZone().toZoneId());
+    void onCommand(MessageReceivedEvent e, @NotNull DateParameters params) throws LastFmException, InstanceNotFoundException {
+
+        LastFMData lastFMData = getService().findLastFMData(params.getUser().getIdLong());
+        ZonedDateTime date = params.getDate().atZoneSameInstant(lastFMData.getTimeZone().toZoneId());
         int i = lastFM.scrobblesSince(lastFMData.getName(), date.toOffsetDateTime());
-        String username = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getUser().getIdLong()).getUsername();
+        String username = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getUser().getIdLong()).getUsername();
         String mmmmD = date.format(DateTimeFormatter.ofPattern("MMMM d"));
         sendMessageQueue(e, String.format("%s has a total of %d scrobbles since %s%s %d %s", username, i, mmmmD, CommandUtil.getDayNumberSuffix(date.getDayOfMonth()),
                 date.getYear(), date.getMinute() == 0 && date.getHour() == 0 && date.getSecond() == 0

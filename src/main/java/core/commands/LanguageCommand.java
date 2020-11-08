@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
+import javax.validation.constraints.NotNull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
@@ -75,22 +76,19 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        TimeFrameParameters parameters = parser.parse(e);
-        if (parameters == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
+
 
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(3000);
-        String name = parameters.getLastFMData().getName();
-        Long discordId = parameters.getLastFMData().getDiscordId();
+        String name = params.getLastFMData().getName();
+        Long discordId = params.getLastFMData().getDiscordId();
         List<AlbumInfo> albumInfos;
-        if (parameters.getTime().equals(TimeFrameEnum.ALL)) {
+        if (params.getTime().equals(TimeFrameEnum.ALL)) {
             albumInfos = getService().getUserAlbumByMbid(name).stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
                     new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
 
         } else {
-            lastFM.getChart(name, parameters.getTime().toApiFormat(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(parameters.getTime(), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, name), queue);
+            lastFM.getChart(name, params.getTime().toApiFormat(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTime(), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, name), queue);
 
             albumInfos = queue.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid(), null, null)).collect(Collectors.toList());
         }
@@ -99,14 +97,14 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
-        String usableTime = parameters.getTime().getDisplayString();
+        String usableTime = params.getTime().getDisplayString();
         if (languageCountByMbid.isEmpty()) {
             sendMessageQueue(e, "Couldn't find any language in " + userName + " albums" + usableTime);
             return;
         }
         StringBuilder a = new StringBuilder();
-        if (parameters.hasOptional("pie")) {
-            doPie(languageCountByMbid, parameters);
+        if (params.hasOptional("pie")) {
+            doPie(languageCountByMbid, params);
             return;
         }
 
@@ -118,7 +116,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
             a.append(i + 1).append(stringedList.get(i));
         }
 
-        String title = userName + "'s most common languages" + parameters.getTime().getDisplayString();
+        String title = userName + "'s most common languages" + params.getTime().getDisplayString();
         MessageBuilder messageBuilder = new MessageBuilder();
         long count = languageCountByMbid.keySet().size();
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())

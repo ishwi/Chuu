@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,12 +54,8 @@ public class TasteCommand extends ConcurrentCommand<TwoUsersParamaters> {
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(MessageReceivedEvent e, @NotNull TwoUsersParamaters params) throws LastFmException, InstanceNotFoundException {
         List<String> lastfMNames;
-
-        TwoUsersParamaters params = parser.parse(e);
-        if (params == null)
-            return;
         long ogDiscordID = params.getFirstUser().getDiscordId();
         String ogLastFmId = params.getFirstUser().getName();
         long secondDiscordId = params.getSecondUser().getDiscordId();

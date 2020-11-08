@@ -1,8 +1,8 @@
 package core.apis;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.httpclient.params.HttpClientParams;
+
+import java.net.http.HttpClient;
+import java.util.concurrent.Executors;
 
 public class ClientSingleton {
 
@@ -17,13 +17,11 @@ public class ClientSingleton {
         if (instance == null) {
             synchronized (core.apis.ClientSingleton.class) {
                 if (instance == null) {
-                    HttpClient httpClient = new HttpClient();
-                    HttpClientParams params = new HttpClientParams();
-                    params.setSoTimeout(4000);
-                    params.setContentCharset("UTF-8");
-                    httpClient.setParams(params);
-                    httpClient.setHttpConnectionManager(new MultiThreadedHttpConnectionManager());
-                    instance = httpClient;
+                    instance = HttpClient.newBuilder()
+                            .executor(Executors.newCachedThreadPool())
+                            .priority(1) //HTTP/2 priority
+                            .version(HttpClient.Version.HTTP_2)
+                            .build();
                 }
             }
         }

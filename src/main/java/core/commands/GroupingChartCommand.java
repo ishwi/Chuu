@@ -19,6 +19,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -43,36 +44,33 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ChartGroupParameters chartGroupParameters = parser.parse(e);
-        if (chartGroupParameters == null) {
-            return;
-        }
-        CountWrapper<GroupingQueue> countWrapper = processGroupedQueue(chartGroupParameters);
+    public void onCommand(MessageReceivedEvent e, @NotNull ChartGroupParameters params) throws LastFmException, InstanceNotFoundException {
+
+        CountWrapper<GroupingQueue> countWrapper = processGroupedQueue(params);
         if (countWrapper.getResult().isEmpty()) {
-            noElementsMessage(chartGroupParameters);
+            noElementsMessage(params);
             return;
         }
         GroupingQueue queue = countWrapper.getResult();
         List<UrlCapsule> urlCapsules = queue.setUp();
 
-        ChartMode effectiveMode = getEffectiveMode(chartGroupParameters);
-        if (!(effectiveMode.equals(ChartMode.IMAGE) && chartGroupParameters.chartMode().equals(ChartMode.IMAGE))) {
+        ChartMode effectiveMode = getEffectiveMode(params);
+        if (!(effectiveMode.equals(ChartMode.IMAGE) && params.chartMode().equals(ChartMode.IMAGE))) {
             int sum = urlCapsules.stream().mapToInt(x -> ((TrackDurationChart) x).getSeconds()).sum();
             countWrapper.setRows(sum);
         }
         switch (effectiveMode) {
 
             case LIST:
-                doList(urlCapsules, chartGroupParameters, countWrapper.getRows());
+                doList(urlCapsules, params, countWrapper.getRows());
                 return;
             case IMAGE_INFO:
             case IMAGE:
-                doImage(queue, chartGroupParameters.getX(), chartGroupParameters.getY(), chartGroupParameters, countWrapper.getRows());
+                doImage(queue, params.getX(), params.getY(), params, countWrapper.getRows());
                 return;
             case PIE:
-                PieChart pieChart = this.pie.doPie(chartGroupParameters, urlCapsules);
-                doPie(pieChart, chartGroupParameters, countWrapper.getRows());
+                PieChart pieChart = this.pie.doPie(params, urlCapsules);
+                doPie(pieChart, params, countWrapper.getRows());
         }
     }
 

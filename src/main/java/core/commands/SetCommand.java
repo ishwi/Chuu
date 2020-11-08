@@ -15,6 +15,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -51,14 +52,11 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(MessageReceivedEvent e, @NotNull WordParameter params) throws LastFmException, InstanceNotFoundException {
 
-        WordParameter returned = parser.parse(e);
-        if (returned == null)
-            return;
 
         MessageBuilder mes = new MessageBuilder();
-        String lastFmID = returned.getWord();
+        String lastFmID = params.getWord();
         long guildID = e.getGuild().getIdLong();
         long userId = e.getAuthor().getIdLong();
         //Gets all users in this server

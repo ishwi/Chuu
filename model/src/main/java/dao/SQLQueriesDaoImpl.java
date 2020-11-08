@@ -171,22 +171,33 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public ResultWrapper<ArtistPlays> getServerTags(Connection connection, Long guildId, boolean doCount) {
-        @Language("MariaDB") String queryBody =
-                "FROM  (SELECT a.artist_id,tag,playnumber " +
+    public List<TagPlays> getServerTags(Connection connection, Long guildId, boolean doCount) {
+        @Language("MariaDB") String query =
+                "SELECT tag, " + (doCount ? "count(*)" : "sum(a.playnumber)") + " AS orden " +
                         "FROM scrobbled_artist a" +
                         " JOIN user b  " +
                         " ON a.lastfm_id = b.lastfm_id " +
                         " JOIN user_guild c " +
                         " ON b.discord_id = c.discord_id" +
                         " join artist_tags d on a.artist_id = d.artist_id " +
-                        " WHERE c.guild_id = ?) main" +
-                        " JOIN artist t ON " +
-                        " main.artist_id = t.id ";
+                        " WHERE c.guild_id = ? " +
+                        " GROUP BY tag ORDER BY orden DESC Limit 200";
 
-        String normalQuery = "SELECT (tag) as name, " + (doCount ? "count(*)" : "sum(main.playnumber)") + " AS orden " + queryBody + " GROUP BY main.tag ORDER BY orden DESC  Limit 200";
-        String countQuery = "Select 1 from user_guild where guild_id = ? ";
-        return getArtistPlaysResultWrapper(connection, guildId, normalQuery, countQuery);
+        List<TagPlays> returnList = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setLong(1, guildId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String name = resultSet.getString("tag");
+                int count = resultSet.getInt("orden");
+                returnList.add(new TagPlays(name, count));
+            }
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+
+        return returnList;
     }
 
     @NotNull

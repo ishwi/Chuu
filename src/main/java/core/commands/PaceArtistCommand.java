@@ -23,6 +23,7 @@ import dao.entities.UserInfo;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -82,11 +83,8 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<ArtistTimeFrameParameters> params = parser.parse(e);
-        if (params == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ArtistTimeFrameParameters> params) throws LastFmException, InstanceNotFoundException {
+
 
         TimeFrameEnum time = params.getInnerParams().getTimeFrame();
         LastFMData lastFMData = params.getInnerParams().getLastFMData();

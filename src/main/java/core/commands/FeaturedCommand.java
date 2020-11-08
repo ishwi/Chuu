@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -136,7 +137,7 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e) {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         if (e.getAuthor().getIdLong() == 240561665396047872L && e.getMessage().getContentRaw().contains("blm")) {
             doSeasonal = !doSeasonal;
             e.getAuthor().openPrivateChannel().flatMap(x -> x.sendMessage("Change to " + doSeasonal)).queue();

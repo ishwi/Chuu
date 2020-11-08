@@ -10,6 +10,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
         BotStats botStats = getService().getBotStats();
         int shardTotal = e.getJDA().getShardInfo().getShardTotal();
         int mb = 1024 * 1024;

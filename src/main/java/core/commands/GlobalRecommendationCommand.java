@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,12 +66,10 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<ChuuDataParams> outerParms = parser.parse(e);
-        ChuuDataParams params = outerParms.getInnerParams();
-        if (params == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
+
+        ChuuDataParams innerParams = params.getInnerParams();
+
         long firstDiscordID;
         long secondDiscordID;
         LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
@@ -102,7 +101,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
         firstDiscordID = e.getAuthor().getIdLong();
         secondDiscordID = affinity.getDiscordId();
 
-        List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, params.hasOptional("repeated"), Math.toIntExact(outerParms.getExtraParam()));
+        List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, params.hasOptional("repeated"), Math.toIntExact(params.getExtraParam()));
 
         String receiver = "you";
         if (firstDiscordID != e.getAuthor().getIdLong()) {
@@ -121,7 +120,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
 
             }
         } catch (InstanceNotFoundException ex) {
-            giver = "Unkown";
+            giver = "Unknown";
         }
         if (recs.isEmpty()) {
             sendMessageQueue(e, String.format("Couldn't get %s any recommendation from %s", receiver, giver));

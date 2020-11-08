@@ -21,7 +21,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.GayType;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -122,25 +121,21 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(GayParams params) throws LastFmException {
-        Message message = params.getE().getMessage();
-        String[] subMessage = parser.getSubMessage(message);
-        if (subMessage.length == 0) {
-            String substring = params.getE().getMessage().getContentRaw().substring(1).split("\\s+")[0].toLowerCase();
-            switch (substring) {
-                case "trans":
-                    params.setGayType(GayType.TRANS);
-                    break;
-                case "ace":
-                    params.setGayType(GayType.ACE);
-                    break;
-                case "nonbinary":
-                case "nb":
-                    params.setGayType(GayType.NB);
-                    break;
-                case "lesbian":
-                    params.setGayType(GayType.LESBIAN);
-                    break;
-            }
+        String substring = params.getE().getMessage().getContentRaw().substring(1).split("\\s+")[0].toLowerCase();
+        switch (substring) {
+            case "trans":
+                params.setGayType(GayType.TRANS);
+                break;
+            case "ace":
+                params.setGayType(GayType.ACE);
+                break;
+            case "nonbinary":
+            case "nb":
+                params.setGayType(GayType.NB);
+                break;
+            case "lesbian":
+                params.setGayType(GayType.LESBIAN);
+                break;
         }
         DiscardByQueue queue;
         List<Color> palettes = params.getGayType().getPalettes();

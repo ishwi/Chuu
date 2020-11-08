@@ -9,6 +9,7 @@ import dao.entities.DiscordUserDisplay;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class LastFmLinkCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -42,13 +43,11 @@ public class LastFmLinkCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ChuuDataParams parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, parse.getLastFMData().getDiscordId());
+    void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
-        sendMessageQueue(e, userInfoConsideringGuildOrNot.getUsername() + "'s Last.fm page is: " + CommandUtil.getLastFmUser(parse.getLastFMData().getName()));
+
+        DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
+
+        sendMessageQueue(e, userInfoConsideringGuildOrNot.getUsername() + "'s Last.fm page is: " + CommandUtil.getLastFmUser(params.getLastFMData().getName()));
     }
 }

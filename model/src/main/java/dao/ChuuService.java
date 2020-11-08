@@ -929,7 +929,7 @@ public class ChuuService {
         }
     }
 
-    public ResultWrapper<ArtistPlays> getServerTags(long guildID, boolean doCount) {
+    public List<TagPlays> getServerTags(long guildID, boolean doCount) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.getServerTags(connection, guildID, doCount);

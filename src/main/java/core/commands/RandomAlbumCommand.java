@@ -11,6 +11,7 @@ import dao.entities.RandomUrlEntity;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,12 +41,9 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull UrlParameters params) throws LastFmException, InstanceNotFoundException {
 
-        UrlParameters params = parser.parse(e);
-        if (params == null) {
-            return;
-        }
+
         String url = params.getUrl();
         if (url.length() == 0) {
             //get randomurl

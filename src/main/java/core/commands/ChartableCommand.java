@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
+import javax.validation.constraints.NotNull;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -62,35 +63,33 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        T chartParameters = parser.parse(e);
-        if (chartParameters == null)
-            return;
-        CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(chartParameters);
+    void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException, InstanceNotFoundException {
+
+        CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(params);
         BlockingQueue<UrlCapsule> urlCapsules = countWrapper.getResult();
         if (urlCapsules.isEmpty()) {
-            this.noElementsMessage(chartParameters);
+            this.noElementsMessage(params);
             return;
         }
-        ChartMode chartMode = getEffectiveMode(chartParameters);
+        ChartMode chartMode = getEffectiveMode(params);
         switch (chartMode) {
             case IMAGE_INFO:
             case IMAGE:
             case IMAGE_ASIDE:
             case IMAGE_ASIDE_INFO:
-                doImage(urlCapsules, chartParameters.getX(), chartParameters.getY(), chartParameters, countWrapper.getRows());
+                doImage(urlCapsules, params.getX(), params.getY(), params, countWrapper.getRows());
                 return;
             default:
             case LIST:
                 ArrayList<UrlCapsule> liste = new ArrayList<>(urlCapsules.size());
                 urlCapsules.drainTo(liste);
-                doList(liste, chartParameters, countWrapper.getRows());
+                doList(liste, params, countWrapper.getRows());
                 break;
             case PIE:
                 liste = new ArrayList<>(urlCapsules.size());
                 urlCapsules.drainTo(liste);
-                PieChart pieChart = pie.doPie(chartParameters, liste);
-                doPie(pieChart, chartParameters, countWrapper.getRows());
+                PieChart pieChart = pie.doPie(params, liste);
+                doPie(pieChart, params, countWrapper.getRows());
                 break;
         }
     }

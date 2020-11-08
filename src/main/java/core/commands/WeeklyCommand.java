@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
+import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -53,12 +54,12 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ChuuDataParams returned = parser.parse(e);
+    void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
-        String lastFmName = returned.getLastFMData().getName();
-        long discordID = returned.getLastFMData().getDiscordId();
-        boolean isBarChart = returned.hasOptional("image");
+
+        String lastFmName = params.getLastFMData().getName();
+        long discordID = params.getLastFMData().getDiscordId();
+        boolean isBarChart = params.hasOptional("image");
 
         Map<Track, Integer> durationsFromWeek = lastFM.getTrackDurations(lastFmName, TimeFrameEnum.WEEK);
 

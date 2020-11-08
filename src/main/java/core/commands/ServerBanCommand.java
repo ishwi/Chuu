@@ -9,6 +9,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -43,16 +44,14 @@ public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ChuuDataParams parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+
+
         if (e.getMember() != null && !e.getMember().hasPermission(Permission.ADMINISTRATOR)) {
             sendMessageQueue(e, "Only server administrators can block one person from crowns/leaderboards.");
             return;
         }
-        long discordId = parse.getLastFMData().getDiscordId();
+        long discordId = params.getLastFMData().getDiscordId();
         if (discordId == e.getAuthor().getIdLong()) {
             sendMessageQueue(e, "You can't block/unblock yourself.");
             return;

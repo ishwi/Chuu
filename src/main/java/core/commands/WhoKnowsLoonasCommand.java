@@ -26,6 +26,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -92,14 +93,12 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        LOONAParameters parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        @Nullable String nullableOwner = parse.getSubject() == LOONAParameters.Subject.ME ? parse.getLastFMData().getName() : null;
-        LOONAParameters.Display display = parse.getDisplay();
-        LOONAParameters.SubCommand subCommand = parse.getSubCommand();
+    void onCommand(MessageReceivedEvent e, @NotNull LOONAParameters params) throws LastFmException, InstanceNotFoundException {
+
+
+        @Nullable String nullableOwner = params.getSubject() == LOONAParameters.Subject.ME ? params.getLastFMData().getName() : null;
+        LOONAParameters.Display display = params.getDisplay();
+        LOONAParameters.SubCommand subCommand = params.getSubCommand();
         int limit = display == LOONAParameters.Display.COLLAGE ? 40 : Integer.MAX_VALUE;
 
         Set<String> artists;
@@ -108,17 +107,17 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                 artists = new HashSet<>(loonas.values());
                 break;
             case SPECIFIC:
-                assert parse.getTargetedLOONA() != null;
-                artists = new HashSet<>(loonas.get(parse.getTargetedLOONA()));
+                assert params.getTargetedLOONA() != null;
+                artists = new HashSet<>(loonas.get(params.getTargetedLOONA()));
                 break;
             case GROUPED:
-                assert parse.getTargetedType() != null;
-                artists = loonas.asMap().entrySet().stream().filter(x -> x.getKey().getType() == parse.getTargetedType()).flatMap(x -> x.getValue().stream()).collect(Collectors.toSet());
+                assert params.getTargetedType() != null;
+                artists = loonas.asMap().entrySet().stream().filter(x -> x.getKey().getType() == params.getTargetedType()).flatMap(x -> x.getValue().stream()).collect(Collectors.toSet());
                 break;
             default:
                 throw new IllegalStateException();
         }
-        LOONAParameters.Mode mode = parse.getMode();
+        LOONAParameters.Mode mode = params.getMode();
         List<WrapperReturnNowPlaying> whoKnowsArtistSet = getService().getWhoKnowsArtistSet(artists, e.getGuild().getIdLong(), limit, nullableOwner);
         Map<Long, String> mapper = new HashMap<>();
         whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).forEach(x -> {
@@ -151,7 +150,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                                     return new WrapperReturnNowPlaying(x.getValue(), x.getValue().size(), artistUrl, representative);
                                 })
                                 .collect(Collectors.toList());
-                        switch (parse.getTargetedType()) {
+                        switch (params.getTargetedType()) {
                             case GROUP:
                             case MISC:
                                 xSize = 1;
@@ -187,7 +186,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                     }
 
                 } else {
-                    whoKnowsArtistSet = List.of(handleRepresentatives(parse, whoKnowsArtistSet));
+                    whoKnowsArtistSet = List.of(handleRepresentatives(params, whoKnowsArtistSet));
                 }
 
 
@@ -209,7 +208,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                 LinkedBlockingQueue<Pair<BufferedImage, Integer>> collect = whoKnowsArtistSet.stream().
 
 
-                        map(x -> Pair.of(doImage(parse, x), atomicInteger.getAndIncrement())).collect(Collectors.toCollection(LinkedBlockingQueue::new));
+                        map(x -> Pair.of(doImage(params, x), atomicInteger.getAndIncrement())).collect(Collectors.toCollection(LinkedBlockingQueue::new));
                 BufferedImage bufferedImage = CollageGenerator.generateCollageThreaded(xSize, y, collect, ChartQuality.PNG_BIG);
                 sendImage(bufferedImage, e, ChartQuality.PNG_BIG);
 
@@ -225,9 +224,9 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
                 }
                 Map<String, ReturnNowPlaying> collect1 = groupByUser(whoKnowsArtistSet);
-                WrapperReturnNowPlaying wrapperReturnNowPlaying = handleRepresentatives(parse, collect1);
+                WrapperReturnNowPlaying wrapperReturnNowPlaying = handleRepresentatives(params, collect1);
 
-                super.doImage(parse, wrapperReturnNowPlaying);
+                super.doImage(params, wrapperReturnNowPlaying);
                 break;
             case COUNT:
                 if (mode == LOONAParameters.Mode.GROUPED && subCommand == LOONAParameters.SubCommand.GROUPED) {
@@ -248,8 +247,8 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                                                     z.setPlayNumber(z.getPlayNumber() + x.getPlayNumber());
                                                     return z;
                                                 }).orElse(null))));
-                wrapperReturnNowPlaying = handleRepresentatives(parse, collect1);
-                doList(parse, wrapperReturnNowPlaying);
+                wrapperReturnNowPlaying = handleRepresentatives(params, collect1);
+                doList(params, wrapperReturnNowPlaying);
                 break;
         }
 

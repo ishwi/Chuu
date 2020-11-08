@@ -9,6 +9,8 @@ import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
+
 abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> {
 
 
@@ -27,9 +29,9 @@ abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> {
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NowPlayingParameters parse = parser.parse(e);
-        doSomethingWithArtist(parse.getNowPlayingArtist(), e, parse.getLastFMData().getDiscordId());
+    public void onCommand(MessageReceivedEvent e, @NotNull NowPlayingParameters params) throws LastFmException, InstanceNotFoundException {
+
+        doSomethingWithArtist(params.getNowPlayingArtist(), e, params.getLastFMData().getDiscordId());
 
 
     }

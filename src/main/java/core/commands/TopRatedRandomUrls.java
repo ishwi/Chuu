@@ -11,6 +11,7 @@ import dao.entities.ScoredAlbumRatings;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
@@ -47,11 +48,9 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        CommandParameters params = parser.parse(e);
-        if (params == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+
+
         boolean server = params.hasOptional("server");
         boolean myself = params.hasOptional("myself");
         List<ScoredAlbumRatings> ratings;

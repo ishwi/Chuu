@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.sql.Date;
 import java.time.*;
@@ -93,9 +94,9 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) throws LastFmException, InstanceNotFoundException {
 
-        NumberParameters<CommandParameters> params = parser.parse(e);
+
         long guildId = e.getGuild().getIdLong();
         List<UsersWrapper> all = getService().getAll(guildId);
         if (all.isEmpty()) {

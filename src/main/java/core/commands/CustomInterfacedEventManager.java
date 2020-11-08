@@ -23,10 +23,8 @@ public class CustomInterfacedEventManager implements IEventManager {
     private final Set<EventListener> listeners = Sets.newConcurrentHashSet();
     private final Map<String, MyCommand<?>> commandListeners = new HashMap<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new HashMap<>();
-    private final int shardInt;
 
     public CustomInterfacedEventManager(int a) {
-        shardInt = a;
     }
 
     @Override

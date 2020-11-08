@@ -31,6 +31,11 @@ public class AffinityDaoImpl implements AffinityDao {
                         "             WHERE  a.lastfm_id= ?\n" +
                         "                    AND a.playnumber > ? ) userb \n" +
                         "         ON usera.a1 = userb.a2; ";
+        executeComparisonWithThreshold(connection, ownerLastfmID, receiverLastFMId, threshold, queryBody);
+
+    }
+
+    private void executeComparisonWithThreshold(Connection connection, String ownerLastfmID, String receiverLastFMId, int threshold, String queryBody) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             int i = 1;
             preparedStatement.setString(i++, ownerLastfmID);
@@ -42,7 +47,6 @@ public class AffinityDaoImpl implements AffinityDao {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
-
     }
 
     @Override
@@ -60,7 +64,6 @@ public class AffinityDaoImpl implements AffinityDao {
             int i = 1;
             preparedStatement.setString(i++, ownerLastfmID);
             preparedStatement.setString(i++, receiverLastFMId);
-
             preparedStatement.setInt(i++, threshold);
             preparedStatement.setInt(i++, threshold);
             preparedStatement.setInt(i++, threshold);
@@ -179,16 +182,7 @@ public class AffinityDaoImpl implements AffinityDao {
                 "             WHERE  a.lastfm_id= ?\n" +
                 "                    AND a.playnumber >= ? ) \n" +
                 "user ON server.a1 = user.a2 ";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
-            int i = 1;
-            preparedStatement.setString(i++, ogLastfmID);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setString(i++, ogLastfmID);
-            preparedStatement.setInt(i, threshold);
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
+        executeComparisonWithThreshold(connection, ogLastfmID, ogLastfmID, threshold, queryBody);
 
     }
 

@@ -2,18 +2,19 @@ package core.apis.discogs;
 
 
 import core.exceptions.DiscogsServiceException;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.text.similarity.LevenshteinDetailedDistance;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Year;
 import java.util.ArrayList;
@@ -25,17 +26,17 @@ public class DiscogsApi {
     private static final String BASE_API = "https://api.discogs.com/";
     private final String secret;
     private final String key;
-    private final Header header;
     private final HttpClient httpClient;
     private boolean slowness = false;
 
     public DiscogsApi(String secret, String key) {
         this.key = key;
         this.secret = secret;
-        this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
-        this.header = new Header();
-        this.header.setName("User-Agent");
-        this.header.setValue("discordArtistImageFetcher/ishwi6@gmail.com");
+
+        this.httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .priority(1)
+                .build();
 
     }
 
@@ -46,8 +47,7 @@ public class DiscogsApi {
         query = URLEncoder.encode(query, StandardCharsets.UTF_8);
         String url = BASE_API + "database/search?q=" + query + "&type=artist&key=" + key + "&secret=" + secret;
 
-        GetMethod getMethod = new GetMethod(url);
-        JSONObject obj = doMethod(httpClient, getMethod);
+        JSONObject obj = doMethod(url);
 
         JSONArray results = obj.getJSONArray("results");
         int id = 0;
@@ -71,8 +71,7 @@ public class DiscogsApi {
         artistenc = URLEncoder.encode(artist, StandardCharsets.UTF_8);
 
         String url = BASE_API + "database/search?&type=release&artist=" + artistenc + "&release_title=" + albumenc + "&key=" + key + "&secret=" + secret;
-        GetMethod getMethod = new GetMethod(url);
-        JSONObject obj = doMethod(httpClient, getMethod);
+        JSONObject obj = doMethod(url);
         JSONArray results = obj.getJSONArray("results");
         String expected = artist + " - " + album;
         for (int i = 0; i < results.length(); i++) {
@@ -87,22 +86,24 @@ public class DiscogsApi {
         return null;
     }
 
-    private JSONObject doMethod(HttpClient httpClient, HttpMethod method) throws DiscogsServiceException {
-        method.addRequestHeader(header);
+    private JSONObject doMethod(String url) throws DiscogsServiceException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(url))
+                .setHeader("User-Agent", "discordArtistImageFetcher/ishwi6@gmail.com") // add request header
+                .build();
         try {
             if (slowness) {
                 TimeUnit.SECONDS.sleep(1);
                 System.out.println("RATE LIMITED");
             }
 
-            int response_code = httpClient.executeMethod(method);
-            parseHttpCode(response_code);
-            slowness = Integer.parseInt(method.getResponseHeader("X-Discogs-Ratelimit-Remaining").getValue()) == 0;
-            byte[] responseBody = method.getResponseBody();
-            return new JSONObject(new String(responseBody, StandardCharsets.UTF_8));
+            HttpResponse<InputStream> send = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            parseHttpCode(send.statusCode());
+            send.headers().firstValueAsLong("X-Discogs-Ratelimit-Remaining").ifPresent(rated -> slowness = rated == 0L);
+            return new JSONObject(new JSONTokener(send.body()));
 
         } catch (IOException | InterruptedException e) {
-            method.releaseConnection();
             throw new DiscogsServiceException(e.toString());
         }
     }
@@ -123,8 +124,7 @@ public class DiscogsApi {
         if (id == 0)
             return "";
         String url = BASE_API + "artists/" + id + "?key=" + key + "&secret=" + secret;
-        GetMethod getMethod = new GetMethod(url);
-        JSONObject obj = doMethod(httpClient, getMethod);
+        JSONObject obj = doMethod(url);
         if (!obj.has("images"))
             return "";
 

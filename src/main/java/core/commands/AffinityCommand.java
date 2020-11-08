@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
 import java.util.List;
@@ -58,15 +59,11 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        AffinityParameters ap = parser.parse(e);
-        if (ap == null) {
-            return;
-        }
-        if (ap.isDoServer()) {
-            doGuild(ap);
+    void onCommand(MessageReceivedEvent e, @NotNull AffinityParameters params) throws LastFmException, InstanceNotFoundException {
+        if (params.isDoServer()) {
+            doGuild(params);
         } else {
-            doIndividual(ap);
+            doIndividual(params);
         }
     }
 

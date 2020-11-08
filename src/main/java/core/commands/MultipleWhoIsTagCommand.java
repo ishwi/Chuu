@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,11 +80,9 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        MultipleGenresParameters params = parser.parse(e);
-        if (params == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull MultipleGenresParameters params) throws LastFmException, InstanceNotFoundException {
+
+
         Set<String> genres = params.getGenres();
         List<ScrobbledArtist> topInTag;
         String genre = genres.stream().map(WordUtils::capitalizeFully).collect(Collectors.joining(params.getMode() == SearchMode.EXCLUSIVE ? ", " : "| "));

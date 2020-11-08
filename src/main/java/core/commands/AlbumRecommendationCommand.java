@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
@@ -57,15 +58,12 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        RecommendationsParams rp = parser.parse(e);
-        if (rp == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull RecommendationsParams params) throws LastFmException, InstanceNotFoundException {
+
         long firstDiscordID;
         long secondDiscordID;
         String firstLastFMId;
-        if (rp.isNoUser()) {
+        if (params.isNoUser()) {
             LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
             firstLastFMId = lastFMData.getName();
             List<Affinity> serverAffinity = getService().getServerAffinity(firstLastFMId, e.getGuild().getIdLong(), AffinityCommand.DEFAULT_THRESHOLD);
@@ -96,13 +94,13 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
             firstDiscordID = e.getAuthor().getIdLong();
             secondDiscordID = affinity.getDiscordId();
         } else {
-            firstDiscordID = rp.getFirstUser().getDiscordId();
-            secondDiscordID = rp.getSecondUser().getDiscordId();
-            firstLastFMId = rp.getFirstUser().getName();
+            firstDiscordID = params.getFirstUser().getDiscordId();
+            secondDiscordID = params.getSecondUser().getDiscordId();
+            firstLastFMId = params.getFirstUser().getName();
 
         }
 
-        List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, rp.isShowRepeated(), Integer.MAX_VALUE);
+        List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, params.isShowRepeated(), Integer.MAX_VALUE);
 
         List<AlbumInfo> albumInfos = lastFM.getTopAlbums(firstLastFMId, TimeFrameEnum.ALL.toApiFormat(), 500).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
@@ -127,7 +125,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
             sendMessageQueue(e, String.format("Couldn't get %s any album recommendation from %s", receiver, giver));
             return;
         }
-        if (rp.getRecCount() == 1 || recs.size() == 1) {
+        if (params.getRecCount() == 1 || recs.size() == 1) {
             String appendable = "";
             String albumLink = spotify.getAlbumLink(albumRecs.get(0).getArtist(), albumRecs.get(0).getAlbum());
             if (albumLink != null)
@@ -143,7 +141,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
             String albumLink = spotify.getAlbumLink(t.getArtist(), t.getAlbum());
             link = Objects.requireNonNullElseGet(albumLink, () -> LinkUtils.getLastFmArtistAlbumUrl(t.getArtist(), t.getAlbum()));
             return String.format(". **[%s - %s](%s)**\n", CommandUtil.cleanMarkdownCharacter(t.getArtist()), t.getAlbum(), link);
-        }).limit(rp.getRecCount())
+        }).limit(params.getRecCount())
                 .collect(Collectors.toList());
 
         StringBuilder a = new StringBuilder();

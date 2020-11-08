@@ -25,6 +25,7 @@ import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
 
 import javax.imageio.ImageIO;
+import javax.validation.constraints.NotNull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -164,15 +165,12 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
 
-        ArtistParameters artistParameters = parser.parse(e);
-        if (artistParameters == null)
-            return;
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artistParameters.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !artistParameters.isNoredirect());
-        artistParameters.setScrobbledArtist(scrobbledArtist);
-        bandLogic(artistParameters);
+        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
+        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
+        params.setScrobbledArtist(scrobbledArtist);
+        bandLogic(params);
     }
 
 

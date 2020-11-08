@@ -16,6 +16,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
@@ -52,24 +53,21 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
-        ChuuDataParams parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        Long discordId = parse.getLastFMData().getDiscordId();
+
+        Long discordId = params.getLastFMData().getDiscordId();
         Week currentWeekId = getService().getCurrentWeekId();
         TimeZone userTimezone = getService().getUserTimezone(discordId);
-        BillboardHoarder billboardHoarder = new BillboardHoarder(Collections.singletonList(new UsersWrapper(discordId, parse.getLastFMData().getName(), Role.ADMIN, userTimezone)), getService(), currentWeekId, lastFM);
+        BillboardHoarder billboardHoarder = new BillboardHoarder(Collections.singletonList(new UsersWrapper(discordId, params.getLastFMData().getName(), Role.ADMIN, userTimezone)), getService(), currentWeekId, lastFM);
         billboardHoarder.hoardUsers();
-        List<PreBillboardUserDataTimestamped> ungroupedUserData = getService().getUngroupedUserData(currentWeekId.getId(), parse.getLastFMData().getName());
+        List<PreBillboardUserDataTimestamped> ungroupedUserData = getService().getUngroupedUserData(currentWeekId.getId(), params.getLastFMData().getName());
         if (ungroupedUserData.isEmpty()) {
             sendMessageQueue(e, "Couldn't get any data from you in the previous week");
             return;
         }
         ClockService clockService;
-        if (parse.hasOptional("week")) {
+        if (params.hasOptional("week")) {
             clockService = new ClockService(ClockService.ClockMode.BY_WEEK, ungroupedUserData, userTimezone);
         } else {
             clockService = new ClockService(ClockService.ClockMode.BY_DAY, ungroupedUserData, userTimezone);

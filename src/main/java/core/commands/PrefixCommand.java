@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,11 +43,10 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParser> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        CharacterParser parsed = parser.parse(e);
-        if (parsed == null)
-            return;
-        char newPrefix = parsed.getaChar();
+    protected void onCommand(MessageReceivedEvent e, @NotNull CharacterParser params) throws LastFmException, InstanceNotFoundException {
+
+
+        char newPrefix = params.getaChar();
         getService().addGuildPrefix(Chuu.getPrefixMap(), e.getGuild().getIdLong(), newPrefix);
         Chuu.addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
 

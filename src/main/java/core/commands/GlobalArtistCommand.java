@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -61,15 +62,13 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ArtistParameters returned = parser.parse(e);
-        if (returned == null)
-            return;
-        long userId = returned.getLastFMData().getDiscordId();
-        ScrobbledArtist validable = new ScrobbledArtist(returned.getArtist(), 0, "");
+    void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+
+        long userId = params.getLastFMData().getDiscordId();
+        ScrobbledArtist validable = new ScrobbledArtist(params.getArtist(), 0, "");
         CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
-        returned.setScrobbledArtist(validable);
-        boolean b = !returned.hasOptional("nobotted");
+        params.setScrobbledArtist(validable);
+        boolean b = !params.hasOptional("nobotted");
         List<GlobalCrown> globalArtistRanking = getService().getGlobalArtistRanking(validable.getArtistId(), b, e.getAuthor().getIdLong());
         String artist = CommandUtil.cleanMarkdownCharacter(validable.getArtist());
         if (globalArtistRanking.isEmpty()) {

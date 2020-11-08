@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
     private final AtomicInteger maxConcurrency = new AtomicInteger(4);
+    public static final boolean disabled = true;
 
     public ObscurityLeaderboardCommand(ChuuService dao) {
         super(dao);
@@ -55,6 +56,10 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParam
 
     @Override
     void handleCommand(MessageReceivedEvent e) {
+        if (disabled) {
+            sendMessageQueue(e, "This command has been temporarily disabled :(");
+            return;
+        }
         if (maxConcurrency.decrementAndGet() == 0) {
             sendMessageQueue(e, "There are a lot of people executing this command right now, try again later :(");
             maxConcurrency.incrementAndGet();

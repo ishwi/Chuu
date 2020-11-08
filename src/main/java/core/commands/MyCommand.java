@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.imageio.ImageIO;
+import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -103,7 +104,10 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
 
     void handleCommand(MessageReceivedEvent e) {
         try {
-            onCommand(e);
+            T params = parser.parse(e);
+            if (params != null) {
+                onCommand(e, params);
+            }
         } catch (LastFMNoPlaysException ex) {
             String username = ex.getUsername();
             if (e.isFromGuild()) {
@@ -167,7 +171,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
         }
     }
 
-    abstract void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException;
+    abstract void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException, InstanceNotFoundException;
 
 
     void sendMessageQueue(MessageReceivedEvent e, String message) {

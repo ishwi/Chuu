@@ -7,6 +7,7 @@ import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public abstract class ListCommand<T, Y extends CommandParameters> extends ConcurrentCommand<Y> {
@@ -20,13 +21,11 @@ public abstract class ListCommand<T, Y extends CommandParameters> extends Concur
     public abstract Parser<Y> initParser();
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        Y parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        List<T> list = getList(parse);
-        printList(list, parse);
+    public void onCommand(MessageReceivedEvent e, @NotNull Y params) throws LastFmException, InstanceNotFoundException {
+
+
+        List<T> list = getList(params);
+        printList(list, params);
     }
 
     public abstract List<T> getList(Y params) throws LastFmException;

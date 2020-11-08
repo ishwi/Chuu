@@ -13,6 +13,7 @@ import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
@@ -48,15 +49,12 @@ public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        TwoArtistParams message = parser.parse(e);
-        if (message == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull TwoArtistParams params) throws LastFmException, InstanceNotFoundException {
+
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = getService().findLastFMData(idLong);
-        String alias = message.getFirstArtist();
-        String to = message.getSecondArtist();
+        String alias = params.getFirstArtist();
+        String to = params.getSecondArtist();
         long artistId;
         String corrected = getService().findCorrection(alias);
         if (corrected != null) {

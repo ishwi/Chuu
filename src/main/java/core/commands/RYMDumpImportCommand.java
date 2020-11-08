@@ -10,6 +10,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.StringEscapeUtils;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Year;
@@ -91,13 +92,11 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        UrlParameters parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
+    void onCommand(MessageReceivedEvent e, @NotNull UrlParameters params) throws LastFmException, InstanceNotFoundException {
+
+
         List<RYMImportRating> ratings = new ArrayList<>();
-        String url = parse.getUrl();
+        String url = params.getUrl();
         if (url.isBlank()) {
             sendMessageQueue(e, "You need to upload a file  :thinking:");
             return;

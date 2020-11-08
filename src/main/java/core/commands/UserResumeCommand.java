@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -53,14 +54,11 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        TimeFrameParameters tfP = parser.parse(e);
-        if (tfP == null) {
-            return;
-        }
-        String name = tfP.getLastFMData().getName();
+    void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
+
+        String name = params.getLastFMData().getName();
         BlockingQueue<UrlCapsule> capsules = new LinkedBlockingQueue<>();
-        TimeFrameEnum time = tfP.getTime();
+        TimeFrameEnum time = params.getTime();
 
 
         int albumCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.ALBUM, ChartUtil.getParser(time, TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, name), capsules);
@@ -69,7 +67,7 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
         LocalDateTime localDateTime = time.toLocalDate(1);
         int i = lastFM.scrobblesSince(name, localDateTime.atOffset(ZoneOffset.UTC));
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        DiscordUserDisplay info = CommandUtil.getUserInfoConsideringGuildOrNot(e, tfP.getLastFMData().getDiscordId());
+        DiscordUserDisplay info = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         embedBuilder.setTitle(info.getUsername() + "'s summary" + time.getDisplayString())
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(info.getUrlImage())

@@ -9,6 +9,7 @@ import dao.entities.Week;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -48,8 +49,8 @@ public class GlobalBillboardCommand extends BillboardCommand {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<CommandParameters> params = parser.parse(e);
+    void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) throws LastFmException, InstanceNotFoundException {
+
         Week week = getService().getCurrentWeekId();
         if (week.getId() == 1) {
             sendMessageQueue(e, "A full week needs to be completed before this command can work");

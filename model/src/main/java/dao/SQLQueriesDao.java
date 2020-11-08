@@ -67,7 +67,7 @@ interface SQLQueriesDao {
 
     ResultWrapper<ArtistPlays> getArtistsFrequencies(Connection connection, Long guildId);
 
-    ResultWrapper<ArtistPlays> getServerTags(Connection connection, Long guildId, boolean doCount);
+    List<TagPlays> getServerTags(Connection connection, Long guildId, boolean doCount);
 
     ResultWrapper<ArtistPlays> getGlobalArtistPlayCount(Connection connection);
 

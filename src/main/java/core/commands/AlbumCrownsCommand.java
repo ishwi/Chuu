@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -64,21 +65,20 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
     }
 
     @Override
-    public void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<ChuuDataParams> outer = parser.parse(e);
-        ChuuDataParams params = outer.getInnerParams();
+    public void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
 
-        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
+        ChuuDataParams innerParams = params.getInnerParams();
+        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, innerParams.getLastFMData().getDiscordId());
         String name = userInfo.getUsername();
         String url = userInfo.getUrlImage();
-        Long threshold = outer.getExtraParam();
-        long idLong = params.getE().getGuild().getIdLong();
+        Long threshold = params.getExtraParam();
+        long idLong = innerParams.getE().getGuild().getIdLong();
 
         if (threshold == null) {
             threshold = (long) getService().getGuildCrownThreshold(idLong);
         }
         UniqueWrapper<AlbumPlays> uniqueDataUniqueWrapper = getService()
-                .getUserAlbumCrowns(params.getLastFMData().getName(), e.getGuild().getIdLong(), Math.toIntExact(threshold));
+                .getUserAlbumCrowns(innerParams.getLastFMData().getName(), e.getGuild().getIdLong(), Math.toIntExact(threshold));
         List<AlbumPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 
         int rows = resultWrapper.size();
@@ -96,7 +96,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
                 .setDescription(a)
                 .setColor(CommandUtil.randomColor())
                 .setTitle(String.format("%s's album crowns", name), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
-                .setFooter(String.format("%s has %d album crowns!!%n", CommandUtil.markdownLessUserString(name, params.getLastFMData().getDiscordId(), e), resultWrapper.size()), null)
+                .setFooter(String.format("%s has %d album crowns!!%n", CommandUtil.markdownLessUserString(name, innerParams.getLastFMData().getDiscordId(), e), resultWrapper.size()), null)
                 .setThumbnail(url);
 
         MessageBuilder mes = new MessageBuilder();

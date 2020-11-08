@@ -6,6 +6,7 @@ import core.parsers.params.ExtraParameters;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
  * @param <T> THe Inner Parser class
  * @param <J> The class of the item in the extra parser
  */
-public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParameters, T extends Parser<Y>, J> extends Parser<Z> {
+public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends CommandParameters, T extends Parser<Y>, J> extends Parser<Z> {
 
     public static final int LIMIT_ERROR = 999;
     public static final int INNER_ERROR = 1000;
@@ -39,19 +40,17 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
     private final boolean catchFirst;
     private final BiPredicate<Y, J> innerPredicate;
     private final BiFunction<Y, J, Z> finalReducer;
-    private final Function<J, String> toString;
 
     public ExtraParser(T innerParser,
                        J defaultItem,
                        Predicate<String> matchingItems,
                        Predicate<J> safetyPredicate,
                        Function<String, J> fromString,
-                       Function<J, String> toString,
                        Map<Integer, String> errorMessages,
                        String fieldName,
                        String fieldDescription,
                        BiFunction<Y, J, Z> finalReducer) {
-        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, toString, errorMessages, fieldName, fieldDescription, null, finalReducer);
+        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, errorMessages, fieldName, fieldDescription, null, finalReducer);
     }
 
 
@@ -60,12 +59,11 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
                        Predicate<String> matchingItems,
                        Predicate<J> safetyPredicate,
                        Function<String, J> fromString,
-                       Function<J, String> toString,
                        Map<Integer, String> errorMessages,
                        String fieldName,
                        String fieldDescription,
                        BiPredicate<Y, J> innerPredicate, BiFunction<Y, J, Z> finalReducer) {
-        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, toString, errorMessages, fieldName, fieldDescription, innerPredicate, null, true, false, finalReducer);
+        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, errorMessages, fieldName, fieldDescription, innerPredicate, null, true, false, finalReducer);
     }
 
 
@@ -74,7 +72,6 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
                        Predicate<String> matchingItems,
                        Predicate<J> safetyPredicate,
                        Function<String, J> fromString,
-                       Function<J, String> toString,
                        Map<Integer, String> errorMessages,
                        String fieldName,
                        String fieldDescription,
@@ -87,7 +84,6 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
         this.predicate = matchingItems;
         this.checkPredicate = safetyPredicate;
         this.fromString = fromString;
-        this.toString = toString;
         this.fieldName = fieldName;
         this.fieldDescription = fieldDescription;
         this.innerPredicate = innerPredicate;

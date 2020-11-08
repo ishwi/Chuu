@@ -11,6 +11,7 @@ import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class DiscoveredRatioCommand extends ConcurrentCommand<TimeFrameParameters> {
@@ -44,20 +45,18 @@ public class DiscoveredRatioCommand extends ConcurrentCommand<TimeFrameParameter
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        TimeFrameParameters parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        if (parse.getTime().equals(TimeFrameEnum.ALL)) {
+    void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
+
+
+        if (params.getTime().equals(TimeFrameEnum.ALL)) {
             sendMessageQueue(e, "Surprisingly you have discovered a 100% of your artist");
             return;
         }
-        String name = parse.getLastFMData().getName();
-        List<ScrobbledArtist> allArtists = lastFM.getAllArtists(name, parse.getTime().toApiFormat());
+        String name = params.getLastFMData().getName();
+        List<ScrobbledArtist> allArtists = lastFM.getAllArtists(name, params.getTime().toApiFormat());
         int size = getService().getDiscoveredArtists(allArtists, name).size();
-        String userString = getUserString(e, parse.getLastFMData().getDiscordId());
-        sendMessageQueue(e, String.format("%s has discovered **%s** new %s%s, making that **%s%%** of new artists discovered.", userString, size, CommandUtil.singlePlural(size, "artist", "artists"), parse.getTime().getDisplayString(), ScoredAlbumRatings.formatter.format(size * 100. / allArtists.size())));
+        String userString = getUserString(e, params.getLastFMData().getDiscordId());
+        sendMessageQueue(e, String.format("%s has discovered **%s** new %s%s, making that **%s%%** of new artists discovered.", userString, size, CommandUtil.singlePlural(size, "artist", "artists"), params.getTime().getDisplayString(), ScoredAlbumRatings.formatter.format(size * 100. / allArtists.size())));
 
     }
 }

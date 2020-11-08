@@ -37,8 +37,7 @@ public class ChartParserAux {
     }
 
     NaturalTimeFrameEnum parseNaturalTimeFrame() {
-        NaturalTimeFrameEnum timeFrame = null;
-        return getNaturalTimeFrameEnum(timeFrame);
+        return getNaturalTimeFrameEnum(null);
     }
 
     private NaturalTimeFrameEnum getNaturalTimeFrameEnum(NaturalTimeFrameEnum timeFrame) {

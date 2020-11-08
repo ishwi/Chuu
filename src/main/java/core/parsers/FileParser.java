@@ -66,7 +66,7 @@ public class FileParser extends Parser<UrlParameters> {
 
     @Override
     public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *file*\n\t File must be a " + fileExtension + " file\n\n";
+        return "**" + commandName + " *file*\n\t File must be a " + fileExtension + " file\n";
 
     }
 }

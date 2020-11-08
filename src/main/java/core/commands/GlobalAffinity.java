@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -66,17 +67,17 @@ public class GlobalAffinity extends ConcurrentCommand<NumberParameters<ChuuDataP
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        NumberParameters<ChuuDataParams> ap = parser.parse(e);
+    void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
+
 
         LastFMData ogData = getService().findLastFMData(e.getAuthor().getIdLong());
-        int threshold = Math.toIntExact(ap.getExtraParam());
+        int threshold = Math.toIntExact(params.getExtraParam());
         List<dao.entities.GlobalAffinity> serverAffinity = getService().getGlobalAffinity(ogData.getName(), e.isFromGuild() ? e.getGuild().getIdLong() : null, threshold);
         List<dao.entities.GlobalAffinity> collect = serverAffinity.stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).collect(Collectors.toList());
 
         StringBuilder stringBuilder = new StringBuilder();
         List<String> string = collect.stream().map(x -> {
-                    String name;
+            String name;
                     if (x.getPrivacyMode() == PrivacyMode.TAG) {
                         name = e.getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag();
                     } else if (x.getPrivacyMode() == PrivacyMode.LAST_NAME) {

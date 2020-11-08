@@ -26,8 +26,8 @@ public class SimpleDataSource {
         if (selector) {
             config.setConnectionInitSql("set @@sql_mode='NO_ZERO_DATE';");
             config.setTransactionIsolation("TRANSACTION_READ_UNCOMMITTED");
-            config.setIdleTimeout(0);
             config.setMaximumPoolSize(25);
+            config.setMinimumIdle(15);
 
         }
         this.ds = new HikariDataSource(config);

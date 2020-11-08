@@ -10,6 +10,7 @@ import dao.entities.PrivacyMode;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class PrivacySetterCommand extends ConcurrentCommand<EnumParameters<PrivacyMode>> {
@@ -43,12 +44,10 @@ public class PrivacySetterCommand extends ConcurrentCommand<EnumParameters<Priva
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        EnumParameters<PrivacyMode> parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        PrivacyMode element = parse.getElement();
+    void onCommand(MessageReceivedEvent e, @NotNull EnumParameters<PrivacyMode> params) throws LastFmException, InstanceNotFoundException {
+
+
+        PrivacyMode element = params.getElement();
         LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
         if (lastFMData.getPrivacyMode().equals(element)) {
             sendMessageQueue(e, "You already had " + element + " as your privacy config");

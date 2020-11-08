@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Comparator;
@@ -65,13 +66,11 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    void onCommand(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        ArtistParameters parse = parser.parse(e);
-        if (parse == null) {
-            return;
-        }
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(parse.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !parse.isNoredirect());
+    void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+
+
+        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
+        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
         String artist = scrobbledArtist.getArtist();
         List<AlbumRatings> rating = getService().getArtistRatings(scrobbledArtist.getArtistId(), e.getGuild().getIdLong()).stream()
                 .sorted(Comparator.comparingDouble((AlbumRatings y) -> y.getUserRatings().stream().filter(Rating::isSameGuild).mapToLong(Rating::getRating).average().orElse(0) * y.getUserRatings().size()).reversed()).collect(Collectors.toList());
@@ -86,7 +85,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
         }
         AtomicInteger counter = new AtomicInteger(0);
         List<String> mappedString = rating.stream().map(ratings -> {
-            long userScore = ratings.getUserRatings().stream().filter(x -> x.getDiscordId() == parse.getLastFMData().getDiscordId()).mapToLong(Rating::getRating).sum();
+            long userScore = ratings.getUserRatings().stream().filter(x -> x.getDiscordId() == params.getLastFMData().getDiscordId()).mapToLong(Rating::getRating).sum();
             List<Rating> serverList = ratings.getUserRatings().stream().filter(Rating::isSameGuild).collect(Collectors.toList());
             List<Rating> globalList = ratings.getUserRatings();
             OptionalDouble serverAverage = serverList.stream().mapToDouble(x -> x.getRating() / 2f).average();
