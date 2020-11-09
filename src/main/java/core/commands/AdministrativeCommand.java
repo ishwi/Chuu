@@ -50,6 +50,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
 
     @Override
     public void onGuildJoin(@Nonnull GuildJoinEvent event) {
+        getService().createGuild(event.getGuild().getIdLong());
         event.getGuild().loadMembers().onSuccess(members -> {
             Set<Long> allBot = getService().getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
             Set<Long> thisServer = getService().getAll(event.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
@@ -131,7 +132,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
                         .collect(Collectors.toList());
                 usersToDelete.forEach(u -> getService().removeUserFromOneGuildConsequent(u, key));
                 if (!usersToDelete.isEmpty())
-                    Chuu.getLogger().info("Deleted Users: {}", usersToDelete.size());
+                    Chuu.getLogger().info("Deleted Users in {}: {}", guild.getName(), usersToDelete.size());
 
 
             } else {
