@@ -1859,6 +1859,14 @@ public class ChuuService {
         }
     }
 
+    public String findAlbumUrlByName(long artistId, String name) throws InstanceNotFoundException {
+        try (Connection connection = dataSource.getConnection()) {
+            return albumDao.getAlbumUrlByName(connection, name, artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public BotStats getBotStats() {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getBotStats(connection);

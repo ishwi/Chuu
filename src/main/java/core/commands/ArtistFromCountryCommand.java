@@ -112,7 +112,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         CountryCode country = params.getCode();
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(2000);
         String name = params.getLastFMData().getName();
-        lastFM.getChart(name, params.getTimeFrame().toApiFormat(), 2000, 1, TopEntity.ARTIST, ChartUtil.getParser(params.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, name), queue);
+        lastFM.getChart(name, params.getTimeFrame(), 2000, 1, TopEntity.ARTIST, ChartUtil.getParser(params.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, name), queue);
 
         Long discordId = params.getLastFMData().getDiscordId();
         List<ScrobbledArtist> artistInfos = queue.stream().map(x -> {

@@ -1,6 +1,7 @@
 package core.parsers;
 
 import core.parsers.params.GayParams;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.GayType;
 import dao.entities.LastFMData;
@@ -56,7 +57,7 @@ public class GayParser extends ChartableParser<GayParams> {
         subMessage = integerPair.first;
         int x = integerPair.second;
         LastFMData data = atTheEndOneUser(e, subMessage);
-        return new GayParams(e, data.getName(), data.getDiscordId(), gayType, timeFrame, y, x, data.getChartMode(), data);
+        return new GayParams(e, data.getName(), data.getDiscordId(), gayType, new CustomTimeFrame(timeFrame), y, x, data.getChartMode(), data);
 
     }
 

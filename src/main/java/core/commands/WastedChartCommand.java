@@ -30,7 +30,7 @@ public class WastedChartCommand extends GroupingChartCommand {
 
     @Override
     public List<String> getAliases() {
-        return List.of("timeartist", "tart", "tar", "ta");
+        return List.of("timeartist", "tart", "tar", "ta", "timeartists");
     }
 
 
@@ -47,11 +47,11 @@ public class WastedChartCommand extends GroupingChartCommand {
         if (params.isList()) {
             queue = new TrackGroupArtistQueue(getService(), discogsApi, spotifyApi, 200);
 
-            lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.TRACK,
+            lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum(), 1499, 1, TopEntity.TRACK,
                     ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getLastfmID()), queue);
         } else {
             queue = new TrackGroupArtistQueue(getService(), discogsApi, spotifyApi, params.getX() * params.getY());
-            lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 1499, 1, TopEntity.TRACK,
+            lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum(), 1499, 1, TopEntity.TRACK,
                     ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getLastfmID()), queue);
         }
         return new CountWrapper<>(-1, queue);

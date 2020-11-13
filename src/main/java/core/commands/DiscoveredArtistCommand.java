@@ -12,7 +12,6 @@ import dao.ChuuService;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
-import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
@@ -64,10 +63,10 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters param) throws LastFmException {
         BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
 
-        if (param.getTimeFrameEnum().equals(TimeFrameEnum.ALL)) {
+        if (param.getTimeFrameEnum().isAllTime()) {
             return new CountWrapper<>(0, queue);
         }
-        int i = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum().toApiFormat(), 3000, 1, TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getLastfmID()),
+        int i = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum(), 3000, 1, TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getLastfmID()),
                 queue);
         List<UrlCapsule> capsules = new ArrayList<>(queue.size());
         queue.drainTo(capsules);
@@ -108,7 +107,7 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public void noElementsMessage(ChartParameters parameters) {
-        if (parameters.getTimeFrameEnum().equals(TimeFrameEnum.ALL)) {
+        if (parameters.getTimeFrameEnum().isAllTime()) {
             sendMessageQueue(parameters.getE(), "All timeframe is not supported for this command");
             return;
 

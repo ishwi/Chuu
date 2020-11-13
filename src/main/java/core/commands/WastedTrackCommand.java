@@ -42,7 +42,7 @@ public class WastedTrackCommand extends ChartableCommand<ChartGroupParameters> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartGroupParameters params) throws LastFmException {
         TrackQueue queue = new TrackQueue(getService(), discogsApi, spotifyApi, !params.isList());
-        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), params.getX() * 2, params.getY() * 2,
+        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum(), params.getX() * 2, params.getY() * 2,
                 TopEntity.TRACK, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.TRACK, params, lastFM, params.getLastfmID()), queue);
         int i = queue.setUp(params.getX() * params.getY());
         return new CountWrapper<>(i, queue);
@@ -55,7 +55,7 @@ public class WastedTrackCommand extends ChartableCommand<ChartGroupParameters> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("timetracks", "ttr", "ttra");
+        return List.of("timetracks", "ttr", "ttra", "timetrack");
     }
 
     @Override

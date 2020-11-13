@@ -10,6 +10,7 @@ import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.TimeFrameParameters;
+import core.parsers.utils.CustomTimeFrame;
 import core.services.TagAlbumService;
 import core.services.TagArtistService;
 import dao.ChuuService;
@@ -116,7 +117,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         boolean doArtists = params.hasOptional("artist");
         if (doArtists) {
 
-            List<ArtistInfo> artistInfos = lastFM.getTopArtists(username, timeframe.toApiFormat(), 3000);
+            List<ArtistInfo> artistInfos = lastFM.getTopArtists(username, CustomTimeFrame.ofTimeFrameEnum(timeframe), 3000);
             List<ArtistInfo> mbidArtists = artistInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                     .collect(Collectors.toList());
             if (artistInfos.isEmpty()) {
@@ -136,12 +137,12 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
             List<AlbumInfo> albumInfos;
             List<AlbumInfo> albumMbids;
 
-            if (timeframe.equals(TimeFrameEnum.ALL)) {
+            if (timeframe == TimeFrameEnum.ALL) {
                 albumInfos = getService().getUserAlbumByMbid(username).stream().map(x ->
                         new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
                 albumMbids = albumInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty()).collect(Collectors.toList());
             } else {
-                albumInfos = lastFM.getTopAlbums(username, timeframe.toApiFormat(), 3000);
+                albumInfos = lastFM.getTopAlbums(username, CustomTimeFrame.ofTimeFrameEnum(timeframe), 3000);
                 albumMbids = albumInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty()).collect(Collectors.toList());
             }
             if (albumInfos.isEmpty()) {

@@ -137,4 +137,16 @@ public enum NaturalTimeFrameEnum {
         }
         return localDate;
     }
+
+    public String getDisplayString(long count) {
+
+        String name;
+        if (count == 1) {
+            name = this.toString().toLowerCase();
+        } else {
+            name = this.toString().toLowerCase() + "s";
+        }
+        return (this.equals(NaturalTimeFrameEnum.ALL) ? "" : String.format(" in the last %d %s", count, name));
+
+    }
 }

@@ -15,6 +15,7 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistTimeFrameParameters;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.NumberParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -97,11 +98,11 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
                 , x -> x, 1);
         String lastfm = lastFMData.getName();
         lastFM.getChart(lastfm,
-                time.toApiFormat(),
+                new CustomTimeFrame(time),
                 1000,
                 1,
                 TopEntity.ARTIST,
-                ChartUtil.getParser(time, TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, lastfm),
+                ChartUtil.getParser(new CustomTimeFrame(time), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, lastfm),
                 queue);
         List<UrlCapsule> objects = new ArrayList<>();
         queue.drainTo(objects);

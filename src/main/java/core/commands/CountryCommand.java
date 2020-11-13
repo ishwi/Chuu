@@ -7,6 +7,7 @@ import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.TimeFrameParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.ArtistInfo;
 import dao.entities.Country;
@@ -89,7 +90,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
             future = sendMessage(e, "Going to take a while ").submit();
         }
 
-        List<ArtistInfo> topAlbums = lastFM.getTopArtists(username, time.toApiFormat(), 10000).stream()
+        List<ArtistInfo> topAlbums = lastFM.getTopArtists(username, new CustomTimeFrame(time), 10000).stream()
                 .filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
         if (topAlbums.isEmpty()) {

@@ -17,10 +17,9 @@ public class TimerFrameParser extends DaoParser<TimeFrameParameters> {
 
     public TimeFrameParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
 
-        TimeFrameEnum timeFrame = defaultTFE;
 
         ChartParserAux auxiliar = new ChartParserAux(subMessage);
-        timeFrame = auxiliar.parseTimeframe(timeFrame);
+        TimeFrameEnum timeFrame = auxiliar.parseTimeframe(defaultTFE);
         subMessage = auxiliar.getMessage();
         LastFMData data = atTheEndOneUser(e, subMessage);
         return new TimeFrameParameters(e, data, timeFrame);

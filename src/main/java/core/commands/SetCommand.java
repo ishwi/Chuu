@@ -8,6 +8,7 @@ import core.parsers.ChartableParser;
 import core.parsers.Parser;
 import core.parsers.SetParser;
 import core.parsers.params.WordParameter;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.DuplicateInstanceException;
@@ -139,11 +140,11 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
         try {
 
 
-            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
+            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), new CustomTimeFrame(TimeFrameEnum.ALL));
             getService().insertArtistDataList(artistData, lastFmID);
             sendMessageQueue(e, "Finished updating your artist, now the album process will start");
             e.getChannel().sendTyping().queue();
-            List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
+            List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), new CustomTimeFrame(TimeFrameEnum.ALL));
             getService().albumUpdate(albumData, artistData, lastFmID);
             //  e.getGuild().loadMembers((Chuu::caching));
         } catch (

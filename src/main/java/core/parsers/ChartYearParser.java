@@ -1,10 +1,13 @@
 package core.parsers;
 
+import core.parsers.exceptions.InvalidDateException;
 import core.parsers.params.ChartYearParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Year;
@@ -30,20 +33,26 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
 
     @Override
     public ChartYearParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
-        TimeFrameEnum timeFrame = defaultTFE;
-        LastFMData discordName;
+        ParserAux parserAux = new ParserAux(subMessage);
+        User oneUser = parserAux.getOneUser(e);
+        subMessage = parserAux.getMessage();
+        LastFMData data = findLastfmFromID(oneUser, e);
 
         ChartParserAux chartParserAux = new ChartParserAux(subMessage);
         Year year = chartParserAux.parseYear();
-        timeFrame = chartParserAux.parseTimeframe(timeFrame);
-        subMessage = chartParserAux.getMessage();
-        discordName = atTheEndOneUser(e, subMessage);
+        CustomTimeFrame customTimeFrame;
+        try {
+            customTimeFrame = chartParserAux.parseCustomTimeFrame(defaultTFE);
+        } catch (InvalidDateException invalidDateException) {
+            this.sendError(invalidDateException.getErrorMessage(), e);
+            return null;
+        }
         if (Year.now().compareTo(year) < 0) {
             sendError(getErrorMessage(6), e);
             return null;
         }
         int x = (int) Math.sqrt(searchSpace);
-        @SuppressWarnings("SuspiciousNameCombination") ChartYearParameters chartYearParameters = new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrame, x, x, year, discordName.getChartMode(), discordName);
+        @SuppressWarnings("SuspiciousNameCombination") ChartYearParameters chartYearParameters = new ChartYearParameters(e, data.getName(), data.getDiscordId(), customTimeFrame, x, x, year, data.getChartMode(), data);
         chartYearParameters.initParams(List.of("nolimit"));
         return chartYearParameters;
 

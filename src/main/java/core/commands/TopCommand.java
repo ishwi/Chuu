@@ -9,9 +9,11 @@ import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
 import core.parsers.TopParser;
 import core.parsers.params.TopParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
+import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
@@ -37,10 +39,10 @@ public class TopCommand extends ArtistAbleCommand<TopParameters> {
         int count;
         if (params.isDoAlbum()) {
             queue = new ArrayBlockingQueue<>(params.getX() * params.getY());
-            count = lastFM.getChart(params.getLastfmID(), "overall", params.getX(), params.getY(), TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
+            count = lastFM.getChart(params.getLastfmID(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
         } else {
             queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !params.isList());
-            count = lastFM.getChart(params.getLastfmID(), "overall", params.getX(), params.getY(), TopEntity.ARTIST, ArtistChart.getArtistParser(params), queue);
+            count = lastFM.getChart(params.getLastfmID(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ARTIST, ArtistChart.getArtistParser(params), queue);
         }
         return new CountWrapper<>(count, queue);
     }

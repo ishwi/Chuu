@@ -14,6 +14,7 @@ import core.parsers.TimerFrameParser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.TimeFrameParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.AlbumInfo;
 import dao.entities.DiscordUserDisplay;
@@ -88,7 +89,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
                     new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
 
         } else {
-            lastFM.getChart(name, params.getTime().toApiFormat(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTime(), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, name), queue);
+            lastFM.getChart(name, CustomTimeFrame.ofTimeFrameEnum(params.getTime()), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(CustomTimeFrame.ofTimeFrameEnum(params.getTime()), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, name), queue);
 
             albumInfos = queue.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid(), null, null)).collect(Collectors.toList());
         }

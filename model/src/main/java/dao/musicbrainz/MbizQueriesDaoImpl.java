@@ -133,8 +133,8 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
             artistWhere.append(" ? ,");
             albumWhere.append(" ? ,");
         }
-        whereSentence = artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
-        whereSentence += albumWhere.toString().substring(0, albumWhere.length() - 1) + ") ";
+        whereSentence = artistWhere.substring(0, artistWhere.length() - 1) + ") ";
+        whereSentence += albumWhere.substring(0, albumWhere.length() - 1) + ") ";
         whereSentence += "and d.first_release_date_year = ?";
 
         List<AlbumInfo> returnList = new ArrayList<>();
@@ -143,7 +143,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
 
             for (AlbumInfo albumInfo : releaseInfo) {
 
-                preparedStatement.setString(i, albumInfo.getName());
+                preparedStatement.setString(i, albumInfo.getArtist());
                 preparedStatement.setString(i + releaseInfo.size(), albumInfo.getName());
                 i++;
             }
@@ -175,8 +175,8 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
             artistWhere.append(" ? ,");
             albumWhere.append(" ? ,");
         }
-        whereSentence = artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
-        whereSentence += albumWhere.toString().substring(0, albumWhere.length() - 1) + ") ";
+        whereSentence = artistWhere.substring(0, artistWhere.length() - 1) + ") ";
+        whereSentence += albumWhere.substring(0, albumWhere.length() - 1) + ") ";
         whereSentence += "and (d.first_release_date_year between ? and ?)";
 
         List<AlbumInfo> returnList = new ArrayList<>();
@@ -363,8 +363,8 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
             artistWhere.append(" ? ,");
             albumWhere.append(" ? ,");
         }
-        whereSentence = artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
-        whereSentence += albumWhere.toString().substring(0, albumWhere.length() - 1) + ") ";
+        whereSentence = artistWhere.substring(0, artistWhere.length() - 1) + ") ";
+        whereSentence += albumWhere.substring(0, albumWhere.length() - 1) + ") ";
         whereSentence += "and d.first_release_date_year = ?";
 
         List<AlbumInfo> returnList = new ArrayList<>();
@@ -452,8 +452,8 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
             artistWhere.append(" ? ,");
             albumWhere.append(" ? ,");
         }
-        whereSentence = artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
-        whereSentence += albumWhere.toString().substring(0, albumWhere.length() - 1) + ") ";
+        whereSentence = artistWhere.substring(0, artistWhere.length() - 1) + ") ";
+        whereSentence += albumWhere.substring(0, albumWhere.length() - 1) + ") ";
         whereSentence += "\n  and similarity(c.name,?) > 0.4";
 
 
@@ -827,8 +827,8 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
             artistWhere.append(" ? ,");
             albumWhere.append(" ? ,");
         }
-        whereSentence = artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
-        whereSentence += albumWhere.toString().substring(0, albumWhere.length() - 1) + ") ";
+        whereSentence = artistWhere.substring(0, artistWhere.length() - 1) + ") ";
+        whereSentence += albumWhere.substring(0, albumWhere.length() - 1) + ") ";
         whereSentence += "and d.first_release_date_year = ?";
         whereSentence += " group by a.name ,b.name";
 
@@ -875,8 +875,8 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
             artistWhere.append(" ? ,");
             albumWhere.append(" ? ,");
         }
-        whereSentence = artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
-        whereSentence += albumWhere.toString().substring(0, albumWhere.length() - 1) + ") ";
+        whereSentence = artistWhere.substring(0, artistWhere.length() - 1) + ") ";
+        whereSentence += albumWhere.substring(0, albumWhere.length() - 1) + ") ";
         whereSentence += "and d.first_release_date_year = ?";
         whereSentence += " group by a.name,b.name";
 
@@ -1025,8 +1025,8 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
             artistWhere.append(" ? ,");
             albumWhere.append(" ? ,");
         }
-        whereSentence = artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
-        whereSentence += albumWhere.toString().substring(0, albumWhere.length() - 1) + ") ";
+        whereSentence = artistWhere.substring(0, artistWhere.length() - 1) + ") ";
+        whereSentence += albumWhere.substring(0, albumWhere.length() - 1) + ") ";
         whereSentence += "and (d.first_release_date_year between  ? and ?) ";
         whereSentence += " group by a.name,b.name";
 
@@ -1113,8 +1113,8 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
         }
         genreWhere.append("? ,".repeat(map.size()));
 
-        whereSentence += artistWhere.toString().substring(0, artistWhere.length() - 1) + ") ";
-        whereSentence += genreWhere.toString().substring(0, genreWhere.length() - 1) + ") ";
+        whereSentence += artistWhere.substring(0, artistWhere.length() - 1) + ") ";
+        whereSentence += genreWhere.substring(0, genreWhere.length() - 1) + ") ";
 
 
         List<AlbumGenre> returnList = new ArrayList<>();

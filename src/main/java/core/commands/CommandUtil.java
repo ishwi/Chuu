@@ -169,6 +169,24 @@ public class CommandUtil {
         }
     }
 
+    public static String albumUrl(ChuuService dao, ConcurrentLastFM lastFM, String artist, String album, DiscogsApi discogsApi, Spotify spotifyApi) throws LastFmException {
+        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
+        validate(dao, scrobbledArtist, lastFM, discogsApi, spotifyApi);
+        try {
+            return dao.findAlbumUrlByName(scrobbledArtist.getArtistId(), album);
+        } catch (InstanceNotFoundException exception) {
+            try {
+                FullAlbumEntityExtended chuu = lastFM.getAlbumSummary("chuu", scrobbledArtist.getArtist(), album);
+                ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), chuu.getAlbumUrl(), chuu.getMbid());
+                scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
+                dao.insertAlbum(scrobbledAlbum);
+                return scrobbledAlbum.getUrl();
+            } catch (LastFmEntityNotFoundException e) {
+                return null;
+            }
+        }
+    }
+
     public static ScrobbledArtist onlyCorrection(ChuuService dao, String artist, ConcurrentLastFM lastFM, boolean doCorrection) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         validate(dao, scrobbledArtist, lastFM, null, null, false, doCorrection);

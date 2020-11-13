@@ -8,6 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
 import core.parsers.GenreChartParser;
 import core.parsers.params.ChartableGenreParameters;
+import core.parsers.utils.CustomTimeFrame;
 import core.services.TagAlbumService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -59,7 +60,9 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
         String name = params.getLastfmID();
         List<AlbumInfo> albums;
         BlockingQueue<UrlCapsule> queue;
-        if (params.getTimeFrameEnum().equals(TimeFrameEnum.ALL)) {
+        CustomTimeFrame custom = params.getTimeFrameEnum();
+        TimeFrameEnum timeFrameEnum = custom.getTimeFrameEnum();
+        if (timeFrameEnum.equals(TimeFrameEnum.ALL)) {
 
             List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumByMbid(name);
             albums = userAlbumByMbid.stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
@@ -70,9 +73,9 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
         } else {
             queue = new ArrayBlockingQueue<>(4000);
 
-            lastFM.getChart(name, params.getTimeFrameEnum().toApiFormat(), 4000, 1,
+            lastFM.getChart(name, custom, 4000, 1,
                     TopEntity.ALBUM,
-                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, name), queue);
+                    ChartUtil.getParser(custom, TopEntity.ALBUM, params, lastFM, name), queue);
             ArrayList<UrlCapsule> c = new ArrayList<>(queue);
             albums = c.stream()
                     .filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid())).collect(Collectors.toList());

@@ -8,6 +8,7 @@ import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.TimeFrameParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
@@ -61,9 +62,10 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
         TimeFrameEnum time = params.getTime();
 
 
-        int albumCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.ALBUM, ChartUtil.getParser(time, TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, name), capsules);
-        int artistCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.ARTIST, ChartUtil.getParser(time, TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, name), capsules);
-        int trackCount = lastFM.getChart(name, time.toApiFormat(), 1, 1, TopEntity.TRACK, ChartUtil.getParser(time, TopEntity.TRACK, ChartParameters.toListParams(), lastFM, name), capsules);
+        CustomTimeFrame customTimeFrame = CustomTimeFrame.ofTimeFrameEnum(time);
+        int albumCount = lastFM.getChart(name, customTimeFrame, 1, 1, TopEntity.ALBUM, ChartUtil.getParser(customTimeFrame, TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, name), capsules);
+        int artistCount = lastFM.getChart(name, customTimeFrame, 1, 1, TopEntity.ARTIST, ChartUtil.getParser(customTimeFrame, TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, name), capsules);
+        int trackCount = lastFM.getChart(name, customTimeFrame, 1, 1, TopEntity.TRACK, ChartUtil.getParser(customTimeFrame, TopEntity.TRACK, ChartParameters.toListParams(), lastFM, name), capsules);
         LocalDateTime localDateTime = time.toLocalDate(1);
         int i = lastFM.scrobblesSince(name, localDateTime.atOffset(ZoneOffset.UTC));
         EmbedBuilder embedBuilder = new EmbedBuilder();

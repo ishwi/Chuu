@@ -5,6 +5,8 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
+import dao.entities.LastFMData;
+import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -46,6 +48,13 @@ public class BanArtistTagCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+
+        long idLong = e.getAuthor().getIdLong();
+        LastFMData lastFMData = getService().findLastFMData(idLong);
+        if (lastFMData.getRole() != Role.ADMIN) {
+            sendMessageQueue(e, "Only bot admins can delete tags");
+            return;
+        }
         Pattern regex = Pattern.compile("tag:([\\s\\S]+)artist:(.*)");
 
         String[] subMessage = parser.getSubMessage(e.getMessage());

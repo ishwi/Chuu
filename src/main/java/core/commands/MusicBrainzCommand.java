@@ -76,7 +76,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
         List<AlbumInfo> nonEmptyMbid;
         List<AlbumInfo> emptyMbid;
 
-        if (!isByTime && param.getTimeFrameEnum().equals(TimeFrameEnum.ALL)) {
+        if (!isByTime && param.getTimeFrameEnum().isAllTime()) {
             List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumByMbid(param.getLastfmID());
             AtomicInteger atomicInteger = new AtomicInteger(0);
 
@@ -87,7 +87,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
             emptyMbid = Collections.emptyList();
         } else {
             BiFunction<JSONObject, Integer, UrlCapsule> parser;
-            if (param.getTimeFrameEnum().equals(TimeFrameEnum.DAY)) {
+            if (param.getTimeFrameEnum().getTimeFrameEnum().equals(TimeFrameEnum.DAY)) {
                 if (isByTime)
                     parser = TrackDurationAlbumArtistChart.getDailyArtistAlbumDurationParser(param, lastFM.getTrackDurations(param.getLastfmID(), TimeFrameEnum.WEEK));
                 else {
@@ -101,7 +101,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
                 }
             }
 
-            lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum().toApiFormat(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
+            lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
             //List of obtained elements
             Map<Boolean, List<AlbumInfo>> results =
                     queue.stream()

@@ -87,11 +87,11 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         int count;
         if (param.isArtist()) {
             queue = new ArtistQueue(getService(), discogsApi, spotifyApi, true);
-            count = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum().toApiFormat(), (int) (param.getX() * 1.4),
+            count = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum(), (int) (param.getX() * 1.4),
                     (int) (param.getY() * 1.4), TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getLastfmID()), queue);
         } else {
             queue = new ArrayBlockingQueue<>((int) (param.getX() * param.getY() * 1.4 * 1.4));
-            count = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum().toApiFormat(), (int) (param.getX() * 1.4), (int) (param.getY() * 1.4), TopEntity.ALBUM,
+            count = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum(), (int) (param.getX() * 1.4), (int) (param.getY() * 1.4), TopEntity.ALBUM,
                     ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID()), queue);
         }
         boolean inverted = param.isInverse();

@@ -20,6 +20,7 @@ import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -87,12 +88,13 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
             return;
         }
 
-        for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(PrivacyUtils.toString(list.get(i)));
+        List<String> strings = list.stream().map(PrivacyUtils::toString).collect(Collectors.toUnmodifiableList());
+        for (int i = 0; i < 10 && i < strings.size(); i++) {
+            a.append(i + 1).append(strings.get(i));
         }
         embedBuilder.setDescription(a).setTitle("Matching artists with " + usableName)
                 .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService().getUserArtistCount(innerParams.getLastFMData().getName(), 0)), null);
         e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(mes ->
-                new Reactionary<>(list, mes, embedBuilder));
+                new Reactionary<>(strings, mes, embedBuilder));
     }
 }

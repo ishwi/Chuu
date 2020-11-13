@@ -3,6 +3,7 @@ package core.scheduledtasks;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
@@ -26,7 +27,7 @@ public class ArtistMbidUpdater implements Runnable {
         System.out.println("SEARCHING FOR MBIDS");
 
         try {
-            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMName, TimeFrameEnum.ALL.toApiFormat());
+            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMName, new CustomTimeFrame(TimeFrameEnum.ALL));
             dao.updateMbids(artistData);
         } catch (Exception exception) {
             Chuu.getLogger().warn(exception.getMessage(), exception);

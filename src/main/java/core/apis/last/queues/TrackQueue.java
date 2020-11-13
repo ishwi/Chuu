@@ -47,7 +47,7 @@ public class TrackQueue extends ArtistQueue {
         AtomicInteger secondsCounter = new AtomicInteger(0);
 
         wrapper.addAll(
-                awaitedCapsules.stream().sorted(Comparator.comparingInt(o -> ((TrackDurationChart) o).getSeconds())).peek(x -> {
+                awaitedCapsules.stream().sorted(Comparator.comparingInt(o -> ((TrackDurationChart) o).getSeconds()).reversed()).peek(x -> {
                     secondsCounter.addAndGet(((TrackDurationChart) x).getSeconds());
                     x.setPos(ranker.getAndIncrement());
                 }).takeWhile(y ->

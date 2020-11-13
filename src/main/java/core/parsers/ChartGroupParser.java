@@ -11,11 +11,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ChartGroupParser extends ChartableParser<ChartGroupParameters> {
 
-    private final ChartParser inner;
+    private final ChartNormalParser inner;
 
     public ChartGroupParser(ChuuService dao, TimeFrameEnum defaultTFE) {
         super(dao, defaultTFE);
-        this.inner = new ChartParser(dao, defaultTFE);
+        this.inner = new ChartNormalParser(dao, defaultTFE);
         this.inner.addOptional(new OptionalEntity("notime", "dont display time spent"));
         this.opts.addAll(this.inner.opts);
     }

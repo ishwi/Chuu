@@ -4,6 +4,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
 import core.parsers.params.AlbumTimeFrameParameters;
 import core.parsers.params.ArtistAlbumParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
@@ -44,10 +45,10 @@ public class AlbumTimeFrameParser extends DaoParser<AlbumTimeFrameParameters> {
 
         if (words.length == 0) {
             NowPlayingArtist np = lastFM.getNowPlayingInfo(lastFMData.getName());
-            return new AlbumTimeFrameParameters(e, np.getArtistName(), np.getAlbumName(), lastFMData, timeFrame);
+            return new AlbumTimeFrameParameters(e, np.getArtistName(), np.getAlbumName(), lastFMData, new CustomTimeFrame(timeFrame));
         } else {
             ArtistAlbumParameters artistAlbumParameters = innerParser.doSomethingWithString(words, lastFMData, e);
-            return new AlbumTimeFrameParameters(e, artistAlbumParameters.getArtist(), artistAlbumParameters.getAlbum(), lastFMData, timeFrame);
+            return new AlbumTimeFrameParameters(e, artistAlbumParameters.getArtist(), artistAlbumParameters.getAlbum(), lastFMData, new CustomTimeFrame(timeFrame));
         }
     }
 

@@ -2,6 +2,7 @@ package core.parsers;
 
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.ColorChartParams;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -76,7 +77,7 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
             return null;
         }
         LastFMData data = atTheEndOneUser(e, remaining.toArray(String[]::new));
-        return new ColorChartParams(e, data.getName(), data.getDiscordId(), timeFrame, x, y, colorList, data.getChartMode(), data);
+        return new ColorChartParams(e, data.getName(), data.getDiscordId(), CustomTimeFrame.ofTimeFrameEnum(timeFrame), x, y, colorList, data.getChartMode(), data);
     }
 
     @Override

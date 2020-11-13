@@ -7,6 +7,7 @@ import core.parsers.ChartableParser;
 import core.parsers.FileParser;
 import core.parsers.Parser;
 import core.parsers.params.UrlParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.Role;
 import dao.entities.*;
@@ -108,7 +109,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
         try {
 
-            List<ScrobbledArtist> allArtists = lastFM.getAllArtists(lastfmid, TimeFrameEnum.ALL.toApiFormat());
+            List<ScrobbledArtist> allArtists = lastFM.getAllArtists(lastfmid, new CustomTimeFrame(TimeFrameEnum.ALL));
             getService().insertArtistDataList(allArtists, lastfmid);
         } catch (
                 LastFMNoPlaysException ignored) {

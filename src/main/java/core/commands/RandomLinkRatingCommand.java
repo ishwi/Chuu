@@ -91,7 +91,8 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
                         s = "A private user";
                         break;
                     case TAG:
-                        s = e.getJDA().retrieveUserById(ratingOwner.getDiscordId()).complete().getAsTag();
+                        User userById = e.getJDA().getUserById(ratingOwner.getDiscordId());
+                        s = userById == null ? "A private user" : userById.getAsTag();
                         break;
                     case LAST_NAME:
                         s = ratingOwner.getName() + " (last.fm)";

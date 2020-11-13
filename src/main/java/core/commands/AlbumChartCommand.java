@@ -53,14 +53,24 @@ public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
-        return params.initEmbed("'s top albums", embedBuilder, " has listened to " + count + " albums", params.getLastfmID());
+        String handleCount;
+        if (!params.getTimeFrameEnum().isNormally()) {
+            handleCount = "'s top " + count + " albums";
+        } else {
+            handleCount = " has listened to " + count + " albums";
+        }
+        return params.initEmbed("'s top albums", embedBuilder, handleCount, params.getLastfmID());
     }
 
     @Override
     public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
         String time = params.getTimeFrameEnum().getDisplayString();
         pieChart.setTitle(initTitle + "'s top albums" + time);
-        return String.format("%s has listened to %d albums%s (showing top %d)", initTitle, count, time, params.getX() * params.getY());
+        if (!params.getTimeFrameEnum().isNormally()) {
+            return String.format("%s top %d albums%s", initTitle, count, time);
+        } else {
+            return String.format("%s has listened to %d albums%s (showing top %d)", initTitle, count, time, params.getX() * params.getY());
+        }
     }
 
 

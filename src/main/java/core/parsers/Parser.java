@@ -37,9 +37,7 @@ public abstract class Parser<T extends CommandParameters> {
 
     protected abstract void setUpErrorMessages();
 
-    public <Y> Pair<String[], Y>
-
-    filterMessage(String[] ogMessage, Predicate<String> filter, Function<String, Y> mappingFuntion, Y defualt) {
+    public static <Y> Pair<String[], Y> filterMessage(String[] ogMessage, Predicate<String> filter, Function<String, Y> mappingFuntion, Y defualt) {
         Stream<String> secondStream = Arrays.stream(ogMessage).filter(filter);
         Y apply = defualt;
         Optional<String> opt2 = secondStream.findAny();

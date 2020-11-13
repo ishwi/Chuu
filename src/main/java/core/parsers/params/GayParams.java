@@ -1,9 +1,9 @@
 package core.parsers.params;
 
+import core.parsers.utils.CustomTimeFrame;
 import dao.entities.ChartMode;
 import dao.entities.GayType;
 import dao.entities.LastFMData;
-import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 
@@ -13,7 +13,7 @@ public class GayParams extends ChartParameters {
     private int x;
     private GayType gayType;
 
-    public GayParams(MessageReceivedEvent e, String lastfmID, long discordId, GayType gayType, TimeFrameEnum timeFrameEnum, int y, int x, ChartMode chartMode, LastFMData lastFMData) {
+    public GayParams(MessageReceivedEvent e, String lastfmID, long discordId, GayType gayType, CustomTimeFrame timeFrameEnum, int y, int x, ChartMode chartMode, LastFMData lastFMData) {
         super(e, lastfmID, discordId, chartMode, lastFMData, timeFrameEnum, x, y);
         this.gayType = gayType;
         this.x = x;

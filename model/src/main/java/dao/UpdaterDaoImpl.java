@@ -1563,7 +1563,11 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
             preparedStatement.setLong(1, discordId);
-            preparedStatement.setLong(2, guildId);
+            if (guildId != null) {
+                preparedStatement.setLong(2, guildId);
+            } else {
+                preparedStatement.setNull(2, Types.BIGINT);
+            }
             preparedStatement.setString(3, commandName);
             preparedStatement.setLong(4, nanos);
             preparedStatement.executeUpdate();

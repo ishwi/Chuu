@@ -7,6 +7,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
 import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -102,7 +103,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
 
         List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, params.isShowRepeated(), Integer.MAX_VALUE);
 
-        List<AlbumInfo> albumInfos = lastFM.getTopAlbums(firstLastFMId, TimeFrameEnum.ALL.toApiFormat(), 500).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
+        List<AlbumInfo> albumInfos = lastFM.getTopAlbums(firstLastFMId, new CustomTimeFrame(TimeFrameEnum.ALL), 500).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
 
         Map<Genre, Integer> map = mb.genreCount(albumInfos).entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size()))

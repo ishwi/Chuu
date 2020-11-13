@@ -4,6 +4,7 @@ import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.TimeFrameParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.ScoredAlbumRatings;
 import dao.entities.ScrobbledAlbum;
@@ -53,7 +54,7 @@ public class DiscoveredAlbumRatioCommand extends ConcurrentCommand<TimeFramePara
             sendMessageQueue(e, "Surprisingly you have discovered a 100% of your albums");
             return;
         }
-        List<ScrobbledAlbum> allArtists = lastFM.getAllAlbums(params.getLastFMData().getName(), params.getTime().toApiFormat());
+        List<ScrobbledAlbum> allArtists = lastFM.getAllAlbums(params.getLastFMData().getName(), new CustomTimeFrame(params.getTime()));
         int size = getService().getDiscoveredAlbums(allArtists, params.getLastFMData().getName()).size();
         String userString = getUserString(e, params.getLastFMData().getDiscordId());
         sendMessageQueue(e, String.format("%s has discovered **%s** new %s%s, making that **%s%%** of new albums discovered.", userString, size, CommandUtil.singlePlural(size, "album", "albums"), params.getTime().getDisplayString(), ScoredAlbumRatings.formatter.format(size * 100. / allArtists.size())));

@@ -89,16 +89,24 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
-        return params.initEmbed("'s top tracks", embedBuilder, " has listened to " + count + " tracks", params.getLastfmID());
-
+        String handleCount;
+        if (!params.getTimeFrameEnum().isNormally()) {
+            handleCount = "top " + count + " tracks";
+        } else {
+            handleCount = " has listened to " + count + " tracks";
+        }
+        return params.initEmbed("'s top tracks", embedBuilder, handleCount, params.getLastfmID());
     }
 
     @Override
     public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
         String time = params.getTimeFrameEnum().getDisplayString();
         pieChart.setTitle(initTitle + "'s top tracks" + time);
-        return String.format("%s has listened to %d songs%s (showing top %d)", initTitle, count, time, params.getX() * params.getY());
-
+        if (!params.getTimeFrameEnum().isNormally()) {
+            return String.format("%s top %d tracks%s", initTitle, count, time);
+        } else {
+            return String.format("%s has listened to %d songs%s (showing top %d)", initTitle, count, time, params.getX() * params.getY());
+        }
     }
 
 

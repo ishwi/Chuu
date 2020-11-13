@@ -5,6 +5,7 @@ import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.ChartableGenreParameters;
 import core.parsers.params.GenreParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -52,7 +53,7 @@ public class GenreChartParser extends ChartableParser<ChartableGenreParameters> 
         LastFMData data = findLastfmFromID(oneUser, e);
         try {
             GenreParameters genreParameters = innerParser.parseLogic(e, message);
-            return new ChartableGenreParameters(e, data.getName(), data.getDiscordId(), data.getChartMode(), timeFrameEnum, x, y, genreParameters, data);
+            return new ChartableGenreParameters(e, data.getName(), data.getDiscordId(), data.getChartMode(), new CustomTimeFrame(timeFrameEnum), x, y, genreParameters, data);
         } catch (LastFmException lastFmException) {
             throw new ChuuServiceException();
         }

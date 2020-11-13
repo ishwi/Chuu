@@ -5,6 +5,8 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
+import dao.entities.LastFMData;
+import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -43,9 +45,15 @@ public class BanTagCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+        long idLong = e.getAuthor().getIdLong();
+        LastFMData lastFMData = getService().findLastFMData(idLong);
+        if (lastFMData.getRole() != Role.ADMIN) {
+            sendMessageQueue(e, "Only bot admins can delete tags");
+            return;
+        }
         String[] subMessage = parser.getSubMessage(e.getMessage());
         String joined = String.join(" ", subMessage).trim();
-        getService().addBannedTag(joined, e.getAuthor().getIdLong());
+        getService().addBannedTag(joined, idLong);
         if (!joined.isBlank()) {
             sendMessageQueue(e, "Succesfully banned the tag: " + joined);
             return;

@@ -6,10 +6,10 @@ import core.apis.last.chartentities.UrlCapsule;
 import core.commands.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.OptionalEntity;
+import core.parsers.utils.CustomTimeFrame;
 import dao.entities.ChartMode;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
-import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONObject;
@@ -22,12 +22,12 @@ public class ChartParameters extends CommandParameters {
     private final long discordId;
     private final ChartMode chartMode;
     private final LastFMData lastFMData;
-    private final TimeFrameEnum timeFrameEnum;
+    private final CustomTimeFrame timeFrameEnum;
     private int x;
     private int y;
 
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, ChartMode chartMode, LastFMData lastFMData, TimeFrameEnum timeFrameEnum, int x, int y) {
+    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, ChartMode chartMode, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
         super(e);
         this.lastfmID = lastfmID;
         this.discordId = discordId;
@@ -38,7 +38,7 @@ public class ChartParameters extends CommandParameters {
         this.y = y;
     }
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, ChartMode chartMode, LastFMData lastFMData) {
+    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, ChartMode chartMode, LastFMData lastFMData) {
         super(e);
         this.lastfmID = lastfmID;
         this.discordId = discordId;
@@ -63,7 +63,7 @@ public class ChartParameters extends CommandParameters {
     }
 
     public int makeCommand(ConcurrentLastFM lastFM, BlockingQueue<UrlCapsule> queue, TopEntity topEntity, BiFunction<JSONObject, Integer, UrlCapsule> parser) throws LastFmException {
-        return lastFM.getChart(lastfmID, timeFrameEnum.toApiFormat(), x, y, topEntity, parser, queue);
+        return lastFM.getChart(lastfmID, timeFrameEnum, x, y, topEntity, parser, queue);
     }
 
 
@@ -71,7 +71,7 @@ public class ChartParameters extends CommandParameters {
         return lastfmID;
     }
 
-    public TimeFrameEnum getTimeFrameEnum() {
+    public CustomTimeFrame getTimeFrameEnum() {
         return timeFrameEnum;
     }
 

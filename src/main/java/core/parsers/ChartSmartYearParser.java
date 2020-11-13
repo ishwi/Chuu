@@ -2,6 +2,7 @@ package core.parsers;
 
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.ChartYearParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -80,7 +81,7 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
         }
         TimeFrameEnum timeFrameEnum = calculateTimeFrame(year);
         discordName = atTheEndOneUser(e, words);
-        return new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrameEnum, x, y, year, discordName.getChartMode(), discordName);
+        return new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), CustomTimeFrame.ofTimeFrameEnum(timeFrameEnum), x, y, year, discordName.getChartMode(), discordName);
     }
 
     @Override

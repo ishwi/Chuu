@@ -1,6 +1,6 @@
 package core.commands;
 
-import core.commands.utils.PrivacyUtils;
+import core.Chuu;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.NumberParser;
@@ -12,7 +12,9 @@ import dao.ChuuService;
 import dao.entities.ArtistLbGlobalEntry;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.PrivacyMode;
+import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -21,6 +23,9 @@ import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -68,16 +73,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
         ChuuDataParams innerParams = params.getInnerParams();
         int threshold = params.getExtraParam() == null ? 1 : Math.toIntExact(params.getExtraParam());
         List<ArtistLbGlobalEntry> list = getService().globalMatchings(innerParams.getLastFMData().getName(), e.isFromGuild() ? e.getGuild().getIdLong() : null, threshold);
-        list.forEach(cl -> {
-            if (cl.getPrivacyMode() == PrivacyMode.TAG) {
-                cl.setDiscordName(e.getJDA().retrieveUserById(cl.getDiscordId()).complete().getAsTag());
-            } else if (cl.getPrivacyMode() == PrivacyMode.LAST_NAME) {
-                cl.setDiscordName(cl.getLastFmId());
-            } else {
-                cl.setDiscordName(getUserString(e, cl.getDiscordId()));
 
-            }
-        });
         MessageBuilder messageBuilder = new MessageBuilder();
 
         Long discordId = innerParams.getLastFMData().getDiscordId();
@@ -87,18 +83,64 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(url);
-        StringBuilder a = new StringBuilder();
+        Set<Long> found;
+        if (e.isFromGuild()) {
+            found = getService().getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
+        } else {
+            found = Set.of(e.getAuthor().getIdLong());
+        }
 
+        StringBuilder a = new StringBuilder();
+        AtomicInteger c = new AtomicInteger(0);
+        List<Object> strings = list.stream().map(x -> new Object() {
+            private String calculatedString = null;
+
+            @Override
+            public String toString() {
+                if (calculatedString == null) {
+
+                    PrivacyMode privacyMode = x.getPrivacyMode();
+                    if (found.contains(x.getDiscordId())) {
+                        privacyMode = PrivacyMode.DISCORD_NAME;
+                    }
+
+
+                    switch (privacyMode) {
+
+                        case STRICT:
+                        case NORMAL:
+                            x.setDiscordName(" **Private User #" + c.getAndIncrement() + "**");
+                            break;
+                        case DISCORD_NAME:
+                            x.setDiscordName(CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername() + "**");
+                            break;
+                        case TAG:
+                            x.setDiscordName(" **" + e.getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag() + "**");
+                            break;
+                        case LAST_NAME:
+                            x.setDiscordName(" **" + x.getLastFmId() + " (last.fm)**");
+                            break;
+                    }
+                    calculatedString = ". [" +
+                            LinkUtils.cleanMarkdownCharacter(x.getDiscordName()) +
+                            "](" + Chuu.getLastFmId(x.getLastFmId()) +
+                            ") - " + x.getEntryCount() +
+                            " artists\n";
+                }
+                return calculatedString;
+            }
+        }).collect(Collectors.toList());
         if (list.isEmpty()) {
             sendMessageQueue(e, "No one has any matching artist with you :(");
             return;
         }
-
         for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(PrivacyUtils.toString(list.get(i)));
+            a.append(i + 1).append((strings.get(i).toString()));
         }
         embedBuilder.setDescription(a).setTitle("Global Matching artists with " + usableName)
-                .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService().getUserArtistCount(innerParams.getLastFMData().getName(), 0)), null);
+                .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService()
+                        .getUserArtistCount(innerParams.getLastFMData().
+                                getName(), 0)), null);
         e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(mes ->
                 new Reactionary<>(list, mes, embedBuilder));
     }

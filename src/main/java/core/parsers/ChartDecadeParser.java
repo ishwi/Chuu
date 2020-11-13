@@ -2,6 +2,7 @@ package core.parsers;
 
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.ChartYearRangeParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -102,7 +103,7 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
 
                 ChartYearRangeParameters(e, baseYear, discordName.getName(), discordName.
 
-                getDiscordId(), timeFrame, x, y, numberOfYears, discordName.getChartMode(), discordName);
+                getDiscordId(), CustomTimeFrame.ofTimeFrameEnum(timeFrame), x, y, numberOfYears, discordName.getChartMode(), discordName);
     }
 
     @Override

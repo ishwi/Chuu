@@ -12,6 +12,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.utils.CustomTimeFrame;
 import core.services.UpdaterService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -91,11 +92,11 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
             if (force) {
                 e.getChannel().sendTyping().queue();
-                List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
+                List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                 getService().insertArtistDataList(artistData, lastFmName);
                 e.getChannel().sendTyping().queue();
                 //sendMessageQueue(e, "Finished updating your artist, now the album process will start");
-                List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), TimeFrameEnum.ALL.toApiFormat());
+                List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                 e.getChannel().sendTyping().queue();
                 getService().albumUpdate(albumData, artistData, lastFmName);
             } else {

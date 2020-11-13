@@ -4,6 +4,7 @@ import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.TimeFrameParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.ScoredAlbumRatings;
 import dao.entities.ScrobbledArtist;
@@ -48,12 +49,12 @@ public class DiscoveredRatioCommand extends ConcurrentCommand<TimeFrameParameter
     void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
 
 
-        if (params.getTime().equals(TimeFrameEnum.ALL)) {
+        if (params.getTime() == TimeFrameEnum.ALL) {
             sendMessageQueue(e, "Surprisingly you have discovered a 100% of your artist");
             return;
         }
         String name = params.getLastFMData().getName();
-        List<ScrobbledArtist> allArtists = lastFM.getAllArtists(name, params.getTime().toApiFormat());
+        List<ScrobbledArtist> allArtists = lastFM.getAllArtists(name, CustomTimeFrame.ofTimeFrameEnum(params.getTime()));
         int size = getService().getDiscoveredArtists(allArtists, name).size();
         String userString = getUserString(e, params.getLastFMData().getDiscordId());
         sendMessageQueue(e, String.format("%s has discovered **%s** new %s%s, making that **%s%%** of new artists discovered.", userString, size, CommandUtil.singlePlural(size, "artist", "artists"), params.getTime().getDisplayString(), ScoredAlbumRatings.formatter.format(size * 100. / allArtists.size())));

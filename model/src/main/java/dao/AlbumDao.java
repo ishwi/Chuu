@@ -24,10 +24,13 @@ public interface AlbumDao {
     void addSrobbledAlbums(Connection con, List<ScrobbledAlbum> scrobbledAlbums);
 
     List<AlbumUserPlays> getUserTopArtistAlbums(Connection connection, long discord_id, long artistId, int limit);
+
     List<AlbumUserPlays> getServerTopArtistAlbums(Connection connection, long guildId, long artistId, int limit);
 
 
     List<AlbumUserPlays> getGlobalTopArtistAlbums(Connection connection, long artistId, int limit);
 
     Map<Genre, Integer> genreCountsByAlbum(Connection connection, List<AlbumInfo> albumInfos);
+
+    String getAlbumUrlByName(Connection connection, String name, long artistId) throws InstanceNotFoundException;
 }

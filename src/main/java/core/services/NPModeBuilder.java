@@ -176,7 +176,7 @@ public class NPModeBuilder {
                         if (npModes.contains(NPMode.SPOTIFY_LINK)) {
                             String uri = spotifyApi.searchItems(np.getSongName(), np.getArtistName(), np.getAlbumName());
                             if (!uri.isBlank())
-                                embedBuilder.getDescriptionBuilder().append("\n***__[Listen on Spotify](").append(uri).append(")__***");
+                                embedBuilder.getDescriptionBuilder().append("\n[<:spo-chuu:776799107737976863>](").append(uri).append(")");
                         }
 
                     })));

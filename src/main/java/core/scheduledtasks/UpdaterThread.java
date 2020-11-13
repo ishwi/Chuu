@@ -10,6 +10,7 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.CommandUtil;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmEntityNotFoundException;
+import core.parsers.utils.CustomTimeFrame;
 import core.services.UpdaterService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -118,11 +119,11 @@ public class UpdaterThread implements Runnable {
 
                     } else {
 
-                        List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMName, TimeFrameEnum.ALL.toApiFormat());
+                        List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMName, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                         dao.insertArtistDataList(artistData, lastFMName);
                         System.out.println(" Updated  ) " + lastFMName + " artists");
 
-                        List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMName, TimeFrameEnum.ALL.toApiFormat());
+                        List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMName, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                         dao.albumUpdate(albumData, artistData, lastFMName);
                         System.out.println(" Updated  ) " + lastFMName + " albums");
 

@@ -39,7 +39,7 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public String getDescription() {
-        return "Your ";
+        return "Displays your listening habits with a 24 hour format. You can also use the tz command for it to be accurate for yourself.";
     }
 
     @Override

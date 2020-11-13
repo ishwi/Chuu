@@ -15,8 +15,12 @@ import core.parsers.Parser;
 import core.parsers.params.AlbumTimeFrameParameters;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.NumberParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
-import dao.entities.*;
+import dao.entities.FullAlbumEntityExtended;
+import dao.entities.LastFMData;
+import dao.entities.ScrobbledArtist;
+import dao.entities.UserInfo;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -84,7 +88,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
     void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<AlbumTimeFrameParameters> params) throws LastFmException, InstanceNotFoundException {
 
 
-        TimeFrameEnum time = params.getInnerParams().getTimeFrame();
+        CustomTimeFrame time = params.getInnerParams().getTimeFrame();
         LastFMData lastFMData = params.getInnerParams().getLastFMData();
         String artist = params.getInnerParams().getArtist();
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
@@ -97,7 +101,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
                 , x -> x, 1);
         String lastfm = lastFMData.getName();
         lastFM.getChart(lastfm,
-                time.toApiFormat(),
+                time,
                 1000,
                 1,
                 TopEntity.ALBUM,
@@ -113,7 +117,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         scrobbledArtist.setArtist(urlCapsule.getArtistName());
         int metricPlays = urlCapsule.getPlays();
         int albumPlays;
-        if (time.equals(TimeFrameEnum.ALL)) {
+        if (time.isAllTime()) {
             albumPlays = metricPlays;
         } else {
             FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(lastfm, scrobbledArtist.getArtist(), album);
@@ -136,32 +140,39 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         ZonedDateTime now = LocalDateTime.now().atZone(ZoneOffset.ofHours(2));
         int timestamp;
         ChronoUnit days = ChronoUnit.DAYS;
-        switch (time) {
-            case YEAR:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant().getEpochSecond();
-                break;
-            case QUARTER:
-                timestamp = (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toInstant().getEpochSecond();
-                break;
-            case MONTH:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant().getEpochSecond();
-                break;
-            case ALL:
-                timestamp = 0;
-                break;
-            case SEMESTER:
-                timestamp = (int) now.minus(unitNumber * 2, ChronoUnit.MONTHS).toInstant().getEpochSecond();
-                break;
-            case WEEK:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.WEEKS).toInstant().getEpochSecond();
-                break;
-            case DAY:
-                timestamp = (int) now.minus(unitNumber, days).toInstant().getEpochSecond();
-                break;
-            default:
-                throw new IllegalArgumentException();
+        if (time.getType() == CustomTimeFrame.Type.NORMAL) {
+            switch (time.getTimeFrameEnum()) {
+                case YEAR:
+                    timestamp = (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant().getEpochSecond();
+                    break;
+                case QUARTER:
+                    timestamp = (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+                    break;
+                case MONTH:
+                    timestamp = (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+                    break;
+                case ALL:
+                    timestamp = 0;
+                    break;
+                case SEMESTER:
+                    timestamp = (int) now.minus(unitNumber * 2, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+                    break;
+                case WEEK:
+                    timestamp = (int) now.minus(unitNumber, ChronoUnit.WEEKS).toInstant().getEpochSecond();
+                    break;
+                case DAY:
+                    timestamp = (int) now.minus(unitNumber, days).toInstant().getEpochSecond();
+                    break;
+                default:
+                    throw new IllegalArgumentException();
+            }
+        } else {
+            // TODO
+            timestamp = 0;
         }
-        timestamp = time.equals(TimeFrameEnum.ALL) ? unixtimestamp : timestamp;
+
+        // TODO
+        timestamp = time.isAllTime() ? unixtimestamp : timestamp;
         BiFunction<Temporal, Temporal, Long> between = days::between;
         LocalDateTime compareTime = LocalDateTime.ofEpochSecond(timestamp, 0, ZoneOffset.ofHours(1));
         totalUnits = between.apply(compareTime, now);
@@ -170,7 +181,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         String userString = getUserString(e, lastFMData.getDiscordId(), lastfm);
 
         String timeFrame;
-        if (time.equals(TimeFrameEnum.ALL)) timeFrame = " overall";
+        if (time.isAllTime()) timeFrame = " overall";
         else
             timeFrame = time.getDisplayString();
         String format = now.plus((long) remainingUnits, days).format(formatter);

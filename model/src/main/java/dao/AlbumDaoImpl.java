@@ -186,6 +186,24 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     }
 
     @Override
+    public String getAlbumUrlByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException {
+        @Language("MariaDB") String queryString = "SELECT url FROM  album WHERE album_name = ? and artist_id = ?  ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(2, artist_id);
+            preparedStatement.setString(1, album);
+
+
+            ResultSet execute = preparedStatement.executeQuery();
+            if (execute.next()) {
+                return execute.getString(1);
+            }
+            throw new InstanceNotFoundException(album);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public Album getAlbumByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException {
         @Language("MariaDB") String queryString = "SELECT id,artist_id,album_name,url,rym_id,mbid,spotify_id FROM  album WHERE album_name = ? and artist_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {

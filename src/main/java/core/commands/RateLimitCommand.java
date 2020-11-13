@@ -10,7 +10,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -61,13 +60,10 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
 
         Map<Long, RateLimiter> ratelimited = Chuu.getRatelimited();
         long discordId = params.getDiscordId();
-        try {
-            User complete = e.getJDA().retrieveUserById(discordId).complete();
-        } catch (Exception ex) {
-            sendMessageQueue(e, "Couldn't find any user with id " + discordId);
-            return;
+        e.getJDA().retrieveUserById(discordId).queue(x -> handleUser(e, params, ratelimited, discordId), throwable -> sendMessageQueue(e, "Couldn't find any user with id " + discordId));
+    }
 
-        }
+    private void handleUser(MessageReceivedEvent e, RateLimitParams params, Map<Long, RateLimiter> ratelimited, long discordId) {
         if (params.isDeleting()) {
             ratelimited.remove(discordId);
             getService().removeRateLimit(discordId);

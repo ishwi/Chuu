@@ -2,6 +2,7 @@ package core.parsers;
 
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.TopParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -44,7 +45,7 @@ public class TopParser extends ChartableParser<TopParameters> {
         subMessage = chartParserAux.getMessage();
 
         LastFMData data = atTheEndOneUser(e, subMessage);
-        return new TopParameters(e, data.getName(), data.getDiscordId(), defaultTFE, x, y, data.getChartMode(), data);
+        return new TopParameters(e, data.getName(), data.getDiscordId(), new CustomTimeFrame(defaultTFE), x, y, data.getChartMode(), data);
     }
 
 

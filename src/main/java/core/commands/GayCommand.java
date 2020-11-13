@@ -153,14 +153,14 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
         queue = new DiscardByQueue(getService(), discogsApi, spotify, discardGenerator.apply(gayColours, params), factoryFunction, params.getX() * params.getY());
         if (params.hasOptional("artist")) {
             count = lastFM.getChart(params.getLastfmID(),
-                    params.getTimeFrameEnum().toApiFormat(),
+                    params.getTimeFrameEnum(),
                     3000,
                     1,
                     TopEntity.ARTIST,
                     ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getLastfmID()),
                     queue);
         } else {
-            count = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum().toApiFormat(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getLastfmID()), queue);
+            count = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getLastfmID()), queue);
         }
 
         List<UrlCapsule> holding = new ArrayList<>();

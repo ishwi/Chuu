@@ -8,11 +8,11 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class RainbowParser extends ChartableParser<RainbowParams> {
-    private final ChartParser inner;
+    private final ChartNormalParser inner;
 
     public RainbowParser(ChuuService dao, TimeFrameEnum defaultTFE, OptionalEntity... opts) {
         super(dao, defaultTFE, opts);
-        inner = new ChartParser(dao, defaultTFE);
+        inner = new ChartNormalParser(dao, defaultTFE);
     }
 
     @Override

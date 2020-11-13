@@ -61,4 +61,46 @@ public enum TopEntity {
     }
 
 
+    String getCustomLeadingObject() {
+        String returnValue;
+        switch (this) {
+            case ALBUM:
+                returnValue = "weeklyalbumchart";
+                break;
+            case TRACK:
+                returnValue = "weeklytrackchart";
+                break;
+            case ARTIST:
+                returnValue = "weeklyartistchart";
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + this);
+        }
+        return returnValue;
+    }
+
+    String getCustomApiMethod() {
+        String returnValue;
+        switch (this) {
+            case ALBUM:
+                returnValue = ConcurrentLastFM.GET_WEEKLY_CHART_ALBUM;
+                break;
+
+            case TRACK:
+                returnValue = ConcurrentLastFM.GET_WEEKLY_CHART_TRACK;
+                break;
+            case ARTIST:
+                returnValue = ConcurrentLastFM.GET_WEEKLY_CHART_ARTIST;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + this);
+        }
+        return returnValue;
+    }
+
+    String getCustomArrayObject() {
+        return getArrayObject();
+    }
+
+
 }

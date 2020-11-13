@@ -1,22 +1,33 @@
 package core.parsers;
 
 import core.parsers.exceptions.InvalidChartValuesException;
+import core.parsers.exceptions.InvalidDateException;
+import core.parsers.utils.CustomTimeFrame;
+import core.parsers.utils.DateUtils;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.TimeFrameEnum;
+import javacutils.Pair;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.time.Year;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import static core.parsers.Parser.filterMessage;
 
 public class ChartParserAux {
     public static final Pattern chartSizePattern = Pattern.compile("\\d+[xX]\\d+");
     private static final Pattern pattern = Pattern.compile("(:?[yqsmwad]|(:?(:?day|daily)?)|(:?year(:?ly)?|month(:?ly)?|quarter(:?ly)?|semester(:?ly)?|week(:?ly)?|alltime|all))");
     private static final Pattern naturalPattern = Pattern.compile("(:?[yqsmwadh']|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(:?ly)?(:?lies)?|day(:?s)?|" +
+            "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))");
+
+    private static final Pattern naturalPatternWithCount = Pattern.compile("(:?(?<![\\w\\d])[yqsmwadh'](?![\\w\\d]+)|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(:?ly)?(:?lies)?|day(:?s)?|" +
             "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))");
     private static final Pattern nonPermissivePattern = Pattern.compile("[yqsmwd]");
     private final boolean permissive;
@@ -35,6 +46,52 @@ public class ChartParserAux {
     public String[] getMessage() {
         return message;
     }
+
+    public CustomTimeFrame parseCustomTimeFrame(TimeFrameEnum defaultTimeFrame) throws InvalidDateException {
+
+        String[] ogMessage = message;
+        Pair<String[], Long> integerPair = filterMessage(message, NumberParser.compile.asMatchPredicate(), Long::parseLong, 1L);
+        message = integerPair.first;
+        long count = integerPair.second;
+        String words = String.join(" ", message);
+        Matcher matcher = naturalPattern.matcher(words);
+        if (matcher.matches()) {
+            String natural = matcher.group(0);
+            String permissiveString = String.valueOf(natural.charAt(0));
+            if (List.of("hour", "hourly", "hours").contains(natural)) {
+                permissiveString = "h";
+            } else if (List.of("min", "mins", "minutes", "minute", "'").contains(natural)) {
+                permissiveString = "min";
+            } else if (List.of("sec", "second", "seconds", "''", "secs").contains(natural)) {
+                permissiveString = "sec";
+            }
+            NaturalTimeFrameEnum naturalTimeFrameEnum = NaturalTimeFrameEnum.get(permissiveString);
+            message = words.replaceAll(natural, "").split("\\s+");
+            if (message.length == 1 && message[0].isBlank()) {
+                message = new String[]{};
+            }
+            if (count == 1 && !EnumSet.of(NaturalTimeFrameEnum.MINUTE, NaturalTimeFrameEnum.SECOND, NaturalTimeFrameEnum.HOUR).contains(naturalTimeFrameEnum)) {
+                return new CustomTimeFrame(TimeFrameEnum.fromCompletePeriod(naturalTimeFrameEnum.toApiFormat()));
+            }
+            return new CustomTimeFrame(naturalTimeFrameEnum, count);
+        } else {
+            message = ogMessage;
+            DateUtils dateUtils = new DateUtils();
+            DateUtils.DateParsed dateParsed = dateUtils.parseString(message);
+            if (dateParsed == null || dateParsed.getFrom() == null) {
+                dateParsed = dateUtils.parseOnlyOne(message);
+            }
+            if (dateParsed == null || dateParsed.getFrom() == null) {
+                return new CustomTimeFrame(defaultTimeFrame);
+            }
+            message = dateParsed.getRemainingWords();
+            if (dateParsed.getFrom().isAfter(dateParsed.getTo())) {
+                throw new InvalidDateException();
+            }
+            return new CustomTimeFrame(dateParsed.getFrom(), dateParsed.getTo());
+        }
+    }
+
 
     NaturalTimeFrameEnum parseNaturalTimeFrame() {
         return getNaturalTimeFrameEnum(null);

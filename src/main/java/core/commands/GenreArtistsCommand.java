@@ -62,7 +62,7 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
         String name = params.getLastfmID();
         List<ArtistInfo> artists;
         BlockingQueue<UrlCapsule> queue;
-        if (params.getTimeFrameEnum().equals(TimeFrameEnum.ALL)) {
+        if (params.getTimeFrameEnum().isAllTime()) {
 
             List<ScrobbledArtist> userAlbumByMbid = getService().getUserArtistByMbid(name);
             artists = userAlbumByMbid.stream().filter(u -> u.getArtistMbid() != null && !u.getArtistMbid().isEmpty()).map(x ->
@@ -73,7 +73,7 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
         } else {
             queue = new ArrayBlockingQueue<>(4000);
 
-            lastFM.getChart(name, params.getTimeFrameEnum().toApiFormat(), 4000, 1,
+            lastFM.getChart(name, params.getTimeFrameEnum(), 4000, 1,
                     TopEntity.ARTIST,
                     ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, name), queue);
             ArrayList<UrlCapsule> c = new ArrayList<>(queue);

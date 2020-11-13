@@ -2,6 +2,7 @@ package core.parsers;
 
 import com.neovisionaries.i18n.CountryCode;
 import core.parsers.params.CountryParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -78,7 +79,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
                     country = CountryCode.getByAlpha3Code(opt.get().getISO3Country());
                 } else {
                     try {
-                        List<CountryCode> byName = CountryCode.findByName(Pattern.compile(".*" + countryCode + ".*")).stream()
+                        List<CountryCode> byName = CountryCode.findByName(Pattern.compile(".*" + countryCode + ".*", Pattern.CASE_INSENSITIVE | Pattern.DOTALL)).stream()
                                 .filter(x -> !x.getName().equalsIgnoreCase("Undefined")).collect(Collectors.toList());
 
                         if (byName.isEmpty()) {
@@ -104,7 +105,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
 //        }
         return new
 
-                CountryParameters(e, lastFMData, country, timeFrameEnum);
+                CountryParameters(e, lastFMData, country, new CustomTimeFrame(timeFrameEnum));
 
     }
 
