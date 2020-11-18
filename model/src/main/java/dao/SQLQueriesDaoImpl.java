@@ -1820,15 +1820,15 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public BotStats getBotStats(Connection connection) {
         @Language("MariaDB") String queryString = "Select (Select count(*) from user) as user_count," +
                 " (Select count(*) from guild) guild_count," +
-                " (Select count(*) from artist) artist_count," +
-                "(select count(*) from album) album_count," +
+                " (select table_rows from  information_schema.TABLES WHERE TABLES.TABLE_SCHEMA = 'lastfm' and TABLE_NAME = 'artist') artist_count," +
+                "(select table_rows from  information_schema.TABLES WHERE TABLES.TABLE_SCHEMA = 'lastfm' and TABLE_NAME = 'album') album_count," +
                 "(select sum(playnumber) from scrobbled_artist) scrobbled_count," +
-                "(select count(*) from album_rating ) rym_count," +
+                "(select table_rows from  information_schema.TABLES WHERE TABLES.TABLE_SCHEMA = 'lastfm' and TABLE_NAME = 'album_rating' ) rym_count," +
                 " (select avg(rating) from album_rating ) rym_avg," +
                 " (select count(*) from past_recommendations) recommedation_count," +
                 " (Select count(*) from corrections)correction_count, " +
                 "(select count(*) from randomlinks) random_count," +
-                " (select count(*) from alt_url) image_count, " +
+                " (select table_rows from  information_schema.TABLES WHERE TABLES.TABLE_SCHEMA = 'lastfm' and TABLE_NAME = 'alt_url') image_count, " +
                 "(select count(*) from vote) vote_count," +
                 "(select count(*) from user_guild) set_count," +
                 "(select  value from metrics where id = 5) as api_count";

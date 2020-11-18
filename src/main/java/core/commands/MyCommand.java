@@ -8,7 +8,6 @@ import core.imagerenderer.ChartQuality;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -122,9 +121,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
                 username = CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName());
             }
 
-            String init = "hasn't played anything";
-            if (!ex.getTimeFrameEnum().equals(TimeFrameEnum.ALL.toString()))
-                init += " in the last " + ex.getTimeFrameEnum().toLowerCase();
+            String init = "hasn't played anything" + ex.getTimeFrameEnum().toLowerCase();
 
             parser.sendError(username + " " + init, e);
         } catch (LastFmEntityNotFoundException ex) {

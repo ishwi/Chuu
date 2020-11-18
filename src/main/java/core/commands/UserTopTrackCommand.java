@@ -91,7 +91,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
         String handleCount;
         if (!params.getTimeFrameEnum().isNormally()) {
-            handleCount = "top " + count + " tracks";
+            handleCount = "'s top " + count + " tracks";
         } else {
             handleCount = " has listened to " + count + " tracks";
         }
