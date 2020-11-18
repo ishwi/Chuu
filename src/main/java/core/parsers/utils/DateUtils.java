@@ -22,12 +22,13 @@ public class DateUtils {
 
     private static final DateTimeFormatter[] dateTimeFormatters;
 
+
     static {
         Function<String, DateTimeFormatter> build = s ->
                 new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern(s)
                         .toFormatter(Locale.UK);
         String[] dayFormats = new String[]{"d, E, EEE"};
-        String[] monthFormats = new String[]{"M", "MMM", "MMMM"};
+        String[] monthFormats = new String[]{"M", "LLL", "LLLL"};
         String[] yearFormats = new String[]{"yyyy", "y"};
         String[][] formats = new String[][]{dayFormats, monthFormats, yearFormats};
         List<String> flattenFormats = List.of(".", "/", " ");
@@ -38,7 +39,7 @@ public class DateUtils {
             return string;
         };
         Set<String> order = new ListOrderedSet<>();
-        order.add("yyyy/MM/dd");
+        order.add("yyyy/M/d");
         order.addAll(Arrays.asList(dayFormats));
         order.addAll(Arrays.asList(monthFormats));
         for (int i = 0, formatsLength = formats.length; i < formatsLength - 1; i++) {
@@ -92,6 +93,7 @@ public class DateUtils {
             }
 
         }
+//        map = order.stream().collect(Collectors.toMap(build, x -> x));
         dateTimeFormatters = order.stream().map(build).toArray(DateTimeFormatter[]::new);
 
     }
@@ -149,21 +151,21 @@ public class DateUtils {
         if (join.isBlank()) {
             return null;
         }
-        Optional<OffsetDateTime> apply = eval.apply(join, dateTimeFormatters);
+        Optional<OffsetDateTime> apply = eval.apply(join.trim(), dateTimeFormatters);
         return new DateParsed(words, apply.orElse(null), OffsetDateTime.now());
     }
 
     public DateParsed parseString(String[] words) {
         String join = String.join(" ", words);
-        String regex = "([\\w\\d./\\\\ ]+)\\s*-(\\s[\\w\\d./\\\\ ]+)";
+        String regex = "([\\w\\d./\\\\ ]+)\\s*-\\s*(\\s[\\w\\d./\\\\ ]+)";
         Pattern compile = Pattern.compile(regex);
         Matcher matcher = compile.matcher(join);
         if (matcher.matches()) {
             String from = matcher.group(1);
-            Optional<OffsetDateTime> apply = eval.apply(from, dateTimeFormatters);
+            Optional<OffsetDateTime> apply = eval.apply(from.trim(), dateTimeFormatters);
 
             String to = matcher.group(2);
-            Optional<OffsetDateTime> apply2 = eval.apply(to, dateTimeFormatters);
+            Optional<OffsetDateTime> apply2 = eval.apply(to.trim(), dateTimeFormatters);
             words = join.replaceAll(from.trim() + "\\s+-\\s+" + to.trim(), "").split("\\s+");
             if (words.length == 1 && words[0].isBlank()) {
                 words = new String[]{};

@@ -1,6 +1,7 @@
 package core.commands;
 
 import core.Chuu;
+import core.apis.ExecutorsSingleton;
 import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.UrlParser;
@@ -50,13 +51,15 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
 
     @Override
     public void onGuildJoin(@Nonnull GuildJoinEvent event) {
-        getService().createGuild(event.getGuild().getIdLong());
-        event.getGuild().loadMembers().onSuccess(members -> {
-            Set<Long> allBot = getService().getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
-            Set<Long> thisServer = getService().getAll(event.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
-            List<Long> toInsert = members.stream().map(x -> x.getUser().getIdLong()).filter(x -> allBot.contains(x) && !thisServer.contains(x)).collect(Collectors.toList());
-            toInsert.forEach(x -> getService().addGuildUser(x, event.getGuild().getIdLong()));
-            Chuu.getLogger().info("Succesfully added {} {} to server: {}", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members"), event.getGuild().getName());
+        ExecutorsSingleton.getInstance().submit(() -> {
+            getService().createGuild(event.getGuild().getIdLong());
+            event.getGuild().loadMembers().onSuccess(members -> {
+                Set<Long> allBot = getService().getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
+                Set<Long> thisServer = getService().getAll(event.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
+                List<Long> toInsert = members.stream().map(x -> x.getUser().getIdLong()).filter(x -> allBot.contains(x) && !thisServer.contains(x)).collect(Collectors.toList());
+                toInsert.forEach(x -> getService().addGuildUser(x, event.getGuild().getIdLong()));
+                Chuu.getLogger().info("Succesfully added {} {} to server: {}", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members"), event.getGuild().getName());
+            });
         });
     }
 
@@ -67,7 +70,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
             getService().addGuildUser(lastFMData.getDiscordId(), event.getGuild().getIdLong());
             Chuu.getLogger().info("Succesfully added {} to server: {} ", lastFMData.getDiscordId(), event.getGuild().getName());
         } catch (InstanceNotFoundException e) {
-            e.printStackTrace();
+            //Ignored
         }
     }
 
