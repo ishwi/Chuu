@@ -138,12 +138,12 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public long upsertUrl(Connection con, String url, long artistId, long discordId) {
         /* Create "queryString". */
-        String queryString = "INSERT ignore INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?)  ";
+        String queryString = "INSERT INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?)  on duplicate key update id = id returning id";
         return insertArtistInfo(con, url, artistId, discordId, queryString);
     }
 
     private long insertArtistInfo(Connection con, String url, long artistId, long discordId, String queryString) {
-        try (PreparedStatement preparedStatement = con.prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
             int i = 1;
@@ -153,11 +153,10 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
 
             /* Execute query. */
-            preparedStatement.execute();
-            ResultSet rs = preparedStatement.getGeneratedKeys();
-
-            if (rs.next()) {
-                return rs.getLong(1);
+            preparedStatement.executeUpdate();
+	    ResultSet resultSet  = preparedStatement.getResultSet(); 
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
             }
             /* Get generated identifier. */
             throw new ChuuServiceException();
@@ -242,8 +241,9 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public void upsertSpotify(Connection con, String url, long artist_id, long discordId) {
         /* Create "queryString". */
-        String queryString = "INSERT ignore INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?) ";
-        insertArtistInfo(con, url, artist_id, discordId, queryString);
+                String queryString = "INSERT INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?) on duplicate key update id = id returning id";
+
+	    insertArtistInfo(con, url, artist_id, discordId, queryString);
     }
 
     @Override
@@ -619,10 +619,10 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     public void insertArtistSad(Connection connection, ScrobbledArtist nonExistingId) {
         StringBuilder mySql =
                 new StringBuilder("INSERT INTO artist (name,url,url_status,mbid) VALUES (?,?,?,?)");
-        mySql.append(" on duplicate key update correction_status = correction_status");
+        mySql.append(" on duplicate key update correction_status = correction_status returning id");
 
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString(), Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
             String artist = nonExistingId.getArtist();
             preparedStatement.setString(+1, artist);
             preparedStatement.setString(2, nonExistingId.getUrl());
@@ -632,9 +632,8 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             preparedStatement.execute();
 
             ResultSet ids = preparedStatement.getResultSet();
-            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                nonExistingId.setArtistId(generatedKeys.getLong("GENERATED_KEY"));
+            if (ids.next()) {
+                nonExistingId.setArtistId(ids.getLong(1));
             } else {
                 try {
                     if (artist.length() > 400) {
@@ -643,6 +642,8 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                     long artistId = getArtistId(connection, artist);
                     nonExistingId.setArtistId(artistId);
                 } catch (InstanceNotFoundException e) {
+			       logger.warn("{} couldnt be inserted", artist);
+
                     throw new SQLException("Creating user failed, no ID obtained.");
                 }
             }
