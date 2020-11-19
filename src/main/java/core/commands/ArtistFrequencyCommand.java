@@ -67,12 +67,11 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
                 "](" + LinkUtils.getLastFmArtistUrl(x.getArtistName()) +
                 ") - " + x.getCount() +
                 " listeners \n").collect(Collectors.toList());
-        EmbedBuilder embedBuilder = initList(collect);
-        embedBuilder.setTitle("Artist's frequencies");
-        embedBuilder.setFooter(String.format("%s has %d different artists!%n", e.getGuild().getName(), wrapper.getRows()), null);
-        embedBuilder.setThumbnail(e.getGuild().getIconUrl());
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        EmbedBuilder embedBuilder = initList(collect)
+                .setTitle("Artist's frequencies")
+                .setFooter(String.format("%s has %d different artists!%n", e.getGuild().getName(), wrapper.getRows()), null)
+                .setThumbnail(e.getGuild().getIconUrl());
+        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 new Reactionary<>(collect, message1, embedBuilder));
     }
 

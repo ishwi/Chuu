@@ -19,7 +19,6 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
@@ -116,7 +115,6 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         MessageReceivedEvent e = ap.getE();
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ap.getLastFMData().getDiscordId());
         StringBuilder str = new StringBuilder();
-        MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
         List<String> collect = ai.getAlbumList().stream().map(x -> (String.format(".[%s](%s) - %d plays%n", x.getAlbum(), LinkUtils.getLastFmArtistAlbumUrl(ai.getArtist(), x.getAlbum()), x.getPlays()))).collect(Collectors.toList());
         for (int i = 0; i < collect.size() && i < 10; i++) {
@@ -126,7 +124,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         embedBuilder.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.cleanMarkdownCharacter(ai.getArtist()) + " albums").
                 setThumbnail(CommandUtil.noImageUrl(ap.getScrobbledArtist().getUrl())).setDescription(str)
                 .setColor(CommandUtil.randomColor());
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build())
+        e.getChannel().sendMessage(embedBuilder.build())
                 .queue(message ->
                         new Reactionary<>(collect, message, 10, embedBuilder));
     }

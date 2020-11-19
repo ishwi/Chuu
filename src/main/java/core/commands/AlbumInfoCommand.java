@@ -66,7 +66,6 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                         String
                                 .format("%02d:%02d", x.getDuration() / 60, x.getDuration() % 60))
                         .append("\n"));
-        MessageBuilder messageBuilder = new MessageBuilder();
         embedBuilder.setTitle(CommandUtil.cleanMarkdownCharacter(albumSummary.getAlbum()), LinkUtils.getLastFmArtistAlbumUrl(albumSummary.getArtist(), albumSummary.getAlbum()))
                 .addField("Artist:", "[" + CommandUtil.cleanMarkdownCharacter(albumSummary.getArtist()) + "](" + LinkUtils.getLastFmArtistUrl(albumSummary.getArtist()) + ")", false)
                 .addField(username + "'s plays:", String.valueOf(albumSummary.getTotalPlayNumber()), true)
@@ -93,7 +92,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
         embedBuilder.setImage(albumSummary.getAlbumUrl())
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(artist.getUrl());
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
+        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
         if (!albumSummary.getTagList().isEmpty()) {
             executor.submit(new TagAlbumService(getService(), lastFM, albumSummary.getTagList(), new AlbumInfo(albumSummary.getMbid(), albumSummary.getAlbum(), albumSummary.getArtist())));
 

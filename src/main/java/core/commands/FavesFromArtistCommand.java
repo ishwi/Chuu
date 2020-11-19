@@ -78,22 +78,18 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
             return;
         }
 
-        MessageBuilder mes = new MessageBuilder();
         StringBuilder s = new StringBuilder();
-
         for (int i = 0; i < 10 && i < ai.size(); i++) {
             Track g = ai.get(i);
             s.append(i + 1).append(". **").append(CommandUtil.cleanMarkdownCharacter(g.getName())).append("** - ").append(g.getPlays()).append(" plays")
                     .append("\n");
         }
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setDescription(s);
-        embedBuilder.setColor(CommandUtil.randomColor());
-
-        embedBuilder
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setDescription(s)
+                .setColor(CommandUtil.randomColor())
                 .setTitle(String.format("%s's top %s tracks%s", userString, who.getArtist(), timeframew.getDisplayString()), CommandUtil.getLastFmUser(lastFmName))
                 .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
 
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
+        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
     }
 }

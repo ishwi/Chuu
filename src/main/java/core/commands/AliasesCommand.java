@@ -81,14 +81,13 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
         }
 
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setDescription(a);
-        embedBuilder.setColor(CommandUtil.randomColor());
-        embedBuilder.setTitle(correctedArtist + "'s aliases");
-        embedBuilder.setFooter("You can submit an alias using " + prefix + "alias", null);
-        embedBuilder.setThumbnail(scrobbledArtist.getUrl());
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setDescription(a)
+                .setColor(CommandUtil.randomColor())
+                .setTitle(correctedArtist + "'s aliases")
+                .setFooter("You can submit an alias using " + prefix + "alias", null)
+                .setThumbnail(scrobbledArtist.getUrl());
+        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 new Reactionary<>(artistAliases, message1, embedBuilder));
     }
 

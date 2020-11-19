@@ -68,16 +68,15 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
         int trackCount = lastFM.getChart(name, customTimeFrame, 1, 1, TopEntity.TRACK, ChartUtil.getParser(customTimeFrame, TopEntity.TRACK, ChartParameters.toListParams(), lastFM, name), capsules);
         LocalDateTime localDateTime = time.toLocalDate(1);
         int i = lastFM.scrobblesSince(name, localDateTime.atOffset(ZoneOffset.UTC));
-        EmbedBuilder embedBuilder = new EmbedBuilder();
         DiscordUserDisplay info = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
-        embedBuilder.setTitle(info.getUsername() + "'s summary" + time.getDisplayString())
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setTitle(info.getUsername() + "'s summary" + time.getDisplayString())
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(info.getUrlImage())
                 .addField("Total scrobbles:", i + " scrobbles", false)
                 .addField("Total songs:", trackCount + " songs", true)
                 .addField("Total albums:", albumCount + " albums", true)
-                .addField("Total artists:", artistCount + " artists", true)
-                .build();
+                .addField("Total artists:", artistCount + " artists", true);
 
         e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
     }

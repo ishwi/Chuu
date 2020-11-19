@@ -25,7 +25,6 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -146,14 +145,13 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         }
 
         String title = userName + "'s top artists from " + countryRep + (":");
-        MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(userUrl)
                 .setFooter(CommandUtil.markdownLessUserString(userName, discordId, e) + " has " + list.size() +
                         (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
                 .setTitle(title)
                 .setDescription(a);
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(mes ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(list, mes, embedBuilder));
     }
 }

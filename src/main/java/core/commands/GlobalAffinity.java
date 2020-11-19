@@ -14,7 +14,6 @@ import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -77,7 +76,7 @@ public class GlobalAffinity extends ConcurrentCommand<NumberParameters<ChuuDataP
 
         StringBuilder stringBuilder = new StringBuilder();
         List<String> string = collect.stream().map(x -> {
-            String name;
+                    String name;
                     if (x.getPrivacyMode() == PrivacyMode.TAG) {
                         name = e.getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag();
                     } else if (x.getPrivacyMode() == PrivacyMode.LAST_NAME) {
@@ -106,15 +105,8 @@ public class GlobalAffinity extends ConcurrentCommand<NumberParameters<ChuuDataP
                 .setColor(CommandUtil.randomColor())
                 .setFooter(String.format("%s's global affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uinfo.getUsername()), threshold), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().
-
-                sendMessage(mes.setEmbed(embedBuilder.build()).
-
-                        build()).
-
-                queue(message1 ->
-                        new Reactionary<>(string, message1, embedBuilder));
+        e.getChannel().sendMessage(embedBuilder.build())
+                .queue(message1 -> new Reactionary<>(string, message1, embedBuilder));
     }
 
 }

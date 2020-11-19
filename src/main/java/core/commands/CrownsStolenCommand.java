@@ -13,7 +13,6 @@ import dao.entities.StolenCrown;
 import dao.entities.StolenCrownWrapper;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -99,8 +98,6 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
             sendMessageQueue(e, userName2 + " hasn't stolen anything from " + userName);
             return;
         }
-        MessageBuilder messageBuilder = new MessageBuilder();
-
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(e.getGuild().getIconUrl());
         StringBuilder a = new StringBuilder();
@@ -117,7 +114,7 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
                 .getLastFmUser(ogLastFmId))
                 .setThumbnail(userUrl2)
                 .setFooter(CommandUtil.markdownLessUserString(userName2, resultWrapper.getQuriedId(), e) + " has stolen " + rows + " crowns!\n", null);
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(m ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(resultWrapper.getList(), m, embedBuilder));
 
     }

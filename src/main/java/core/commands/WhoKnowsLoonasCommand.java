@@ -16,7 +16,6 @@ import dao.entities.WrapperReturnNowPlaying;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
@@ -310,7 +309,6 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
     void doList(LOONAParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        MessageBuilder messageBuilder = new MessageBuilder();
         StringBuilder builder = new StringBuilder();
 
         MessageReceivedEvent e = ap.getE();
@@ -332,7 +330,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         embedBuilder.setTitle(getTitle(ap, usable)).
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
                 .setColor(CommandUtil.randomColor());
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build())
+        e.getChannel().sendMessage(embedBuilder.build())
                 .queue(message1 ->
                         new Reactionary<>(wrapperReturnNowPlaying
                                 .getReturnNowPlayings(), message1, embedBuilder));

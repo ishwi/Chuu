@@ -10,7 +10,6 @@ import dao.ChuuService;
 import dao.entities.TagPlays;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
@@ -77,11 +76,10 @@ public class ServerTags extends PieableListCommand<List<TagPlays>, CommandParame
                 String.format(". [%s](%s) - %d %s\n", LinkUtils.cleanMarkdownCharacter(x.getTag()),
                         LinkUtils.getLastFmArtistUrl(x.getTag()), x.getCount(), buzzz))
                 .collect(Collectors.toList());
-        EmbedBuilder embedBuilder = initList(collect);
-        embedBuilder.setTitle("Server Tags");
-        embedBuilder.setThumbnail(e.getGuild().getIconUrl());
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        EmbedBuilder embedBuilder = initList(collect)
+                .setTitle("Server Tags")
+                .setThumbnail(e.getGuild().getIconUrl());
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(collect, message1, embedBuilder));
     }
 

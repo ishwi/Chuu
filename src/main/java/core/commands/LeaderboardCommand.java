@@ -6,7 +6,6 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
@@ -25,7 +24,6 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
     public void printList(List<LbEntry> list, T params) {
         MessageReceivedEvent e = params.getE();
         list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
-        MessageBuilder messageBuilder = new MessageBuilder();
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(e.getGuild().getIconUrl());
@@ -45,7 +43,7 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setFooter(e.getGuild().getName() + " has " + list.size() + " registered users!\n", null);
 
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(message ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message ->
                 new Reactionary<>(strings, message, embedBuilder));
     }
 }

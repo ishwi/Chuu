@@ -10,7 +10,6 @@ import dao.ChuuService;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -78,8 +77,7 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
                     .getAlbumName())), false);
         }
 
-        MessageBuilder messageBuilder = new MessageBuilder();
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
+        e.getChannel().sendMessage(embedBuilder.build()).queue();
 
 
     }

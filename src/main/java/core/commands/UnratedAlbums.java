@@ -8,7 +8,6 @@ import dao.ChuuService;
 import dao.entities.AlbumPlays;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
@@ -72,8 +71,7 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
         embedBuilder.setTitle(dp.getUsername() + "'s Unrated Albums");
         embedBuilder.setFooter("You can link your rym account using " + prefix + "rymimport\n You have " + list.size() + " unrated albums", null);
         embedBuilder.setThumbnail(dp.getUrlImage());
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(list, message1, embedBuilder));
     }
 }

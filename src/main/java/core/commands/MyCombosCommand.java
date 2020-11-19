@@ -11,7 +11,6 @@ import dao.entities.GlobalStreakEntities;
 import dao.entities.StreakEntity;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -83,8 +82,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setThumbnail(CommandUtil.noImageUrl(userUrl))
                 .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), streaks.size(), CommandUtil.singlePlural(streaks.size(), "streak", "streaks")));
-        MessageBuilder messageBuilder = new MessageBuilder();
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(streaks, message1, 5, embedBuilder));
     }
 }

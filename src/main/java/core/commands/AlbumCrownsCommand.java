@@ -14,7 +14,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -99,8 +98,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
                 .setFooter(String.format("%s has %d album crowns!!%n", CommandUtil.markdownLessUserString(name, innerParams.getLastFMData().getDiscordId(), e), resultWrapper.size()), null)
                 .setThumbnail(url);
 
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(resultWrapper, message1, embedBuilder));
     }
 

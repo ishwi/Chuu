@@ -200,8 +200,8 @@ BEGIN
                          FROM alt_url a
                          WHERE a.artist_id = new.artist_id);
     set current_url = (SELECT a.url
-                       FROM alt_url a
-                       WHERE a.artist_id = new.artist_id);
+                       FROM artist a
+                       WHERE a.id = new.artist_id);
     IF ((SELECT url FROM artist b WHERE b.id = new.artist_id) = new.url) AND (new.score < current_score) THEN
         UPDATE artist SET url = @current_url WHERE id = new.artist_id;
     ELSEIF (new.score >= @current_score) THEN

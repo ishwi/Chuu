@@ -56,7 +56,6 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
     public void onCommand(MessageReceivedEvent e, @NotNull WordParameter params) throws LastFmException, InstanceNotFoundException {
 
 
-        MessageBuilder mes = new MessageBuilder();
         String lastFmID = params.getWord();
         long guildID = e.getGuild().getIdLong();
         long userId = e.getAuthor().getIdLong();
@@ -122,8 +121,8 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             }
         }
 
-
         //Never registered before
+        MessageBuilder mes = new MessageBuilder();
         mes.setContent("**" + CommandUtil.cleanMarkdownCharacter(e.getAuthor()
                 .
 

@@ -1,7 +1,9 @@
-package test;
+package core.commands;
 
-import core.commands.WhoKnowsLoonasCommand;
 import core.commands.utils.EvalContext;
+import dao.ChuuService;
+import dao.entities.TimeFrameEnum;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -10,22 +12,80 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
 public class EvalTest {
     public void name(EvalContext ctx) {
+        class b extends ConcurrentCommand<core.parsers.params.CommandParameters> {
+            public b(ChuuService dao) {
+                super(dao);
+            }
 
-        core.Chuu.getShardManager().getShards().forEach(jda -> {
-        });
+            @Override
+            protected CommandCategory initCategory() {
+                return CommandCategory.BOT_STATS;
+            }
 
-        core.Chuu.getShardManager().removeEventListener();
+            @Override
+            public core.parsers.Parser<core.parsers.params.CommandParameters> initParser() {
+                return new core.parsers.NoOpParser();
+            }
 
+            @Override
+            public String getDescription() {
+                return "d";
+            }
+
+            @Override
+            public List<String> getAliases() {
+                return List.of("nam");
+            }
+
+            @Override
+            public String getName() {
+                return "n";
+            }
+
+            @Override
+            public void onMessageReceived(MessageReceivedEvent e) {
+                try {
+                    var c = java.util.regex.Pattern.compile("(\\w+)[\\s+]from:(.*)");
+                    var s = parser.getSubMessage(e.getMessage());
+                    var j = String.join(" ", s);
+                    var m = c.matcher(j);
+                    if (!m.matches()) {
+                        sendMessageQueue(e, "1");
+                        return;
+                    }
+                    var a = m.group(1);
+                    var p = m.group(2);
+                    var ax = new core.parsers.ChartParserAux(new String[]{p});
+                    core.parsers.utils.CustomTimeFrame t;
+                    t = ax.parseCustomTimeFrame(TimeFrameEnum.ALL);
+                    var l = getService().findLastFMData(e.getAuthor().getIdLong());
+                    var q = new core.apis.last.queues.DiscardableQueue<>(x -> !x.getArtistName().equalsIgnoreCase(a), x -> x, 1);
+                    var te = core.apis.last.TopEntity.ARTIST;
+                    lastFM.getChart(l.getName(), t, 1000, 1, te, core.apis.last.chartentities.ChartUtil.getParser(t, te, core.parsers.params.ChartParameters.toListParams(), lastFM, l.getName()), q);
+                    var o = new ArrayList<core.apis.last.chartentities.UrlCapsule>();
+                    q.drainTo(o);
+                    if (o.isEmpty()) {
+                        sendMessageQueue(e, ax + " was not found on your top 1k artists" + t.getDisplayString() + ".");
+                        return;
+                    }
+                    sendMessageQueue(e, String.format("You has %d plays of %s%s", o.get(0).getPlays(), o.get(0).getArtistName(), t.getDisplayString()));
+                } catch (Exception ex) {
+                    sendMessageQueue(e, "2");
+                }
+            }
+
+            @Override
+            void onCommand(MessageReceivedEvent e, core.parsers.params.CommandParameters params) {
+            }
+        }
+        ctx.jda.addEventListener(new b(ctx.db));
     }
 
     public JSONObject getKey(String id) {

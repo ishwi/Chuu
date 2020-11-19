@@ -17,7 +17,6 @@ import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
@@ -149,8 +148,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
                 .setDescription(a)
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage()), params, count);
-        MessageBuilder mes = new MessageBuilder();
-        params.getE().getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        params.getE().getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(urlCapsules, message1, embedBuilder));
     }
 

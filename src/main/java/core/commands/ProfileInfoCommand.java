@@ -19,7 +19,6 @@ import dao.entities.UserInfo;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -159,8 +158,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setDescription(stringBuilder)
                 .setFooter("Account created on " + date);
 
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
+        e.getChannel().sendMessage(embedBuilder.build()).queue();
     }
 
     @Override

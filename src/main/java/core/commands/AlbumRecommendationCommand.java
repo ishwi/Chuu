@@ -15,7 +15,6 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -156,8 +155,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
                 .setThumbnail(giverUI.getUrlImage())
                 .setColor(CommandUtil.randomColor())
                 .setDescription(a);
-        MessageBuilder messageBuilder = new MessageBuilder();
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(mes ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(stringedList, mes, 10, embedBuilder));
     }
 }

@@ -54,16 +54,16 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
             "httxcas://asdopen.spotify.com/album/01U2G02pbK0IcIOMW0j3Dn?si=r7Y1qtqUQM6in0xrKNs42w",
             "https://open.spotify.com/albumsada/4CGanXs6KlVuXXdNrf82qE?si=o18KmqSpSD-zYF8TLeUeDA",
             "https://open.spotify.com/albumasdzcx/53VKICyqCf91sVkTdFrzKXasdzxc?si=-Ii5weRuTDa1LTmk8HKqnQ"};
-    private Queue<String> formatQueue = new ArrayDeque<>();
-    private Queue<String> repeatedQueue = new ArrayDeque<>();
-    private Guard messageValidGuard = new Guard("requiresIsMessageValid();");
-    private Guard messageInValidGuard = new Guard("!requiresIsMessageValid();");
-    private Guard urlUniqueGuard = new Guard("requiresIsUrlUnique();");
-    private Guard notUrlUniqueGuard = new Guard("!requiresIsUrlUnique();");
+    private final Queue<String> formatQueue = new ArrayDeque<>();
+    private final Queue<String> repeatedQueue = new ArrayDeque<>();
+    private final Guard messageValidGuard = new Guard("requiresIsMessageValid();");
+    private final Guard messageInValidGuard = new Guard("!requiresIsMessageValid();");
+    private final Guard urlUniqueGuard = new Guard("requiresIsUrlUnique();");
+    private final Guard notUrlUniqueGuard = new Guard("!requiresIsUrlUnique();");
     private boolean isMessageValid = true;
     private boolean isUrlUnique = false;
     private int additions = 0;
-    private Random random = new Random();
+    private final Random random = new Random();
 
     public boolean requiresIsMessageValid() {
         return isMessageValid;

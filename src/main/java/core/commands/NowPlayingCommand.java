@@ -15,7 +15,6 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -127,16 +126,8 @@ public class NowPlayingCommand extends NpCommand {
         if (url != null && footer.isBlank()) {
             footer += EmbedBuilder.ZERO_WIDTH_SPACE;
         }
-        MessageBuilder messageBuilder = new MessageBuilder();
         embedBuilder.setFooter(footer, url);
-
-        e.getChannel().
-
-                sendMessage(messageBuilder.setEmbed(embedBuilder.build()).
-
-                        build()).
-
-                queue();
+        e.getChannel().sendMessage(embedBuilder.build()).queue();
 
     }
 

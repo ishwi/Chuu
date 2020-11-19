@@ -13,7 +13,6 @@ import dao.entities.Role;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -188,12 +187,11 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
         }
         PrivateChannel privateChannel = e.getAuthor().openPrivateChannel().complete();
 
-        MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setTitle("Import In Progress")
                 .setFooter("Total users to import: " + arr.length())
                 .setThumbnail("https://cdnjs.cloudflare.com/ajax/libs/prettyPhoto/3.1.6/images/prettyPhoto/dark_rounded/loader.gif");
-        Message complete = e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).complete();
+        Message complete = e.getChannel().sendMessage(embedBuilder.build()).complete();
 
         final Queue<Callback> queue = new ArrayDeque<>();
         final int[] counter = new int[]{0};

@@ -19,7 +19,6 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 import org.knowm.xchart.PieChart;
@@ -182,8 +181,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                     .setTitle(usableString + "'s genres")
                     .setFooter(usableString + " has " + collect.size() + " found genres" + timeframe.getDisplayString(), null)
                     .setThumbnail(urlImage);
-            MessageBuilder mes = new MessageBuilder();
-            e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+            e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                     new Reactionary<>(collect, message1, embedBuilder));
 
 

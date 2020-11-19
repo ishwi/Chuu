@@ -23,7 +23,6 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
@@ -182,8 +181,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                         .setFooter(String.format("%s has %d total plays on the album!!%n", CommandUtil.markdownLessUserString(getUserString(e, params.getLastFMData().getDiscordId()), params.getLastFMData().getDiscordId(), e), fullAlbumEntity.getTotalPlayNumber()), null)
                         .setThumbnail(fullAlbumEntity.getAlbumUrl());
 
-                MessageBuilder mes = new MessageBuilder();
-                e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message ->
+                e.getChannel().sendMessage(embedBuilder.build()).queue(message ->
                         new Reactionary<>(collect, message, 20, embedBuilder));
                 break;
         }

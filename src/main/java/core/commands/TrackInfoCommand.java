@@ -10,7 +10,6 @@ import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
@@ -60,7 +59,6 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
                 .map(tag -> String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(tag), LinkUtils.getLastFmTagUrl(tag)))
                 .collect(Collectors.joining(" - "));
 
-        MessageBuilder messageBuilder = new MessageBuilder();
         embedBuilder.setTitle(trackInfo.getName(), LinkUtils.getLastFMArtistTrack(trackInfo.getArtist(), trackInfo.getName()))
                 .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(trackInfo.getArtist()),
                         LinkUtils.getLastFmArtistUrl(trackInfo.getArtist())), false);
@@ -85,7 +83,7 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
         embedBuilder.setImage(trackInfo.getImageUrl() == null || trackInfo.getImageUrl().isBlank() ? null : trackInfo.getImageUrl())
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(artist.getUrl());
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).
+        e.getChannel().sendMessage(embedBuilder.build()).
 
                 queue();
 

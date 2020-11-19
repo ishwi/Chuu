@@ -16,7 +16,6 @@ import dao.entities.UserInfo;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -116,8 +115,7 @@ public class TasteCommand extends ConcurrentCommand<TwoUsersParamaters> {
                 .setColor(CommandUtil.randomColor())
                 .setFooter(String.format("Both user have %d common artists", resultWrapper.getRows()), null)
                 .setThumbnail(uinfo1.getUrlImage());
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(strings, message1, embedBuilder));
     }
 

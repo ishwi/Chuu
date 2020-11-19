@@ -51,8 +51,8 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
         int mb = 1024 * 1024;
         Runtime instance = Runtime.getRuntime();
         long l = (instance.totalMemory() - instance.freeMemory()) / mb;
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(e.getJDA().getSelfUser().getName() + "'s stats")
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setTitle(e.getJDA().getSelfUser().getName() + "'s stats")
                 .setColor(CommandUtil.randomColor())
                 .addField("**Registered users:**", "**" + botStats.getUser_count() + "**", true)
                 .addField("**Number of Servers:**", "**" + botStats.getGuild_count() + "**", true)

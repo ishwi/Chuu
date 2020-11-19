@@ -13,7 +13,6 @@ import dao.entities.LastFMData;
 import dao.entities.UserInfo;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -99,8 +98,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
                 .setColor(CommandUtil.randomColor())
                 .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uinfo.getUsername()), ap.getThreshold()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(string, message1, embedBuilder));
     }
 

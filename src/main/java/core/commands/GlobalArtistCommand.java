@@ -16,7 +16,6 @@ import dao.entities.PrivacyMode;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -78,7 +77,6 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         Optional<GlobalCrown> yourPosition = globalArtistRanking.stream().filter(x -> x.getDiscordId() == userId).findFirst();
         int totalPeople = globalArtistRanking.size();
         int totalPlays = globalArtistRanking.stream().mapToInt(GlobalCrown::getPlaycount).sum();
-        MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
 
         if (yourPosition.isPresent()) {
@@ -152,7 +150,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
         embedBuilder.setImage(validable.getUrl());
         embedBuilder.setTitle("Who knows " + artist + " globally?");
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
+        e.getChannel().sendMessage(embedBuilder.build()).queue();
 
     }
 

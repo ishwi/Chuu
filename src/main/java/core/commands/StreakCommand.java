@@ -13,8 +13,6 @@ import dao.entities.StreakEntity;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -114,12 +112,10 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                     .append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentSong())).append("](").append(LinkUtils.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
         }
 
-        MessageEmbed build = embedBuilder.setDescription(description)
+        embedBuilder.setDescription(description)
                 .setColor(CommandUtil.randomColor())
-                .setFooter(String.format("%s has played %s %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), artist.getArtist(), artistPlays, CommandUtil.singlePlural(artistPlays, "time", "times")))
-                .build();
-        MessageBuilder messageBuilder = new MessageBuilder();
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).
+                .setFooter(String.format("%s has played %s %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), artist.getArtist(), artistPlays, CommandUtil.singlePlural(artistPlays, "time", "times")));
+        e.getChannel().sendMessage(embedBuilder.build()).
                 queue();
 
     }

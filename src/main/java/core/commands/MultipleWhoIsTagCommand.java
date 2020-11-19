@@ -12,7 +12,6 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.SearchMode;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
@@ -41,14 +40,13 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
         }
 
         String title = usableServer + "'s top tagged artist with " + genre + (":");
-        MessageBuilder messageBuilder = new MessageBuilder();
         String text = CommandUtil.rand.nextInt(324) % 5 == 2 ? "Use artistgenre or albumgenre for your artist or albums of the given genre" : null;
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(url)
                 .setFooter(text, null)
                 .setTitle(title)
                 .setDescription(a);
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(mes ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(topInTag, mes, embedBuilder));
     }
 

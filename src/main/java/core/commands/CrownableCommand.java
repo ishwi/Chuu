@@ -12,7 +12,6 @@ import dao.entities.CrownableArtist;
 import dao.entities.DiscordUserDisplay;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.HashMap;
@@ -74,8 +73,6 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         }
         boolean isServer = outerParmams.hasOptional("server") && e.isFromGuild();
 
-        MessageBuilder messageBuilder = new MessageBuilder();
-
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(isServer ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl());
         StringBuilder a = new StringBuilder();
@@ -115,7 +112,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
                 .setAuthor(String.format("%s's artist resume in %s", (uInfo.getUsername()), s), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
                 .setThumbnail(thumbnail)
                 .setFooter(footer);
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(message ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message ->
                 new Reactionary<>(collect, message, embedBuilder));
     }
 

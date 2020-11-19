@@ -14,7 +14,6 @@ import dao.entities.NowPlayingArtist;
 import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.LocalDateTime;
@@ -104,6 +103,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
             return value.isPresent() && !(showFresh && !value.get().isNowPlaying());
         }).map(x -> {
                     UsersWrapper usersWrapper = x.getKey();
+                    assert x.getValue().isPresent();
                     NowPlayingArtist value = x.getValue().get(); //Checked previous filter
                     String username = getUserString(e, usersWrapper.getDiscordID(), usersWrapper.getLastFMName());
                     String started = !showFresh && value.isNowPlaying() ? "#" : "+";
@@ -130,13 +130,12 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
             a.append(string);
         }
         int pageSize = count;
-        MessageBuilder mes = new MessageBuilder();
         int pages = (int) Math.ceil(result.size() / (float) count);
         if (pages != 1) {
             a.append("\n1").append("/").append(pages);
         }
         embedBuilder.setDescription(a);
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(result, message1, pageSize, embedBuilder, false, true));
 
     }

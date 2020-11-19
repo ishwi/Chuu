@@ -10,7 +10,7 @@ import test.commands.utils.TestResources;
 import java.util.List;
 
 public class UniqueGen extends Generator<ArtistPlays> {
-    private List<ArtistPlays> poolOfArtist;
+    private final List<ArtistPlays> poolOfArtist;
 
     public UniqueGen() {
 

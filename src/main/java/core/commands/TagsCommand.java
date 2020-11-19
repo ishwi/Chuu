@@ -14,7 +14,6 @@ import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
@@ -91,8 +90,7 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
                 .setColor(CommandUtil.randomColor())
                 .setTitle(correctedArtist + "'s tags")
                 .setThumbnail(scrobbledArtist.getUrl());
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(artistTags, message1, embedBuilder));
     }
 

@@ -20,7 +20,6 @@ import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
@@ -113,7 +112,6 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
 
     void doList(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        MessageBuilder messageBuilder = new MessageBuilder();
         StringBuilder builder = new StringBuilder();
 
         MessageReceivedEvent e = ap.getE();
@@ -142,7 +140,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         embedBuilder.setTitle(getTitle(ap, usable)).
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
                 .setColor(CommandUtil.randomColor());
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build())
+        e.getChannel().sendMessage(embedBuilder.build())
                 .queue(message1 ->
                         new Reactionary<>(wrapperReturnNowPlaying
                                 .getReturnNowPlayings(), message1, embedBuilder));

@@ -22,7 +22,7 @@ public class GlobalArtistCommand extends CommandTest {
     private String artistUrl;
     private String commonArtist;
     private ArrayList<FieldRowMatcher> basicList;
-    private BiFunction<String, List<FieldRowMatcher>, EmbedTester> artistgenerator = (artist, frm) ->
+    private final BiFunction<String, List<FieldRowMatcher>, EmbedTester> artistgenerator = (artist, frm) ->
     {
         EmbedTesterBuilder embedTesterBuilder = new EmbedTesterBuilder(COMMAND_ALIAS + " " + artist);
         Pattern titlePattern = Pattern.compile("Who knows (.*) globally\\?");
@@ -31,7 +31,7 @@ public class GlobalArtistCommand extends CommandTest {
                 .fieldRowMatch(frm)
                 .build();
     };
-    private Function<List<FieldRowMatcher>, EmbedTester> generator = fieldRowMatchers -> this.artistgenerator.apply(commonArtist, fieldRowMatchers);
+    private final Function<List<FieldRowMatcher>, EmbedTester> generator = fieldRowMatchers -> this.artistgenerator.apply(commonArtist, fieldRowMatchers);
 
     @Override
     public String giveCommandName() {

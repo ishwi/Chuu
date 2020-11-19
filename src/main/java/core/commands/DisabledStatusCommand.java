@@ -84,8 +84,8 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
             if (globalDisabled.length() > 1024) {
                 String substring = globalDisabled.substring(0, 1024);
                 int i = substring.lastIndexOf(",");
-                embedBuilder.addField("**Commands disabled in the whole server**", substring.substring(0, i), false);
-                embedBuilder.addField(EmbedBuilder.ZERO_WIDTH_SPACE, globalDisabled.substring(i), false);
+                embedBuilder.addField("**Commands disabled in the whole server**", substring.substring(0, i), false)
+                        .addField(EmbedBuilder.ZERO_WIDTH_SPACE, globalDisabled.substring(i), false);
             } else {
                 embedBuilder.addField("**...**", globalDisabled, false);
             }
@@ -97,9 +97,9 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
                 stringBuilder = new StringBuilder();
                 fieldBuilder.put(key, stringBuilder);
             }
-            stringBuilder.append("Disabled:\t");
-            stringBuilder.append(guildChannelListEntry.getValue().stream().map(x -> x.getAliases().get(0)).collect(Collectors.joining(", ")));
-            stringBuilder.append("\n");
+            stringBuilder.append("Disabled:\t")
+                    .append(guildChannelListEntry.getValue().stream().map(x -> x.getAliases().get(0)).collect(Collectors.joining(", ")))
+                    .append("\n");
 
         }
         for (Map.Entry<GuildChannel, List<MyCommand<?>>> guildChannelListEntry : channelSpecificEnabled.entrySet()) {
@@ -109,17 +109,17 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
                 stringBuilder = new StringBuilder();
                 fieldBuilder.put(key, stringBuilder);
             }
-            stringBuilder.append("Enabled:\t");
-            stringBuilder.append(guildChannelListEntry.getValue().stream().map(x -> x.getAliases().get(0)).collect(Collectors.joining(", ")));
-            stringBuilder.append("\n");
+            stringBuilder.append("Enabled:\t")
+                    .append(guildChannelListEntry.getValue().stream().map(x -> x.getAliases().get(0)).collect(Collectors.joining(", ")))
+                    .append("\n");
         }
         fieldBuilder.forEach((x, y) -> {
             String value = y.toString();
             if (value.length() > 1024) {
                 String substring = value.substring(0, 1024);
                 int i = substring.lastIndexOf(",");
-                embedBuilder.addField("**Channel " + x.getName() + "**", value.substring(0, i), false);
-                embedBuilder.addField(EmbedBuilder.ZERO_WIDTH_SPACE, value.substring(i), false);
+                embedBuilder.addField("**Channel " + x.getName() + "**", value.substring(0, i), false)
+                        .addField(EmbedBuilder.ZERO_WIDTH_SPACE, value.substring(i), false);
             } else {
                 embedBuilder.addField("**Channel " + x.getName() + "**", value, false);
             }
@@ -132,7 +132,6 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
 
         embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "'s commands status")
                 .setThumbnail(e.getGuild().getIconUrl());
-        MessageBuilder messageBuilder = new MessageBuilder();
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
+        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
     }
 }

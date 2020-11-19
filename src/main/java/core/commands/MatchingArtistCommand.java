@@ -13,7 +13,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.LbEntry;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -73,8 +72,6 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
         int threshold = params.getExtraParam() == null ? 1 : Math.toIntExact(params.getExtraParam());
         List<LbEntry> list = getService().matchingArtistsCount(innerParams.getLastFMData().getName(), e.getGuild().getIdLong(), threshold);
         list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
-        MessageBuilder messageBuilder = new MessageBuilder();
-
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         String url = userInformation.getUrlImage();
         String usableName = userInformation.getUsername();
@@ -94,7 +91,7 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
         }
         embedBuilder.setDescription(a).setTitle("Matching artists with " + usableName)
                 .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService().getUserArtistCount(innerParams.getLastFMData().getName(), 0)), null);
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(mes ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(strings, mes, embedBuilder));
     }
 }

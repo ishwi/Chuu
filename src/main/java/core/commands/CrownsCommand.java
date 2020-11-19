@@ -96,15 +96,14 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
         }
 
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setDescription(a);
-        embedBuilder.setColor(CommandUtil.randomColor());
-        embedBuilder.setTitle(String.format("%s's %scrowns", userName, isGlobal() ? "global " : ""), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()));
-        embedBuilder.setFooter(String.format("%s has %d%s crowns!!%n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), isGlobal() ? " global" : ""), null);
-        embedBuilder.setThumbnail(userUrl);
-
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setDescription(a)
+                .setColor(CommandUtil.randomColor())
+                .setTitle(String.format("%s's %scrowns", userName, isGlobal() ? "global " : ""), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
+                .setFooter(String.format("%s has %d%s crowns!!%n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), isGlobal() ? " global" : ""), null)
+                .setThumbnail(userUrl);
+        e.getChannel().sendMessage(new MessageBuilder()
+                .setEmbed(embedBuilder.build()).build()).queue(message1 ->
 
                 new Reactionary<>(resultWrapper, message1, embedBuilder));
     }

@@ -14,7 +14,6 @@ import dao.entities.PrivacyMode;
 import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -146,8 +145,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
                 .setThumbnail(CommandUtil.noImageUrl(validUrl))
                 .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s!", CommandUtil.cleanMarkdownCharacter(title), topStreaks.size(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
-        MessageBuilder messageBuilder = new MessageBuilder();
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(topStreaks, message1, 5, embedBuilder));
     }
 }

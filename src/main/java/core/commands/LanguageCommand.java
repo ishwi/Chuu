@@ -24,7 +24,6 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
@@ -118,14 +117,13 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         }
 
         String title = userName + "'s most common languages" + params.getTime().getDisplayString();
-        MessageBuilder messageBuilder = new MessageBuilder();
         long count = languageCountByMbid.keySet().size();
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(userUrl)
                 .setFooter(String.format("%s has %d%s%s", CommandUtil.markdownLessUserString(userName, discordId, e), count, count == 1 ? " language" : " languages", usableTime), null)
                 .setTitle(title)
                 .setDescription(a);
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(mes ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(stringedList, mes, 15, embedBuilder));
     }
 

@@ -353,6 +353,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new ServerTags(dao)))
                 .addEventListeners(help.registerCommand(new TagsCommand(dao)))
                 .addEventListeners(help.registerCommand(new IndexCommand(dao)))
+                .addEventListeners(help.registerCommand(new LyricsCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {

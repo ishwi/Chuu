@@ -10,7 +10,6 @@ import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
@@ -136,8 +135,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
                     .setFooter(String.format("%s has listen to %d distinct tracks (%d total tracks)%n for a total of %s", CommandUtil.markdownLessUserString(usableName, discordID, e), durationsFromWeek.size(), totalTracks.get(),
                             String.format("%d %s and %02d %s ", minutesWastedOnMusicDaily.getHours(), CommandUtil.singlePlural(minutesWastedOnMusicDaily.getHours(), "hour", "hours"),
                                     minutesWastedOnMusicDaily.getRemainingMinutes(), CommandUtil.singlePlural(minutesWastedOnMusicDaily.getMinutes(), "minute", "minutes"))));
-            MessageBuilder mes = new MessageBuilder();
-            e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue();
+            e.getChannel().sendMessage(embedBuilder.build()).queue();
         }
     }
 }

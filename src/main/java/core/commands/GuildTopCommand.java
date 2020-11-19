@@ -11,7 +11,6 @@ import core.parsers.params.ChartSizeParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
@@ -83,8 +82,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
                 .setDescription(a)
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(guild.getIconUrl()), params, count);
-        MessageBuilder mes = new MessageBuilder();
-        params.getE().getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        params.getE().getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(urlCapsules, message1, embedBuilder));
     }
 

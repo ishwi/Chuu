@@ -31,7 +31,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
             "import net.dv8tion.jda.api.entities.User;\n" +
             "import net.dv8tion.jda.api.events.message.MessageReceivedEvent;\n";
     private static final Pattern emmbed = Pattern.compile("```(:?java)?[\\s\\S]*```");
-    private static Long ownerId;
+    private static Long ownerId = null;
 
     public EvalCommand(ChuuService dao) {
 
@@ -65,6 +65,10 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+        if (ownerId == null) {
+            e.getJDA().retrieveApplicationInfo().queue(x -> ownerId = x.getOwner().getIdLong());
+            return;
+        }
         if (ownerId != e.getAuthor().getIdLong()) {
             return;
         }

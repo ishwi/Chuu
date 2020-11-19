@@ -13,7 +13,6 @@ import dao.entities.StolenCrown;
 import dao.entities.StolenCrownWrapper;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -95,8 +94,6 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
             sendMessageQueue(e, userName2 + " doesn't have any artist with more plays than " + userName);
             return;
         }
-        MessageBuilder messageBuilder = new MessageBuilder();
-
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setThumbnail(e.getGuild().getIconUrl());
         StringBuilder a = new StringBuilder();
@@ -113,7 +110,7 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
                 .getLastFmUser(ogLastFmId))
                 .setThumbnail(userUrl2)
                 .setFooter(CommandUtil.markdownLessUserString(userName, resultWrapper.getQuriedId(), e) + " is behind in " + rows + " artists!\n", null);
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue(m ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(resultWrapper.getList(), m, embedBuilder));
 
     }

@@ -17,7 +17,6 @@ import dao.entities.Week;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -187,8 +186,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             embedBuilder.setTitle("Billboard Top 100 " + getTitle() + "from " + name)
                     .setColor(CommandUtil.randomColor())
                     .setDescription(a);
-            MessageBuilder mes = new MessageBuilder();
-            e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+            e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                     new Reactionary<>(artistAliases, message1, embedBuilder));
         } else {
             BufferedImage logo = CommandUtil.getLogo(getService(), e);

@@ -10,7 +10,6 @@ import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
@@ -65,8 +64,7 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
                 .setTitle("Most Played Artists")
                 .setFooter(String.format("%s has stored %d plays!%n", e.getJDA().getSelfUser().getName(), list.getRows()), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
-        MessageBuilder mes = new MessageBuilder();
-        e.getChannel().sendMessage(mes.setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(strList, message1, embedBuilder));
     }
 

@@ -16,7 +16,6 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -89,7 +88,6 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                         .map(art -> "[" + CommandUtil.cleanMarkdownCharacter(art) + "](" + LinkUtils.getLastFmArtistUrl(art) + ")")
                         .collect(Collectors.joining(" - "));
 
-        MessageBuilder messageBuilder = new MessageBuilder();
         embedBuilder.setTitle("Information about " + CommandUtil.cleanMarkdownCharacter(summary.getArtistname()), LinkUtils.getLastFmArtistUrl(scrobbledArtist.getArtist()));
 
         if (e.isFromGuild()) {
@@ -126,7 +124,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                 .addField("Bio:", CommandUtil.cleanMarkdownCharacter(summary.getSummary()), false)
                 .setImage(scrobbledArtist.getUrl())
                 .setColor(CommandUtil.randomColor());
-        e.getChannel().sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
+        e.getChannel().sendMessage(embedBuilder.build()).queue();
         if (!summary.getTags().isEmpty()) {
             executor.submit(new TagArtistService(getService(), lastFM, summary.getTags(), new ArtistInfo(scrobbledArtist.getUrl(), summary.getArtistname(), summary.getMbid())));
         }
