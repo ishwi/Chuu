@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<WordParameter, User>> {
-    public static final boolean ONLY_YT = false;
+    public static boolean ONLY_YT = true;
     private final YoutubeSearch youtubeSearch;
     private final YoutubeSearch optionalSearch;
 

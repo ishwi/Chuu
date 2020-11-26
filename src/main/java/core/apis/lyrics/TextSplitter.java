@@ -12,8 +12,8 @@ public class TextSplitter {
 
     public static List<String> split(String content, int limit) {
         List<String> pages = new ArrayList<>();
-        var lines = Arrays.stream(content.trim().split("\n")).dropWhile(String::isEmpty).collect(Collectors.toList());
-        var chunk = new StringBuilder();
+        List<String> lines = Arrays.stream(content.trim().split("\n")).dropWhile(String::isBlank).collect(Collectors.toList());
+        StringBuilder chunk = new StringBuilder();
         for (String line : lines) {
             if (chunk.length() != 0 && chunk.length() + line.length() > limit) {
                 pages.add(chunk.toString());

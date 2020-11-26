@@ -2,9 +2,8 @@ package core.commands;
 
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
-import core.apis.lyrics.EvanLyricsApi;
+import core.apis.lyrics.EvanLyrics;
 import core.apis.lyrics.Lyrics;
-import core.apis.lyrics.LyricsApi;
 import core.apis.lyrics.TextSplitter;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -27,16 +26,14 @@ import java.util.List;
 import java.util.Optional;
 
 public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
-    private final LyricsApi lyricsApi;
-    private final EvanLyricsApi evanLyricsApi;
+    private final EvanLyrics evanLyrics;
     private final DiscogsApi discogsApi;
     private final Spotify spotifyApi;
 
 
     public LyricsCommand(ChuuService dao) {
         super(dao);
-        lyricsApi = new LyricsApi();
-        evanLyricsApi = new EvanLyricsApi();
+        evanLyrics = new EvanLyrics();
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotifyApi = SpotifySingleton.getInstance();
 
@@ -80,7 +77,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
             //Ignored
         }
         String correctedArtist = scrobbledArtist.getArtist();
-        Optional<Lyrics> or = evanLyricsApi.getLyrics(correctedArtist, song).or(() -> lyricsApi.getLyrics(correctedArtist + " " + song));
+        Optional<Lyrics> or = evanLyrics.getLyrics(correctedArtist, song).or(() -> evanLyrics.getTopResult(correctedArtist + " " + song));
         if (or.isEmpty()) {
             sendMessageQueue(e, String.format("Couldn't find any lyrics for %s - %s", correctedArtist, song));
             return;

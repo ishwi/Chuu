@@ -61,6 +61,16 @@ public class ScrobbledAlbum extends ScrobbledArtist {
     }
 
     @Override
+    public int hashCode() {
+        int result = getDiscordID() != null ? getDiscordID().hashCode() : 0;
+        result = 31 * result + (getArtist() != null ? getArtist().hashCode() : 0);
+        result = 31 * result + getCount();
+        result = 31 * result + (getUrl() != null ? getUrl().hashCode() : 0);
+        result = 31 * result + (getAlbum() != null ? getAlbum().hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public boolean equals(Object o) {
         return super.equals(o) && Objects.equals(album, ((ScrobbledAlbum) o).album);
     }

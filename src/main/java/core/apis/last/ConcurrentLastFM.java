@@ -908,6 +908,64 @@ public class ConcurrentLastFM {//implements LastFMService {
     }
 
     @NotNull
+    public List<ScrobbledTrack> getAllTracks(String user, CustomTimeFrame timeFrame) throws LastFmException {
+        if (timeFrame.getType() != CustomTimeFrame.Type.NORMAL) {
+            return getCustomT(TopEntity.TRACK, user, capsule -> new ScrobbledTrack(capsule.getArtistName(), capsule.getAlbumName(), capsule.getPlays(), false, SONG_AVERAGE_DURATION, capsule.getUrl(), null, capsule.getMbid()), 1000, timeFrame);
+        }
+        TimeFrameEnum period = timeFrame.getTimeFrameEnum();
+        if (period == TimeFrameEnum.DAY) {
+            return getDailyT(TopEntity.TRACK, user, capsule -> new ScrobbledTrack(capsule.getArtistName(), capsule.getAlbumName(), capsule.getPlays(), false, SONG_AVERAGE_DURATION, capsule.getUrl(), null, capsule.getMbid()), 3000);
+        }
+
+        String url = BASE + GET_TOP_TRACKS + user + apiKey + ENDING + "&period=" + period.toApiFormat();
+
+        int page = 1;
+        int pages = 1;
+        url += "&limit=1000";
+
+        List<ScrobbledTrack> list = new ArrayList<>();
+        while (page <= pages) {
+
+            String urlPage = url + "&page=" + page;
+            JSONObject obj;
+            try {
+                obj = doMethod(urlPage, new ExceptionEntity(user));
+            } catch (LastFMConnectionException e) {
+                if (page >= pages) {
+                    return list;
+                }
+                obj = doMethod(urlPage, new ExceptionEntity(user));
+            }
+            String topObject = "toptracks";
+            obj = obj.getJSONObject(topObject);
+            if (page++ == 1) {
+                pages = obj.getJSONObject("@attr").getInt("totalPages");
+                if (obj.getJSONObject("@attr").getInt("total") == 0) {
+                    throw new LastFMNoPlaysException(user);
+                }
+            }
+            JSONArray arr = obj.getJSONArray("track");
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject jsonObj = (arr.getJSONObject(i));
+                String name = jsonObj.getString("name");
+                String mbid = jsonObj.getString("mbid");
+                JSONArray image = jsonObj.getJSONArray("image");
+                JSONObject bigImage = image.getJSONObject(image.length() - 1);
+                String imageUrl = bigImage.getString("#text");
+                int duration = jsonObj.getInt("duration");
+                int frequency = jsonObj.getInt("playcount");
+                duration = duration == 0 ? 200 : duration;
+                JSONObject artist = jsonObj.getJSONObject("artist");
+                String artistName = artist.getString("name");
+                String artistMbid = artist.getString("mbid");
+                ScrobbledTrack e = new ScrobbledTrack(artistName, name, frequency, false, duration, imageUrl, artistMbid, mbid);
+                list.add(e);
+            }
+        }
+        return list;
+    }
+
+    @NotNull
     public List<ScrobbledAlbum> getAllAlbums(String user, CustomTimeFrame timeFrame) throws LastFmException {
         if (timeFrame.getType() != CustomTimeFrame.Type.NORMAL) {
             return getCustomT(TopEntity.ALBUM, user, capsule -> {
@@ -1057,6 +1115,8 @@ public class ConcurrentLastFM {//implements LastFMService {
             userplaycount = obj.getInt("userplaycount");
         }
         String reTrackName = obj.getString("name");
+        String mbid = obj.optString("mbid");
+
         boolean userloved = false;
         if (obj.has("userloved")) {
             userloved = obj.getInt("userloved") != 0;
@@ -1065,6 +1125,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         String reArtist = obj.getJSONObject("artist").getString("name");
 
         Track track = new Track(reArtist, reTrackName, userplaycount, userloved, duration);
+        track.setMbid(mbid);
 
         JSONObject images;
         if ((images = obj).has("album") && (images = images.getJSONObject("album")).has("image")) {
@@ -1245,13 +1306,21 @@ public class ConcurrentLastFM {//implements LastFMService {
                     continue;
 
                 String trackName = trackObj.getString("name");
+                String mbid = trackObj.getString("mbid");
+
                 JSONObject artistObj = trackObj.getJSONObject("artist");
                 String artistName = artistObj.getString("name");
+                String artistMbid = artistObj.getString("mbid");
+
                 int utc = trackObj.getJSONObject("date").getInt("uts");
                 TrackWithArtistId track = new TrackWithArtistId(artistName, trackName, 0, false, 0, utc);
+                track.setArtistMbid(artistMbid);
+                track.setMbid(mbid);
                 JSONObject albumObj = trackObj.optJSONObject("album");
+
                 if (albumObj != null) {
                     track.setAlbum(albumObj.getString("#text"));
+                    track.setAlbumMbid(albumObj.getString("mbid"));
                 }
                 list.add(track);
             }
@@ -1393,6 +1462,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         int listeners = obj.getInt("listeners");
         int totalPlayCount = obj.getInt("playcount");
 
+        String mbid = obj.optString("mbid");
 
         String reTrackName = obj.getString("name");
         boolean userloved = obj.has("userlover") && obj.getInt("userloved") != 0;
@@ -1407,7 +1477,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             albumName = obj.getJSONObject("album").getString("title");
         }
         TrackExtended track = new TrackExtended(reArtist, reTrackName, userplaycount, userloved, duration, tags, totalPlayCount, listeners, albumName);
-
+        track.setMbid(mbid);
         JSONObject images;
         if ((images = obj).has("album") && (images = images.getJSONObject("album")).has("image")) {
             JSONArray ar = images.getJSONArray("image");

@@ -169,6 +169,22 @@ public class CommandUtil {
         }
     }
 
+    public static long trackValidate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, String track) throws LastFmException {
+        try {
+            return dao.findTrackIdByName(scrobbledArtist.getArtistId(), track);
+        } catch (InstanceNotFoundException exception) {
+            try {
+                Track trackInfo = lastFM.getTrackInfo("chuu", scrobbledArtist.getArtist(), track);
+                ScrobbledTrack scrobbledTrack = new ScrobbledTrack(scrobbledArtist.getArtist(), track, 0, false, trackInfo.getDuration(), trackInfo.getImageUrl(), null, trackInfo.getMbid());
+                scrobbledTrack.setArtistId(scrobbledArtist.getArtistId());
+                dao.insertTrack(scrobbledTrack);
+                return scrobbledTrack.getTrackId();
+            } catch (LastFmEntityNotFoundException e) {
+                return -1L;
+            }
+        }
+    }
+
     public static String albumUrl(ChuuService dao, ConcurrentLastFM lastFM, String artist, String album, DiscogsApi discogsApi, Spotify spotifyApi) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         validate(dao, scrobbledArtist, lastFM, discogsApi, spotifyApi);

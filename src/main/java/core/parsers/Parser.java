@@ -103,7 +103,7 @@ public abstract class Parser<T extends CommandParameters> {
 
 
     private void sendMessage(Message message, MessageReceivedEvent e) {
-        e.getChannel().sendMessage(message).queue();
+        e.getChannel().sendMessage(message).reference(e.getMessage()).queue();
     }
 
     public void sendError(String message, MessageReceivedEvent e) {

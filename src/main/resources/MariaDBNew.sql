@@ -200,11 +200,13 @@ BEGIN
                          FROM alt_url a
                          WHERE a.artist_id = new.artist_id);
     set current_url = (SELECT a.url
-                       FROM artist a
-                       WHERE a.id = new.artist_id);
+                       FROM alt_url a
+                       WHERE a.artist_id = new.artist_id
+                       order by score desc
+                       limit 1);
     IF ((SELECT url FROM artist b WHERE b.id = new.artist_id) = new.url) AND (new.score < current_score) THEN
-        UPDATE artist SET url = @current_url WHERE id = new.artist_id;
-    ELSEIF (new.score >= @current_score) THEN
+        UPDATE artist SET url = current_url WHERE id = new.artist_id;
+    ELSEIF (new.score >= current_score) THEN
         UPDATE artist SET url = new.url WHERE id = new.artist_id;
     END IF;
 END;
@@ -404,8 +406,8 @@ DELIMITER $$
 
 create PROCEDURE insert_weeks()
 BEGIN
-    SET @t_current = date(curdate() - interval weekday(curdate()) day);
-    SET @t_end = DATE_ADD(date(curdate() - interval weekday(curdate()) day), INTERVAL 5 YEAR);
+    SET @t_current = date('2002-01-01' - interval weekday('2002-01-01') day);
+    SET @t_end = DATE_ADD(date(curdate() - interval weekday(curdate()) day), INTERVAL 10 YEAR);
     WHILE(@t_current < @t_end)
         DO
             INSERT INTO week(week_start) VALUES (@t_current);
@@ -1004,4 +1006,70 @@ create table command_logs
     nanos      int         not null,
     moment     datetime    not null default UTC_TIMESTAMP(),
     primary key (id)
+);
+CREATE TABLE `track`
+(
+    `id`           bigint(20)                              NOT NULL AUTO_INCREMENT,
+    `artist_id`    bigint(20)                              DEFAULT NULL,
+    `track_name`   varchar(400) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `url`          varchar(400) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `mbid`         varchar(36)                             DEFAULT NULL,
+    `spotify_id`   varchar(40) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
+    `release_year` smallint(6)                             DEFAULT NULL,
+    `duration`     integer                                 DEFAULT NULL,
+    `album_id`     bigint(20)                              DEFAULT NULL,
+    popularity     integer                                 default null,
+
+    PRIMARY KEY (`id`),
+    -- UNIQUE KEY `mbid` (`mbid`),
+    KEY `spotify_id_track` (`spotify_id`),
+    key (mbid),
+    UNIQUE KEY `track_and_artist` (`artist_id`, `track_name`),
+    CONSTRAINT `track_fk_artist` FOREIGN KEY (`artist_id`) REFERENCES `artist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `track_fk_album` FOREIGN KEY (`album_id`) REFERENCES `album` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+
+CREATE TABLE scrobbled_track
+(
+    artist_id  BIGINT(20)                           NOT NULL,
+    track_id   BIGINT(20)                           NOT NULL,
+    lastfm_id  VARCHAR(45) COLLATE ascii_general_ci NOT NULL,
+    playnumber INT(11)                              NOT NULL,
+    loved      boolean default false,
+    PRIMARY KEY (track_id, lastfm_id),
+    key (artist_id),
+    key (track_id),
+    CONSTRAINT scrobbled_track_fk_artist FOREIGN KEY (artist_id) REFERENCES artist (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT scrobbled_track_fk_track FOREIGN KEY (track_id) REFERENCES track (id) ON UPDATE CASCADE ON DELETE CASCADE,
+
+    CONSTRAINT scrobbled_track_fk_user FOREIGN KEY (lastfm_id) REFERENCES user (lastfm_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+create table album_tracklist
+(
+    id       bigint(20) primary key auto_increment,
+    album_id bigint(20) not null,
+    track_id bigint(20) not null,
+    position int        not null,
+    CONSTRAINT album_tracklist_fk_album FOREIGN KEY (album_id) REFERENCES album (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT album_tracklist_fk_track FOREIGN KEY (track_id) REFERENCES track (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+create table audio_features
+(
+    id               bigint(20) primary key auto_increment,
+    spotify_id       varchar(40) COLLATE utf8mb4_unicode_ci not null unique,
+    acousticness     float,
+    danceability     float,
+    energy           float,
+    instrumentalness float,
+    `key`            int,
+    liveness         float,
+    loudness         int,
+    speechiness      float,
+    tempo            int,
+    valence          float,
+    time_signature   int
+
 );

@@ -164,4 +164,12 @@ interface UpdaterDao {
     void removeTagAlbum(Connection connection, String tag, long artistId);
 
     void logCommand(Connection connection, long discordId, Long guildId, String commandName, long nanos, Instant utc);
+
+    void updateTrackImage(Connection connection, long trackId, String imageUrl);
+
+    void updateSpotifyInfo(Connection connection, long trackId, String spotifyId, int duration, String url, int popularity);
+
+    void insertAudioFeatures(Connection connection, List<AudioFeatures> audioFeatures);
+
+
 }

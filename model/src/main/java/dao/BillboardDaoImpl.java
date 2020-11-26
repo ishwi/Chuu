@@ -434,7 +434,7 @@ public class BillboardDaoImpl implements BillboardDao {
     public void insertUserData(Connection connection, List<TrackWithArtistId> trackList, String lastfmId, int weekId) {
 
         StringBuilder mySql =
-                new StringBuilder("INSERT INTO  user_billboard_data_scrobbles" +
+                new StringBuilder("INSERT ignore INTO  user_billboard_data_scrobbles" +
                         "                  (week_id,artist_id,track_name,lastfm_id,album_name,timestamp) VALUES (?,?,?,?,?,?) ");
 
         mySql.append(", (?,?,?,?,?,?)".repeat(Math.max(0, trackList.size() - 1)));
@@ -837,5 +837,24 @@ public class BillboardDaoImpl implements BillboardDao {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    @Override
+    public void cleanUserData(Connection connection, String lastfmId, int weekId) {
+        @Language("MariaDB") String queryString = "DELETE   FROM user_billboard_data  WHERE lastfm_id = ? and week_id = ?  ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setString(i++, lastfmId);
+            preparedStatement.setInt(i, weekId);
+
+
+            preparedStatement.executeUpdate();
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 }

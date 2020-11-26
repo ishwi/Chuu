@@ -10,6 +10,7 @@ public class Track {
     private final int duration;
     private int position;
     private String imageUrl;
+    private String mbid;
 
     public Track(String artist, String name, int plays, boolean isLoved, int duration) {
         this.artist = artist;
@@ -54,6 +55,14 @@ public class Track {
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    public String getMbid() {
+        return mbid;
+    }
+
+    public void setMbid(String mbid) {
+        this.mbid = mbid;
     }
 
     @Override

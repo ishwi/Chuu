@@ -253,6 +253,21 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
     }
 
+    @Override
+    public List<UsersWrapper> getAllNonPrivate(Connection connection, long guildId) {
+        String queryString = "SELECT a.discord_id, a.lastfm_id,a.role,a.timezone FROM user a JOIN (SELECT discord_id FROM user_guild WHERE guild_id = ? ) b ON a.discord_id = b.discord_id where a.private_update = false";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+
+            /* Execute query. */
+            preparedStatement.setLong(1, guildId);
+            return getUsersWrappers(preparedStatement);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     @NotNull
     private List<UsersWrapper> getUsersWrappers(PreparedStatement preparedStatement) throws SQLException {
         ResultSet resultSet = preparedStatement.executeQuery();

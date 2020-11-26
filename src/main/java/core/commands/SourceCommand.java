@@ -9,7 +9,6 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
 import java.util.List;
 
 public class SourceCommand extends ConcurrentCommand<CommandParameters> {
@@ -37,12 +36,12 @@ public class SourceCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("source");
+        return List.of("github", "source", "repo");
     }
 
     @Override
     public String getName() {
-        return "Source";
+        return "GitHub";
     }
 
     @Override

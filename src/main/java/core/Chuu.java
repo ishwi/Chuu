@@ -187,6 +187,7 @@ public class Chuu {
         ratelimited = dao.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
 
         MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
+        MessageAction.setDefaultMentionRepliedUser(false);
 
         AtomicInteger counter = new AtomicInteger(0);
         IEventManager customManager = new CustomInterfacedEventManager(0);
@@ -354,6 +355,9 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new TagsCommand(dao)))
                 .addEventListeners(help.registerCommand(new IndexCommand(dao)))
                 .addEventListeners(help.registerCommand(new LyricsCommand(dao)))
+                .addEventListeners(help.registerCommand(new LocalWhoKnowsSongCommand(dao)))
+                .addEventListeners(help.registerCommand(new GlobalWhoKnowSongCommand(dao)))
+                .addEventListeners(help.registerCommand(new AudioFeaturesCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {

@@ -623,9 +623,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
-            /* Fill "preparedStatement". */
-
-
             Map<Long, Float> returnList = new HashMap<>();
             /* Execute query. */
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -660,7 +657,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-            /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setBoolean(i++, includeBottedUsers);
             preparedStatement.setLong(i++, ownerId);
@@ -816,7 +812,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
-            /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setString(i++, userA);
             preparedStatement.setString(i, userB);
@@ -862,7 +857,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-            /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setLong(i++, guildId);
             preparedStatement.setLong(i, artistId);
@@ -1015,7 +1009,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 "JOIN artist c ON a.artist_id = c.id " +
                 "WHERE a.lastfm_id = ? AND c.id = ?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
-            /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setString(i++, whom);
             preparedStatement.setLong(i, artistId);
@@ -1104,7 +1097,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public int userArtistCount(Connection con, String whom, int threshold) {
         @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_artist WHERE scrobbled_artist.lastfm_id= ? and playNumber >= ?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
-            /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setString(i++, whom);
             preparedStatement.setInt(i, threshold);
@@ -1673,7 +1665,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-            /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setLong(i++, guildId);
             preparedStatement.setLong(i, albumId);
@@ -1713,6 +1704,58 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
+    public WrapperReturnNowPlaying whoKnowsTrack(Connection con, long trackId, long guildId, int limit) {
+
+        @Language("MariaDB")
+        String queryString =
+                "SELECT a2.track_name,a3.name, a.lastfm_id, a.playNumber, coalesce(a2.url,a3.url) as turl, c.discord_id " +
+                        "FROM  scrobbled_track a" +
+                        " JOIN track a2 ON a.track_id = a2.id  " +
+                        " join artist a3 on a2.artist_id = a3.id " +
+                        "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
+                        "JOIN user_guild d on c.discord_ID = d.discord_Id " +
+                        "where d.guild_Id = ? " +
+                        "and  a2.id = ? " +
+                        "ORDER BY a.playNumber desc ";
+        queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+            int i = 1;
+            preparedStatement.setLong(i++, guildId);
+            preparedStatement.setLong(i, trackId);
+            /* Execute query. */
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            String url = "";
+            String artistName = "";
+            String trackName;
+            List<ReturnNowPlaying> returnList = new ArrayList<>();
+
+
+
+            /* Get results. */
+            int j = 0;
+            while (resultSet.next() && (j < limit)) {
+                url = resultSet.getString("turl");
+                artistName = resultSet.getString("a3.name");
+                trackName = resultSet.getString("a2.track_name");
+
+                String lastfmId = resultSet.getString("a.lastFM_ID");
+
+                int playNumber = resultSet.getInt("a.playNumber");
+                long discordId = resultSet.getLong("c.discord_ID");
+
+                returnList.add(new ReturnNowPlaying(discordId, lastfmId, artistName + " - " + trackName, playNumber));
+            }
+            /* Return booking. */
+            return new WrapperReturnNowPlaying(returnList, returnList.size(), url, artistName);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public WrapperReturnNowPlaying globalWhoKnowsAlbum(Connection con, long albumId, int limit, long ownerId, boolean includeBottedUsers) {
 
         @Language("MariaDB")
@@ -1728,7 +1771,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
-            /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setBoolean(i++, includeBottedUsers);
             preparedStatement.setLong(i++, ownerId);
@@ -1867,7 +1909,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public long getUserAlbumCount(Connection con, long discordId) {
         @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_album a join user b on a.lastfm_id = b.lastfm_id WHERE b.discord_id= ? ";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
-            /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setLong(i, discordId);
 
@@ -1891,7 +1932,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 "FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id where " +
                 "discord_id = ? order by  artist_combo desc,album_combo desc, track_combo desc ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setLong(1, discordId);
 
@@ -1936,7 +1976,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         queryString += " order by  artist_combo desc,album_combo desc, track_combo desc ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            /* Fill "preparedStatement". */
             int i = 1;
             if (guildId != null)
                 preparedStatement.setLong(i++, guildId);
@@ -2017,7 +2056,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             queryString += " limit " + limit;
         }
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            /* Fill "preparedStatement". */
             int i = 1;
             if (guildId != null)
                 preparedStatement.setLong(i++, guildId);
@@ -2068,7 +2106,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             queryString += " limit " + limit;
         }
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setLong(i++, artistId);
             preparedStatement.setLong(i, discordId);
@@ -2426,7 +2463,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             preparedStatement.setLong(albums.size() * 2 + 2, discordId);
 
 
-            /* Fill "preparedStatement". */
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
@@ -2490,7 +2526,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             preparedStatement.setLong(artists.size() + 2, discordId);
 
 
-            /* Fill "preparedStatement". */
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
@@ -2520,9 +2555,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             for (int i = 0; i < artistInfos.size(); i++) {
                 preparedStatement.setString(i + 1, artistInfos.get(i).getArtist());
             }
-
-            /* Fill "preparedStatement". */
-
 
             Map<Genre, Integer> returnList = new HashMap<>();
             /* Execute query. */
@@ -2560,7 +2592,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setLong(i, guildId);
 
@@ -2634,8 +2665,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                         "JOIN user_guild d on c.discord_ID = d.discord_Id \n" +
                         "where d.guild_Id = ? \n" +
                         "and  (tag) in  (%s) \n" +
-                        "and  (%s)  = all  (select tags from artist_tags where artist_id = a2.id) \n" +
-
                         " group by b.lastfm_id,c.discord_id \n";
 
         if (searchMode == SearchMode.EXCLUSIVE) {
@@ -2647,7 +2676,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            /* Fill "preparedStatement". */
             int i = 1;
             preparedStatement.setLong(i, guildId);
 
@@ -2780,6 +2808,56 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    @Override
+    public WrapperReturnNowPlaying globalWhoKnowsTrack(Connection connection, long trackId, int limit, long ownerId, boolean includeBotted) {
+
+        @Language("MariaDB")
+        String queryString =
+                "SELECT a2.track_name,a3.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id,c.privacy_mode " +
+                        "FROM  scrobbled_track a" +
+                        " JOIN track a2 ON a.track_id = a2.id  " +
+                        " join artist a3 on a2.artist_id = a3.id " +
+                        "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
+                        " where   (? or not c.botted_account or c.discord_id = ? )  " +
+                        "and  a2.id = ? " +
+                        "ORDER BY a.playNumber desc ";
+        queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            int i = 1;
+            preparedStatement.setBoolean(i++, includeBotted);
+            preparedStatement.setLong(i++, ownerId);
+            preparedStatement.setLong(i, trackId);
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            String url = "";
+            String artistName = "";
+            String trackName = "";
+            List<ReturnNowPlaying> returnList = new ArrayList<>();
+
+            int j = 0;
+            while (resultSet.next() && (j < limit)) {
+                url = resultSet.getString("a2.url");
+                artistName = resultSet.getString("a3.name");
+                trackName = resultSet.getString("a2.track_name");
+
+                String lastfmId = resultSet.getString("a.lastFM_ID");
+
+                int playNumber = resultSet.getInt("a.playNumber");
+                long discordId = resultSet.getLong("c.discord_ID");
+                PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString("c.privacy_mode"));
+
+                returnList.add(new GlobalReturnNowPlayingAlbum(discordId, lastfmId, artistName, playNumber, privacyMode, trackName));
+            }
+            /* Return booking. */
+            return new WrapperReturnNowPlaying(returnList, returnList.size(), url, artistName + " - " + trackName);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 
 

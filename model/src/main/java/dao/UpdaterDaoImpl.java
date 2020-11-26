@@ -154,7 +154,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
             /* Execute query. */
             preparedStatement.executeUpdate();
-	    ResultSet resultSet  = preparedStatement.getResultSet(); 
+            ResultSet resultSet = preparedStatement.getResultSet();
             if (resultSet.next()) {
                 return resultSet.getLong(1);
             }
@@ -241,9 +241,9 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public void upsertSpotify(Connection con, String url, long artist_id, long discordId) {
         /* Create "queryString". */
-                String queryString = "INSERT INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?) on duplicate key update id = id returning id";
+        String queryString = "INSERT INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?) on duplicate key update id = id returning id";
 
-	    insertArtistInfo(con, url, artist_id, discordId, queryString);
+        insertArtistInfo(con, url, artist_id, discordId, queryString);
     }
 
     @Override
@@ -642,7 +642,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                     long artistId = getArtistId(connection, artist);
                     nonExistingId.setArtistId(artistId);
                 } catch (InstanceNotFoundException e) {
-			       logger.warn("{} couldnt be inserted", artist);
+                    logger.warn("{} couldnt be inserted", artist);
 
                     throw new SQLException("Creating user failed, no ID obtained.");
                 }
@@ -1578,6 +1578,67 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
         }
 
     }
+
+    @Override
+    public void updateTrackImage(Connection connection, long trackId, String imageUrl) {
+        @Language("MariaDB") String queryString = "UPDATE track SET url = ? WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i++, imageUrl);
+            preparedStatement.setLong(i, trackId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void updateSpotifyInfo(Connection connection, long trackId, String spotifyId, int duration, String url, int popularity) {
+        @Language("MariaDB") String queryString = "UPDATE track SET spotify_id = ?, duration = ?,popularity = ?  WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i++, spotifyId);
+            preparedStatement.setInt(i++, duration);
+            preparedStatement.setInt(i++, popularity);
+            preparedStatement.setLong(i, trackId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void insertAudioFeatures(Connection connection, List<AudioFeatures> audioFeatures) {
+        StringBuilder queryString = new StringBuilder("insert ignore  into audio_features(spotify_id,acousticness,danceability,energy,instrumentalness,`key`,liveness,loudness,speechiness,tempo,valence,time_signature) values " +
+                "(?,?,?,?,?,?,?,?,?,?,?,?)");
+
+
+        queryString.append(",(?,?,?,?,?,?,?,?,?,?,?,?)".repeat(Math.max(0, audioFeatures.size() - 1)));
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(queryString.toString());
+            for (int i = 0; i < audioFeatures.size(); i++) {
+                preparedStatement.setString(12 * i + 1, audioFeatures.get(i).getId());
+                preparedStatement.setFloat(12 * i + 2, audioFeatures.get(i).getAcousticness());
+                preparedStatement.setFloat(12 * i + 3, audioFeatures.get(i).getDanceability());
+                preparedStatement.setFloat(12 * i + 4, audioFeatures.get(i).getEnergy());
+                preparedStatement.setFloat(12 * i + 5, audioFeatures.get(i).getInstrumentalness());
+                preparedStatement.setInt(12 * i + 6, audioFeatures.get(i).getKey());
+                preparedStatement.setFloat(12 * i + 7, audioFeatures.get(i).getLiveness());
+                preparedStatement.setFloat(12 * i + 8, audioFeatures.get(i).getLoudness());
+                preparedStatement.setFloat(12 * i + 9, audioFeatures.get(i).getSpeechiness());
+                preparedStatement.setFloat(12 * i + 10, audioFeatures.get(i).getTempo());
+                preparedStatement.setFloat(12 * i + 11, audioFeatures.get(i).getValence());
+                preparedStatement.setInt(12 * i + 12, audioFeatures.get(i).getTimeSignature());
+            }
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+
 }
 
 

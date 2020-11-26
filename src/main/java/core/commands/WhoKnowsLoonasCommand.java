@@ -354,7 +354,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
     @Override
     public List<String> getAliases() {
-        return List.of("LOOΠΔ", "wkl", "whoknowsloona", "loona", "loopidelta");
+        return List.of("looπδ", "wkl", "whoknowsloona", "loona", "loopidelta");
     }
 
     @Override

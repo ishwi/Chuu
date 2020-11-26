@@ -97,7 +97,6 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
                             "}"
                     )
                     .execute();
-
             EvalClassLoader ecl = new EvalClassLoader();
             r.getClasses().forEach((name, bytes) -> ecl.define(bytes));
 

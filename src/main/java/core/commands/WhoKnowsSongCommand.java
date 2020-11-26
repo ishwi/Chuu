@@ -53,7 +53,9 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
         fillWithUrl.setAlbumUrl(temp.getImageUrl());
 
         fillWithUrl.setAlbum(temp.getName());
-        fillWithUrl.setAlbumUrl(CommandUtil.getArtistImageUrl(getService(), artist, lastFM, discogsApi, spotify));
+        if (temp.getImageUrl() == null || temp.getImageUrl().isBlank()) {
+            fillWithUrl.setAlbumUrl(CommandUtil.getArtistImageUrl(getService(), artist, lastFM, discogsApi, spotify));
+        }
         userList.stream().skip(1).forEach(u -> {
             try {
                 Track trackInfo = lastFM.getTrackInfo(u.getLastFMName(), artist, track);

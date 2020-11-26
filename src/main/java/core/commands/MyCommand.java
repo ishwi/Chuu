@@ -35,7 +35,9 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
     private final ChuuService dao;
     private final CommandCategory category;
     boolean respondInPrivate = true;
+    boolean isLongRunningCommand = false;
     Parser<T> parser;
+
 
     MyCommand(ChuuService dao) {
         this.dao = dao;
@@ -94,8 +96,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
     void measureTime(MessageReceivedEvent e) {
         long startTime = System.nanoTime();
         handleCommand(e);
-        long endTime = System.nanoTime();
-        long timeElapsed = endTime - startTime;
+        long timeElapsed = System.nanoTime() - startTime;
         System.out.printf("Execution time in milliseconds %s: %d%n", getName(), timeElapsed / 1000);
         logCommand(getService(), e, this, timeElapsed);
     }

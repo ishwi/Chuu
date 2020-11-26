@@ -1,7 +1,7 @@
 package core.commands;
 
 import core.exceptions.LastFmException;
-import core.parsers.ArtistAlbumParser;
+import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
@@ -13,31 +13,31 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Arrays;
 import java.util.List;
 
-public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistAlbumParameters> {
-    public GlobalWhoKnowsAlbumCommand(ChuuService dao) {
+public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlbumParameters> {
+    public GlobalWhoKnowSongCommand(ChuuService dao) {
         super(dao);
     }
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        return new ArtistAlbumParser(getService(), lastFM);
+        return new ArtistSongParser(getService(), lastFM);
     }
 
     @Override
     public String getDescription() {
-        return "Like who knows album but for all bot users and keeping some privacy";
+        return "Like who knows song but for all bot users and keeping some privacy";
     }
 
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("gwkalbum", "gwka", "gwhoknowsalbum");
+        return Arrays.asList("gwktrack", "gwkt", "gwhoknowstrack");
     }
 
 
     @Override
     public String getName() {
-        return "Global Who Knows Album";
+        return "Global Who Knows Track";
     }
 
     @Override
@@ -52,14 +52,14 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
         MessageReceivedEvent e = params.getE();
         long artistId = scrobbledArtist.getArtistId();
         params.setScrobbledArtist(scrobbledArtist);
-        long albumId = CommandUtil.albumvalidate(getService(), scrobbledArtist, lastFM, params.getAlbum());
+        long trackId = CommandUtil.trackValidate(getService(), scrobbledArtist, lastFM, params.getAlbum());
         WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
         boolean b = params.hasOptional("nobotted");
         long author = params.getE().getAuthor().getIdLong();
         int limit = effectiveMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE;
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                this.getService().getGlobalWhoKnowsAlbum(limit, albumId, author, !b);
+                this.getService().getGlobalWhoKnowsTrack(limit, trackId, author, !b);
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(params.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist() + " - " + params.getAlbum()));
             return null;

@@ -9,15 +9,16 @@ import com.wrapper.spotify.model_objects.specification.*;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.search.SearchItemRequest;
 import com.wrapper.spotify.requests.data.search.simplified.SearchAlbumsRequest;
+import com.wrapper.spotify.requests.data.search.simplified.SearchTracksRequest;
+import com.wrapper.spotify.requests.data.tracks.GetAudioFeaturesForSeveralTracksRequest;
 import core.Chuu;
+import dao.entities.ScrobbledTrack;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.core5.http.ParseException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Spotify {
@@ -71,6 +72,33 @@ public class Spotify {
         return build.execute();
     }
 
+    private Paging<Track> searchSong(String artist, String track) throws ParseException, SpotifyWebApiException, IOException {
+        initRequest();
+        artist = artist.contains(":") ? "\"" + artist + "\"" : artist;
+        track = track.contains(":") ? "\"" + track + "\"" : track;
+
+        SearchTracksRequest build = spotifyApi.searchTracks("track:" + track + " artist:" + artist).
+                market(CountryCode.NZ)
+                .limit(1)
+                .offset(0)
+                .build();
+        return build.execute();
+    }
+
+    public List<Pair<ScrobbledTrack, Track>> searchMultipleTracks(List<ScrobbledTrack> scrobbledTracks) {
+        return scrobbledTracks.stream().map(x -> {
+            try {
+                Paging<Track> trackPaging = searchSong(x.getArtist(), x.getName());
+                if (trackPaging.getItems().length == 0)
+                    return null;
+                return Pair.of(x, trackPaging.getItems()[0]);
+            } catch (ParseException | SpotifyWebApiException | IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
     public String getAlbumLink(String artist, String album) {
         String returned = null;
         try {
@@ -83,6 +111,32 @@ public class Spotify {
             Chuu.getLogger().warn(e.getMessage(), e);
         }
         return returned;
+
+    }
+
+    public List<AudioFeatures> getAudioFeatures(Set<String> ids) {
+        List<AudioFeatures> audioFeatures = new ArrayList<>();
+        initRequest();
+        if (ids.isEmpty()) {
+            return audioFeatures;
+        }
+        for (int i = 0; i < 5; i++) {
+            String[] strings = ids.stream().skip(i * 100).limit(100).toArray(String[]::new);
+            if (ids.size() < i * 100) {
+                break;
+            }
+            GetAudioFeaturesForSeveralTracksRequest build = spotifyApi.getAudioFeaturesForSeveralTracks(strings).build();
+            try {
+                AudioFeatures[] execute = build.execute();
+                audioFeatures.addAll(Arrays.asList(execute));
+            } catch (IOException | SpotifyWebApiException | ParseException e) {
+                Chuu.getLogger().warn(e.getMessage(), e);
+            }
+        }
+
+
+        return audioFeatures;
+
 
     }
 

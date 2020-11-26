@@ -1,6 +1,6 @@
 package core.commands;
 
-import core.Chuu;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.NumberParser;
@@ -106,22 +106,22 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
 
                         case STRICT:
                         case NORMAL:
-                            x.setDiscordName(" **Private User #" + c.getAndIncrement() + "**");
+                            x.setDiscordName(String.valueOf(c.getAndIncrement()));
                             break;
                         case DISCORD_NAME:
-                            x.setDiscordName(CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername() + "**");
+                            x.setDiscordName(CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername());
                             break;
                         case TAG:
-                            x.setDiscordName(" **" + e.getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag() + "**");
+                            x.setDiscordName(e.getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag());
                             break;
                         case LAST_NAME:
-                            x.setDiscordName(" **" + x.getLastFmId() + " (last.fm)**");
+                            x.setDiscordName(x.getLastFmId());
                             break;
                     }
-                    calculatedString = ". [" +
+                    calculatedString = ". **[" +
                             LinkUtils.cleanMarkdownCharacter(x.getDiscordName()) +
-                            "](" + Chuu.getLastFmId(x.getLastFmId()) +
-                            ") - " + x.getEntryCount() +
+                            "](" + PrivacyUtils.getLastFmUser(x.getLastFmId()) +
+                            ")** - " + x.getEntryCount() +
                             " artists\n";
                 }
                 return calculatedString;
@@ -139,7 +139,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
                         .getUserArtistCount(innerParams.getLastFMData().
                                 getName(), 0)), null);
         e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(list, mes, embedBuilder));
+                new Reactionary<>(strings, mes, embedBuilder));
     }
 }
 

@@ -54,7 +54,7 @@ dependencies {
 
     testImplementation group: 'junit', name: 'junit', version: '4.13.1'
 
-    implementation('net.dv8tion:JDA:4.2.0_214') {
+    implementation('net.dv8tion:JDA:4.2.0_219') {
         exclude module: 'opus-java'
     }
 

@@ -11,69 +11,60 @@ import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.*;
 
-import java.sql.Date;
-import java.time.*;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class BillboardHoarder {
+import static core.scheduledtasks.UpdaterThread.groupAlbumsToArtist;
 
-    private final static ConcurrentSkipListSet<Long> usersBeingProcessed = new ConcurrentSkipListSet<>();
-    private final List<UsersWrapper> users;
+public class UpdaterHoarder {
+
     private final ChuuService service;
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
-    private final Week week;
     private final ConcurrentLastFM lastFM;
-    private final int weekId;
+    private final UsersWrapper user;
     private final Map<String, Long> dbIdMap = new HashMap<>();
-    private final java.util.function.Function<TimeZone, Function<LocalDate, ZoneOffset>> phaserBuilder = (t) -> (LocalDate l) -> {
-        try {
-            return ZoneOffset.ofTotalSeconds(t.getOffset(l.getEra().getValue(), l.getYear(), l.getMonth().getValue(), l.getDayOfMonth(), l.getDayOfWeek().getValue(), 0) / 1000);
-        } catch (DateTimeException ex) {
-            System.out.println("asodjua");
-        }
-        return null;
-    };
 
-
-    public BillboardHoarder(List<UsersWrapper> users, ChuuService service, Week week, ConcurrentLastFM lastFM) {
-        this.users = users;
-        this.week = week;
-        this.weekId = this.week.getId();
+    public UpdaterHoarder(UsersWrapper user, ChuuService service, ConcurrentLastFM lastFM) {
+        this.user = user;
         this.lastFM = lastFM;
         spotify = SpotifySingleton.getInstance();
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.service = service;
     }
 
-    public void hoardUsers() {
+    public void updateUser() throws LastFmException {
+        List<TrackWithArtistId> trackWithArtistIds;
 
-
-        Date weekStart = week.getWeekStart();
-        LocalDate l = weekStart.toLocalDate();
-        LocalDateTime weekBeginning = l.minus(1, ChronoUnit.WEEKS).atStartOfDay();
-        users.stream()
-                .filter(usersWrapper -> !usersBeingProcessed.contains(usersWrapper.getDiscordID()))
-                .filter(usersWrapper -> {
-                    int epochSecond = (int) OffsetDateTime.of(weekStart.toLocalDate().atStartOfDay(), ZoneOffset.ofTotalSeconds(usersWrapper.getTimeZone().getOffset(Calendar.getInstance().getTimeInMillis()) / 1000)).toInstant().getEpochSecond();
-                    return usersWrapper.getTimestamp() < epochSecond;
-                })
-                .forEach(usersWrapper -> {
-                    try {
-                        usersBeingProcessed.add(usersWrapper.getDiscordID());
-                        UpdaterHoarder updaterHoarder = new UpdaterHoarder(usersWrapper, service, lastFM);
-                        updaterHoarder.updateUser();
-                    } catch (LastFmException ignored) {
-                    } finally {
-                        usersBeingProcessed.remove(usersWrapper.getDiscordID());
-                    }
-                });
-
+        String lastFMName = user.getLastFMName();
+        trackWithArtistIds = lastFM.getWeeklyBillboard(lastFMName,
+                user.getTimestamp()
+                , Integer.MAX_VALUE);
+        doArtistValidation(trackWithArtistIds);
+        int max = trackWithArtistIds.stream().mapToInt(TrackWithArtistId::getUtc).max().orElse(0) + 1;
+        Map<ScrobbledAlbum, Long> a = trackWithArtistIds.stream()
+                .collect(Collectors.groupingBy(nowPlayingArtist -> {
+                    ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(nowPlayingArtist.getAlbum(), nowPlayingArtist.getArtist(), null, null);
+                    scrobbledAlbum.setArtistId(nowPlayingArtist.getArtistId());
+                    scrobbledAlbum.setArtistMbid(nowPlayingArtist.getArtistMbid());
+                    scrobbledAlbum.setAlbumMbid(nowPlayingArtist.getAlbumMbid());
+                    return scrobbledAlbum;
+                }, Collectors.counting()));
+        TimestampWrapper<ArrayList<ScrobbledAlbum>> albumDataList = new TimestampWrapper<>(
+                a.entrySet().stream().map(
+                        entry -> {
+                            ScrobbledAlbum artist = entry.getKey();
+                            artist.setCount(Math.toIntExact(entry.getValue()));
+                            return artist;
+                        })
+                        .collect(Collectors.toCollection(ArrayList::new)), max);
+        // Correction with current last fm implementation should return the same name so
+        // no correction gives
+        List<ScrobbledAlbum> albumData = albumDataList.getWrapped();
+        List<ScrobbledArtist> artistData = groupAlbumsToArtist(albumData);
+        service.incrementalUpdate(new TimestampWrapper<>(artistData, albumDataList.getTimestamp()), user.getLastFMName(), albumData, trackWithArtistIds);
     }
+
 
     private void doArtistValidation(List<TrackWithArtistId> toValidate) {
         List<TrackWithArtistId> newToValidate = toValidate.stream().peek(x -> {
@@ -133,5 +124,5 @@ public class BillboardHoarder {
             this.dbIdMap.put(x.getArtist(), x.getArtistId());
         }
     }
-}
 
+}

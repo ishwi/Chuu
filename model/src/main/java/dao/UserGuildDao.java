@@ -35,6 +35,8 @@ interface UserGuildDao {
 
     List<UsersWrapper> getAll(Connection connection, long guildId);
 
+    List<UsersWrapper> getAllNonPrivate(Connection connection, long guildId);
+
     void addGuild(Connection con, long userId, long guildId);
 
     void addLogo(Connection con, long guildID, BufferedImage image);

@@ -1,18 +1,17 @@
 package core.commands;
 
-import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFMNoPlaysException;
-import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.utils.CustomTimeFrame;
+import core.services.UpdaterHoarder;
 import core.services.UpdaterService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -21,10 +20,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static core.scheduledtasks.UpdaterThread.groupAlbumsToArtist;
+import java.util.Collections;
+import java.util.List;
 
 public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     private final DiscogsApi discogsApi;
@@ -33,7 +30,8 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
     public UpdateCommand(ChuuService dao) {
         super(dao);
-        parser = new OnlyUsernameParser(dao, new OptionalEntity("force", "Does a full heavy update"));
+        parser = new OnlyUsernameParser(dao, new OptionalEntity("force", "Does a full heavy update"), new OptionalEntity("beta", "Does a beta update"));
+
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotifyApi = SpotifySingleton.getInstance();
     }
@@ -70,6 +68,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
         }
         getService().findLastFMData(discordID);
         boolean force = params.hasOptional("force");
+        boolean beta = params.hasOptional("beta");
         String userString = getUserString(e, discordID, lastFmName);
         if (e.isFromGuild()) {
             if (getService().getAll(e.getGuild().getIdLong()).stream()
@@ -89,8 +88,20 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                 return;
             }
 
+            if (beta) {
+                if (!e.isFromGuild() || e.getGuild().getIdLong() != 693124899220226178L) {
+                    sendMessageQueue(e, "This feature is in beta and is not available yet");
+                    return;
+                }
+                List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                getService().insertArtistDataList(artistData, lastFmName);
 
-            if (force) {
+                List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                getService().trackUpdate(trackData, artistData, lastFmName);
+                sendMessageQueue(e, "S");
+                sendMessageQueue(e, "Successfully updated " + userString + " info!");
+
+            } else if (force) {
                 e.getChannel().sendTyping().queue();
                 List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                 getService().insertArtistDataList(artistData, lastFmName);
@@ -100,61 +111,27 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                 e.getChannel().sendTyping().queue();
                 getService().albumUpdate(albumData, artistData, lastFmName);
             } else {
-                UpdaterUserWrapper userUpdateStatus = null;
-
+                UpdaterUserWrapper userUpdateStatus = getService().getUserUpdateStatus(lastFMData.getDiscordId());
                 try {
-                    userUpdateStatus = getService().getUserUpdateStatus(discordID);
-                    TimestampWrapper<List<ScrobbledAlbum>> albumDataList = lastFM
-                            .getNewWhole(lastFmName,
-                                    userUpdateStatus.getTimestamp());
-
-
-                    // Correction with current last fm implementation should return the same name so
-                    // no correction gives
-                    List<ScrobbledAlbum> albumData = albumDataList.getWrapped();
-                    List<ScrobbledArtist> artistData = groupAlbumsToArtist(albumData);
-                    albumData = albumData.stream().filter(x -> x != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
-                    Map<String, ScrobbledArtist> changedName = new HashMap<>();
-                    for (Iterator<ScrobbledArtist> iterator = artistData.iterator(); iterator.hasNext(); ) {
-                        ScrobbledArtist datum = iterator.next();
-                        try {
-                            String artist = datum.getArtist();
-                            CommandUtil.validate(getService(), datum, lastFM, discogsApi, spotifyApi);
-                            String newArtist = datum.getArtist();
-                            if (!artist.equals(newArtist)) {
-                                ScrobbledArtist scrobbledArtist = new ScrobbledArtist(newArtist, 0, null);
-                                scrobbledArtist.setArtistId(datum.getArtistId());
-                                changedName.put(artist, scrobbledArtist);
-                            }
-                        } catch (LastFmEntityNotFoundException ex) {
-                            Chuu.getLogger().error("WTF ARTIST DELETED" + datum.getArtist());
-                            iterator.remove();
-                        }
-                    }
-
-                    albumData.forEach(x -> {
-                        ScrobbledArtist scrobbledArtist = changedName.get(x.getArtist());
-                        if (scrobbledArtist != null) {
-                            x.setArtist(scrobbledArtist.getArtist());
-                            x.setArtistId(scrobbledArtist.getArtistId());
-                        }
-                    });
-
-                    getService().incrementalUpdate(new TimestampWrapper<>(artistData, albumDataList.getTimestamp()), lastFmName, albumData);                //getService().incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
+                    UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, getService(), lastFM);
+                    updaterHoarder.updateUser();
+                    //getService().incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
                 } catch (LastFMNoPlaysException ex) {
                     getService().updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
                             (int) (Instant.now().getEpochSecond() + 4000));
                     sendMessageQueue(e, "You were already up to date! If you consider you are not really up to date run this command again with **`--force`**");
                     return;
                 }
+
+                sendMessageQueue(e, "Successfully updated " + userString + " info!");
+
+
             }
-            sendMessageQueue(e, "Successfully updated " + userString + " info!");
         } finally {
             if (removeFlag) {
                 UpdaterService.remove(lastFmName);
             }
         }
-
 
     }
 

@@ -56,4 +56,6 @@ public interface BillboardDao {
     void insertGlobalBillboardDataListeners(Connection connection, int week_id);
 
     void groupUserData(Connection connection, String lastfmId, int week_id);
+
+    void cleanUserData(Connection connection, String lastfmId, int i);
 }

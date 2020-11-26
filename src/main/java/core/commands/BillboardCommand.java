@@ -97,7 +97,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
 
 
         long guildId = e.getGuild().getIdLong();
-        List<UsersWrapper> all = getService().getAll(guildId);
+        List<UsersWrapper> all = getService().getAllNonPrivate(guildId);
         if (all.isEmpty()) {
             sendMessageQueue(e, "There is not a single person registered in this server");
             return;

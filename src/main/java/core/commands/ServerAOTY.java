@@ -58,7 +58,7 @@ public class ServerAOTY extends ChartableCommand<ChartYearParameters> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartYearParameters params) {
         BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
-        if (params.getTimeFrameEnum().isAllTime()) {
+        if (!params.getTimeFrameEnum().isAllTime()) {
             sendMessageQueue(params.getE(), "Only alltime is supported for this command");
         }
         List<AlbumInfo> nonEmptyMbid;
