@@ -116,6 +116,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                                     " | " + value.getAlbumName() + "\n");
                 }
         ).collect(Collectors.toList());
+        Collections.shuffle(result, CommandUtil.rand);
         if (result.isEmpty()) {
             sendMessageQueue(e, "None is listening to music at the moment UwU");
             return;

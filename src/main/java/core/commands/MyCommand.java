@@ -77,7 +77,9 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
     @Override
     public void onMessageReceived(MessageReceivedEvent e) {
 
-        e.getChannel().sendTyping().queue();
+        e.getChannel().sendTyping().queue(unused -> {
+        }, throwable -> {
+        });
         System.out.println("We received a message from " +
                 e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
         if (!e.isFromGuild() && !respondInPrivate) {
