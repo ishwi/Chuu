@@ -18,16 +18,21 @@ package core.commands;
 import com.google.common.collect.TreeMultimap;
 import core.Chuu;
 import core.parsers.NoOpParser;
+import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HelpCommand extends ConcurrentCommand<CommandParameters> {
     private static final String NO_NAME = "No name provided for this command. Sorry!";
@@ -55,7 +60,9 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        NoOpParser noOpParser = new NoOpParser();
+        noOpParser.addOptional(new OptionalEntity("all", "DM you a list of all the commands with an explanation"));
+        return noOpParser;
     }
 
     public MyCommand<?> registerCommand(MyCommand<?> command) {
@@ -93,65 +100,83 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
         Character prefix = Chuu.getCorrespondingPrefix(e);
         String[] args = commandArgs(e.getMessage());
 
-        if (!e.isFromType(ChannelType.PRIVATE)) {
-            if (args.length < 2) {
-                e.getTextChannel().sendMessage(new MessageBuilder()
-                        .append(e.getAuthor())
-                        .append(": Help information was sent as a private message.")
-                        .mentionUsers(e.getAuthor().getIdLong())
-                        .build()).queue();
-            } else {
-                doSend(args, e.getChannel(), prefix);
-                return;
-            }
+
+        if (params.hasOptional("all")) {
+            e.getChannel().sendMessage(new MessageBuilder()
+                    .append(e.getAuthor())
+                    .append(": Help information was sent as a private message.")
+                    .mentionUsers(e.getAuthor().getIdLong())
+                    .build()).queue();
+            e.getAuthor().openPrivateChannel().queue(privateChannel -> sendPrivate(privateChannel, e));
+            return;
+        }
+        if (args.length == 1) {
+            sendEmbed(e);
+            return;
 
         }
-        sendPrivate(e.getAuthor().openPrivateChannel().complete(), args, prefix);
+        doSend(args, e.getChannel(), prefix);
     }
 
-    public void sendPrivate(MessageChannel channel, String[] args, Character prefix) {
-        if (args.length < 2) {
-            StringBuilder s = new StringBuilder();
-            s.append("A lot of commands accept different time frames which are the following:\n")
-                    .append(" d: Day \n")
-                    .append(" w: Week \n")
-                    .append(" m: Month \n")
-                    .append(" q: quarter \n")
-                    .append(" s: semester \n")
-                    .append(" y: year \n")
-                    .append(" a: alltime \n")
-                    .append("\n")
-                    .append("You can use ").append(prefix).append(getAliases().get(0))
-                    .append(" + other command to get a exact description of what a command accepts\n")
-                    .append("\n")
-                    .append("The following commands are supported by the bot\n");
+    public void sendPrivate(MessageChannel channel, MessageReceivedEvent e) {
+        Character prefix = Chuu.getCorrespondingPrefix(e);
+        StringBuilder s = new StringBuilder();
+        List<MessageAction> messageActions = new ArrayList<>();
+        s.append("A lot of commands accept different time frames which are the following:\n")
+                .append(" d: Day \n")
+                .append(" w: Week \n")
+                .append(" m: Month \n")
+                .append(" q: quarter \n")
+                .append(" s: semester \n")
+                .append(" y: year \n")
+                .append(" a: alltime \n")
+                .append("\n")
+                .append("You can use ").append(prefix).append(getAliases().get(0))
+                .append(" + other command to get a exact description of what a command accepts\n")
+                .append("\n")
+                .append("The following commands are supported by the bot\n");
 
-            for (Map.Entry<CommandCategory, Collection<MyCommand<?>>> a : categoryMap.asMap().entrySet()) {
-                CommandCategory key = a.getKey();
-                Collection<MyCommand<?>> commandList = a.getValue();
-                s.append("\n__**").append(key.toString().replaceAll("_", " ")).append(":**__ _").append(key.getDescription()).append("_\n");
+        for (Map.Entry<CommandCategory, Collection<MyCommand<?>>> a : categoryMap.asMap().entrySet()) {
+            CommandCategory key = a.getKey();
+            Collection<MyCommand<?>> commandList = a.getValue();
+            s.append("\n__**").append(key.toString().replaceAll("_", " ")).append(":**__ _").append(key.getDescription()).append("_\n");
 
-                for (MyCommand<?> c : commandList) {
-                    if (s.length() > 1800) {
-                        channel.sendMessage(new MessageBuilder()
-                                .append(s.toString())
-                                .build()).complete();
-                        s = new StringBuilder();
-                    }
-                    String description = c.getDescription();
-                    description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
-
-                    s.append("**").append(prefix).append(c.getAliases().get(0)).append("** - ");
-                    s.append(description).append("\n");
+            for (MyCommand<?> c : commandList) {
+                if (s.length() > 1800) {
+                    messageActions.add(channel.sendMessage(new MessageBuilder()
+                            .append(s.toString())
+                            .build()));
+                    s = new StringBuilder();
                 }
-            }
+                String description = c.getDescription();
+                description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
 
-            channel.sendMessage(new MessageBuilder()
-                    .append(s.toString())
-                    .build()).queue();
-        } else {
-            doSend(args, channel, prefix);
+                s.append("**").append(prefix).append(c.getAliases().get(0)).append("** - ");
+                s.append(description).append("\n");
+            }
         }
+
+        messageActions.add(channel.sendMessage(new MessageBuilder()
+                .append(s.toString())
+                .build()));
+
+        RestAction.allOf(messageActions).queue();
+    }
+
+    public void sendEmbed(MessageReceivedEvent e) {
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        Character correspondingPrefix = Chuu.getCorrespondingPrefix(e);
+        for (Map.Entry<CommandCategory, Collection<MyCommand<?>>> a : categoryMap.asMap().entrySet()) {
+            StringBuilder s = new StringBuilder();
+            CommandCategory key = a.getKey();
+            Collection<MyCommand<?>> commandList = a.getValue();
+            s.append("\n__**").append(key.toString().replaceAll("_", " ")).append(":**__ _").append(key.getDescription()).append("_\n");
+            String collect = commandList.stream().map(x -> "*" + correspondingPrefix + x.getAliases().get(0) + "*").collect(Collectors.joining(", "));
+            embedBuilder.addField(new MessageEmbed.Field(s.toString(), collect, false));
+        }
+        embedBuilder.setFooter(correspondingPrefix + "help \"command\" for the explanation of one command.\n" + correspondingPrefix + "help --all for the whole help message")
+                .setTitle("Commands");
+        e.getChannel().sendMessage(embedBuilder.build()).queue();
     }
 
     private void doSend(String[] args, MessageChannel channel, Character prefix) {
