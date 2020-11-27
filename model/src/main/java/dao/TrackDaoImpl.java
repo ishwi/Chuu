@@ -28,7 +28,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
     @Override
     public void fillIdsMbids(Connection connection, List<ScrobbledTrack> list) {
-        String queryString = "SELECT id,mbid FROM TRACK WHERE  mbid in (%s)  ";
+        String queryString = "SELECT id,mbid FROM track WHERE  mbid in (%s)  ";
 
         String sql = String.format(queryString, list.isEmpty() ? null : prepareINQuerySingle(list.size()));
 
