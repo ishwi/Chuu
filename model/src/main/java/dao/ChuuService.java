@@ -1829,7 +1829,10 @@ public class ChuuService {
         if (list.isEmpty()) {
             return;
         }
+        if (!doDeletion) {
 
+
+        }
         trackDao.fillIdsMbids(connection, list.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).collect(Collectors.toList()));
 
         trackDao.fillIds(connection, list.stream().filter(x -> x.getTrackId() == -1L).collect(Collectors.toList()));
@@ -2681,10 +2684,9 @@ public class ChuuService {
 
     public void trackUpdate(List<ScrobbledTrack> trackData, List<ScrobbledArtist> artistData, String id) {
         try (Connection connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
-
             try {
                 /* Prepare connection. */
+                connection.setAutoCommit(true);
                 if (!trackData.isEmpty()) {
                     updaterDao.fillIds(connection, artistData);
                     Map<String, Long> artistIds = artistData.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, ScrobbledArtist::getArtistId, (a, b) -> {
