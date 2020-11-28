@@ -100,12 +100,11 @@ public class ChuuService {
                 }
                 List<ScrobbledArtist> scrobbledArtists = map.get(false);
                 scrobbledArtists.addAll(nonExistingId);
-                connection.commit();
                 connection.setAutoCommit(false);
                 updaterDao.deleteAllArtists(connection, id);
                 updaterDao.addSrobbledArtists(connection, scrobbledArtists);
+                connection.commit();
             }
-            connection.commit();
         } catch (SQLException e) {
             connection.rollback();
             throw new ChuuServiceException(e);
@@ -167,12 +166,8 @@ public class ChuuService {
                     }
                 });
                 doInsertUserData(connection, id, trackWithArtistIds);
-                try {
-                    updaterDao.setUpdatedTime(connection, id, wrapper.getTimestamp(), wrapper.getTimestamp());
-                    connection.commit();
-                } catch (SQLTransactionRollbackException exception) {
-                    throw new ChuuServiceException(exception);
-                }
+                updaterDao.setUpdatedTime(connection, id, wrapper.getTimestamp(), wrapper.getTimestamp());
+
             } catch (SQLException e) {
                 throw new ChuuServiceException(e);
             }
@@ -1764,7 +1759,6 @@ public class ChuuService {
                         artistId = handleNonExistingArtistFromAlbum(connection, x, artistId);
                         x.setArtistId(artistId);
                     });
-                    connection.commit();
                     connection.setAutoCommit(false);
                     list = list.stream().filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
 
@@ -2692,7 +2686,6 @@ public class ChuuService {
                         artistId = handleNonExistingArtistFromAlbum(connection, x, artistId);
                         x.setArtistId(artistId);
                     });
-                    connection.commit();
                     trackData = trackData.stream().filter(x -> x.getName() != null && !x.getName().isBlank()).collect(Collectors.toList());
 
                     insertTracks(trackData, id, connection);
