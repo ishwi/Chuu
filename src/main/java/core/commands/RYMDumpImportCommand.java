@@ -98,7 +98,7 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
         List<RYMImportRating> ratings = new ArrayList<>();
         String url = params.getUrl();
         if (url.isBlank()) {
-            sendMessageQueue(e, "You need to upload a file  :thinking:");
+            sendMessageQueue(e, "You need to upload a file :thinking:");
             return;
         }
         Pattern compile = Pattern.compile("https?://rateyourmusic.com/");

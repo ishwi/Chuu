@@ -132,6 +132,8 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                             List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                             e.getChannel().sendTyping().queue();
                             getService().albumUpdate(albumData, artistData, lastFmName);
+                            List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                            getService().trackUpdate(trackData, artistData, lastFmName);
                             sendMessageQueue(e, "Successfully indexed " + userString + " tracks");
                         } finally {
                             synchronized (this) {

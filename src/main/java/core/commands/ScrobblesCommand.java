@@ -51,6 +51,6 @@ public class ScrobblesCommand extends ConcurrentCommand<ChuuDataParams> {
         List<UserInfo> userInfoes = lastFM.getUserInfo(Collections.singletonList(lastFMData.getName()));
         UserInfo ui = userInfoes.get(0);
         String userString = getUserString(e, lastFMData.getDiscordId());
-        sendMessageQueue(e, String.format("%s has a total of  %d scrobbles", userString, ui.getPlayCount()));
+        sendMessageQueue(e, String.format("%s has a total of %d scrobbles", userString, ui.getPlayCount()));
     }
 }
