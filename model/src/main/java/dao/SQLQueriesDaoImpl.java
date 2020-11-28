@@ -2815,10 +2815,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         @Language("MariaDB")
         String queryString =
-                "SELECT a2.track_name,a3.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id,c.privacy_mode " +
+                "SELECT a2.track_name,a3.name, a.lastfm_id, a.playNumber, coalesce(a2.url,a4.url,a3.url) as url, c.discord_id,c.privacy_mode " +
                         "FROM  scrobbled_track a" +
                         " JOIN track a2 ON a.track_id = a2.id  " +
                         " join artist a3 on a2.artist_id = a3.id " +
+                        " left join album a4 on a2.album_id = a4.id " +
                         "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
                         " where   (? or not c.botted_account or c.discord_id = ? )  " +
                         "and  a2.id = ? " +
@@ -2840,7 +2841,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
             int j = 0;
             while (resultSet.next() && (j < limit)) {
-                url = resultSet.getString("a2.url");
+                url = resultSet.getString("url");
                 artistName = resultSet.getString("a3.name");
                 trackName = resultSet.getString("a2.track_name");
 
