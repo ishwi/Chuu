@@ -358,6 +358,7 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new LocalWhoKnowsSongCommand(dao)))
                 .addEventListeners(help.registerCommand(new GlobalWhoKnowSongCommand(dao)))
                 .addEventListeners(help.registerCommand(new AudioFeaturesCommand(dao)))
+                .addEventListeners(help.registerCommand(new MilestoneCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {

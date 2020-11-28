@@ -110,6 +110,10 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
             List<ScrobbledArtist> allArtists = lastFM.getAllArtists(lastfmid, new CustomTimeFrame(TimeFrameEnum.ALL));
             getService().insertArtistDataList(allArtists, lastfmid);
+            List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), new CustomTimeFrame(TimeFrameEnum.ALL));
+            getService().albumUpdate(albumData, allArtists, lastfmid);
+            List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+            getService().trackUpdate(trackData, allArtists, lastfmid);
         } catch (
                 LastFMNoPlaysException ignored) {
         } catch (

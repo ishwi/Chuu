@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -362,5 +364,17 @@ public class CommandUtil {
         } else {
             return RemainingImagesMode.IMAGE;
         }
+    }
+
+    public static String getAmericanizedDate(OffsetDateTime offsetDateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d");
+
+        String day = formatter.format(offsetDateTime);
+        String first = DateTimeFormatter.ofPattern("HH:mm 'on' MMMM").format(offsetDateTime);
+        String year = DateTimeFormatter.ofPattern("yyyy").format(offsetDateTime);
+
+        return String.format("%s %s%s, %s", first, day, CommandUtil.getDayNumberSuffix(Integer.parseInt(day)), year);
+
+
     }
 }

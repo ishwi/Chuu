@@ -139,7 +139,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                 parseHttpCode(responseCode);
                 JSONObject jsonObject;
                 if (responseCode == 404) {
-                    throw new LastFmEntityNotFoundException(new ExceptionEntity("Whatever"));
+                    throw new LastFmEntityNotFoundException(causeOfNotFound);
                 }
                 try (InputStream responseBodyAsStream = send.body()) {
                     jsonObject = new JSONObject(new JSONTokener(responseBodyAsStream));
@@ -1590,6 +1590,39 @@ public class ConcurrentLastFM {//implements LastFMService {
         return size;
     }
 
+    public Optional<TrackWithArtistId> getMilestone(String lastfmId, long number) throws LastFmException {
+        String url = BASE + RECENT_TRACKS + "&user=" + lastfmId + "&limit=1" + apiKey + ENDING + "&extended=1";
+        JSONObject obj = initGetRecentTracks(lastfmId, url, new CustomTimeFrame(TimeFrameEnum.ALL));
+        long pageNumber = obj.getJSONObject("@attr").getLong("total");
+        url = BASE + RECENT_TRACKS + "&user=" + lastfmId + "&limit=1" + apiKey + ENDING + "&extended=1&page=" + pageNumber;
+        obj = initGetRecentTracks(lastfmId, url, new CustomTimeFrame(TimeFrameEnum.ALL));
+        JSONArray arr = obj.getJSONArray("track");
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject trackObj = arr.getJSONObject(i);
+            if (trackObj.has("@attr"))
+                continue;
+
+            String trackName = trackObj.getString("name");
+            String mbid = trackObj.getString("mbid");
+
+            JSONObject artistObj = trackObj.getJSONObject("artist");
+            String artistName = artistObj.getString("name");
+            String artistMbid = artistObj.getString("mbid");
+
+            int utc = trackObj.getJSONObject("date").getInt("uts");
+            TrackWithArtistId track = new TrackWithArtistId(artistName, trackName, 0, false, 0, utc);
+            track.setArtistMbid(artistMbid);
+            track.setMbid(mbid);
+            JSONObject albumObj = trackObj.optJSONObject("album");
+
+            if (albumObj != null) {
+                track.setAlbum(albumObj.getString("#text"));
+                track.setAlbumMbid(albumObj.getString("mbid"));
+            }
+            return Optional.of(track);
+        }
+        return Optional.empty();
+    }
 }
 
 

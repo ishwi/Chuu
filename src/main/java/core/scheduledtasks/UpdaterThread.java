@@ -9,10 +9,7 @@ import core.parsers.utils.CustomTimeFrame;
 import core.services.UpdaterHoarder;
 import core.services.UpdaterService;
 import dao.ChuuService;
-import dao.entities.ScrobbledAlbum;
-import dao.entities.ScrobbledArtist;
-import dao.entities.TimeFrameEnum;
-import dao.entities.UpdaterUserWrapper;
+import dao.entities.*;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -88,6 +85,9 @@ public class UpdaterThread implements Runnable {
                         List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMName, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                         dao.albumUpdate(albumData, artistData, lastFMName);
                         System.out.println(" Updated  ) " + lastFMName + " albums");
+                        List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMName, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                        dao.trackUpdate(trackData, artistData, lastFMName);
+                        System.out.println(" Updated  ) " + lastFMName + " tracks");
 
                     }
                 } catch (LastFMNoPlaysException e) {

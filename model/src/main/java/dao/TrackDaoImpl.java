@@ -107,14 +107,22 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                String artsitName = resultSet.getString(1);
-                String albumName = resultSet.getString(2);
-                int duration = resultSet.getInt(3);
-                String trackName = resultSet.getString(4);
-                String url = resultSet.getString(5);
-                int plays = resultSet.getInt(6);
-                boolean loved = resultSet.getBoolean(7);
-                scrobbledTracks.add(new ScrobbledTrack(artsitName, trackName, plays, loved, duration, url, null, null));
+                long trackId = resultSet.getLong(1);
+                long albumId = resultSet.getLong(2);
+                long artistId = resultSet.getLong(3);
+                String artsitName = resultSet.getString(4);
+                String albumName = resultSet.getString(5);
+                int duration = resultSet.getInt(6);
+                String trackName = resultSet.getString(7);
+                String url = resultSet.getString(8);
+                int plays = resultSet.getInt(9);
+                boolean loved = resultSet.getBoolean(10);
+
+                ScrobbledTrack e = new ScrobbledTrack(artsitName, trackName, plays, loved, duration, url, null, null);
+                e.setArtistId(artistId);
+                e.setAlbumId(albumId);
+                e.setTrackId(trackId);
+                scrobbledTracks.add(e);
             }
         } catch (
                 SQLException e) {

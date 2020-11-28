@@ -141,10 +141,13 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
 
             List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), new CustomTimeFrame(TimeFrameEnum.ALL));
             getService().insertArtistDataList(artistData, lastFmID);
-            sendMessageQueue(e, "Finished updating your artist, now the album process will start");
+            sendMessageQueue(e, "Finished updating your artist, now the album/track process will start");
             e.getChannel().sendTyping().queue();
             List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), new CustomTimeFrame(TimeFrameEnum.ALL));
             getService().albumUpdate(albumData, artistData, lastFmID);
+            List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+            getService().trackUpdate(trackData, artistData, lastFmID);
+            sendMessageQueue(e, "Successfully updated " + lastFmID + " info!");
             //  e.getGuild().loadMembers((Chuu::caching));
         } catch (
                 LastFMNoPlaysException ex) {

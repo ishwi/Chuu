@@ -1,9 +1,5 @@
 package core.commands;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
@@ -22,18 +18,15 @@ import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotifyApi;
 
+
+    public AtomicInteger maxConcurrency = new AtomicInteger(5);
 
     public UpdateCommand(ChuuService dao) {
         super(dao);
-        parser = new OnlyUsernameParser(dao, new OptionalEntity("force", "Does a full heavy update"), new OptionalEntity("beta", "Does a beta update"));
-
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotifyApi = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -43,7 +36,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService(), new OptionalEntity("force", "Does a full heavy update"));
+        return new OnlyUsernameParser(getService(), new OptionalEntity("force", "Does a full heavy update"), new OptionalEntity("beta", "Does a beta update"));
     }
 
     @Override
@@ -87,20 +80,27 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                 sendMessageQueue(e, "You were already being updated. Wait a few seconds");
                 return;
             }
-
             if (beta) {
-                if (!e.isFromGuild() || e.getGuild().getIdLong() != 693124899220226178L) {
-                    sendMessageQueue(e, "This feature is in beta and is not available yet");
-                    return;
+                synchronized (this) {
+                    if (maxConcurrency.decrementAndGet() == 0) {
+                        sendMessageQueue(e, "There are a lot of people executing this type of update, try again later :(");
+                        maxConcurrency.incrementAndGet();
+                    }
                 }
-                List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-                getService().insertArtistDataList(artistData, lastFmName);
-
-                List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-                getService().trackUpdate(trackData, artistData, lastFmName);
-                sendMessageQueue(e, "S");
-                sendMessageQueue(e, "Successfully updated " + userString + " info!");
-
+                try {
+                    List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                    getService().insertArtistDataList(artistData, lastFmName);
+                    List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                    e.getChannel().sendTyping().queue();
+                    getService().albumUpdate(albumData, artistData, lastFmName);
+                    List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                    getService().trackUpdate(trackData, artistData, lastFmName);
+                    sendMessageQueue(e, "Successfully updated " + userString + " info!");
+                } finally {
+                    synchronized (this) {
+                        maxConcurrency.incrementAndGet();
+                    }
+                }
             } else if (force) {
                 e.getChannel().sendTyping().queue();
                 List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
@@ -110,19 +110,49 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                 List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                 e.getChannel().sendTyping().queue();
                 getService().albumUpdate(albumData, artistData, lastFmName);
+                sendMessageQueue(e, "Successfully updated " + userString + " info!");
+
             } else {
                 UpdaterUserWrapper userUpdateStatus = getService().getUserUpdateStatus(lastFMData.getDiscordId());
-                try {
-                    UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, getService(), lastFM);
-                    updaterHoarder.updateUser();
-                    //getService().incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
-                } catch (LastFMNoPlaysException ex) {
-                    getService().updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
-                            (int) (Instant.now().getEpochSecond() + 4000));
-                    sendMessageQueue(e, "You were already up to date! If you consider you are not really up to date run this command again with **`--force`**");
-                    return;
-                }
+                List<ScrobbledTrack> topTracks = getService().getTopTracks(userUpdateStatus.getLastFMName());
+                if (topTracks.size() < getService().getUserArtistCount(lastFmName, 0)) {
+                    if (maxConcurrency.decrementAndGet() == 0) {
+                        maxConcurrency.incrementAndGet();
+                        UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, getService(), lastFM);
+                        updaterHoarder.updateUser();
 
+                    } else {
+                        try {
+                            sendMessageQueue(e, "Since you haven't indexed your tracks yet, all your tracks will be indexed on the bot. This will take a while.");
+                            e.getChannel().sendTyping().queue();
+                            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                            getService().insertArtistDataList(artistData, lastFmName);
+                            e.getChannel().sendTyping().queue();
+                            //sendMessageQueue(e, "Finished updating your artist, now the album process will start");
+                            List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                            e.getChannel().sendTyping().queue();
+                            getService().albumUpdate(albumData, artistData, lastFmName);
+                            sendMessageQueue(e, "Successfully indexed " + userString + " tracks");
+                        } finally {
+                            synchronized (this) {
+                                maxConcurrency.incrementAndGet();
+                            }
+                        }
+                        return;
+                    }
+                } else {
+                    try {
+                        UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, getService(), lastFM);
+                        updaterHoarder.updateUser();
+
+                        //getService().incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
+                    } catch (LastFMNoPlaysException ex) {
+                        getService().updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
+                                (int) (Instant.now().getEpochSecond() + 4000));
+                        sendMessageQueue(e, "You were already up to date! If you consider you are not really up to date run this command again with **`--force`**");
+                        return;
+                    }
+                }
                 sendMessageQueue(e, "Successfully updated " + userString + " info!");
 
 

@@ -41,7 +41,7 @@ public class UpdaterHoarder {
                 user.getTimestamp()
                 , Integer.MAX_VALUE);
         doArtistValidation(trackWithArtistIds);
-        int max = trackWithArtistIds.stream().mapToInt(TrackWithArtistId::getUtc).max().orElse(0) + 1;
+        int max = trackWithArtistIds.stream().mapToInt(TrackWithArtistId::getUtc).max().orElse(user.getTimestamp()) + 1;
         Map<ScrobbledAlbum, Long> a = trackWithArtistIds.stream()
                 .collect(Collectors.groupingBy(nowPlayingArtist -> {
                     ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(nowPlayingArtist.getAlbum(), nowPlayingArtist.getArtist(), null, null);

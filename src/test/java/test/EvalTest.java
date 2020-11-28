@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 
 public class EvalTest {
     public void name(EvalContext ctx) {
+        core.Chuu.getShardManager().getGuildById(779108223151505489L).getTextChannelById(779485554181668876L)
+                .sendMessage("test").queue(a -> ctx.sendMessage(a), b -> ctx.sendMessage(b));
         var colorChartCommand = ctx.jda.getRegisteredListeners().stream().filter(x -> x instanceof ColorChartCommand).map(x -> x).findFirst().orElseThrow();
         var maxConcurrency = colorChartCommand.getClass().getDeclaredField("maxConcurrency");
     }

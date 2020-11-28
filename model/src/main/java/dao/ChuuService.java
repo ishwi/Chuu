@@ -155,9 +155,7 @@ public class ChuuService {
                 insertAlbums(albumData, id, connection, false);
                 Map<AlbumInfo, ScrobbledAlbum> albumInfoes = albumData.stream()
                         .filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank())
-                        .collect(Collectors.toMap(x -> new AlbumInfoIgnoreMbid(x.getAlbumMbid(), x.getAlbum(), x.getArtist()), x -> x, (x, y) -> {
-                            return x;
-                        }));
+                        .collect(Collectors.toMap(x -> new AlbumInfoIgnoreMbid(x.getAlbumMbid(), x.getAlbum(), x.getArtist()), x -> x, (x, y) -> x));
                 trackWithArtistIds.forEach(x -> {
                     if (x.getAlbum() != null && !x.getAlbum().isBlank()) {
                         ScrobbledAlbum scrobbledAlbum = albumInfoes.get(new AlbumInfo(x.getAlbumMbid(), x.getName(), x.getArtist()));
@@ -1831,10 +1829,7 @@ public class ChuuService {
         if (list.isEmpty()) {
             return;
         }
-        if (!doDeletion) {
 
-
-        }
         trackDao.fillIdsMbids(connection, list.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).collect(Collectors.toList()));
 
         trackDao.fillIds(connection, list.stream().filter(x -> x.getTrackId() == -1L).collect(Collectors.toList()));
@@ -1851,14 +1846,14 @@ public class ChuuService {
             });
             //updaterDao.insertArtists(connection, nonExistingId);
         }
-        List<ScrobbledTrack> scrobbledAlbums = map.get(false);
-        scrobbledAlbums.addAll(nonExistingId);
+        List<ScrobbledTrack> scrobbledTracks = map.get(false);
+        scrobbledTracks.addAll(nonExistingId);
         connection.setAutoCommit(false);
         connection.commit();
         if (doDeletion) {
             trackDao.deleteAllUserTracks(connection, id);
         }
-        Map<Boolean, List<ScrobbledTrack>> whyDoesThisNotHaveAnId = scrobbledAlbums.stream().collect(Collectors.partitioningBy(x -> x.getTrackId() >= 1 && x.getArtistId() >= 1));
+        Map<Boolean, List<ScrobbledTrack>> whyDoesThisNotHaveAnId = scrobbledTracks.stream().collect(Collectors.partitioningBy(x -> x.getTrackId() >= 1 && x.getArtistId() >= 1));
         whyDoesThisNotHaveAnId.get(false).forEach(x -> logger.warn(String.format("%s %s caused a foreign key for user %s", x.getAlbum(), x.getArtist(), id)));
         List<ScrobbledTrack> finalTruer = whyDoesThisNotHaveAnId.get(true);
         if (!finalTruer.isEmpty())
@@ -2061,7 +2056,7 @@ public class ChuuService {
         }
     }
 
-    private void doInsertUserData(Connection connection, String lastfmId, List<TrackWithArtistId> list) {
+    private void doInsertUserData(Connection connection, String lastfmId, List<TrackWithArtistId> list) throws SQLException {
         Week currentWeekId = billboardDao.getCurrentWeekId(connection);
         Date weekStart = currentWeekId.getWeekStart();
         Map<Integer, List<TrackWithArtistId>> collect = list.stream().collect(Collectors.groupingBy(x -> {
@@ -2081,6 +2076,7 @@ public class ChuuService {
         } else {
             i = weekYear * 100 + week + 1;
         }
+        connection.setAutoCommit(true);
         collect.entrySet().stream().sorted(Map.Entry.<Integer, List<TrackWithArtistId>>comparingByKey().reversed()).forEach(x -> {
             int currentIndex = i;
             int numberOfDecreses = 0;
@@ -2098,7 +2094,7 @@ public class ChuuService {
             billboardDao.groupUserData(connection, lastfmId, id - numberOfDecreses);
         });
         try {
-            List<ScrobbledTrack> collect1 = list.stream().map(t -> {
+            List<ScrobbledTrack> groupedTracks = list.stream().map(t -> {
                 ScrobbledTrack scrobbledTrack = new ScrobbledTrack(t.getArtist(), t.getName(), t.getPlays(), t.isLoved(), t.getDuration(), t.getImageUrl(), t.getArtistMbid(), t.getMbid());
                 scrobbledTrack.setArtistId(t.getArtistId());
                 return scrobbledTrack;
@@ -2107,7 +2103,7 @@ public class ChuuService {
                 key.setCount(t.getValue());
                 return key;
             }))).collect(Collectors.toList());
-            insertTracks(collect1, lastfmId, connection, false);
+            insertTracks(groupedTracks, lastfmId, connection, false);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
