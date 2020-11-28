@@ -9,10 +9,8 @@ import javacutils.Pair;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public abstract class MultiStringParser<T extends CommandParameters> extends DaoParser<T> {
     public MultiStringParser(ChuuService dao, OptionalEntity... opts) {
@@ -24,12 +22,11 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
         ParserAux parserAux = new ParserAux(words);
         User oneUser = parserAux.getOneUser(e);
         words = parserAux.getMessage();
-        Set<String> set = new HashSet<>();
         LastFMData lastFMData = findLastfmFromID(oneUser, e);
         Pair<String[], Integer> integerPair = filterMessage(words, NumberParser.compile.asMatchPredicate(), Integer::parseInt, 2);
         int x = integerPair.second;
         if (x > 15) {
-            sendError("Can't do more than 15 artists", e);
+            sendError("Can't do more than 15", e);
             return null;
         }
         words = integerPair.first;
@@ -38,11 +35,12 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
 
         } else {
             String str = String.join(" ", getSubMessage(e.getMessage()));
-            Matcher m = Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(str);
-            while (m.find())
-                set.add(m.group(1).replace("\"", ""));
+            String[] split = str.split("(?<!\\\\)\\s*[|-]\\s*");
+            Set<String> set = Set.of(split).stream().map(t ->
+                    t.trim().replaceAll("\\\\(|-)", "$1")
+            ).collect(Collectors.toSet());
             if (set.size() > 15) {
-                sendError("Can't do more than 15 artists", e);
+                sendError("Can't do more than 15", e);
                 return null;
             }
             return doSomethingWords(lastFMData, e, set);
