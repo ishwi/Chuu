@@ -85,10 +85,11 @@ public class ChuuService {
     private void insertArtistDataListConnection(List<ScrobbledArtist> list, String id, Connection connection) throws SQLException {
         try {
 
-            connection.setAutoCommit(false);
             if (!list.isEmpty()) {
                 //delete everything first to have a clean start
                 /* Do work. */
+                connection.setAutoCommit(true);
+
                 updaterDao.fillIds(connection, list);
 
                 Map<Boolean, List<ScrobbledArtist>> map = list.stream().peek(x -> x.setDiscordID(id)).collect(Collectors.partitioningBy(scrobbledArtist -> scrobbledArtist.getArtistId() == -1));
@@ -100,6 +101,7 @@ public class ChuuService {
                 List<ScrobbledArtist> scrobbledArtists = map.get(false);
                 scrobbledArtists.addAll(nonExistingId);
                 connection.commit();
+                connection.setAutoCommit(false);
                 updaterDao.deleteAllArtists(connection, id);
                 updaterDao.addSrobbledArtists(connection, scrobbledArtists);
             }
@@ -167,13 +169,11 @@ public class ChuuService {
                 doInsertUserData(connection, id, trackWithArtistIds);
                 try {
                     updaterDao.setUpdatedTime(connection, id, wrapper.getTimestamp(), wrapper.getTimestamp());
-
                     connection.commit();
                 } catch (SQLTransactionRollbackException exception) {
-                    connection.rollback();
+                    throw new ChuuServiceException(exception);
                 }
             } catch (SQLException e) {
-                connection.rollback();
                 throw new ChuuServiceException(e);
             }
 
@@ -1748,10 +1748,11 @@ public class ChuuService {
 
     public void albumUpdate(List<ScrobbledAlbum> list, List<ScrobbledArtist> artistData, String id) {
         try (Connection connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
 
             try {
                 /* Prepare connection. */
+                connection.setAutoCommit(true);
+
                 if (!list.isEmpty()) {
                     updaterDao.fillIds(connection, artistData);
                     Map<String, Long> artistIds = artistData.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, ScrobbledArtist::getArtistId, (a, b) -> {
@@ -1764,6 +1765,7 @@ public class ChuuService {
                         x.setArtistId(artistId);
                     });
                     connection.commit();
+                    connection.setAutoCommit(false);
                     list = list.stream().filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
 
                     insertAlbums(list, id, connection);
@@ -1771,13 +1773,8 @@ public class ChuuService {
                 updaterDao.setUpdatedTime(connection, id, null, null);
                 connection.commit();
             } catch (SQLException e) {
-                connection.rollback();
                 throw new ChuuServiceException(e);
-            } catch (Exception e) {
-                connection.rollback();
-                throw e;
             }
-
         } catch (
                 SQLException e) {
             throw new ChuuServiceException(e);
@@ -1829,10 +1826,7 @@ public class ChuuService {
         if (list.isEmpty()) {
             return;
         }
-        if (!doDeletion) {
 
-
-        }
         trackDao.fillIdsMbids(connection, list.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).collect(Collectors.toList()));
 
         trackDao.fillIds(connection, list.stream().filter(x -> x.getTrackId() == -1L).collect(Collectors.toList()));
@@ -2706,13 +2700,8 @@ public class ChuuService {
                 updaterDao.setUpdatedTime(connection, id, null, null);
                 connection.commit();
             } catch (SQLException e) {
-                connection.rollback();
                 throw new ChuuServiceException(e);
-            } catch (Exception e) {
-                connection.rollback();
-                throw e;
             }
-
         } catch (
                 SQLException e) {
             throw new ChuuServiceException(e);

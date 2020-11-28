@@ -5,6 +5,7 @@ import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
+import dao.entities.PrivacyMode;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
@@ -16,6 +17,11 @@ import java.util.List;
 public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlbumParameters> {
     public GlobalWhoKnowSongCommand(ChuuService dao) {
         super(dao);
+    }
+
+    @Override
+    PrivacyMode obtainPrivacyMode(ArtistAlbumParameters params) {
+        return params.getLastFMData().getPrivacyMode();
     }
 
     @Override

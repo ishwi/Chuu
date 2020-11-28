@@ -71,6 +71,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
 
     }
 
+
     abstract WhoKnowsMode getWhoknowsMode(T params);
 
     abstract WrapperReturnNowPlaying generateWrapper(T params, WhoKnowsMode whoKnowsMode) throws LastFmException;
@@ -82,7 +83,6 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
 
             case IMAGE:
                 doImage(ap, wrapperReturnNowPlaying);
-
                 break;
             case LIST:
                 doList(ap, wrapperReturnNowPlaying);

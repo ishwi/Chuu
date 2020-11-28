@@ -2,14 +2,17 @@ package core.commands;
 
 import core.Chuu;
 import core.commands.utils.PrivacyUtils;
+import core.imagerenderer.ChartQuality;
 import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.OptionalEntity;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.*;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
+import java.text.MessageFormat;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -38,8 +41,17 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
             logo = CommandUtil.getLogo(getService(), e);
         }
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title, logo);
-        sendImage(image, e);
-
+        if (obtainPrivacyMode(ap) == PrivacyMode.NORMAL && CommandUtil.rand.nextFloat() >= 0.95f) {
+            Character prefix = Chuu.getCorrespondingPrefix(e);
+            DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, e.getAuthor().getIdLong());
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setTitle("Did you know?")
+                    .setAuthor(uInfo.getUsername(), null, uInfo.getUrlImage())
+                    .setDescription(MessageFormat.format("Your privacy setting is set to **normal**. This means people outside this server cannot see you on the global leaderboards. To show your name do {0}privacy and change your setting to **Tag**, **Last-Name** or **Discord-Name**. Do {1}help privacy for extra info.", prefix, prefix));
+            sendImage(image, e, ChartQuality.PNG_BIG, embedBuilder);
+        } else {
+            sendImage(image, e);
+        }
         return logo;
     }
 
@@ -100,6 +112,8 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
                 break;
         }
     }
+
+    abstract PrivacyMode obtainPrivacyMode(T params);
 
 
 }
