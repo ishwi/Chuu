@@ -22,12 +22,12 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.sql.Date;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
@@ -106,26 +106,26 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
         Date weekStart = week.getWeekStart();
         Optional<UsersWrapper> min = all.stream().min(Comparator.comparingInt(x -> x.getTimeZone().getOffset(Instant.now().getEpochSecond())));
 
-        if (min.isPresent()) {
-            UsersWrapper usersWrapper = min.get();
-            TimeZone timeZone = usersWrapper.getTimeZone();
-            if (LocalDate.now().getDayOfWeek().equals(DayOfWeek.MONDAY)) {
-                int offset = timeZone.getOffset(LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC).getEpochSecond() * 1000);
-                if (offset > 0) {
-                    ZonedDateTime plus = LocalDate.now().atStartOfDay().atZone(ZoneId.of("UTC")).plus(offset, ChronoUnit.MILLIS);
-                    if (plus.isAfter(ZonedDateTime.now())) {
-                        long remaining = offset - LocalTime.now().toNanoOfDay() / 1_000_000;
-                        if (remaining > 0) {
-                            String format = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(remaining),
-                                    TimeUnit.MILLISECONDS.toMinutes(remaining) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(remaining)),
-                                    TimeUnit.MILLISECONDS.toSeconds(remaining) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(remaining)));
-                            sendMessageQueue(e, "The week hasn't ended for a user because they have set a different timezone!" + "\nYou will have to wait " + format);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
+//        if (min.isPresent()) {
+//            UsersWrapper usersWrapper = min.get();
+//            TimeZone timeZone = usersWrapper.getTimeZone();
+//            if (LocalDate.now().getDayOfWeek().equals(DayOfWeek.MONDAY)) {
+//                int offset = timeZone.getOffset(LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC).getEpochSecond() * 1000);
+//                if (offset > 0) {
+//                    ZonedDateTime plus = LocalDate.now().atStartOfDay().atZone(ZoneId.of("UTC")).plus(offset, ChronoUnit.MILLIS);
+//                    if (plus.isAfter(ZonedDateTime.now())) {
+//                        long remaining = offset - LocalTime.now().toNanoOfDay() / 1_000_000;
+//                        if (remaining > 0) {
+//                            String format = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(remaining),
+//                                    TimeUnit.MILLISECONDS.toMinutes(remaining) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(remaining)),
+//                                    TimeUnit.MILLISECONDS.toSeconds(remaining) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(remaining)));
+//                            sendMessageQueue(e, "The week hasn't ended for a user because they have set a different timezone!" + "\nYou will have to wait " + format);
+//                            return;
+//                        }
+//                    }
+//                }
+//            }
+//        }
         int weekId = week.getId();
         boolean doListeners = !params.hasOptional("scrobbles");
         List<BillboardEntity> entities = getEntities(weekId, guildId, doListeners);

@@ -255,14 +255,14 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public List<UsersWrapper> getAllNonPrivate(Connection connection, long guildId) {
-        String queryString = "SELECT a.discord_id, a.lastfm_id,a.role,a.timezone FROM user a JOIN (SELECT discord_id FROM user_guild WHERE guild_id = ? ) b ON a.discord_id = b.discord_id where a.private_update = false";
+        String queryString = "SELECT a.discord_id, a.lastfm_id,a.role,a.timezone,a.last_update FROM user a JOIN (SELECT discord_id FROM user_guild WHERE guild_id = ? ) b ON a.discord_id = b.discord_id where a.private_update = false";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
 
             /* Execute query. */
             preparedStatement.setLong(1, guildId);
-            return getUsersWrappers(preparedStatement);
+            return getUsersWrappersTimestamp(preparedStatement);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -281,6 +281,24 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
 
             returnList.add(new UsersWrapper(discordID, name, role, tz));
+        }
+        return returnList;
+    }
+
+    @NotNull
+    private List<UsersWrapper> getUsersWrappersTimestamp(PreparedStatement preparedStatement) throws SQLException {
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<UsersWrapper> returnList = new ArrayList<>();
+        while (resultSet.next()) {
+
+            String name = resultSet.getString("a.lastFm_Id");
+            long discordID = resultSet.getLong("a.discord_ID");
+            Role role = Role.valueOf(resultSet.getString(3));
+            TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(4), "GMT"));
+            Timestamp timestamp = resultSet.getTimestamp(5);
+            UsersWrapper e = new UsersWrapper(discordID, name, role, tz);
+            e.setTimestamp(Math.toIntExact(timestamp.toInstant().getEpochSecond()));
+            returnList.add(e);
         }
         return returnList;
     }
