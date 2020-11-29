@@ -1074,7 +1074,6 @@ create table audio_features
     time_signature   int
 
 );
-"insert ignore  into user_info(lastfm_id,profile_pic,login_moment) values (?,?,?) on duplicate key update profile_pic = values(profile_pic) ";
 
 create table user_info
 (

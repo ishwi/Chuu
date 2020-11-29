@@ -8,6 +8,7 @@ import org.imgscalr.Scalr;
 
 import javax.annotation.Nullable;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -150,7 +151,7 @@ public class TasteRenderer {
         //Draws Top 10
 
         List<UserArtistComparison> resultList = resultWrapper.getResultList();
-        for (int i = 0, resultListSize = resultList.size(); i < resultListSize || i < 10; i++) {
+        for (int i = 0, resultListSize = resultList.size(); i < resultListSize && i < 10; i++) {
             UserArtistComparison item = resultList.get(i);
 
 
@@ -189,9 +190,11 @@ public class TasteRenderer {
                 fontToUse = new Font("Noto Serif CJK JP", Font.PLAIN, 21);
                 g.setFont(fontToUse);
             }
-            int widthStr = g.getFontMetrics().stringWidth(item.getArtistID());
-            GraphicUtils.drawStringNicely(g, artistID, X_MAX / 2 - (widthStr / 2), y, canvas);
-            y += g.getFontMetrics().getHeight() + 5;
+            Font ogFont = g.getFont();
+            Rectangle2D widthes = GraphicUtils.fitAndGetBounds(artistID, g, X_MAX - 200 - widthB * 2, 14);
+            GraphicUtils.drawStringNicely(g, artistID, (int) (X_MAX / 2 - (widthes.getWidth() / 2)), y, canvas);
+            g.setFont(ogFont);
+            y += 32;
         }
         g.dispose();
         return canvas;

@@ -84,7 +84,7 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
                 .setColor(CommandUtil.randomColor())
                 .setAuthor(String.format("%s's #%d scrobble was:", uinfo.getUsername(), extraParam), String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(lastFMData.getName()), day), uinfo.getUrlImage())
                 .setTitle(milestone.getName(), LinkUtils.getLastFMArtistTrack(milestone.getArtist(), milestone.getName()))
-                .setThumbnail(milestone.getImageUrl())
+                .setThumbnail(milestone.getImageUrl() == null || milestone.getImageUrl().isBlank() ? null : milestone.getImageUrl())
                 .setDescription("**" + milestone.getArtist() + "** | " + milestone.getAlbum())
                 .setFooter("Obtained on " + date);
         e.getChannel().sendMessage(embedBuilder.build()).queue();

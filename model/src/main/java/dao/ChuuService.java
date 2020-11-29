@@ -166,7 +166,10 @@ public class ChuuService {
                     }
                 });
                 doInsertUserData(connection, id, trackWithArtistIds);
+                connection.commit();
                 updaterDao.setUpdatedTime(connection, id, wrapper.getTimestamp(), wrapper.getTimestamp());
+                connection.commit();
+
 
             } catch (SQLException e) {
                 throw new ChuuServiceException(e);
@@ -1885,6 +1888,7 @@ public class ChuuService {
         List<ScrobbledTrack> finalTruer = whyDoesThisNotHaveAnId.get(true);
         if (!finalTruer.isEmpty())
             trackDao.addSrobbledTracks(connection, finalTruer);
+        connection.commit();
     }
 
     public WrapperReturnNowPlaying getWhoKnowsAlbums(int limit, long albumId, long guildId) {
@@ -2131,6 +2135,7 @@ public class ChuuService {
                 return key;
             }))).collect(Collectors.toList());
             insertTracks(groupedTracks, lastfmId, connection, false);
+
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -2854,6 +2859,17 @@ public class ChuuService {
             }).collect(Collectors.toList());
             trackDao.insertTracks(connection, collect);
             trackDao.storeTrackList(connection, albumId, collect);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public void prepareBillboardWeek(String lastfmId, int weekId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            billboardDao.cleanUserData(connection, lastfmId, weekId);
+            billboardDao.groupUserData(connection, lastfmId, weekId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
