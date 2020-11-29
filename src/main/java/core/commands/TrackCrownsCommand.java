@@ -24,8 +24,8 @@ import java.util.Map;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
-public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
-    public AlbumCrownsCommand(ChuuService dao) {
+public class TrackCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
+    public TrackCrownsCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
     }
@@ -50,17 +50,17 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
 
     @Override
     public String getDescription() {
-        return ("List of albums you are the top listener within a server");
+        return ("List of tracks you are the top listener within a server");
     }
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("albumcrowns", "crownsalbum", "crownsal", "calb");
+        return Arrays.asList("albumtracks", "crownstrack", "crownstr", "ctr");
     }
 
     @Override
     public String getName() {
-        return "Your album crowns";
+        return "Your track crowns";
     }
 
     @Override
@@ -77,12 +77,12 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
             threshold = (long) getService().getGuildCrownThreshold(idLong);
         }
         UniqueWrapper<AlbumPlays> uniqueDataUniqueWrapper = getService()
-                .getUserAlbumCrowns(innerParams.getLastFMData().getName(), e.getGuild().getIdLong(), Math.toIntExact(threshold));
+                .getUserTrackCrowns(innerParams.getLastFMData().getName(), e.getGuild().getIdLong(), Math.toIntExact(threshold));
         List<AlbumPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 
         int rows = resultWrapper.size();
         if (rows == 0) {
-            sendMessageQueue(e, name + " doesn't have any album crown :'(");
+            sendMessageQueue(e, name + " doesn't have any track crown :'(");
             return;
         }
 
@@ -94,8 +94,8 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(a)
                 .setColor(CommandUtil.randomColor())
-                .setTitle(String.format("%s's album crowns", name), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
-                .setFooter(String.format("%s has %d album crowns!!%n", CommandUtil.markdownLessUserString(name, innerParams.getLastFMData().getDiscordId(), e), resultWrapper.size()), null)
+                .setTitle(String.format("%s's track crowns", name), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
+                .setFooter(String.format("%s has %d track crowns!!%n", CommandUtil.markdownLessUserString(name, innerParams.getLastFMData().getDiscordId(), e), resultWrapper.size()), null)
                 .setThumbnail(url);
 
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->

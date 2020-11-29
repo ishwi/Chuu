@@ -3,7 +3,10 @@ package core.imagerenderer;
 import dao.entities.ResultWrapper;
 import dao.entities.UserArtistComparison;
 import dao.entities.UserInfo;
+import org.apache.commons.lang3.tuple.Pair;
+import org.imgscalr.Scalr;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -18,7 +21,8 @@ public class TasteRenderer {
     private TasteRenderer() {
     }
 
-    public static BufferedImage generateTasteImage(ResultWrapper<UserArtistComparison> resultWrapper, List<UserInfo> userInfoLiust) {
+
+    public static BufferedImage generateTasteImage(ResultWrapper<UserArtistComparison> resultWrapper, List<UserInfo> userInfoLiust, String entityName, @Nullable String url, boolean thumbnail, Pair<Integer, Integer> tasteBar) {
 
         BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
 
@@ -26,9 +30,12 @@ public class TasteRenderer {
 
         Graphics2D g = canvas.createGraphics();
         GraphicUtils.setQuality(g);
-
-        GraphicUtils.initRandomImageBlurredBackground(g, X_MAX, Y_MAX);
-
+        if (url != null) {
+            BufferedImage imageFromUrl = GraphicUtils.getImageFromUrl(url, GraphicUtils.noArtistImage);
+            GraphicUtils.initArtistBackground(canvas, imageFromUrl);
+        } else {
+            GraphicUtils.initRandomImageBlurredBackground(g, X_MAX, Y_MAX);
+        }
         //Gets Profile Images
         for (UserInfo userInfo : userInfoLiust) {
             BufferedImage image = GraphicUtils.getImage(userInfo.getImage());
@@ -83,7 +90,7 @@ public class TasteRenderer {
             width2 = g.getFontMetrics().stringWidth(username1);
             totalwidth = widht1 + width2 + 4;
         }
-        int totalCount = userInfoLiust.stream().mapToInt(UserInfo::getPlayCount).sum();
+        int totalCount = tasteBar.getRight() + tasteBar.getLeft();
 
         //Draws Profile Images
         for (BufferedImage image : imageList) {
@@ -93,20 +100,26 @@ public class TasteRenderer {
             int countStringPosition;
             int rectanglePosition;
             UserInfo userInfo = userInfoLiust.get(x);
-            float percentage = (float) userInfo.getPlayCount() / totalCount;
+            float percentage;
+            int plays;
 
             if (x == 0) {
+                plays = tasteBar.getLeft();
+                percentage = (float) tasteBar.getLeft() / totalCount;
                 drawx = image1StartPosition;
                 nameStringPosition = image1StartPosition + PROFILE_IMAGE_SIZE + 4;
                 color = colorA.brighter();
                 countStringPosition = image1StartPosition + PROFILE_IMAGE_SIZE + 5;
                 rectanglePosition = countStringPosition - 1;
             } else {
+                plays = tasteBar.getRight();
+
+                percentage = (float) tasteBar.getRight() / totalCount;
                 drawx = image2StartPosition;
                 nameStringPosition = image2StartPosition - width2 - 4;
                 color = colorB.brighter();
                 countStringPosition = image2StartPosition - g.getFontMetrics()
-                        .stringWidth(String.valueOf(userInfo.getPlayCount())) - 5;
+                        .stringWidth(String.valueOf(tasteBar.getRight())) - 5;
                 rectanglePosition = (int) (image2StartPosition - percentage * rectangleWidth) - 4;
             }
             g.setColor(color);
@@ -117,8 +130,7 @@ public class TasteRenderer {
             GraphicUtils.drawStringNicely(g, userInfo
                     .getUsername(), nameStringPosition, 20 + PROFILE_IMAGE_SIZE / 2, canvas);
             g.setFont(scrobbleFont);
-            GraphicUtils.drawStringNicely(g, "" + userInfo
-                    .getPlayCount(), countStringPosition, rectangleStartY + rectangleHeight - 1, canvas);
+            GraphicUtils.drawStringNicely(g, "" + plays, countStringPosition, rectangleStartY + rectangleHeight - 1, canvas);
             x++;
 
         }
@@ -133,11 +145,14 @@ public class TasteRenderer {
 
         g.setFont(subtitle);
 
-        GraphicUtils.drawStringNicely(g, "common artists", X_MAX / 2 + length / 2 + 4, y - 30, canvas);
+        GraphicUtils.drawStringNicely(g, "common " + entityName, X_MAX / 2 + length / 2 + 4, y - 30, canvas);
 
         //Draws Top 10
 
-        for (UserArtistComparison item : resultWrapper.getResultList()) {
+        List<UserArtistComparison> resultList = resultWrapper.getResultList();
+        for (int i = 0, resultListSize = resultList.size(); i < resultListSize || i < 10; i++) {
+            UserArtistComparison item = resultList.get(i);
+
 
             String artistID = item.getArtistID();
             int countA = item.getCountA();
@@ -158,6 +173,13 @@ public class TasteRenderer {
             int widthB = g.getFontMetrics().stringWidth(strCountBString);
 
             int countBStart = X_MAX - 100 - widthB;
+            if (thumbnail) {
+                BufferedImage resized = Scalr.resize(GraphicUtils.getImageFromUrl(item.getUrl(), GraphicUtils.noArtistImage), Scalr.Method.ULTRA_QUALITY, Scalr.Mode.AUTOMATIC, 30, 30, Scalr.OP_ANTIALIAS);
+                g.drawImage(resized, 35, y - resized.getHeight() / 2 - 5, 30, 30, null);
+                g.drawImage(resized, X_MAX - 35 - 30, y - resized.getHeight() / 2 - 5, 30, 30, null);
+
+            }
+
             GraphicUtils.drawStringNicely(g, "" + countA, 100, y, canvas);
             GraphicUtils.drawStringNicely(g, "" + countB, countBStart, y, canvas);
             g.setFont(artistFont);

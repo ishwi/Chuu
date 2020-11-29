@@ -359,6 +359,12 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new GlobalWhoKnowSongCommand(dao)))
                 .addEventListeners(help.registerCommand(new AudioFeaturesCommand(dao)))
                 .addEventListeners(help.registerCommand(new MilestoneCommand(dao)))
+                .addEventListeners(help.registerCommand(new TrackCrownsCommand(dao)))
+                .addEventListeners(help.registerCommand(new TrackCrownsLeaderboardCommand(dao)))
+                .addEventListeners(help.registerCommand(new TasteArtistCommand(dao)))
+                .addEventListeners(help.registerCommand(new TasteAlbumCommand(dao)))
+                .addEventListeners(help.registerCommand(new TasteTrackCommand(dao)))
+                .addEventListeners(help.registerCommand(new RefreshLastfmDataCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {

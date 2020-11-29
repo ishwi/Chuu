@@ -2861,6 +2861,281 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         }
     }
 
+    @Override
+    public UniqueWrapper<AlbumPlays> getUserTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId) {
+        long discordId = -1L;
+        @Language("MariaDB") String queryString = "SELECT d.name, a2.track_name, b.discord_id , playnumber AS orden" +
+                " FROM  scrobbled_track a" +
+                " JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                " JOIN track a2 ON a.track_id = a2.id " +
+                " join artist d on a2.artist_id = d.id " +
+                " WHERE  b.lastfm_id = ?" +
+                " AND playnumber >= ? " +
+                " AND  playnumber >= ALL" +
+                "       (SELECT max(b.playnumber) " +
+                " FROM " +
+                "(SELECT in_a.track_id,in_a.playnumber" +
+                " FROM scrobbled_track in_a  " +
+                " JOIN " +
+                " user in_b" +
+                " ON in_a.lastfm_id = in_b.lastfm_id" +
+                " NATURAL JOIN " +
+                " user_guild in_c" +
+                " WHERE guild_id = ?" +
+                "   ) AS b" +
+                "" +
+                " WHERE b.track_id = a.track_id" +
+                " GROUP BY track_id)" +
+                " ORDER BY orden DESC";
+
+        List<AlbumPlays> returnList = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i++, lastfmId);
+            preparedStatement.setInt(i++, crownthreshold);
+            preparedStatement.setLong(i, guildId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+
+            while (resultSet.next()) {
+                discordId = resultSet.getLong("b.discord_id");
+
+                String artist = resultSet.getString("d.name");
+                String album = resultSet.getString("a2.track_name");
+
+
+                int plays = resultSet.getInt("orden");
+                returnList.add(new AlbumPlays(artist, plays, album));
+            }
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
+    }
+
+    @Override
+    public List<LbEntry> trackCrownsLeaderboard(Connection connection, long guildId, int threshold) {
+        @Language("MariaDB") String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
+                "FROM " +
+                "( " +
+                "SELECT " +
+                "        a.track_id,max(a.playnumber) plays " +
+                "    FROM " +
+                "         scrobbled_track a  " +
+                "    JOIN " +
+                "        user b  " +
+                "            ON a.lastfm_id = b.lastfm_id  " +
+                "    JOIN " +
+                "        user_guild c  " +
+                "            ON b.discord_id = c.discord_id  " +
+                "    WHERE " +
+                "        c.guild_id = ?  " +
+                "    GROUP BY " +
+                "        a.track_id  " +
+                "  ) t " +
+                "  JOIN scrobbled_track t2  " +
+                "   " +
+                "  ON t.plays = t2.playnumber AND t.track_id = t2.track_id " +
+                "  JOIN user t3  ON t2.lastfm_id = t3.lastfm_id  " +
+                "    JOIN " +
+                "        user_guild t4  " +
+                "            ON t3.discord_id = t4.discord_id  " +
+                "    WHERE " +
+                "        t4.guild_id = ?  ";
+        if (threshold != 0) {
+            queryString += " and t2.playnumber > ? ";
+        }
+
+
+        queryString += "  GROUP BY t2.lastfm_id,t3.discord_id " +
+                "  ORDER BY ord DESC";
+
+
+        return getLbEntries(connection, guildId, queryString, TrackCrownLbEntry::new, true, threshold);
+
+    }
+
+    @Override
+    public ResultWrapper<UserArtistComparison> similarAlbumes(Connection connection, long artistId, List<String> lastFmNames, int limit) {
+        String userA = lastFmNames.get(0);
+        String userB = lastFmNames.get(1);
+
+        @Language("MariaDB") String queryString =
+                "SELECT c.album_name  , a.playnumber,b.playnumber ," +
+                        "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
+                        " (((a.playnumber + b.playnumber)) * 2.5) * " +
+                        " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
+                        "media ," +
+                        " c.url " +
+                        "FROM " +
+                        "(SELECT album_id,playnumber " +
+                        "FROM scrobbled_album " +
+                        "JOIN user b ON scrobbled_album.lastfm_id = b.lastfm_id " +
+                        "WHERE b.lastfm_id = ? and scrobbled_album.artist_id = ? ) a " +
+                        "JOIN " +
+                        "(SELECT album_id,playnumber " +
+                        "FROM scrobbled_album " +
+                        " JOIN user b ON scrobbled_album.lastfm_id = b.lastfm_id " +
+                        " WHERE b.lastfm_id = ? and scrobbled_album.artist_id = ?) b " +
+                        "ON a.album_id=b.album_id " +
+                        "JOIN album c " +
+                        "ON c.id=b.album_id" +
+                        " ORDER BY media DESC";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            int i = 1;
+            preparedStatement.setString(i++, userA);
+            preparedStatement.setLong(i++, artistId);
+            preparedStatement.setString(i++, userB);
+            preparedStatement.setLong(i, artistId);
+
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<UserArtistComparison> returnList = new ArrayList<>();
+
+            int counter = 0;
+            while (resultSet.next()) {
+                counter++;
+                if (counter <= limit) {
+                    String name = resultSet.getString("c.album_name");
+                    int countA = resultSet.getInt("a.playNumber");
+                    int countB = resultSet.getInt("b.playNumber");
+                    String url = resultSet.getString("c.url");
+                    returnList.add(new UserArtistComparison(countA, countB, name, userA, userB, url));
+                }
+            }
+
+            return new ResultWrapper<>(counter, returnList);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public ResultWrapper<UserArtistComparison> similarTracks(Connection connection, long artistId, List<String> lastFmNames, int limit) {
+        String userA = lastFmNames.get(0);
+        String userB = lastFmNames.get(1);
+
+        @Language("MariaDB") String queryString =
+                "SELECT c.track_name  , a.playnumber,b.playnumber ," +
+                        "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
+                        " (((a.playnumber + b.playnumber)) * 2.5) * " +
+                        " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
+                        "media ," +
+                        " coalesce(c.url,d.url) as url " +
+                        "FROM " +
+                        "(SELECT track_id,playnumber " +
+                        "FROM scrobbled_track " +
+                        "JOIN user b ON scrobbled_track.lastfm_id = b.lastfm_id " +
+                        "WHERE b.lastfm_id = ? and scrobbled_track.artist_id = ? ) a " +
+                        "JOIN " +
+                        "(SELECT track_id,playnumber " +
+                        "FROM scrobbled_track " +
+                        " JOIN user b ON scrobbled_track.lastfm_id = b.lastfm_id " +
+                        " WHERE b.lastfm_id = ? and scrobbled_track.artist_id = ?) b " +
+                        "ON a.track_id=b.track_id " +
+                        "JOIN track c " +
+                        "ON c.id=b.track_id " +
+                        " left join album d on c.album_id =d.id " +
+                        " ORDER BY media DESC";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            int i = 1;
+            preparedStatement.setString(i++, userA);
+            preparedStatement.setLong(i++, artistId);
+            preparedStatement.setString(i++, userB);
+            preparedStatement.setLong(i, artistId);
+
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<UserArtistComparison> returnList = new ArrayList<>();
+
+            int counter = 0;
+            while (resultSet.next()) {
+                counter++;
+                if (counter <= limit) {
+                    String name = resultSet.getString("c.track_name");
+                    int countA = resultSet.getInt("a.playNumber");
+                    int countB = resultSet.getInt("b.playNumber");
+                    String url = resultSet.getString("url");
+                    returnList.add(new UserArtistComparison(countA, countB, name, userA, userB, url));
+                }
+            }
+
+            return new ResultWrapper<>(counter, returnList);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public ResultWrapper<UserArtistComparison> similarAlbumTracks(Connection connection, long albumId, List<String> lastFmNames, int limit) {
+        String userA = lastFmNames.get(0);
+        String userB = lastFmNames.get(1);
+
+        @Language("MariaDB") String queryString =
+                "SELECT c.track_name  , a.playnumber,b.playnumber ," +
+                        "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
+                        " (((a.playnumber + b.playnumber)) * 2.5) * " +
+                        " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
+                        "media ," +
+                        " coalesce(c.url,d.url) as url " +
+                        "FROM " +
+                        "(SELECT track_id,playnumber " +
+                        "FROM scrobbled_track a join track c on a.track_id = c.id " +
+                        "JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                        "WHERE b.lastfm_id = ? and c.album_id = ? ) a " +
+                        "JOIN " +
+                        "(SELECT track_id,playnumber " +
+                        "FROM scrobbled_track a join track c on a.track_id = c.id " +
+                        " JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                        " WHERE b.lastfm_id = ? and c.album_id = ?) b " +
+                        "ON a.track_id=b.track_id " +
+                        "JOIN track c " +
+                        "ON c.id=b.track_id " +
+                        " left join album d on c.album_id =d.id " +
+                        " ORDER BY media DESC";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            int i = 1;
+            preparedStatement.setString(i++, userA);
+            preparedStatement.setLong(i++, albumId);
+            preparedStatement.setString(i++, userB);
+            preparedStatement.setLong(i, albumId);
+
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<UserArtistComparison> returnList = new ArrayList<>();
+
+            int counter = 0;
+            while (resultSet.next()) {
+                counter++;
+                if (counter <= limit) {
+                    String name = resultSet.getString("c.track_name");
+                    int countA = resultSet.getInt("a.playNumber");
+                    int countB = resultSet.getInt("b.playNumber");
+                    String url = resultSet.getString("url");
+                    returnList.add(new UserArtistComparison(countA, countB, name, userA, userB, url));
+                }
+            }
+
+            return new ResultWrapper<>(counter, returnList);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
     private void getScoredAlbums(List<ScoredAlbumRatings> returnList, ResultSet resultSet) throws SQLException {
 

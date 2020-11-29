@@ -15,9 +15,9 @@ import java.util.Map;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
-public class AlbumCrownsLeaderboardCommand extends LeaderboardCommand<NumberParameters<CommandParameters>> {
+public class TrackCrownsLeaderboardCommand extends LeaderboardCommand<NumberParameters<CommandParameters>> {
 
-    public AlbumCrownsLeaderboardCommand(ChuuService dao) {
+    public TrackCrownsLeaderboardCommand(ChuuService dao) {
         super(dao);
     }
 
@@ -41,17 +41,17 @@ public class AlbumCrownsLeaderboardCommand extends LeaderboardCommand<NumberPara
 
     @Override
     public String getEntryName(NumberParameters<CommandParameters> params) {
-        return "Album crowns leaderboard";
+        return "Track crowns leaderboard";
     }
 
     @Override
     public String getDescription() {
-        return ("List of users ordered by number of album crowns");
+        return ("List of users ordered by number of track crowns");
     }
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("crownsalbumlb", "crownsallb", "calblb", "crownsallb");
+        return Arrays.asList("crownstracklb", "crownstracklb", "ctrlb", "crownstrlb");
     }
 
     @Override
@@ -62,11 +62,11 @@ public class AlbumCrownsLeaderboardCommand extends LeaderboardCommand<NumberPara
         if (threshold == null) {
             threshold = (long) getService().getGuildCrownThreshold(idLong);
         }
-        return getService().albumCrownsLeaderboard(params.getE().getGuild().getIdLong(), Math.toIntExact(threshold));
+        return getService().trackCrownsLeaderboard(params.getE().getGuild().getIdLong(), Math.toIntExact(threshold));
     }
 
     @Override
     public String getName() {
-        return "Album crowns leaderboard";
+        return "Track crowns leaderboard";
     }
 }

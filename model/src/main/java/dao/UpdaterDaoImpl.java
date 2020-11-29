@@ -617,12 +617,8 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void insertArtistSad(Connection connection, ScrobbledArtist nonExistingId) {
-        StringBuilder mySql =
-                new StringBuilder("INSERT INTO artist (name,url,url_status,mbid) VALUES (?,?,?,?)");
-        mySql.append(" on duplicate key update correction_status = correction_status returning id");
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO artist (name,url,url_status,mbid) VALUES (?,?,?,?)" + " on duplicate key update correction_status = correction_status returning id")) {
             String artist = nonExistingId.getArtist();
             preparedStatement.setString(+1, artist);
             preparedStatement.setString(2, nonExistingId.getUrl());
@@ -656,14 +652,10 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void insertArtists(Connection connection, List<ScrobbledArtist> nonExistingId) {
-        StringBuilder mySql =
-                new StringBuilder("INSERT INTO artist (name,url,url_status) VALUES (?,?,?)");
 
-        mySql.append(",(?,?,?)".repeat(Math.max(0, nonExistingId.size() - 1)));
-        mySql.append(" on duplicate key update correction_status = correction_status  returning id,name ");
-
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        String mySql = "INSERT INTO artist (name,url,url_status) VALUES (?,?,?)" + ",(?,?,?)".repeat(Math.max(0, nonExistingId.size() - 1)) +
+                " on duplicate key update correction_status = correction_status  returning id,name ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             for (int i = 0; i < nonExistingId.size(); i++) {
                 preparedStatement.setString(3 * i + 1, nonExistingId.get(i).getArtist());
                 preparedStatement.setString(3 * i + 2, nonExistingId.get(i).getUrl());
@@ -1282,14 +1274,10 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void updateMbids(Connection connection, List<ScrobbledArtist> artistData) {
-        StringBuilder mySql =
-                new StringBuilder("INSERT INTO artist (name,mbid) VALUES (?,?)");
 
-        mySql.append(",(?,?)".repeat(Math.max(0, artistData.size() - 1)));
-        mySql.append(" on duplicate key update mbid = values(mbid) ");
-
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        String mySql = "INSERT INTO artist (name,mbid) VALUES (?,?)" + ",(?,?)".repeat(Math.max(0, artistData.size() - 1)) +
+                " on duplicate key update mbid = values(mbid) ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             for (int i = 0; i < artistData.size(); i++) {
                 preparedStatement.setString(2 * i + 1, artistData.get(i).getArtist());
                 preparedStatement.setString(2 * i + 2, artistData.get(i).getArtistMbid());
@@ -1361,14 +1349,10 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     public void insertAlbumTags(Connection connection, Map<Genre, List<ScrobbledAlbum>> genres, Map<String, String> correctedTags) {
 
         List<Pair<Genre, ScrobbledAlbum>> list = genres.entrySet().stream().flatMap(x -> x.getValue().stream().map(t -> Pair.of(x.getKey(), t))).collect(Collectors.toList());
-        StringBuilder mySql =
-                new StringBuilder("INSERT ignore INTO  album_tags" +
-                        "                  (artist_id,album_id,tag) VALUES (?, ?, ?) ");
 
-        mySql.append(", (?,?,?)".repeat(Math.max(0, list.size() - 1)));
-
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        String mySql = "INSERT ignore INTO  album_tags" +
+                "                  (artist_id,album_id,tag) VALUES (?, ?, ?) " + ", (?,?,?)".repeat(Math.max(0, list.size() - 1));
+        try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             for (int i = 0; i < list.size(); i++) {
                 preparedStatement.setLong(3 * i + 1, list.get(i).getRight().getArtistId());
                 preparedStatement.setLong(3 * i + 2, list.get(i).getRight().getAlbumId());
@@ -1390,14 +1374,10 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     public void insertArtistTags(Connection connection, Map<Genre, List<ScrobbledArtist>> genres, Map<String, String> correctedTags) {
 
         List<Pair<Genre, ScrobbledArtist>> list = genres.entrySet().stream().flatMap(x -> x.getValue().stream().map(t -> Pair.of(x.getKey(), t))).collect(Collectors.toList());
-        StringBuilder mySql =
-                new StringBuilder("INSERT ignore INTO  artist_tags" +
-                        "                  (artist_id,tag) VALUES (?, ?) ");
 
-        mySql.append(", (?,?)".repeat(Math.max(0, list.size() - 1)));
-
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        String mySql = "INSERT ignore INTO  artist_tags" +
+                "                  (artist_id,tag) VALUES (?, ?) " + ", (?,?)".repeat(Math.max(0, list.size() - 1));
+        try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             for (int i = 0; i < list.size(); i++) {
                 preparedStatement.setLong(2 * i + 1, list.get(i).getRight().getArtistId());
                 String genreName = list.get(i).getLeft().getGenreName();
@@ -1442,12 +1422,9 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void addBannedTag(Connection connection, String tag) {
-        StringBuilder mySql =
-                new StringBuilder("INSERT ignore INTO  banned_tags  (tag) VALUES (?) ");
 
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT ignore INTO  banned_tags  (tag) VALUES (?) ")) {
             preparedStatement.setString(1, tag);
             preparedStatement.executeUpdate();
         } catch (
@@ -1458,12 +1435,9 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void logBannedTag(Connection connection, String tag, long discordId) {
-        StringBuilder mySql =
-                new StringBuilder("INSERT ignore INTO  log_tags  (tag,discord_id) VALUES (?,?) ");
 
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT ignore INTO  log_tags  (tag,discord_id) VALUES (?,?) ")) {
             preparedStatement.setString(1, tag);
             preparedStatement.setLong(2, discordId);
 
@@ -1476,12 +1450,9 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void removeTagWholeArtist(Connection connection, String tag) {
-        StringBuilder mySql =
-                new StringBuilder("delete from artist_tags  where tag = ? ");
 
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        try (PreparedStatement preparedStatement = connection.prepareStatement("delete from artist_tags  where tag = ? ")) {
             preparedStatement.setString(1, tag);
             preparedStatement.executeUpdate();
         } catch (
@@ -1492,10 +1463,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void removeTagWholeAlbum(Connection connection, String tag) {
-        StringBuilder mySql =
-                new StringBuilder("delete from album_tags  where tag = ? ");
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        try (PreparedStatement preparedStatement = connection.prepareStatement("delete from album_tags  where tag = ? ")) {
             preparedStatement.setString(1, tag);
             preparedStatement.executeUpdate();
         } catch (
@@ -1506,12 +1474,9 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void addArtistBannedTag(Connection connection, String tag, long artistId) {
-        StringBuilder mySql =
-                new StringBuilder("INSERT ignore INTO  banned_artist_tags  (tag,artist_id) VALUES (?,?) ");
 
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT ignore INTO  banned_artist_tags  (tag,artist_id) VALUES (?,?) ")) {
             preparedStatement.setString(1, tag);
             preparedStatement.setLong(2, artistId);
 
@@ -1525,10 +1490,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void removeTagArtist(Connection connection, String tag, long artistId) {
-        StringBuilder mySql =
-                new StringBuilder("delete from artist_tags  where tag = ? and artist_id = ?  ");
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        try (PreparedStatement preparedStatement = connection.prepareStatement("delete from artist_tags  where tag = ? and artist_id = ?  ")) {
             preparedStatement.setString(1, tag);
             preparedStatement.setLong(2, artistId);
             preparedStatement.executeUpdate();
@@ -1541,10 +1503,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void removeTagAlbum(Connection connection, String tag, long artistId) {
-        StringBuilder mySql =
-                new StringBuilder("delete from album_tags  where tag = ? and artist_id = ?  ");
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        try (PreparedStatement preparedStatement = connection.prepareStatement("delete from album_tags  where tag = ? and artist_id = ?  ")) {
             preparedStatement.setString(1, tag);
             preparedStatement.setLong(2, artistId);
             preparedStatement.executeUpdate();
@@ -1557,12 +1516,9 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void logCommand(Connection connection, long discordId, Long guildId, String commandName, long nanos, Instant utc) {
-        StringBuilder mySql =
-                new StringBuilder("INSERT INTO  command_logs  (discord_id,guild_id,command,nanos) VALUES (?,?,?,?) ");
 
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO  command_logs  (discord_id,guild_id,command,nanos) VALUES (?,?,?,?) ")) {
             preparedStatement.setLong(1, discordId);
             if (guildId != null) {
                 preparedStatement.setLong(2, guildId);
@@ -1609,14 +1565,11 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void insertAudioFeatures(Connection connection, List<AudioFeatures> audioFeatures) {
-        StringBuilder queryString = new StringBuilder("insert ignore  into audio_features(spotify_id,acousticness,danceability,energy,instrumentalness,`key`,liveness,loudness,speechiness,tempo,valence,time_signature) values " +
-                "(?,?,?,?,?,?,?,?,?,?,?,?)");
 
 
-        queryString.append(",(?,?,?,?,?,?,?,?,?,?,?,?)".repeat(Math.max(0, audioFeatures.size() - 1)));
-
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(queryString.toString());
+        String queryString = "insert ignore  into audio_features(spotify_id,acousticness,danceability,energy,instrumentalness,`key`,liveness,loudness,speechiness,tempo,valence,time_signature) values " +
+                "(?,?,?,?,?,?,?,?,?,?,?,?)" + ",(?,?,?,?,?,?,?,?,?,?,?,?)".repeat(Math.max(0, audioFeatures.size() - 1));
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             for (int i = 0; i < audioFeatures.size(); i++) {
                 preparedStatement.setString(12 * i + 1, audioFeatures.get(i).getId());
                 preparedStatement.setFloat(12 * i + 2, audioFeatures.get(i).getAcousticness());
@@ -1636,6 +1589,46 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    @Override
+    public void insertUserInfo(Connection connection, UserInfo userInfo) {
+        String queryString = "insert ignore  into user_info(lastfm_id,profile_pic,login_moment) values (?,?,?) on duplicate key update profile_pic = values(profile_pic) ";
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, userInfo.getUsername());
+            preparedStatement.setString(2, userInfo.getImage());
+            preparedStatement.setTimestamp(3, Timestamp.from(Instant.ofEpochSecond(userInfo.getUnixtimestamp())));
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public Optional<UserInfo> getUserInfo(Connection connection, String lastfmId) {
+        String queryString = "select lastfm_id,profile_pic,login_moment,(select sum(playnumber) from scrobbled_artist where scrobbled_artist.lastfm_id = ? )  " +
+                " from user_info where lastfm_id = ?";
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, lastfmId);
+            preparedStatement.setString(2, lastfmId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                String lastfm = resultSet.getString(1);
+                String profilePic = resultSet.getString(2);
+                int loginMoment = Math.toIntExact(resultSet.getTimestamp(3).toInstant().getEpochSecond());
+                int scrobbleCount = resultSet.getInt(4);
+                return Optional.of(new UserInfo(scrobbleCount, profilePic, lastfm, loginMoment));
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 
 

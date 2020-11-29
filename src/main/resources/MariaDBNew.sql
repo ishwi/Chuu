@@ -1053,6 +1053,7 @@ create table album_tracklist
     album_id bigint(20) not null,
     track_id bigint(20) not null,
     position int        not null,
+    unique (album_id, track_id),
     CONSTRAINT album_tracklist_fk_album FOREIGN KEY (album_id) REFERENCES album (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT album_tracklist_fk_track FOREIGN KEY (track_id) REFERENCES track (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
@@ -1073,3 +1074,15 @@ create table audio_features
     time_signature   int
 
 );
+"insert ignore  into user_info(lastfm_id,profile_pic,login_moment) values (?,?,?) on duplicate key update profile_pic = values(profile_pic) ";
+
+create table user_info
+(
+    id            bigint(20) primary key auto_increment,
+    lastfm_id     VARCHAR(45) COLLATE ascii_general_ci NOT NULL,
+    `profile_pic` varchar(400) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    login_moment  timestamp                            not null,
+    CONSTRAINT user_info_fk_user FOREIGN KEY (lastfm_id) REFERENCES user (lastfm_id) ON UPDATE CASCADE ON DELETE CASCADE
+
+
+)

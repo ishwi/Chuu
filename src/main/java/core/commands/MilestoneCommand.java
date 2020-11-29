@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,13 +78,13 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
 
         OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(Instant.ofEpochSecond(milestone.getUtc()), lastFMData.getTimeZone().toZoneId());
 
-
+        String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
         String date = CommandUtil.getAmericanizedDate(offsetDateTime);
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(CommandUtil.randomColor())
-                .setAuthor(String.format("%s's #%d scrobble was:", uinfo.getUsername(), extraParam), PrivacyUtils.getLastFmUser(lastFMData.getName()), uinfo.getUrlImage())
+                .setAuthor(String.format("%s's #%d scrobble was:", uinfo.getUsername(), extraParam), String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(lastFMData.getName()), day), uinfo.getUrlImage())
                 .setTitle(milestone.getName(), LinkUtils.getLastFMArtistTrack(milestone.getArtist(), milestone.getName()))
-                .setImage(milestone.getImageUrl())
+                .setThumbnail(milestone.getImageUrl())
                 .setDescription("**" + milestone.getArtist() + "** | " + milestone.getAlbum())
                 .setFooter("Obtained on " + date);
         e.getChannel().sendMessage(embedBuilder.build()).queue();

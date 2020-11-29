@@ -1594,7 +1594,11 @@ public class ConcurrentLastFM {//implements LastFMService {
         String url = BASE + RECENT_TRACKS + "&user=" + lastfmId + "&limit=1" + apiKey + ENDING + "&extended=1";
         JSONObject obj = initGetRecentTracks(lastfmId, url, new CustomTimeFrame(TimeFrameEnum.ALL));
         long pageNumber = obj.getJSONObject("@attr").getLong("total");
-        url = BASE + RECENT_TRACKS + "&user=" + lastfmId + "&limit=1" + apiKey + ENDING + "&extended=1&page=" + pageNumber;
+        long l = pageNumber - number + 1;
+        if (l < 0) {
+            return Optional.empty();
+        }
+        url = BASE + RECENT_TRACKS + "&user=" + lastfmId + "&limit=1" + apiKey + ENDING + "&extended=1&page=" + l;
         obj = initGetRecentTracks(lastfmId, url, new CustomTimeFrame(TimeFrameEnum.ALL));
         JSONArray arr = obj.getJSONArray("track");
         for (int i = 0; i < arr.length(); i++) {
@@ -1614,7 +1618,8 @@ public class ConcurrentLastFM {//implements LastFMService {
             track.setArtistMbid(artistMbid);
             track.setMbid(mbid);
             JSONObject albumObj = trackObj.optJSONObject("album");
-
+            String imageUrl = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
+            track.setImageUrl(imageUrl);
             if (albumObj != null) {
                 track.setAlbum(albumObj.getString("#text"));
                 track.setAlbumMbid(albumObj.getString("mbid"));

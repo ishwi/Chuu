@@ -170,4 +170,14 @@ interface SQLQueriesDao {
     List<String> getArtistTag(Connection connection, long artistId);
 
     WrapperReturnNowPlaying globalWhoKnowsTrack(Connection connection, long trackId, int limit, long ownerId, boolean includeBotted);
+
+    UniqueWrapper<AlbumPlays> getUserTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId);
+
+    List<LbEntry> trackCrownsLeaderboard(Connection connection, long guildId, int threshold);
+
+    ResultWrapper<UserArtistComparison> similarAlbumes(Connection connection, long artistId, List<String> lastFmNames, int limit);
+
+    ResultWrapper<UserArtistComparison> similarTracks(Connection connection, long artistId, List<String> lastFmNames, int limit);
+
+    ResultWrapper<UserArtistComparison> similarAlbumTracks(Connection connection, long albumId, List<String> name, int limit);
 }

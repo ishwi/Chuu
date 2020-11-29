@@ -287,6 +287,24 @@ public class ChuuService {
         }
     }
 
+    public ResultWrapper<UserArtistComparison> getSimilaritiesAlbum(List<String> lastFmNames, long artistId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.similarAlbumes(connection, artistId, lastFmNames, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public ResultWrapper<UserArtistComparison> getSimilaritiesTracks(List<String> lastFmNames, long artistId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.similarTracks(connection, artistId, lastFmNames, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public ResultWrapper<UserArtistComparison> getSimilarities(List<String> lastfMNames) {
         return getSimilarities(lastfMNames, 10);
     }
@@ -814,10 +832,28 @@ public class ChuuService {
         }
     }
 
+    public UniqueWrapper<AlbumPlays> getUserTrackCrowns(String lastfmId, long guildId, int crownthreshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getUserTrackCrowns(connection, lastfmId, crownthreshold, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public List<LbEntry> albumCrownsLeaderboard(long guildId, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.albumCrownsLeaderboard(connection, guildId, threshold);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<LbEntry> trackCrownsLeaderboard(long guildId, int threshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.trackCrownsLeaderboard(connection, guildId, threshold);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -2775,6 +2811,49 @@ public class ChuuService {
 
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.insertAudioFeatures(connection, audioFeaturesStream);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public Optional<UserInfo> getUserInfo(String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.getUserInfo(connection, lastfmId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void insertUserInfo(UserInfo userInfo) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.insertUserInfo(connection, userInfo);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public ResultWrapper<UserArtistComparison> getSimilaritiesAlbumTracks(List<String> name, long albumId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.similarAlbumTracks(connection, albumId, name, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void storeTrackList(long albumId, long artistId, Set<Track> trackList) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<ScrobbledTrack> collect = trackList.stream().map(x -> {
+                ScrobbledTrack scrobbledTrack = new ScrobbledTrack(x.getArtist(), x.getName(), 0, false, x.getDuration(), x.getImageUrl(), null, x.getMbid());
+                scrobbledTrack.setAlbumId(albumId);
+                scrobbledTrack.setArtistId(artistId);
+                scrobbledTrack.setPosition(x.getPosition());
+                return scrobbledTrack;
+            }).collect(Collectors.toList());
+            trackDao.insertTracks(connection, collect);
+            trackDao.storeTrackList(connection, albumId, collect);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

@@ -7,10 +7,7 @@ import dao.exceptions.InstanceNotFoundException;
 import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalLong;
-import java.util.Set;
+import java.util.*;
 
 interface UpdaterDao {
 
@@ -172,4 +169,7 @@ interface UpdaterDao {
     void insertAudioFeatures(Connection connection, List<AudioFeatures> audioFeatures);
 
 
+    void insertUserInfo(Connection connection, UserInfo userInfo);
+
+    Optional<UserInfo> getUserInfo(Connection connection, String lastfmId);
 }

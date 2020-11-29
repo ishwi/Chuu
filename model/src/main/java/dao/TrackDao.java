@@ -44,4 +44,5 @@ public interface TrackDao {
     List<ScrobbledTrack> getTopSpotifyTracksIds(Connection connection, String lastfmId, int limit);
 
 
+    void storeTrackList(Connection connection, long albumId, List<ScrobbledTrack> trackList);
 }

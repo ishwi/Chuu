@@ -1,6 +1,7 @@
 package core.commands;
 
 import com.google.common.collect.Multimaps;
+import core.Chuu;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmEntityNotFoundException;
@@ -31,6 +32,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
@@ -86,7 +88,6 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
         LastFMData data = params.getLastFMData();
         try {
             fullAlbumEntity = lastFM.getTracksAlbum(data.getName(), artist, album);
-
         } catch (LastFmEntityNotFoundException ex)
         //If it doesnt exists on last.fm we do a little workaround
         {
@@ -128,7 +129,14 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
         }
         fullAlbumEntity.setTrackList(trackList.stream().sorted(Comparator.comparingInt(Track::getPosition)).collect(Collectors.toList()));
         List<Track> handler = new ArrayList<>(trackList);
-
+        CompletableFuture.runAsync(() -> {
+            try {
+                long albumvalidate = CommandUtil.albumvalidate(getService(), scrobbledArtist, lastFM, album);
+                getService().storeTrackList(albumvalidate, scrobbledArtist.getArtistId(), trackList);
+            } catch (LastFmException lastFmException) {
+                Chuu.getLogger().warn(lastFmException.getMessage(), lastFmException);
+            }
+        });
         List<Track> collect = Multimaps.index(handler, Track::getPosition)
                 .asMap().values().stream()
                 .map(value -> {

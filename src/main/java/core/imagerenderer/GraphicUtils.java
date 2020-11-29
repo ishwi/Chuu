@@ -27,7 +27,7 @@ public class GraphicUtils {
 
     static final Random ran = new Random();
     static final File CacheDirectory;
-    static final BufferedImage noArtistImage;
+    public static final BufferedImage noArtistImage;
     private static final Font NORMAL_FONT = new Font("Noto Sans", Font.PLAIN, 14);
     private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, 14);
     //private static final Font UNICODE_FONT = new Font("Sun-ExtA", Font.PLAIN, 14);

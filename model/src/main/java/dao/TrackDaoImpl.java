@@ -6,10 +6,7 @@ import dao.exceptions.InstanceNotFoundException;
 import org.intellij.lang.annotations.Language;
 
 import javax.annotation.Nullable;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.text.Normalizer;
 import java.util.*;
 import java.util.function.Function;
@@ -171,6 +168,30 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         return scrobbledTracks;
     }
 
+
+    @Override
+    public void storeTrackList(Connection connection, long albumId, List<ScrobbledTrack> trackList) {
+
+        StringBuilder mySql =
+                new StringBuilder("INSERT ignore INTO album_tracklist (album_id,track_id,position) VALUES (?,?,?)");
+
+        mySql.append(",(?,?,?)".repeat(Math.max(0, trackList.size() - 1)));
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
+            for (int i = 0; i < trackList.size(); i++) {
+                ScrobbledTrack x = trackList.get(i);
+                preparedStatement.setLong(3 * i + 1, x.getAlbumId());
+                preparedStatement.setLong(3 * i + 2, x.getTrackId());
+                preparedStatement.setInt(3 * i + 3, x.getPosition());
+            }
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     @Override
     public List<ScrobbledTrack> getUserTopTracksNoSpotifyId(Connection connection, String lastfmid, int limit) {
         List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
@@ -277,27 +298,33 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     @Override
     public void insertTracks(Connection connection, List<ScrobbledTrack> nonExistingId) {
         StringBuilder mySql =
-                new StringBuilder("INSERT INTO track (artist_id,track_name,url,mbid,duration) VALUES (?,?,?,?,?)");
+                new StringBuilder("INSERT INTO track (artist_id,track_name,url,mbid,duration,album_id) VALUES (?,?,?,?,?,?)");
 
-        mySql.append(",(?,?,?,?)".repeat(Math.max(0, nonExistingId.size() - 1)));
+        mySql.append(",(?,?,?,?,?,?)".repeat(Math.max(0, nonExistingId.size() - 1)));
         mySql.append(" on duplicate key update " +
                 " mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " +
                 " duration = if(duration is null and values(duration) is not null,values(duration),duration), " +
-                " url = if(url is null and values(url) is not null,values(url),url)  returning id ");
+                " url = if(url is null and values(url) is not null,values(url),url), " +
+                " album_id = if(album_id is null and values(album_id) is not null,values(album_id),album_id)  returning id ");
 
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
             for (int i = 0; i < nonExistingId.size(); i++) {
                 ScrobbledTrack x = nonExistingId.get(i);
-                preparedStatement.setLong(5 * i + 1, x.getArtistId());
-                preparedStatement.setString(5 * i + 2, x.getName());
-                preparedStatement.setString(5 * i + 3, x.getUrl());
+                preparedStatement.setLong(6 * i + 1, x.getArtistId());
+                preparedStatement.setString(6 * i + 2, x.getName());
+                preparedStatement.setString(6 * i + 3, x.getUrl());
                 String trackMbid = x.getMbid();
                 if (trackMbid == null || trackMbid.isBlank()) {
                     trackMbid = null;
                 }
-                preparedStatement.setString(5 * i + 4, trackMbid);
-                preparedStatement.setInt(5 * i + 5, x.getDuration());
+                preparedStatement.setString(6 * i + 4, trackMbid);
+                preparedStatement.setInt(6 * i + 5, x.getDuration());
+                if (x.getAlbumId() < 1) {
+                    preparedStatement.setNull(6 * i + 6, Types.BIGINT);
+                } else {
+                    preparedStatement.setLong(6 * i + 6, x.getAlbumId());
+                }
 
 
             }
@@ -316,10 +343,11 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
     @Override
     public void insertTrack(Connection connection, ScrobbledTrack x) {
-        String sql = "INSERT INTO track (artist_id,track_name,url,mbid,duration) VALUES (?,?,?,?,?) on duplicate key update" +
+        String sql = "INSERT INTO track (artist_id,track_name,url,mbid,duration,album_id) VALUES (?,?,?,?,?,?) on duplicate key update" +
                 " mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " +
                 " duration = if(duration is null and values(duration) is not null,values(duration),duration), " +
-                " url = if(url is null and values(url) is not null,values(url),url) returning id ";
+                " url = if(url is null and values(url) is not null,values(url),url), " +
+                " album_id = if(album_id is null and values(album_id) is not null,values(album_id),album_id)  returning id ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(+1, x.getArtistId());
@@ -332,7 +360,11 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
             }
             preparedStatement.setString(4, trackMbid);
             preparedStatement.setInt(5, x.getDuration());
-
+            if (x.getAlbumId() < 1) {
+                preparedStatement.setNull(6, Types.BIGINT);
+            } else {
+                preparedStatement.setLong(6, x.getAlbumId());
+            }
 
             preparedStatement.execute();
             ResultSet ids = preparedStatement.getResultSet();
@@ -373,7 +405,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     }
 
     @Override
-    public ScrobbledTrack getTrackByName(Connection connection, String track, long artistId) throws InstanceNotFoundException {
+    public ScrobbledTrack getTrackByName(Connection connection, String track, long artistId) {
 //        @Language("MariaDB") String queryString = "SELECT id,artist_id,album_name,url,duration,mbid,spotify_id FROM  album WHERE album_name = ? and artist_id = ?  ";
 //        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 //            preparedStatement.setLong(2, artistId);
@@ -541,7 +573,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     }
 
     @Override
-    public String getTrackUrlByName(Connection connection, String name, long artistId) throws InstanceNotFoundException {
+    public String getTrackUrlByName(Connection connection, String name, long artistId) {
 //        @Language("MariaDB") String queryString = "SELECT url FROM  album WHERE album_name = ? and artist_id = ?  ";
 //        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 //            preparedStatement.setLong(2, artistId);
