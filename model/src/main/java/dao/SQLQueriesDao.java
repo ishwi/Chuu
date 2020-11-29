@@ -180,4 +180,8 @@ interface SQLQueriesDao {
     ResultWrapper<UserArtistComparison> similarTracks(Connection connection, long artistId, List<String> lastFmNames, int limit);
 
     ResultWrapper<UserArtistComparison> similarAlbumTracks(Connection connection, long albumId, List<String> name, int limit);
+
+    UniqueWrapper<ArtistPlays> getGlobalAlbumCrowns(Connection connection, String lastfmid, int threshold, boolean includeBottedUsers, long ownerId);
+
+    UniqueWrapper<ArtistPlays> getGlobalTrackCrowns(Connection connection, String lastfmid, int threshold, boolean includeBottedUsers, long ownerId);
 }

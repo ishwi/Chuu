@@ -6,6 +6,7 @@ import dao.exceptions.InstanceNotFoundException;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface TrackDao {
     List<ScrobbledTrack> getUserTopTracksNoSpotifyId(Connection connection, String lastfmid, int limit);
@@ -24,7 +25,7 @@ public interface TrackDao {
 
     void addSrobbledTracks(Connection con, List<ScrobbledTrack> scrobbledAlbums);
 
-    List<AlbumUserPlays> getUserTopArtistTracks(Connection connection, long discord_id, long artistId, int limit);
+    List<Track> getUserTopArtistTracks(Connection connection, String lastfmId, long artistId, int limit);
 
     List<AlbumUserPlays> getServerTopArtistTracks(Connection connection, long guildId, long artistId, int limit);
 
@@ -37,7 +38,7 @@ public interface TrackDao {
 
     void fillIdsMbids(Connection connection, List<ScrobbledTrack> list);
 
-    FullAlbumEntity getAlbumTrackList(Connection connection, long trackId, String lastfmId);
+    Optional<FullAlbumEntity> getAlbumTrackList(Connection connection, long albumId, String lastfmId);
 
     List<ScrobbledTrack> getUserTopTracks(Connection connection, String lastfmid);
 
@@ -45,4 +46,5 @@ public interface TrackDao {
 
 
     void storeTrackList(Connection connection, long albumId, List<ScrobbledTrack> trackList);
+
 }

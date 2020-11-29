@@ -4,20 +4,24 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
+import core.otherlisteners.Reactionary;
 import core.parsers.ArtistTimeFrameParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistTimeFrameParameters;
 import dao.ChuuService;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
 import dao.entities.Track;
 import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,27 +73,46 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         CommandUtil.validate(getService(), who, lastFM, discogs, spotify);
         List<Track> ai;
         String lastFmName = params.getLastFMData().getName();
-
-        ai = lastFM.getTopArtistTracks(lastFmName, who.getArtist(), timeframew.toApiFormat(), artist);
-
-        final String userString = getUserString(e, userId, lastFmName);
-        if (ai.isEmpty()) {
-            sendMessageQueue(e, ("Couldn't find your fav tracks in your top 5k songs (or you don't have any track with more than 3 plays) of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString() + "!"));
-            return;
+        if (timeframew.equals(TimeFrameEnum.ALL)) {
+            ai = getService().getTopArtistTracks(lastFmName, who.getArtistId(), Integer.MAX_VALUE);
+            if (ai.isEmpty()) {
+                sendMessageQueue(e, ("Couldn't find your fav tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString() + ", try updating first!"));
+                return;
+            }
+        } else {
+            ai = lastFM.getTopArtistTracks(lastFmName, who.getArtist(), timeframew.toApiFormat(), artist);
+            if (ai.isEmpty()) {
+                sendMessageQueue(e, ("Couldn't find your fav tracks in your top 5k songs (or you don't have any track with more than 3 plays) of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString() + "!"));
+                return;
+            }
         }
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, userId);
+        String userString = uInfo.getUsername();
 
-        StringBuilder s = new StringBuilder();
-        for (int i = 0; i < 10 && i < ai.size(); i++) {
+        List<String> s = new ArrayList<>();
+        StringBuilder a = new StringBuilder();
+        for (int i = 0; i < ai.size(); i++) {
             Track g = ai.get(i);
-            s.append(i + 1).append(". **").append(CommandUtil.cleanMarkdownCharacter(g.getName())).append("** - ").append(g.getPlays()).append(" plays")
-                    .append("\n");
+            StringBuilder sb = new StringBuilder();
+            if (i < 10) {
+                sb.append(i + 1);
+            }
+            s.add(sb.append(". **[").append(g.getName()).append("](").append(LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getName())).append(")** - ").append(g.getPlays()).append(" plays")
+                    .append("\n").toString());
+            if (i < 10) {
+                a.append(sb.toString());
+            }
         }
         EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setDescription(s)
+                .setDescription(a)
+                .setAuthor(String.format("%s's top %s tracks%s", userString, who.getArtist(), timeframew.getDisplayString()), PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), uInfo.getUrlImage())
                 .setColor(CommandUtil.randomColor())
-                .setTitle(String.format("%s's top %s tracks%s", userString, who.getArtist(), timeframew.getDisplayString()), CommandUtil.getLastFmUser(lastFmName))
                 .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
-
-        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
+        if (ai.size() > 10) {
+            e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
+                    new Reactionary<>(s, mes, embedBuilder));
+        } else {
+            e.getChannel().sendMessage(embedBuilder.build()).queue();
+        }
     }
 }

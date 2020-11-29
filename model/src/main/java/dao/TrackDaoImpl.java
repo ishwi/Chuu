@@ -56,17 +56,17 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
     @Override
     public @Nullable
-    FullAlbumEntity getAlbumTrackList(Connection connection, long albumId, String lastfmId) {
+    Optional<FullAlbumEntity> getAlbumTrackList(Connection connection, long albumId, String lastfmId) {
         List<Track> tracks = new ArrayList<>();
         FullAlbumEntity fullAlbumEntity = null;
 
-        String mySql = "Select d.name,b.album_name,c.duration,c.track_name,coalesce(c.url,b.url,d.url),e.playnumber,e.loved " +
-                "from album_tracklist a join album b on a.album_id =b.id join track c on a.track_id = c.id join artist d on a.artist_id = d.id" +
-                " left join scrobbled_track e on a.track_id = e.id  where album_id = ? and lastfm_id = ?  order by a.position asc";
+        String mySql = "Select d.name,b.album_name,c.duration,c.track_name,coalesce(c.url,b.url,d.url),coalesce(e.playnumber,0),coalesce(e.loved,false) " +
+                "from album_tracklist a join album b on a.album_id =b.id join track c on a.track_id = c.id join artist d on c.artist_id = d.id" +
+                " left join (select * from scrobbled_track where lastfm_id = ? ) e on a.track_id = e.track_id  where a.album_id = ?   order by a.position asc";
         try
                 (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
-            preparedStatement.setLong(1, albumId);
-            preparedStatement.setString(2, lastfmId);
+            preparedStatement.setString(1, lastfmId);
+            preparedStatement.setLong(2, albumId);
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -84,12 +84,11 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
                 }
                 tracks.add(new Track(artsitName, trackName, plays, loved, duration));
             }
+            return Optional.ofNullable(fullAlbumEntity);
         } catch (
                 SQLException e) {
             throw new ChuuServiceException(e);
         }
-        return fullAlbumEntity;
-
     }
 
     @Override
@@ -461,17 +460,26 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     }
 
     @Override
-    public List<AlbumUserPlays> getUserTopArtistTracks(Connection connection, long discord_id, long artistId, int limit) {
-        List<AlbumUserPlays> returnList = new ArrayList<>();
-        String mySql = "select a.playnumber,b.track_name,d.name,b.url from scrobbled_track a join track b on a.track_id = b.id join user c on a.lastfm_id = c.lastfm_id " +
-                "join artist d on b.artist_id = d.id  where c.discord_id = ? and a.artist_id = ?  order by a.playnumber desc  limit ? ";
+    public List<Track> getUserTopArtistTracks(Connection connection, String lastfmId, long artistId, int limit) {
+        List<Track> returnList = new ArrayList<>();
+        String mySql = "select a.playnumber,b.track_name,d.name,b.url,a.loved from scrobbled_track a join track b on a.track_id = b.id " +
+                "join artist d on b.artist_id = d.id  where a.lastfm_id = ? and a.artist_id = ?  order by a.playnumber desc  limit ? ";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql);
             int i = 1;
-            preparedStatement.setLong(i++, discord_id);
+            preparedStatement.setString(i++, lastfmId);
             preparedStatement.setLong(i++, artistId);
-            processArtistTracks(limit, returnList, preparedStatement, i);
+            preparedStatement.setInt(i, limit);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int plays = resultSet.getInt(1);
+                String trackName = resultSet.getString(2);
+                String artist = resultSet.getString(3);
+                boolean isLoved = resultSet.getBoolean(5);
 
+                Track e = new Track(artist, trackName, plays, isLoved, 0);
+                returnList.add(e);
+            }
 
         } catch (
                 SQLException e) {

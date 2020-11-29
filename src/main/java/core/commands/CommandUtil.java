@@ -221,6 +221,16 @@ public class CommandUtil {
         return scrobbledAlbum;
     }
 
+    public static ScrobbledAlbum validateAlbum(ChuuService dao, long artistId, String album, ConcurrentLastFM lastFM) throws LastFmException {
+        ScrobbledArtist scrobbledArtist = new ScrobbledArtist("", 0, null);
+        scrobbledArtist.setArtistId(artistId);
+        long albumvalidate = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, album);
+        ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), null, null);
+        scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
+        scrobbledAlbum.setAlbumId(albumvalidate);
+        return scrobbledAlbum;
+    }
+
     public static ScrobbledAlbum lightAlbumValidate(ChuuService dao, String artist, String album, ConcurrentLastFM lastFM) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, "");
         CommandUtil.validate(dao, scrobbledArtist, lastFM, null, null, false, true);

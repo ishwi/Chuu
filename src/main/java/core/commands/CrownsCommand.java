@@ -48,9 +48,10 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
                 map, s, false, true, true);
     }
 
-    public boolean isGlobal() {
-        return false;
+    public String getTitle() {
+        return "";
     }
+
 
     public UniqueWrapper<ArtistPlays> getList(NumberParameters<ChuuDataParams> params) {
         Long threshold = params.getExtraParam();
@@ -85,7 +86,7 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
 
         int rows = resultWrapper.size();
         if (rows == 0) {
-            sendMessageQueue(e, userName + " doesn't have any" + (isGlobal() ? " global " : " ") + "crown :'(");
+            sendMessageQueue(e, userName + " doesn't have any " + getTitle() + "crown :'(");
             return;
         }
 
@@ -99,8 +100,8 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(a)
                 .setColor(CommandUtil.randomColor())
-                .setTitle(String.format("%s's %scrowns", userName, isGlobal() ? "global " : ""), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
-                .setFooter(String.format("%s has %d%s crowns!!%n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), isGlobal() ? " global" : ""), null)
+                .setTitle(String.format("%s's %scrowns", userName, getTitle()), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
+                .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), getTitle()), null)
                 .setThumbnail(userUrl);
         e.getChannel().sendMessage(new MessageBuilder()
                 .setEmbed(embedBuilder.build()).build()).queue(message1 ->

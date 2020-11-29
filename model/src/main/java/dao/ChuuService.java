@@ -941,6 +941,25 @@ public class ChuuService {
 
     }
 
+    public UniqueWrapper<ArtistPlays> getGlobalAlbumCrowns(String lastfmid, int threshold, boolean includeBottedUsers,
+                                                           long ownerId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getGlobalAlbumCrowns(connection, lastfmid, threshold, includeBottedUsers, ownerId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public UniqueWrapper<ArtistPlays> getGlobalTrackCrowns(String lastfmid, int threshold, boolean includeBottedUsers, long ownerId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getGlobalTrackCrowns(connection, lastfmid, threshold, includeBottedUsers, ownerId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
     public void createGuild(long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.createGuild(connection, guildId);
@@ -2778,9 +2797,9 @@ public class ChuuService {
         }
     }
 
-    public FullAlbumEntity getAlbumTrackList(long trackId, String lastfmId) {
+    public Optional<FullAlbumEntity> getAlbumTrackList(long albumId, String lastfmId) {
         try (Connection connection = dataSource.getConnection()) {
-            return trackDao.getAlbumTrackList(connection, trackId, lastfmId);
+            return trackDao.getAlbumTrackList(connection, albumId, lastfmId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -2867,7 +2886,6 @@ public class ChuuService {
 
     public void prepareBillboardWeek(String lastfmId, int weekId) {
         try (Connection connection = dataSource.getConnection()) {
-            connection.setReadOnly(true);
             billboardDao.cleanUserData(connection, lastfmId, weekId);
             billboardDao.groupUserData(connection, lastfmId, weekId);
         } catch (SQLException e) {
@@ -2875,4 +2893,15 @@ public class ChuuService {
         }
 
     }
+
+
+    public List<Track> getTopArtistTracks(String lastFmName, long artistId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return trackDao.getUserTopArtistTracks(connection, lastFmName, artistId, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 }

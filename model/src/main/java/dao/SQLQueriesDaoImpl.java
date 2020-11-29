@@ -3136,6 +3136,116 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         }
     }
 
+    @Override
+    public UniqueWrapper<ArtistPlays> getGlobalAlbumCrowns(Connection connection, String lastfmid, int threshold, boolean includeBottedUsers, long ownerId) {
+        List<ArtistPlays> returnList = new ArrayList<>();
+        long discordId = 0;
+
+        @Language("MariaDB") String queryString = "SELECT d.name,c.album_name , b.discord_id , playnumber AS orden" +
+                " FROM  scrobbled_album  a" +
+                " JOIN user b ON a.lastfm_id = b.lastfm_id" +
+                " JOIN album c ON " +
+                " a.album_id = c.id" +
+                " join artist d on c.artist_id = d.id " +
+                " WHERE  a.lastfm_id = ?" +
+                " AND playnumber >= ?" +
+                " AND  playnumber >= ALL" +
+                "       (SELECT max(b.playnumber) " +
+                " FROM " +
+                "(SELECT in_a.album_id,in_a.playnumber" +
+                " FROM scrobbled_album in_a  " +
+                " JOIN " +
+                " user in_b" +
+                " ON in_a.lastfm_id = in_b.lastfm_id" +
+                " where ? or not in_b.botted_account " +
+                "   ) AS b" +
+                " WHERE b.album_id = a.album_id" +
+                " GROUP BY album_id)" +
+                " ORDER BY orden DESC";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, lastfmid);
+            preparedStatement.setInt(2, threshold);
+            preparedStatement.setBoolean(3, includeBottedUsers);
+            //preparedStatement.setLong(4, ownerId);
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+
+            while (resultSet.next()) {
+
+                String artist = resultSet.getString("d.name");
+                String albumName = resultSet.getString("c.album_name");
+                int plays = resultSet.getInt("orden");
+                returnList.add(new AlbumPlays(artist, plays, albumName));
+                // TODO
+                discordId = resultSet.getLong("b.discord_id");
+
+            }
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return new UniqueWrapper<>(returnList.size(), discordId, lastfmid, returnList);
+    }
+
+    @Override
+    public UniqueWrapper<ArtistPlays> getGlobalTrackCrowns(Connection connection, String lastfmid, int threshold, boolean includeBottedUsers, long ownerId) {
+        List<ArtistPlays> returnList = new ArrayList<>();
+        long discordId = 0;
+
+        @Language("MariaDB") String queryString = "SELECT d.name,c.track_name , b.discord_id , playnumber AS orden" +
+                " FROM  scrobbled_track  a" +
+                " JOIN user b ON a.lastfm_id = b.lastfm_id" +
+                " JOIN track c ON " +
+                " a.track_id = c.id" +
+                " join artist d on c.artist_id = d.id " +
+                " WHERE  a.lastfm_id = ?" +
+                " AND playnumber >= ?" +
+                " AND  playnumber >= ALL" +
+                "       (SELECT max(b.playnumber) " +
+                " FROM " +
+                "(SELECT in_a.track_id,in_a.playnumber" +
+                " FROM scrobbled_track in_a  " +
+                " JOIN " +
+                " user in_b" +
+                " ON in_a.lastfm_id = in_b.lastfm_id" +
+                " where ? or not in_b.botted_account " +
+                "   ) AS b" +
+                " WHERE b.track_id = a.track_id" +
+                " GROUP BY track_id)" +
+                " ORDER BY orden DESC";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, lastfmid);
+            preparedStatement.setInt(2, threshold);
+            preparedStatement.setBoolean(3, includeBottedUsers);
+            //preparedStatement.setLong(4, ownerId);
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+
+            while (resultSet.next()) {
+
+                String artist = resultSet.getString("d.name");
+                String albumName = resultSet.getString("c.track_name");
+                int plays = resultSet.getInt("orden");
+                returnList.add(new TrackPlays(artist, plays, albumName));
+                // TODO
+                discordId = resultSet.getLong("b.discord_id");
+
+            }
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return new UniqueWrapper<>(returnList.size(), discordId, lastfmid, returnList);
+
+
+    }
+
 
     private void getScoredAlbums(List<ScoredAlbumRatings> returnList, ResultSet resultSet) throws SQLException {
 

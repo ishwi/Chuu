@@ -11,8 +11,8 @@ import dao.entities.UniqueWrapper;
 import java.util.Arrays;
 import java.util.List;
 
-public class GlobalCrownsCommand extends CrownsCommand {
-    public GlobalCrownsCommand(ChuuService dao) {
+public class GlobalAlbumCrownsCommand extends CrownsCommand {
+    public GlobalAlbumCrownsCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = true;
     }
@@ -24,7 +24,7 @@ public class GlobalCrownsCommand extends CrownsCommand {
 
     @Override
     public String getTitle() {
-        return "global ";
+        return "global album ";
     }
 
     @Override
@@ -37,8 +37,9 @@ public class GlobalCrownsCommand extends CrownsCommand {
             } else {
                 threshold = 0L;
             }
+
         }
-        return getService().getGlobalCrowns(params.getInnerParams().getLastFMData().getName(),
+        return getService().getGlobalAlbumCrowns(params.getInnerParams().getLastFMData().getName(),
                 Math.toIntExact(threshold),
                 !params.hasOptional("nobotted"), params.getE().getAuthor().getIdLong());
     }
@@ -52,16 +53,16 @@ public class GlobalCrownsCommand extends CrownsCommand {
 
     @Override
     public String getDescription() {
-        return "Like your crowns but considering all bot users instead of only a server";
+        return "Like your album crowns but considering all bot users instead of only a server";
     }
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("globalcrowns", "gc");
+        return Arrays.asList("globalalbumcrowns", "galbc", "galc");
     }
 
     @Override
     public String getName() {
-        return "Global Crowns";
+        return "Global album crowns";
     }
 }

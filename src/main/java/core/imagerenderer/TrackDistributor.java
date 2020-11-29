@@ -3,17 +3,21 @@ package core.imagerenderer;
 import core.Chuu;
 import dao.entities.FullAlbumEntity;
 import dao.entities.Track;
+import dao.entities.UserInfo;
 import dao.exceptions.ChuuServiceException;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.*;
+import java.util.stream.Stream;
 
+import static core.imagerenderer.GraphicUtils.chooseFont;
 import static core.imagerenderer.GraphicUtils.ran;
 
 public class TrackDistributor {
@@ -114,6 +118,7 @@ public class TrackDistributor {
 
         //Upper Template Part
         g.drawImage(template, 0, 0, null);
+
         GraphicUtils.drawStringNicely(g, fae.getArtist(), 397, 160, dist);
         GraphicUtils.drawStringNicely(g, "Artist", 397, 199, dist);
 
@@ -122,7 +127,7 @@ public class TrackDistributor {
 
         g.drawImage(Scalr.resize(albumImage, 330, 330), 22, 22, null);
 
-        doHistContent(g, maxList, dist, trackList);
+        doHistContent(g, maxList, dist, trackList, 905, HEIGHT_CONSTANT);
 
         g.dispose();
         return dist;
@@ -130,7 +135,96 @@ public class TrackDistributor {
 
     }
 
-    private static void doHistContent(Graphics2D g, int maxList, BufferedImage dist, List<Track> trackList) {
+    public static BufferedImage drawImageMirrored(FullAlbumEntity first, FullAlbumEntity second, UserInfo firstInfo, UserInfo secondInfo) {
+        List<Track> firstTrackList = first.getTrackList();
+        List<Track> secondTrackList = second.getTrackList();
+        int trackCount = firstTrackList.size();
+
+        Optional<Track> max = Stream.concat(firstTrackList.stream(), secondTrackList.stream()).max(Comparator.comparingInt(Track::getPlays));
+        assert max.isPresent();
+
+        int maxList = max.get().getPlays();
+        if (maxList == 0) {
+            maxList = 1;
+        }
+
+        Font font;
+        if (firstTrackList.stream().anyMatch(x -> NORMAL_FONT.canDisplayUpTo(x.getName()) != -1) || (NORMAL_FONT
+                .canDisplayUpTo(first.getArtist()) != -1) || (NORMAL_FONT.canDisplayUpTo(first.getAlbum()) != -1)) {
+            font = JAPANESE_FONT;
+        } else {
+            font = NORMAL_FONT;
+        }
+
+        //Background image set up
+        BufferedImage artistImageFill = GraphicUtils
+                .getImageFromUrl(first.getArtistUrl(), null);
+
+        //Main Image
+        int mirroredWidth = WIDTH_CONSTANT * 2 + 371;
+        BufferedImage dist = new BufferedImage(mirroredWidth, HEIGHT_CONSTANT + HEIGHT_BOTTOM + (TILE_SIZE) * trackCount + 15 + 20, BufferedImage.TYPE_INT_ARGB);
+
+
+        //Album Image
+
+        BufferedImage userImage = GraphicUtils.getImageFromUrl(firstInfo.getImage(), noalbumImage);
+        BufferedImage userImage2 = GraphicUtils.getImageFromUrl(secondInfo.getImage(), noalbumImage);
+
+        //Image Artist
+        Graphics2D g = GraphicUtils.initArtistBackground(dist, artistImageFill);
+        Font firstUserFont = chooseFont(firstInfo.getUsername());
+        g.setFont(firstUserFont.deriveFont(30f));
+        Rectangle2D f = GraphicUtils.fitAndGetBounds(firstInfo.getUsername(), g, 330, 18f);
+        firstUserFont = g.getFont();
+        Font secondUserFont = chooseFont(secondInfo.getUsername());
+        g.setFont(secondUserFont.deriveFont(30f));
+        Rectangle2D n = GraphicUtils.fitAndGetBounds(secondInfo.getUsername(), g, 330, 18f);
+        secondUserFont = g.getFont();
+
+        int baseline = (int) Math.max(f.getHeight(), n.getHeight());
+        g.setFont(firstUserFont);
+        GraphicUtils.drawStringNicely(g, firstInfo.getUsername(), (int) (22 + (330 / 2 - f.getWidth() / 2)), 22 + 330 + baseline, dist);
+        g.setFont(secondUserFont);
+        GraphicUtils.drawStringNicely(g, secondInfo.getUsername(), (int) (mirroredWidth - 22 - 330 + ((330 / 2 - n.getWidth() / 2))), 22 + 330 + baseline, dist);
+        g.setFont(font);
+
+        //Upper Template Part
+        g.drawImage(template, 0, 0, null);
+        g.drawImage(Scalr.rotate(template, Scalr.Rotation.FLIP_HORZ), mirroredWidth - (template.getWidth()), 0, null);
+        BufferedImage crop = Scalr.crop(template, 0, 0, 370, 390);
+        g.drawImage(crop, WIDTH_CONSTANT, 0, null);
+        BufferedImage albumImage = GraphicUtils.getImageFromUrl(first.getAlbumUrl(), noalbumImage);
+
+
+        int i = g.getFontMetrics().stringWidth(first.getArtist());
+        GraphicUtils.drawStringNicely(g, first.getArtist(), 397, 160, dist);
+        GraphicUtils.drawStringNicely(g, first.getArtist(), mirroredWidth - 397 - i, 160, dist);
+
+        i = g.getFontMetrics().stringWidth("Artist");
+        GraphicUtils.drawStringNicely(g, "Artist", 397, 199, dist);
+        GraphicUtils.drawStringNicely(g, "Artist", mirroredWidth - 397 - i, 199, dist);
+
+        i = g.getFontMetrics().stringWidth(first.getAlbum());
+        GraphicUtils.drawStringNicely(g, first.getAlbum(), 397, 235, dist);
+        GraphicUtils.drawStringNicely(g, first.getAlbum(), mirroredWidth - 397 - i, 235, dist);
+        i = g.getFontMetrics().stringWidth("Album");
+        GraphicUtils.drawStringNicely(g, "Album", 397, 274, dist);
+        GraphicUtils.drawStringNicely(g, "Album", mirroredWidth - 397 - i, 274, dist);
+
+        g.drawImage(Scalr.resize(userImage, 330, 330), 22, 22, null);
+        g.drawImage(Scalr.resize(userImage2, 330, 330), mirroredWidth - 22 - 330, 22, null);
+        g.drawImage(Scalr.resize(albumImage, 330, 330), WIDTH_CONSTANT + 22, 22, null);
+
+
+        doHistContent(g, maxList, dist, firstTrackList, 905 + 370 / 2, HEIGHT_CONSTANT + 20);
+        doHistContentReversed(g, maxList, dist, secondTrackList, 905 + 370 / 2, HEIGHT_CONSTANT + 20);
+
+        g.dispose();
+        return dist;
+
+    }
+
+    private static void doHistContentReversed(Graphics2D g, int maxList, BufferedImage dist, List<Track> trackList, int widthBarsSpace, int starttingY) {
         Font ogFont = g.getFont();
         Font font;
 
@@ -151,7 +245,7 @@ public class TrackDistributor {
         //I like transparency
         g.setColor(GraphicUtils.makeMoreTransparent(color, 0.7f));
 
-        int startingPoint = HEIGHT_CONSTANT;
+        int startingPoint = starttingY;
         OptionalInt max = trackList.stream().map(Track::getName)
                 .mapToInt(x -> g.getFontMetrics().stringWidth(x))
                 .max();
@@ -170,7 +264,67 @@ public class TrackDistributor {
                 trackName = g.getFontMetrics().stringWidth(track.getName());
             }
 
-            int rectWidth = (int) (minimunAmmount + (905 - minimunAmmount) * (float) track.getPlays() / maxList);
+            int rectWidth = (int) (minimunAmmount + (widthBarsSpace - minimunAmmount) * (float) track.getPlays() / maxList);
+            int i1 = WIDTH_CONSTANT * 2 + 370;
+            g.fillRect(i1 - 15 - rectWidth, startingPoint, rectWidth, 38);
+
+            int i = g.getFontMetrics().stringWidth(track.getName());
+            GraphicUtils.drawStringNicely(g, track.getName(), i1 - 25 - i, startingPoint +
+                            (TILE_SIZE - 5 - g.getFontMetrics().getHeight()) / 2 + g.getFontMetrics().getAscent()
+                    , dist);
+            g.setFont(ogFont);
+
+            String plays = String.valueOf(track.getPlays());
+
+            GraphicUtils.drawStringNicely(g, plays, i1 - 15 - rectWidth + 5, startingPoint +
+                            (TILE_SIZE - 5 - g.getFontMetrics().getHeight()) / 2 + g.getFontMetrics().getAscent()
+                    , dist);
+            startingPoint += TILE_SIZE;
+
+        }
+    }
+
+    private static void doHistContent(Graphics2D g, int maxList, BufferedImage dist, List<Track> trackList, int widthBarsSpace, int yStart) {
+        Font ogFont = g.getFont();
+        Font font;
+
+        int xLimit = dist.getWidth();
+        int yLimit = dist.getHeight() - HEIGHT_CONSTANT;
+
+        Color color = lightPalettes.get(new Random().nextInt(lightPalettes.size() - 1));
+        //Get a estimate of the average colour of the background
+        Color[] a = new Color[15];
+        for (int i = 0; i < 15; i++) {
+            int rgb = dist.getRGB(ran.nextInt(xLimit), ran.nextInt(yLimit) + HEIGHT_CONSTANT);
+            a[i] = (new Color(rgb));
+        }
+        Color betterCollection = GraphicUtils.getBetter(a);
+        if (betterCollection.equals(Color.white))
+            color = color.darker().darker();
+
+        //I like transparency
+        g.setColor(GraphicUtils.makeMoreTransparent(color, 0.7f));
+
+        int startingPoint = yStart;
+        OptionalInt max = trackList.stream().map(Track::getName)
+                .mapToInt(x -> g.getFontMetrics().stringWidth(x))
+                .max();
+        int realMax = Math.min(452, max.orElse(400));
+        int extra = 45;
+
+        int minimunAmmount = realMax + extra;
+        for (Track track : trackList) {
+            float fontSize = FONT_SIZE;
+
+            int trackName = g.getFontMetrics().stringWidth(track.getName());
+
+            while (trackName > 400 && (fontSize -= 2) > 8f) {
+                font = g.getFont().deriveFont(fontSize);
+                g.setFont(font);
+                trackName = g.getFontMetrics().stringWidth(track.getName());
+            }
+
+            int rectWidth = (int) (minimunAmmount + (widthBarsSpace - minimunAmmount) * (float) track.getPlays() / maxList);
             g.fillRect(15, startingPoint, rectWidth, 38);
 
             GraphicUtils.drawStringNicely(g, track.getName(), 25, startingPoint +

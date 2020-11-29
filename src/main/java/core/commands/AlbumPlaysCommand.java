@@ -66,7 +66,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
 
     }
 
-    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
+    void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
 
         LastFMData data = params.getLastFMData();
         int a = lastFM.getPlaysAlbumArtist(data.getName(), artist.getArtist(), album).getPlays();

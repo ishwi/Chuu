@@ -77,7 +77,8 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         Optional<GlobalCrown> yourPosition = globalArtistRanking.stream().filter(x -> x.getDiscordId() == userId).findFirst();
         int totalPeople = globalArtistRanking.size();
         int totalPlays = globalArtistRanking.stream().mapToInt(GlobalCrown::getPlaycount).sum();
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setColor(CommandUtil.randomColor());
 
         if (yourPosition.isPresent()) {
             GlobalCrown globalCrown = yourPosition.get();

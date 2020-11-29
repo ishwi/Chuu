@@ -365,6 +365,9 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new TasteAlbumCommand(dao)))
                 .addEventListeners(help.registerCommand(new TasteTrackCommand(dao)))
                 .addEventListeners(help.registerCommand(new RefreshLastfmDataCommand(dao)))
+                .addEventListeners(help.registerCommand(new GlobalAlbumCrownsCommand(dao)))
+                .addEventListeners(help.registerCommand(new GlobalTrackCrownsCommand(dao)))
+                .addEventListeners(help.registerCommand(new MirroredTracksCommand(dao)))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {

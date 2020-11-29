@@ -5,6 +5,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmEntityNotFoundException;
+import core.exceptions.UnknownLastFmException;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.UpdaterHoarder;
 import core.services.UpdaterService;
@@ -98,6 +99,17 @@ public class UpdaterThread implements Runnable {
                             + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
                 } catch (LastFmEntityNotFoundException e) {
                     dao.removeUserCompletely(userWork.getDiscordID());
+                } catch (UnknownLastFmException ex) {
+                    int code = ex.getCode();
+                    if (code == 17) {
+                        dao.updateUserTimeStamp(lastFMName, userWork.getTimestamp(),
+                                (int) (Instant.now().getEpochSecond() + 10000));
+                        Chuu.getLogger().warn("User {} code 17 while updateing ", lastFMName);
+                    } else {
+                        System.out.println("Error while updating" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+                        Chuu.getLogger().warn(ex.getMessage(), ex);
+                    }
+
                 }
             } finally {
                 if (removeFlag) {
