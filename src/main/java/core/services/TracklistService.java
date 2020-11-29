@@ -99,6 +99,7 @@ public class TracklistService {
             fullAlbumEntity = opt.get();
         }
         fullAlbumEntity.setArtistUrl(artistUrl);
+        fullAlbumEntity.getTrackList().sort(Comparator.comparingInt(Track::getPosition));
         return Optional.of(fullAlbumEntity);
     }
 

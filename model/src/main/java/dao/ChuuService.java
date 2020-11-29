@@ -106,11 +106,7 @@ public class ChuuService {
                 connection.commit();
             }
         } catch (SQLException e) {
-            connection.rollback();
             throw new ChuuServiceException(e);
-        } catch (Exception e) {
-            connection.rollback();
-            throw e;
         }
     }
 
@@ -2087,15 +2083,6 @@ public class ChuuService {
         }
     }
 
-    public void insertUserData(int week_id, String lastfmId, List<TrackWithArtistId> list) {
-        try (Connection connection = dataSource.getConnection()) {
-            billboardDao.insertUserData(connection, list, lastfmId, week_id);
-            billboardDao.groupUserData(connection, lastfmId, week_id);
-
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
-    }
 
     public void insertUserDataGuessWeek(String lastfmId, List<TrackWithArtistId> list) {
 
@@ -2140,8 +2127,6 @@ public class ChuuService {
                 numberOfDecreses++;
             }
             billboardDao.insertUserData(connection, x.getValue(), lastfmId, id - numberOfDecreses);
-            billboardDao.cleanUserData(connection, lastfmId, id - numberOfDecreses);
-            billboardDao.groupUserData(connection, lastfmId, id - numberOfDecreses);
         });
         try {
             List<ScrobbledTrack> groupedTracks = list.stream().map(t -> {

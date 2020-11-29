@@ -306,6 +306,7 @@ public class GraphicUtils {
             g.setColor(getBetter(col1, col2, col3));
         } catch (ArrayIndexOutOfBoundsException debugger) {
             Chuu.getLogger().warn(x + " " + y + " " + " " + length + " " + bufferedImage.getWidth() + " " + bufferedImage.getHeight());
+            Chuu.getLogger().warn(debugger.getMessage(), debugger);
         }
         g.drawString(string, x, y);
         g.setColor(temp);
