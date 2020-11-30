@@ -67,9 +67,10 @@ public class BillboardHoarder {
                         usersBeingProcessed.add(usersWrapper.getDiscordID());
                         UpdaterHoarder updaterHoarder = new UpdaterHoarder(usersWrapper, service, lastFM);
                         updaterHoarder.updateUser();
-                        service.prepareBillboardWeek(usersWrapper.getLastFMName(), weekId);
+
                     } catch (LastFmException ignored) {
                     } finally {
+                        service.prepareBillboardWeek(usersWrapper.getLastFMName(), weekId);
                         usersBeingProcessed.remove(usersWrapper.getDiscordID());
                     }
                 });

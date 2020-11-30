@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -2103,7 +2104,7 @@ public class ChuuService {
             return weekYear * 100 + week;
         }, Collectors.toList()));
 
-        LocalDate localDate = weekStart.toLocalDate();
+        LocalDate localDate = weekStart.toLocalDate().minus(1, ChronoUnit.WEEKS);
         int id = currentWeekId.getId();
         int week = localDate.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
         int weekYear = localDate.get(IsoFields.WEEK_BASED_YEAR);
@@ -2116,8 +2117,8 @@ public class ChuuService {
         connection.setAutoCommit(true);
         collect.entrySet().stream().sorted(Map.Entry.<Integer, List<TrackWithArtistId>>comparingByKey().reversed()).forEach(x -> {
             int currentIndex = i;
-            int numberOfDecreses = 0;
-            while (x.getKey() > currentIndex) {
+            int numberOfDecreses = -1;
+            while (x.getKey() < currentIndex) {
                 if (currentIndex % 100 == 1) {
                     int i1 = currentIndex / 100;
                     currentIndex = (i1 - 1) * 100 + 52;
