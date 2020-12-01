@@ -1,6 +1,9 @@
 package core.commands;
 
+import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
+import core.apis.last.queues.TrackGroupAlbumQueue;
+import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
@@ -24,8 +27,14 @@ import java.util.concurrent.CompletableFuture;
  * Credits: to lfmwhoknows bot owner for the idea
  */
 public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
+    private final DiscogsApi discogsApi;
+    private final Spotify spotifyApi;
+
     public StreakCommand(ChuuService dao) {
         super(dao);
+        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+        spotifyApi = SpotifySingleton.getInstance();
+
     }
 
 
@@ -68,7 +77,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         StreakEntity combo = lastFM.getCombo(lastfmId);
 
         ScrobbledArtist artist = new ScrobbledArtist(combo.getCurrentArtist(), 0, "");
-        CommandUtil.validate(getService(), artist, lastFM, DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstance());
+        CommandUtil.validate(getService(), artist, lastFM, discogsApi, spotifyApi);
         Long albumId = null;
         if (combo.getAlbCounter() > 1) {
             albumId = CommandUtil.albumvalidate(getService(), artist, lastFM, combo.getCurrentAlbum());
@@ -98,6 +107,14 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                     .append("**[").append(aString).append("](").append(LinkUtils.getLastFmArtistUrl(combo.getCurrentArtist())).append(")**").append("\n");
         }
         if (combo.getAlbCounter() > 1) {
+            if (combo.getUrl() == null || combo.getUrl().isBlank() || combo.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
+                String s = CommandUtil.albumUrl(getService(), lastFM, combo.getCurrentArtist(), combo.getCurrentAlbum(), discogsApi, spotifyApi);
+                if (s != null) {
+                    embedBuilder.setThumbnail(s);
+                }
+            } else {
+                embedBuilder.setThumbnail(combo.getUrl());
+            }
             description.append("**Album**: ")
                     .append(combo.getAlbCounter())
                     .append(combo.getAlbCounter() >= 6000 ? "+" : "")
@@ -107,6 +124,9 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                     .append("\n");
         }
         if (combo.gettCounter() > 1) {
+            if (combo.getUrl() != null && !combo.getUrl().isBlank() && !combo.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
+                embedBuilder.setThumbnail(combo.getUrl());
+            }
             description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 6000 ? "+" : "")
                     .append(combo.gettCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
                     .append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentSong())).append("](").append(LinkUtils.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");

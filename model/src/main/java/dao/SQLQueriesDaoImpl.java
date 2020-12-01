@@ -1947,7 +1947,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 String albumName = resultSet.getString("album_name");
 
 
-                StreakEntity streakEntity = new StreakEntity(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, null);
+                StreakEntity streakEntity = new StreakEntity(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, null, null);
                 returnList.add(streakEntity);
             }
 
@@ -2122,7 +2122,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 String albumName = resultSet.getString("album_name");
 
 
-                StreakEntity streakEntity = new StreakEntity(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, null);
+                StreakEntity streakEntity = new StreakEntity(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, null, null);
                 returnList.add(streakEntity);
             }
 

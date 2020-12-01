@@ -26,7 +26,7 @@ public class TimezoneCommand extends ConcurrentCommand<TimezoneParams> {
 
     @Override
     public Parser<TimezoneParams> initParser() {
-        return new TimezoneParser();
+        return new TimezoneParser(getService());
     }
 
     @Override

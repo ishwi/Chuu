@@ -13,11 +13,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ParserAux {
     private static final Pattern user = Pattern.compile("(.{2,32})#(\\d{4})");
     private static final Pattern discordId = Pattern.compile("\\d{17,}");
+    private static final Pattern lfm = Pattern.compile("lfm:\\S+");
+    private static final Pattern userRaw = Pattern.compile("u:(\\S+)");
+
     private final boolean doExpensiveSearch;
     private String[] message;
 
@@ -79,13 +83,30 @@ public class ParserAux {
         return sample;
     }
 
-    User getOneUser(MessageReceivedEvent e) {
+    User getOneUser(MessageReceivedEvent e, ChuuService dao) throws InstanceNotFoundException {
         User sample = null;
         List<String> tempArray = new ArrayList<>();
         boolean hasMatched = false;
         for (String s : message) {
             if (!hasMatched) {
-                if (user.matcher(s).matches()) {
+                Matcher matcher = userRaw.matcher(s);
+                Matcher lfmM = lfm.matcher(s);
+                if (matcher.matches()) {
+                    String userName = matcher.group(1);
+                    Optional<User> user = userString(userName, e, dao);
+                    if (user.isPresent()) {
+                        hasMatched = true;
+                        sample = user.get();
+                    }
+                } else if (e.isFromGuild() && lfmM.matches()) {
+                    String userName = lfmM.group(1);
+                    long discordIdFromLastfm = dao.getDiscordIdFromLastfm(userName, e.getGuild().getIdLong());
+                    Member memberById = e.getGuild().getMemberById(discordIdFromLastfm);
+                    if (memberById != null) {
+                        hasMatched = true;
+                        sample = memberById.getUser();
+                    }
+                } else if (user.matcher(s).matches()) {
                     User userByTag = e.getJDA().getUserByTag(s);
                     if (userByTag != null) {
                         hasMatched = true;
@@ -234,6 +255,44 @@ public class ParserAux {
         long discordIdFromLastfm = dao.getDiscordIdFromLastfm(message, e.getGuild().getIdLong());
         return getLastFMData(Optional.ofNullable(e.getGuild().getJDA().getUserById(discordIdFromLastfm)), message, dao, e);
     }
+
+    Optional<User> userString(String message, MessageReceivedEvent e, ChuuService dao) throws InstanceNotFoundException {
+
+        List<UsersWrapper> all = dao.getAll(e.getGuild().getIdLong());
+        Predicate<Member> biPredicate = member -> all.stream().anyMatch(x -> member != null && x.getDiscordID() == member.getIdLong());
+        if (discordId.matcher(message).matches()) {
+            Member memberById = e.getGuild().getMemberById(message);
+            if (!biPredicate.test(memberById) && memberById != null) {
+                throw new InstanceNotFoundException(memberById.getId());
+            }
+            return Optional.ofNullable(memberById).map(Member::getUser);
+        }
+        if (user.matcher(message).matches()) {
+            Member memberByTag = e.getGuild().getMemberByTag(message);
+            if (!biPredicate.test(memberByTag) && memberByTag != null) {
+                throw new InstanceNotFoundException(memberByTag.getId());
+            }
+            return Optional.ofNullable(memberByTag).map(Member::getUser);
+        }
+        List<Member> membersByEffectiveName = e.getGuild().getMembersByEffectiveName(message, true);
+        if (!membersByEffectiveName.isEmpty()) {
+            Optional<Member> first = membersByEffectiveName.stream().findFirst();
+            if (!biPredicate.test(first.get())) {
+                throw new InstanceNotFoundException(first.get().getIdLong());
+            }
+            return first.map(Member::getUser);
+        }
+        List<Member> membersByName = e.getGuild().getMembersByName(message, true);
+        if (!membersByName.isEmpty()) {
+            Optional<Member> user = membersByName.stream().findFirst();
+            if (!biPredicate.test(user.get())) {
+                throw new InstanceNotFoundException(user.get().getIdLong());
+            }
+            return user.map(Member::getUser);
+        }
+        return Optional.empty();
+    }
+
 
     public String[] getMessage() {
         return message;

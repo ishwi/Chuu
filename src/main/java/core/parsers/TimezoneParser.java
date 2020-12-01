@@ -1,6 +1,8 @@
 package core.parsers;
 
 import core.parsers.params.TimezoneParams;
+import dao.ChuuService;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -15,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class TimezoneParser extends Parser<TimezoneParams> {
+public class TimezoneParser extends DaoParser<TimezoneParams> {
     private static final Map<String, String> mapZone = ZoneId.getAvailableZoneIds().stream()
             .collect(Collectors
                     .toMap(x -> TimeZone.getTimeZone(x).toZoneId()
@@ -27,8 +29,8 @@ public class TimezoneParser extends Parser<TimezoneParams> {
 
     Predicate<String> gmtBased = Pattern.compile("[+-]*[ ]*(\\d{1,2}):\\d{1,2}").asMatchPredicate();
 
-    public TimezoneParser(OptionalEntity... opts) {
-        super(opts);
+    public TimezoneParser(ChuuService chuuService, OptionalEntity... opts) {
+        super(chuuService, opts);
     }
 
     @Override
@@ -46,9 +48,9 @@ public class TimezoneParser extends Parser<TimezoneParams> {
     }
 
     @Override
-    protected TimezoneParams parseLogic(MessageReceivedEvent e, String[] words) {
+    protected TimezoneParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(words);
-        User oneUser = parserAux.getOneUser(e);
+        User oneUser = parserAux.getOneUser(e, dao);
         if (Arrays.equals(words, parserAux.getMessage())) {
             String join = String.join(" ", parserAux.getMessage());
             if (join.isBlank()) {

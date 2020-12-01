@@ -22,7 +22,7 @@ public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordPara
     @Override
     protected ExtraParameters<WordParameter, User> parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
         ParserAux parserAux = new ParserAux(words);
-        User oneUser = parserAux.getOneUser(e);
+        User oneUser = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
 
         if (words.length == 0) {
@@ -39,6 +39,6 @@ public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordPara
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " [whatever you want to search for] **\n" +
                 "\tIf you don't introduce a query it takes your now playing song\n" +
-                "\tYou can add an username with only ping and tag format (user#number) to use their now playing song\n";
+                "\tYou can add an username with only ping, tag format (user#number),discord id, u:username or lfm:lastfmname to use their now playing song\n";
     }
 }

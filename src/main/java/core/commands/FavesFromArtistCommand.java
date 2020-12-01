@@ -21,9 +21,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFrameParameters> {
 
@@ -89,19 +89,12 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, userId);
         String userString = uInfo.getUsername();
 
-        List<String> s = new ArrayList<>();
         StringBuilder a = new StringBuilder();
-        for (int i = 0; i < ai.size(); i++) {
-            Track g = ai.get(i);
-            StringBuilder sb = new StringBuilder();
-            if (i < 10) {
-                sb.append(i + 1);
-            }
-            s.add(sb.append(". **[").append(g.getName()).append("](").append(LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getName())).append(")** - ").append(g.getPlays()).append(" plays")
-                    .append("\n").toString());
-            if (i < 10) {
-                a.append(sb.toString());
-            }
+        List<String> s = ai.stream().map(g -> ". **[" + g.getName() + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getName()) + ")** - " + g.getPlays() + " plays" +
+                "\n").collect(Collectors.toList());
+        for (int i = 0; i < ai.size() && i < 10; i++) {
+            String sb = s.get(i);
+            a.append(i + 1).append(sb);
         }
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(a)

@@ -24,7 +24,7 @@ public class RangeChartParser extends ChartableParser<CustomRangeChartParameters
         int y = 5;
 
         ParserAux parserAux = new ParserAux(subMessage);
-        User oneUser = parserAux.getOneUser(e);
+        User oneUser = parserAux.getOneUser(e, dao);
         subMessage = parserAux.getMessage();
         ChartParserAux chartParserAux = new ChartParserAux(subMessage);
         try {

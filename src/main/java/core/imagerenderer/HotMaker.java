@@ -85,7 +85,7 @@ public class HotMaker {
         g.setFont(g.getFont().deriveFont(12f));
         g.drawString(subtitle, (x + 15), yCounter - 25);
 
-        for (int i = 0, hotsSize = hots.size(); i < hotsSize || (i < itemCount); i++) {
+        for (int i = 0, hotsSize = hots.size(); i < hotsSize && (i < itemCount); i++) {
             BillboardEntity hot = hots.get(i);
             g.setColor(secondaryColor);
             g.drawRect(0, yCounter, X_MAX - 2, BOX_SIZE);

@@ -58,7 +58,8 @@ public class MirroredTracksCommand extends AlbumPlaysCommand {
         User author = params.getE().getAuthor();
         LastFMData secondUser = params.getLastFMData();
         if (author.getIdLong() == secondUser.getDiscordId()) {
-            sendMessageQueue(e, "You need to provide at least one other user (ping,discord id or tag format)");
+            sendMessageQueue(e, "You need to provide at least one other user (ping,discord id,tag format, u:username or lfm:lastfm_name )");
+            return;
         }
         String artist = scrobbledArtist.getArtist();
         LastFMData ogData = getService().findLastFMData(author.getIdLong());

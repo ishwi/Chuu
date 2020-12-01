@@ -35,7 +35,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
     @Override
     protected CountryParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(words);
-        User sample = parserAux.getOneUser(e);
+        User sample = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
         LastFMData lastFMData = findLastfmFromID(sample, e);
         ChartParserAux chartParserAux = new ChartParserAux(words);
@@ -112,7 +112,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *country* *[d,w,m,q,s,y,a]* *username*** \n" +
-                "\tIf the username it's not provided it defaults to authors account, only ping and tag format (user#number)" +
+                "\tIf the username it's not provided it defaults to authors account, only ping, tag format (user#number),discord id, u:username or lfm:lastfmname" +
                 "\n\tIf the timeframe it's not specified it defaults to All-Time" +
                 "\n\tCountry must come in the full name format or in the ISO 3166-1 alpha-2/alpha-3" +
                 " format\n ";

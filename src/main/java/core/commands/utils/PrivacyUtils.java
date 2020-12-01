@@ -60,17 +60,15 @@ public class PrivacyUtils {
 
 
     public static String getUrlTitle(ReturnNowPlaying returnNowPlaying) {
-        String templated;
         if (returnNowPlaying instanceof ReturnNowPlayingAlbum) {
             ReturnNowPlayingAlbum p = (ReturnNowPlayingAlbum) returnNowPlaying;
-            templated = getLastFmAlbumUserUrl(p.getArtist(), p.getAlbum(), p.getLastFMId());
+            return getLastFmAlbumUserUrl(p.getArtist(), p.getAlbum(), p.getLastFMId());
         } else if (returnNowPlaying instanceof GlobalReturnNowPlayingAlbum) {
             GlobalReturnNowPlayingAlbum p = (GlobalReturnNowPlayingAlbum) returnNowPlaying;
-            templated = getLastFmAlbumUserUrl(p.getArtist(), p.getAlbum(), p.getLastFMId());
+            return getLastFmAlbumUserUrl(p.getArtist(), p.getAlbum(), p.getLastFMId());
         } else {
-            templated = getLastFmArtistUserUrl(returnNowPlaying.getArtist(), returnNowPlaying.getLastFMId());
+            return getLastFmArtistUserUrl(returnNowPlaying.getArtist(), returnNowPlaying.getLastFMId());
         }
-        return templated;
     }
 }
 

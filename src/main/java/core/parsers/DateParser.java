@@ -4,6 +4,7 @@ import core.parsers.params.DateParameters;
 import dao.ChuuService;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.TriFunction;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.set.ListOrderedSet;
@@ -148,10 +149,10 @@ public class DateParser extends DaoParser<DateParameters> {
     }
 
     @Override
-    protected DateParameters parseLogic(MessageReceivedEvent e, String[] words) {
+    protected DateParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
 
         ParserAux parserAux = new ParserAux(words);
-        User sample = parserAux.getOneUser(e);
+        User sample = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
 
         ChartParserAux chartParserAux = new ChartParserAux(words);
@@ -199,7 +200,7 @@ public class DateParser extends DaoParser<DateParameters> {
                 "\t time can be one of the following: \n" +
                 "\t\t One of Year,Quarter,Month,All,Semester,Week,Day,Hour,Minute,Second with plural forms and abbreviations included followed or preceded by a number (number of periods)\n " +
                 "\t\t A Date on a whole lot of different formats,if what you want doesnt match what the bot reads you can always default to `Year/Month/Day`\n" +
-                "\tIf an username it's not provided it defaults to authors account, only ping and tag format (user#number)\n ";
+                "\tIf an username it's not provided it defaults to authors account, only ping, tag format (user#number),discord id, u:username or lfm:lastfmname\n ";
 
     }
 

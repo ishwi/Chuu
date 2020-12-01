@@ -84,6 +84,6 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("wktrack", "whoknowstrack", "wkt");
+        return Arrays.asList("uwktrack", "uwhoknowstrack", "uwkt");
     }
 }

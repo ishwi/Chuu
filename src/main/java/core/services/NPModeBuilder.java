@@ -468,19 +468,19 @@ public class NPModeBuilder {
                     break;
                 case ALBUM_PLAYS:
                     if (albumId != null) {
-                        break;
-                    }
-                    completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
-                        try {
-                            AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(lastFMName, scrobbledArtist.getArtist(), np.getAlbumName());
-                            int plays = playsAlbumArtist.getPlays();
-                            if (plays != 0) {
-                                footerSpaces[footerIndexes.get(NPMode.ALBUM_PLAYS)] =
-                                        (String.format("%d album %s", plays, CommandUtil.singlePlural(plays, "play", "plays")));
+
+                        completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
+                            try {
+                                AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(lastFMName, scrobbledArtist.getArtist(), np.getAlbumName());
+                                int plays = playsAlbumArtist.getPlays();
+                                if (plays != 0) {
+                                    footerSpaces[footerIndexes.get(NPMode.ALBUM_PLAYS)] =
+                                            (String.format("%d album %s", plays, CommandUtil.singlePlural(plays, "play", "plays")));
+                                }
+                            } catch (LastFmException ignored) {
                             }
-                        } catch (LastFmException ignored) {
-                        }
-                    })));
+                        })));
+                    }
                     break;
                 case SONG_PLAYS:
                 case SONG_DURATION:

@@ -301,8 +301,8 @@ public class GraphicUtils {
             Color col1 = new Color(bufferedImage.getRGB(
                     Math.min(bufferedImage.getWidth() - 1, Math.max(0, x))
                     , y));
-            Color col2 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 5, x + length / 2), y));
-            Color col3 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 5, x + length), y));
+            Color col2 = new Color(bufferedImage.getRGB(Math.max(0, Math.min(bufferedImage.getWidth() - 5, x + length / 2)), y));
+            Color col3 = new Color(bufferedImage.getRGB(Math.max(0, Math.min(bufferedImage.getWidth() - 5, x + length)), y));
             g.setColor(getBetter(col1, col2, col3));
         } catch (ArrayIndexOutOfBoundsException debugger) {
             Chuu.getLogger().warn(x + " " + y + " " + " " + length + " " + bufferedImage.getWidth() + " " + bufferedImage.getHeight());

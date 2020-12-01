@@ -33,7 +33,7 @@ public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> 
         timeFrame = chartParserAux.parseTimeframe(timeFrame);
         words = chartParserAux.getMessage();
         ParserAux parserAux = new ParserAux(words);
-        User sample = parserAux.getOneUser(e);
+        User sample = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
 
         LastFMData lastFMData = findLastfmFromID(sample, e);
@@ -50,7 +50,7 @@ public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> 
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *artist* *[d,w,m,q,s,y]* *username***\n" +
                 "\tIf a timeframe it's not specified defaults to " + defaultTFE.toString() + "\n" +
-                "\tIf an username it's not provided it defaults to authors account, only ping and tag format (user#number)\n " +
+                "\tIf an username it's not provided it defaults to authors account, only ping, tag format (user#number),discord id, u:username or lfm:lastfmname\n " +
                 "\tDue to being able to provide an artist name and the timeframe, some" +
                 " conflicts may occur if the timeframe keyword appears on the artist name, to reduce possible" +
                 " conflicts only the one letter shorthand is available for the timeframe, the [a] shorthand is also disabled to reduce more conflicts " +

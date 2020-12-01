@@ -99,11 +99,11 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
 
     @Override
     public String getName() {
-        return "Local Who Knows Song";
+        return "Who knows song";
     }
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("lwktrack", "lwhoknowstrack", "lwkt");
+        return Arrays.asList("wktrack", "whoknowstrack", "wkt");
     }
 }

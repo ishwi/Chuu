@@ -202,7 +202,7 @@ public class Spotify {
 
     public Pair<String, String> getUrlAndId(String artist) {
         Artist[] artists = searchArtist(artist);
-        if (artist == null) {
+        if (artists == null) {
             return Pair.of("", "");
         }
         for (Artist item : artists) {

@@ -11,8 +11,9 @@ public class StreakEntity {
     private final String currentSong;
     private final int tCounter;
     private Instant streakStart;
+    private final String url;
 
-    public StreakEntity(String currentArtist, int aCounter, String currentAlbum, int albCounter, String currentSong, int tCounter, Instant streakStart) {
+    public StreakEntity(String currentArtist, int aCounter, String currentAlbum, int albCounter, String currentSong, int tCounter, Instant streakStart, String url) {
         this.currentArtist = currentArtist;
         this.aCounter = aCounter;
         this.currentAlbum = currentAlbum;
@@ -20,6 +21,7 @@ public class StreakEntity {
         this.currentSong = currentSong;
         this.tCounter = tCounter;
         this.streakStart = streakStart;
+        this.url = url;
     }
 
     public String getCurrentArtist() {
@@ -52,5 +54,9 @@ public class StreakEntity {
 
     public void setStreakStart(Instant streakStart) {
         this.streakStart = streakStart;
+    }
+
+    public String getUrl() {
+        return url;
     }
 }

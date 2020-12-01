@@ -36,7 +36,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService(), new OptionalEntity("force", "Does a full heavy update"), new OptionalEntity("beta", "Does a beta update"));
+        return new OnlyUsernameParser(getService(), new OptionalEntity("force", "Does a full heavy update"));
     }
 
     @Override
@@ -61,7 +61,6 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
         }
         getService().findLastFMData(discordID);
         boolean force = params.hasOptional("force");
-        boolean beta = params.hasOptional("beta");
         String userString = getUserString(e, discordID, lastFmName);
         if (e.isFromGuild()) {
             if (getService().getAll(e.getGuild().getIdLong()).stream()
@@ -80,7 +79,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                 sendMessageQueue(e, "You were already being updated. Wait a few seconds");
                 return;
             }
-            if (beta) {
+            if (force) {
                 synchronized (this) {
                     if (maxConcurrency.decrementAndGet() == 0) {
                         sendMessageQueue(e, "There are a lot of people executing this type of update, try again later :(");
@@ -101,17 +100,6 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                         maxConcurrency.incrementAndGet();
                     }
                 }
-            } else if (force) {
-                e.getChannel().sendTyping().queue();
-                List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-                getService().insertArtistDataList(artistData, lastFmName);
-                e.getChannel().sendTyping().queue();
-                //sendMessageQueue(e, "Finished updating your artist, now the album process will start");
-                List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-                e.getChannel().sendTyping().queue();
-                getService().albumUpdate(albumData, artistData, lastFmName);
-                sendMessageQueue(e, "Successfully updated " + userString + " info!");
-
             } else {
                 UpdaterUserWrapper userUpdateStatus = getService().getUserUpdateStatus(lastFMData.getDiscordId());
                 List<ScrobbledTrack> topTracks = getService().getTopTracks(userUpdateStatus.getLastFMName());
@@ -129,9 +117,12 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                             getService().insertArtistDataList(artistData, lastFmName);
                             e.getChannel().sendTyping().queue();
                             //sendMessageQueue(e, "Finished updating your artist, now the album process will start");
-                            List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-                            e.getChannel().sendTyping().queue();
-                            getService().albumUpdate(albumData, artistData, lastFmName);
+                            try {
+                                List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                                e.getChannel().sendTyping().queue();
+                                getService().albumUpdate(albumData, artistData, lastFmName);
+                            } catch (LastFMNoPlaysException ignored) {
+                            }
                             List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                             getService().trackUpdate(trackData, artistData, lastFmName);
                             sendMessageQueue(e, "Successfully indexed " + userString + " tracks");
@@ -151,7 +142,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                     } catch (LastFMNoPlaysException ex) {
                         getService().updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
                                 (int) (Instant.now().getEpochSecond() + 4000));
-                        sendMessageQueue(e, "You were already up to date! If you consider you are not really up to date run this command again with **`--force`**");
+                        sendMessageQueue(e, "You were already up to date!");
                         return;
                     }
                 }

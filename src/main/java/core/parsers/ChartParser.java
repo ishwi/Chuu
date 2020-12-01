@@ -27,7 +27,7 @@ public class ChartParser extends ChartableParser<ChartParameters> {
 
 
         ParserAux parserAux = new ParserAux(subMessage);
-        User oneUser = parserAux.getOneUser(e);
+        User oneUser = parserAux.getOneUser(e, dao);
         subMessage = parserAux.getMessage();
         ChartParserAux chartParserAux = new ChartParserAux(subMessage);
         try {

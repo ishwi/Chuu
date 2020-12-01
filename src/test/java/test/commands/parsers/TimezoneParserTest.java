@@ -15,7 +15,7 @@ import static org.junit.Assert.assertThrows;
 public class TimezoneParserTest {
     @Test
     public void name() throws LastFmException, InstanceNotFoundException {
-        TimezoneParser timezoneParser = new TimezoneParser();
+        TimezoneParser timezoneParser = new TimezoneParser(null);
         assertThrows(NullPointerException.class,
                 () -> timezoneParser.parse(new MessageGenerator().generateMessage("!timezone")));
         assertThrows(NullPointerException.class,

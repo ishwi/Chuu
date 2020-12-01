@@ -30,7 +30,7 @@ public class ArtistParser extends DaoParser<ArtistParameters> {
     @Override
     protected ArtistParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
         ParserAux parserAux = new ParserAux(words);
-        User oneUser = parserAux.getOneUser(e);
+        User oneUser = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
 
         LastFMData lastFMData = findLastfmFromID(oneUser, e);
@@ -39,7 +39,12 @@ public class ArtistParser extends DaoParser<ArtistParameters> {
             if (isAllowUnaothorizedUsers() && lastFMData.getName() == null) {
                 throw new InstanceNotFoundException(oneUser.getIdLong());
             }
-            np = lastFM.getNowPlayingInfo(lastFMData.getName());
+            try {
+                LastFMData lastfmFromID = findLastfmFromID(e.getAuthor(), e);
+                np = lastFM.getNowPlayingInfo(lastfmFromID.getName());
+            } catch (InstanceNotFoundException ex) {
+                np = lastFM.getNowPlayingInfo(lastFMData.getName());
+            }
             return new ArtistParameters(e, np.getArtistName(), lastFMData);
         } else {
             return new ArtistParameters(e, String.join(" ", words), lastFMData);
@@ -50,7 +55,7 @@ public class ArtistParser extends DaoParser<ArtistParameters> {
     public String getUsageLogic(String commandName) {
 
         return "**" + commandName + " *artist* *username*** \n" +
-                "\tIf an username it's not provided it defaults to authors account, only ping and tag format (user#number)\n";
+                "\tIf an username it's not provided it defaults to authors account, only ping, tag format (user#number),discord id, u:username or lfm:lastfmname\n";
 
     }
 

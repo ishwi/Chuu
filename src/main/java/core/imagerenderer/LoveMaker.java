@@ -104,7 +104,7 @@ public class LoveMaker {
         } else {
             Pair<Font[], Integer> lastLine = getLastLine(affinity.getMatchingList(), g);
             Integer right = lastLine.getRight();
-            int startingPoint = (X_SIZE - right) / 2;
+            int startingPoint = Math.max(0, (X_SIZE - right) / 2);
             GraphicUtils.drawStringNicely(g, "You both love: ", startingPoint, lastLineBaseline, canvas);
             int i1 = g.getFontMetrics().stringWidth("You both love: ");
             drawMultiString(lastLine.getKey(), startingPoint + i1, lastLineBaseline, affinity.getMatchingList(), g, canvas);

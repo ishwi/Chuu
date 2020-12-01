@@ -20,7 +20,7 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
     @Override
     protected T parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
         ParserAux parserAux = new ParserAux(words);
-        User oneUser = parserAux.getOneUser(e);
+        User oneUser = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
         LastFMData lastFMData = findLastfmFromID(oneUser, e);
         Pair<String[], Integer> integerPair = filterMessage(words, NumberParser.compile.asMatchPredicate(), Integer::parseInt, 2);

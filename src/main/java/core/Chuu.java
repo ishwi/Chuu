@@ -189,6 +189,7 @@ public class Chuu {
         MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
         MessageAction.setDefaultMentionRepliedUser(false);
 
+
         AtomicInteger counter = new AtomicInteger(0);
         IEventManager customManager = new CustomInterfacedEventManager(0);
         EvalCommand evalCommand = new EvalCommand(dao);

@@ -138,7 +138,7 @@ public class TrackDistributor {
     public static BufferedImage drawImageMirrored(FullAlbumEntity first, FullAlbumEntity second, UserInfo firstInfo, UserInfo secondInfo) {
         List<Track> firstTrackList = first.getTrackList();
         List<Track> secondTrackList = second.getTrackList();
-        int trackCount = firstTrackList.size();
+        int trackCount = Math.max(firstTrackList.size(), secondTrackList.size());
 
         Optional<Track> max = Stream.concat(firstTrackList.stream(), secondTrackList.stream()).max(Comparator.comparingInt(Track::getPlays));
         assert max.isPresent();

@@ -48,7 +48,7 @@ public class GenreChartParser extends ChartableParser<ChartableGenreParameters> 
         TimeFrameEnum timeFrameEnum = chartParserAux.parseTimeframe(this.defaultTFE);
         subMessage = chartParserAux.getMessage();
         ParserAux parserAux = new ParserAux(subMessage);
-        User oneUser = parserAux.getOneUser(e);
+        User oneUser = parserAux.getOneUser(e, dao);
         String[] message = parserAux.getMessage();
         LastFMData data = findLastfmFromID(oneUser, e);
         try {

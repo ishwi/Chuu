@@ -60,7 +60,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         List<Track> tracks = new ArrayList<>();
         FullAlbumEntity fullAlbumEntity = null;
 
-        String mySql = "Select d.name,b.album_name,c.duration,c.track_name,coalesce(c.url,b.url,d.url),coalesce(e.playnumber,0),coalesce(e.loved,false) " +
+        String mySql = "Select d.name,b.album_name,c.duration,c.track_name,coalesce(c.url,b.url,d.url),coalesce(e.playnumber,0),coalesce(e.loved,false),a.position " +
                 "from album_tracklist a join album b on a.album_id =b.id join track c on a.track_id = c.id join artist d on c.artist_id = d.id" +
                 " left join (select * from scrobbled_track where lastfm_id = ? ) e on a.track_id = e.track_id  where a.album_id = ?   order by a.position asc";
         try
@@ -78,11 +78,15 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
                 String url = resultSet.getString(5);
                 int plays = resultSet.getInt(6);
                 boolean loved = resultSet.getBoolean(7);
+                int position = resultSet.getInt(8);
+
                 if (fullAlbumEntity == null) {
                     fullAlbumEntity = new FullAlbumEntity(artsitName, albumName, 0, url, lastfmId);
                     fullAlbumEntity.setTrackList(tracks);
                 }
-                tracks.add(new Track(artsitName, trackName, plays, loved, duration));
+                Track e = new Track(artsitName, trackName, plays, loved, duration);
+                e.setPosition(position);
+                tracks.add(e);
             }
             return Optional.ofNullable(fullAlbumEntity);
         } catch (

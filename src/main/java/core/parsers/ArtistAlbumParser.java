@@ -32,7 +32,7 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
     public ArtistAlbumParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
 
         ParserAux parserAux = new ParserAux(subMessage);
-        User sample = parserAux.getOneUser(e);
+        User sample = parserAux.getOneUser(e, dao);
         subMessage = parserAux.getMessage();
         LastFMData userName = findLastfmFromID(sample, e);
 
@@ -40,7 +40,12 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
 
             NowPlayingArtist np;
 
-            np = lastFM.getNowPlayingInfo(userName.getName());
+            try {
+                LastFMData lastfmFromID = findLastfmFromID(e.getAuthor(), e);
+                np = lastFM.getNowPlayingInfo(lastfmFromID.getName());
+            } catch (InstanceNotFoundException ex) {
+                np = lastFM.getNowPlayingInfo(userName.getName());
+            }
 
             return doSomethingWithNp(np, userName, e);
 
@@ -81,7 +86,7 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *artist-album* *username*** " +
-                "\n\tIf username it's not provided it defaults to authors account, only ping and tag format (user#number)\n ";
+                "\n\tIf username it's not provided it defaults to authors account, only ping, tag format (user#number),discord id, u:username or lfm:lastfmname\n ";
 
 
     }

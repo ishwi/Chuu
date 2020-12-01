@@ -765,10 +765,9 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     public ArtistMusicBrainzDetails getArtistInfo(Connection connection, ArtistInfo artistInfo) {
 
         boolean mbidFlag = artistInfo.getMbid() != null && !artistInfo.getMbid().isBlank();
-        String query = "SELECT  b.name,d.code FROM artist a \n" +
+        String query = "SELECT  b.name,d.country FROM artist a \n" +
                 "LEFT JOIN gender b ON a.gender = b.id\n" +
-                "LEFT JOIN area c ON a.area = c.id\n" +
-                "LEFT JOIN iso_3166_1 d ON c.id = d.area \n" +
+                "LEFT JOIN country_lookup d ON d.id = a.area \n" +
                 "WHERE \n";
         if (mbidFlag) {
             query += "a.gid = ?  \n";
@@ -791,7 +790,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
 
             if (resultSet.next()) {
                 String gender = resultSet.getString("name");
-                String code = resultSet.getString("code");
+                String code = resultSet.getString("country");
 
                 return new ArtistMusicBrainzDetails(gender, code);
             }

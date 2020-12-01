@@ -17,7 +17,7 @@ public class GlobalStreakEntities extends StreakEntity {
 
 
     public GlobalStreakEntities(String currentArtist, int aCounter, String currentAlbum, int albCounter, String currentSong, int tCounter, Instant streakStart, PrivacyMode privacyMode, long discordId, String lastfmId) {
-        super(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter, streakStart);
+        super(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter, streakStart, null);
         this.privacyMode = privacyMode;
         this.discordId = discordId;
         this.lastfmId = lastfmId;

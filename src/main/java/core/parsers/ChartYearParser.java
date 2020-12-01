@@ -34,7 +34,7 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
     @Override
     public ChartYearParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(subMessage);
-        User oneUser = parserAux.getOneUser(e);
+        User oneUser = parserAux.getOneUser(e, dao);
         subMessage = parserAux.getMessage();
         LastFMData data = findLastfmFromID(oneUser, e);
 

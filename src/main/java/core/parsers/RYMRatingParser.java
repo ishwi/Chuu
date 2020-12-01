@@ -74,7 +74,7 @@ public class RYMRatingParser extends DaoParser<RYMRatingParams> {
     @Override
     public String getUsageLogic(String commandName) {
         return "**" + commandName + " *rating_score* *username* " +
-                "\n\tIf username it's not provided it defaults to authors account, only ping and tag format (user#number)\n " +
+                "\n\tIf username it's not provided it defaults to authors account, only ping, tag format (user#number),discord id, u:username or lfm:lastfmname\n " +
                 "\n\t The rating can only be interpreted in the scale 0-5 (with .5 decimals), 0-10 and 0-100";
 
     }

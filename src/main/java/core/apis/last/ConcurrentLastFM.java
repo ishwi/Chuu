@@ -606,6 +606,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         String currentArtist = null;
         String currentAlbum = null;
         String currentSong = null;
+        String albumUrl = "";
         int aCounter = 0;
         int albCounter = 0;
         int tCounter = 0;
@@ -652,6 +653,9 @@ public class ConcurrentLastFM {//implements LastFMService {
                 String artistName = artistObj.getString("name");
                 String albumString = null;
                 JSONObject album = trackObj.getJSONObject("album");
+                if (albumUrl.isBlank())
+                    albumUrl = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
+
                 if (album.has("#text")) {
                     albumString = album.getString("#text");
                 } else {
@@ -698,7 +702,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             streakStart = Instant.EPOCH;
         return new
 
-                StreakEntity(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter, streakStart);
+                StreakEntity(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter, streakStart, albumUrl);
 
     }
 
