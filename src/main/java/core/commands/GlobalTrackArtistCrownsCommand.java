@@ -112,10 +112,10 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
         }
 
         StringBuilder a = new StringBuilder();
-        List<String> strings = resultWrapper.stream().map(x -> ". [" +
+        List<String> strings = resultWrapper.stream().map(x -> ". **[" +
                 LinkUtils.cleanMarkdownCharacter(x.getTrack()) +
-                "](" + LinkUtils.getLastFMArtistTrack(x.getArtistName(), x.getTrack()) +
-                ") - " + x.getCount() +
+                "](" + LinkUtils.getLastFMArtistTrack(scrobbledArtist.getArtist(), x.getTrack()) +
+                ")** - " + x.getCount() +
                 " plays\n").collect(Collectors.toList());
         for (int i = 0; i < 10 && i < rows; i++) {
             a.append(i + 1).append(strings.get(i));
@@ -131,7 +131,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
         e.getChannel().sendMessage(new MessageBuilder()
                 .setEmbed(embedBuilder.build()).build()).queue(message1 ->
 
-                new Reactionary<>(resultWrapper, message1, embedBuilder));
+                new Reactionary<>(strings, message1, embedBuilder));
     }
 
     @Override

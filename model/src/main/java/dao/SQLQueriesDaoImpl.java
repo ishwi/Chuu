@@ -3310,12 +3310,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public UniqueWrapper<TrackPlays> getUserArtistTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId, long artistId) {
         long discordId = -1L;
-        @Language("MariaDB") String queryString = "SELECT d.name, a2.track_name, b.discord_id , playnumber AS orden" +
+        @Language("MariaDB") String queryString = "SELECT  a2.track_name, b.discord_id , playnumber AS orden" +
                 " FROM  scrobbled_track a" +
                 " JOIN user b ON a.lastfm_id = b.lastfm_id " +
                 " JOIN track a2 ON a.track_id = a2.id " +
-                " join artist d on a2.artist_id = d.id " +
-                " WHERE  b.lastfm_id = ? and d.id = ? " +
+                " WHERE  b.lastfm_id = ? and a2.artist_id = ? " +
                 " AND playnumber >= ? " +
                 " AND  playnumber >= ALL" +
                 "       (SELECT max(b.playnumber) " +
@@ -3328,7 +3327,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 " NATURAL JOIN " +
                 " user_guild in_c " +
                 " join track in_d on in_a.track_id = in_d.id " +
-                " WHERE guild_id = ? and in_d.id = ? " +
+                " WHERE guild_id = ? and in_d.artist_id = ? " +
                 "   ) AS b" +
                 "" +
                 " WHERE b.track_id = a.track_id" +
@@ -3351,12 +3350,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             while (resultSet.next()) {
                 discordId = resultSet.getLong("b.discord_id");
 
-                String artist = resultSet.getString("d.name");
                 String album = resultSet.getString("a2.track_name");
 
 
                 int plays = resultSet.getInt("orden");
-                returnList.add(new TrackPlays(artist, plays, album));
+                returnList.add(new TrackPlays(null, plays, album));
             }
         } catch (SQLException e) {
             logger.warn(e.getMessage(), e);
