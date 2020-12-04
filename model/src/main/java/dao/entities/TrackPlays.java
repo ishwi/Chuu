@@ -10,6 +10,10 @@ public class TrackPlays extends ArtistPlays {
         this.track = track;
     }
 
+    public String getTrack() {
+        return track;
+    }
+
     @Override
     public String toString() {
         return ". [" +

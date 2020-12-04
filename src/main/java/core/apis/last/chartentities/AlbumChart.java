@@ -10,17 +10,21 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 
 public class AlbumChart extends UrlCapsule {
     final boolean drawTitles;
     final boolean drawPlays;
+    final boolean isAside;
 
-    public AlbumChart(String url, int pos, String albumName, String artistName, String mbid, int plays, boolean drawTitles, boolean drawPlays) {
+
+    public AlbumChart(String url, int pos, String albumName, String artistName, String mbid, int plays, boolean drawTitles, boolean drawPlays, boolean isAside) {
         super(url, pos, albumName, artistName, mbid, plays);
         this.drawTitles = drawTitles;
         this.drawPlays = drawPlays;
+        this.isAside = isAside;
     }
 
     public static BiFunction<JSONObject, Integer, UrlCapsule> getAlbumParser(ChartParameters chartParameters) {
@@ -33,7 +37,7 @@ public class AlbumChart extends UrlCapsule {
             String mbid = albumObj.getString("mbid");
             int plays = albumObj.getInt("playcount");
             JSONObject bigImage = image.getJSONObject(image.length() - 1);
-            return new AlbumChart(bigImage.getString("#text"), size, albumName, artistName, mbid, plays, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
+            return new AlbumChart(bigImage.getString("#text"), size, albumName, artistName, mbid, plays, chartParameters.isWriteTitles(), chartParameters.isWritePlays(), chartParameters.isAside());
         };
 
     }
@@ -69,7 +73,7 @@ public class AlbumChart extends UrlCapsule {
             NowPlayingArtist x = fromRecentTrack(jsonObject, TopEntity.ALBUM);
             return new AlbumChart(x.getUrl(), 0, x.getAlbumName(), x.getArtistName(), x.getArtistMbid(), 1,
                     chartParameters.isWriteTitles()
-                    , chartParameters.isWritePlays());
+                    , chartParameters.isWritePlays(), chartParameters.isAside());
         };
     }
 
@@ -79,6 +83,9 @@ public class AlbumChart extends UrlCapsule {
         if (drawTitles) {
             list.add(new ChartLine(getAlbumName(), ChartLine.Type.TITLE));
             list.add(new ChartLine(getArtistName()));
+            if (isAside) {
+                Collections.reverse(list);
+            }
         }
         if (drawPlays) {
             list.add(new ChartLine(getPlays() + CommandUtil.singlePlural(getPlays(), " play", " plays")));

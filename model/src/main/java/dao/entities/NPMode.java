@@ -41,7 +41,10 @@ public enum NPMode {
     SONG_DURATION(29),
     BOT_LISTENERS(30),
     BOT_SCROBBLES(31),
-
+    TRACK_RANK(32),
+    TRACK_CROWN(33),
+    GLOBAL_TRACK_CROWN(34),
+    GLOBAL_TRACK_RANK(35),
     UNKNOWN(-1);
 
     private final int offset;

@@ -17,10 +17,7 @@ import java.io.InputStream;
 import java.sql.Date;
 import java.sql.*;
 import java.text.Normalizer;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
@@ -1876,7 +1873,7 @@ public class ChuuService {
             return;
         }
 
-        trackDao.fillIdsMbids(connection, list.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).collect(Collectors.toList()));
+//        trackDao.fillIdsMbids(connection, list.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).collect(Collectors.toList()));
 
         trackDao.fillIds(connection, list.stream().filter(x -> x.getTrackId() == -1L).collect(Collectors.toList()));
 
@@ -2492,6 +2489,7 @@ public class ChuuService {
         }
     }
 
+
     public List<ScrobbledAlbum> fillAlbumIdsByMBID(List<AlbumInfo> collect) {
 
         try (Connection connection = dataSource.getConnection()) {
@@ -2890,4 +2888,41 @@ public class ChuuService {
         }
     }
 
+    public UniqueWrapper<TrackPlays> getArtistGlobalTrackCrowns(String lastfmName, long artistId, int threshold, boolean bottedUsers) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getArtistGlobalTrackCrowns(connection, lastfmName, artistId, threshold, bottedUsers);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public UniqueWrapper<TrackPlays> getUserArtistTrackCrowns(String lastfmId, long artistId, long guildId, int crownthreshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getUserArtistTrackCrowns(connection, lastfmId, crownthreshold, guildId, artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<AlbumInfo> albumsOfYear(List<AlbumInfo> getYearReleaes, Year year) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return albumDao.get(connection, getYearReleaes, year);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void insertAlbumsOfYear(List<AlbumInfo> foundByYear, Year year) {
+        try (Connection connection = dataSource.getConnection()) {
+            albumDao.insertAlbumsOfYear(connection, foundByYear, year);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
 }

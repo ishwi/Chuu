@@ -7,6 +7,7 @@ import org.intellij.lang.annotations.Language;
 
 import java.sql.*;
 import java.text.Normalizer;
+import java.time.Year;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -202,6 +203,63 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
             throw new ChuuServiceException(e);
         }
     }
+
+    @Override
+    public List<AlbumInfo> get(Connection connection, List<AlbumInfo> albumInfos, Year year) {
+        Map<AlbumInfo, AlbumInfo> collect = albumInfos.stream().collect(Collectors.toMap(x -> new AlbumInfo(x.getName(), x.getArtist()), x -> x));
+        List<AlbumInfo> found = new ArrayList<>();
+        @Language("MariaDB") String queryString = "SELECT album_name,name  FROM album a join artist b on a.artist_id = b.id  WHERE (album_name,name) in (%s) and release_year = ? ";
+        String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQueryTuple(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQueryTuple(albumInfos.size()));
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            for (int i = 0; i < albumInfos.size(); i++) {
+                preparedStatement.setString(2 * i + 1, albumInfos.get(i).getName());
+                preparedStatement.setString(2 * i + 2, albumInfos.get(i).getArtist());
+            }
+            preparedStatement.setInt(albumInfos.size() * 2 + 1, year.getValue());
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                String tag = resultSet.getString("album_name");
+                String artistName = resultSet.getString("name");
+                AlbumInfo albumInfo = new AlbumInfo(tag, artistName);
+                AlbumInfo t = collect.get(albumInfo);
+                if (t != null) {
+                    found.add(t);
+                }
+            }
+            return found;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void insertAlbumsOfYear(Connection connection, List<AlbumInfo> albumInfos, Year year) {
+        @Language("MariaDB") String queryString = "update album join artist  on album.artist_id = artist.id set album.release_year = ?  WHERE (album.album_name,artist.name) in (%s)  ";
+        String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQueryTuple(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQueryTuple(albumInfos.size()));
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, year.getValue());
+            for (int i = 0; i < albumInfos.size(); i++) {
+                preparedStatement.setString(2 * i + 2, albumInfos.get(i).getName());
+                preparedStatement.setString(2 * i + 3, albumInfos.get(i).getArtist());
+            }
+
+
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
 
     @Override
     public Album getAlbumByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException {

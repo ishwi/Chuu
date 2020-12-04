@@ -184,4 +184,11 @@ interface SQLQueriesDao {
     UniqueWrapper<ArtistPlays> getGlobalAlbumCrowns(Connection connection, String lastfmid, int threshold, boolean includeBottedUsers, long ownerId);
 
     UniqueWrapper<ArtistPlays> getGlobalTrackCrowns(Connection connection, String lastfmid, int threshold, boolean includeBottedUsers, long ownerId);
+
+    UniqueWrapper<TrackPlays> getArtistGlobalTrackCrowns(Connection connection, String lastfmName, long artistId, int threshold, boolean bottedUsers);
+
+
+    UniqueWrapper<TrackPlays> getUserArtistTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId, long artistId);
+
+
 }

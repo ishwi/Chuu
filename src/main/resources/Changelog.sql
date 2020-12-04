@@ -150,3 +150,5 @@ alter table guild
     add column disabled_warning boolean not null default false;
 ALTER TABLE command_logs
     MODIFY COLUMN nanos bigint(20);
+alter table album
+    add index (release_year);

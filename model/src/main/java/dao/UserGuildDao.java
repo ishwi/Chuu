@@ -106,4 +106,6 @@ interface UserGuildDao {
     Set<Long> getGuildsWithDeletableMessages(Connection connection);
 
     Set<Long> getGuildsDontRespondOnErrros(Connection connection);
+
+
 }

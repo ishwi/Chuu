@@ -4,6 +4,7 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 
 import java.sql.Connection;
+import java.time.Year;
 import java.util.List;
 import java.util.Map;
 
@@ -33,4 +34,10 @@ public interface AlbumDao {
     Map<Genre, Integer> genreCountsByAlbum(Connection connection, List<AlbumInfo> albumInfos);
 
     String getAlbumUrlByName(Connection connection, String name, long artistId) throws InstanceNotFoundException;
+
+    List<AlbumInfo> get(Connection connection, List<AlbumInfo> albumes, Year year);
+
+    void insertAlbumsOfYear(Connection connection, List<AlbumInfo> foundByYear, Year year);
+
+
 }

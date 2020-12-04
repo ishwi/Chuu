@@ -5,6 +5,7 @@ import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.*;
 import core.otherlisteners.AwaitReady;
+import core.otherlisteners.ConstantListener;
 import core.scheduledtasks.ArtistMbidUpdater;
 import core.scheduledtasks.ImageUpdaterThread;
 import core.scheduledtasks.SpotifyUpdaterThread;
@@ -166,6 +167,7 @@ public class Chuu {
     public static void setupBot(boolean isTest) {
         logger = LoggerFactory.getLogger(Chuu.class);
         Properties properties = readToken();
+        String channel = properties.getProperty("MODERATION_CHANNEL_ID");
         dao = new ChuuService();
         prefixMap = initPrefixMap(dao);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
@@ -369,6 +371,10 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new GlobalAlbumCrownsCommand(dao)))
                 .addEventListeners(help.registerCommand(new GlobalTrackCrownsCommand(dao)))
                 .addEventListeners(help.registerCommand(new MirroredTracksCommand(dao)))
+                .addEventListeners(help.registerCommand(new GlobalTrackArtistCrownsCommand(dao)))
+                .addEventListeners(help.registerCommand(new TrackArtistCrownsCommand(dao)))
+                .addEventListeners(help.registerCommand(new TagWithYearCommand(dao)))
+                .addEventListeners(new ConstantListener(Long.parseLong(channel), dao))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
@@ -389,7 +395,7 @@ public class Chuu {
             messageDeletionService = new MessageDeletionService(dao.getServersWithDeletableMessages());
             shardManager = builder.build();
             scheduledExecutorService.scheduleAtFixedRate(
-                    new UpdaterThread(dao, true), 0, 60,
+                    new UpdaterThread(dao, true), 0, 120,
                     TimeUnit.SECONDS);
 
             scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 20, 12, TimeUnit.MINUTES);

@@ -966,6 +966,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
         return getIdList(connection, queryString);
     }
 
+
     @NotNull
     private Set<Long> getIdList(Connection connection, String queryString) {
         Set<Long> returnSet = new HashSet<>();

@@ -9,8 +9,7 @@ import core.services.BillboardHoarder;
 import core.services.ClockService;
 import dao.ChuuService;
 import dao.entities.PreBillboardUserDataTimestamped;
-import dao.entities.Role;
-import dao.entities.UsersWrapper;
+import dao.entities.UpdaterUserWrapper;
 import dao.entities.Week;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -59,7 +58,9 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
         Long discordId = params.getLastFMData().getDiscordId();
         Week currentWeekId = getService().getCurrentWeekId();
         TimeZone userTimezone = getService().getUserTimezone(discordId);
-        BillboardHoarder billboardHoarder = new BillboardHoarder(Collections.singletonList(new UsersWrapper(discordId, params.getLastFMData().getName(), Role.ADMIN, userTimezone)), getService(), currentWeekId, lastFM);
+        UpdaterUserWrapper userUpdateStatus = getService().getUserUpdateStatus(discordId);
+
+        BillboardHoarder billboardHoarder = new BillboardHoarder(Collections.singletonList(userUpdateStatus), getService(), currentWeekId, lastFM);
         billboardHoarder.hoardUsers();
         List<PreBillboardUserDataTimestamped> ungroupedUserData = getService().getUngroupedUserData(currentWeekId.getId(), params.getLastFMData().getName());
         if (ungroupedUserData.isEmpty()) {

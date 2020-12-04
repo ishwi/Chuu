@@ -68,7 +68,7 @@ public class ServerAOTY extends ChartableCommand<ChartYearParameters> {
         AtomicInteger atomicInteger = new AtomicInteger(0);
 
         nonEmptyMbid = userAlbumByMbid.stream()
-                .peek(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), params.isWriteTitles(), params.isWritePlays())))
+                .peek(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), params.isWriteTitles(), params.isWritePlays(), params.isAside())))
                 .map(x -> new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist()))
                 .filter(albumInfo -> !(albumInfo.getMbid() == null || albumInfo.getMbid().isEmpty()))
                 .collect(Collectors.toList());

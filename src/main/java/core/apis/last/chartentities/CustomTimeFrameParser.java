@@ -74,7 +74,7 @@ public class CustomTimeFrameParser implements TimeFrameParserObtainer {
                     } catch (LastFmException lastFmException) {
                         url = null;
                     }
-                    return new AlbumChart(url, size, albumName, artistName, mbid, plays, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
+                    return new AlbumChart(url, size, albumName, artistName, mbid, plays, chartParameters.isWriteTitles(), chartParameters.isWritePlays(), chartParameters.isAside());
                 };
             default:
                 throw new IllegalStateException("Unexpected value: " + topEntity);

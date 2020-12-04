@@ -75,11 +75,8 @@ public class NowPlayingCommand extends NpCommand {
 
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(nowPlayingArtist.getArtistName(), 0, null);
-        Long albumId = null;
         try {
             CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotifyApi);
-            if (nowPlayingArtist.getSongName() != null && !nowPlayingArtist.getSongName().isBlank())
-                albumId = CommandUtil.albumvalidate(getService(), scrobbledArtist, lastFM, nowPlayingArtist.getAlbumName());
         } catch (LastFmException ignored) {
 
         }
@@ -92,7 +89,7 @@ public class NowPlayingCommand extends NpCommand {
 
             npModes = EnumSet.copyOf(IntStream.range(0, CommandUtil.rand.nextInt(4) + 1).mapToObj(x -> allModes.get(CommandUtil.rand.nextInt(allModes.size()))).collect(Collectors.toSet()));
         }
-        NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, lastFMName, embedBuilder, scrobbledArtist, albumId, getService(), lastFM, serverName, mb, outputList);
+        NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, lastFMName, embedBuilder, scrobbledArtist, getService(), lastFM, serverName, mb, outputList);
         CompletableFuture<?> completableFutures = npModeBuilder.buildNp();
 
 

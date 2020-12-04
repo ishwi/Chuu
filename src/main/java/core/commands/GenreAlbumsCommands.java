@@ -67,7 +67,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
             List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumByMbid(name);
             albums = userAlbumByMbid.stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
                     new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
-            queue = userAlbumByMbid.stream().map(x -> new AlbumChart(x.getUrl(), 0, x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), params.isWriteTitles(), params.isWritePlays())).collect(Collectors.toCollection(LinkedBlockingDeque::new));
+            queue = userAlbumByMbid.stream().map(x -> new AlbumChart(x.getUrl(), 0, x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), params.isWriteTitles(), params.isWritePlays(), params.isAside())).collect(Collectors.toCollection(LinkedBlockingDeque::new));
 
 
         } else {

@@ -56,7 +56,7 @@ public class GuildTopAlbumsCommand extends GuildTopCommand {
         AtomicInteger counter = new AtomicInteger(0);
         BlockingQueue<UrlCapsule> collect = guildTop.getResultList().stream().sorted(Comparator.comparingInt(ScrobbledAlbum::getCount).reversed()).
                 map(x ->
-                        new AlbumChart(x.getUrl(), counter.getAndIncrement(), x.getAlbum(), x.getArtist(), null, x.getCount(), gp.isWriteTitles(), gp.isWritePlays())
+                        new AlbumChart(x.getUrl(), counter.getAndIncrement(), x.getAlbum(), x.getArtist(), null, x.getCount(), gp.isWriteTitles(), gp.isWritePlays(), gp.isAside())
                 ).collect(Collectors.toCollection(LinkedBlockingDeque::new));
         return new CountWrapper<>(guildTop.getRows(), collect);
     }

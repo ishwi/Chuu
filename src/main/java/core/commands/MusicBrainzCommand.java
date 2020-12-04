@@ -24,6 +24,7 @@ import org.knowm.xchart.PieChart;
 import java.time.Year;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -75,16 +76,17 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
         boolean isByTime = param.isByTime();
         List<AlbumInfo> nonEmptyMbid;
         List<AlbumInfo> emptyMbid;
+        Set<AlbumInfo> albumsMbizMatchingYear = new HashSet<>();
 
         if (!isByTime && param.getTimeFrameEnum().isAllTime()) {
             List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumByMbid(param.getLastfmID());
             AtomicInteger atomicInteger = new AtomicInteger(0);
 
-            nonEmptyMbid = userAlbumByMbid.stream().peek(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays())))
+            nonEmptyMbid = userAlbumByMbid.stream().peek(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays(), param.isAside())))
                     .map(x -> new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist()))
                     .filter(albumInfo -> !(albumInfo.getMbid() == null || albumInfo.getMbid().isEmpty()))
                     .collect(Collectors.toList());
-            emptyMbid = Collections.emptyList();
+            emptyMbid = new ArrayList<>();
         } else {
             BiFunction<JSONObject, Integer, UrlCapsule> parser;
             if (param.getTimeFrameEnum().getTimeFrameEnum().equals(TimeFrameEnum.DAY)) {
@@ -103,23 +105,35 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
 
             lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
             //List of obtained elements
+            List<AlbumInfo> collect = queue.stream()
+                    .map(capsule ->
+                            new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName())).collect(Collectors.toList());
+
+            List<AlbumInfo> albumInfos = getService().albumsOfYear(collect, param.getYear());
+            albumsMbizMatchingYear.addAll(albumInfos);
+
+
             Map<Boolean, List<AlbumInfo>> results =
                     queue.stream()
+
                             .map(capsule ->
                                     new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()))
+                            .filter(x -> !albumsMbizMatchingYear.contains(x))
                             .collect(Collectors.partitioningBy(albumInfo -> albumInfo.getMbid().isEmpty()));
-
             nonEmptyMbid = results.get(false);
             emptyMbid = results.get(true);
         }
 
         Year year = param.getYear();
-        List<AlbumInfo> albumsMbizMatchingYear;
         if (isByTime) {
             return handleTimedChart(param, nonEmptyMbid, emptyMbid, queue);
         }
-        albumsMbizMatchingYear = mb.listOfYearReleases(nonEmptyMbid, year);
+        List<AlbumInfo> foundByYear = mb.listOfYearReleases(nonEmptyMbid, year);
+        CompletableFuture.runAsync(() -> getService().insertAlbumsOfYear(foundByYear, year));
+
+        albumsMbizMatchingYear.addAll(foundByYear);
         List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(emptyMbid, year);
+        CompletableFuture.runAsync(() -> getService().insertAlbumsOfYear(mbFoundBYName, year));
         //CompletableFuture.supplyAsync( x -> getService().insertAlbum(x))
         emptyMbid.removeAll(mbFoundBYName);
 
@@ -137,6 +151,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
                     return false;
                 }
             }).collect(Collectors.toList());
+            CompletableFuture.runAsync(() -> getService().insertAlbumsOfYear(foundDiscogsMatchingYear, year));
             albumsMbizMatchingYear.addAll(foundDiscogsMatchingYear);
             discogsMetrics = foundDiscogsMatchingYear.size();
         }
@@ -145,7 +160,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
         AtomicInteger counter2 = new AtomicInteger(0);
         queue.removeIf(urlCapsule -> {
             for (AlbumInfo albumInfo : albumsMbizMatchingYear) {
-                if ((!albumInfo.getMbid().isEmpty() && albumInfo.getMbid().equals(urlCapsule.getMbid())) || urlCapsule
+                if ((albumInfo.getMbid() != null && !albumInfo.getMbid().isEmpty() && albumInfo.getMbid().equals(urlCapsule.getMbid())) || urlCapsule
                         .getAlbumName().equalsIgnoreCase(albumInfo.getName()) && urlCapsule.getArtistName()
                         .equalsIgnoreCase(albumInfo.getArtist())) {
                     urlCapsule.setPos(counter2.getAndAdd(1));
