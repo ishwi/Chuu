@@ -53,7 +53,7 @@ public enum NPMode {
 
     NPMode(int offset) {
         this.offset = offset;
-        this.raw = 1 << offset;
+        this.raw = 1L << offset;
     }
 
 

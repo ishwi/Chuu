@@ -182,8 +182,8 @@ public class Chuu {
         // Logs every fime minutes the api calls
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             long l = lastFMMetric.longValue();
-            dao.updateMetric(Metrics.LASTFM_PETITIONS, l);
             lastFMMetric.reset();
+            dao.updateMetric(Metrics.LASTFM_PETITIONS, l);
             logger.info("Made {} petitions in the last 5 minutes", l);
         }, 5, 5, TimeUnit.MINUTES);
         ratelimited = dao.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
@@ -195,6 +195,7 @@ public class Chuu {
         AtomicInteger counter = new AtomicInteger(0);
         IEventManager customManager = new CustomInterfacedEventManager(0);
         EvalCommand evalCommand = new EvalCommand(dao);
+        long channelId = Long.parseLong(channel);
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL)
                 //.setMemberCachePolicy(Chuu.cacheMember)
                 .disableCache(EnumSet.allOf(CacheFlag.class))
@@ -373,8 +374,8 @@ public class Chuu {
                 .addEventListeners(help.registerCommand(new MirroredTracksCommand(dao)))
                 .addEventListeners(help.registerCommand(new GlobalTrackArtistCrownsCommand(dao)))
                 .addEventListeners(help.registerCommand(new TrackArtistCrownsCommand(dao)))
-                .addEventListeners(help.registerCommand(new TagWithYearCommand(dao)))
-                .addEventListeners(new ConstantListener(Long.parseLong(channel), dao))
+                .addEventListeners(help.registerCommand(new TagWithYearCommand(dao, channelId)))
+                .addEventListeners(new ConstantListener(channelId, dao))
 
 
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
@@ -384,7 +385,6 @@ public class Chuu {
                         commandAdministrator.onStartup(shardManager);
                     }
                     evalCommand.setOwnerId(shard);
-
                     shardManager.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
                     updatePresence("Chuu");
                 }));

@@ -23,8 +23,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
-    public TagWithYearCommand(ChuuService dao) {
+
+    private final long channelId;
+
+    public TagWithYearCommand(ChuuService dao, long channelId) {
         super(dao);
+        this.channelId = channelId;
     }
 
     @Override
@@ -89,35 +93,31 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
         String artist = content[0].trim().replaceAll("\\\\-", "-");
         String album = content[1].trim().replaceAll("\\\\-", "-");
         String userString = getUserString(e, idLong);
-
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("Year confirmation")
-                .setDescription(String.format("%s, want to tag the album %s of %s with the year %s?", userString, artist, album, year));
+                .setDescription(String.format("%s, want to tag the album **%s** of **%s** with the year **%s**?", userString, album, artist, year));
         e.getChannel().sendMessage(new MessageBuilder(embedBuilder.build()).build())
-                .queue(queu -> {
-                    new Confirmator(embedBuilder, queu, idLong,
-                            () -> {
-                                if (lastFMData.getRole() == Role.ADMIN) {
-                                    getService().insertAlbumsOfYear(List.of(new AlbumInfo(album, artist)), parse);
-                                } else {
-                                    TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(784460747786420254L);
-                                    if (textChannelById != null)
-                                        textChannelById.sendMessage(new EmbedBuilder().setTitle("Year submission").setDescription("Artist: **" + artist + "**\nAlbum: **" + album + "**\nYear: **" + year + "**").build()).flatMap(q ->
-                                                q.addReaction("U+2714").flatMap(t -> q.addReaction("U+274c"))
-                                        ).queue();
-                                }
-                            }, () -> {
-                    }
-                            ,
-                            who -> {
-                                if (lastFMData.getRole() == Role.ADMIN) {
-                                    return who.clear().setTitle(String.format("%s - %s was tagged as a %s album", artist, album, year));
-                                } else {
-                                    return who.clear().setTitle("Your submission was passed to the mod team");
-                                }
-
-                            },
-                            who -> who.clear().setTitle(String.format("Didn't tag %s - %s", artist, album)));
-                });
+                .queue(queu -> new Confirmator(embedBuilder, queu, idLong,
+                        () -> {
+                            if (lastFMData.getRole() == Role.ADMIN) {
+                                getService().insertAlbumsOfYear(List.of(new AlbumInfo(album, artist)), parse);
+                            } else {
+                                TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(channelId);
+                                if (textChannelById != null)
+                                    textChannelById.sendMessage(new EmbedBuilder().setTitle("Year submission")
+                                            .setDescription("Artist: **" + artist + "**\nAlbum: **" + album + "**\nYear: **" + year + "**\nAuthor: " + e.getAuthor().getIdLong()).build()).flatMap(q ->
+                                            q.addReaction("U+2714").flatMap(t -> q.addReaction("U+274c"))
+                                    ).queue();
+                            }
+                        }, () -> {
+                },
+                        who -> {
+                            if (lastFMData.getRole() == Role.ADMIN) {
+                                return who.clear().setTitle(String.format("%s - %s was tagged as a %s album", artist, album, year));
+                            } else {
+                                return who.clear().setTitle("Your submission was passed to the mod team");
+                            }
+                        },
+                        who -> who.clear().setTitle(String.format("Didn't tag %s - %s", artist, album))));
     }
 }

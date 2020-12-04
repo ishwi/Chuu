@@ -247,18 +247,17 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     @Override
     public Map<Country, Integer> countryCount(Connection connection, List<ArtistInfo> releaseInfo) {
         Map<Country, Integer> returnMap = new HashMap<>();
-        StringBuilder queryString = new StringBuilder("select main.neim,main.code,count(*) as count from (\n" +
+        StringBuilder queryString = new StringBuilder("select main.code,count(*) as count from (\n" +
                 "SELECT \n" +
                 "      (case \n" +
                 "\t  when b.type = 1 then c.code\n" +
                 "\t  else coalesce(calculate_country(b.id),'NOTVALID') end)" +
-                " as code, b.name as neim \n" +
+                " as code \n" +
                 " \n" +
                 " FROM\n" +
                 " musicbrainz.artist a join \n" +
-                " musicbrainz.area b" +
-                " left join musicbrainz.iso_3166_1 c  on b.id=c.area " +
-                " on a.area = b.id and b.type = 1" +
+                " musicbrainz.area b on a.area = b.id   " +
+                " left join musicbrainz.iso_3166_1 c  on b.id=c.area and b.type = 1 " +
                 "  WHERE " +
                 "    a.gid in (");
 
@@ -267,7 +266,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
         }
 
         queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
-        queryString.append(") main   GROUP BY  main.neim,main.code\n");
+        queryString.append(") main   GROUP BY main.code\n");
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString.toString())) {
             int i = 1;
@@ -276,20 +275,15 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
                 preparedStatement.setObject(i++, java.util.UUID.fromString(albumInfo.getMbid()));
             }
             ResultSet resultSet = preparedStatement.executeQuery();
-
             while (resultSet.next()) {
 
-                String coutryName = resultSet.getString("neim");
-                if (coutryName.equals("NOTVALID")) {
+                String code = resultSet.getString("code");
+                if (code == null || code.equals("NOTVALID")) {
                     continue;
                 }
-                String code = resultSet.getString("code");
-                if (code == null)
-                    continue;
-
                 int frequency = resultSet.getInt("count");
 
-                returnMap.put(new Country(coutryName, code), frequency);
+                returnMap.put(new Country(code, code), frequency);
             }
         } catch (SQLException e) {
             logger.warn(e.getMessage(), e);
@@ -595,9 +589,9 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
         String tempTable = "CREATE TEMP TABLE IF NOT EXISTS findAlbumByTrackName ( track VARCHAR, artist VARCHAR) ON COMMIT DELETE ROWS;";
         try (PreparedStatement preparedStatement = connection.prepareStatement(tempTable)) {
             preparedStatement.execute();
-            StringBuilder append = new StringBuilder().append("insert into findAlbumByTrackName(artist,track) values (?,?)")
-                    .append((",(?,?)").repeat(Math.max(0, urlCapsules.size() - 1)));
-            PreparedStatement preparedStatement1 = connection.prepareStatement(append.toString());
+            String append = "insert into findAlbumByTrackName(artist,track) values (?,?)" +
+                    (",(?,?)").repeat(Math.max(0, urlCapsules.size() - 1));
+            PreparedStatement preparedStatement1 = connection.prepareStatement(append);
             for (int i = 0; i < urlCapsules.size(); i++) {
                 preparedStatement1.setString(2 * i + 1, urlCapsules.get(i).getArtist());
                 preparedStatement1.setString(2 * i + 2, urlCapsules.get(i).getName());
@@ -765,9 +759,17 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     public ArtistMusicBrainzDetails getArtistInfo(Connection connection, ArtistInfo artistInfo) {
 
         boolean mbidFlag = artistInfo.getMbid() != null && !artistInfo.getMbid().isBlank();
-        String query = "SELECT  b.name,d.country FROM artist a \n" +
+        String query = "SELECT  b.name," +
+                "" +
+                "" +
+                "(case \n" +
+                "\t  when c.type = 1 then d.code\n" +
+                "\t  else coalesce(calculate_country(c.id),'NOTVALID') end)" +
+                " as country FROM artist a \n" +
                 "LEFT JOIN gender b ON a.gender = b.id\n" +
-                "LEFT JOIN country_lookup d ON d.id = a.area \n" +
+                " join \n" +
+                " musicbrainz.area c on a.area = c.id   " +
+                " left join musicbrainz.iso_3166_1 d  on c.id=d.area and c.type = 1 " +
                 "WHERE \n";
         if (mbidFlag) {
             query += "a.gid = ?  \n";
@@ -791,7 +793,9 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
             if (resultSet.next()) {
                 String gender = resultSet.getString("name");
                 String code = resultSet.getString("country");
-
+                if (code.equals("NOTVALID")) {
+                    return null;
+                }
                 return new ArtistMusicBrainzDetails(gender, code);
             }
 
