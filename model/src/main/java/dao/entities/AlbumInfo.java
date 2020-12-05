@@ -32,11 +32,11 @@ public class AlbumInfo extends EntityInfo {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AlbumInfo)) return false;
-        if (!super.equals(o)) return false;
         AlbumInfo albumInfo = (AlbumInfo) o;
         if (getMbid() != null && !getMbid().isBlank() && albumInfo.getMbid() != null && !albumInfo.getMbid().isBlank()) {
             return super.equals(o);
         }
+        if (!super.equals(o)) return false;
         return (getName().equalsIgnoreCase(albumInfo.getName())
                 || getName().equalsIgnoreCase("S/T")
                 || albumInfo.getName().equalsIgnoreCase("S/T")) && getArtist().equalsIgnoreCase(albumInfo.getArtist());

@@ -2,6 +2,8 @@ package dao.entities;
 
 import dao.utils.LinkUtils;
 
+import java.util.Objects;
+
 public class Track {
     private final String artist;
     private String name;
@@ -66,21 +68,17 @@ public class Track {
     }
 
     @Override
-    public int hashCode() {
-        int result = artist.hashCode();
-        result = 31 * result + name.hashCode();
-        return result;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Track track = (Track) o;
+        return Objects.equals(artist, track.artist) &&
+                name.equals(track.name);
+    }
 
-        if (!artist.equals(track.artist)) return false;
-        return name.equals(track.name);
+    @Override
+    public int hashCode() {
+        return Objects.hash(artist, name);
     }
 
     @Override

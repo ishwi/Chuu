@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public class ParserAux {
     private static final Pattern user = Pattern.compile("(.{2,32})#(\\d{4})");
     private static final Pattern discordId = Pattern.compile("\\d{17,}");
-    private static final Pattern lfm = Pattern.compile("lfm:\\S+");
+    private static final Pattern lfm = Pattern.compile("lfm:(\\S+)");
     private static final Pattern userRaw = Pattern.compile("u:(\\S+)");
 
     private final boolean doExpensiveSearch;

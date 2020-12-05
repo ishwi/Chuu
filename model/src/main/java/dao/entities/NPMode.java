@@ -202,6 +202,18 @@ public enum NPMode {
             case SPOTIFY_LINK:
                 returnal = "A link if available of the song on spotify.";
                 break;
+            case TRACK_RANK:
+                returnal = "Your position towards the crown of the track in this server.";
+                break;
+            case TRACK_CROWN:
+                returnal = "Tells you who holds the track crown in this server.";
+                break;
+            case GLOBAL_TRACK_CROWN:
+                returnal = "Tells you who holds the track crown in the bot.";
+                break;
+            case GLOBAL_TRACK_RANK:
+                returnal = "Your position towards the track crown of the artist in the bot.";
+                break;
             case UNKNOWN:
             default:
                 throw new IllegalStateException("Unexpected value: " + this);
