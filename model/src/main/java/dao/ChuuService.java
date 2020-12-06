@@ -80,7 +80,7 @@ public class ChuuService {
 
     }
 
-    private void insertArtistDataListConnection(List<ScrobbledArtist> list, String id, Connection connection) throws SQLException {
+    private void insertArtistDataListConnection(List<ScrobbledArtist> list, String id, Connection connection) {
         try {
 
             if (!list.isEmpty()) {
@@ -2735,6 +2735,7 @@ public class ChuuService {
                     insertTracks(trackData, id, connection);
                 }
                 updaterDao.setUpdatedTime(connection, id, null, null);
+                connection.setAutoCommit(false);
                 connection.commit();
             } catch (SQLException e) {
                 throw new ChuuServiceException(e);

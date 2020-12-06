@@ -53,6 +53,9 @@ public class GenreChartParser extends ChartableParser<ChartableGenreParameters> 
         LastFMData data = findLastfmFromID(oneUser, e);
         try {
             GenreParameters genreParameters = innerParser.parseLogic(e, message);
+            if (genreParameters == null) {
+                return null;
+            }
             return new ChartableGenreParameters(e, data.getName(), data.getDiscordId(), data.getChartMode(), new CustomTimeFrame(timeFrameEnum), x, y, genreParameters, data);
         } catch (LastFmException lastFmException) {
             throw new ChuuServiceException();

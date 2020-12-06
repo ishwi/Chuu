@@ -48,17 +48,18 @@ public class BandInfoGlobalCommand extends BandInfoCommand {
         List<AlbumUserPlays> userTopArtistAlbums = getService().getGlobalTopArtistAlbums(limit, who.getArtistId());
         MessageReceivedEvent e = ap.getE();
 
+
+        ArtistAlbums ai = new ArtistAlbums(who.getArtist(), userTopArtistAlbums);
+
+        if (b || !e.isFromGuild()) {
+            doList(ap, ai);
+            return;
+        }
         WrapperReturnNowPlaying np = getService().whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
         np.getReturnNowPlayings().forEach(element ->
                 element.setDiscordName(CommandUtil.getUserInfoNotStripped(e, element.getDiscordId()).getUsername())
         );
         BufferedImage logo = CommandUtil.getLogo(getService(), e);
-        ArtistAlbums ai = new ArtistAlbums(who.getArtist(), userTopArtistAlbums);
-
-        if (b) {
-            doList(ap, ai);
-            return;
-        }
         if (b1) {
             doPie(ap, np, ai, logo);
             return;

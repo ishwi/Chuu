@@ -84,17 +84,18 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         ScrobbledArtist who = ap.getScrobbledArtist();
         List<AlbumUserPlays> userTopArtistAlbums = getService().getUserTopArtistAlbums(limit, who.getArtistId(), idLong);
         MessageReceivedEvent e = ap.getE();
+
+        ArtistAlbums ai = new ArtistAlbums(who.getArtist(), userTopArtistAlbums);
+
+        if (b || !e.isFromGuild()) {
+            doList(ap, ai);
+            return;
+        }
         WrapperReturnNowPlaying np = getService().whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
         np.getReturnNowPlayings().forEach(element ->
                 element.setDiscordName(CommandUtil.getUserInfoNotStripped(e, element.getDiscordId()).getUsername())
         );
         BufferedImage logo = CommandUtil.getLogo(getService(), e);
-        ArtistAlbums ai = new ArtistAlbums(who.getArtist(), userTopArtistAlbums);
-
-        if (b) {
-            doList(ap, ai);
-            return;
-        }
         if (b1) {
             doPie(ap, np, ai, logo);
             return;
@@ -116,7 +117,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ap.getLastFMData().getDiscordId());
         StringBuilder str = new StringBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        List<String> collect = ai.getAlbumList().stream().map(x -> (String.format(".[%s](%s) - %d plays%n", x.getAlbum(), LinkUtils.getLastFmArtistAlbumUrl(ai.getArtist(), x.getAlbum()), x.getPlays()))).collect(Collectors.toList());
+        List<String> collect = ai.getAlbumList().stream().map(x -> (String.format(". **[%s](%s)** - %d plays%n", x.getAlbum(), LinkUtils.getLastFmArtistAlbumUrl(ai.getArtist(), x.getAlbum()), x.getPlays()))).collect(Collectors.toList());
         for (int i = 0; i < collect.size() && i < 10; i++) {
             String s = collect.get(i);
             str.append(i + 1).append(s);
