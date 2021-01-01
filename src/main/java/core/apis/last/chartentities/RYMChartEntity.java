@@ -1,6 +1,6 @@
 package core.apis.last.chartentities;
 
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import core.imagerenderer.ChartLine;
 import dao.entities.ScoredAlbumRatings;
 import dao.utils.LinkUtils;

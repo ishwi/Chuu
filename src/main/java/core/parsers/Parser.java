@@ -1,6 +1,6 @@
 package core.parsers;
 
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
 import dao.exceptions.InstanceNotFoundException;

@@ -45,6 +45,8 @@ public interface SQLRYMDao {
 
     RymStats getUserRymStatms(Connection connection, long discordId);
 
+    Map<Integer, Integer> getUserCurve(Connection connection, long discordId);
+
 
     RymStats getServerStats(Connection connection, long guildId);
 

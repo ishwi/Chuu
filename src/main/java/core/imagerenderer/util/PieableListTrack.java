@@ -1,6 +1,6 @@
 package core.imagerenderer.util;
 
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import dao.entities.Track;

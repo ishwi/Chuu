@@ -1,14 +1,19 @@
 package core.commands;
 
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.RateLimiter;
 import core.Chuu;
+import core.commands.abstracts.MyCommand;
+import core.commands.moderation.AdministrativeCommand;
+import core.music.listeners.VoiceListener;
 import core.otherlisteners.ReactionListener;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -17,35 +22,44 @@ import net.dv8tion.jda.internal.JDAImpl;
 
 import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("UnstableApiUsage")
 public class CustomInterfacedEventManager implements IEventManager {
 
-    private final Set<EventListener> listeners = Sets.newConcurrentHashSet();
+    private final Set<EventListener> listeners = ConcurrentHashMap.newKeySet();
     private final Map<String, MyCommand<?>> commandListeners = new HashMap<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new HashMap<>();
     private AdministrativeCommand administrativeCommand;
+    private VoiceListener voiceListener;
 
     public CustomInterfacedEventManager(int a) {
+    }
+
+
+    public void setVoiceListener(VoiceListener voiceListener) {
+        this.voiceListener = voiceListener;
     }
 
     @Override
     public void register(@Nonnull Object listener) {
         if (!(listener instanceof EventListener))
             throw new IllegalArgumentException("Listener must implement EventListener");
-        if ((listener instanceof MyCommand)) {
-            MyCommand<?> myCommand = (MyCommand<?>) listener;
+        if (listener instanceof VoiceListener voiceListener) {
+            this.voiceListener = voiceListener;
+        }
+        if ((listener instanceof MyCommand<?> myCommand)) {
             List<String> aliases = myCommand.getAliases();
             for (String alias : aliases) {
                 commandListeners.put(alias, myCommand);
             }
-            if (listener instanceof AdministrativeCommand) {
-                this.administrativeCommand = (AdministrativeCommand) listener;
+            if (listener instanceof AdministrativeCommand admin) {
+                this.administrativeCommand = admin;
             }
         }
-        if (listener instanceof ReactionListener) {
-            ReactionListener reactionListener = (ReactionListener) listener;
+        if (listener instanceof ReactionListener reactionListener) {
             long activeSeconds = reactionListener.getActiveSeconds();
             ScheduledFuture<?> schedule = Chuu.getScheduledExecutorService().schedule((() -> {
                 reactionaries.remove(reactionListener);
@@ -59,15 +73,13 @@ public class CustomInterfacedEventManager implements IEventManager {
 
     @Override
     public void unregister(@Nonnull Object listener) {
-        if ((listener instanceof MyCommand)) {
-            MyCommand<?> myCommand = (MyCommand<?>) listener;
+        if ((listener instanceof MyCommand<?> myCommand)) {
             List<String> aliases = myCommand.getAliases();
             for (String alias : aliases) {
                 commandListeners.remove(alias);
             }
         }
-        if (listener instanceof ReactionListener) {
-            ReactionListener reactionListener = (ReactionListener) listener;
+        if (listener instanceof ReactionListener reactionListener) {
             ScheduledFuture<?> scheduledFuture = this.reactionaries.remove(reactionListener);
             if (scheduledFuture != null) {
                 scheduledFuture.cancel(true);
@@ -87,8 +99,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     @Override
     public void handle(@Nonnull GenericEvent event) {
 
-        if (event instanceof MessageReceivedEvent) {
-            MessageReceivedEvent mes = (MessageReceivedEvent) event;
+        if (event instanceof MessageReceivedEvent mes) {
             if (mes.getAuthor().isBot()) {
                 return;
             }
@@ -120,7 +131,7 @@ public class CustomInterfacedEventManager implements IEventManager {
             }
         } else if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {
             administrativeCommand.onEvent(event);
-        } else if (event instanceof MessageReactionAddEvent || event instanceof ReadyEvent)
+        } else if (event instanceof MessageReactionAddEvent || event instanceof ReadyEvent) {
             for (EventListener listener : listeners) {
                 try {
                     listener.onEvent(event);
@@ -128,7 +139,9 @@ public class CustomInterfacedEventManager implements IEventManager {
                     JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
                 }
             }
-
+        } else if (event instanceof GuildVoiceJoinEvent || event instanceof GuildVoiceLeaveEvent || event instanceof GuildVoiceMoveEvent) {
+            this.voiceListener.onEvent(event);
+        }
     }
 
     @Nonnull

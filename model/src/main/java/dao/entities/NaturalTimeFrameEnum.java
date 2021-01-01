@@ -27,28 +27,18 @@ public enum NaturalTimeFrameEnum {
     }
 
     public static NaturalTimeFrameEnum fromCompletePeriod(String period) {
-        switch (period) {
-            case "12month":
-                return YEAR;
-            case "3month":
-                return QUARTER;
-            case "1month":
-                return MONTH;
-            case "overall":
-                return ALL;
-            case "6month":
-                return SEMESTER;
-            case "day":
-                return DAY;
-            case "hour":
-                return HOUR;
-            case "minute":
-                return MINUTE;
-            case "second":
-                return SECOND;
-            default:
-                return WEEK;
-        }
+        return switch (period) {
+            case "12month" -> YEAR;
+            case "3month" -> QUARTER;
+            case "1month" -> MONTH;
+            case "overall" -> ALL;
+            case "6month" -> SEMESTER;
+            case "day" -> DAY;
+            case "hour" -> HOUR;
+            case "minute" -> MINUTE;
+            case "second" -> SECOND;
+            default -> WEEK;
+        };
     }
 
     public static NaturalTimeFrameEnum get(String name) {
@@ -61,81 +51,33 @@ public enum NaturalTimeFrameEnum {
     }
 
     public String toApiFormat() {
-        switch (name) {
-            case "y":
-            case "yearly":
-            case "year":
-                return "12month";
-            case "q":
-            case "quarter":
-            case "quarterly":
-                return "3month";
-            case "m":
-            case "month":
-            case "monthly":
-                return "1month";
-            case "a":
-            case "alltime":
-            case "overall":
-            case "all":
-                return "overall";
-            case "s":
-            case "semester":
-            case "semesterly":
-                return "6month";
-            case "d":
-            case "day":
-            case "daily":
-                return "day";
-            case "h":
-            case "hour":
-                return "hour";
-            case "min":
-                return "minute";
-            case "sec":
-                return "second";
-            default:
-                return "7day";
-        }
+        return switch (name) {
+            case "y", "yearly", "year" -> "12month";
+            case "q", "quarter", "quarterly" -> "3month";
+            case "m", "month", "monthly" -> "1month";
+            case "a", "alltime", "overall", "all" -> "overall";
+            case "s", "semester", "semesterly" -> "6month";
+            case "d", "day", "daily" -> "day";
+            case "h", "hour" -> "hour";
+            case "min" -> "minute";
+            case "sec" -> "second";
+            default -> "7day";
+        };
     }
 
     public LocalDateTime toLocalDate(int intCount) {
-        LocalDateTime localDate;
-        switch (this) {
-            case YEAR:
-                localDate = LocalDateTime.now().minus(intCount, ChronoUnit.YEARS);
-                break;
-            case QUARTER:
-                localDate = LocalDateTime.now().minus(3 * (long) intCount, ChronoUnit.MONTHS);
-                break;
-            case MONTH:
-                localDate = LocalDateTime.now().minus(intCount, ChronoUnit.MONTHS);
-                break;
-            case ALL:
-                localDate = Constants.LASTFM_CREATION_DATE.atStartOfDay();
-                break;
-            case SEMESTER:
-                localDate = LocalDateTime.now().minus(6 * (long) intCount, ChronoUnit.MONTHS);
-                break;
-            case WEEK:
-                localDate = LocalDateTime.now().minus(7 * (long) intCount, ChronoUnit.DAYS);
-                break;
-            case DAY:
-                localDate = LocalDateTime.now().minus(intCount, ChronoUnit.DAYS);
-                break;
-            case HOUR:
-                localDate = LocalDateTime.now().minus(intCount, ChronoUnit.HOURS);
-                break;
-            case MINUTE:
-                localDate = LocalDateTime.now().minus(intCount, ChronoUnit.MINUTES);
-                break;
-            case SECOND:
-                localDate = LocalDateTime.now().minus(intCount, ChronoUnit.SECONDS);
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + this);
-        }
-        return localDate;
+        return switch (this) {
+            case YEAR -> LocalDateTime.now().minus(intCount, ChronoUnit.YEARS);
+            case QUARTER -> LocalDateTime.now().minus(3 * (long) intCount, ChronoUnit.MONTHS);
+            case MONTH -> LocalDateTime.now().minus(intCount, ChronoUnit.MONTHS);
+            case ALL -> Constants.LASTFM_CREATION_DATE.atStartOfDay();
+            case SEMESTER -> LocalDateTime.now().minus(6 * (long) intCount, ChronoUnit.MONTHS);
+            case WEEK -> LocalDateTime.now().minus(7 * (long) intCount, ChronoUnit.DAYS);
+            case DAY -> LocalDateTime.now().minus(intCount, ChronoUnit.DAYS);
+            case HOUR -> LocalDateTime.now().minus(intCount, ChronoUnit.HOURS);
+            case MINUTE -> LocalDateTime.now().minus(intCount, ChronoUnit.MINUTES);
+            case SECOND -> LocalDateTime.now().minus(intCount, ChronoUnit.SECONDS);
+        };
     }
 
     public String getDisplayString(long count) {

@@ -1,3 +1,4 @@
+import core.commands.charts.ColorChartCommand;
 import core.commands.utils.EvalContext;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,7 +18,43 @@ import java.util.stream.Collectors;
 
 public class EvalTest {
     public void name(EvalContext ctx) {
-        core.Chuu.getShardManager().getGuildById(779108223151505489L).getTextChannelById(779485554181668876L)
+
+        ctx.sendMessage("Number of servers: " + core.Chuu.getShardManager().getGuilds().size());
+        var simpleDataSource = new dao.SimpleDataSource(true);
+        try (var connection = simpleDataSource.getConnection()) {
+            var rs = connection.prepareStatement("Select * from user where discord_id = 267794154459889664").executeQuery();
+            var sb = new StringBuilder();
+            rs.next();
+            var rsmd = rs.getMetaData();
+            int numberOfColumns = rsmd.getColumnCount();
+            for (int i = 1; i <= numberOfColumns; i++) {
+                sb.append(rsmd.getColumnLabel(i)).append(": ").append(rs.getString(i));
+                if (i < numberOfColumns) {
+                    sb.append("\n ");
+                }
+            }
+            ctx.sendMessage(sb.toString());
+        } catch (java.sql.SQLException throwables) {
+            ctx.sendMessage(throwables.toString());
+        }
+        var a = simpleDataSource.getClass().getDeclaredField("ds");
+        a.setAccessible(true);
+        var b = (com.zaxxer.hikari.HikariDataSource) a.get(simpleDataSource);
+        b.close();
+        ctx.jda.getRegisteredListeners().stream().filter(x -> x instanceof ColorChartCommand).mabp(x -> (ColorChartCommand) x).forEach(
+                x -> {
+                    try {
+                        var f = x.getClass().getDeclaredField("maxConcurrency"); //NoSuchFieldException
+                        f.setAccessible(true);
+                        var a = (java.util.concurrent.atomic.AtomicInteger) f.get(x);
+                        a.set(4);
+                        ctx.sendMessage(a);
+                    } catch (Exception e) {
+                        ctx.sendMessage(e);
+                    }
+                }
+        );
+        core.Chuu.getShardManager().getTextChannelById(682911772247588864L).sendMessage("‎\n".repeat(10)).queue();
                 .sendMessage("test").queue(a -> ctx.sendMessage(a), b -> ctx.sendMessage(b));
         var colorChartCommand = ctx.jda.getRegisteredListeners().stream().filter(x -> x instanceof ColorChartCommand).map(x -> x).findFirst().orElseThrow();
         var maxConcurrency = colorChartCommand.getClass().getDeclaredField("maxConcurrency");

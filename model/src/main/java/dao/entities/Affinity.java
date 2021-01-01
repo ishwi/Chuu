@@ -7,7 +7,7 @@ import java.util.List;
 public class Affinity {
     private static final long CLOSE_MATCH_WEIGHT = 10;
     private static final long TRUE_MATCH_WEIGHT = 25;
-    public static final long DEFAULT_THRESHOLD = 25;
+    public static final long DEFAULT_THRESHOLD = 30;
 
     private final long threshold;
     private final long matchingCount;

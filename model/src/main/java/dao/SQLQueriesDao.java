@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 interface SQLQueriesDao {
@@ -191,4 +192,5 @@ interface SQLQueriesDao {
     UniqueWrapper<TrackPlays> getUserArtistTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId, long artistId);
 
 
+    Optional<String> findArtistUrlAbove(Connection connection, long artistId, int upvotes);
 }

@@ -28,6 +28,7 @@ public class ClockService {
     private final TimeZone timeZone;
     private final Function<PreBillboardUserDataTimestamped, OffsetDateTime> dateTimeFunction;
     TemporalField weekOfYear = WeekFields.of(Locale.getDefault()).weekOfYear();
+
     public ClockService(ClockMode clockMode, List<PreBillboardUserDataTimestamped> data, TimeZone timeZone) {
         this.clockMode = clockMode;
         this.data = data;
@@ -41,15 +42,9 @@ public class ClockService {
         try (ImageOutputStream output = ImageIO.createImageOutputStream(baos)) {
 
             HashMap<Integer, List<PreBillboardUserDataTimestamped>> collect = data.stream().
-                    collect(Collectors.groupingBy(x -> {
-                        switch (clockMode) {
-                            case BY_WEEK:
-                                return byWeek(x);
-                            case BY_DAY:
-                                return byDay(x);
-                            default:
-                                throw new IllegalStateException();
-                        }
+                    collect(Collectors.groupingBy(x -> switch (clockMode) {
+                        case BY_WEEK -> byWeek(x);
+                        case BY_DAY -> byDay(x);
                     }, HashMap::new, Collectors.toList()));
             List<BufferedImage> images = collect.entrySet().parallelStream().sorted(Map.Entry.comparingByKey()).map(
                     t -> {

@@ -2,7 +2,7 @@ package core.apis.youtube;
 
 import core.Chuu;
 import core.apis.ClientSingleton;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import dao.exceptions.ChuuServiceException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,7 +52,7 @@ public class InvidousSearch implements YoutubeSearch {
                 throw new ChuuServiceException(exception);
             }
             if (jsonObject.length() > 0) {
-                responseUrl = Search.BASE_URL + jsonObject.getJSONObject(0).getString("videoId");
+                responseUrl = "https://www.youtube.com/watch?v=" + jsonObject.getJSONObject(0).getString("videoId");
             }
         } catch (IOException | InterruptedException exception) {
             exception.printStackTrace();

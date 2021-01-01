@@ -1,7 +1,7 @@
 package core.services;
 
 import core.apis.last.ConcurrentLastFM;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.AlbumInfo;

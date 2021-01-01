@@ -1,6 +1,6 @@
 package core.parsers.params;
 
-import core.commands.AffinityCommand;
+import core.commands.stats.AffinityCommand;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class AffinityParameters extends CommandParameters {

@@ -2,7 +2,7 @@ package test.commands;
 
 import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ExceptionEntity;
-import core.commands.NPSpotifyCommand;
+import core.commands.stats.NPSpotifyCommand;
 import core.parsers.NoOpParser;
 import core.parsers.OptionalEntity;
 import core.parsers.PrefixParser;

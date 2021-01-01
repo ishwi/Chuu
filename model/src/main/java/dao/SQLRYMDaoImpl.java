@@ -12,6 +12,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Year;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class SQLRYMDaoImpl implements SQLRYMDao {
     @Override
@@ -458,6 +460,25 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
                 "where discord_id = ? ";
         return getRymStats(connection, discordId, s);
 
+    }
+
+    @Override
+    public Map<Integer, Integer> getUserCurve(Connection connection, long discordId) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("Select rating,count(*) from album_rating a where discord_id = ? group by  rating ")) {
+            preparedStatement.setLong(1, discordId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            Map<Integer, Integer> ratingsMap = IntStream.rangeClosed(1, 10).boxed().collect(Collectors.toMap(x -> x, x -> 0));
+            if (resultSet.next()) {
+                int rating = resultSet.getInt(1);
+                int count = resultSet.getInt(2);
+                ratingsMap.put(rating, count);
+            }
+            return ratingsMap;
+        } catch (
+                SQLException throwables) {
+
+            throw new ChuuServiceException(throwables);
+        }
     }
 
     @NotNull

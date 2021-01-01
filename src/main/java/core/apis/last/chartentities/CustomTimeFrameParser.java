@@ -6,7 +6,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.last.TopEntity;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartParameters;
 import core.parsers.utils.CustomTimeFrame;

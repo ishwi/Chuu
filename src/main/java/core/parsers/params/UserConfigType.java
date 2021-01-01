@@ -24,6 +24,7 @@ public enum UserConfigType {
     PRIVACY_MODE("privacy"),
     NOTIFY_RATING("rating-notify"),
     PRIVATE_LASTFM("private-lastfm"),
+    SHOW_BOTTED("show-botted"),
     NP("np"),
     TIMEZONE("timezone");
 
@@ -123,6 +124,9 @@ public enum UserConfigType {
                         case PRIVATE_LASTFM:
                             boolean privateLastfmId = lastFMData != null && lastFMData.isPrivateLastfmId();
                             return String.format("**%s** -> %s", key, privateLastfmId);
+                        case SHOW_BOTTED:
+                            boolean showBotted = lastFMData != null && lastFMData.isShowBotted();
+                            return String.format("**%s** -> %s", key, showBotted);
                         case NP:
                             EnumSet<NPMode> modes = dao.getNPModes(discordId);
                             String strModes = NPMode.getListedName(modes);
@@ -142,29 +146,15 @@ public enum UserConfigType {
     }
 
     public Predicate<String> getParser() {
-        switch (this) {
-            case CHART_MODE:
-                return chartMode.asMatchPredicate();
-            case REMAINING_MODE:
-            case WHOKNOWS_MODE:
-                return whoknowsMode.asMatchPredicate();
-            case PRIVACY_MODE:
-                return privacyMode.asMatchPredicate();
-            case PRIVATE_UPDATE:
-            case NOTIFY_IMAGE:
-            case NOTIFY_RATING:
-            case PRIVATE_LASTFM:
-                return bool.asMatchPredicate();
-            case CHART_SIZE:
-                return ChartParserAux.chartSizePattern.asMatchPredicate();
-            case NP:
-                return npMode.asMatchPredicate();
-            case TIMEZONE:
-                return stringPredicate;
-            default:
-                return (s) -> true;
-
-        }
+        return switch (this) {
+            case CHART_MODE -> chartMode.asMatchPredicate();
+            case REMAINING_MODE, WHOKNOWS_MODE -> whoknowsMode.asMatchPredicate();
+            case PRIVACY_MODE -> privacyMode.asMatchPredicate();
+            case PRIVATE_UPDATE, NOTIFY_IMAGE, NOTIFY_RATING, PRIVATE_LASTFM, SHOW_BOTTED -> bool.asMatchPredicate();
+            case CHART_SIZE -> ChartParserAux.chartSizePattern.asMatchPredicate();
+            case NP -> npMode.asMatchPredicate();
+            case TIMEZONE -> stringPredicate;
+        };
     }
 
     public String getExplanation() {
@@ -199,6 +189,8 @@ public enum UserConfigType {
                 return "Whether you will get notified or not when a url you have submitted to the random command gets rated by someone else (true = notify, false = don't)";
             case PRIVATE_LASTFM:
                 return "Setting this to true will mean that your last.fm name will stay private and will not be shared with anyone. (This is different from privacy settings since it affects commands within a server and not cross server)";
+            case SHOW_BOTTED:
+                return "Setting this to false will mean that you wont have to include --nobotted in the global commands to exclude accounts flagged as bots)";
             case NP:
                 return "Setting this will alter the appearance of your np commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
             case TIMEZONE:

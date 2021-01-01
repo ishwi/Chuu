@@ -196,6 +196,127 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     }
 
     @Override
+    public Optional<FullAlbumEntity> getServerAlbumTrackList(Connection connection, long albumId, long guildId) {
+        List<Track> tracks = new ArrayList<>();
+        FullAlbumEntity fullAlbumEntity = null;
+
+        @Language("MariaDB")
+        String mySql =
+                """
+                        SELECT d.NAME,\s
+                                                        b.album_name,\s
+                                                        c.duration,\s
+                                                        c.track_name,\s
+                                                        COALESCE(c.url, b.url, d.url),\s
+                                                        sum(e.playnumber),
+                                                        a.position\s
+                                                 FROM   album_tracklist a\s
+                                                        JOIN album b\s
+                                                          ON a.album_id = b.id\s
+                                                        JOIN track c\s
+                                                          ON a.track_id = c.id\s
+                                                        JOIN artist d\s
+                                                          ON c.artist_id = d.id\s
+                                                        LEFT JOIN (SELECT *\s
+                                                                   FROM   scrobbled_track\s
+                                                                   WHERE  lastfm_id  in (select lastfm_id from user_guild where guild_id = ? )) e\s
+                                                               ON a.track_id = e.track_id\s
+                                                 WHERE  a.album_id = ?\s
+                                                 group by a.track_id
+                                                 ORDER  BY a.position ASC\s
+                         """;
+
+        try
+                (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
+            preparedStatement.setLong(1, guildId);
+            preparedStatement.setLong(2, albumId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+
+                String artsitName = resultSet.getString(1);
+                String albumName = resultSet.getString(2);
+                int duration = resultSet.getInt(3);
+                String trackName = resultSet.getString(4);
+                String url = resultSet.getString(5);
+                int plays = resultSet.getInt(6);
+                int position = resultSet.getInt(7);
+
+                if (fullAlbumEntity == null) {
+                    fullAlbumEntity = new FullAlbumEntity(artsitName, albumName, 0, url, null);
+                    fullAlbumEntity.setTrackList(tracks);
+                }
+                Track e = new Track(artsitName, trackName, plays, false, duration);
+                e.setPosition(position);
+                tracks.add(e);
+            }
+            return Optional.ofNullable(fullAlbumEntity);
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public Optional<FullAlbumEntity> getGlobalAlbumTrackList(Connection connection, long albumId) {
+        List<Track> tracks = new ArrayList<>();
+        FullAlbumEntity fullAlbumEntity = null;
+
+        @Language("MariaDB")
+        String mySql =
+                """
+                        SELECT d.NAME,\s
+                                                        b.album_name,\s
+                                                        c.duration,\s
+                                                        c.track_name,\s
+                                                        COALESCE(c.url, b.url, d.url),\s
+                                                        sum(e.playnumber),
+                                                        a.position\s
+                                                 FROM   album_tracklist a\s
+                                                        JOIN album b\s
+                                                          ON a.album_id = b.id\s
+                                                        JOIN track c\s
+                                                          ON a.track_id = c.id\s
+                                                        JOIN artist d\s
+                                                          ON c.artist_id = d.id\s
+                                                        LEFT JOIN scrobbled_track e\s
+                                                               ON a.track_id = e.track_id\s
+                                                 WHERE  a.album_id = ?\s
+                                                 group by a.track_id
+                                                 ORDER  BY a.position ASC\s
+                         """;
+
+        try
+                (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
+            preparedStatement.setLong(1, albumId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+
+                String artsitName = resultSet.getString(1);
+                String albumName = resultSet.getString(2);
+                int duration = resultSet.getInt(3);
+                String trackName = resultSet.getString(4);
+                String url = resultSet.getString(5);
+                int plays = resultSet.getInt(6);
+                int position = resultSet.getInt(7);
+
+                if (fullAlbumEntity == null) {
+                    fullAlbumEntity = new FullAlbumEntity(artsitName, albumName, 0, url, null);
+                    fullAlbumEntity.setTrackList(tracks);
+                }
+                Track e = new Track(artsitName, trackName, plays, false, duration);
+                e.setPosition(position);
+                tracks.add(e);
+            }
+            return Optional.ofNullable(fullAlbumEntity);
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public List<ScrobbledTrack> getUserTopTracksNoSpotifyId(Connection connection, String lastfmid, int limit) {
         List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
 

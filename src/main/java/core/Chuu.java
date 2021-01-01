@@ -1,9 +1,20 @@
 package core;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.SpotifySingleton;
-import core.commands.*;
+import core.commands.CustomInterfacedEventManager;
+import core.commands.abstracts.MyCommand;
+import core.commands.config.HelpCommand;
+import core.commands.config.PrefixCommand;
+import core.commands.discovery.FeaturedCommand;
+import core.commands.moderation.AdministrativeCommand;
+import core.commands.moderation.EvalCommand;
+import core.commands.moderation.TagWithYearCommand;
+import core.music.ExtendedAudioPlayerManager;
+import core.music.PlayerRegistry;
+import core.music.listeners.VoiceListener;
 import core.otherlisteners.AwaitReady;
 import core.otherlisteners.ConstantListener;
 import core.scheduledtasks.ArtistMbidUpdater;
@@ -15,6 +26,8 @@ import core.services.MessageDisablingService;
 import dao.ChuuService;
 import dao.entities.Metrics;
 import dao.exceptions.ChuuServiceException;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -35,6 +48,7 @@ import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -60,6 +74,8 @@ public class Chuu {
     private static ChuuService dao;
     private static MessageDeletionService messageDeletionService;
     private static MessageDisablingService messageDisablingService = new MessageDisablingService();
+    public final static PlayerRegistry playerRegistry = new PlayerRegistry();
+    public final static ExtendedAudioPlayerManager playerManager = new ExtendedAudioPlayerManager();
 
 
     public static ScheduledExecutorService getScheduledExecutorService() {
@@ -157,28 +173,35 @@ public class Chuu {
     }
 
     private static Collection<GatewayIntent> getIntents() {
-        return GatewayIntent.fromEvents(GuildMemberRemoveEvent.class,
+        EnumSet<GatewayIntent> gatewayIntents = GatewayIntent.fromEvents(GuildMemberRemoveEvent.class,
                 GuildMessageReactionAddEvent.class,
                 PrivateMessageReactionAddEvent.class,
                 MessageReceivedEvent.class
         );
+        gatewayIntents.add(GatewayIntent.GUILD_VOICE_STATES);
+        return gatewayIntents;
     }
 
     public static void setupBot(boolean isTest) {
         logger = LoggerFactory.getLogger(Chuu.class);
         Properties properties = readToken();
         String channel = properties.getProperty("MODERATION_CHANNEL_ID");
+        long channelId = Long.parseLong(channel);
+
         dao = new ChuuService();
         prefixMap = initPrefixMap(dao);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
+        scheduledExecutorService = Executors.newScheduledThreadPool(4);
 
         // Needs these three references
         HelpCommand help = new HelpCommand(dao);
         AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
         PrefixCommand prefixCommand = new PrefixCommand(dao);
+        TagWithYearCommand tagWithYearCommand = new TagWithYearCommand(dao, channelId);
+        EvalCommand evalCommand = new EvalCommand(dao);
+        FeaturedCommand featuredCommand = new FeaturedCommand(dao, scheduledExecutorService);
 
-        scheduledExecutorService = Executors.newScheduledThreadPool(4);
         // Logs every fime minutes the api calls
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             long l = lastFMMetric.longValue();
@@ -188,196 +211,33 @@ public class Chuu {
         }, 5, 5, TimeUnit.MINUTES);
         ratelimited = dao.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
 
+
         MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
         MessageAction.setDefaultMentionRepliedUser(false);
 
 
         AtomicInteger counter = new AtomicInteger(0);
         IEventManager customManager = new CustomInterfacedEventManager(0);
-        EvalCommand evalCommand = new EvalCommand(dao);
-        long channelId = Long.parseLong(channel);
+        EnumSet<CacheFlag> cacheFlags = EnumSet.allOf(CacheFlag.class);
+        cacheFlags.remove(CacheFlag.VOICE_STATE);
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL)
                 //.setMemberCachePolicy(Chuu.cacheMember)
-                .disableCache(EnumSet.allOf(CacheFlag.class))
+//                .disableCache(cacheFlags)
+                .enableCache(CacheFlag.VOICE_STATE)
+                .setAudioSendFactory(new NativeAudioSendFactory())
+
                 .setBulkDeleteSplittingEnabled(false)
                 .setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
                 .setEventManagerProvider(a -> customManager)
                 .addEventListeners(help)
                 .setShardsTotal(-1)
                 .addEventListeners(help.registerCommand(commandAdministrator))
-                .addEventListeners(help.registerCommand(new NowPlayingCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoKnowsCommand(dao)))
-                // .addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new SetCommand(dao)))
-                .addEventListeners(help.registerCommand(new PlayingCommand(dao)))
-                .addEventListeners(help.registerCommand(new TasteCommand(dao)))
-                .addEventListeners(help.registerCommand(new TopCommand(dao)))
-                .addEventListeners(help.registerCommand(new UpdateCommand(dao)))
-                .addEventListeners(help.registerCommand(new NPSpotifyCommand(dao)))
-                .addEventListeners(help.registerCommand(new UniqueCommand(dao)))
-                .addEventListeners(help.registerCommand(new ArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumPlaysCommand(dao)))
-                .addEventListeners(help.registerCommand(new GuildTopCommand(dao)))
-                .addEventListeners(help.registerCommand(new ArtistUrlCommand(dao)))
-                .addEventListeners(help.registerCommand(new BandInfoCommand(dao)))
-                // .addEventListeners(help.registerCommand(new BandInfoNpCommand(dao)))
-                .addEventListeners(help.registerCommand(new LocalWhoKnowsAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new CrownLeaderboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new CrownsCommand(dao)))
-                .addEventListeners(help.registerCommand(new RecentListCommand(dao)))
-                .addEventListeners(help.registerCommand(new MusicBrainzCommand(dao)))
-                .addEventListeners(help.registerCommand(new GenreCommand(dao)))
-                .addEventListeners(help.registerCommand(new MbizThisYearCommand(dao)))
-                .addEventListeners(help.registerCommand(new ArtistPlaysCommand(dao)))
-                .addEventListeners(help.registerCommand(new TimeSpentCommand(dao)))
-                .addEventListeners(help.registerCommand(new YoutubeSearchCommand(dao)))
-                .addEventListeners(help.registerCommand(new UniqueLeaderboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new ProfileInfoCommand(dao)))
-                .addEventListeners(help.registerCommand(new ArtistCountLeaderboard(dao)))
-                .addEventListeners(help.registerCommand(new TotalArtistNumberCommand(dao)))
-                .addEventListeners(help.registerCommand(new CountryCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumTracksDistributionCommand(dao)))
-                .addEventListeners(help.registerCommand(new ObscurityLeaderboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new RandomAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoKnowsSongCommand(dao)))
-                .addEventListeners(help.registerCommand(new CrownsStolenCommand(dao)))
-                .addEventListeners(help.registerCommand(new FavesFromArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumCrownsCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumCrownsLeaderboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new PrefixCommand(dao)))
-                .addEventListeners(help.registerCommand(new DailyCommand(dao)))
-                .addEventListeners(help.registerCommand(new WeeklyCommand(dao)))
-                .addEventListeners(help.registerCommand(new UserTopTrackCommand(dao)))
-                .addEventListeners(help.registerCommand(new SummaryArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new InviteCommand(dao)))
-                .addEventListeners(help.registerCommand(new SourceCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalCrownsCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalUniquesCommand(dao)))
-                .addEventListeners(help.registerCommand(new ArtistFrequencyCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalArtistFrequenciesCommand(dao)))
-                .addEventListeners(help.registerCommand(new ArtistFromCountryCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumInfoCommand(dao)))
-                .addEventListeners(help.registerCommand(new TrackInfoCommand(dao)))
-                .addEventListeners(help.registerCommand(new TrackPlaysCommand(dao)))
-                .addEventListeners(help.registerCommand(new MatchingArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalTotalArtistPlaysCountCommand(dao)))
-                .addEventListeners(help.registerCommand(new TotalArtistPlayCountCommand(dao)))
-                .addEventListeners(help.registerCommand(new AliasCommand(dao)))
-                .addEventListeners(help.registerCommand(new PaceCommand(dao)))
-                .addEventListeners(help.registerCommand(new StreakCommand(dao)))
-                .addEventListeners(help.registerCommand(new AliasReviewCommand(dao)))
-                .addEventListeners(help.registerCommand(new UserExportCommand(dao)))
-                .addEventListeners(help.registerCommand(new ImportCommand(dao)))
-                .addEventListeners(help.registerCommand(new VotingCommand(dao)))
-                .addEventListeners(help.registerCommand(new AliasesCommand(dao)))
-                .addEventListeners(help.registerCommand(new SupportCommand(dao)))
-                .addEventListeners(help.registerCommand(new WastedChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new WastedAlbumChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new WastedTrackCommand(dao)))
-                .addEventListeners(help.registerCommand(new ReportReviewCommand(dao)))
-                .addEventListeners(help.registerCommand(new GuildArtistPlaysCommand(dao)))
-                .addEventListeners(help.registerCommand(new ScrobblesSinceCommand(dao)))
-                .addEventListeners(help.registerCommand(new UserResumeCommand(dao)))
-                .addEventListeners(help.registerCommand(new AffinityCommand(dao)))
-                .addEventListeners(help.registerCommand(new RecommendationCommand(dao)))
-                .addEventListeners(help.registerCommand(new UnsetCommand(dao)))
-                .addEventListeners(help.registerCommand(new GuildConfigCommand(dao)))
-                .addEventListeners(help.registerCommand(new ScrobblesLbCommand(dao)))
-                .addEventListeners(help.registerCommand(new ScrobblesCommand(dao)))
-                .addEventListeners(help.registerCommand(new RainbowChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new ColorChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new CrownableCommand(dao)))
-                .addEventListeners(help.registerCommand(new RateLimitCommand(dao)))
-                .addEventListeners(help.registerCommand(new AOTDCommand(dao)))
-                .addEventListeners(help.registerCommand(new UserConfigCommand(dao)))
-                .addEventListeners(help.registerCommand(new DisabledCommand(dao)))
-                .addEventListeners(help.registerCommand(new DisabledStatusCommand(dao)))
-                .addEventListeners(help.registerCommand(new UrlQueueReview(dao)))
-                .addEventListeners(help.registerCommand(new CoverCommand(dao)))
-                .addEventListeners(help.registerCommand(new LastFmLinkCommand(dao)))
-                .addEventListeners(help.registerCommand(new GenreInfoCommand(dao)))
-                .addEventListeners(help.registerCommand(new GenreAlbumsCommands(dao)))
-                .addEventListeners(help.registerCommand(new GayCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalWhoKnowsCommand(dao)))
-                .addEventListeners(help.registerCommand(new RYMDumpImportCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumRatings(dao)))
-                .addEventListeners(help.registerCommand(new ArtistRatingsCommand(dao)))
-                .addEventListeners(help.registerCommand(new TopRatingsCommand(dao)))
-                .addEventListeners(help.registerCommand(new TopServerRatingsCommand(dao)))
-                .addEventListeners(help.registerCommand(new UserRatings(dao)))
-                .addEventListeners(help.registerCommand(new PrivacySetterCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalMatchingCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalAffinity(dao)))
-                .addEventListeners(help.registerCommand(new GlobalRecommendationCommand(dao)))
-                .addEventListeners(help.registerCommand(new LanguageCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumRecommendationCommand(dao)))
-                .addEventListeners(help.registerCommand(new UnratedAlbums(dao)))
-                .addEventListeners(help.registerCommand(new GlobalWhoKnowsAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoKnowsAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new BandInfoGlobalCommand(dao)))
-                .addEventListeners(help.registerCommand(new BandInfoServerCommand(dao)))
-                .addEventListeners(help.registerCommand(new HardwareStatsCommand(dao)))
-                .addEventListeners(help.registerCommand(new RYMChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new BillboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new BillboardAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new BillboardArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalBillboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalAlbumBillboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalArtistBillboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new MyCombosCommand(dao)))
-                .addEventListeners(help.registerCommand(new TopCombosCommand(dao)))
-                .addEventListeners(help.registerCommand(new BehindArtistsCommand(dao)))
-                .addEventListeners(help.registerCommand(new TopArtistComboCommand(dao)))
-                .addEventListeners(help.registerCommand(new PaceArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new RandomLinkRatingCommand(dao)))
-                .addEventListeners(help.registerCommand(new TopRatedRandomUrls(dao)))
-                .addEventListeners(help.registerCommand(new MyTopRatedRandomUrls(dao)))
-                .addEventListeners(help.registerCommand(new GuildTopAlbumsCommand(dao)))
-                .addEventListeners(help.registerCommand(new ServerAOTY(dao)))
-                .addEventListeners(evalCommand)
-                .addEventListeners(help.registerCommand(new ServerBanCommand(dao)))
-                .addEventListeners(help.registerCommand(new DiscoveredAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new DiscoveredArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new DiscoveredRatioCommand(dao)))
-                .addEventListeners(help.registerCommand(new DiscoveredAlbumRatioCommand(dao)))
-                .addEventListeners(help.registerCommand(new PaceAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new NPModeSetterCommand(dao)))
-                .addEventListeners(help.registerCommand(new ClockCommand(dao)))
-                .addEventListeners(help.registerCommand(new TimezoneCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoKnowsTagCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoIsTagCommand(dao)))
-                .addEventListeners(help.registerCommand(new BanTagCommand(dao)))
-                .addEventListeners(help.registerCommand(new GenreArtistsCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoKnowsLoonasCommand(dao)))
-                .addEventListeners(help.registerCommand(new MultipleWhoKnowsCommand(dao)))
-                .addEventListeners(help.registerCommand(new MultipleWhoIsTagCommand(dao)))
-                .addEventListeners(help.registerCommand(new MultipleWhoKnowsTagCommand(dao)))
-                .addEventListeners(help.registerCommand(new BanArtistTagCommand(dao)))
-                .addEventListeners(help.registerCommand(new ServerTags(dao)))
-                .addEventListeners(help.registerCommand(new TagsCommand(dao)))
-                .addEventListeners(help.registerCommand(new IndexCommand(dao)))
-                .addEventListeners(help.registerCommand(new LyricsCommand(dao)))
-                .addEventListeners(help.registerCommand(new LocalWhoKnowsSongCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalWhoKnowSongCommand(dao)))
-                .addEventListeners(help.registerCommand(new AudioFeaturesCommand(dao)))
-                .addEventListeners(help.registerCommand(new MilestoneCommand(dao)))
-                .addEventListeners(help.registerCommand(new TrackCrownsCommand(dao)))
-                .addEventListeners(help.registerCommand(new TrackCrownsLeaderboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new TasteArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new TasteAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new TasteTrackCommand(dao)))
-                .addEventListeners(help.registerCommand(new RefreshLastfmDataCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalAlbumCrownsCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalTrackCrownsCommand(dao)))
-                .addEventListeners(help.registerCommand(new MirroredTracksCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalTrackArtistCrownsCommand(dao)))
-                .addEventListeners(help.registerCommand(new TrackArtistCrownsCommand(dao)))
-                .addEventListeners(help.registerCommand(new TagWithYearCommand(dao, channelId)))
+                .addEventListeners(help.registerCommand(prefixCommand))
+                .addEventListeners(new VoiceListener())
+                .addEventListeners(help.registerCommand(tagWithYearCommand))
+                .addEventListeners(help.registerCommand(featuredCommand))
                 .addEventListeners(new ConstantListener(channelId, dao))
-
-
+                .addEventListeners((Object[]) scanListeners(help))
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
                     messageDisablingService = new MessageDisablingService(shard, dao);
                     prefixCommand.onStartup(shard);
@@ -408,6 +268,31 @@ public class Chuu {
         }
     }
 
+    private static MyCommand<?>[] scanListeners(HelpCommand help) {
+        try (ScanResult result = new ClassGraph().acceptPackages("core.commands").scan()) {
+            return result.getAllClasses().stream().filter(x -> x.isStandardClass() && !x.isAbstract())
+                    .filter(x -> !x.getSimpleName().equals(HelpCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(AdministrativeCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(PrefixCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(TagWithYearCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(EvalCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(FeaturedCommand.class.getSimpleName()))
+                    .filter(x -> x.extendsSuperclass("core.commands.abstracts.MyCommand"))
+                    .map(x -> {
+                        try {
+                            return (MyCommand<?>) x.loadClass().getConstructor(ChuuService.class).newInstance(dao);
+                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                            throw new ChuuServiceException(e);
+                        }
+
+                    })
+                    .peek(help::registerCommand)
+                    .toArray(MyCommand<?>[]::new);
+        } catch (Exception ex) {
+            logger.error("There was an error while registering the commands!", ex);
+            throw new ChuuServiceException(ex);
+        }
+    }
 
     private static void initPrivateLastfms(ChuuService dao) {
         privateLastFms.addAll(dao.getPrivateLastfmIds());
@@ -465,6 +350,15 @@ public class Chuu {
 
     public static MessageDisablingService getMessageDisablingService() {
         return messageDisablingService;
+    }
+
+    public static String getRandomSong(String name) {
+
+        return null;
+    }
+
+    public static boolean isLoaded() {
+        return shardManager.getShardsRunning() == shardManager.getShardsTotal();
     }
 /*
     public static MemberCachePolicy cacheMember = Chuu::caching;

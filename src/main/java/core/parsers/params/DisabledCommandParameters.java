@@ -1,6 +1,6 @@
 package core.parsers.params;
 
-import core.commands.MyCommand;
+import core.commands.abstracts.MyCommand;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class DisabledCommandParameters extends CommandParameters {

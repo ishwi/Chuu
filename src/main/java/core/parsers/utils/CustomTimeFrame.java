@@ -1,6 +1,6 @@
 package core.parsers.utils;
 
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.TimeFrameEnum;
 
@@ -79,27 +79,19 @@ public class CustomTimeFrame {
     }
 
     public boolean isNormally() {
-        switch (type) {
-            case NORMAL:
-                return true;
-            case NATURAL:
-                return (count == 1 && !EnumSet.of(NaturalTimeFrameEnum.MINUTE, NaturalTimeFrameEnum.SECOND, NaturalTimeFrameEnum.HOUR).contains(naturalTimeFrameEnum));
-            case CUSTOM:
-                return false;
-        }
-        return false;
+        return switch (type) {
+            case NORMAL -> true;
+            case NATURAL -> (count == 1 && !EnumSet.of(NaturalTimeFrameEnum.MINUTE, NaturalTimeFrameEnum.SECOND, NaturalTimeFrameEnum.HOUR).contains(naturalTimeFrameEnum));
+            case CUSTOM -> false;
+        };
     }
 
     public boolean isAllTime() {
-        switch (type) {
-            case NORMAL:
-                return timeFrameEnum == TimeFrameEnum.ALL;
-            case NATURAL:
-                return naturalTimeFrameEnum == NaturalTimeFrameEnum.ALL;
-            case CUSTOM:
-                return false;
-        }
-        return false;
+        return switch (type) {
+            case NORMAL -> timeFrameEnum == TimeFrameEnum.ALL;
+            case NATURAL -> naturalTimeFrameEnum == NaturalTimeFrameEnum.ALL;
+            case CUSTOM -> false;
+        };
 
     }
 

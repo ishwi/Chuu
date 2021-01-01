@@ -4,7 +4,7 @@ import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ArtistException;
 import core.apis.last.exceptions.ExceptionEntity;
 import core.apis.last.exceptions.TrackException;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 
 public class LastFmEntityNotFoundException extends LastFmException {
     private final transient ExceptionEntity exceptionCause;

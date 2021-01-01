@@ -1,6 +1,6 @@
 package core.services;
 
-import core.commands.MyCommand;
+import core.commands.abstracts.MyCommand;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;

@@ -4,7 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.last.chartentities.PreComputedChartEntity;
 import core.apis.last.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TriFunction;

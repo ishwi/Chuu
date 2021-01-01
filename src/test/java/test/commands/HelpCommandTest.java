@@ -1,8 +1,8 @@
 package test.commands;
 
-import core.commands.AlbumChartCommand;
-import core.commands.HelpCommand;
-import core.commands.MyCommand;
+import core.commands.abstracts.MyCommand;
+import core.commands.charts.AlbumChartCommand;
+import core.commands.config.HelpCommand;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import org.junit.Assert;

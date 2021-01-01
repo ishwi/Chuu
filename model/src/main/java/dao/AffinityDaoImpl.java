@@ -52,11 +52,11 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public Affinity getPercentageStats(Connection connection, String ownerLastfmID, String receiverLastFMId, int threshold) {
         @Language("MariaDB") String queryBody = "SELECT Count(*) AS matchingcount, \n" +
-                "       Least((SELECT Count(*) \n" +
+                "       ((SELECT Count(*) \n" +
                 "              FROM   scrobbled_artist \n" +
-                "              WHERE  lastfm_id = ?), (SELECT Count(*) \n" +
+                "              WHERE  lastfm_id = ?) * (SELECT Count(*) \n" +
                 "                                                    FROM   scrobbled_artist \n" +
-                "                                                    WHERE  lastfm_id = ?)) AS minsize, \n" +
+                "                                                    WHERE  lastfm_id = ?))  AS minsize, \n" +
                 "\t   (SELECT count(*) FROM affinity WHERE abs(p1 - p2 ) < ? * 2) AS closematch,\n" +
                 "\t   (SELECT count(*) FROM affinity WHERE (p1 > (? * 10)  AND p2 > (? * 5)) OR (p2 > (? * 10) AND  p1 > (? * 5))) AS truematching\n" +
                 "\t   FROM affinity\n";

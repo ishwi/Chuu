@@ -47,4 +47,7 @@ public interface TrackDao {
 
     void storeTrackList(Connection connection, long albumId, List<ScrobbledTrack> trackList);
 
+    Optional<FullAlbumEntity> getServerAlbumTrackList(Connection connection, long albumId, long guildId);
+
+    Optional<FullAlbumEntity> getGlobalAlbumTrackList(Connection connection, long albumId);
 }

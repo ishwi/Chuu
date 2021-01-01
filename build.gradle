@@ -17,23 +17,29 @@ group 'ish'
 version '1.0'
 apply plugin: 'java'
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 15
+targetCompatibility = 15
 
 repositories {
     mavenCentral()
     jcenter()
     maven { url 'https://dl.bintray.com/natanbc/maven' }
 
+    maven {
+        url 'https://dl.bintray.com/sedmelluq/com.sedmelluq'
+    }
+
 }
 
 
 compileJava {
-    options.compilerArgs += ["-Xlint:deprecation"]
+    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview"]
+
 }
-//test {
-//    jvmArgs '--enable-preview'
-//}
+test {
+    jvmArgs '--enable-preview'
+
+}
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 
@@ -44,20 +50,22 @@ dependencies {
     implementation group: 'org.knowm.xchart', name: 'xchart', version: '3.6.5'
     implementation 'se.michaelthelin.spotify:spotify-web-api-java:6.4.1'
 
-// https://mvnrepository.com/artifact/com.mchange/c3p0
-// https://mvnrepository.com/artifact/se.michaelthelin.spotify/spotify-web-api-java
+
     implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
-// https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12
-// https://mvnrepository.com/artifact/org.slf4j/slf4j-jdk14
+
+
+    // Audio
+    implementation 'com.sedmelluq:lavaplayer:1.3.64'
+    implementation 'com.github.natanbc:lavadsp:0.7.5'
+    implementation 'com.sedmelluq:lavaplayer-ext-youtube-rotator:0.2.3'
+    implementation 'com.sedmelluq:jda-nas:1.1.0'
 
     implementation 'com.neovisionaries:nv-i18n:1.27'
+    implementation 'com.github.natanbc:java-eval:1.0'
+    compile group: 'com.google.guava', name: 'guava', version: '30.1-jre'
 
-    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
 
-    implementation('net.dv8tion:JDA:4.2.0_219') {
-        exclude module: 'opus-java'
-    }
-
+    implementation('net.dv8tion:JDA:4.2.0_224')
 // https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
 
@@ -67,11 +75,10 @@ dependencies {
 
     implementation group: 'org.json', name: 'json', version: '20200518'
 
-    //For Youtube search api
-    implementation 'com.google.api-client:google-api-client:1.30.11'
-    implementation 'com.google.apis:google-api-services-youtube:v3-rev20200618-1.30.9'
-    implementation 'com.google.oauth-client:google-oauth-client-jetty:1.31.2'
     implementation 'org.beryx:awt-color-factory:1.0.2'
+    // https://mvnrepository.com/artifact/io.github.classgraph/classgraph
+    compile group: 'io.github.classgraph', name: 'classgraph', version: '4.8.98'
+
 
 // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-jpeg
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-core', version: '3.6'
@@ -86,9 +93,13 @@ dependencies {
     implementation group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.13'
 // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
     implementation group: 'com.zaxxer', name: 'HikariCP', version: '3.4.5'
+
+
+    // TEST
 // https://mvnrepository.com/artifact/org.awaitility/awaitility
     testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.0.3'
     testImplementation group: 'com.openpojo', name: 'openpojo', version: '0.8.13'
+
 // https://mvnrepository.com/artifact/org.ow2.asm/asm
     testImplementation group: 'org.ow2.asm', name: 'asm', version: '9.0'
 
@@ -101,7 +112,7 @@ dependencies {
     //a
     testImplementation group: 'com.pholser', name: 'junit-quickcheck-core', version: '0.9.5'
     testImplementation "org.mockito:mockito-core:3.6.0"
-    implementation 'com.github.natanbc:java-eval:1.0'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
 
 
 }

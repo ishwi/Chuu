@@ -3,7 +3,7 @@ package core.parsers.params;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.TopEntity;
 import core.apis.last.chartentities.UrlCapsule;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.OptionalEntity;
 import core.parsers.utils.CustomTimeFrame;

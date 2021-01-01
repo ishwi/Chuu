@@ -1,7 +1,7 @@
 package core.imagerenderer;
 
 import core.Chuu;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import dao.entities.Country;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.transcoder.TranscoderInput;

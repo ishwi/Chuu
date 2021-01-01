@@ -3363,6 +3363,25 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
     }
 
+    @Override
+    public Optional<String> findArtistUrlAbove(Connection connection, long artistId, int upvotes) {
+        Set<Pair<String, String>> bannedTags = new HashSet<>();
+        String queryString = "Select url from alt_url a where artist_id = ? and score > ? order by rand()";
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, artistId);
+            preparedStatement.setInt(2, upvotes);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return Optional.of(resultSet.getString(1));
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return Optional.empty();
+    }
+
 
     private void getScoredAlbums(List<ScoredAlbumRatings> returnList, ResultSet resultSet) throws SQLException {
 

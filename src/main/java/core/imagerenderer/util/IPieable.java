@@ -1,6 +1,6 @@
 package core.imagerenderer.util;
 
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import core.parsers.params.CommandParameters;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieChartBuilder;

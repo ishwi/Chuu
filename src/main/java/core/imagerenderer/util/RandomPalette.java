@@ -1,6 +1,6 @@
 package core.imagerenderer.util;
 
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import core.imagerenderer.GraphicUtils;
 import org.beryx.awt.color.ColorFactory;
 import org.knowm.xchart.PieChart;

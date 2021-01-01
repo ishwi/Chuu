@@ -10,7 +10,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.last.TopEntity;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
@@ -32,7 +32,7 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-import static core.commands.AlbumRatings.getStartsFromScore;
+import static core.commands.rym.AlbumRatings.getStartsFromScore;
 
 public class NPModeBuilder {
     static final Map<NPMode, Integer> footerIndexes;

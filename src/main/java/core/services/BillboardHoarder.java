@@ -5,18 +5,20 @@ import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.*;
 
 import java.sql.Date;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BillboardHoarder {
@@ -30,14 +32,6 @@ public class BillboardHoarder {
     private final ConcurrentLastFM lastFM;
     private final int weekId;
     private final Map<String, Long> dbIdMap = new HashMap<>();
-    private final java.util.function.Function<TimeZone, Function<LocalDate, ZoneOffset>> phaserBuilder = (t) -> (LocalDate l) -> {
-        try {
-            return ZoneOffset.ofTotalSeconds(t.getOffset(l.getEra().getValue(), l.getYear(), l.getMonth().getValue(), l.getDayOfMonth(), l.getDayOfWeek().getValue(), 0) / 1000);
-        } catch (DateTimeException ex) {
-            System.out.println("asodjua");
-        }
-        return null;
-    };
 
 
     public BillboardHoarder(List<UsersWrapper> users, ChuuService service, Week week, ConcurrentLastFM lastFM) {

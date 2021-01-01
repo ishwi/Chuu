@@ -152,3 +152,6 @@ ALTER TABLE command_logs
     MODIFY COLUMN nanos bigint(20);
 alter table album
     add index (release_year);
+
+alter table user
+    add column show_botted boolean default true;

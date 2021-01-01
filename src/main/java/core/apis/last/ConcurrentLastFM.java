@@ -37,6 +37,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -335,7 +336,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         return returnList;
     }
 
-    private int getDailyChart(String username, BlockingQueue<UrlCapsule> queue, BiFunction<JSONObject, Integer, UrlCapsule> parser, int x, int y) throws LastFmException {
+    private int getDailyChart(String username, Queue<UrlCapsule> queue, BiFunction<JSONObject, Integer, UrlCapsule> parser, int x, int y) throws LastFmException {
         String url = BASE + GET_ALL + username + apiKey + ENDING;
         long time = OffsetDateTime.now().atZoneSameInstant(ZoneOffset.UTC).minus(1, ChronoUnit.DAYS).toEpochSecond();
 
@@ -384,7 +385,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     }
 
-    public int getChart(String userName, CustomTimeFrame customTimeFrame, int x, int y, TopEntity entity, BiFunction<JSONObject, Integer, UrlCapsule> parser, BlockingQueue<UrlCapsule> queue) throws
+    public int getChart(String userName, CustomTimeFrame customTimeFrame, int x, int y, TopEntity entity, BiFunction<JSONObject, Integer, UrlCapsule> parser, Queue<UrlCapsule> queue) throws
             LastFmException {
         if (customTimeFrame.getType() != CustomTimeFrame.Type.NORMAL) {
             return doCustomChart(userName, customTimeFrame, x, y, entity, parser, queue);
@@ -443,7 +444,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         return limit;
     }
 
-    private int doCustomChart(String userName, CustomTimeFrame customTimeFrame, int x, int y, TopEntity entity, BiFunction<JSONObject, Integer, UrlCapsule> parser, BlockingQueue<UrlCapsule> queue) throws LastFmException {
+    private int doCustomChart(String userName, CustomTimeFrame customTimeFrame, int x, int y, TopEntity entity, BiFunction<JSONObject, Integer, UrlCapsule> parser, Queue<UrlCapsule> queue) throws LastFmException {
         Pair<Long, Long> fromTo = ChartUtil.getFromTo(customTimeFrame);
         return getRangeChartChart(userName, fromTo.getLeft(), fromTo.getRight(), x, y, entity, parser, queue, customTimeFrame);
     }
@@ -1333,6 +1334,91 @@ public class ConcurrentLastFM {//implements LastFMService {
         return list;
     }
 
+    public NowPlayingArtist getNPWithUpdate(String username, int from, boolean returnNp) throws
+            LastFmException {
+        List<TrackWithArtistId> list = new ArrayList<>();
+        String url = BASE + GET_ALL + username + apiKey + ENDING + "&extended=1" + "&from=" + (from);
+        CompletableFuture<Object> objectCompletableFuture = new CompletableFuture<>();
+        AtomicInteger page = new AtomicInteger(0);
+        AtomicInteger totalPages = new AtomicInteger(1);
+        boolean firstPage = false;
+        String urlPage = url + "&page=" + page.incrementAndGet();
+        JSONObject obj = initGetRecentTracks(username, urlPage, new CustomTimeFrame(TimeFrameEnum.WEEK));
+        JSONObject attrObj = obj.getJSONObject("@attr");
+        totalPages.set(attrObj.getInt("totalPages"));
+        if (totalPages.get() == 0) {
+            throw new LastFMNoPlaysException(username, new CustomTimeFrame(TimeFrameEnum.WEEK));
+        }
+        JSONArray arr = obj.getJSONArray("track");
+        if (arr.length() == 0) {
+            throw new LastFMNoPlaysException(username, new CustomTimeFrame(TimeFrameEnum.WEEK));
+        }
+        JSONObject trackObj = arr.getJSONObject(0);
+        boolean np = (trackObj.has("@attr"));
+        JSONObject artistObj = trackObj.getJSONObject("artist");
+        String artistName = artistObj.getString("#text");
+        String mbid = artistObj.getString("mbid");
+        String albumName = trackObj.getJSONObject("album").getString("#text");
+        String songName = trackObj.getString("name");
+        String imageUrl = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
+
+
+        CompletableFuture.supplyAsync(t -> {
+
+
+            try {
+                if (page.get() == 1) {
+                    handleList(obj, list);
+
+                }
+                while (page.get() < totalPages.get()) {
+                    String urlPage = url + "&page=" + ++page;
+                    JSONObject obj = initGetRecentTracks(username, urlPage, new CustomTimeFrame(TimeFrameEnum.WEEK));
+                    JSONObject attrObj = obj.getJSONObject("@attr");
+                    totalPages.set(attrObj.getInt("totalPages");
+                    if (totalPages == 0) {
+                        throw new LastFMNoPlaysException(username, new CustomTimeFrame(TimeFrameEnum.WEEK));
+                    }
+
+
+                }
+                return list;
+            } catch (Exception e) {
+
+            }
+            return null;
+        });
+        return new NowPlayingArtist(artistName, mbid, np, albumName, songName, imageUrl, username);
+    }
+
+    private void handleList(JSONObject obj, List<TrackWithArtistId> list) {
+        JSONArray arr = obj.getJSONArray("track");
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject trackObj = arr.getJSONObject(i);
+            if (trackObj.has("@attr"))
+                continue;
+
+            String trackName = trackObj.getString("name");
+            String mbid = trackObj.getString("mbid");
+
+            JSONObject artistObj = trackObj.getJSONObject("artist");
+            String artistName = artistObj.getString("name");
+            String artistMbid = artistObj.getString("mbid");
+
+            int utc = trackObj.getJSONObject("date").getInt("uts");
+            TrackWithArtistId track = new TrackWithArtistId(artistName, trackName, 0, false, 0, utc);
+            track.setArtistMbid(artistMbid);
+            track.setMbid(mbid);
+            JSONObject albumObj = trackObj.optJSONObject("album");
+
+            if (albumObj != null) {
+                track.setAlbum(albumObj.getString("#text"));
+                track.setAlbumMbid(albumObj.getString("mbid"));
+            }
+            list.add(track);
+        }
+    }
+
 
     public List<TimestampWrapper<Track>> getTracksAndTimestamps(String username, int from, int to) throws
             LastFmException {
@@ -1562,7 +1648,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         }
     }
 
-    public int getRangeChartChart(String userName, long from, long to, int x, int y, TopEntity entity, BiFunction<JSONObject, Integer, UrlCapsule> parser, BlockingQueue<UrlCapsule> queue, CustomTimeFrame customTimeFrame) throws LastFmException {
+    public int getRangeChartChart(String userName, long from, long to, int x, int y, TopEntity entity, BiFunction<JSONObject, Integer, UrlCapsule> parser, Queue<UrlCapsule> queue, CustomTimeFrame customTimeFrame) throws LastFmException {
         int requestedSize = x * y;
 
         String apiMethod = entity.getCustomApiMethod();

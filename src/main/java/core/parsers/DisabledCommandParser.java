@@ -1,7 +1,7 @@
 package core.parsers;
 
-import core.commands.DisabledCommand;
-import core.commands.MyCommand;
+import core.commands.abstracts.MyCommand;
+import core.commands.moderation.DisabledCommand;
 import core.exceptions.LastFmException;
 import core.parsers.params.DisabledCommandParameters;
 import dao.exceptions.InstanceNotFoundException;

@@ -31,7 +31,7 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
             return null;
         }
 
-        Optional<String> first = collect.stream().filter(x -> words[0].equals(x)).findFirst();
+        Optional<String> first = collect.stream().filter(x -> words[0].equalsIgnoreCase(x)).findFirst();
         if (first.isEmpty()) {
             sendError("Pls introduce one of the following: " + String.join(",", collect), e);
             return null;

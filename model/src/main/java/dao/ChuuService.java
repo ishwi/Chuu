@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -2302,6 +2303,15 @@ public class ChuuService {
         }
     }
 
+    public void setShowBotted(long discordId, boolean show_botted) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setUserProperty(connection, discordId, "show_botted", show_botted);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
     public UsersWrapper getRandomUser() {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
@@ -2923,6 +2933,54 @@ public class ChuuService {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+
+
+    }
+
+
+    public Optional<FullAlbumEntity> getServerAlbumTrackList(long albumId, long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return trackDao.getServerAlbumTrackList(connection, albumId, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
+
+    public Optional<FullAlbumEntity> getGlobalAlbumTrackList(long albumId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return trackDao.getGlobalAlbumTrackList(connection, albumId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public Map<Integer, Integer> getUserCurve(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return rymDao.getUserCurve(connection, discordId);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
+
+    public Optional<String> findArtistUrlAbove(long artistId, int upvotes) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.findArtistUrlAbove(connection, artistId, upvotes);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
+
+    public CompletableFuture<Object> getCustomPlaylist(long authorId, String name) {
+        return null;
 
 
     }

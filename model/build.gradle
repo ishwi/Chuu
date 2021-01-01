@@ -12,12 +12,17 @@ apply plugin: 'java-library'
 apply plugin: 'idea'
 
 compileJava {
-    options.compilerArgs += ["-Xlint:deprecation"]
+    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview"]
+
+}
+test {
+    jvmArgs '--enable-preview'
+
 }
 
 compileJava.options.encoding = 'UTF-8'
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 15
+targetCompatibility = 15
 group 'ish'
 version '1.0'
 

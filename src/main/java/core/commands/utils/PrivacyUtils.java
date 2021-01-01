@@ -1,7 +1,6 @@
 package core.commands.utils;
 
 import core.Chuu;
-import core.commands.CommandUtil;
 import dao.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

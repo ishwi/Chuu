@@ -1,7 +1,7 @@
 package core.apis.last.chartentities;
 
 import core.apis.last.TopEntity;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartGroupParameters;
 import core.parsers.params.ChartParameters;

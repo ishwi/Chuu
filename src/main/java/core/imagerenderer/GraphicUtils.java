@@ -1,7 +1,6 @@
 package core.imagerenderer;
 
 import core.Chuu;
-import core.apis.youtube.Search;
 import core.imagerenderer.stealing.blur.GaussianFilter;
 import core.imagerenderer.util.CIELab;
 import core.imagerenderer.util.D;
@@ -35,7 +34,7 @@ public class GraphicUtils {
     private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 14);
 
     static {
-        try (InputStream in = Search.class.getResourceAsStream("/" + "all.properties")) {
+        try (InputStream in = GraphicUtils.class.getResourceAsStream("/" + "all.properties")) {
             Properties properties = new Properties();
             properties.load(in);
             String cache_folder = properties.getProperty("CACHE_FOLDER");
