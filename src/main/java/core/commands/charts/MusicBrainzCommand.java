@@ -79,15 +79,20 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
         List<AlbumInfo> emptyMbid;
         Set<AlbumInfo> albumsMbizMatchingYear = new HashSet<>();
 
+        Year year = param.getYear();
         if (!isByTime && param.getTimeFrameEnum().isAllTime()) {
-            List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumByMbid(param.getLastfmID());
-            AtomicInteger atomicInteger = new AtomicInteger(0);
+            List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumsOfYear(param.getLastfmID(), year);
+            albumsMbizMatchingYear.addAll(userAlbumByMbid.stream().map(x -> new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList()));
 
-            nonEmptyMbid = userAlbumByMbid.stream().peek(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays(), param.isAside())))
+            AtomicInteger atomicInteger = new AtomicInteger(0);
+            List<ScrobbledAlbum> userAlbumsWithNoYear = getService().getUserAlbumsWithNoYear(param.getLastfmID());
+            userAlbumByMbid.forEach(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays(), param.isAside())));
+            userAlbumsWithNoYear.forEach(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays(), param.isAside())));
+            Map<Boolean, List<AlbumInfo>> results = userAlbumsWithNoYear.stream()
                     .map(x -> new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist()))
-                    .filter(albumInfo -> !(albumInfo.getMbid() == null || albumInfo.getMbid().isEmpty()))
-                    .collect(Collectors.toList());
-            emptyMbid = new ArrayList<>();
+                    .collect(Collectors.partitioningBy(albumInfo -> albumInfo.getMbid() == null || albumInfo.getMbid().isEmpty()));
+            nonEmptyMbid = results.get(false);
+            emptyMbid = results.get(true);
         } else {
             BiFunction<JSONObject, Integer, UrlCapsule> parser;
             if (param.getTimeFrameEnum().getTimeFrameEnum().equals(TimeFrameEnum.DAY)) {
@@ -104,28 +109,19 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
                 }
             }
 
+
             lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
             //List of obtained elements
-            List<AlbumInfo> collect = queue.stream()
-                    .map(capsule ->
-                            new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName())).collect(Collectors.toList());
-
-            List<AlbumInfo> albumInfos = getService().albumsOfYear(collect, param.getYear());
-            albumsMbizMatchingYear.addAll(albumInfos);
-
-
             Map<Boolean, List<AlbumInfo>> results =
                     queue.stream()
 
                             .map(capsule ->
                                     new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()))
-                            .filter(x -> !albumsMbizMatchingYear.contains(x))
                             .collect(Collectors.partitioningBy(albumInfo -> albumInfo.getMbid().isEmpty()));
             nonEmptyMbid = results.get(false);
             emptyMbid = results.get(true);
-        }
 
-        Year year = param.getYear();
+        }
         if (isByTime) {
             return handleTimedChart(param, nonEmptyMbid, emptyMbid, queue);
         }
@@ -179,22 +175,38 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartYearParameters params, int count) {
         Year year = params.getYear();
-        return params.initEmbed("s top albums from " + year.toString(), embedBuilder, " has " + count + " albums from " + year.toString() + " in their top " + searchSpace + " albums", params.getLastfmID());
+        String s = " in their top " + searchSpace + " albums";
+        if (year.getValue() != Year.now().getValue()) {
+            s = " in their library";
+        }
+        return params.initEmbed("s top albums from " + year.toString(), embedBuilder, " has " + count + " albums from " + year.toString() + s, params.getLastfmID());
     }
 
     @Override
     public String configPieChart(PieChart pieChart, ChartYearParameters params, int count, String initTitle) {
         Year year = params.getYear();
         String time = params.getTimeFrameEnum().getDisplayString();
+        String s;
+        if (year.getValue() != Year.now().getValue()) {
+            s = "in their library";
+        } else {
+            s = "in their top " + searchSpace + " albums";
+        }
         pieChart.setTitle(String.format("%ss top albums from %s%s", initTitle, year.toString(), time));
-        return String.format("%s has %d albums from %s in their top %d albums%s (showing top %d)", initTitle, count, year.toString(), searchSpace, time, params.getX() * params.getY());
+        return String.format("%s has %d albums from %s %s%s (showing top %d)", initTitle, count, year.toString(), s, time, params.getX() * params.getY());
     }
 
     @Override
     public void noElementsMessage(ChartYearParameters parameters) {
         MessageReceivedEvent e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
-        sendMessageQueue(e, String.format("Couldn't find any %s album in %s top %d albums%s!", parameters.getYear().toString(), ingo.getUsername(), searchSpace, parameters.getTimeFrameEnum().getDisplayString()));
+        String s;
+        if (parameters.getYear().getValue() != Year.now().getValue()) {
+            s = "in their library";
+        } else {
+            s = "in their top " + searchSpace + " albums";
+        }
+        sendMessageQueue(e, String.format("Couldn't find any %s album %s%s!", parameters.getYear().toString(), s, parameters.getTimeFrameEnum().getDisplayString()));
     }
 
     @Override

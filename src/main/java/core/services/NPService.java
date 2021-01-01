@@ -26,6 +26,10 @@ public class NPService {
 
     public NowPlayingArtist getNowPlaying() throws InstanceNotFoundException, LastFmException {
         UpdaterUserWrapper wrapper = db.getUserUpdateStatus(user.getDiscordId());
+        if (user.isPrivateUpdate()) {
+            return lastFM.getNowPlayingInfo(user.getName());
+        }
+
         NPUpdate npWithUpdate = lastFM.getNPWithUpdate(user.getName(), wrapper.getTimestamp(), true);
         boolean removeFlag = true;
         try {

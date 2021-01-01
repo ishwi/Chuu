@@ -238,6 +238,58 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
         }
     }
 
+
+    @Override
+    public List<ScrobbledAlbum> getUserAlbumsOfYear(Connection connection, String username, Year year) {
+        List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
+        String s = "select b.album_name,c.name,b.url,b.mbid,a.playnumber  from scrobbled_album a join album b on a.album_id = b.id join artist c on a.artist_id = c.id  where a.lastfm_id = ? and b.release_year = ? order by a.playnumber desc";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            preparedStatement.setString(1, username);
+            preparedStatement.setInt(2, year.getValue());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String album = resultSet.getString(1);
+                String artist = resultSet.getString(2);
+                String url = resultSet.getString(3);
+                String mbid = resultSet.getString(4);
+                int playnumber = resultSet.getInt(5);
+                ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, artist, url, mbid);
+                scrobbledAlbum.setCount(playnumber);
+                scrobbledAlbums.add(scrobbledAlbum);
+            }
+        } catch (
+                SQLException throwables) {
+
+            throw new ChuuServiceException(throwables);
+        }
+        return scrobbledAlbums;
+    }
+
+    @Override
+    public List<ScrobbledAlbum> getUserAlbumsWithNoYear(Connection connection, String username) {
+        List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
+        String s = "select b.album_name,c.name,b.url,b.mbid,a.playnumber  from scrobbled_album a join album b on a.album_id = b.id join artist c on a.artist_id = c.id  where a.lastfm_id = ? and b.release_year is null order by a.playnumber desc";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String album = resultSet.getString(1);
+                String artist = resultSet.getString(2);
+                String url = resultSet.getString(3);
+                String mbid = resultSet.getString(4);
+                int playnumber = resultSet.getInt(5);
+                ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, artist, url, mbid);
+                scrobbledAlbum.setCount(playnumber);
+                scrobbledAlbums.add(scrobbledAlbum);
+            }
+        } catch (
+                SQLException throwables) {
+            throw new ChuuServiceException(throwables);
+        }
+        return scrobbledAlbums;
+    }
+
+
     @Override
     public void insertAlbumsOfYear(Connection connection, List<AlbumInfo> albumInfos, Year year) {
         @Language("MariaDB") String queryString = "update album join artist  on album.artist_id = artist.id set album.release_year = ?  WHERE (album.album_name,artist.name) in (%s)  ";

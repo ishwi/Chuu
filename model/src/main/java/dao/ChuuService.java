@@ -2981,7 +2981,23 @@ public class ChuuService {
 
     public CompletableFuture<Object> getCustomPlaylist(long authorId, String name) {
         return null;
+    }
 
+    public List<ScrobbledAlbum> getUserAlbumsOfYear(String username, Year year) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return albumDao.getUserAlbumsOfYear(connection, username, year);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 
+    public List<ScrobbledAlbum> getUserAlbumsWithNoYear(String username) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return albumDao.getUserAlbumsWithNoYear(connection, username);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 }

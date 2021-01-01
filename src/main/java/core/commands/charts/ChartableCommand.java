@@ -113,6 +113,14 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
                     chartQuality = ChartQuality.JPEG_BIG;
                 else if (chartSize >= 200)
                     chartQuality = ChartQuality.JPEG_SMALL;
+            } else {
+                if (e.getGuild().getMaxFileSize() == (50 << 20)) {
+                    if (chartSize > 1000) {
+                        chartQuality = ChartQuality.JPEG_BIG;
+                    }
+                } else if (chartSize > 4000) {
+                    chartQuality = ChartQuality.JPEG_BIG;
+                }
             }
         }
         BufferedImage image = CollageMaker
