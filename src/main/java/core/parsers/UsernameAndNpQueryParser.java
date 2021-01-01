@@ -4,7 +4,9 @@ import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
 import core.parsers.params.ExtraParameters;
 import core.parsers.params.WordParameter;
+import core.services.NPService;
 import dao.ChuuService;
+import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
@@ -27,8 +29,8 @@ public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordPara
 
         if (words.length == 0) {
             NowPlayingArtist np;
-            String userName = dao.findLastFMData(oneUser.getIdLong()).getName();
-            np = lastFM.getNowPlayingInfo(userName);
+            LastFMData lastFMData = dao.findLastFMData(oneUser.getIdLong());
+            np = new NPService(lastFM, lastFMData).getNowPlaying();
             return new ExtraParameters<>(e, new WordParameter(e, np.getArtistName() + " " + np.getSongName()), oneUser);
         } else {
             return new ExtraParameters<>(e, new WordParameter(e, String.join(" ", words)), oneUser);

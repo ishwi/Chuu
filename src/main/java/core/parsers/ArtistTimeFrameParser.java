@@ -3,6 +3,7 @@ package core.parsers;
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistTimeFrameParameters;
+import core.services.NPService;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
@@ -39,7 +40,7 @@ public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> 
         LastFMData lastFMData = findLastfmFromID(sample, e);
 
         if (words.length == 0) {
-            NowPlayingArtist np = lastFM.getNowPlayingInfo(lastFMData.getName());
+            NowPlayingArtist np = new NPService(lastFM, lastFMData).getNowPlaying();
             return new ArtistTimeFrameParameters(e, np.getArtistName(), lastFMData, timeFrame);
         } else {
             return new ArtistTimeFrameParameters(e, String.join(" ", words), lastFMData, timeFrame);

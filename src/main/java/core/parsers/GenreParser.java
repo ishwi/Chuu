@@ -5,6 +5,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.last.TopEntity;
 import core.exceptions.LastFmException;
 import core.parsers.params.GenreParameters;
+import core.services.NPService;
 import core.services.TagAlbumService;
 import core.services.TagArtistService;
 import dao.ChuuService;
@@ -39,7 +40,7 @@ public class GenreParser extends DaoParser<GenreParameters> {
         boolean autoDetected = false;
         if (words.length == 0) {
             lastFMData = findLastfmFromID(sample, e);
-            nowPlayingInfo = lastFM.getNowPlayingInfo(lastFMData.getName());
+            nowPlayingInfo = new NPService(lastFM, lastFMData).getNowPlaying();
             List<String> tags = lastFM.getTrackTags(1, TopEntity.TRACK, nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName());
             if (tags.isEmpty()) {
                 tags = lastFM.getTrackTags(1, TopEntity.ALBUM, nowPlayingInfo.getArtistName(), nowPlayingInfo.getAlbumName());

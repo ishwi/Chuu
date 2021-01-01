@@ -89,7 +89,7 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
                 .setTitle(milestone.getName(), LinkUtils.getLastFMArtistTrack(milestone.getArtist(), milestone.getName()))
                 .setThumbnail(milestone.getImageUrl() == null || milestone.getImageUrl().isBlank() ? null : milestone.getImageUrl())
                 .setDescription("**" + milestone.getArtist() + "** | " + milestone.getAlbum())
-                .setFooter("Obtained on " + date);
+                .setFooter("Obtained at " + date);
         e.getChannel().sendMessage(embedBuilder.build()).queue();
     }
 

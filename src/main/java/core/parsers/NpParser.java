@@ -3,6 +3,7 @@ package core.parsers;
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
 import core.parsers.params.NowPlayingParameters;
+import core.services.NPService;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
@@ -19,7 +20,7 @@ public class NpParser extends DaoParser<NowPlayingParameters> {
 
     public NowPlayingParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
         LastFMData data = atTheEndOneUser(e, subMessage);
-        NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(data.getName());
+        NowPlayingArtist nowPlayingArtist = new NPService(lastFM, data).getNowPlaying();
         return new NowPlayingParameters(e, data, nowPlayingArtist);
     }
 

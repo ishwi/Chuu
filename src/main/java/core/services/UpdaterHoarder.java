@@ -40,6 +40,13 @@ public class UpdaterHoarder {
         trackWithArtistIds = lastFM.getWeeklyBillboard(lastFMName,
                 user.getTimestamp()
                 , Integer.MAX_VALUE);
+        updateList(trackWithArtistIds);
+    }
+
+    public void updateList(List<TrackWithArtistId> trackWithArtistIds) {
+        if (trackWithArtistIds.isEmpty()) {
+            return;
+        }
         doArtistValidation(trackWithArtistIds);
         int max = trackWithArtistIds.stream().mapToInt(TrackWithArtistId::getUtc).max().orElse(user.getTimestamp()) + 1;
         Map<ScrobbledAlbum, Long> a = trackWithArtistIds.stream()

@@ -2,12 +2,16 @@ package core.services;
 
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
+import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
+import dao.entities.TrackWithArtistId;
 import dao.entities.UpdaterUserWrapper;
-import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class NPService {
     private final ConcurrentLastFM lastFM;
@@ -20,14 +24,27 @@ public class NPService {
         this.db = Chuu.getDao();
     }
 
-    public NowPlayingArtist getNowPlaying() throws InstanceNotFoundException {
-
+    public NowPlayingArtist getNowPlaying() throws InstanceNotFoundException, LastFmException {
         UpdaterUserWrapper wrapper = db.getUserUpdateStatus(user.getDiscordId());
-
-
-        new UsersWrapper(user.getDiscordId(), user.getName(), wrapper.getTimestamp(), )
-        UpdaterHoarder hoarder = new UpdaterHoarder(wrapper, db, lastFM);
-        hoarder.updateUser();
-        updaterService
+        NPUpdate npWithUpdate = lastFM.getNPWithUpdate(user.getName(), wrapper.getTimestamp(), true);
+        boolean removeFlag = true;
+        try {
+            if (!UpdaterService.lockAndContinue(user.getName())) {
+                removeFlag = false;
+                Chuu.getLogger().warn("User was being updated while querying for NP " + user.getName());
+                npWithUpdate.data.cancel(true);
+            } else {
+                npWithUpdate.data().thenAccept(list -> new UpdaterHoarder(wrapper, db, lastFM).updateList(list));
+            }
+            return npWithUpdate.np;
+        } finally {
+            if (removeFlag) {
+                UpdaterService.remove(user.getName());
+            }
+        }
     }
+
+    public record NPUpdate(NowPlayingArtist np, CompletableFuture<List<TrackWithArtistId>> data) {
+    }
+
 }
