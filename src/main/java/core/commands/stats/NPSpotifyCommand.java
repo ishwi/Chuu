@@ -5,6 +5,7 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.abstracts.NpCommand;
 import core.commands.utils.CommandUtil;
 import dao.ChuuService;
+import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -23,7 +24,7 @@ public class NPSpotifyCommand extends NpCommand {
     }
 
     @Override
-    public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e, long discordId) {
+    public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e, long discordId, LastFMData user) {
         MessageBuilder messageBuilder = new MessageBuilder();
         String uri = spotify
                 .searchItems(nowPlayingArtist.getSongName(), nowPlayingArtist.getArtistName(), nowPlayingArtist

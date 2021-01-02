@@ -4,6 +4,7 @@ import core.apis.last.TopEntity;
 import core.apis.last.chartentities.ChartUtil;
 import core.apis.last.chartentities.UrlCapsule;
 import core.commands.utils.CommandCategory;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
@@ -17,11 +18,14 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.abs;
 
 public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> {
+    private final Map<String, Pair<Integer, Integer>> timeFrameMap = new ConcurrentHashMap<>();
+
     public TasteCommand(ChuuService dao) {
         super(dao);
     }
@@ -73,16 +77,16 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
             Queue<UrlCapsule> lQ = new ArrayDeque<>();
             Queue<UrlCapsule> rQ = new ArrayDeque<>();
             try {
-                lastFM.getChart(og, CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()),
+                int ogSize = lastFM.getChart(og, CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()),
                         1000, 1, TopEntity.ARTIST, ChartUtil.getParser(CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, og), lQ);
-                lastFM.getChart(second, CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()),
+                int secondSize = lastFM.getChart(second, CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()),
                         1000, 1, TopEntity.ARTIST, ChartUtil.getParser(CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, og), rQ);
                 HashSet<UrlCapsule> set = new HashSet<>(lQ);
                 Map<UrlCapsule, UrlCapsule> map = rQ.stream().collect(Collectors.toMap(x -> x, x -> x));
                 record Holder(UrlCapsule first, UrlCapsule second, double total) {
 
                 }
-                return set.stream().map(o -> {
+                ResultWrapper<UserArtistComparison> collect = set.stream().map(o -> {
                     UrlCapsule urlCapsule = map.get(o);
                     if (urlCapsule != null) {
                         record Two(UrlCapsule first, UrlCapsule second) {
@@ -109,6 +113,10 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
                             return new UserArtistComparison(left.getPlays(), right.getPlays(), left.getArtistName(), og.getName(), second.getName(), null);
                         })
                         .collect(Collectors.collectingAndThen(Collectors.toList(), t -> new ResultWrapper<>(t.size(), t)));
+                if (collect.getRows() != 0 && CommandUtil.getEffectiveMode(og.getRemainingImagesMode(), params) == RemainingImagesMode.IMAGE) {
+                    this.timeFrameMap.put(params.getE().getMessageId(), Pair.of(ogSize, secondSize));
+                }
+                return collect;
 
             } catch (LastFmException e) {
 
@@ -121,7 +129,8 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
 
     @Override
     public Pair<Integer, Integer> getTasteBar(ResultWrapper<UserArtistComparison> resultWrapper, UserInfo og, UserInfo second, TwoUsersTimeframeParamaters params) {
-        return Pair.of(og.getPlayCount(), second.getPlayCount());
+        Pair<Integer, Integer> remove = this.timeFrameMap.remove(params.getE().getMessageId());
+        return remove != null ? remove : Pair.of(og.getPlayCount(), second.getPlayCount());
     }
 
 

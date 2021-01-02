@@ -41,7 +41,7 @@ public class NowPlayingCommand extends NpCommand {
 
 
     @Override
-    public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e, long discordId) {
+    public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e, long discordId, LastFMData user) {
         StringBuilder a = new StringBuilder();
 
         // Author fields cant have escaped markdown characters
@@ -88,7 +88,7 @@ public class NowPlayingCommand extends NpCommand {
 
             npModes = EnumSet.copyOf(IntStream.range(0, CommandUtil.rand.nextInt(4) + 1).mapToObj(x -> allModes.get(CommandUtil.rand.nextInt(allModes.size()))).collect(Collectors.toSet()));
         }
-        NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, LastFMData.ofDefault(), embedBuilder, scrobbledArtist, getService(), lastFM, serverName, mb, outputList);
+        NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, user, embedBuilder, scrobbledArtist, getService(), lastFM, serverName, mb, outputList);
         CompletableFuture<?> completableFutures = npModeBuilder.buildNp();
 
 

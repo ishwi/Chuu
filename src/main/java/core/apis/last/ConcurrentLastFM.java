@@ -1606,7 +1606,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     public int scrobblesSince(LastFMData user, OffsetDateTime date) throws LastFmException {
         long time = date.toEpochSecond();
-        String url = BASE + GET_ALL + user.getName() + apiKey + ENDING + "&extended=0&limit=1&from=" + (time + 1);
+        String url = BASE + GET_NOW_PLAYINH + user.getName() + apiKey + ENDING + "&extended=0&from=" + (time + 1);
         JSONObject obj = initGetRecentTracks(user, url, new CustomTimeFrame(TimeFrameEnum.ALL));
         JSONObject attrObj = obj.getJSONObject("@attr");
         return attrObj.getInt("total");

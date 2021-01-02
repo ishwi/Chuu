@@ -112,11 +112,20 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
 
             lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
             //List of obtained elements
+            List<AlbumInfo> collect = queue.stream()
+                    .map(capsule ->
+                            new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName())).collect(Collectors.toList());
+
+            List<AlbumInfo> albumInfos = getService().albumsOfYear(collect, param.getYear());
+            albumsMbizMatchingYear.addAll(albumInfos);
+
+
             Map<Boolean, List<AlbumInfo>> results =
                     queue.stream()
 
                             .map(capsule ->
                                     new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName()))
+                            .filter(x -> !albumsMbizMatchingYear.contains(x))
                             .collect(Collectors.partitioningBy(albumInfo -> albumInfo.getMbid().isEmpty()));
             nonEmptyMbid = results.get(false);
             emptyMbid = results.get(true);

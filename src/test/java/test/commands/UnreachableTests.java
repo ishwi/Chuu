@@ -29,7 +29,7 @@ public class UnreachableTests {
         NowPlayingArtist nowPlayingArtist = new NowPlayingArtist("doesnt exist asdasdaad", "", true, "doesnt existasdasdaad", "doesntasdasdaad exists", "", "pepito");
 
         //This will crash but it increase coverage :D
-        npSpotifyCommand.doSomethingWithArtist(nowPlayingArtist, null, -1L);
+        npSpotifyCommand.doSomethingWithArtist(nowPlayingArtist, null, -1L, null);
 
     }
 
