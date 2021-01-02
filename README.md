@@ -8,7 +8,7 @@ There are a ton of available commands like:
 - Artist, albums and songs leaderboards (crowns)<br>
 - Unique artists within a server<br>
 - Genre information about your artist/albums<br>
-- 80+ more commands!
+- 150+ more commands!
 
 ## Invite Link
 
@@ -18,18 +18,19 @@ There is also a support server if you want to ask any questions directly. [Join 
 ## Set-Up
 You can also build the bot and install it on your own.
 In order to do that you need:<br><br>
-- Java 9+ (only tested on 11 and 12, but should work on 9 and 10)<br><br>
-- MariaDB<br><br>
+
+- Java 15+<br><br>
+- MariaDB 10.5+<br><br>
 - Postgresql <br><br>
 - [A Discogs developer account](https://www.discogs.com/developers)
 
   - DC_KY
   - DC_SC
- 
+
 - [A Spotify developer account](https://developer.spotify.com/)
   - client_ID
   - client_Secret
-	
+
 - [A last.fm developer account](https://secure.last.fm/login?next=/api/account/create)
   - LASTFM_APIKEY
  
