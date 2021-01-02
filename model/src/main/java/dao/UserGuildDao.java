@@ -116,4 +116,6 @@ interface UserGuildDao {
     void changeDiscordId(Connection connection, long userId, String lastFmID);
 
     CommandStats getCommandStats(long discordId);
+
+    Set<LastFMData> findScrobbleableUsers(Connection connection, long guildId);
 }

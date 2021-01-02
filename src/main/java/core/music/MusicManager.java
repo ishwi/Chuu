@@ -20,13 +20,16 @@ package core.music;
 import com.sedmelluq.discord.lavaplayer.format.StandardAudioDataFormats;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import core.Chuu;
+import core.apis.last.LastFMFactory;
 import core.commands.utils.CommandUtil;
 import core.music.radio.PlaylistRadio;
 import core.music.radio.RadioTrackContext;
+import core.music.utils.ScrobblerEventListener;
 import core.music.utils.Task;
 import core.music.utils.TrackContext;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -149,6 +152,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         this.manager = manager;
         this.player.addListener(this);
         this.player.setVolume(100);
+        player.addListener(new ScrobblerEventListener(this, LastFMFactory.getNewInstance()));
     }
 
 
@@ -324,7 +328,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     }
 
 
-    public void onTrackException(AudioPlayer player, AudioTrack track, Exception exception) {
+    public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
         repeatOption = RepeatOption.NONE;
 
         if (exception.toString().contains("decoding")) {
@@ -334,8 +338,9 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         var channel = getGuild().getTextChannelById(track.getUserData(TrackContext.class).channelRequester());
 
         if (System.currentTimeMillis() > lastErrorAnnounced + 5000) {
-            channel.sendMessage("An unknown error occurred while playing **${track.info.embedTitle}**:\n${exception.friendlierMessage()}").queue((t) -> lastErrorAnnounced = System.currentTimeMillis());
+            channel.sendMessage(String.format("An unknown error occurred while playing **%s**:\n%s", track.getInfo().title, exception.getMessage())).queue((t) -> lastErrorAnnounced = System.currentTimeMillis());
         }
+
     }
 
     public void onTrackStart(AudioPlayer player, AudioTrack track) {

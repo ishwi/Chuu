@@ -30,6 +30,11 @@ import java.util.regex.Pattern;
 
 public abstract class Loader {
 
+    public AudioItem doYoutubeSearch(DefaultAudioPlayerManager manager, String identifier) {
+        AudioItem audioItem = youtubeAudioSourceManager.loadItem(manager, new AudioReference(identifier, null));
+        return audioItem;
+    }
+
     protected final YoutubeAudioSourceManager youtubeAudioSourceManager;
 
     protected Loader(YoutubeAudioSourceManager youtubeAudioSourceManager) {
@@ -45,8 +50,7 @@ public abstract class Loader {
         return CompletableFuture.supplyAsync(() -> youtubeAudioSourceManager.loadItem(manager, new AudioReference(identifier, null)));
     }
 
-    public AudioItem doYoutubeSearch(DefaultAudioPlayerManager manager, String identifier) {
-        return youtubeAudioSourceManager.loadItem(manager, new AudioReference(identifier, null));
+    record Metadata(String artist, String album, String song, String url) {
     }
 
     protected void check(boolean condition, String message) {

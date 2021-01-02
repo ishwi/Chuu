@@ -3085,4 +3085,12 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+
+    public Set<LastFMData> findScrobbleableUsers(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.findScrobbleableUsers(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }

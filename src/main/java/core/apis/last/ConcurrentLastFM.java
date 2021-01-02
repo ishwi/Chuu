@@ -1,5 +1,8 @@
 package core.apis.last;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import core.Chuu;
 import core.apis.ClientSingleton;
 import core.apis.last.chartentities.ChartUtil;
@@ -10,6 +13,7 @@ import core.apis.last.exceptions.ArtistException;
 import core.apis.last.exceptions.ExceptionEntity;
 import core.apis.last.exceptions.TrackException;
 import core.exceptions.*;
+import core.music.utils.Scrobble;
 import core.parsers.params.ChartParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.NPService;
@@ -19,6 +23,7 @@ import dao.exceptions.ChuuServiceException;
 import net.dv8tion.jda.internal.utils.tuple.Pair;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -28,6 +33,7 @@ import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Modifier;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -80,6 +86,7 @@ public class ConcurrentLastFM {//implements LastFMService {
     static final String GET_TAG_INFO = "?method=tag.getinfo&tag=";
     static final String GET_TOKEN = "?method=auth.gettoken";
     static final String GET_SESSION = "?method=auth.getSession&token=";
+    static final String UPDATE_NP = "?method=track.updateNowPlaying&token=";
 
 
     final String apiKey;
@@ -210,6 +217,22 @@ public class ConcurrentLastFM {//implements LastFMService {
                 .uri(URI.create(url))
                 .setHeader("User-Agent", "discordBot/ishwi6@gmail.com") // add request header
                 .build();
+
+    }
+
+    private HttpRequest createPost(ScrobblePost scrobblePost) {
+        try {
+            scrobblePost.setApi_sig(getSignature(scrobblePost));
+            String s = new XmlMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(scrobblePost);
+            return HttpRequest.newBuilder()
+                    .GET()
+                    .uri(URI.create(BASE))
+                    .POST(HttpRequest.BodyPublishers.ofString(s))
+                    .setHeader("User-Agent", "discordBot/ishwi6@gmail.com") // add request header
+                    .build();
+        } catch (JsonProcessingException e) {
+            throw new ChuuServiceException();
+        }
 
     }
 
@@ -1087,7 +1110,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         String url;
         url = BASE + GET_TRACKS + user.getName() + "&artist=" + URLEncoder
                 .encode(artist, StandardCharsets.UTF_8) + "&album=" + URLEncoder.encode(album, StandardCharsets.UTF_8) +
-              apiKey + ENDING + "&autocorrect=1";
+                apiKey + ENDING + "&autocorrect=1";
 
         JSONObject obj = doMethod(url, new AlbumException(artist, album), user);
         obj = obj.getJSONObject("album");
@@ -1125,8 +1148,8 @@ public class ConcurrentLastFM {//implements LastFMService {
     public Track getTrackInfo(LastFMData user, String artist, String trackName) throws LastFmException {
         String url = BASE + GET_TRACK_INFO + user.getName() + "&artist=" + URLEncoder
                 .encode(artist, StandardCharsets.UTF_8) + "&track=" + URLEncoder
-                             .encode(trackName, StandardCharsets.UTF_8) +
-                     apiKey + ENDING + "&autocorrect=1";
+                .encode(trackName, StandardCharsets.UTF_8) +
+                apiKey + ENDING + "&autocorrect=1";
         ExceptionEntity exceptionEntity = new TrackException(artist, trackName);
         JSONObject obj = doMethod(url, exceptionEntity, user);
         obj = obj.getJSONObject("track");
@@ -1209,7 +1232,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         int limit = 2;
 
         url = BASE + GET_TOP_TRACKS + user.getName() +
-              apiKey + "&limit=" + 1000 + ENDING + "&period=" + weekly;
+                apiKey + "&limit=" + 1000 + ENDING + "&period=" + weekly;
         TimeFrameEnum timeFrameEnum = TimeFrameEnum.fromCompletePeriod(weekly);
         if (List.of(TimeFrameEnum.DAY, TimeFrameEnum.WEEK, TimeFrameEnum.MONTH).contains(timeFrameEnum)) {
             dontdoAll = false;
@@ -1562,8 +1585,8 @@ public class ConcurrentLastFM {//implements LastFMService {
     public TrackExtended getTrackInfoExtended(LastFMData user, String artist, String song) throws LastFmException {
         String url = BASE + GET_TRACK_INFO + user.getName() + "&artist=" + URLEncoder
                 .encode(artist, StandardCharsets.UTF_8) + "&track=" + URLEncoder
-                             .encode(song, StandardCharsets.UTF_8) +
-                     apiKey + ENDING + "&autocorrect=1";
+                .encode(song, StandardCharsets.UTF_8) +
+                apiKey + ENDING + "&autocorrect=1";
         ExceptionEntity exceptionEntity = new TrackException(artist, song);
         JSONObject obj = doMethod(url, exceptionEntity, user);
         obj = obj.getJSONObject("track");
@@ -1619,23 +1642,23 @@ public class ConcurrentLastFM {//implements LastFMService {
             case ALBUM -> {
                 assert track != null;
                 url = BASE + GET_ALBUM_TAGS + "&artist=" +
-                      URLEncoder
-                              .encode(artist, StandardCharsets.UTF_8) + "&album=" + URLEncoder
-                              .encode(track, StandardCharsets.UTF_8) +
-                      apiKey + ENDING + "&autocorrect=1";
+                        URLEncoder
+                                .encode(artist, StandardCharsets.UTF_8) + "&album=" + URLEncoder
+                        .encode(track, StandardCharsets.UTF_8) +
+                        apiKey + ENDING + "&autocorrect=1";
             }
             case TRACK -> {
                 assert track != null;
                 url = BASE + GET_TRACK_TAGS + "&artist=" +
-                      URLEncoder
-                              .encode(artist, StandardCharsets.UTF_8) + "&track=" + URLEncoder
-                              .encode(track, StandardCharsets.UTF_8) +
-                      apiKey + ENDING + "&autocorrect=1";
+                        URLEncoder
+                                .encode(artist, StandardCharsets.UTF_8) + "&track=" + URLEncoder
+                        .encode(track, StandardCharsets.UTF_8) +
+                        apiKey + ENDING + "&autocorrect=1";
             }
             case ARTIST -> url = BASE + GET_ARTIST_TAGS + "&artist=" +
-                                 URLEncoder
-                                         .encode(artist, StandardCharsets.UTF_8) +
-                                 apiKey + ENDING + "&autocorrect=1";
+                    URLEncoder
+                            .encode(artist, StandardCharsets.UTF_8) +
+                    apiKey + ENDING + "&autocorrect=1";
         }
 
         JSONObject obj = doMethod(url, new TrackException(artist, track), null);
@@ -1768,6 +1791,25 @@ public class ConcurrentLastFM {//implements LastFMService {
         }
     }
 
+    private String getSignature(ScrobblePost scrobblePost) {
+        try {
+            List<BasicNameValuePair> items = Arrays.stream(scrobblePost.getClass().getFields()).filter(x -> Modifier.isFinal(x.getModifiers())).map(x -> {
+                try {
+                    return new BasicNameValuePair(x.getName(), x.get(scrobblePost).toString());
+                } catch (IllegalAccessException e) {
+                    return null;
+                }
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+
+            String preHash = items.stream().filter(x -> !x.getName().startsWith("format")).sorted((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(a.getName(), b.getName())).map(x -> x.getName() + x.getValue()).collect(Collectors.joining()) + secret;
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            md5.update(StandardCharsets.UTF_8.encode(preHash));
+            return String.format("%032x", new BigInteger(1, md5.digest()));
+        } catch (NoSuchAlgorithmException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public String generateAuthoredCall(String url, String session) {
         return getSignature(url + "&sk=" + session);
     }
@@ -1785,6 +1827,73 @@ public class ConcurrentLastFM {//implements LastFMService {
         String url = BASE + "?method=user.getinfo" + apiKey + ENDING;
         String s = generateAuthoredCall(url, session);
         return doMethod(s, null, null).getJSONObject("user").getString("name");
+    }
+
+    public void scrobble(String sessionKey, Scrobble scrobble, Instant instant) throws LastFmException {
+        String artist = URLEncoder
+                .encode(scrobble.artist(), StandardCharsets.UTF_8);
+        String track = URLEncoder
+                .encode(scrobble.song(), StandardCharsets.UTF_8);
+        String album = URLEncoder.encode(scrobble.album(), StandardCharsets.UTF_8);
+        ScrobblePost scrobblePost = new ScrobblePost("track.scrobble", artist, track, album, null, null, instant.getEpochSecond(), null, null, apiKey.split("=")[1]);
+        doPost(scrobblePost);
+    }
+
+    public void flagNP(String sessionKey, Scrobble scrobble) throws LastFmException {
+        String artist = URLEncoder
+                .encode(scrobble.artist(), StandardCharsets.UTF_8);
+        String track = URLEncoder
+                .encode(scrobble.song(), StandardCharsets.UTF_8);
+        String album = URLEncoder.encode(scrobble.album(), StandardCharsets.UTF_8);
+        ScrobblePost scrobblePost = new ScrobblePost("track.updateNowPlaying", artist, track, album, null, null, null, null, null, apiKey.split("=")[1]);
+        doPost(scrobblePost);
+
+
+    }
+
+    private JSONObject doPost(ScrobblePost post) throws LastFmException {
+        HttpRequest method = createPost(post);
+        int counter = 0;
+        while (true) {
+            try {
+                Chuu.incrementMetric();
+                HttpResponse<InputStream> send = client.send(method, HttpResponse.BodyHandlers.ofInputStream());
+                int responseCode = send.statusCode();
+                parseHttpCode(responseCode);
+                JSONObject jsonObject;
+                if (responseCode == 404) {
+                    throw new LastFmEntityNotFoundException(null);
+                }
+                try (InputStream responseBodyAsStream = send.body()) {
+                    jsonObject = new JSONObject(new JSONTokener(responseBodyAsStream));
+                } catch (JSONException exception) {
+                    Chuu.getLogger().warn(exception.getMessage(), exception);
+                    Chuu.getLogger().warn("JSON Exception doing url: {}, code: {}, ", method.uri(), responseCode);
+                    throw new ChuuServiceException(exception);
+                }
+                if (jsonObject.has("error")) {
+                    parseResponse(jsonObject, null);
+                }
+                if (Math.floor((float) responseCode / 100) == 4) {
+                    Chuu.getLogger().warn("Error {} with url {}", responseCode, method.uri().toString());
+                    throw new UnknownLastFmException(jsonObject.toString(), responseCode);
+                }
+
+                return jsonObject;
+            } catch (InterruptedException | IOException | LastFMServiceException e) {
+                if (e instanceof LastFMServiceException) {
+                    Chuu.getLogger().warn(method.uri().toString());
+                    Chuu.getLogger().warn("LAST.FM Internal Error");
+                }
+                Chuu.getLogger().warn(e.getMessage(), e);
+                System.out.println("Reattempting request");
+            }
+            if (++counter == 2) {
+                throw new LastFMConnectionException("500");
+            }
+
+        }
+
     }
 }
 

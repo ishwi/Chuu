@@ -1059,6 +1059,55 @@ public class UserGuildDaoImpl implements UserGuildDao {
         return null;
     }
 
+    @Override
+    public Set<LastFMData> findScrobbleableUsers(Connection con, long guildId) {
+        /* Create "queryString". */
+        Set<LastFMData> lastFMData = new HashSet<>();
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess FROM user a join user_guild b on a.discord_id = b.guild_id where b.guild_id = ? and sess is not null ";
+
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i, guildId);
+
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (!resultSet.next()) {
+
+
+                /* Get results. */
+                i = 1;
+                long resDiscordID = resultSet.getLong(i++);
+                String lastFmID = resultSet.getString(i++);
+                Role role = Role.valueOf(resultSet.getString(i++));
+                boolean privateUpdate = resultSet.getBoolean(i++);
+                boolean notify_image = resultSet.getBoolean(i++);
+                ChartMode chartMode = ChartMode.valueOf(resultSet.getString(i++));
+                WhoKnowsMode whoKnowsMode = WhoKnowsMode.valueOf(resultSet.getString(i++));
+                RemainingImagesMode remainingImagesMode = RemainingImagesMode.valueOf(resultSet.getString(i++));
+                int defaultX = resultSet.getInt(i++);
+                int defaultY = resultSet.getInt(i++);
+                PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(i++));
+                boolean ratingNotify = resultSet.getBoolean(i++);
+                boolean privateLastfmId = resultSet.getBoolean(i++);
+                TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(i++), "GMT"));
+                boolean showBotted = resultSet.getBoolean(i++);
+                String token = (resultSet.getString(i++));
+                String session = (resultSet.getString(i));
+                LastFMData e = new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session);
+                lastFMData.add(e);
+            }
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return lastFMData;
+
+    }
+
 
     @NotNull
     private Set<Long> getIdList(Connection connection, String queryString) {
