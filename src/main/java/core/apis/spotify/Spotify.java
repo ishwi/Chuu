@@ -232,4 +232,8 @@ public class Spotify {
         return null;
     }
 
+
+    public SpotifyApi getSpotifyApi() {
+        return spotifyApi;
+    }
 }

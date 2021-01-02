@@ -101,7 +101,7 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
 
         return new
 
-                ChartYearRangeParameters(e, baseYear, discordName.getName(), discordName.
+                ChartYearRangeParameters(e, baseYear, discordName, discordName.
 
                 getDiscordId(), CustomTimeFrame.ofTimeFrameEnum(timeFrame), x, y, numberOfYears, discordName.getChartMode(), discordName);
     }

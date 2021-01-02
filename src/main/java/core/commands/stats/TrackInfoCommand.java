@@ -50,7 +50,7 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
 
     protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
-        TrackExtended trackInfo = this.lastFM.getTrackInfoExtended(lastFMData.getName(), artist.getArtist(), song);
+        TrackExtended trackInfo = this.lastFM.getTrackInfoExtended(lastFMData, artist.getArtist(), song);
 
 
         String username = getUserString(e, who, lastFMData.getName());

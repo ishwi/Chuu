@@ -77,7 +77,7 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
             return null;
         }
         LastFMData data = atTheEndOneUser(e, remaining.toArray(String[]::new));
-        return new ColorChartParams(e, data.getName(), data.getDiscordId(), CustomTimeFrame.ofTimeFrameEnum(timeFrame), x, y, colorList, data.getChartMode(), data);
+        return new ColorChartParams(e, data, data.getDiscordId(), CustomTimeFrame.ofTimeFrameEnum(timeFrame), x, y, colorList, data.getChartMode(), data);
     }
 
     @Override

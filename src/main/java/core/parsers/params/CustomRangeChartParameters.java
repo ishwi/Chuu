@@ -9,7 +9,7 @@ public class CustomRangeChartParameters extends ChartParameters {
 
     private final CustomTimeFrame customTimeFrame;
 
-    public CustomRangeChartParameters(MessageReceivedEvent e, String name, Long discordId, ChartMode chartMode, LastFMData data, CustomTimeFrame timeFrame, int x, int y) {
+    public CustomRangeChartParameters(MessageReceivedEvent e, LastFMData name, Long discordId, ChartMode chartMode, LastFMData data, CustomTimeFrame timeFrame, int x, int y) {
         super(e, name, discordId, chartMode, data, null, x, y);
         customTimeFrame = timeFrame;
 

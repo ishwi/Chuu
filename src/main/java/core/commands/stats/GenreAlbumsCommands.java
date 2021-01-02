@@ -59,14 +59,14 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartableGenreParameters params) throws LastFmException {
 
-        String name = params.getLastfmID();
+        LastFMData user = params.getUser();
         List<AlbumInfo> albums;
         BlockingQueue<UrlCapsule> queue;
         CustomTimeFrame custom = params.getTimeFrameEnum();
         TimeFrameEnum timeFrameEnum = custom.getTimeFrameEnum();
         if (timeFrameEnum.equals(TimeFrameEnum.ALL)) {
 
-            List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumByMbid(name);
+            List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumByMbid(user.getName());
             albums = userAlbumByMbid.stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
                     new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
             queue = userAlbumByMbid.stream().map(x -> new AlbumChart(x.getUrl(), 0, x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), params.isWriteTitles(), params.isWritePlays(), params.isAside())).collect(Collectors.toCollection(LinkedBlockingDeque::new));
@@ -75,9 +75,9 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
         } else {
             queue = new ArrayBlockingQueue<>(4000);
 
-            lastFM.getChart(name, custom, 4000, 1,
+            lastFM.getChart(user, custom, 4000, 1,
                     TopEntity.ALBUM,
-                    ChartUtil.getParser(custom, TopEntity.ALBUM, params, lastFM, name), queue);
+                    ChartUtil.getParser(custom, TopEntity.ALBUM, params, lastFM, user), queue);
             ArrayList<UrlCapsule> c = new ArrayList<>(queue);
             albums = c.stream()
                     .filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid())).collect(Collectors.toList());
@@ -92,7 +92,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
                 .filter(x -> x.getMbid() != null && !x.getMbid().isBlank() && strings.contains(x.getMbid()) || albumInfos.contains(new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())))
                 .sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
                 .peek(x -> x.setPos(ranker.getAndIncrement()))
-                .limit(params.getX() * params.getY())
+                .limit((long) params.getX() * params.getY())
                 .collect(Collectors.toCollection(LinkedBlockingQueue::new));
 
         executor.submit(
@@ -109,7 +109,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
         }
 
         params.initEmbed("'s top " + params.getGenreParameters().getGenre() + " albums", embedBuilder, ""
-                , params.getLastfmID());
+                , params.getUser().getName());
         String s = " has listened to " + count + " " + params.getGenreParameters().getGenre() + " albums";
         DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoNotStripped(params.getE(), params.getDiscordId());
         embedBuilder.setFooter(CommandUtil.markdownLessString(discordUserDisplay.getUsername()) + s + params.getTimeFrameEnum().getDisplayString() + footerText);

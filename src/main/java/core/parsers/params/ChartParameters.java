@@ -18,7 +18,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.function.BiFunction;
 
 public class ChartParameters extends CommandParameters {
-    private final String lastfmID;
+    private final LastFMData user;
     private final long discordId;
     private final ChartMode chartMode;
     private final LastFMData lastFMData;
@@ -27,9 +27,9 @@ public class ChartParameters extends CommandParameters {
     private int y;
 
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, ChartMode chartMode, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
+    public ChartParameters(MessageReceivedEvent e, LastFMData user, long discordId, ChartMode chartMode, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
         super(e);
-        this.lastfmID = lastfmID;
+        this.user = user;
         this.discordId = discordId;
         this.chartMode = chartMode;
         this.lastFMData = lastFMData;
@@ -38,9 +38,9 @@ public class ChartParameters extends CommandParameters {
         this.y = y;
     }
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, ChartMode chartMode, LastFMData lastFMData) {
+    public ChartParameters(MessageReceivedEvent e, LastFMData user, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, ChartMode chartMode, LastFMData lastFMData) {
         super(e);
-        this.lastfmID = lastfmID;
+        this.user = user;
         this.discordId = discordId;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
@@ -58,17 +58,17 @@ public class ChartParameters extends CommandParameters {
 
 
     public static ChartParameters toListParams() {
-        return new ChartParameters(null, "", -1L, null, 0, 0, true
+        return new ChartParameters(null, null, -1L, null, 0, 0, true
                 , true, true, ChartMode.LIST, null);
     }
 
     public int makeCommand(ConcurrentLastFM lastFM, BlockingQueue<UrlCapsule> queue, TopEntity topEntity, BiFunction<JSONObject, Integer, UrlCapsule> parser) throws LastFmException {
-        return lastFM.getChart(lastfmID, timeFrameEnum, x, y, topEntity, parser, queue);
+        return lastFM.getChart(user, timeFrameEnum, x, y, topEntity, parser, queue);
     }
 
 
-    public String getLastfmID() {
-        return lastfmID;
+    public LastFMData getUser() {
+        return user;
     }
 
     public CustomTimeFrame getTimeFrameEnum() {

@@ -27,8 +27,10 @@ public class UnknownLastFmException extends LastFmException {
     }
 
     public String getSentMessage() {
-        if (code == 17) {
-            return "Maybe you still need to activate your account on last.fm?";
-        } else return getMessage();
+        return switch (code) {
+            case 17 -> "Maybe you still need to activate your account on last.fm?";
+            case 9 -> "Your session key has been invalidated. Login again pls :(";
+            default -> getMessage();
+        };
     }
 }

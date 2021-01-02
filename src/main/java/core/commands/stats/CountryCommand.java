@@ -14,6 +14,7 @@ import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.ArtistInfo;
 import dao.entities.Country;
+import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
@@ -85,15 +86,16 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
 
         Long pallete = (params.getExtraParam());
         TimeFrameParameters innerParams = params.getInnerParams();
-        String username = innerParams.getLastFMData().getName();
-        long discordId = innerParams.getLastFMData().getDiscordId();
+        LastFMData user = innerParams.getLastFMData();
+        String username = user.getName();
+        long discordId = user.getDiscordId();
         CompletableFuture<Message> future = null;
         TimeFrameEnum time = innerParams.getTime();
         if (time.equals(TimeFrameEnum.SEMESTER) || time.equals(TimeFrameEnum.ALL)) {
             future = sendMessage(e, "Going to take a while ").submit();
         }
 
-        List<ArtistInfo> topAlbums = lastFM.getTopArtists(username, new CustomTimeFrame(time), 10000).stream()
+        List<ArtistInfo> topAlbums = lastFM.getTopArtists(user, new CustomTimeFrame(time), 10000).stream()
                 .filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
         if (topAlbums.isEmpty()) {

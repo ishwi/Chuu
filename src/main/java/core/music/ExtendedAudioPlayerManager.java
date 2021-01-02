@@ -19,6 +19,7 @@ import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.DecodedTrackHolder;
 import com.sedmelluq.discord.lavaplayer.track.playback.NonAllocatingAudioFrameBuffer;
 import com.sun.istack.Nullable;
+import core.music.sources.spotify.SpotifyAudioSourceManager;
 import core.music.utils.TrackContext;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -63,6 +64,7 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
 //
 //        }
         registerSourceManagers(
+                new SpotifyAudioSourceManager(youtubeAudioSourceManager),
                 youtubeAudioSourceManager,
                 SoundCloudAudioSourceManager.createDefault()
                 , new GetyarnAudioSourceManager(),

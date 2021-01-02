@@ -48,7 +48,7 @@ public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters param) throws LastFmException {
         BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
-        int i = param.makeCommand(lastFM, queue, TopEntity.ALBUM, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID()));
+        int i = param.makeCommand(lastFM, queue, TopEntity.ALBUM, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getUser()));
         return new CountWrapper<>(i, queue);
     }
 
@@ -60,7 +60,7 @@ public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
         } else {
             handleCount = " has listened to " + count + " albums";
         }
-        return params.initEmbed("'s top albums", embedBuilder, handleCount, params.getLastfmID());
+        return params.initEmbed("'s top albums", embedBuilder, handleCount, params.getUser().getName());
     }
 
     @Override

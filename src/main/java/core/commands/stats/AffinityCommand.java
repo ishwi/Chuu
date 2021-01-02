@@ -72,10 +72,10 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     void doIndividual(AffinityParameters ap) throws LastFmException {
         MessageReceivedEvent e = ap.getE();
 
-        Affinity affinity = getService().getAffinity(ap.getFirstLastfmId(), ap.getSecondLastfmId(), ap.getThreshold());
+        Affinity affinity = getService().getAffinity(ap.getFirstLastfmId().getName(), ap.getSecondLastfmId().getName(), ap.getThreshold());
         DiscordUserDisplay first = CommandUtil.getUserInfoNotStripped(e, ap.getFirstDiscordID());
         DiscordUserDisplay second = CommandUtil.getUserInfoNotStripped(e, ap.getSecondDiscordID());
-        List<UserInfo> userInfo = lastFM.getUserInfo(List.of(ap.getFirstLastfmId(), ap.getSecondLastfmId()));
+        List<UserInfo> userInfo = lastFM.getUserInfo(List.of(ap.getFirstLastfmId().getName(), ap.getSecondLastfmId().getName()), ap.getFirstLastfmId());
         BufferedImage bufferedImage = LoveMaker.calculateLove(affinity, first, userInfo.get(0).getImage(), userInfo.get(1).getImage(), second);
         sendImage(bufferedImage, e);
     }

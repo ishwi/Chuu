@@ -69,7 +69,7 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
         if (param.getTimeFrameEnum().isAllTime()) {
             return new CountWrapper<>(0, queue);
         }
-        int i = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum(), 3000, 1, TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getLastfmID()),
+        int i = lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), 3000, 1, TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getUser()),
                 queue);
         List<UrlCapsule> capsules = new ArrayList<>(queue.size());
         queue.drainTo(capsules);
@@ -80,7 +80,7 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
                     x.setPlays(x.getPlays() + y.getPlays());
                     return x;
                 }));
-        List<ScrobbledArtist> discoveredArtists = getService().getDiscoveredArtists(collect.keySet(), param.getLastfmID());
+        List<ScrobbledArtist> discoveredArtists = getService().getDiscoveredArtists(collect.keySet(), param.getUser().getName());
         marker.set(0);
         queue = collect.entrySet().stream().filter(x -> {
             boolean contains = discoveredArtists.contains(x.getKey());
@@ -90,14 +90,14 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
             return contains;
         })
                 .map(Map.Entry::getValue).sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
-                .peek(x -> x.setPos(marker.getAndIncrement())).limit(param.getX() * param.getY())
+                .peek(x -> x.setPos(marker.getAndIncrement())).limit((long) param.getX() * param.getY())
                 .collect(Collectors.toCollection(LinkedBlockingQueue::new));
         return new CountWrapper<>(discoveredArtists.size(), queue);
     }
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
-        return params.initEmbed("'s top discovered artists", embedBuilder, " has discovered " + count + " artists", params.getLastfmID());
+        return params.initEmbed("'s top discovered artists", embedBuilder, " has discovered " + count + " artists", params.getUser().getName());
     }
 
     @Override

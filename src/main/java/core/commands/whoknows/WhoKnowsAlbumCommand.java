@@ -125,14 +125,14 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
         Map<UsersWrapper, Integer> userMapPlays = new HashMap<>();
 
         UsersWrapper usersWrapper = userList.get(0);
-        AlbumUserPlays temp = lastFM.getPlaysAlbumArtist(usersWrapper.getLastFMName(), artist, album);
+        AlbumUserPlays temp = lastFM.getPlaysAlbumArtist(LastFMData.ofUserWrapper(usersWrapper), artist, album);
         fillWithUrl.setAlbumUrl(temp.getAlbumUrl());
         fillWithUrl.setAlbum(temp.getAlbum());
         fillWithUrl.setArtist(temp.getArtist());
         userMapPlays.put(usersWrapper, temp.getPlays());
         userList.stream().skip(1).forEach(u -> {
             try {
-                AlbumUserPlays albumUserPlays = lastFM.getPlaysAlbumArtist(u.getLastFMName(), artist, album);
+                AlbumUserPlays albumUserPlays = lastFM.getPlaysAlbumArtist(LastFMData.ofUserWrapper(usersWrapper), artist, album);
                 userMapPlays.put(u, albumUserPlays.getPlays());
             } catch (LastFmException ex) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);

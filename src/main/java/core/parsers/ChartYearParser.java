@@ -52,7 +52,7 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
             return null;
         }
         int x = (int) Math.sqrt(searchSpace);
-        @SuppressWarnings("SuspiciousNameCombination") ChartYearParameters chartYearParameters = new ChartYearParameters(e, data.getName(), data.getDiscordId(), customTimeFrame, x, x, year, data.getChartMode(), data);
+        @SuppressWarnings("SuspiciousNameCombination") ChartYearParameters chartYearParameters = new ChartYearParameters(e, data, data.getDiscordId(), customTimeFrame, x, x, year, data.getChartMode(), data);
         chartYearParameters.initParams(List.of("nolimit"));
         return chartYearParameters;
 

@@ -69,25 +69,25 @@ public class MirroredTracksCommand extends AlbumPlaysCommand {
 
         ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(getService(), scrobbledArtist.getArtistId(), album, lastFM);
         scrobbledAlbum.setArtist(scrobbledArtist.getArtist());
-        TracklistService tracklistService = new UserTrackListService(getService(),ogData.getName());
+        TracklistService tracklistService = new UserTrackListService(getService(), ogData.getName());
 
-        Optional<FullAlbumEntity> trackList1 = tracklistService.getTrackList(scrobbledAlbum, ogData.getName(), scrobbledArtist.getUrl());
+        Optional<FullAlbumEntity> trackList1 = tracklistService.getTrackList(scrobbledAlbum, ogData, scrobbledArtist.getUrl());
         if (trackList1.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));
             return;
 
         }
-        Optional<FullAlbumEntity> trackList2 = tracklistService.getTrackList(scrobbledAlbum, secondUser.getName(), scrobbledArtist.getUrl());
+        Optional<FullAlbumEntity> trackList2 = tracklistService.getTrackList(scrobbledAlbum, secondUser, scrobbledArtist.getUrl());
         if (trackList2.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));
             return;
         }
         UserInfoService userInfoService = new UserInfoService(getService());
-        UserInfo userInfo = userInfoService.getUserInfo(ogData.getName());
+        UserInfo userInfo = userInfoService.getUserInfo(ogData);
         userInfo.setUsername(CommandUtil.getUserInfoNotStripped(e, ogData.getDiscordId()).getUsername());
-        UserInfo userInfo2 = userInfoService.getUserInfo(secondUser.getName());
+        UserInfo userInfo2 = userInfoService.getUserInfo(secondUser);
         userInfo2.setUsername(CommandUtil.getUserInfoNotStripped(e, secondUser.getDiscordId()).getUsername());
         BufferedImage bufferedImage = TrackDistributor.drawImageMirrored(trackList1.get(), trackList2.get(), userInfo, userInfo2);
         sendImage(bufferedImage, e);

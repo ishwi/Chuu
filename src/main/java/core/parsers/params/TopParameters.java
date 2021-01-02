@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class TopParameters extends ChartParameters {
 
-    public TopParameters(MessageReceivedEvent e, String lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, ChartMode chartMode, LastFMData lastFMData) {
+    public TopParameters(MessageReceivedEvent e, LastFMData lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, ChartMode chartMode, LastFMData lastFMData) {
         super(e, lastfmID, discordId, chartMode, lastFMData, timeFrameEnum, x, y);
 
     }

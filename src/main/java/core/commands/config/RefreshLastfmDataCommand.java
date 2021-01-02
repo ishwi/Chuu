@@ -47,7 +47,7 @@ public class RefreshLastfmDataCommand extends ConcurrentCommand<ChuuDataParams> 
 
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
-        UserInfo userInfo = lastFM.getUserInfo(List.of(params.getLastFMData().getName())).get(0);
+        UserInfo userInfo = lastFM.getUserInfo(List.of(params.getLastFMData().getName()), params.getLastFMData()).get(0);
         getService().insertUserInfo(userInfo);
         sendMessageQueue(e, "Sucessfully updated your profile data");
     }

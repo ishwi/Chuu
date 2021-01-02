@@ -53,7 +53,7 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
 
         LastFMData lastFMData = getService().findLastFMData(params.getUser().getIdLong());
         ZonedDateTime date = params.getDate().atZoneSameInstant(lastFMData.getTimeZone().toZoneId());
-        int i = lastFM.scrobblesSince(lastFMData.getName(), date.toOffsetDateTime());
+        int i = lastFM.scrobblesSince(lastFMData, date.toOffsetDateTime());
         String username = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getUser().getIdLong()).getUsername();
         String mmmmD = date.format(DateTimeFormatter.ofPattern("MMMM d"));
         sendMessageQueue(e, String.format("%s has a total of %d scrobbles since %s%s %d %s", username, i, mmmmD, CommandUtil.getDayNumberSuffix(date.getDayOfMonth()),

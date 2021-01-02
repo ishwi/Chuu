@@ -172,4 +172,10 @@ interface UpdaterDao {
     void insertUserInfo(Connection connection, UserInfo userInfo);
 
     Optional<UserInfo> getUserInfo(Connection connection, String lastfmId);
+
+    void storeToken(Connection connection, String authToken, String lastfm);
+
+    void storeSession(Connection connection, String session, String lastfm);
+
+    void clearSess(Connection connection, String lastfm);
 }

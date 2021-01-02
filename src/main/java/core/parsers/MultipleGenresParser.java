@@ -39,7 +39,7 @@ public class MultipleGenresParser extends MultiStringParser<MultipleGenresParame
 
     @Override
     protected MultipleGenresParameters doSomethingNoWords(int limit, LastFMData lastFMData, MessageReceivedEvent e) throws LastFmException {
-        NowPlayingArtist nowPlayingInfo = lastFM.getNowPlayingInfo(lastFMData.getName());
+        NowPlayingArtist nowPlayingInfo = lastFM.getNowPlayingInfo(lastFMData);
         List<String> tags = lastFM.getTrackTags(1, TopEntity.TRACK, nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName());
         if (tags.isEmpty()) {
             tags = lastFM.getTrackTags(1, TopEntity.ALBUM, nowPlayingInfo.getArtistName(), nowPlayingInfo.getAlbumName());

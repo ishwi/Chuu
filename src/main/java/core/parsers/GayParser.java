@@ -57,7 +57,7 @@ public class GayParser extends ChartableParser<GayParams> {
         subMessage = integerPair.first;
         int x = integerPair.second;
         LastFMData data = atTheEndOneUser(e, subMessage);
-        return new GayParams(e, data.getName(), data.getDiscordId(), gayType, new CustomTimeFrame(timeFrame), y, x, data.getChartMode(), data);
+        return new GayParams(e, data, data.getDiscordId(), gayType, new CustomTimeFrame(timeFrame), y, x, data.getChartMode(), data);
 
     }
 

@@ -72,7 +72,7 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
     protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
         Long extraParam = params.getExtraParam();
         LastFMData lastFMData = params.getInnerParams().getLastFMData();
-        Optional<TrackWithArtistId> milestoneOpt = lastFM.getMilestone(lastFMData.getName(), extraParam);
+        Optional<TrackWithArtistId> milestoneOpt = lastFM.getMilestone(lastFMData, extraParam);
         milestoneOpt.ifPresentOrElse(tr -> buildEmbed(e, extraParam, lastFMData, tr), () -> sendMessageQueue(e, "There was a problem getting your milestone"));
     }
 

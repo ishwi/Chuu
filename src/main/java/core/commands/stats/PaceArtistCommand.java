@@ -100,12 +100,12 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
                 x -> !x.getArtistName().equalsIgnoreCase(scrobbledArtist.getArtist())
                 , x -> x, 1);
         String lastfm = lastFMData.getName();
-        lastFM.getChart(lastfm,
+        lastFM.getChart(lastFMData,
                 new CustomTimeFrame(time),
                 1000,
                 1,
                 TopEntity.ARTIST,
-                ChartUtil.getParser(new CustomTimeFrame(time), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, lastfm),
+                ChartUtil.getParser(new CustomTimeFrame(time), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, lastFMData),
                 queue);
         List<UrlCapsule> objects = new ArrayList<>();
         queue.drainTo(objects);
@@ -120,7 +120,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         if (time.equals(TimeFrameEnum.ALL)) {
             artistPlays = metricPlays;
         } else {
-            artistPlays = lastFM.getArtistSummary(scrobbledArtist.getArtist(), lastfm).getUserPlayCount();
+            artistPlays = lastFM.getArtistSummary(scrobbledArtist.getArtist(), lastFMData).getUserPlayCount();
         }
         Long goal = params.getExtraParam();
         if (goal == null) {
@@ -128,7 +128,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
 
         }
         final long unitNumber = 1;
-        List<UserInfo> holder = lastFM.getUserInfo(List.of(lastfm));
+        List<UserInfo> holder = lastFM.getUserInfo(List.of(lastFMData.getName()), lastFMData);
         UserInfo mainUser = holder.get(0);
         int unixtimestamp = mainUser.getUnixtimestamp();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
@@ -138,31 +138,15 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         ZonedDateTime now = LocalDateTime.now().atZone(ZoneOffset.ofHours(2));
         int timestamp;
         ChronoUnit days = ChronoUnit.DAYS;
-        switch (time) {
-            case YEAR:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant().getEpochSecond();
-                break;
-            case QUARTER:
-                timestamp = (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toInstant().getEpochSecond();
-                break;
-            case MONTH:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant().getEpochSecond();
-                break;
-            case ALL:
-                timestamp = 0;
-                break;
-            case SEMESTER:
-                timestamp = (int) now.minus(unitNumber * 2, ChronoUnit.MONTHS).toInstant().getEpochSecond();
-                break;
-            case WEEK:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.WEEKS).toInstant().getEpochSecond();
-                break;
-            case DAY:
-                timestamp = (int) now.minus(unitNumber, days).toInstant().getEpochSecond();
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
+        timestamp = switch (time) {
+            case YEAR -> (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant().getEpochSecond();
+            case QUARTER -> (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+            case MONTH -> (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+            case ALL -> 0;
+            case SEMESTER -> (int) now.minus(unitNumber * 2, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+            case WEEK -> (int) now.minus(unitNumber, ChronoUnit.WEEKS).toInstant().getEpochSecond();
+            case DAY -> (int) now.minus(unitNumber, days).toInstant().getEpochSecond();
+        };
         timestamp = time.equals(TimeFrameEnum.ALL) ? unixtimestamp : timestamp;
         BiFunction<Temporal, Temporal, Long> between = days::between;
         LocalDateTime compareTime = LocalDateTime.ofEpochSecond(timestamp, 0, ZoneOffset.ofHours(1));

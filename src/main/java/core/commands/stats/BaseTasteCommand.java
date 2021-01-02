@@ -37,7 +37,8 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
 
     public abstract String getEntity(T params);
 
-    public abstract @Nullable String hasCustomUrl(T params);
+    public abstract @Nullable
+    String hasCustomUrl(T params);
 
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException, InstanceNotFoundException {
@@ -49,7 +50,8 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         handleResult(e, result, userDatas.getKey(), userDatas.getValue(), params);
     }
 
-    public abstract @Nullable Pair<LastFMData, LastFMData> getUserDatas(MessageReceivedEvent e, T params) throws InstanceNotFoundException;
+    public abstract @Nullable
+    Pair<LastFMData, LastFMData> getUserDatas(MessageReceivedEvent e, T params) throws InstanceNotFoundException;
 
     public abstract ResultWrapper<UserArtistComparison> getResult(LastFMData og, LastFMData second, T params) throws LastFmException;
 
@@ -61,13 +63,8 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
             return;
         }
         switch (CommandUtil.getEffectiveMode(og.getRemainingImagesMode(), params)) {
-            case PIE:
-            case IMAGE:
-                doImage(e, resultWrapper, og.getDiscordId(), second.getDiscordId(), params);
-                break;
-            case LIST:
-                doList(e, og.getDiscordId(), second.getDiscordId(), resultWrapper, params);
-                break;
+            case PIE, IMAGE -> doImage(e, resultWrapper, og.getDiscordId(), second.getDiscordId(), params);
+            case LIST -> doList(e, og.getDiscordId(), second.getDiscordId(), resultWrapper, params);
         }
     }
 
@@ -75,8 +72,8 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         String userA = resultWrapper.getResultList().get(0).getUserA();
         String userB = resultWrapper.getResultList().get(0).getUserB();
         UserInfoService userInfoService = new UserInfoService(getService());
-        UserInfo userInfo = userInfoService.getUserInfo(userA);
-        UserInfo userInfo1 = userInfoService.getUserInfo(userB);
+        UserInfo userInfo = userInfoService.getUserInfo(LastFMData.ofUser(userA));
+        UserInfo userInfo1 = userInfoService.getUserInfo(LastFMData.ofUser(userB));
         if (Chuu.getLastFmId(userInfo.getUsername()).equals(Chuu.DEFAULT_LASTFM_ID)) {
             userInfo.setUsername(CommandUtil.getUserInfoNotStripped(e, firstId).getUsername());
         }

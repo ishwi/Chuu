@@ -40,10 +40,10 @@ public class TopCommand extends ArtistAbleCommand<TopParameters> {
         int count;
         if (params.isDoAlbum()) {
             queue = new ArrayBlockingQueue<>(params.getX() * params.getY());
-            count = lastFM.getChart(params.getLastfmID(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
+            count = lastFM.getChart(params.getUser(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
         } else {
             queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !params.isList());
-            count = lastFM.getChart(params.getLastfmID(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ARTIST, ArtistChart.getArtistParser(params), queue);
+            count = lastFM.getChart(params.getUser(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ARTIST, ArtistChart.getArtistParser(params), queue);
         }
         return new CountWrapper<>(count, queue);
     }
@@ -51,7 +51,7 @@ public class TopCommand extends ArtistAbleCommand<TopParameters> {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, TopParameters params, int count) {
         String s = params.isDoAlbum() ? "albums" : "artists";
-        return params.initEmbed(String.format("'s top %s", s), embedBuilder, " has listened to " + count + " " + s, params.getLastfmID());
+        return params.initEmbed(String.format("'s top %s", s), embedBuilder, " has listened to " + count + " " + s, params.getUser().getName());
     }
 
     @Override

@@ -43,7 +43,7 @@ public class CoverCommand extends AlbumPlaysCommand {
 
     @Override
     protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
-        String albumUrl = lastFM.getAlbumSummary(params.getLastFMData().getName(), artist.getArtist(), album).getAlbumUrl();
+        String albumUrl = lastFM.getAlbumSummary(params.getLastFMData(), artist.getArtist(), album).getAlbumUrl();
         if (albumUrl == null || albumUrl.isBlank()) {
             sendMessageQueue(e,
                     String.format("There is no image for %s on last.fm at the moment.\nConsider submitting one: https://www.last.fm/music/%s/%s/+images/upload"

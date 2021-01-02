@@ -49,7 +49,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
     @Override
     protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
-        FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(lastFMData.getName(), artist.getArtist(), album);
+        FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(lastFMData, artist.getArtist(), album);
         String username = getUserString(e, who, lastFMData.getName());
 
         EmbedBuilder embedBuilder = new EmbedBuilder();

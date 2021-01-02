@@ -79,7 +79,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
         CompletableFuture<UniqueWrapper<ArtistPlays>> completablecrowns = CompletableFuture.supplyAsync(() -> getService().getCrowns(lastFmName, guildId, guildCrownThreshold));
         CompletableFuture<UniqueWrapper<ArtistPlays>> completableUnique = CompletableFuture.supplyAsync(() -> getService().getUniqueArtist(guildId, lastFmName));
 
-        userInfo = lastFM.getUserInfo(Collections.singletonList(lastFmName)).get(0);
+        userInfo = lastFM.getUserInfo(Collections.singletonList(params.getLastFMData().getName()), params.getLastFMData()).get(0);
         albumCount = getService().getUserAlbumCount(params.getLastFMData().getDiscordId());
         int totalArtist = getService().getUserArtistCount(lastFmName, 0);
 
@@ -111,13 +111,8 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
         switch (CommandUtil.getEffectiveMode(params.getLastFMData().getRemainingImagesMode(), params)) {
-            case IMAGE:
-                doImage(e, params.getLastFMData().getDiscordId(), lastFmName, userInfo, albumCount, crowns, unique, totalUnique, totalCrowns, totalArtist, crownRepresentative, uniqueRepresentative, date);
-                break;
-            case LIST:
-            case PIE:
-                list(e, lastFmName, userInfo, albumCount, unique, totalUnique, totalCrowns, totalArtist, crownRepresentative, uniqueRepresentative, date);
-                break;
+            case IMAGE -> doImage(e, params.getLastFMData().getDiscordId(), lastFmName, userInfo, albumCount, crowns, unique, totalUnique, totalCrowns, totalArtist, crownRepresentative, uniqueRepresentative, date);
+            case LIST, PIE -> list(e, lastFmName, userInfo, albumCount, unique, totalUnique, totalCrowns, totalArtist, crownRepresentative, uniqueRepresentative, date);
         }
     }
 

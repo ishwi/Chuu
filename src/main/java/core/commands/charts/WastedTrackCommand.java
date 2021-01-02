@@ -43,8 +43,8 @@ public class WastedTrackCommand extends ChartableCommand<ChartGroupParameters> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartGroupParameters params) throws LastFmException {
         TrackQueue queue = new TrackQueue(getService(), discogsApi, spotifyApi, !params.isList());
-        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum(), params.getX() * 2, params.getY() * 2,
-                TopEntity.TRACK, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.TRACK, params, lastFM, params.getLastfmID()), queue);
+        lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), params.getX() * 2, params.getY() * 2,
+                TopEntity.TRACK, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.TRACK, params, lastFM, params.getUser()), queue);
         int i = queue.setUp(params.getX() * params.getY());
         return new CountWrapper<>(i, queue);
     }
@@ -68,7 +68,7 @@ public class WastedTrackCommand extends ChartableCommand<ChartGroupParameters> {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartGroupParameters params, int count) {
         return params.initEmbed("'s most listened tracks", embedBuilder,
-                String.format(" has listened to songs for %s", String.format("%d:%02d hours", count / 3600, count / 60 % 60)), params.getLastfmID());
+                String.format(" has listened to songs for %s", String.format("%d:%02d hours", count / 3600, count / 60 % 60)), params.getUser().getName());
     }
 
     @Override

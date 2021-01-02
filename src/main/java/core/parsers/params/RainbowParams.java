@@ -9,7 +9,7 @@ public class RainbowParams extends ChartParameters {
     private int x;
     private int y;
 
-    public RainbowParams(MessageReceivedEvent e, String lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, ChartMode chartMode, LastFMData lastFMData) {
+    public RainbowParams(MessageReceivedEvent e, LastFMData lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, ChartMode chartMode, LastFMData lastFMData) {
         super(e, lastfmID, discordId, chartMode, lastFMData, timeFrameEnum, x, y);
         this.x = x;
         this.y = y;

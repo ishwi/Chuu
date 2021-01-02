@@ -94,7 +94,7 @@ public class NPModeBuilder {
     private final long discordId;
     private final String userName;
     private final EnumSet<NPMode> npModes;
-    private final String lastFMName;
+    private final LastFMData lastFMName;
     private final EmbedBuilder embedBuilder;
     private final ScrobbledArtist scrobbledArtist;
     private final ChuuService service;
@@ -105,7 +105,7 @@ public class NPModeBuilder {
     private final ExecutorService executor;
     private final DiscogsApi discogsApi;
 
-    public NPModeBuilder(NowPlayingArtist np, MessageReceivedEvent e, String[] footerSpaces, long discordId, String userName, EnumSet<NPMode> npModes, String lastFMName, EmbedBuilder embedBuilder, ScrobbledArtist scrobbledArtist, ChuuService service, ConcurrentLastFM lastFM, String serverName, MusicBrainzService mb, List<String> outputList) {
+    public NPModeBuilder(NowPlayingArtist np, MessageReceivedEvent e, String[] footerSpaces, long discordId, String userName, EnumSet<NPMode> npModes, LastFMData lastFMName, EmbedBuilder embedBuilder, ScrobbledArtist scrobbledArtist, ChuuService service, ConcurrentLastFM lastFM, String serverName, MusicBrainzService mb, List<String> outputList) {
         this.np = np;
         this.e = e;
         this.footerSpaces = footerSpaces;
@@ -708,20 +708,12 @@ public class NPModeBuilder {
 
             if (EnumSet.of(PrivacyMode.LAST_NAME, PrivacyMode.TAG, PrivacyMode.DISCORD_NAME).contains(lastFMData.getPrivacyMode())) {
 
-                switch (lastFMData.getPrivacyMode()) {
-                    case DISCORD_NAME:
-                        holder = CommandUtil.getUserInfoNotStripped(e, discordId).getUsername();
-                        break;
-                    case TAG:
-                        holder = e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
-                        break;
-                    case LAST_NAME:
-                        holder = lastFMData.getName() + " (lastfm)";
-                        break;
-                    default:
-                        holder =
-                                "Private User #1";
-                }
+                holder = switch (lastFMData.getPrivacyMode()) {
+                    case DISCORD_NAME -> CommandUtil.getUserInfoNotStripped(e, discordId).getUsername();
+                    case TAG -> e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
+                    case LAST_NAME -> lastFMData.getName() + " (lastfm)";
+                    default -> "Private User #1";
+                };
             } else holder = "Private User #1";
         } catch (InstanceNotFoundException exception) {
             holder = "Private User #1";

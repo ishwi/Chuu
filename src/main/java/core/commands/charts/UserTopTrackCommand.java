@@ -85,7 +85,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters param) throws LastFmException {
         ArtistQueue queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !param.isList());
-        int i = param.makeCommand(lastFM, queue, TopEntity.TRACK, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.TRACK, param, lastFM, param.getLastfmID()));
+        int i = param.makeCommand(lastFM, queue, TopEntity.TRACK, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.TRACK, param, lastFM, param.getUser()));
         return new CountWrapper<>(i, queue);
     }
 
@@ -97,7 +97,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
         } else {
             handleCount = " has listened to " + count + " tracks";
         }
-        return params.initEmbed("'s top tracks", embedBuilder, handleCount, params.getLastfmID());
+        return params.initEmbed("'s top tracks", embedBuilder, handleCount, params.getUser().getName());
     }
 
     @Override

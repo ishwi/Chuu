@@ -14,6 +14,7 @@ import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
+import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -60,7 +61,7 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
 
-        String name = params.getLastFMData().getName();
+        LastFMData name = params.getLastFMData();
         BlockingQueue<UrlCapsule> capsules = new LinkedBlockingQueue<>();
         TimeFrameEnum time = params.getTime();
 

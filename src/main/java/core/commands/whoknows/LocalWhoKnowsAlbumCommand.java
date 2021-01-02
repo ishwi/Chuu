@@ -90,7 +90,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
         wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist());
         try {
 
-            AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(ap.getLastFMData().getName(), ap.getArtist(), ap.getAlbum());
+            AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(ap.getLastFMData(), ap.getArtist(), ap.getAlbum());
             if (playsAlbumArtist.getAlbumUrl() != null && !playsAlbumArtist.getAlbumUrl().isBlank()) {
                 getService().updateAlbumImage(albumId, playsAlbumArtist.getAlbumUrl());
                 wrapperReturnNowPlaying.setUrl(playsAlbumArtist.getAlbumUrl());

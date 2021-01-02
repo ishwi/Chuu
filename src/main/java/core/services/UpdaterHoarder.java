@@ -37,7 +37,7 @@ public class UpdaterHoarder {
         List<TrackWithArtistId> trackWithArtistIds;
 
         String lastFMName = user.getLastFMName();
-        trackWithArtistIds = lastFM.getWeeklyBillboard(lastFMName,
+        trackWithArtistIds = lastFM.getWeeklyBillboard(LastFMData.ofUserWrapper(user),
                 user.getTimestamp()
                 , Integer.MAX_VALUE);
         updateList(trackWithArtistIds);

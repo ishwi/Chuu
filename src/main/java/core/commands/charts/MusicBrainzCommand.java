@@ -81,11 +81,11 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
 
         Year year = param.getYear();
         if (!isByTime && param.getTimeFrameEnum().isAllTime()) {
-            List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumsOfYear(param.getLastfmID(), year);
+            List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumsOfYear(param.getUser().getName(), year);
             albumsMbizMatchingYear.addAll(userAlbumByMbid.stream().map(x -> new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList()));
 
             AtomicInteger atomicInteger = new AtomicInteger(0);
-            List<ScrobbledAlbum> userAlbumsWithNoYear = getService().getUserAlbumsWithNoYear(param.getLastfmID());
+            List<ScrobbledAlbum> userAlbumsWithNoYear = getService().getUserAlbumsWithNoYear(param.getUser().getName());
             userAlbumByMbid.forEach(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays(), param.isAside())));
             userAlbumsWithNoYear.forEach(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays(), param.isAside())));
             Map<Boolean, List<AlbumInfo>> results = userAlbumsWithNoYear.stream()
@@ -97,7 +97,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
             BiFunction<JSONObject, Integer, UrlCapsule> parser;
             if (param.getTimeFrameEnum().getTimeFrameEnum().equals(TimeFrameEnum.DAY)) {
                 if (isByTime)
-                    parser = TrackDurationAlbumArtistChart.getDailyArtistAlbumDurationParser(param, lastFM.getTrackDurations(param.getLastfmID(), TimeFrameEnum.WEEK));
+                    parser = TrackDurationAlbumArtistChart.getDailyArtistAlbumDurationParser(param, lastFM.getTrackDurations(param.getUser(), TimeFrameEnum.WEEK));
                 else {
                     parser = AlbumChart.getDailyAlbumParser(param);
                 }
@@ -105,12 +105,12 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
                 if (isByTime)
                     parser = TrackDurationAlbumArtistChart.getTimedParser(param);
                 else {
-                    parser = ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID());
+                    parser = ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getUser());
                 }
             }
 
 
-            lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
+            lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
             //List of obtained elements
             Map<Boolean, List<AlbumInfo>> results =
                     queue.stream()
@@ -179,7 +179,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
         if (year.getValue() != Year.now().getValue()) {
             s = " in their library";
         }
-        return params.initEmbed("s top albums from " + year.toString(), embedBuilder, " has " + count + " albums from " + year.toString() + s, params.getLastfmID());
+        return params.initEmbed("s top albums from " + year.toString(), embedBuilder, " has " + count + " albums from " + year.toString() + s, params.getUser().getName());
     }
 
     @Override

@@ -20,8 +20,10 @@ public class LastFMData {
     private final boolean privateLastfmId;
     private final boolean showBotted;
     private final TimeZone timeZone;
+    private final String token;
+    private String session;
 
-    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone) {
+    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session) {
         this.discordId = discordId;
         this.name = name;
         this.guildID = guildID;
@@ -37,9 +39,11 @@ public class LastFMData {
         this.privateLastfmId = privateLastfmId;
         this.showBotted = showBotted;
         this.timeZone = timeZone;
+        this.token = token;
+        this.session = session;
     }
 
-    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone) {
+    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session) {
         this.name = lastFmID;
         this.discordId = resDiscordID;
         this.role = role;
@@ -55,8 +59,27 @@ public class LastFMData {
         this.privateLastfmId = privateLastfmId;
         this.showBotted = showBotted;
         this.timeZone = timeZone;
+        this.token = token;
+        this.session = session;
     }
 
+    public static LastFMData ofUserWrapper(UsersWrapper usersWrapper) {
+        return new LastFMData(usersWrapper.getLastFMName(), usersWrapper.getDiscordID(), usersWrapper.getRole(), false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, usersWrapper.getTimeZone(), null, null);
+
+    }
+
+    public static LastFMData ofDefault() {
+        return new LastFMData("chuu", -1L, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null);
+
+    }
+
+    public static LastFMData ofUser(String user) {
+        return new LastFMData(user, -1L, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null);
+
+    }
+
+    public static void ofUserWrapper() {
+    }
 
     public Role getRole() {
         return role;
@@ -144,5 +167,23 @@ public class LastFMData {
 
     public boolean isShowBotted() {
         return showBotted;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public String getSession() {
+        return session;
+    }
+
+    public void setSession(String session) {
+        this.session = session;
+    }
+
+    @Override
+    @Deprecated
+    public String toString() {
+        return "LastFMData{}";
     }
 }

@@ -15,7 +15,8 @@ public enum CommandCategory {
     RYM_BETA(11, "Testing command about a RYM integration, possibly broken"),
     MUSIC(12, "Play and scrobble music"),
     CONFIGURATION(13, "Personalize your bot usage"),
-    MODERATION(14, "Command for bot admins");
+    MODERATION(14, "Command for bot admins"),
+    SCROBBLING(15, "Commands for scrobbling");
 
     private final int order;
     private final String description;

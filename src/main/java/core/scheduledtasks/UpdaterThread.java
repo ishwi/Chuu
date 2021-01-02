@@ -79,14 +79,14 @@ public class UpdaterThread implements Runnable {
 
                     } else {
 
-                        List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMName, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                        List<ScrobbledArtist> artistData = lastFM.getAllArtists(LastFMData.ofUserWrapper(userWork), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                         dao.insertArtistDataList(artistData, lastFMName);
                         System.out.println(" Updated  ) " + lastFMName + " artists");
 
-                        List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMName, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                        List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(LastFMData.ofUserWrapper(userWork), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                         dao.albumUpdate(albumData, artistData, lastFMName);
                         System.out.println(" Updated  ) " + lastFMName + " albums");
-                        List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMName, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                        List<ScrobbledTrack> trackData = lastFM.getAllTracks(LastFMData.ofUserWrapper(userWork), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                         dao.trackUpdate(trackData, artistData, lastFMName);
                         System.out.println(" Updated  ) " + lastFMName + " tracks");
 

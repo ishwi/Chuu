@@ -48,12 +48,12 @@ public class WastedChartCommand extends GroupingChartCommand {
         if (params.isList()) {
             queue = new TrackGroupArtistQueue(getService(), discogsApi, spotifyApi, 200);
 
-            lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum(), 1499, 1, TopEntity.TRACK,
-                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getLastfmID()), queue);
+            lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 1499, 1, TopEntity.TRACK,
+                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getUser()), queue);
         } else {
             queue = new TrackGroupArtistQueue(getService(), discogsApi, spotifyApi, params.getX() * params.getY());
-            lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum(), 1499, 1, TopEntity.TRACK,
-                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getLastfmID()), queue);
+            lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 1499, 1, TopEntity.TRACK,
+                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getUser()), queue);
         }
         return new CountWrapper<>(-1, queue);
     }
@@ -61,7 +61,7 @@ public class WastedChartCommand extends GroupingChartCommand {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartGroupParameters params, int count) {
         return params.initEmbed("'s most listened artists", embedBuilder,
-                String.format(" has listened to artists for %s", String.format("%d:%02d hours", count / 3600, count / 60 % 60)), params.getLastfmID());
+                String.format(" has listened to artists for %s", String.format("%d:%02d hours", count / 3600, count / 60 % 60)), params.getUser().getName());
     }
 
     @Override

@@ -13,13 +13,13 @@ public class ChartYearRangeParameters extends ChartParameters {
     private final int numberOfYears;
 
 
-    public ChartYearRangeParameters(MessageReceivedEvent e, Year baseYear, String lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, int numberOfYears, ChartMode chartMode, LastFMData lastFMData) {
+    public ChartYearRangeParameters(MessageReceivedEvent e, Year baseYear, LastFMData lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, int numberOfYears, ChartMode chartMode, LastFMData lastFMData) {
         super(e, lastfmID, discordId, chartMode, lastFMData, timeFrameEnum, x, y);
         this.baseYear = baseYear;
         this.numberOfYears = numberOfYears;
     }
 
-    public ChartYearRangeParameters(MessageReceivedEvent e, Year baseYear, String lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat, int numberOfYears, ChartMode chartMode, LastFMData lastFMData) {
+    public ChartYearRangeParameters(MessageReceivedEvent e, Year baseYear, LastFMData lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat, int numberOfYears, ChartMode chartMode, LastFMData lastFMData) {
         super(e, lastfmID, discordId, timeFrameEnum, x, y, writeTitles, writePlays, isList, chartMode, lastFMData);
         this.baseYear = baseYear;
         this.numberOfYears = numberOfYears;

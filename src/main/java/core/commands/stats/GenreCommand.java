@@ -105,8 +105,9 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
 
 
         TimeFrameParameters innerParams = params.getInnerParams();
-        String username = innerParams.getLastFMData().getName();
-        long discordId = innerParams.getLastFMData().getDiscordId();
+        LastFMData user = innerParams.getLastFMData();
+        String username = user.getName();
+        long discordId = user.getDiscordId();
 
         TimeFrameEnum timeframe = innerParams.getTime();
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
@@ -119,7 +120,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         boolean doArtists = params.hasOptional("artist");
         if (doArtists) {
 
-            List<ArtistInfo> artistInfos = lastFM.getTopArtists(username, CustomTimeFrame.ofTimeFrameEnum(timeframe), 3000);
+            List<ArtistInfo> artistInfos = lastFM.getTopArtists(user, CustomTimeFrame.ofTimeFrameEnum(timeframe), 3000);
             List<ArtistInfo> mbidArtists = artistInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                     .collect(Collectors.toList());
             if (artistInfos.isEmpty()) {
@@ -144,7 +145,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                         new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
                 albumMbids = albumInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty()).collect(Collectors.toList());
             } else {
-                albumInfos = lastFM.getTopAlbums(username, CustomTimeFrame.ofTimeFrameEnum(timeframe), 3000);
+                albumInfos = lastFM.getTopAlbums(user, CustomTimeFrame.ofTimeFrameEnum(timeframe), 3000);
                 albumMbids = albumInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty()).collect(Collectors.toList());
             }
             if (albumInfos.isEmpty()) {

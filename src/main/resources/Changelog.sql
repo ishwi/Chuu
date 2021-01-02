@@ -155,3 +155,7 @@ alter table album
 
 alter table user
     add column show_botted boolean default true;
+alter table user
+    add column token varchar(50) null;
+alter table user
+    add column sess varchar(50) null;

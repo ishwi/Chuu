@@ -52,7 +52,7 @@ public class AffinityParser extends DaoParser<AffinityParameters> {
         if (doServer) {
             return new AffinityParameters(e, true, null, null, null, null, threshold);
         } else {
-            return new AffinityParameters(e, false, datas[0].getName(), datas[1].getName(), datas[0].getDiscordId(), datas[1].getDiscordId(), threshold);
+            return new AffinityParameters(e, false, datas[0], datas[1], datas[0].getDiscordId(), datas[1].getDiscordId(), threshold);
         }
     }
 

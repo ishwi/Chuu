@@ -65,10 +65,34 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
+    public void insertTempUser(Connection con, long discordId, String token) {
+        /* Create "queryString". */
+        String queryString = "INSERT INTO  pending_login"
+                + " (discord_id,token ) " + " VALUES ( ?,?) on duplicate key update token  = values(token)";
+
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, discordId);
+            preparedStatement.setString(i, token);
+
+
+            /* Execute query. */
+            preparedStatement.executeUpdate();
+
+            /* Get generated identifier. */
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
         /* Create "queryString". */
-        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted FROM user WHERE discord_id = ?";
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess FROM user WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -100,10 +124,12 @@ public class UserGuildDaoImpl implements UserGuildDao {
             boolean ratingNotify = resultSet.getBoolean(i++);
             boolean privateLastfmId = resultSet.getBoolean(i++);
             TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(i++), "GMT"));
-            boolean showBotted = resultSet.getBoolean(i);
+            boolean showBotted = resultSet.getBoolean(i++);
+            String token = (resultSet.getString(i++));
+            String session = (resultSet.getString(i));
 
 
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz);
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -393,6 +419,35 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
+    public long getDiscordIdFromLastFm(Connection connection, String lastFmName) throws InstanceNotFoundException {
+        @Language("MariaDB") String queryString = "SELECT a.discord_id " +
+                "FROM   user a" +
+                " WHERE  a.lastfm_id = ?  ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setString(i, lastFmName);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.next()) {
+                throw new InstanceNotFoundException("Not found ");
+            }
+
+            /* Get results. */
+
+            return resultSet.getLong(1);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
     public long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) throws InstanceNotFoundException {
         @Language("MariaDB") String queryString = "SELECT a.discord_id " +
                 "FROM   user a" +
@@ -426,7 +481,9 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image,a.chart_mode,a.whoknows_mode,a.remaining_mode,a.default_x,a.default_y,a.privacy_mode,a.notify_rating,a.private_lastfm,timezone,show_botted " +
+        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image," +
+                "a.chart_mode,a.whoknows_mode,a.remaining_mode,a.default_x,a.default_y,a.privacy_mode,a.notify_rating,a.private_lastfm," +
+                "timezone,show_botted,token,sess " +
                 "FROM   user a" +
                 " WHERE  a.lastfm_id = ? ";
 
@@ -456,9 +513,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
             boolean privateLastfmId = resultSet.getBoolean(13);
             TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(14), "GMT"));
             boolean showBotted = resultSet.getBoolean(15);
+            String token = (resultSet.getString(16));
+            String session = (resultSet.getString(17));
 
 
-            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz);
+            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session);
 
 
             /* Get results. */
@@ -732,7 +791,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 "a.notify_rating, " +
                 " private_lastfm," +
                 "timezone, " +
-                "show_botted " +
+                "show_botted, token, sess " +
                 "FROM user a join guild c" +
 
                 " WHERE a.discord_id = ? AND  c.guild_id = ? ";
@@ -769,10 +828,12 @@ public class UserGuildDaoImpl implements UserGuildDao {
             boolean ratingNotify = resultSet.getBoolean(i++);
             boolean privateLastfmId = resultSet.getBoolean(i++);
             TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(i++), "GMT"));
-            boolean showBotted = resultSet.getBoolean(i);
+            boolean showBotted = resultSet.getBoolean(i++);
+            String token = (resultSet.getString(i++));
+            String session = (resultSet.getString(i));
 
 
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz);
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -968,6 +1029,34 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public Set<Long> getGuildsDontRespondOnErrros(Connection connection) {
         String queryString = "Select guild_id from guild WHERE disabled_warning = true";
         return getIdList(connection, queryString);
+    }
+
+    @Override
+    public void changeDiscordId(Connection connection, long userId, String lastFmID) {
+        String queryString = "UPDATE user SET discord_id = ? WHERE lastfm_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, userId);
+            preparedStatement.setString(i, lastFmID);
+
+            /* Execute query. */
+            preparedStatement.executeUpdate();
+
+            /* Get generated identifier. */
+
+            /* Return booking. */
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public CommandStats getCommandStats(long discordId) {
+        return null;
     }
 
 

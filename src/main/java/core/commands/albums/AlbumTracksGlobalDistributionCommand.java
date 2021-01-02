@@ -82,7 +82,7 @@ public class AlbumTracksGlobalDistributionCommand extends AlbumPlaysCommand {
         scrobbledAlbum.setArtist(scrobbledArtist.getArtist());
         TracklistService tracklistService = new GlobalTracklistService(getService());
 
-        Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData().getName(), scrobbledArtist.getUrl());
+        Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData(), scrobbledArtist.getUrl());
         if (trackList.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));

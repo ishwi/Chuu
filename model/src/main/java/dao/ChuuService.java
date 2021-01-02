@@ -209,7 +209,7 @@ public class ChuuService {
                 connection.setAutoCommit(false);
 
                 userGuildDao.insertUserData(connection, data);
-                if (!userGuildDao.isUserServerBanned(connection, data.getDiscordId(), data.getGuildID())) {
+                if (data.getGuildID() > 0 && !userGuildDao.isUserServerBanned(connection, data.getDiscordId(), data.getGuildID())) {
                     userGuildDao.addGuild(connection, data.getDiscordId(), data.getGuildID());
                 }
                 connection.commit();
@@ -542,6 +542,16 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return userGuildDao.getDiscordIdFromLastFm(connection, lasFmName, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+
+        }
+    }
+
+    public long getDiscordIdFromLastfm(String lasFmName) throws InstanceNotFoundException {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getDiscordIdFromLastFm(connection, lasFmName);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
 
@@ -1090,6 +1100,16 @@ public class ChuuService {
             LastFMData lastFmData = userGuildDao.findLastFmData(connection, userId);
             lastFmData.setName(lastFmID);
             userGuildDao.updateLastFmData(connection, lastFmData);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public void changeDiscordId(long userId, String lastFmID) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.changeDiscordId(connection, userId, lastFmID);
+
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -2996,6 +3016,71 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return albumDao.getUserAlbumsWithNoYear(connection, username);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public Optional<Instant> getLastScrobbled(long artistId, String song, String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getLastScrobbled(connection, lastfmId, artistId, song);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public Optional<Instant> getLastScrobbledArtist(long artistId, String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getLastScrobbledArtist(connection, lastfmId, artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public void storeToken(String authToken, String lastfm) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.storeToken(connection, authToken, lastfm);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
+
+
+    public void storeSess(String session, String lastfm) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.storeSession(connection, session, lastfm);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void clearSess(String session, String lastfm) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.clearSess(connection, lastfm);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public void insertTempUser(long discordId, String token) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.insertTempUser(connection, discordId, token);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
+    public CommandStats getCommandStats(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.getCommandStats(discordId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

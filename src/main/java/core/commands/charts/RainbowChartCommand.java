@@ -88,12 +88,12 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         int count;
         if (param.isArtist()) {
             queue = new ArtistQueue(getService(), discogsApi, spotifyApi, true);
-            count = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum(), (int) (param.getX() * 1.4),
-                    (int) (param.getY() * 1.4), TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getLastfmID()), queue);
+            count = lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), (int) (param.getX() * 1.4),
+                    (int) (param.getY() * 1.4), TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getUser()), queue);
         } else {
             queue = new ArrayBlockingQueue<>((int) (param.getX() * param.getY() * 1.4 * 1.4));
-            count = lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum(), (int) (param.getX() * 1.4), (int) (param.getY() * 1.4), TopEntity.ALBUM,
-                    ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID()), queue);
+            count = lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), (int) (param.getX() * 1.4), (int) (param.getY() * 1.4), TopEntity.ALBUM,
+                    ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getUser()), queue);
         }
         boolean inverted = param.isInverse();
         boolean isColumn = param.isColumn();
@@ -122,7 +122,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
             } else {
                 return new PreComputedByBrightness(x, image, inverted);
             }
-        }).sorted().limit(rows * cols).collect(Collectors.toList());
+        }).sorted().limit((long) rows * cols).collect(Collectors.toList());
         if (isColumn) {
             int counter = 0;
             for (int i = 0; i < rows; i++) {
@@ -143,7 +143,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         stringBuilder.append(params.isColor() ? "by color" : "by brightness")
                 .append(params.isInverse() ? " inversed" : "")
                 .append(" ordered by ").append(params.isColumn() ? "column" : params.isLinear() ? "rows" : "diagonal");
-        return params.initEmbed("'s " + stringBuilder.toString(), embedBuilder, " has listened to " + count + (params.isArtist() ? " artists" : " albums"), params.getLastfmID());
+        return params.initEmbed("'s " + stringBuilder.toString(), embedBuilder, " has listened to " + count + (params.isArtist() ? " artists" : " albums"), params.getUser().getName());
 
     }
 

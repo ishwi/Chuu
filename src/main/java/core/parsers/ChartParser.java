@@ -55,7 +55,7 @@ public class ChartParser extends ChartableParser<ChartParameters> {
         } else {
             data = atTheEndOneUser(e, subMessage);
         }
-        return new ChartParameters(e, data.getName(), data.getDiscordId(), data.getChartMode(), data, timeFrame, x, y);
+        return new ChartParameters(e, data, data.getDiscordId(), data.getChartMode(), data, timeFrame, x, y);
     }
 
     @Override

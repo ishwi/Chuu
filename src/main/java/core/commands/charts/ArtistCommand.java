@@ -32,7 +32,7 @@ public class ArtistCommand extends ArtistAbleCommand<ChartParameters> {
         } else {
             handleCount = " has listened to " + count + " artists";
         }
-        return params.initEmbed("'s top artists", embedBuilder, handleCount, params.getLastfmID());
+        return params.initEmbed("'s top artists", embedBuilder, handleCount, params.getUser().getName());
     }
 
     @Override

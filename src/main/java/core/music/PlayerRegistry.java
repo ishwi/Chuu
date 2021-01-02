@@ -9,15 +9,17 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerRegistry {
-    ExtendedAudioPlayerManager playerManager = new ExtendedAudioPlayerManager();
-    Map<Long, MusicManager> registry = new ConcurrentHashMap<>(10);
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private final ExtendedAudioPlayerManager playerManager;
 
-    private final long playTimeout = TimeUnit.MINUTES.toMillis(2);
-
-    public PlayerRegistry() {
+    public PlayerRegistry(ExtendedAudioPlayerManager playerManager) {
+        this.playerManager = playerManager;
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(this::sweep, 3, 3, TimeUnit.MINUTES);
     }
+
+    Map<Long, MusicManager> registry = new ConcurrentHashMap<>(10);
+
+    private final long playTimeout = TimeUnit.MINUTES.toMillis(2);
 
 
     public void sweep() {
@@ -39,7 +41,7 @@ public class PlayerRegistry {
 
 
     public synchronized MusicManager get(Guild guild) {
-        return registry.computeIfAbsent(guild.getIdLong(), (k) -> new MusicManager(k, playerManager.createPlayer()));
+        return registry.computeIfAbsent(guild.getIdLong(), (k) -> new MusicManager(k, playerManager.createPlayer(), this.playerManager));
     }
 
     public MusicManager getExisting(long id) {

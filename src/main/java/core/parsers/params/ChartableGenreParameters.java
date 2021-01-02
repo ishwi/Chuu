@@ -8,12 +8,12 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class ChartableGenreParameters extends ChartParameters {
     private final GenreParameters genreParameters;
 
-    public ChartableGenreParameters(MessageReceivedEvent e, String lastfmID, long discordId, ChartMode chartMode, CustomTimeFrame timeFrameEnum, int x, int y, GenreParameters genreParameters, LastFMData lastFMData) {
+    public ChartableGenreParameters(MessageReceivedEvent e, LastFMData lastfmID, long discordId, ChartMode chartMode, CustomTimeFrame timeFrameEnum, int x, int y, GenreParameters genreParameters, LastFMData lastFMData) {
         super(e, lastfmID, discordId, chartMode, lastFMData, timeFrameEnum, x, y);
         this.genreParameters = genreParameters;
     }
 
-    public ChartableGenreParameters(MessageReceivedEvent e, String lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, ChartMode chartMode, GenreParameters genreParameters, LastFMData lastFMData) {
+    public ChartableGenreParameters(MessageReceivedEvent e, LastFMData lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, ChartMode chartMode, GenreParameters genreParameters, LastFMData lastFMData) {
         super(e, lastfmID, discordId, timeFrameEnum, x, y, writeTitles, writePlays, isList, chartMode, lastFMData);
         this.genreParameters = genreParameters;
     }

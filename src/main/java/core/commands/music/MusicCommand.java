@@ -29,7 +29,7 @@ public class MusicCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.ARTIST_IMAGES;
+        return CommandCategory.MUSIC;
     }
 
     @Override
@@ -54,14 +54,19 @@ public class MusicCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
-        var botChannel = e.getMember().getVoiceState().getChannel();
-        var userChannel = e.getMember().getVoiceState().getChannel();
-        if (userChannel == null) {
+
+        assert e.getGuild().getSelfMember().getVoiceState() != null;
+        var botChannel = e.getGuild().getSelfMember().getVoiceState().getChannel();
+
+        if (e.getMember() == null || e.getMember().getVoiceState() == null || e.getMember().getVoiceState().getChannel() == null) {
             sendMessageQueue(e, "You're not in a voice channel.");
+            return;
         }
+        var userChannel = e.getMember().getVoiceState().getChannel();
 
         if (botChannel != null && botChannel != userChannel) {
             sendMessageQueue(e, "The bot is already playing music in another channel.");
+            return;
         }
 
         var attachment = e.getMessage().getAttachments().stream().findFirst().orElse(null);

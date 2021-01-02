@@ -74,8 +74,8 @@ public class Chuu {
     private static ChuuService dao;
     private static MessageDeletionService messageDeletionService;
     private static MessageDisablingService messageDisablingService = new MessageDisablingService();
-    public final static PlayerRegistry playerRegistry = new PlayerRegistry();
-    public final static ExtendedAudioPlayerManager playerManager = new ExtendedAudioPlayerManager();
+    public static PlayerRegistry playerRegistry;
+    public static ExtendedAudioPlayerManager playerManager;
 
 
     public static ScheduledExecutorService getScheduledExecutorService() {
@@ -192,6 +192,8 @@ public class Chuu {
         prefixMap = initPrefixMap(dao);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
+        playerManager = new ExtendedAudioPlayerManager();
+        playerRegistry = new PlayerRegistry(playerManager);
         scheduledExecutorService = Executors.newScheduledThreadPool(4);
 
         // Needs these three references

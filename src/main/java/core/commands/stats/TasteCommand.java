@@ -73,10 +73,10 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
             Queue<UrlCapsule> lQ = new ArrayDeque<>();
             Queue<UrlCapsule> rQ = new ArrayDeque<>();
             try {
-                lastFM.getChart(og.getName(), CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()),
-                        1000, 1, TopEntity.ARTIST, ChartUtil.getParser(CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, og.getName()), lQ);
-                lastFM.getChart(second.getName(), CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()),
-                        1000, 1, TopEntity.ARTIST, ChartUtil.getParser(CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, og.getName()), rQ);
+                lastFM.getChart(og, CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()),
+                        1000, 1, TopEntity.ARTIST, ChartUtil.getParser(CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, og), lQ);
+                lastFM.getChart(second, CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()),
+                        1000, 1, TopEntity.ARTIST, ChartUtil.getParser(CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, og), rQ);
                 HashSet<UrlCapsule> set = new HashSet<>(lQ);
                 Map<UrlCapsule, UrlCapsule> map = rQ.stream().collect(Collectors.toMap(x -> x, x -> x));
                 record Holder(UrlCapsule first, UrlCapsule second, double total) {

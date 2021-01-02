@@ -30,7 +30,7 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
     @Override
     public CountWrapper<GroupingQueue> processGroupedQueue(ChartGroupParameters params) throws LastFmException {
         BlockingQueue<UrlCapsule> albumQueu = new LinkedBlockingDeque<>();
-        int albumsQueried = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum(), 1499, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, params.getLastfmID()), albumQueu);
+        int albumsQueried = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 1499, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, params.getUser()), albumQueu);
         List<UrlCapsule> albumList = new ArrayList<>(albumQueu.size());
         albumQueu.drainTo(albumList);
         GroupingQueue queue;
@@ -39,7 +39,7 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
         } else {
             queue = new TrackGroupAlbumQueue(getService(), discogsApi, spotifyApi, params.getX() * params.getY(), albumList);
         }
-        lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum(), 1499, 1, TopEntity.TRACK, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getLastfmID()), queue);
+        lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 1499, 1, TopEntity.TRACK, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getUser()), queue);
         return new CountWrapper<>(albumsQueried, queue);
     }
 
@@ -47,7 +47,7 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartGroupParameters params, int count) {
         return params.initEmbed("'s most listened albums", embedBuilder,
-                String.format(" has listened albums for %s", String.format("%d:%02d hours", count / 3600, count / 60 % 60)), params.getLastfmID());
+                String.format(" has listened albums for %s", String.format("%d:%02d hours", count / 3600, count / 60 % 60)), params.getUser().getName());
     }
 
     @Override

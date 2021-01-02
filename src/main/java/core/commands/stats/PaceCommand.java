@@ -8,6 +8,7 @@ import core.parsers.Parser;
 import core.parsers.params.NaturalTimeParams;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
+import dao.entities.LastFMData;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.UserInfo;
 import dao.exceptions.InstanceNotFoundException;
@@ -73,12 +74,13 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
 
         NumberParameters<NaturalTimeParams> unitCount = hopefullyNoOneSeesThis.getInnerParams();
         NaturalTimeParams naturalTimeParams = unitCount.getInnerParams();
-        String lastfmId = naturalTimeParams.getLastFMData().getName();
-        long discordId = naturalTimeParams.getLastFMData().getDiscordId();
+        LastFMData user = naturalTimeParams.getLastFMData();
+        String lastfmId = user.getName();
+        long discordId = user.getDiscordId();
         NaturalTimeFrameEnum naturalTimeFrameEnum = naturalTimeParams.getTime();
 
 
-        List<UserInfo> holder = lastFM.getUserInfo(List.of(lastfmId));
+        List<UserInfo> holder = lastFM.getUserInfo(List.of(lastfmId), user);
         UserInfo mainUser = holder.get(0);
         int playCount = mainUser.getPlayCount();
         String userString = getUserString(e, discordId, lastfmId);
@@ -110,42 +112,19 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
 
         // UTC was not working with last.fm smh
         ZonedDateTime now = LocalDateTime.now().atZone(ZoneOffset.ofHours(2));
-        int timestamp;
-        switch (naturalTimeFrameEnum) {
-            case YEAR:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.YEARS).toEpochSecond();
-                break;
-            case QUARTER:
-                timestamp = (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toEpochSecond();
-                break;
-            case MONTH:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.MONTHS).toEpochSecond();
-                break;
-            case ALL:
-                timestamp = 0;
-                break;
-            case SEMESTER:
-                timestamp = (int) now.minus(unitNumber * 6, ChronoUnit.MONTHS).toEpochSecond();
-                break;
-            case WEEK:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.WEEKS).toEpochSecond();
-                break;
-            case DAY:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.DAYS).toEpochSecond();
-                break;
-            case HOUR:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.HOURS).toEpochSecond();
-                break;
-            case MINUTE:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.MINUTES).toEpochSecond();
-                break;
-            case SECOND:
-                timestamp = (int) now.minus(unitNumber, ChronoUnit.SECONDS).toEpochSecond();
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
-        int totalScrobbles = lastFM.getInfoPeriod(lastfmId, timestamp);
+        int timestamp = switch (naturalTimeFrameEnum) {
+            case YEAR -> (int) now.minus(unitNumber, ChronoUnit.YEARS).toEpochSecond();
+            case QUARTER -> (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toEpochSecond();
+            case MONTH -> (int) now.minus(unitNumber, ChronoUnit.MONTHS).toEpochSecond();
+            case ALL -> 0;
+            case SEMESTER -> (int) now.minus(unitNumber * 6, ChronoUnit.MONTHS).toEpochSecond();
+            case WEEK -> (int) now.minus(unitNumber, ChronoUnit.WEEKS).toEpochSecond();
+            case DAY -> (int) now.minus(unitNumber, ChronoUnit.DAYS).toEpochSecond();
+            case HOUR -> (int) now.minus(unitNumber, ChronoUnit.HOURS).toEpochSecond();
+            case MINUTE -> (int) now.minus(unitNumber, ChronoUnit.MINUTES).toEpochSecond();
+            case SECOND -> (int) now.minus(unitNumber, ChronoUnit.SECONDS).toEpochSecond();
+        };
+        int totalScrobbles = lastFM.getInfoPeriod(user, timestamp);
         if (totalScrobbles == 0) {
             sendMessageQueue(e, userString + " hasn't played anything in the last " + unitNumber + " " + naturalTimeFrameEnum.toString().toLowerCase());
             return;

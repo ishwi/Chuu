@@ -32,7 +32,7 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.RYM_BETA;
+        return CommandCategory.MUSIC;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public String getDescription() {
-        return "Queueu";
+        return "Queue";
     }
 
     @Override
@@ -97,8 +97,6 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
                 .setDescription(str.stream().limit(10).collect(Collectors.joining()))
                 .setAuthor("Music Queue")
                 .setColor(CommandUtil.randomColor());
-        channel.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(m -> {
-            new Reactionary<>(str, m, 10, embedBuilder, false, true);
-        });
+        channel.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(m -> new Reactionary<>(str, m, 10, embedBuilder, false, true));
     }
 }

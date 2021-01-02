@@ -1082,8 +1082,6 @@ create table user_info
     `profile_pic` varchar(400) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
     login_moment  timestamp                            not null,
     CONSTRAINT user_info_fk_user FOREIGN KEY (lastfm_id) REFERENCES user (lastfm_id) ON UPDATE CASCADE ON DELETE CASCADE
-
-
-)
+);
 
 

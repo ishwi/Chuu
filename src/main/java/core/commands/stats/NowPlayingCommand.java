@@ -5,15 +5,11 @@ import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.abstracts.NpCommand;
-import core.commands.music.NpVoiceCommand;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.services.NPModeBuilder;
 import dao.ChuuService;
-import dao.entities.DiscordUserDisplay;
-import dao.entities.NPMode;
-import dao.entities.NowPlayingArtist;
-import dao.entities.ScrobbledArtist;
+import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
@@ -43,22 +39,6 @@ public class NowPlayingCommand extends NpCommand {
         mb = MusicBrainzServiceSingleton.getInstance();
     }
 
-    @Override
-    public void onMessageReceived(MessageReceivedEvent e) {
-        if (e.isFromGuild() && e.getMember() != null && e.getMember().getVoiceState() != null && e.getMember().getVoiceState().getChannel() != null &&
-                e.getGuild().getSelfMember().getVoiceState() != null && e.getGuild().getSelfMember().getVoiceState().getChannel() != null &&
-                e.getMember().getVoiceState().getChannel().getId().equals(e.getGuild().getSelfMember().getVoiceState().getChannel().getId())) {
-            e.getJDA().getRegisteredListeners().stream().filter(x -> x instanceof NpVoiceCommand).findFirst().ifPresent(x -> {
-                if (x instanceof NpVoiceCommand npVoiceCommand) {
-                    npVoiceCommand.onMessageReceived(e);
-                }
-            });
-        }
-        else {
-            super.onMessageReceived(e);
-        }
-
-}
 
     @Override
     public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e, long discordId) {
@@ -108,7 +88,7 @@ public class NowPlayingCommand extends NpCommand {
 
             npModes = EnumSet.copyOf(IntStream.range(0, CommandUtil.rand.nextInt(4) + 1).mapToObj(x -> allModes.get(CommandUtil.rand.nextInt(allModes.size()))).collect(Collectors.toSet()));
         }
-        NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, lastFMName, embedBuilder, scrobbledArtist, getService(), lastFM, serverName, mb, outputList);
+        NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, LastFMData.ofDefault(), embedBuilder, scrobbledArtist, getService(), lastFM, serverName, mb, outputList);
         CompletableFuture<?> completableFutures = npModeBuilder.buildNp();
 
 

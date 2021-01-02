@@ -23,7 +23,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
@@ -36,7 +35,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
 
     private final ExtendedAudioPlayerManager manager;
     private RepeatOption repeatOption = RepeatOption.NONE;
-    private RadioTrackContext radio;
+    private RadioTrackContext radio = null;
 
     @Override
     public boolean canProvide() {
@@ -123,10 +122,10 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     // ---------- End Properties ----------
 
 
-    public MusicManager(long guildId, AudioPlayer player) {
+    public MusicManager(long guildId, AudioPlayer player, ExtendedAudioPlayerManager manager) {
         this.guildId = guildId;
         this.player = player;
-        this.manager = new ExtendedAudioPlayerManager();
+        this.manager = manager;
         this.player.addListener(this);
         this.player.setVolume(100);
     }
@@ -198,7 +197,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         player.setPaused(false);
     }
 
-    public void nextTrack() throws IOException {
+    public void nextTrack() {
         if (repeatOption != RepeatOption.NONE) {
             if (currentTrack == null) {
                 return;
@@ -222,6 +221,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             String track = queue.poll();
             var decodedTrack = manager.decodeAudioTrack(track);
             player.playTrack(decodedTrack);
+            return;
         }
         var radioTrack = radio.nextTrack();
         if (radioTrack == null) {
@@ -282,15 +282,11 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         this.lastTrack = track;
 
         if (endReason.mayStartNext) {
-            try {
-                nextTrack();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            nextTrack();
         }
     }
 
-    void onTrackStuck(AudioPlayer player, AudioTrack track, Long thresholdMs, Array stackTrace) throws IOException {
+    void onTrackStuck(AudioPlayer player, AudioTrack track, Long thresholdMs, Array stackTrace) {
         Guild guild = getGuild();
         if (guild == null) {
             return;
@@ -435,5 +431,9 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
 
     public RadioTrackContext getRadio() {
         return radio;
+    }
+
+    public void setRadio(RadioTrackContext radio) {
+        this.radio = radio;
     }
 }

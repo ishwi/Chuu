@@ -13,7 +13,7 @@ public class ColorChartParams extends ChartParameters {
     private int x;
     private int y;
 
-    public ColorChartParams(MessageReceivedEvent e, String lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, Set<Color> colors, ChartMode chartMode, LastFMData lastFMData) {
+    public ColorChartParams(MessageReceivedEvent e, LastFMData lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, Set<Color> colors, ChartMode chartMode, LastFMData lastFMData) {
         super(e, lastfmID, discordId, chartMode, lastFMData, timeFrameEnum, x, y);
         this.colors = colors;
         this.x = x;

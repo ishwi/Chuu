@@ -162,7 +162,7 @@ public class CommandUtil {
             return dao.findAlbumIdByName(scrobbledArtist.getArtistId(), album);
         } catch (InstanceNotFoundException exception) {
             try {
-                FullAlbumEntityExtended chuu = lastFM.getAlbumSummary("chuu", scrobbledArtist.getArtist(), album);
+                FullAlbumEntityExtended chuu = lastFM.getAlbumSummary(LastFMData.ofDefault(), scrobbledArtist.getArtist(), album);
                 ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), chuu.getAlbumUrl(), chuu.getMbid());
                 scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
                 dao.insertAlbum(scrobbledAlbum);
@@ -178,7 +178,7 @@ public class CommandUtil {
             return dao.findTrackIdByName(scrobbledArtist.getArtistId(), track);
         } catch (InstanceNotFoundException exception) {
             try {
-                Track trackInfo = lastFM.getTrackInfo("chuu", scrobbledArtist.getArtist(), track);
+                Track trackInfo = lastFM.getTrackInfo(LastFMData.ofDefault(), scrobbledArtist.getArtist(), track);
                 ScrobbledTrack scrobbledTrack = new ScrobbledTrack(scrobbledArtist.getArtist(), track, 0, false, trackInfo.getDuration(), trackInfo.getImageUrl(), null, trackInfo.getMbid());
                 scrobbledTrack.setArtistId(scrobbledArtist.getArtistId());
                 dao.insertTrack(scrobbledTrack);
@@ -196,7 +196,7 @@ public class CommandUtil {
             return dao.findAlbumUrlByName(scrobbledArtist.getArtistId(), album);
         } catch (InstanceNotFoundException exception) {
             try {
-                FullAlbumEntityExtended chuu = lastFM.getAlbumSummary("chuu", scrobbledArtist.getArtist(), album);
+                FullAlbumEntityExtended chuu = lastFM.getAlbumSummary(LastFMData.ofDefault(), scrobbledArtist.getArtist(), album);
                 ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), chuu.getAlbumUrl(), chuu.getMbid());
                 scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
                 dao.insertAlbum(scrobbledAlbum);
@@ -354,16 +354,12 @@ public class CommandUtil {
         if (day >= 11 && day <= 13) {
             return "th";
         }
-        switch (day % 10) {
-            case 1:
-                return "st";
-            case 2:
-                return "nd";
-            case 3:
-                return "rd";
-            default:
-                return "th";
-        }
+        return switch (day % 10) {
+            case 1 -> "st";
+            case 2 -> "nd";
+            case 3 -> "rd";
+            default -> "th";
+        };
     }
 
     public static RemainingImagesMode getEffectiveMode(RemainingImagesMode remainingImagesMode, CommandParameters chartParameters) {
@@ -418,6 +414,6 @@ public class CommandUtil {
             return String.format("%02d:%02d:%02d", h, m % 60, s % 60);
         } else {
             return String.format("%02d:%02d", m, s % 60);
+        }
     }
-}
 }

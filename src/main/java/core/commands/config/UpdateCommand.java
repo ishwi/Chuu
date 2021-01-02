@@ -89,12 +89,12 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                     }
                 }
                 try {
-                    List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                    List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                     getService().insertArtistDataList(artistData, lastFmName);
-                    List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                    List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                     e.getChannel().sendTyping().queue();
                     getService().albumUpdate(albumData, artistData, lastFmName);
-                    List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                    List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                     getService().trackUpdate(trackData, artistData, lastFmName);
                     sendMessageQueue(e, "Successfully updated " + userString + " info!");
                 } finally {
@@ -115,17 +115,17 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                         try {
                             sendMessageQueue(e, "Since you haven't indexed your tracks yet, all your tracks will be indexed on the bot. This will take a while.");
                             e.getChannel().sendTyping().queue();
-                            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                             getService().insertArtistDataList(artistData, lastFmName);
                             e.getChannel().sendTyping().queue();
                             //sendMessageQueue(e, "Finished updating your artist, now the album process will start");
                             try {
-                                List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                                List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                                 e.getChannel().sendTyping().queue();
                                 getService().albumUpdate(albumData, artistData, lastFmName);
                             } catch (LastFMNoPlaysException ignored) {
                             }
-                            List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+                            List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                             getService().trackUpdate(trackData, artistData, lastFmName);
                             sendMessageQueue(e, "Successfully indexed " + userString + " tracks");
                         } finally {

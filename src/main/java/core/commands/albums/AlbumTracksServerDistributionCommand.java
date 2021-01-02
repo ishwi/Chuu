@@ -82,7 +82,7 @@ public class AlbumTracksServerDistributionCommand extends AlbumPlaysCommand {
         scrobbledAlbum.setArtist(scrobbledArtist.getArtist());
         TracklistService tracklistService = new ServerTracklistService(getService(), e.getGuild().getIdLong());
 
-        Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData().getName(), scrobbledArtist.getUrl());
+        Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData(), scrobbledArtist.getUrl());
         if (trackList.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));

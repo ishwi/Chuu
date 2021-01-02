@@ -89,7 +89,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
 
         NumberFormat average = new DecimalFormat("#0.##");
         Function<Byte, String> starFormatter = getStartsFromScore();
-        FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary("chuu", scrobbledArtist.getArtist(), album);
+        FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(params.getLastFMData(), scrobbledArtist.getArtist(), album);
         List<Rating> userRatings = ratingss.getUserRatings();
         String lastFmArtistAlbumUrl = LinkUtils.getLastFmArtistAlbumUrl(artist, album);
         List<String> stringList = userRatings.stream().filter(Rating::isSameGuild).map(x -> ". **[" +

@@ -92,7 +92,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
 
 
         CustomTimeFrame time = params.getInnerParams().getTimeFrame();
-        LastFMData lastFMData = params.getInnerParams().getLastFMData();
+        LastFMData user = params.getInnerParams().getLastFMData();
         String artist = params.getInnerParams().getArtist();
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
 
@@ -102,13 +102,12 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         BlockingQueue<UrlCapsule> queue = new DiscardableQueue<>(
                 x -> !(x.getArtistName().equalsIgnoreCase(scrobbledArtist.getArtist()) && x.getAlbumName().equalsIgnoreCase(finalAlbum))
                 , x -> x, 1);
-        String lastfm = lastFMData.getName();
-        lastFM.getChart(lastfm,
+        lastFM.getChart(user,
                 time,
                 1000,
                 1,
                 TopEntity.ALBUM,
-                ChartUtil.getParser(time, TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, lastfm),
+                ChartUtil.getParser(time, TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, user),
                 queue);
         List<UrlCapsule> objects = new ArrayList<>();
         queue.drainTo(objects);
@@ -123,7 +122,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         if (time.isAllTime()) {
             albumPlays = metricPlays;
         } else {
-            FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(lastfm, scrobbledArtist.getArtist(), album);
+            FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(user, scrobbledArtist.getArtist(), album);
             albumPlays = albumSummary.getTotalPlayNumber();
             album = albumSummary.getAlbum();
         }
@@ -133,7 +132,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
 
         }
         final long unitNumber = 1;
-        List<UserInfo> holder = lastFM.getUserInfo(List.of(lastfm));
+        List<UserInfo> holder = lastFM.getUserInfo(List.of(user.getName()), user);
         UserInfo mainUser = holder.get(0);
         int unixtimestamp = mainUser.getUnixtimestamp();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
@@ -144,31 +143,15 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         int timestamp;
         ChronoUnit days = ChronoUnit.DAYS;
         if (time.getType() == CustomTimeFrame.Type.NORMAL) {
-            switch (time.getTimeFrameEnum()) {
-                case YEAR:
-                    timestamp = (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant().getEpochSecond();
-                    break;
-                case QUARTER:
-                    timestamp = (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toInstant().getEpochSecond();
-                    break;
-                case MONTH:
-                    timestamp = (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant().getEpochSecond();
-                    break;
-                case ALL:
-                    timestamp = 0;
-                    break;
-                case SEMESTER:
-                    timestamp = (int) now.minus(unitNumber * 2, ChronoUnit.MONTHS).toInstant().getEpochSecond();
-                    break;
-                case WEEK:
-                    timestamp = (int) now.minus(unitNumber, ChronoUnit.WEEKS).toInstant().getEpochSecond();
-                    break;
-                case DAY:
-                    timestamp = (int) now.minus(unitNumber, days).toInstant().getEpochSecond();
-                    break;
-                default:
-                    throw new IllegalArgumentException();
-            }
+            timestamp = switch (time.getTimeFrameEnum()) {
+                case YEAR -> (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant().getEpochSecond();
+                case QUARTER -> (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+                case MONTH -> (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+                case ALL -> 0;
+                case SEMESTER -> (int) now.minus(unitNumber * 2, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+                case WEEK -> (int) now.minus(unitNumber, ChronoUnit.WEEKS).toInstant().getEpochSecond();
+                case DAY -> (int) now.minus(unitNumber, days).toInstant().getEpochSecond();
+            };
         } else {
             // TODO
             timestamp = 0;
@@ -181,7 +164,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         totalUnits = between.apply(compareTime, now);
         double ratio = ((double) metricPlays) / totalUnits;
         double remainingUnits = (goal - albumPlays) / ratio;
-        String userString = getUserString(e, lastFMData.getDiscordId(), lastfm);
+        String userString = getUserString(e, user.getDiscordId(), user.getName());
 
         String timeFrame;
         if (time.isAllTime()) timeFrame = " overall";

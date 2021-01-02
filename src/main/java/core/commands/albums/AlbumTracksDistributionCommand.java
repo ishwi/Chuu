@@ -78,7 +78,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
         scrobbledAlbum.setArtist(scrobbledArtist.getArtist());
         TracklistService tracklistService = new UserTrackListService(getService(), params.getLastFMData().getName());
 
-        Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData().getName(), scrobbledArtist.getUrl());
+        Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData(), scrobbledArtist.getUrl());
         if (trackList.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));
@@ -87,16 +87,14 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
             FullAlbumEntity fullAlbumEntity = trackList.get();
 
             switch (CommandUtil.getEffectiveMode(params.getLastFMData().getRemainingImagesMode(), params)) {
-
-                case IMAGE:
+                case IMAGE -> {
                     BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity);
                     sendImage(bufferedImage, e);
-                    break;
-
-                case PIE:
+                }
+                case PIE -> {
                     PieChart pieChart = this.pie.doPie(params, fullAlbumEntity.getTrackList());
                     pieChart.setTitle(params.getArtist() + " - " + params.getAlbum() + " tracklist");
-                    bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g = bufferedImage.createGraphics();
                     GraphicUtils.setQuality(g);
                     pieChart.paint(g, 1000, 750);
@@ -106,8 +104,8 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                         g.drawImage(backgroundImage, 10, 750 - 10 - backgroundImage.getHeight(), null);
                     }
                     sendImage(bufferedImage, params.getE());
-                    break;
-                case LIST:
+                }
+                case LIST -> {
                     StringBuilder a = new StringBuilder();
                     List<String> collect1 = fullAlbumEntity.getTrackList().stream().map(t -> ". " + "[" +
                             CommandUtil.cleanMarkdownCharacter(t.getName()) +
@@ -123,10 +121,9 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                             .setTitle(String.format("%s tracklist", album), LinkUtils.getLastFmArtistAlbumUrl(artist, album))
                             .setFooter(String.format("%s has %d total plays on the album!!%n", CommandUtil.markdownLessUserString(getUserString(e, params.getLastFMData().getDiscordId()), params.getLastFMData().getDiscordId(), e), fullAlbumEntity.getTotalPlayNumber()), null)
                             .setThumbnail(fullAlbumEntity.getAlbumUrl());
-
                     e.getChannel().sendMessage(embedBuilder.build()).queue(message ->
                             new Reactionary<>(fullAlbumEntity.getTrackList(), message, 20, embedBuilder));
-                    break;
+                }
             }
         }
     }

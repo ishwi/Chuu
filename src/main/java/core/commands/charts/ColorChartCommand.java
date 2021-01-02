@@ -149,15 +149,15 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
         BlockingQueue<UrlCapsule> queue = new DiscardByQueue(getService(), discogsApi, spotifyApi, discardGenerator.apply(params), factoryFunction, params.getX() * params.getY());
         if (params.isArtist()) {
 
-            count = lastFM.getChart(params.getLastfmID(),
+            count = lastFM.getChart(params.getUser(),
                     params.getTimeFrameEnum(),
                     3000,
                     1,
                     TopEntity.ARTIST,
-                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getLastfmID()),
+                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getUser()),
                     queue);
         } else {
-            count = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getLastfmID()), queue);
+            count = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getUser()), queue);
         }
 
         List<UrlCapsule> holding = new ArrayList<>();
@@ -169,7 +169,7 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
         }
         int rows = params.getX();
         int cols = params.getY();
-        List<PreComputedChartEntity> sorting = holding.stream().map(x -> (PreComputedChartEntity) x).sorted().limit(rows * cols).collect(Collectors.toList());
+        List<PreComputedChartEntity> sorting = holding.stream().map(x -> (PreComputedChartEntity) x).sorted().limit((long) rows * cols).collect(Collectors.toList());
 
         if (params.isSorted()) {
             int counter = 0;
@@ -202,7 +202,7 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
                 (params.isSorted() ? "plays" : params.isColor() ? "color" : "brightness") +
                 (params.isInverse() ? " inversed" : "") +
                 " ordered by " + (params.isColumn() ? "column" : params.isLinear() ? "rows" : "diagonal");
-        return params.initEmbed("'s " + stringBuilder, embedBuilder, " has listened to " + count + (params.isArtist() ? " artists" : " albums"), params.getLastfmID());
+        return params.initEmbed("'s " + stringBuilder, embedBuilder, " has listened to " + count + (params.isArtist() ? " artists" : " albums"), params.getUser().getName());
 
 
     }

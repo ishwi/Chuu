@@ -17,6 +17,7 @@ import dao.entities.*;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -64,7 +65,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
         //Gets all users in this server
 
         try {
-            lastFM.getUserInfo(List.of(lastFmID));
+            lastFM.getUserInfo(List.of(lastFmID), null);
         } catch (LastFmEntityNotFoundException | IllegalArgumentException ex) {
             sendMessageQueue(e, "The provided username doesn't exist on last.fm, choose another one");
             return;
@@ -132,42 +133,46 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
                 queue(t -> e.getChannel().
                         sendTyping().
                         queue());
-        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault());
+        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null);
         lastFMData.setGuildID(guildID);
 
         getService().insertNewUser(lastFMData);
 
+        setProcess(e.getChannel(), lastFmID, userId, lastFMData, e.getAuthor().getName());
+
+    }
+
+    public void setProcess(MessageChannel channel, String lastFmID, long userId, LastFMData lastFMData, String name) {
         try {
 
 
-            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData.getName(), new CustomTimeFrame(TimeFrameEnum.ALL));
+            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
             getService().insertArtistDataList(artistData, lastFmID);
-            sendMessageQueue(e, "Finished updating your artist, now the album/track process will start");
-            e.getChannel().sendTyping().queue();
-            List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), new CustomTimeFrame(TimeFrameEnum.ALL));
+            channel.sendMessage("Finished updating your artist, now the album/track process will start").queue();
+
+            channel.sendTyping().queue();
+            List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
             getService().albumUpdate(albumData, artistData, lastFmID);
-            List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+            List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
             getService().trackUpdate(trackData, artistData, lastFmID);
-            sendMessageQueue(e, "Successfully updated " + lastFmID + " info!");
+            channel.sendMessage("Successfully updated " + lastFmID + " info!").queue();
             //  e.getGuild().loadMembers((Chuu::caching));
         } catch (
                 LastFMNoPlaysException ex) {
-            sendMessageQueue(e, "Finished updating " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + "'s library, you are good to go!");
+            channel.sendMessage("Finished updating " + CommandUtil.cleanMarkdownCharacter(name) + "'s library, you are good to go!").queue();
         } catch (
                 LastFmEntityNotFoundException ex) {
             getService().removeUserCompletely(userId);
             Chuu.getLogger().warn(ex.getMessage(), ex);
-            sendMessageQueue(e, "The provided username doesn't exist anymore on last.fm, please re-set your account");
+            channel.sendMessage("The provided username doesn't exist anymore on last.fm, please re-set your account").queue();
         } catch (
                 Throwable ex) {
             System.out.println("Error while updating " + lastFmID + LocalDateTime.now()
                     .format(DateTimeFormatter.ISO_DATE));
             Chuu.getLogger().warn(ex.getMessage(), ex);
             getService().updateUserTimeStamp(lastFmID, 0, null);
-            sendMessageQueue(e, String.format("Error downloading %s's library, try to run !update, try again later or contact bot admins if the error persists", CommandUtil.cleanMarkdownCharacter(e.getAuthor()
-                    .getName())));
+            channel.sendMessage("Error downloading your library, try to run !update, try again later or contact bot admins if the error persists").queue();
         }
-
     }
 
     @Override

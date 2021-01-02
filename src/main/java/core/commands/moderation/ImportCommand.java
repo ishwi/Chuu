@@ -50,13 +50,13 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
         String lastfmid = u.getName();
         long userId = u.getDiscordId();
         User userById = Chuu.getShardManager().getUserById(userId);
-        if (userById != null  && userById.isBot()) {
+        if (userById != null && userById.isBot()) {
             return;
         }
         long guildID = u.getGuildID();
         String error = "\t{\"discordId\":" + userId + ",\t\t\n\"lastFMUsername\":" + lastfmid + ",\t\t\n\"reason\":\"";
         try {
-            lastFM.getUserInfo(List.of(lastfmid));
+            lastFM.getUserInfo(List.of(lastfmid), null);
         } catch (LastFmEntityNotFoundException ex) {
             m.append(error).append("This username doesn't exist on last.fm\"}\n");
             errorCounter[0]++;
@@ -116,7 +116,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
 
         //Never registered before
-        LastFMData lastFMData = new LastFMData(lastfmid, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault());
+        LastFMData lastFMData = new LastFMData(lastfmid, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null);
         lastFMData.setGuildID(guildID);
 
         getService().
@@ -125,11 +125,11 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
         try {
 
-            List<ScrobbledArtist> allArtists = lastFM.getAllArtists(lastfmid, new CustomTimeFrame(TimeFrameEnum.ALL));
+            List<ScrobbledArtist> allArtists = lastFM.getAllArtists(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
             getService().insertArtistDataList(allArtists, lastfmid);
-            List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData.getName(), new CustomTimeFrame(TimeFrameEnum.ALL));
+            List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
             getService().albumUpdate(albumData, allArtists, lastfmid);
-            List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData.getName(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
+            List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
             getService().trackUpdate(trackData, allArtists, lastfmid);
         } catch (
                 LastFMNoPlaysException ignored) {
@@ -227,7 +227,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
             long userId = Long.parseLong(jsonObject.optString("discordUserID"));
             String lastfmid = jsonObject.getString("lastFMUsername");
-            LastFMData lastFMData = new LastFMData(lastfmid, userId, guildID, respondInPrivate, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault());
+            LastFMData lastFMData = new LastFMData(lastfmid, userId, guildID, respondInPrivate, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null);
             queue.add(consumer.executeCallback(lastFMData, stringBuilder, complete, embedBuilder, e.getAuthor(), i, counter));
 
         }

@@ -23,6 +23,7 @@ import core.parsers.params.CountryParameters;
 import dao.ChuuService;
 import dao.entities.ArtistUserPlays;
 import dao.entities.DiscordUserDisplay;
+import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
@@ -113,10 +114,11 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
 
         CountryCode country = params.getCode();
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(2000);
-        String name = params.getLastFMData().getName();
-        lastFM.getChart(name, params.getTimeFrame(), 2000, 1, TopEntity.ARTIST, ChartUtil.getParser(params.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, name), queue);
+        LastFMData user = params.getLastFMData();
+        String name = user.getName();
+        lastFM.getChart(user, params.getTimeFrame(), 2000, 1, TopEntity.ARTIST, ChartUtil.getParser(params.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, user), queue);
 
-        Long discordId = params.getLastFMData().getDiscordId();
+        Long discordId = user.getDiscordId();
         List<ScrobbledArtist> artistInfos = queue.stream().map(x -> {
             ScrobbledArtist scrobbledArtist = new ScrobbledArtist(x.getArtistName(), x.getPlays(), null);
             scrobbledArtist.setArtistMbid(x.getMbid());

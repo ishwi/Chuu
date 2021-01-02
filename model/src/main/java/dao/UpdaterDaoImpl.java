@@ -384,9 +384,10 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public RandomUrlEntity getRandomUrl(Connection con) {
-        String queryString = "SELECT * FROM randomlinks WHERE discord_id IN \n" +
-                "(SELECT discord_id FROM (SELECT discord_id,count(*)   , -log(1-rand()) / log(count(*) + 1)    AS ra FROM randomlinks GROUP BY discord_id having COUNT(*) > 0 ORDER BY ra LIMIT 1) t) or discord_id is null  \n" +
-                " ORDER BY rand() LIMIT 1;";
+        String queryString = """
+                SELECT * FROM randomlinks WHERE discord_id IN\s
+                (SELECT discord_id FROM (SELECT discord_id,count(*)   , -log(1-rand()) / log(count(*) + 1)    AS ra FROM randomlinks GROUP BY discord_id having COUNT(*) > 0 ORDER BY ra LIMIT 1) t) or discord_id is null \s
+                 ORDER BY rand() LIMIT 1;""";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Execute query. */
@@ -407,9 +408,10 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public RandomUrlEntity getRandomUrlFromServer(Connection con, long discordId) {
-        String queryString = "SELECT * FROM randomlinks WHERE discord_id IN \n" +
-                "(SELECT discord_id FROM (SELECT a.discord_id,count(*)   , -log(1-rand()) / log(count(*) + 1)  AS ra FROM randomlinks a join user_guild b on  a.discord_id = b.discord_id  where b.guild_id = ? GROUP BY discord_id having COUNT(*) > 0 ORDER BY ra LIMIT 1) t)   \n" +
-                " ORDER BY rand() LIMIT 1";
+        String queryString = """
+                SELECT * FROM randomlinks WHERE discord_id IN\s
+                (SELECT discord_id FROM (SELECT a.discord_id,count(*)   , -log(1-rand()) / log(count(*) + 1)  AS ra FROM randomlinks a join user_guild b on  a.discord_id = b.discord_id  where b.guild_id = ? GROUP BY discord_id having COUNT(*) > 0 ORDER BY ra LIMIT 1) t)  \s
+                 ORDER BY rand() LIMIT 1""";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             preparedStatement.setLong(1, discordId);
             /* Execute query. */
@@ -454,22 +456,23 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     public void insertAlbumCrown(Connection connection, long artistId, String album, long discordID,
                                  long guildId,
                                  int plays) {
-        String queryString = "INSERT INTO album_crowns\n" +
-                "(artist_id,\n" +
-                "discordid,\n" +
-                "album,\n" +
-                "plays,\n" +
-                "guildid)\n" +
-                "VALUES\n" +
-                "(?,\n" +
-                "?,\n" +
-                "?,\n" +
-                "?,\n" +
-                "?)\n" +
-                "\n" +
-                "ON DUPLICATE KEY UPDATE\n" +
-                "  plays = ?,\n" +
-                "  discordid =  ?;";
+        String queryString = """
+                INSERT INTO album_crowns
+                (artist_id,
+                discordid,
+                album,
+                plays,
+                guildid)
+                VALUES
+                (?,
+                ?,
+                ?,
+                ?,
+                ?)
+
+                ON DUPLICATE KEY UPDATE
+                  plays = ?,
+                  discordid =  ?;""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
@@ -809,12 +812,13 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public ReportEntity getReportEntity(Connection connection, long maxIdAllowed, Set<Long> skippedIds) {
 
-        String queryString = "SELECT  b.id,count(*) AS reportcount,b.score,\n" +
-                "min(a.report_date) AS l,b.added_date,b.discord_id,c.name,b.url,(SELECT count(*) FROM log_reported WHERE reported = b.discord_id),b.artist_id,a.id\n" +
-                "FROM reported a JOIN \n" +
-                "alt_url b ON a.alt_id = b.id JOIN\n" +
-                "artist c ON b.artist_id = c.id\n" +
-                "WHERE a.id <= ? ";
+        String queryString = """
+                SELECT  b.id,count(*) AS reportcount,b.score,
+                min(a.report_date) AS l,b.added_date,b.discord_id,c.name,b.url,(SELECT count(*) FROM log_reported WHERE reported = b.discord_id),b.artist_id,a.id
+                FROM reported a JOIN\s
+                alt_url b ON a.alt_id = b.id JOIN
+                artist c ON b.artist_id = c.id
+                WHERE a.id <= ?\s""";
         if (!skippedIds.isEmpty()) {
             queryString += " and a.alt_id not in (" + "?,".repeat(skippedIds.size() - 1) + "?)";
         }
@@ -1025,11 +1029,11 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public ImageQueue getUrlQueue(Connection connection, long maxIdAllowed, Set<Long> skippedIds) {
 
-        String queryString = "SELECT a.id,a.url,a.artist_id,a.discord_id,a.added_date, c.name,(SELECT count(*) FROM log_reported WHERE reported = a.discord_id) as reportedCount\n" +
-                "FROM queued_url a " +
-                "JOIN\n" +
-                "artist c ON a.artist_id = c.id\n" +
-                "WHERE a.id <= ? ";
+        String queryString = """
+                SELECT a.id,a.url,a.artist_id,a.discord_id,a.added_date, c.name,(SELECT count(*) FROM log_reported WHERE reported = a.discord_id) as reportedCount
+                FROM queued_url a JOIN
+                artist c ON a.artist_id = c.id
+                WHERE a.id <= ?\s""";
         if (!skippedIds.isEmpty()) {
             queryString += " and a.id not in (" + "?,".repeat(skippedIds.size() - 1) + "?)";
         }
@@ -1626,6 +1630,44 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                 return Optional.of(new UserInfo(scrobbleCount, profilePic, lastfm, loginMoment));
             }
             return Optional.empty();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void storeToken(Connection connection, String authToken, String lastfm) {
+        @Language("MariaDB") String queryString = "UPDATE user SET token =  ? , sess = null WHERE lastfm_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i++, authToken);
+            preparedStatement.setString(i, lastfm);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void storeSession(Connection connection, String session, String lastfm) {
+        @Language("MariaDB") String queryString = "UPDATE user SET token = null, sess = ?  WHERE lastfm_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i++, session);
+            preparedStatement.setString(i, lastfm);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void clearSess(Connection connection, String lastfm) {
+        @Language("MariaDB") String queryString = "UPDATE user SET token = null, sess = null  WHERE lastfm_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i, lastfm);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

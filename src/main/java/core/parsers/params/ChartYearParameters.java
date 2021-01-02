@@ -10,7 +10,7 @@ import java.time.Year;
 public class ChartYearParameters extends ChartParameters {
     private final Year year;
 
-    public ChartYearParameters(MessageReceivedEvent e, String username, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, Year year, ChartMode chartMode, LastFMData lastFMData) {
+    public ChartYearParameters(MessageReceivedEvent e, LastFMData username, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, Year year, ChartMode chartMode, LastFMData lastFMData) {
         super(e, username, discordId, chartMode, lastFMData, timeFrameEnum, x, y);
         this.year = year;
     }

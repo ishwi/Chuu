@@ -46,6 +46,6 @@ public class RangeChartParser extends ChartableParser<CustomRangeChartParameters
             return null;
         }
         LastFMData data = findLastfmFromID(oneUser, e);
-        return new CustomRangeChartParameters(e, data.getName(), data.getDiscordId(), data.getChartMode(), data, customTimeFrame, x, y);
+        return new CustomRangeChartParameters(e, data, data.getDiscordId(), data.getChartMode(), data, customTimeFrame, x, y);
     }
 }

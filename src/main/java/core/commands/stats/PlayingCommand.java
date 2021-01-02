@@ -13,6 +13,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
+import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
@@ -96,7 +97,8 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         {
             Optional<NowPlayingArtist> opt;
             try {
-                opt = Optional.of(lastFM.getNowPlayingInfo(u.getLastFMName()));
+                LastFMData user = LastFMData.ofUserWrapper(u);
+                opt = Optional.of(lastFM.getNowPlayingInfo(user));
             } catch (Exception ex) {
                 opt = Optional.empty();
             }

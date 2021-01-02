@@ -13,10 +13,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
-import dao.entities.AlbumUserPlays;
-import dao.entities.ReturnNowPlaying;
-import dao.entities.Track;
-import dao.entities.UsersWrapper;
+import dao.entities.*;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -50,7 +47,7 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
     Map<UsersWrapper, Integer> fillPlayCounter(List<UsersWrapper> userList, String artist, String track, AlbumUserPlays fillWithUrl) throws LastFmException {
         Map<UsersWrapper, Integer> userMapPlays = new LinkedHashMap<>();
         UsersWrapper usersWrapper = userList.get(0);
-        Track temp = lastFM.getTrackInfo(usersWrapper.getLastFMName(), artist, track);
+        Track temp = lastFM.getTrackInfo(LastFMData.ofUserWrapper(usersWrapper), artist, track);
         userMapPlays.put(usersWrapper, temp.getPlays());
         fillWithUrl.setAlbumUrl(temp.getImageUrl());
 
@@ -60,7 +57,7 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
         }
         userList.stream().skip(1).forEach(u -> {
             try {
-                Track trackInfo = lastFM.getTrackInfo(u.getLastFMName(), artist, track);
+                Track trackInfo = lastFM.getTrackInfo(LastFMData.ofUserWrapper(usersWrapper), artist, track);
                 userMapPlays.put(u, trackInfo.getPlays());
             } catch (LastFmException ex) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);

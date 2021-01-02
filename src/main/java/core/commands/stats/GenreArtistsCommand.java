@@ -61,12 +61,12 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartableGenreParameters params) throws LastFmException {
 
-        String name = params.getLastfmID();
+        LastFMData name = params.getUser();
         List<ArtistInfo> artists;
         BlockingQueue<UrlCapsule> queue;
         if (params.getTimeFrameEnum().isAllTime()) {
 
-            List<ScrobbledArtist> userAlbumByMbid = getService().getUserArtistByMbid(name);
+            List<ScrobbledArtist> userAlbumByMbid = getService().getUserArtistByMbid(name.getName());
             artists = userAlbumByMbid.stream().filter(u -> u.getArtistMbid() != null && !u.getArtistMbid().isEmpty()).map(x ->
                     new ArtistInfo(x.getUrl(), x.getArtist(), x.getArtistMbid())).collect(Collectors.toList());
             queue = userAlbumByMbid.stream().map(x -> new ArtistChart(x.getUrl(), 0, x.getArtist(), x.getArtistMbid(), x.getCount(), params.isWriteTitles(), params.isWritePlays())).collect(Collectors.toCollection(LinkedBlockingDeque::new));
@@ -105,7 +105,7 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
                 })
                 .sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
                 .peek(x -> x.setPos(ranker.getAndIncrement()))
-                .limit(params.getX() * params.getY())
+                .limit((long) params.getX() * params.getY())
                 .collect(Collectors.toCollection(LinkedBlockingQueue::new));
         ArtistQueue artistQueue = new ArtistQueue(getService(), DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstance());
         artistQueue.addAll(collect1);
@@ -123,7 +123,7 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
         }
 
         params.initEmbed("'s top " + params.getGenreParameters().getGenre() + " artists", embedBuilder, ""
-                , params.getLastfmID());
+                , params.getUser().getName());
         String s = " has listened to " + count + " " + params.getGenreParameters().getGenre() + " artists";
         DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoNotStripped(params.getE(), params.getDiscordId());
         embedBuilder.setFooter(CommandUtil.markdownLessString(discordUserDisplay.getUsername()) + s + params.getTimeFrameEnum().getDisplayString() + footerText);

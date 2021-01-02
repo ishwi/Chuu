@@ -1,5 +1,6 @@
 package dao;
 
+import dao.entities.CommandStats;
 import dao.entities.GuildProperties;
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
@@ -20,6 +21,8 @@ interface UserGuildDao {
     void createGuild(Connection con, long guildId);
 
     void insertUserData(Connection con, LastFMData lastFMData);
+
+    void insertTempUser(Connection con, long discordId, String token);
 
     LastFMData findLastFmData(Connection con, long discordId) throws dao.exceptions.InstanceNotFoundException;
 
@@ -44,6 +47,8 @@ interface UserGuildDao {
     void removeLogo(Connection connection, long guildId);
 
     InputStream findLogo(Connection connection, long guildID);
+
+    long getDiscordIdFromLastFm(Connection connection, String lastFmName) throws InstanceNotFoundException;
 
     long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) throws InstanceNotFoundException;
 
@@ -108,4 +113,7 @@ interface UserGuildDao {
     Set<Long> getGuildsDontRespondOnErrros(Connection connection);
 
 
+    void changeDiscordId(Connection connection, long userId, String lastFmID);
+
+    CommandStats getCommandStats(long discordId);
 }

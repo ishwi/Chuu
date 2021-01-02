@@ -6,6 +6,7 @@ import core.apis.last.TopEntity;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartParameters;
 import core.parsers.utils.CustomTimeFrame;
+import dao.entities.LastFMData;
 import dao.entities.NaturalTimeFrameEnum;
 import net.dv8tion.jda.internal.utils.tuple.Pair;
 import org.json.JSONObject;
@@ -17,7 +18,7 @@ import java.util.function.BiFunction;
 
 public class ChartUtil {
 
-    public static BiFunction<JSONObject, Integer, UrlCapsule> getParser(CustomTimeFrame timeFrameEnum, TopEntity topEntity, ChartParameters chartParameters, ConcurrentLastFM lastFM, String username) throws LastFmException {
+    public static BiFunction<JSONObject, Integer, UrlCapsule> getParser(CustomTimeFrame timeFrameEnum, TopEntity topEntity, ChartParameters chartParameters, ConcurrentLastFM lastFM, LastFMData username) throws LastFmException {
         if (timeFrameEnum.getType() == CustomTimeFrame.Type.NORMAL) {
             return new TimeFrameParser(lastFM, username, chartParameters, topEntity, timeFrameEnum.getTimeFrameEnum()).obtainParse();
         } else {

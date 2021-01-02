@@ -124,19 +124,10 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(GayParams params) throws LastFmException {
         String substring = params.getE().getMessage().getContentRaw().substring(1).split("\\s+")[0].toLowerCase();
         switch (substring) {
-            case "trans":
-                params.setGayType(GayType.TRANS);
-                break;
-            case "ace":
-                params.setGayType(GayType.ACE);
-                break;
-            case "nonbinary":
-            case "nb":
-                params.setGayType(GayType.NB);
-                break;
-            case "lesbian":
-                params.setGayType(GayType.LESBIAN);
-                break;
+            case "trans" -> params.setGayType(GayType.TRANS);
+            case "ace" -> params.setGayType(GayType.ACE);
+            case "nonbinary", "nb" -> params.setGayType(GayType.NB);
+            case "lesbian" -> params.setGayType(GayType.LESBIAN);
         }
         DiscardByQueue queue;
         List<Color> palettes = params.getGayType().getPalettes();
@@ -153,15 +144,15 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
         queue = new DiscardByQueue(getService(), discogsApi, spotify, discardGenerator.apply(gayColours, params), factoryFunction, params.getX() * params.getY());
         if (params.hasOptional("artist")) {
-            count = lastFM.getChart(params.getLastfmID(),
+            count = lastFM.getChart(params.getUser(),
                     params.getTimeFrameEnum(),
                     3000,
                     1,
                     TopEntity.ARTIST,
-                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getLastfmID()),
+                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getUser()),
                     queue);
         } else {
-            count = lastFM.getChart(params.getLastfmID(), params.getTimeFrameEnum(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getLastfmID()), queue);
+            count = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getUser()), queue);
         }
 
         List<UrlCapsule> holding = new ArrayList<>();
@@ -207,14 +198,14 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
                         x.setPos(Integer.MAX_VALUE);
                     }
                 }).
-                sorted(Comparator.comparingInt(UrlCapsule::getPos)).limit(rows * cols).collect(Collectors.toCollection(LinkedBlockingDeque::new));
+                sorted(Comparator.comparingInt(UrlCapsule::getPos)).limit((long) rows * cols).collect(Collectors.toCollection(LinkedBlockingDeque::new));
         return new CountWrapper<>(count, retunable);
     }
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, GayParams params, int count) {
 
-        return params.initEmbed("'s pride chart", embedBuilder, ", Happy Pride Month UwU", params.getLastfmID());
+        return params.initEmbed("'s pride chart", embedBuilder, ", Happy Pride Month UwU", params.getUser().getName());
 
     }
 

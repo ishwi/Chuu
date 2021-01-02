@@ -65,7 +65,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
         List<AlbumInfo> emptyMbid;
 
         if (!isByTime && param.getTimeFrameEnum().isAllTime()) {
-            List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumByMbid(param.getLastfmID());
+            List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumByMbid(param.getUser().getName());
             AtomicInteger atomicInteger = new AtomicInteger(0);
 
             nonEmptyMbid = userAlbumByMbid.stream().peek(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays(), param.isAside())))
@@ -78,7 +78,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
             TimeFrameEnum timeFrameEnum = param.getTimeFrameEnum().getTimeFrameEnum();
             if (timeFrameEnum.equals(TimeFrameEnum.DAY)) {
                 if (isByTime)
-                    parser = TrackDurationAlbumArtistChart.getDailyArtistAlbumDurationParser(param, lastFM.getTrackDurations(param.getLastfmID(), TimeFrameEnum.WEEK));
+                    parser = TrackDurationAlbumArtistChart.getDailyArtistAlbumDurationParser(param, lastFM.getTrackDurations(param.getUser(), TimeFrameEnum.WEEK));
                 else {
                     parser = AlbumChart.getDailyAlbumParser(param);
                 }
@@ -86,11 +86,11 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
                 if (isByTime)
                     parser = TrackDurationAlbumArtistChart.getTimedParser(param);
                 else {
-                    parser = ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getLastfmID());
+                    parser = ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getUser());
                 }
             }
 
-            lastFM.getChart(param.getLastfmID(), param.getTimeFrameEnum(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
+            lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
             //List of obtained elements
             Map<Boolean, List<AlbumInfo>> results =
                     queue.stream()
@@ -133,7 +133,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartYearRangeParameters params, int count) {
-        return params.initEmbed("s top albums from " + params.getDisplayString(), embedBuilder, " has " + count + " albums from " + params.getDisplayString() + " in their top " + searchSpace + " albums", params.getLastfmID());
+        return params.initEmbed("s top albums from " + params.getDisplayString(), embedBuilder, " has " + count + " albums from " + params.getDisplayString() + " in their top " + searchSpace + " albums", params.getUser().getName());
     }
 
     @Override

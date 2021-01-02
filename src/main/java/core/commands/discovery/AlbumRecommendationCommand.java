@@ -100,13 +100,12 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
         } else {
             firstDiscordID = params.getFirstUser().getDiscordId();
             secondDiscordID = params.getSecondUser().getDiscordId();
-            firstLastFMId = params.getFirstUser().getName();
 
         }
 
         List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, params.isShowRepeated(), Integer.MAX_VALUE);
 
-        List<AlbumInfo> albumInfos = lastFM.getTopAlbums(firstLastFMId, new CustomTimeFrame(TimeFrameEnum.ALL), 500).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
+        List<AlbumInfo> albumInfos = lastFM.getTopAlbums(params.getFirstUser(), new CustomTimeFrame(TimeFrameEnum.ALL), 500).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());
 
         Map<Genre, Integer> map = mb.genreCount(albumInfos).entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size()))

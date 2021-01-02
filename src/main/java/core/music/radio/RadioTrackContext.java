@@ -23,7 +23,7 @@ public class RadioTrackContext extends TrackContext {
 
     public void serialize(ByteArrayOutputStream stream) throws IOException {
         var writer = new DataOutputStream(stream);
-        writer.writeInt(1);
+        writer.writeInt(3);
         // 1 => TrackContext
         // 2 => DiscordFMTrackContext
         // 3 => RadioTrackContext

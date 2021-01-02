@@ -52,12 +52,12 @@ public class TrackPlaysCommand extends AlbumPlaysCommand {
     protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
 
-        Track trackInfo = lastFM.getTrackInfo(lastFMData.getName(), artist.getArtist(), song);
+        Track trackInfo = lastFM.getTrackInfo(lastFMData, artist.getArtist(), song);
         String usernameString = getUserString(e, who, lastFMData.getName());
 
         int plays = trackInfo.getPlays();
         String ending = plays == 1 ? "time " : "times";
 
-        sendMessageQueue(e, String.format("**%s** has listened **%s** %d %s", usernameString, CommandUtil.cleanMarkdownCharacter(song), plays, ending));
+        sendMessageQueue(e, String.format("**%s** has scrobbled **%s** %d %s", usernameString, CommandUtil.cleanMarkdownCharacter(song), plays, ending));
     }
 }

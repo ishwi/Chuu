@@ -5,6 +5,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -193,4 +194,8 @@ interface SQLQueriesDao {
 
 
     Optional<String> findArtistUrlAbove(Connection connection, long artistId, int upvotes);
+
+    Optional<Instant> getLastScrobbled(Connection connection, String lastfmId, long artistId, String song);
+
+    Optional<Instant> getLastScrobbledArtist(Connection connection, String lastfmId, long artistId);
 }

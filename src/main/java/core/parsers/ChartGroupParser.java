@@ -25,7 +25,7 @@ public class ChartGroupParser extends ChartableParser<ChartGroupParameters> {
         ChartParameters chartParameters;
         try {
             chartParameters = inner.parse(e);
-            return new ChartGroupParameters(e, chartParameters.getLastfmID(), chartParameters.getDiscordId(), chartParameters.getTimeFrameEnum(), chartParameters.getX(), chartParameters.getY(), !chartParameters.hasOptional("notime"), chartParameters.chartMode(), chartParameters.getLastFMData());
+            return new ChartGroupParameters(e, chartParameters.getUser(), chartParameters.getDiscordId(), chartParameters.getTimeFrameEnum(), chartParameters.getX(), chartParameters.getY(), !chartParameters.hasOptional("notime"), chartParameters.chartMode(), chartParameters.getLastFMData());
 
         } catch (LastFmException lastFmException) {
             throw new ChuuServiceException("Improvable Exception");

@@ -1,6 +1,5 @@
 package core.commands.music.dj;
 
-import core.Chuu;
 import core.commands.abstracts.MusicCommand;
 import core.exceptions.LastFmException;
 import core.music.MusicManager;
@@ -13,14 +12,14 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Queue;
 
-public class ClearQueue extends MusicCommand<CommandParameters> {
-    public ClearQueue(ChuuService dao) {
+public class SkipCommand extends MusicCommand<CommandParameters> {
+    public SkipCommand(ChuuService dao) {
         super(dao);
         sameChannel = true;
+        requirePlayingTrack = true;
+        requirePlayer = true;
     }
-
 
     @Override
     public Parser<CommandParameters> initParser() {
@@ -29,27 +28,23 @@ public class ClearQueue extends MusicCommand<CommandParameters> {
 
     @Override
     public String getDescription() {
-        return "Clears the queue";
+        return "Skips the current track";
     }
 
     @Override
     public List<String> getAliases() {
-        return List.of("clear", "cq");
+        return List.of("sk", "skip");
     }
 
     @Override
     public String getName() {
-        return "Clear queue";
+        return "Skip";
     }
 
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
-        MusicManager manager = Chuu.playerRegistry.get(e.getGuild());
-        Queue<String> queue = manager.getQueue();
-        if (queue.isEmpty()) {
-            sendMessageQueue(e, "There is nothing to clear");
-        }
-        queue.clear();
-        sendMessageQueue(e, "Queue was cleared");
+        MusicManager manager = getManager(e);
+        manager.nextTrack();
+        sendMessageQueue(e, "Skipped current song");
     }
 }

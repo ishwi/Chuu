@@ -5,6 +5,7 @@ import core.apis.last.TopEntity;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartGroupParameters;
 import core.parsers.params.ChartParameters;
+import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import org.json.JSONObject;
 
@@ -12,13 +13,13 @@ import java.util.function.BiFunction;
 
 public class TimeFrameParser implements TimeFrameParserObtainer {
     private final ConcurrentLastFM lastFM;
-    private final String lastfmId;
+    private final LastFMData lastfmId;
     private final ChartParameters chartParameters;
     private final TopEntity topEntity;
     private final TimeFrameEnum timeFrameEnum;
 
 
-    public TimeFrameParser(ConcurrentLastFM lastFM, String lastfmId, ChartParameters chartParameters, TopEntity topEntity, TimeFrameEnum timeFrameEnum) {
+    public TimeFrameParser(ConcurrentLastFM lastFM, LastFMData lastfmId, ChartParameters chartParameters, TopEntity topEntity, TimeFrameEnum timeFrameEnum) {
         this.lastFM = lastFM;
         this.lastfmId = lastfmId;
         this.chartParameters = chartParameters;

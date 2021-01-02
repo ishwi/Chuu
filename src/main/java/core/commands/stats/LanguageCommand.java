@@ -19,10 +19,7 @@ import core.parsers.params.CommandParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
-import dao.entities.AlbumInfo;
-import dao.entities.DiscordUserDisplay;
-import dao.entities.Language;
-import dao.entities.TimeFrameEnum;
+import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
@@ -83,15 +80,16 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
 
 
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(3000);
-        String name = params.getLastFMData().getName();
-        Long discordId = params.getLastFMData().getDiscordId();
+        LastFMData user = params.getLastFMData();
+        String name = user.getName();
+        Long discordId = user.getDiscordId();
         List<AlbumInfo> albumInfos;
         if (params.getTime().equals(TimeFrameEnum.ALL)) {
             albumInfos = getService().getUserAlbumByMbid(name).stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
                     new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
 
         } else {
-            lastFM.getChart(name, CustomTimeFrame.ofTimeFrameEnum(params.getTime()), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(CustomTimeFrame.ofTimeFrameEnum(params.getTime()), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, name), queue);
+            lastFM.getChart(user, CustomTimeFrame.ofTimeFrameEnum(params.getTime()), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(CustomTimeFrame.ofTimeFrameEnum(params.getTime()), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, user), queue);
 
             albumInfos = queue.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid(), null, null)).collect(Collectors.toList());
         }

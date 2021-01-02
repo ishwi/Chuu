@@ -50,7 +50,7 @@ public class ScrobblesCommand extends ConcurrentCommand<ChuuDataParams> {
     protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
         LastFMData lastFMData = params.getLastFMData();
-        List<UserInfo> userInfoes = lastFM.getUserInfo(Collections.singletonList(lastFMData.getName()));
+        List<UserInfo> userInfoes = lastFM.getUserInfo(Collections.singletonList(lastFMData.getName()), lastFMData);
         UserInfo ui = userInfoes.get(0);
         String userString = getUserString(e, lastFMData.getDiscordId());
         sendMessageQueue(e, String.format("%s has a total of %d scrobbles", userString, ui.getPlayCount()));

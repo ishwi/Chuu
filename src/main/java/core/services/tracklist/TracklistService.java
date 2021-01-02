@@ -9,6 +9,7 @@ import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.FullAlbumEntity;
+import dao.entities.LastFMData;
 import dao.entities.ScrobbledAlbum;
 import dao.entities.Track;
 import dao.musicbrainz.MusicBrainzService;
@@ -31,7 +32,7 @@ public abstract class TracklistService {
         this.mb = MusicBrainzServiceSingleton.getInstance();
     }
 
-    public Optional<FullAlbumEntity> getTrackList(ScrobbledAlbum scrobbledAlbum, String lastfmId, @Nullable String artistUrl) throws LastFmException {
+    public Optional<FullAlbumEntity> getTrackList(ScrobbledAlbum scrobbledAlbum, LastFMData lastfmId, @Nullable String artistUrl) throws LastFmException {
         Optional<FullAlbumEntity> opt = obtainTrackList(scrobbledAlbum.getAlbumId());
         FullAlbumEntity fullAlbumEntity;
         String artist = scrobbledAlbum.getArtist();
@@ -49,8 +50,8 @@ public abstract class TracklistService {
             } catch (LastFmEntityNotFoundException ex)
             //If it doesnt exists on last.fm we do a little workaround
             {
-                int artistPlays = service.getArtistPlays(scrobbledAlbum.getArtistId(), lastfmId);
-                fullAlbumEntity = new FullAlbumEntity(artist, album, artistPlays, null, lastfmId);
+                int artistPlays = service.getArtistPlays(scrobbledAlbum.getArtistId(), lastfmId.getName());
+                fullAlbumEntity = new FullAlbumEntity(artist, album, artistPlays, null, lastfmId.getName());
             }
             trackList = new HashSet<>(fullAlbumEntity.getTrackList());
 
@@ -105,7 +106,7 @@ public abstract class TracklistService {
 
     protected abstract Optional<FullAlbumEntity> obtainTrackList(long albumId);
 
-    void handleList(Set<Track> trackList, List<Track> listToHandle, String lastfmName, long albumId, long artistId) {
+    void handleList(Set<Track> trackList, List<Track> listToHandle, LastFMData lastfmName, long albumId, long artistId) {
 
         if (!listToHandle.isEmpty()) {
             service.storeTrackList(albumId, artistId, new HashSet<>(listToHandle));

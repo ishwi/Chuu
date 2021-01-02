@@ -71,7 +71,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
         LastFMData data = params.getLastFMData();
         long whom = data.getDiscordId();
-        ArtistSummary summary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data.getName());
+        ArtistSummary summary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data);
         ArtistMusicBrainzDetails artistDetails = mb.getArtistDetails(new ArtistInfo(null, summary.getArtistname(), summary.getMbid()));
         long globalArtistPlays = getService().getGlobalArtistPlays(scrobbledArtist.getArtistId());
         long globalArtistFrequencies = getService().getGlobalArtistFrequencies(scrobbledArtist.getArtistId());

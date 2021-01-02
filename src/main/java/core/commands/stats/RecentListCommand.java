@@ -10,6 +10,7 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
+import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -61,11 +62,12 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
 
         long limit = params.getExtraParam();
         ChuuDataParams innerParams = params.getInnerParams();
-        String lastFmName = innerParams.getLastFMData().getName();
-        long discordID = innerParams.getLastFMData().getDiscordId();
+        LastFMData user = innerParams.getLastFMData();
+        String lastFmName = user.getName();
+        long discordID = user.getDiscordId();
         String usable = getUserString(e, discordID, lastFmName);
 
-        List<NowPlayingArtist> list = lastFM.getRecent(lastFmName, (int) limit);
+        List<NowPlayingArtist> list = lastFM.getRecent(user, (int) limit);
         //Can't be empty because NoPLaysException
         NowPlayingArtist header = list.get(0);
 

@@ -149,6 +149,9 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
 
         for (Map.Entry<CommandCategory, SortedSet<MyCommand<?>>> a : categoryMap.entrySet()) {
             CommandCategory key = a.getKey();
+            if (key == CommandCategory.MUSIC || key == CommandCategory.SCROBBLING) {
+                continue;
+            }
             Collection<MyCommand<?>> commandList = a.getValue();
             s.append("\n__**").append(key.toString().replaceAll("_", " ")).append(":**__ _").append(key.getDescription()).append("_\n");
 

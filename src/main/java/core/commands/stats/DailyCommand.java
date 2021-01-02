@@ -9,6 +9,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
+import dao.entities.LastFMData;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
 import dao.entities.Track;
@@ -57,14 +58,15 @@ public class DailyCommand extends ConcurrentCommand<ChuuDataParams> {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
-        String lastFmName = params.getLastFMData().getName();
-        Long discordId = params.getLastFMData().getDiscordId();
+        LastFMData user = params.getLastFMData();
+        String lastFmName = user.getName();
+        Long discordId = user.getDiscordId();
         String usable = getUserString(e, discordId, lastFmName);
 
         try {
-            Map<Track, Integer> durationsFromWeek = lastFM.getTrackDurations(lastFmName, TimeFrameEnum.WEEK);
+            Map<Track, Integer> durationsFromWeek = lastFM.getTrackDurations(user, TimeFrameEnum.WEEK);
             SecondsTimeFrameCount minutesWastedOnMusicDaily = lastFM
-                    .getMinutesWastedOnMusicDaily(lastFmName, durationsFromWeek,
+                    .getMinutesWastedOnMusicDaily(user, durationsFromWeek,
                             (int) Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond());
 
             sendMessageQueue(e, MessageFormat.format("**{0}** played {1} minutes of music, {2}hours), listening to {3}{4} in the last 24 hours", usable, minutesWastedOnMusicDaily.getMinutes(), String

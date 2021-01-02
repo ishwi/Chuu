@@ -59,7 +59,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
     protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
 
-        String lastFmName = params.getLastFMData().getName();
+        LastFMData lastFmName = params.getLastFMData();
         long discordID = params.getLastFMData().getDiscordId();
         boolean isBarChart = params.hasOptional("image");
 
@@ -133,7 +133,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
             minutesWastedOnMusicDaily.setSeconds(totalSeconds.get());
             EmbedBuilder embedBuilder = new EmbedBuilder().setDescription(s)
                     .setColor(CommandUtil.randomColor())
-                    .setTitle(usableName + "'s week", CommandUtil.getLastFmUser(lastFmName))
+                    .setTitle(usableName + "'s week", CommandUtil.getLastFmUser(lastFmName.getName()))
                     .setThumbnail(url)
                     .setFooter(String.format("%s has listen to %d distinct tracks (%d total tracks)%n for a total of %s", CommandUtil.markdownLessUserString(usableName, discordID, e), durationsFromWeek.size(), totalTracks.get(),
                             String.format("%d %s and %02d %s ", minutesWastedOnMusicDaily.getHours(), CommandUtil.singlePlural(minutesWastedOnMusicDaily.getHours(), "hour", "hours"),

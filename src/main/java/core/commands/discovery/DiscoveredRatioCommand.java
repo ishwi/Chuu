@@ -57,7 +57,7 @@ public class DiscoveredRatioCommand extends ConcurrentCommand<TimeFrameParameter
             return;
         }
         String name = params.getLastFMData().getName();
-        List<ScrobbledArtist> allArtists = lastFM.getAllArtists(name, CustomTimeFrame.ofTimeFrameEnum(params.getTime()));
+        List<ScrobbledArtist> allArtists = lastFM.getAllArtists(params.getLastFMData(), CustomTimeFrame.ofTimeFrameEnum(params.getTime()));
         int size = getService().getDiscoveredArtists(allArtists, name).size();
         String userString = getUserString(e, params.getLastFMData().getDiscordId());
         sendMessageQueue(e, String.format("%s has discovered **%s** new %s%s, making that **%s%%** of new artists discovered.", userString, size, CommandUtil.singlePlural(size, "artist", "artists"), params.getTime().getDisplayString(), ScoredAlbumRatings.formatter.format(size * 100. / allArtists.size())));

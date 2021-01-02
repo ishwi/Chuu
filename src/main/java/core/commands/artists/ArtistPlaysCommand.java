@@ -55,7 +55,7 @@ public class ArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
         long whom = params.getLastFMData().getDiscordId();
         int a;
         LastFMData data = params.getLastFMData();
-        ArtistSummary artistSummary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data.getName());
+        ArtistSummary artistSummary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data);
         a = artistSummary.getUserPlayCount();
         String usernameString = getUserString(e, whom, data.getName());
         String ending = a != 1 ? "times" : "time";

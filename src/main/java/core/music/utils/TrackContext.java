@@ -3,6 +3,7 @@ package core.music.utils;
 import core.Chuu;
 import core.music.radio.DiscordRadio;
 import core.music.radio.RadioTrackContext;
+import core.music.radio.RandomRadio;
 
 import java.io.*;
 import java.util.Objects;
@@ -58,6 +59,10 @@ public class TrackContext implements Serializable {
                 }
                 case 3 -> {
                     var source = new DiscordRadio("temp").deserialize(stream);
+                    yield new RadioTrackContext(requester, requestedChannel, source);
+                }
+                case 4 -> {
+                    var source = new RandomRadio("Random Radio", null).deserialize(stream);
                     yield new RadioTrackContext(requester, requestedChannel, source);
                 }
                 default -> throw new IllegalArgumentException("Invalid contextType $contextType!");

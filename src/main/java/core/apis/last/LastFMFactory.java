@@ -17,7 +17,8 @@ public class LastFMFactory {
         try (InputStream in = LastFMFactory.class.getResourceAsStream("/" + "all.properties")) {
             properties.load(in);
             String apikey = properties.getProperty("LASTFM_APIKEY");
-            return new ConcurrentLastFM(apikey);
+            String secret = properties.getProperty("LASTFM_APISECRET");
+            return new ConcurrentLastFM(apikey, secret);
         } catch (Exception e) {
             throw new ChuuServiceException(e);
         }
