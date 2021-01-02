@@ -97,7 +97,7 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
                             if (userAccount.equalsIgnoreCase(finalLastFMData.getName())) {
                                 getService().storeSess(session, finalLastFMData.getName());
                                 z.editMessage(new EmbedBuilder().setColor(Color.green).setTitle(":white_check_mark: Succesfully logged in!").build()).queue();
-                                executor.shutdown();
+                                scheduledExecutor.shutdown();
                                 return;
                             } else {
                                 t.sendMessage("You had previously logged in with a different account. Will reset eveything now").queue();

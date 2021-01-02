@@ -140,7 +140,11 @@ public class CustomInterfacedEventManager implements IEventManager {
                 }
             }
         } else if (event instanceof GuildVoiceJoinEvent || event instanceof GuildVoiceLeaveEvent || event instanceof GuildVoiceMoveEvent) {
-            this.voiceListener.onEvent(event);
+            try {
+                this.voiceListener.onEvent(event);
+            } catch (Throwable throwable) {
+                JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
+            }
         }
     }
 

@@ -20,7 +20,10 @@ public class EntityInfo {
         if (this == o) return true;
         if (!(o instanceof EntityInfo)) return false;
         EntityInfo that = (EntityInfo) o;
-        return ((getArtist().isBlank() && that.getArtist().isBlank()) || (Objects.equals(getArtist().toLowerCase(), that.getArtist().toLowerCase()))) || ((getMbid() != null) && !getMbid().isBlank() && (that.getMbid() != null) && !that.getMbid().isBlank() && Objects.equals(getMbid(), that.getMbid()));
+        if (getArtist() == null) {
+            return that.getArtist() == null;
+        }
+        return ((getArtist().isBlank() && that.getArtist().isBlank()) || (Objects.equals(getArtist() == null ? getArtist() : getArtist().toLowerCase(), that.getArtist() == null ? that.getArtist() : that.getArtist().toLowerCase()))) || ((getMbid() != null) && !getMbid().isBlank() && (that.getMbid() != null) && !that.getMbid().isBlank() && Objects.equals(getMbid(), that.getMbid()));
     }
 
     @Override
