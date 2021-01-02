@@ -1368,7 +1368,8 @@ public class ConcurrentLastFM {//implements LastFMService {
         JSONArray arr = obj.optJSONArray("track");
         if (arr == null) {
             JSONObject t = obj.getJSONObject("track");
-            JSONArray objects = new JSONArray(t);
+            JSONArray objects = new JSONArray();
+            objects.put(t);
             obj.remove("track");
             obj.append("track", objects);
         }
@@ -1376,7 +1377,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         totalPages.set(attrObj.getInt("totalPages"));
         if (arr.length() == 0) {
             // Just to make sure its not a bug :)
-            Chuu.getLogger().warn("NP is empty for: {} from: {}", user, from);
+            Chuu.getLogger().warn("NP is empty for: {} from: {}", user.getName(), from);
             return new NPService.NPUpdate(getNowPlayingInfo(user), CompletableFuture.completedFuture(Collections.emptyList()));
         }
         JSONObject trackObj = arr.getJSONObject(0);
