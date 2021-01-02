@@ -15,10 +15,7 @@ import core.music.utils.TrackContext;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.jetbrains.annotations.Nullable;
@@ -84,7 +81,14 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
 
 
     public Boolean isAlone() {
-        return getGuild().getSelfMember().getVoiceState().getChannel().getMembers().stream().allMatch(x -> x.getUser().isBot());
+        GuildVoiceState voiceState = getGuild().getSelfMember().getVoiceState();
+        if (voiceState == null) {
+            return false;
+        }
+        if (voiceState.getChannel() == null) {
+            return false;
+        }
+        return voiceState.getChannel().getMembers().stream().allMatch(x -> x.getUser().isBot());
     }
 
     public Boolean isIdle() {
@@ -221,6 +225,9 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             String track = queue.poll();
             var decodedTrack = manager.decodeAudioTrack(track);
             player.playTrack(decodedTrack);
+            return;
+        }
+        if (radio == null) {
             return;
         }
         var radioTrack = radio.nextTrack();

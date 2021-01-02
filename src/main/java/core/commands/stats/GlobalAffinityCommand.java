@@ -46,7 +46,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays needed to award a match, " +
-                "defaults to 30";
+                   "defaults to 30";
         return new NumberParser<>(new OnlyUsernameParser(getService()),
                 30L,
                 Integer.MAX_VALUE,
@@ -74,7 +74,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
 
         LastFMData ogData = getService().findLastFMData(e.getAuthor().getIdLong());
         int threshold = Math.toIntExact(params.getExtraParam());
-        List<dao.entities.GlobalAffinity> serverAffinity = getService().getGlobalAffinity(ogData.getName(), e.isFromGuild() ? e.getGuild().getIdLong() : null, threshold);
+        List<dao.entities.GlobalAffinity> serverAffinity = getService().getGlobalAffinity(ogData.getName(), threshold);
         List<dao.entities.GlobalAffinity> collect = serverAffinity.stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).collect(Collectors.toList());
 
         StringBuilder stringBuilder = new StringBuilder();

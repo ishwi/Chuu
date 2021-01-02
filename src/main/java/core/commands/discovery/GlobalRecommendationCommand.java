@@ -77,7 +77,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
         long firstDiscordID;
         long secondDiscordID;
         LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
-        List<dao.entities.GlobalAffinity> serverAffinity = getService().getGlobalAffinity(lastFMData.getName(), e.getGuild().getIdLong(), AffinityCommand.DEFAULT_THRESHOLD);
+        List<dao.entities.GlobalAffinity> serverAffinity = getService().getGlobalAffinity(lastFMData.getName(), AffinityCommand.DEFAULT_THRESHOLD);
         if (serverAffinity.isEmpty()) {
             sendMessageQueue(e, "Couldn't get you any global recommendation :(");
             return;

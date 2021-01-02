@@ -1333,7 +1333,7 @@ public class ChuuService {
         }
     }
 
-    public List<GlobalAffinity> getGlobalAffinity(String ogLastFmID, Long guildId, int threshold) {
+    public List<GlobalAffinity> getGlobalAffinity(String ogLastFmID, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             affinityDao.setGlobalTable(connection, ogLastFmID, threshold);
             List<GlobalAffinity> affinityList = affinityDao.doGlobalAffinity(connection, ogLastFmID, threshold);
