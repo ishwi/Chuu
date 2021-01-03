@@ -12,6 +12,7 @@ import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterface;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterfaceManager;
 import com.sedmelluq.discord.lavaplayer.track.*;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -114,13 +115,13 @@ public class CustomBandcampAudioSourceManager implements AudioSourceManager, Htt
         String trackPageUrl = bandUrl + trackInfo.get("title_link").text();
 
         return new CustomBandcampAudioTrack(new AudioTrackInfo(
-                trackInfo.get("title").text(),
-                artist,
+                StringEscapeUtils.unescapeHtml4(trackInfo.get("title").text()),
+                StringEscapeUtils.unescapeHtml4(artist),
                 (long) (trackInfo.get("duration").as(Double.class) * 1000.0),
                 bandUrl + trackInfo.get("title_link").text(),
                 false,
                 trackPageUrl
-        ), this, album, url);
+        ), this, StringEscapeUtils.unescapeHtml4(album), url);
     }
 
     private JsonBrowser readAlbumInformation(String text) throws IOException {

@@ -1,5 +1,6 @@
 package core.imagerenderer;
 
+import core.Chuu;
 import core.imagerenderer.stealing.blur.GaussianFilter;
 import dao.entities.WrapperReturnNowPlaying;
 import org.imgscalr.Scalr;
@@ -27,7 +28,14 @@ public class WhoKnowsMaker {
     public static BufferedImage generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, String discordName, BufferedImage logo) {
 
         BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
-        String artist = wrapperReturnNowPlaying.getArtist().toUpperCase();
+        String artist;
+        if (wrapperReturnNowPlaying.getArtist() == null) {
+            artist = wrapperReturnNowPlaying.getReturnNowPlayings().get(0).getArtist().toUpperCase();
+            Chuu.getLogger().warn("ARTIST NULL ON WK  {} ,{} ", artist, discordName);
+            Chuu.getLogger().warn("ARTIST NULL ON WK  {} ,{} ", artist, discordName);
+        } else {
+            artist = wrapperReturnNowPlaying.getArtist().toUpperCase();
+        }
         String urlString = wrapperReturnNowPlaying.getUrl();
         FontMetrics metrics;
 

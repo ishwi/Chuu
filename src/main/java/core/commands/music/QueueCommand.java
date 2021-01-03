@@ -108,7 +108,7 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
         if (np != null) {
             if (np instanceof MetadataTrack mt) {
                 title = np.getInfo().title + " - " + np.getInfo().author + " | " + mt.getAlbum();
-                embedBuilder.setAuthor("Music Queue", mt.getImage());
+                embedBuilder.setAuthor("Music Queue", null, mt.getImage());
             } else {
                 title = np.getInfo().author;
             }

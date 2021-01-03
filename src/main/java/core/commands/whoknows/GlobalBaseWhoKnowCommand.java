@@ -75,24 +75,22 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
                 privacyMode = PrivacyMode.DISCORD_NAME;
             }
             switch (privacyMode) {
-                case STRICT:
-                case NORMAL:
+                case STRICT, NORMAL -> {
                     x.setDiscordName("Private User #" + atomicInteger.getAndIncrement());
                     x.setLastFMId(Chuu.DEFAULT_LASTFM_ID);
-                    break;
-                case DISCORD_NAME:
+                }
+                case DISCORD_NAME -> {
                     x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername());
                     x.setLastFMId(Chuu.getLastFmId(x.getLastFMId()));
-                    break;
-                case TAG:
+                }
+                case TAG -> {
                     x.setDiscordName(ap.getE().getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag());
                     x.setLastFMId(Chuu.getLastFmId(x.getLastFMId()));
-                    break;
-                case LAST_NAME:
+                }
+                case LAST_NAME -> {
                     x.setDiscordName(x.getLastFMId() + " (last.fm)");
                     x.setLastFMId(Chuu.getLastFmId(x.getLastFMId()));
-
-                    break;
+                }
             }
             String itemUrl = PrivacyUtils.getUrlTitle(x);
             x.setItemUrl(itemUrl);
@@ -105,15 +103,9 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
                         }
                 );
         switch (effectiveMode) {
-            case IMAGE:
-                doImage(ap, wrapperReturnNowPlaying);
-                break;
-            case LIST:
-                doList(ap, wrapperReturnNowPlaying);
-                break;
-            case PIE:
-                doPie(ap, wrapperReturnNowPlaying);
-                break;
+            case IMAGE -> doImage(ap, wrapperReturnNowPlaying);
+            case LIST -> doList(ap, wrapperReturnNowPlaying);
+            case PIE -> doPie(ap, wrapperReturnNowPlaying);
         }
     }
 

@@ -11,8 +11,12 @@ public class TextSplitter {
     }
 
     public static List<String> split(String content, int limit) {
+        return split(content, limit, "\n");
+    }
+
+    public static List<String> split(String content, int limit, String separator) {
         List<String> pages = new ArrayList<>();
-        List<String> lines = Arrays.stream(content.trim().split("\n")).dropWhile(String::isBlank).collect(Collectors.toList());
+        List<String> lines = Arrays.stream(content.trim().split(separator)).dropWhile(String::isBlank).collect(Collectors.toList());
         StringBuilder chunk = new StringBuilder();
         for (String line : lines) {
             if (chunk.length() != 0 && chunk.length() + line.length() > limit) {
@@ -30,7 +34,7 @@ public class TextSplitter {
                     pages.add(line.substring(start, end));
                 }
             } else {
-                chunk.append(line).append("\n");
+                chunk.append(line).append(separator);
             }
         }
 
