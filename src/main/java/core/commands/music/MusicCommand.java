@@ -132,7 +132,7 @@ public class MusicCommand extends ConcurrentCommand<CommandParameters> {
             query = String.format("ytsearch:%s", query.trim());
         }
         TrackContext trackContext = new TrackContext(e.getAuthor().getIdLong(), e.getChannel().getIdLong());
-        LoadResultHandler.loadItem(query, e, musicManager, trackContext, isNext, "aa");
+        LoadResultHandler.loadItem(query, e, musicManager, trackContext, isNext, "");
     }
 }
 

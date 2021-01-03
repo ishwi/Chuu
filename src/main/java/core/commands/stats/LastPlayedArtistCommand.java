@@ -41,7 +41,7 @@ public class LastPlayedArtistCommand extends ConcurrentCommand<ArtistParameters>
 
     @Override
     public List<String> getAliases() {
-        return List.of("lasta", "lastartist", "lastscrobbleda", "lastplayeda");
+        return List.of("last", "lastscrobbled");
     }
 
     @Override

@@ -19,24 +19,33 @@ package core.music.sources.spotify.loaders;
 
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
+import com.wrapper.spotify.model_objects.specification.Image;
 import com.wrapper.spotify.model_objects.specification.Track;
+import core.music.sources.spotify.SpotifyAudioSourceManager;
 import dao.exceptions.ChuuServiceException;
 import org.apache.hc.core5.http.ParseException;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class SpotifyTrackLoader extends Loader {
     private final Pattern PLAYLIST_PATTERN = Pattern.compile("^(?:https?://(?:open\\.)?spotify\\.com|spotify)([/:])track\\1([a-zA-Z0-9]+)");
+    private final SpotifyAudioSourceManager sourceManager;
 
-    public SpotifyTrackLoader(YoutubeAudioSourceManager youtubeAudioSourceManager) {
+    public SpotifyTrackLoader(YoutubeAudioSourceManager youtubeAudioSourceManager, SpotifyAudioSourceManager sourceManager) {
         super(youtubeAudioSourceManager);
+        this.sourceManager = sourceManager;
     }
 
 
@@ -58,7 +67,15 @@ public class SpotifyTrackLoader extends Loader {
         }
         String song = execute.getName();
         String artist = execute.getArtists()[0].getName();
-        return doYoutubeSearch(manager, "ytsearch:" + song + " " + artist);
+        AlbumSimplified album = execute.getAlbum();
+        String name = album.getName();
+        String url = Arrays.stream(album.getImages()).max(Comparator.comparingInt((Image x) -> x.getHeight() * x.getWidth())).map(Image::getUrl).orElse(null);
+        AudioItem ai = doYoutubeSearch(manager, "ytsearch:" + song + " " + artist);
+        if (ai instanceof AudioPlaylist ap) {
+            return new SpotifyAudioTrack((YoutubeAudioTrack) ap.getTracks().get(0), artist, name, song, url, this.sourceManager);
+        } else {
+            return new SpotifyAudioTrack((YoutubeAudioTrack) ai, artist, name, song, url, this.sourceManager);
+        }
     }
 
 }

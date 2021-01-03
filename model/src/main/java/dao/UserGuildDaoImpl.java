@@ -92,7 +92,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
         /* Create "queryString". */
-        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess FROM user WHERE discord_id = ?";
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling FROM user WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -126,10 +126,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
             TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(i++), "GMT"));
             boolean showBotted = resultSet.getBoolean(i++);
             String token = (resultSet.getString(i++));
-            String session = (resultSet.getString(i));
+            String session = (resultSet.getString(i++));
+            boolean scrobbling = (resultSet.getBoolean(i));
 
 
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session);
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -483,7 +484,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException {
         @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image," +
                 "a.chart_mode,a.whoknows_mode,a.remaining_mode,a.default_x,a.default_y,a.privacy_mode,a.notify_rating,a.private_lastfm," +
-                "timezone,show_botted,token,sess " +
+                "timezone,show_botted,token,sess,scrobbling " +
                 "FROM   user a" +
                 " WHERE  a.lastfm_id = ? ";
 
@@ -515,9 +516,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
             boolean showBotted = resultSet.getBoolean(15);
             String token = (resultSet.getString(16));
             String session = (resultSet.getString(17));
+            boolean scrobbling = (resultSet.getBoolean(18));
 
 
-            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session);
+            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling);
 
 
             /* Get results. */
@@ -791,7 +793,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 "a.notify_rating, " +
                 " private_lastfm," +
                 "timezone, " +
-                "show_botted, token, sess " +
+                "show_botted, token, sess,scrobbling " +
                 "FROM user a join guild c" +
 
                 " WHERE a.discord_id = ? AND  c.guild_id = ? ";
@@ -830,10 +832,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
             TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(i++), "GMT"));
             boolean showBotted = resultSet.getBoolean(i++);
             String token = (resultSet.getString(i++));
-            String session = (resultSet.getString(i));
+            String session = (resultSet.getString(i++));
+            boolean scrobbling = (resultSet.getBoolean(i));
 
 
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session);
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1055,15 +1058,34 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
-    public CommandStats getCommandStats(long discordId) {
-        return null;
+    public CommandStats getCommandStats(long discordId, Connection connection) {
+        String queryString = "select  (select count(*) from command_logs where discord_id = ?), (select count(*) from alt_url where discord_id = ? )";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i++, discordId);
+            preparedStatement.setLong(i, discordId);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return new CommandStats(resultSet.getInt(1), resultSet.getInt(2));
+            }
+            return new CommandStats(0, 0);
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 
     @Override
     public Set<LastFMData> findScrobbleableUsers(Connection con, long guildId) {
         /* Create "queryString". */
         Set<LastFMData> lastFMData = new HashSet<>();
-        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess FROM user a join user_guild b on a.discord_id = b.guild_id where b.guild_id = ? and sess is not null ";
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling FROM user a natural  join user_guild b where b.guild_id = ? and sess is not null ";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -1075,7 +1097,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             /* Execute query. */
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            while (!resultSet.next()) {
+            while (resultSet.next()) {
 
 
                 /* Get results. */
@@ -1096,8 +1118,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(i++), "GMT"));
                 boolean showBotted = resultSet.getBoolean(i++);
                 String token = (resultSet.getString(i++));
-                String session = (resultSet.getString(i));
-                LastFMData e = new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session);
+                String session = (resultSet.getString(i++));
+                boolean scrobbling = (resultSet.getBoolean(i));
+
+                LastFMData e = new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling);
                 lastFMData.add(e);
             }
 

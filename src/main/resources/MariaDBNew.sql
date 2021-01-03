@@ -1085,3 +1085,11 @@ create table user_info
 );
 
 
+create table metadata
+(
+    url    varchar(400) collate ascii_general_ci primary key,
+    artist varchar(400),
+    album  varchar(400),
+    song   varchar(400),
+    image  varchar(400) collate ascii_general_ci
+);

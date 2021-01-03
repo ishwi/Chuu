@@ -67,6 +67,7 @@ public class ProfileMaker {
 
         String s;
         int width;
+        g.setFont(ogFont.deriveFont(54f));
         int increment = (int) ((double) g.getFontMetrics().getMaxAscent() * 1.5);
         baseline = 425;
 
@@ -105,6 +106,20 @@ public class ProfileMaker {
         s = String.valueOf(entity.getRandomCount());
         width = g.getFontMetrics(g.getFont()).stringWidth(s);
         GraphicUtils.drawStringNicely(g, s, 1300 - width, baseline, image);
+        baseline += increment;
+
+
+        GraphicUtils.drawStringNicely(g, "Total Number of commands executed", 25, baseline, image);
+        s = String.valueOf(entity.getCommandStats().commandCount());
+        width = g.getFontMetrics(g.getFont()).stringWidth(s);
+        GraphicUtils.drawStringNicely(g, s, 1300 - width, baseline, image);
+        baseline += increment;
+
+        GraphicUtils.drawStringNicely(g, "Total Number of images submitted", 25, baseline, image);
+        s = String.valueOf(entity.getCommandStats().imageCount());
+        width = g.getFontMetrics(g.getFont()).stringWidth(s);
+        GraphicUtils.drawStringNicely(g, s, 1300 - width, baseline, image);
+
 
         g.dispose();
         return image;

@@ -15,10 +15,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
-import dao.entities.ArtistPlays;
-import dao.entities.ProfileEntity;
-import dao.entities.UniqueWrapper;
-import dao.entities.UserInfo;
+import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -78,10 +75,11 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
         int guildCrownThreshold = getService().getGuildCrownThreshold(guildId);
         CompletableFuture<UniqueWrapper<ArtistPlays>> completablecrowns = CompletableFuture.supplyAsync(() -> getService().getCrowns(lastFmName, guildId, guildCrownThreshold));
         CompletableFuture<UniqueWrapper<ArtistPlays>> completableUnique = CompletableFuture.supplyAsync(() -> getService().getUniqueArtist(guildId, lastFmName));
-
+        CommandStats commandStats = getService().getCommandStats(params.getLastFMData().getDiscordId());
         userInfo = lastFM.getUserInfo(Collections.singletonList(params.getLastFMData().getName()), params.getLastFMData()).get(0);
         albumCount = getService().getUserAlbumCount(params.getLastFMData().getDiscordId());
         int totalArtist = getService().getUserArtistCount(lastFmName, 0);
+        int randomCount = getService().randomCount(params.getLastFMData().getDiscordId());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String date = LocalDateTime.ofEpochSecond(userInfo.getUnixtimestamp(), 0, ZoneOffset.UTC)
@@ -111,13 +109,12 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
         switch (CommandUtil.getEffectiveMode(params.getLastFMData().getRemainingImagesMode(), params)) {
-            case IMAGE -> doImage(e, params.getLastFMData().getDiscordId(), lastFmName, userInfo, albumCount, crowns, unique, totalUnique, totalCrowns, totalArtist, crownRepresentative, uniqueRepresentative, date);
-            case LIST, PIE -> list(e, lastFmName, userInfo, albumCount, unique, totalUnique, totalCrowns, totalArtist, crownRepresentative, uniqueRepresentative, date);
+            case IMAGE -> doImage(e, params.getLastFMData().getDiscordId(), lastFmName, userInfo, albumCount, crowns, unique, totalUnique, totalCrowns, totalArtist, crownRepresentative, uniqueRepresentative, date, commandStats, randomCount);
+            case LIST, PIE -> list(e, lastFmName, userInfo, albumCount, unique, totalUnique, totalCrowns, totalArtist, crownRepresentative, uniqueRepresentative, date, commandStats, randomCount);
         }
     }
 
-    private void doImage(MessageReceivedEvent e, long discordId, String lastFmName, UserInfo userInfo, long albumCount, UniqueWrapper<ArtistPlays> crowns, UniqueWrapper<ArtistPlays> unique, int totalUnique, int totalCrowns, int totalArtist, String crownRepresentative, String uniqueRepresentative, String date) throws LastFmException {
-        int randomCount = getService().randomCount(discordId);
+    private void doImage(MessageReceivedEvent e, long discordId, String lastFmName, UserInfo userInfo, long albumCount, UniqueWrapper<ArtistPlays> crowns, UniqueWrapper<ArtistPlays> unique, int totalUnique, int totalCrowns, int totalArtist, String crownRepresentative, String uniqueRepresentative, String date, CommandStats commandStats, int randomCount) throws LastFmException {
 
         String crownImage = !crowns.getUniqueData().isEmpty() ?
                 CommandUtil
@@ -133,19 +130,23 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
         }
         ProfileEntity entity = new ProfileEntity(lastFmId, "", crownRepresentative, uniqueRepresentative, uniqueImage, crownImage, userInfo
                 .getImage(), "", userInfo
-                .getPlayCount(), Math.toIntExact(albumCount), totalArtist, totalCrowns, totalUnique, randomCount, date);
+                .getPlayCount(), Math.toIntExact(albumCount), totalArtist, totalCrowns, totalUnique, randomCount, date, commandStats);
         sendImage(ProfileMaker.makeProfile(entity), e);
     }
 
-    private void list(MessageReceivedEvent e, String lastFmName, UserInfo userInfo, long albumCount, UniqueWrapper<ArtistPlays> unique, int totalUnique, int totalCrowns, int totalArtist, String crownRepresentative, String uniqueRepresentative, String date) {
+    private void list(MessageReceivedEvent e, String lastFmName, UserInfo userInfo, long albumCount, UniqueWrapper<ArtistPlays> unique, int totalUnique, int totalCrowns, int totalArtist, String crownRepresentative, String uniqueRepresentative, String date, CommandStats commandStats, int randomurlCount) {
+
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Total number of scrobbles: ").append(userInfo.getPlayCount()).append("\n")
-                .append("Total number of albums: ").append(albumCount).append("\n")
-                .append("Total number of artists: ").append(totalArtist).append("\n")
-                .append("Total number of crowns: ").append(totalCrowns).append("\n")
+        stringBuilder.append("# of scrobbles: ").append(userInfo.getPlayCount()).append("\n")
+                .append("# of albums: ").append(albumCount).append("\n")
+                .append("# of artists: ").append(totalArtist).append("\n")
+                .append("# of crowns: ").append(totalCrowns).append("\n")
                 .append("Top crown: ").append(CommandUtil.cleanMarkdownCharacter(crownRepresentative)).append("\n")
-                .append("Total number of unique artist: ").append(totalUnique).append("\n")
-                .append("Top unique: ").append(CommandUtil.cleanMarkdownCharacter(uniqueRepresentative)).append("\n");
+                .append("Number of unique artist: ").append(totalUnique).append("\n")
+                .append("Top unique: ").append(CommandUtil.cleanMarkdownCharacter(uniqueRepresentative)).append("\n")
+                .append("# of commands executed: ").append(commandStats.commandCount()).append("\n")
+                .append("# of images submitted: ").append(commandStats.imageCount()).append("\n")
+                .append("# of random url submitted ").append(randomurlCount).append("\n");
 
         String name = getUserString(e, unique.getDiscordId());
 

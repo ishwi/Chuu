@@ -10,8 +10,10 @@ import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
 import core.music.MusicManager;
+import core.music.sources.spotify.loaders.SpotifyAudioTrack;
 import dao.ChuuService;
 import dao.entities.LastFMData;
+import dao.entities.Metadata;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.VoiceChannel;
@@ -19,19 +21,23 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class ScrobblerEventListener implements AudioEventListener {
     private final MusicManager musicManager;
     private final ChuuService db;
     private final ConcurrentLastFM lastFM;
-    private Instant instant;
+    private final static ScheduledExecutorService scheduledThreadPoolExecutor = Executors.newSingleThreadScheduledExecutor();
+    private final List<ScheduledFuture<?>> todo = new ArrayList<>();
+    private final Map<AudioTrack, Instant> startMap = new HashMap<>();
+    private int scrooblersCount = 0;
 
     public ScrobblerEventListener(MusicManager musicManager, ConcurrentLastFM lastFM) {
         this.musicManager = musicManager;
         this.lastFM = lastFM;
+
         db = Chuu.getDao();
     }
 
@@ -39,7 +45,7 @@ public class ScrobblerEventListener implements AudioEventListener {
     public void onEvent(AudioEvent event) {
         try {
             if (event instanceof TrackStartEvent starting) {
-                hadleTrackStart(starting);
+                hadleTrackStart(starting, false);
             }
             if (event instanceof TrackEndEvent ending) {
                 handleTrackEnd(ending);
@@ -50,49 +56,96 @@ public class ScrobblerEventListener implements AudioEventListener {
 
     }
 
-    private void hadleTrackStart(TrackStartEvent event) throws LastFmException {
-        this.instant = OffsetDateTime.now(ZoneOffset.UTC).toInstant();
-        AudioTrack playingTrack = event.player.getPlayingTrack();
-        GuildVoiceState voiceState = musicManager.getGuild().getSelfMember().getVoiceState();
-        assert voiceState != null && voiceState.inVoiceChannel() && voiceState.getChannel() != null;
-        VoiceChannel channel = voiceState.getChannel();
-        List<Long> collect = channel.getMembers().stream().mapToLong(ISnowflake::getIdLong).boxed().collect(Collectors.toList());
-        Set<LastFMData> scrobbleableUsers = db.findScrobbleableUsers(channel.getIdLong()).stream().filter(x -> collect.contains(x.getDiscordId())).collect(Collectors.toSet());
-        AudioTrackInfo info = playingTrack.getInfo();
-        String title = info.title;
-        String author = info.author;
-
-        Scrobble scrobble = new Scrobble(info.author, null, info.title);
-
-        for (LastFMData data : scrobbleableUsers) {
-            lastFM.flagNP(data.getSession(), scrobble);
+    public void hadleTrackStart(TrackStartEvent event, boolean inmediato) {
+        if (event.track.getDuration() == Long.MAX_VALUE) {
+            return;
         }
+        this.startMap.put(event.track, OffsetDateTime.now(ZoneOffset.UTC).toInstant());
+
+        Runnable runnable = () -> {
+            try {
+                AudioTrack playingTrack = event.player.getPlayingTrack();
+                GuildVoiceState voiceState = musicManager.getGuild().getSelfMember().getVoiceState();
+                if (voiceState == null || !voiceState.inVoiceChannel() || voiceState.getChannel() == null)
+                    return;
+                VoiceChannel channel = voiceState.getChannel();
+                List<Long> collect = channel.getMembers().stream().mapToLong(ISnowflake::getIdLong).boxed().collect(Collectors.toList());
+                Set<LastFMData> scrobbleableUsers = db.findScrobbleableUsers(channel.getGuild().getIdLong()).stream().filter(x -> collect.contains(x.getDiscordId())).collect(Collectors.toSet());
+
+
+                Scrobble scrobble = obtainScrobble(playingTrack);
+
+                if (Chuu.chuuSess != null) {
+                    lastFM.flagNP(Chuu.chuuSess, scrobble);
+                }
+                for (LastFMData data : scrobbleableUsers) {
+                    lastFM.flagNP(data.getSession(), scrobble);
+
+                }
+                scrooblersCount = scrobbleableUsers.size();
+            } catch (LastFmException exception) {
+                Chuu.getLogger().warn(exception.getMessage(), exception);
+                this.todo.forEach(x -> x.cancel(false));
+                this.todo.clear();
+            }
+        };
+        CompletableFuture.delayedExecutor(inmediato ? 1 : 5, TimeUnit.SECONDS).execute(() -> {
+            ScheduledFuture<?> scheduledFuture = scheduledThreadPoolExecutor.scheduleAtFixedRate(runnable, 0, 60, TimeUnit.SECONDS);
+            todo.add(scheduledFuture);
+            CompletableFuture.delayedExecutor(event.track.getDuration() - 5, TimeUnit.MILLISECONDS).execute(() -> scheduledFuture.cancel(true));
+        });
 
     }
 
     private void handleTrackEnd(TrackEndEvent event) throws LastFmException {
+        Instant start = Optional.ofNullable(this.startMap.remove(event.track)).orElse(Instant.now());
+        long seconds = Instant.now().getEpochSecond() - start.getEpochSecond();
+        if (seconds < 30 || (seconds < (event.track.getDuration() / 1000) / 2 && seconds < 4 * 60)) {
+            Chuu.getLogger().info("Didnt scrobble {}: Duration {}", event.track.getIdentifier(), seconds);
+            return;
+        }
         try {
-            AudioTrack playingTrack = event.player.getPlayingTrack();
+            AudioTrack playingTrack = event.track;
             GuildVoiceState voiceState = musicManager.getGuild().getSelfMember().getVoiceState();
             assert voiceState != null && voiceState.inVoiceChannel() && voiceState.getChannel() != null;
             VoiceChannel channel = voiceState.getChannel();
             List<Long> collect = channel.getMembers().stream().mapToLong(ISnowflake::getIdLong).boxed().collect(Collectors.toList());
-            Set<LastFMData> scrobbleableUsers = db.findScrobbleableUsers(channel.getIdLong()).stream().filter(x -> collect.contains(x.getDiscordId())).collect(Collectors.toSet());
-            AudioTrackInfo info = playingTrack.getInfo();
-            String title = info.title;
-            String author = info.author;
+            Set<LastFMData> scrobbleableUsers = db.findScrobbleableUsers(channel.getGuild().getIdLong()).stream().filter(x -> collect.contains(x.getDiscordId())).collect(Collectors.toSet());
 
-            Scrobble scrobble = new Scrobble(info.author, null, info.title);
-            if (instant == null) {
-                this.instant = OffsetDateTime.now(ZoneOffset.UTC).toInstant();
-            }
+            Scrobble scrobble = obtainScrobble(playingTrack);
+
             for (LastFMData data : scrobbleableUsers) {
-                lastFM.scrobble(data.getSession(), scrobble, instant);
+                lastFM.scrobble(data.getSession(), scrobble, start);
+            }
+            if (Chuu.chuuSess != null) {
+                lastFM.scrobble(Chuu.chuuSess, scrobble, start);
             }
         } finally {
-            instant = null;
+            scrooblersCount = 0;
+            this.todo.forEach(x -> x.cancel(true));
+            this.todo.clear();
         }
     }
 
+    private Scrobble obtainScrobble(AudioTrack playingTrack) {
+        Metadata metadata = musicManager.getMetadata();
 
+        String album = null;
+        String image = null;
+        if (playingTrack instanceof SpotifyAudioTrack spo) {
+            album = spo.getAlbum();
+            image = spo.getImage();
+        }
+        AudioTrackInfo info = playingTrack.getInfo();
+        String title = metadata != null ? metadata.song() : info.title;
+        String author = metadata != null ? metadata.artist() : info.author;
+        album = metadata != null ? metadata.album() : album;
+        image = metadata != null ? metadata.image() : image;
+        return new Scrobble(author, album, title, image);
+
+    }
+
+    public int getScrooblersCount() {
+        return scrooblersCount;
+    }
 }

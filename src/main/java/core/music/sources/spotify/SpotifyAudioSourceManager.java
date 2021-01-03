@@ -20,6 +20,8 @@ package core.music.sources.spotify;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
+import com.sedmelluq.discord.lavaplayer.tools.DataFormatTools;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpClientTools;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
@@ -28,22 +30,22 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import com.wrapper.spotify.SpotifyApi;
 import core.apis.spotify.SpotifySingleton;
-import core.music.sources.spotify.loaders.Loader;
-import core.music.sources.spotify.loaders.SpotifyAlbumLoader;
-import core.music.sources.spotify.loaders.SpotifyPlaylistLoader;
-import core.music.sources.spotify.loaders.SpotifyTrackLoader;
+import core.music.sources.spotify.loaders.*;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.IOException;
 import java.util.List;
 
 public class SpotifyAudioSourceManager implements AudioSourceManager {
     private final SpotifyApi spotifyApi;
     private final List<Loader> loaders;
+    private final YoutubeAudioSourceManager yt;
 
-    public SpotifyAudioSourceManager(YoutubeAudioSourceManager youtubeAudioSourceManager) {
+    public SpotifyAudioSourceManager(YoutubeAudioSourceManager yt) {
+        this.yt = yt;
         this.spotifyApi = SpotifySingleton.getInstance().getSpotifyApi();
-        loaders = List.of(new SpotifyTrackLoader(youtubeAudioSourceManager), new SpotifyPlaylistLoader(youtubeAudioSourceManager), new SpotifyAlbumLoader(youtubeAudioSourceManager));
+        loaders = List.of(new SpotifyTrackLoader(yt, this), new SpotifyPlaylistLoader(yt, this), new SpotifyAlbumLoader(yt, this));
 
     }
 
@@ -68,17 +70,23 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
 
     @Override
     public boolean isTrackEncodable(AudioTrack track) {
-        return false;
+        return true;
     }
 
     @Override
-    public void encodeTrack(AudioTrack track, DataOutput output) {
-        throw new UnsupportedOperationException();
+    public void encodeTrack(AudioTrack track, DataOutput output) throws IOException {
+        SpotifyAudioTrack sp = (SpotifyAudioTrack) track;
+        DataFormatTools.writeNullableText(output, sp.getAlbum());
+        DataFormatTools.writeNullableText(output, sp.getImage());
     }
 
     @Override
-    public AudioTrack decodeTrack(AudioTrackInfo trackInfo, DataInput input) {
-        throw new UnsupportedOperationException();
+    public AudioTrack decodeTrack(AudioTrackInfo trackInfo, DataInput input) throws IOException {
+        YoutubeAudioTrack baseAudioTack = new YoutubeAudioTrack(trackInfo, yt);
+        String album = DataFormatTools.readNullableText(input);
+        String image = DataFormatTools.readNullableText(input);
+
+        return new SpotifyAudioTrack(baseAudioTack, baseAudioTack.getInfo().author, album, baseAudioTack.getInfo().title, image, this);
     }
 
     @Override

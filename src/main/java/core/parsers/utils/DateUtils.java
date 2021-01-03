@@ -40,6 +40,7 @@ public class DateUtils {
         };
         Set<String> order = new ListOrderedSet<>();
         order.add("yyyy/M/d");
+        order.add("yyyy");
         order.addAll(Arrays.asList(dayFormats));
         order.addAll(Arrays.asList(monthFormats));
         for (int i = 0, formatsLength = formats.length; i < formatsLength - 1; i++) {

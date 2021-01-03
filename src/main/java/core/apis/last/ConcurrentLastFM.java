@@ -1,8 +1,5 @@
 package core.apis.last;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import core.Chuu;
 import core.apis.ClientSingleton;
 import core.apis.last.chartentities.ChartUtil;
@@ -21,6 +18,7 @@ import core.services.OAuthService;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import net.dv8tion.jda.internal.utils.tuple.Pair;
+import org.apache.commons.io.output.StringBuilderWriter;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -221,19 +219,13 @@ public class ConcurrentLastFM {//implements LastFMService {
     }
 
     private HttpRequest createPost(ScrobblePost scrobblePost) {
-        try {
-            scrobblePost.setApi_sig(getSignature(scrobblePost));
-            String s = new XmlMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(scrobblePost);
-            return HttpRequest.newBuilder()
-                    .GET()
-                    .uri(URI.create(BASE))
-                    .POST(HttpRequest.BodyPublishers.ofString(s))
-                    .setHeader("User-Agent", "discordBot/ishwi6@gmail.com") // add request header
-                    .build();
-        } catch (JsonProcessingException e) {
-            throw new ChuuServiceException();
-        }
-
+        String form = getSignature(scrobblePost);
+        return HttpRequest.newBuilder()
+                .setHeader("Content-Type", "application/x-www-form-urlencoded")
+                .POST(HttpRequest.BodyPublishers.ofString(form))
+                .uri(URI.create(BASE + "?format=json"))
+                .setHeader("User-Agent", "discordBot/ishwi6@gmail.com") // add request header
+                .build();
     }
 
     //@Override
@@ -640,7 +632,6 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     public StreakEntity getCombo(LastFMData lastFMData) throws LastFmException {
         String url = BASE + RECENT_TRACKS + "&user=" + lastFMData.getName() + apiKey + ENDING + "&extended=1";
-        url = oAuthService.generateURL(url, lastFMData);
         int page = 0;
         String currentArtist = null;
         String currentAlbum = null;
@@ -657,6 +648,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         boolean cont = true;
         boolean restarting = false;
         boolean restarted = false;
+        long previousUts;
         int totalPages = 1;
         while (cont) {
             String comboUrl;
@@ -692,6 +684,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                 String artistName = artistObj.getString("name");
                 String albumString = null;
                 JSONObject album = trackObj.getJSONObject("album");
+                previousUts = trackObj.getJSONObject("date").getLong("uts");
                 if (albumUrl.isBlank())
                     albumUrl = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
 
@@ -712,7 +705,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                         stopAlbCounter = true;
                         if (stopArtistCounter) {
                             cont = false;
-                            streakStart = Instant.ofEpochSecond(trackObj.getJSONObject("date").getLong("uts"));
+                            streakStart = Instant.ofEpochSecond(previousUts);
                             break;
                         }
                     }
@@ -1795,16 +1788,23 @@ public class ConcurrentLastFM {//implements LastFMService {
         try {
             List<BasicNameValuePair> items = Arrays.stream(scrobblePost.getClass().getFields()).filter(x -> Modifier.isFinal(x.getModifiers())).map(x -> {
                 try {
-                    return new BasicNameValuePair(x.getName(), x.get(scrobblePost).toString());
+                    Object o = x.get(scrobblePost);
+                    if (o == null) {
+                        return null;
+                    }
+                    return new BasicNameValuePair(x.getName(), o.toString());
                 } catch (IllegalAccessException e) {
                     return null;
                 }
             }).filter(Objects::nonNull).collect(Collectors.toList());
-
             String preHash = items.stream().filter(x -> !x.getName().startsWith("format")).sorted((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(a.getName(), b.getName())).map(x -> x.getName() + x.getValue()).collect(Collectors.joining()) + secret;
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(StandardCharsets.UTF_8.encode(preHash));
-            return String.format("%032x", new BigInteger(1, md5.digest()));
+            String hash = String.format("%032x", new BigInteger(1, md5.digest()));
+            items.add(new BasicNameValuePair("api_sig", hash));
+            return items.stream().map(key -> key.getName() + "=" + URLEncoder.encode(key.getValue(), StandardCharsets.UTF_8))
+                    .collect(Collectors.joining("&"));
+
         } catch (NoSuchAlgorithmException e) {
             throw new ChuuServiceException(e);
         }
@@ -1830,23 +1830,21 @@ public class ConcurrentLastFM {//implements LastFMService {
     }
 
     public void scrobble(String sessionKey, Scrobble scrobble, Instant instant) throws LastFmException {
-        String artist = URLEncoder
-                .encode(scrobble.artist(), StandardCharsets.UTF_8);
-        String track = URLEncoder
-                .encode(scrobble.song(), StandardCharsets.UTF_8);
-        String album = URLEncoder.encode(scrobble.album(), StandardCharsets.UTF_8);
-        ScrobblePost scrobblePost = new ScrobblePost("track.scrobble", artist, track, album, null, null, instant.getEpochSecond(), null, null, apiKey.split("=")[1]);
-        doPost(scrobblePost);
+
+        ScrobblePost scrobblePost = new ScrobblePost("track.scrobble", scrobble.artist(), scrobble.song(), scrobble.album(), null, null, instant.getEpochSecond(), null, null, apiKey.split("=")[1], sessionKey);
+        JSONObject jsonObject = doPost(scrobblePost);
+        StringBuilderWriter writer = new StringBuilderWriter();
+        jsonObject.write(writer);
+        System.out.println(writer.toString());
     }
 
     public void flagNP(String sessionKey, Scrobble scrobble) throws LastFmException {
-        String artist = URLEncoder
-                .encode(scrobble.artist(), StandardCharsets.UTF_8);
-        String track = URLEncoder
-                .encode(scrobble.song(), StandardCharsets.UTF_8);
-        String album = URLEncoder.encode(scrobble.album(), StandardCharsets.UTF_8);
-        ScrobblePost scrobblePost = new ScrobblePost("track.updateNowPlaying", artist, track, album, null, null, null, null, null, apiKey.split("=")[1]);
-        doPost(scrobblePost);
+
+        ScrobblePost scrobblePost = new ScrobblePost("track.updateNowPlaying", scrobble.artist(), scrobble.song(), scrobble.album(), null, null, null, null, null, apiKey.split("=")[1], sessionKey);
+        JSONObject jsonObject = doPost(scrobblePost);
+        StringBuilderWriter writer = new StringBuilderWriter();
+        jsonObject.write(writer);
+        System.out.println(writer.toString());
 
 
     }

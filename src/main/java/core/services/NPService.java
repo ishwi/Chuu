@@ -10,6 +10,7 @@ import dao.entities.TrackWithArtistId;
 import dao.entities.UpdaterUserWrapper;
 import dao.exceptions.InstanceNotFoundException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -24,10 +25,10 @@ public class NPService {
         this.db = Chuu.getDao();
     }
 
-    public NowPlayingArtist getNowPlaying() throws InstanceNotFoundException, LastFmException {
+    public NPUpdate getNowPlayingBoth() throws InstanceNotFoundException, LastFmException {
         UpdaterUserWrapper wrapper = db.getUserUpdateStatus(user.getDiscordId());
         if (user.isPrivateUpdate()) {
-            return lastFM.getNowPlayingInfo(user);
+            return new NPUpdate(lastFM.getNowPlayingInfo(user), CompletableFuture.completedFuture((new ArrayList<>())));
         }
 
         NPUpdate npWithUpdate = lastFM.getNPWithUpdate(user, wrapper.getTimestamp(), true);
@@ -40,12 +41,17 @@ public class NPService {
             } else {
                 npWithUpdate.data().thenAccept(list -> new UpdaterHoarder(wrapper, db, lastFM).updateList(list));
             }
-            return npWithUpdate.np;
+            return npWithUpdate;
         } finally {
             if (removeFlag) {
                 UpdaterService.remove(user.getName());
             }
         }
+    }
+
+    public NowPlayingArtist getNowPlaying() throws InstanceNotFoundException, LastFmException {
+
+        return getNowPlayingBoth().np;
     }
 
     public record NPUpdate(NowPlayingArtist np, CompletableFuture<List<TrackWithArtistId>> data) {

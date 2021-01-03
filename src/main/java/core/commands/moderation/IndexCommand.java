@@ -58,7 +58,7 @@ public class IndexCommand extends ConcurrentCommand<CommandParameters> {
         Set<Long> allBot = getService().getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
         Set<Long> thisServer = getService().getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
 
-        Set<Long> members = e.getGuild().getMembers().stream().map(x -> x.getUser().getIdLong()).collect(Collectors.toSet());
+        Set<Long> members = e.getGuild().getMembers().stream().filter(x -> x.getUser().getIdLong() != x.getJDA().getSelfUser().getIdLong()).map(x -> x.getUser().getIdLong()).collect(Collectors.toSet());
         List<Long> toInsert = members.stream().filter(x -> allBot.contains(x) && !thisServer.contains(x)).collect(Collectors.toList());
         toInsert.forEach(x -> getService().addGuildUser(x, e.getGuild().getIdLong()));
         if (toInsert.isEmpty()) {

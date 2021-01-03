@@ -40,6 +40,7 @@ public class ChuuService {
 
     private final BillboardDao billboardDao;
     private final DiscoveralDao discoveralDao;
+    private final MusicDao musicDao;
 
     public ChuuService(SimpleDataSource dataSource) {
 
@@ -53,8 +54,7 @@ public class ChuuService {
         this.updaterDao = new UpdaterDaoImpl();
         this.billboardDao = new BillboardDaoImpl();
         this.discoveralDao = new DiscoveralDaoImpl();
-
-
+        musicDao = new MusidDaoImpl();
     }
 
     public ChuuService() {
@@ -69,7 +69,7 @@ public class ChuuService {
         this.trackDao = new TrackDaoImpl();
         this.billboardDao = new BillboardDaoImpl();
         this.discoveralDao = new DiscoveralDaoImpl();
-
+        musicDao = new MusidDaoImpl();
     }
 
     public void updateUserTimeStamp(String lastFmName, Integer timestamp, Integer timestampControl) {
@@ -175,7 +175,7 @@ public class ChuuService {
         }
     }
 
-    @org.jetbrains.annotations.NotNull
+    @NotNull
     private <T extends ScrobbledArtist> Long handleNonExistingArtistFromAlbum(Connection connection, T x, Long artistId) {
         if (artistId == null) {
             String correction = updaterDao.findCorrection(connection, x.getArtist());
@@ -1097,6 +1097,7 @@ public class ChuuService {
             } catch (InstanceNotFoundException ignored) {
             }
             updaterDao.deleteAllArtists(connection, lastFmID);
+            updaterDao.clearSess(connection, lastFmID);
             LastFMData lastFmData = userGuildDao.findLastFmData(connection, userId);
             lastFmData.setName(lastFmID);
             userGuildDao.updateLastFmData(connection, lastFmData);
@@ -3080,7 +3081,7 @@ public class ChuuService {
 
     public CommandStats getCommandStats(long discordId) {
         try (Connection connection = dataSource.getConnection()) {
-            return userGuildDao.getCommandStats(discordId);
+            return userGuildDao.getCommandStats(discordId, connection);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3092,5 +3093,41 @@ public class ChuuService {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+    }
+
+    public void storeMetadata(String identifier, Metadata metadata) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            musicDao.storeMetadata(connection, identifier, metadata);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public Optional<Metadata> getMetadata(String identifier) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            return musicDao.getMetadata(connection, identifier);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void changeScrobbling(long discordId, boolean b) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setUserProperty(connection, discordId, "scrobbling", b);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public int getCurrentCombo(long artistId, String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getCurrentCombo(connection, lastfmId, artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
     }
 }

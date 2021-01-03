@@ -84,6 +84,7 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
                 scheduledExecutor.scheduleWithFixedDelay(() -> {
                     counter.incrementAndGet();
                     if (counter.get() >= 25) {
+                        getService().storeSess(null, authToken);
                         scheduledExecutor.shutdown();
                         z.editMessage(new EmbedBuilder().setTitle("Link expired").setColor(Color.red).build()).queue();
                     }
@@ -103,6 +104,7 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
                                 t.sendMessage("You had previously logged in with a different account. Will reset eveything now").queue();
                                 try {
                                     getService().changeLastFMName(e.getAuthor().getIdLong(), userAccount);
+                                    getService().storeSess(session, userAccount);
                                 } catch (DuplicateInstanceException duplicateInstanceException) {
                                     getService().removeUserCompletely(e.getAuthor().getIdLong());
                                     getService().changeDiscordId(e.getAuthor().getIdLong(), userAccount);

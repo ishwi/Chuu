@@ -36,21 +36,21 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
 
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull NowPlayingParameters params) throws LastFmException, InstanceNotFoundException {
-        doSomethingWithArtist(params.getNowPlayingArtist(), e, params.getLastFMData().getDiscordId(), params.getLastFMData());
+        doSomethingWithArtist(params.getNowPlayingArtist(), e, params.getLastFMData().getDiscordId(), params.getLastFMData(), params);
         CompletableFuture.runAsync(() -> {
-            if (params.getNowPlayingArtist().getUrl() != null && !params.getNowPlayingArtist().getUrl().isBlank()) {
-                try {
-                    ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), params.getNowPlayingArtist().getArtistName(), lastFM, true);
-                    long trackValidate = CommandUtil.trackValidate(getService(), scrobbledArtist, lastFM, params.getNowPlayingArtist().getSongName());
-                    getService().updateTrackImage(trackValidate, params.getNowPlayingArtist().getUrl());
-                } catch (LastFmException instanceNotFoundException) {
-                    Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
-                }
-            }
+                    if (params.getNowPlayingArtist().getUrl() != null && !params.getNowPlayingArtist().getUrl().isBlank()) {
+                        try {
+                            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), params.getNowPlayingArtist().getArtistName(), lastFM, true);
+                            long trackValidate = CommandUtil.trackValidate(getService(), scrobbledArtist, lastFM, params.getNowPlayingArtist().getSongName());
+                            getService().updateTrackImage(trackValidate, params.getNowPlayingArtist().getUrl());
+                        } catch (LastFmException instanceNotFoundException) {
+                            Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
+                        }
+                    }
                 }
         );
 
     }
 
-    protected abstract void doSomethingWithArtist(NowPlayingArtist artist, MessageReceivedEvent e, long discordId, LastFMData user);
+    protected abstract void doSomethingWithArtist(NowPlayingArtist artist, MessageReceivedEvent e, long discordId, LastFMData user, NowPlayingParameters parameters);
 }

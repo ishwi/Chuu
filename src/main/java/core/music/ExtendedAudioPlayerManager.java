@@ -103,6 +103,7 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
         }
     }
 
+
     public String encodeTrack(AudioTrack track) throws IOException {
         var baos = new ByteArrayOutputStream();
         super.encodeTrack(new MessageOutput(baos), track);

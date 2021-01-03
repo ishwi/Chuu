@@ -198,4 +198,7 @@ interface SQLQueriesDao {
     Optional<Instant> getLastScrobbled(Connection connection, String lastfmId, long artistId, String song);
 
     Optional<Instant> getLastScrobbledArtist(Connection connection, String lastfmId, long artistId);
+
+
+    int getCurrentCombo(Connection connection, String lastfm_id, long artistId);
 }

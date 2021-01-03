@@ -19,6 +19,7 @@ package core.music.sources.spotify.loaders;
 
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -26,15 +27,15 @@ import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.specification.Album;
+import com.wrapper.spotify.model_objects.specification.Image;
 import com.wrapper.spotify.model_objects.specification.TrackSimplified;
+import core.music.sources.spotify.SpotifyAudioSourceManager;
 import dao.exceptions.ChuuServiceException;
 import org.apache.hc.core5.http.ParseException;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
@@ -44,9 +45,11 @@ import java.util.stream.Collectors;
 
 public class SpotifyAlbumLoader extends Loader {
     private final Pattern PLAYLIST_PATTERN = Pattern.compile("^(?:https?://(?:open\\.)?spotify\\.com|spotify)([/:])album\\1([a-zA-Z0-9]+)");
+    private final SpotifyAudioSourceManager sourceManager;
 
-    public SpotifyAlbumLoader(YoutubeAudioSourceManager youtubeAudioSourceManager) {
+    public SpotifyAlbumLoader(YoutubeAudioSourceManager youtubeAudioSourceManager, SpotifyAudioSourceManager sourceManager) {
         super(youtubeAudioSourceManager);
+        this.sourceManager = sourceManager;
     }
 
 
@@ -67,25 +70,28 @@ public class SpotifyAlbumLoader extends Loader {
             throw new ChuuServiceException(exception);
         }
         TrackSimplified[] items = execute.getTracks().getItems();
-        check(items.length == 0, "Album $albumId is missing track items!");
-        List<AudioTrack> audioTracks = fetchAlbumTracks(manager, spotifyApi, items);
+        check(items.length != 0, "Album " + albumId + " is missing track items!");
         String name = execute.getName();
         var albumName = name == null || name.isBlank() ? "Untitled Album" : name;
 
+        List<AudioTrack> audioTracks = fetchAlbumTracks(manager, spotifyApi, execute);
         return new BasicAudioPlaylist(albumName, audioTracks, null, false);
     }
 
     private List<AudioTrack> fetchAlbumTracks(DefaultAudioPlayerManager manager,
-                                              SpotifyApi spotifyApi, TrackSimplified[] track) {
+                                              SpotifyApi spotifyApi, Album album) {
         var tasks = new ArrayList<CompletableFuture<AudioTrack>>();
-        for (TrackSimplified trackSimplified : track) {
+        String name = album.getName() == null || album.getName().isBlank() ? "Untitled Album" : album.getName();
+        String url = Arrays.stream(album.getImages()).max(Comparator.comparingInt((Image x) -> x.getHeight() * x.getWidth())).map(Image::getUrl).orElse(null);
+        for (TrackSimplified trackSimplified : album.getTracks().getItems()) {
             String title = trackSimplified.getName();
             String artist = trackSimplified.getArtists()[0].getName();
+
             CompletableFuture<AudioTrack> task = queueYoutubeSearch(manager, "ytsearch:" + title + " " + artist).thenApply(ai -> {
                 if (ai instanceof AudioPlaylist ap) {
-                    return ap.getTracks().get(0);
+                    return new SpotifyAudioTrack((YoutubeAudioTrack) ap.getTracks().get(0), artist, name, title, url, this.sourceManager);
                 } else {
-                    return (AudioTrack) ai;
+                    return new SpotifyAudioTrack((YoutubeAudioTrack) ai, artist, name, title, url, this.sourceManager);
                 }
             });
             tasks.add(task);

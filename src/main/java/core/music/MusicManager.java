@@ -20,6 +20,7 @@ package core.music;
 import com.sedmelluq.discord.lavaplayer.format.StandardAudioDataFormats;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.player.event.TrackStartEvent;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
@@ -32,6 +33,7 @@ import core.music.radio.RadioTrackContext;
 import core.music.utils.ScrobblerEventListener;
 import core.music.utils.Task;
 import core.music.utils.TrackContext;
+import dao.entities.Metadata;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
@@ -53,6 +55,8 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     private final ExtendedAudioPlayerManager manager;
     private RepeatOption repeatOption = RepeatOption.NONE;
     private RadioTrackContext radio = null;
+    private final ScrobblerEventListener listener;
+    private Metadata metadata;
 
     @Override
     public boolean canProvide() {
@@ -152,7 +156,8 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         this.manager = manager;
         this.player.addListener(this);
         this.player.setVolume(100);
-        player.addListener(new ScrobblerEventListener(this, LastFMFactory.getNewInstance()));
+        listener = new ScrobblerEventListener(this, LastFMFactory.getNewInstance());
+        player.addListener(listener);
     }
 
 
@@ -169,12 +174,12 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
 
     public boolean openAudioConnection(VoiceChannel channel, MessageReceivedEvent e) {
         if (!getGuild().getSelfMember().hasPermission(channel, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK)) {
-            e.getChannel().sendMessage("Unable to connect to **${channel.name}**. I must have permission to `Connect` and `Speak`.").queue();
+            e.getChannel().sendMessage("Unable to connect to **" + channel.getName() + "**. I must have permission to `Connect` and `Speak`.").queue();
             destroy();
             return false;
         }
         if (channel.getUserLimit() == 0 && channel.getMembers().size() >= channel.getUserLimit() && !getGuild().getSelfMember().hasPermission(channel, Permission.VOICE_MOVE_OTHERS)) {
-            e.getChannel().sendMessage("The bot can't join due to the user limit. Grant me `${Permission.VOICE_MOVE_OTHERS.name}` or raise the user limit.").queue();
+            e.getChannel().sendMessage("The bot can't join due to the user limit. Grant me `" + Permission.VOICE_MOVE_OTHERS.getName() + "` or raise the user limit.").queue();
             destroy();
             return false;
         } else {
@@ -194,7 +199,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             destroy();
         }
         if (!selfMember.hasPermission(channel, Permission.VOICE_CONNECT)) {
-            getCurrentRequestChannel().sendMessage("I don't have permission to join `${channel.name}`.").queue();
+            getCurrentRequestChannel().sendMessage("I don't have permission to join `" + channel.getName() + "`.").queue();
             destroy();
             return;
         }
@@ -234,6 +239,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             cloned.setUserData(cloneThis.getUserData());
 
             if (repeatOption == RepeatOption.SONG) {
+
                 player.playTrack(cloned);
                 return;
 
@@ -282,7 +288,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
 
             StringBuilder a = new StringBuilder();
             a.append("Now playing __**[").append(track.getInfo().title)
-                    .append("](").append(track.getInfo().uri).append(")**__")
+                    .append("](").append(CommandUtil.cleanMarkdownCharacter(track.getInfo().uri)).append(")**__")
                     .append(" requested by ").append("<@").append(reqData.requester()).append(">");
             announcementChannel.sendMessage(new EmbedBuilder()
                     .setDescription(a)
@@ -308,6 +314,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         lastPlayedAt = System.currentTimeMillis();
         this.lastTrack = track;
+
 
         if (endReason.mayStartNext) {
             nextTrack();
@@ -354,6 +361,11 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
 
         var announce = (currentTrack == null && track != null) || (currentTrack != null && !currentTrack.getIdentifier().equals(track.getIdentifier()));
         currentTrack = track;
+        if (currentTrack == null) {
+            metadata = null;
+        } else {
+            metadata = Chuu.getDao().getMetadata(track.getIdentifier()).orElse(null);
+        }
         if (announce) {
             announceNext(track);
         }
@@ -377,6 +389,10 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
 
     public RepeatOption getRepeatOption() {
         return repeatOption;
+    }
+
+    public void setRepeatOption(RepeatOption repeatOption) {
+        this.repeatOption = repeatOption;
     }
 
     public long getGuildId() {
@@ -464,5 +480,18 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
 
     public void setRadio(RadioTrackContext radio) {
         this.radio = radio;
+    }
+
+    public Metadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Metadata metadata) {
+        this.metadata = metadata;
+        this.listener.hadleTrackStart(new TrackStartEvent(player, currentTrack), true);
+    }
+
+    public int getScroobblers() {
+        return this.listener.getScrooblersCount();
     }
 }

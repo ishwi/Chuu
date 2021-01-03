@@ -7,6 +7,7 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.abstracts.NpCommand;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
+import core.parsers.params.NowPlayingParameters;
 import core.services.NPModeBuilder;
 import dao.ChuuService;
 import dao.entities.*;
@@ -41,7 +42,7 @@ public class NowPlayingCommand extends NpCommand {
 
 
     @Override
-    public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e, long discordId, LastFMData user) {
+    public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e, long discordId, LastFMData user, NowPlayingParameters parameters) {
         StringBuilder a = new StringBuilder();
 
         // Author fields cant have escaped markdown characters
@@ -88,7 +89,7 @@ public class NowPlayingCommand extends NpCommand {
 
             npModes = EnumSet.copyOf(IntStream.range(0, CommandUtil.rand.nextInt(4) + 1).mapToObj(x -> allModes.get(CommandUtil.rand.nextInt(allModes.size()))).collect(Collectors.toSet()));
         }
-        NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, user, embedBuilder, scrobbledArtist, getService(), lastFM, serverName, mb, outputList);
+        NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, user, embedBuilder, scrobbledArtist, getService(), lastFM, serverName, mb, outputList, parameters.getData());
         CompletableFuture<?> completableFutures = npModeBuilder.buildNp();
 
 

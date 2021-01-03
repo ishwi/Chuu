@@ -18,5 +18,17 @@
 package core.music;
 
 public enum RepeatOption {
-    SONG, QUEUE, NONE
+    QUEUE("🔁"),
+    SONG("🔂"),
+    NONE("❌");
+
+    private final String emoji;
+
+    RepeatOption(String s) {
+        emoji = s;
+    }
+
+    public String getEmoji() {
+        return emoji;
+    }
 }

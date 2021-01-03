@@ -40,12 +40,12 @@ public class LastPlayedCommand extends AlbumPlaysCommand {
 
     @Override
     public List<String> getAliases() {
-        return List.of("last", "lastscrobbled", "lastplayed");
+        return List.of("lasttrack", "lastsong", "lasttr");
     }
 
     @Override
     public String getName() {
-        return "Last scrobbled";
+        return "Last song scrobbled";
     }
 
     @Override

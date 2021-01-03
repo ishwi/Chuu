@@ -19,6 +19,7 @@ package core.music.sources.spotify.loaders;
 
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -26,17 +27,14 @@ import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.IPlaylistItem;
-import com.wrapper.spotify.model_objects.specification.Playlist;
-import com.wrapper.spotify.model_objects.specification.PlaylistTrack;
-import com.wrapper.spotify.model_objects.specification.Track;
+import com.wrapper.spotify.model_objects.specification.*;
+import core.music.sources.spotify.SpotifyAudioSourceManager;
 import dao.exceptions.ChuuServiceException;
 import org.apache.hc.core5.http.ParseException;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
@@ -47,9 +45,11 @@ import java.util.stream.Collectors;
 public class SpotifyPlaylistLoader extends Loader {
     private static final String URL_PATTERN = "https?://(?:open\\.)?spotify\\.com(?:/user/[a-zA-Z0-9_]+)?";
     private static final Pattern PLAYLIST_PATTERN = Pattern.compile("^(?:" + URL_PATTERN + "|spotify)([/:])playlist\\1([a-zA-Z0-9]+)");
+    private final SpotifyAudioSourceManager sourceManager;
 
-    public SpotifyPlaylistLoader(YoutubeAudioSourceManager youtubeAudioSourceManager) {
+    public SpotifyPlaylistLoader(YoutubeAudioSourceManager youtubeAudioSourceManager, SpotifyAudioSourceManager sourceManager) {
         super(youtubeAudioSourceManager);
+        this.sourceManager = sourceManager;
     }
 
 
@@ -73,7 +73,7 @@ public class SpotifyPlaylistLoader extends Loader {
         }
         PlaylistTrack[] items = execute.getTracks().getItems();
 
-        check(items.length == 0, "Album $albumId is missing track items!");
+        check(items.length != 0, "Album $albumId is missing track items!");
         List<AudioTrack> audioTracks = fetchAlbumTracks(manager, spotifyApi, b);
         String name = execute.getName();
         var albumName = name == null || name.isBlank() ? "Untitled Album" : name;
@@ -87,13 +87,16 @@ public class SpotifyPlaylistLoader extends Loader {
         for (PlaylistTrack plTrack : track) {
             IPlaylistItem track1 = plTrack.getTrack();
             if (track1 instanceof Track tr) {
-                String name = tr.getName();
+                AlbumSimplified album = tr.getAlbum();
+                String name = album.getName() == null || album.getName().isBlank() ? "Untitled Album" : album.getName();
+                String url = Arrays.stream(album.getImages()).max(Comparator.comparingInt((Image x) -> x.getHeight() * x.getWidth())).map(Image::getUrl).orElse(null);
+                String songName = tr.getName();
                 String artistName = tr.getArtists()[0].getName();
                 CompletableFuture<AudioTrack> task = queueYoutubeSearch(manager, "ytsearch:" + name + " " + artistName).thenApply(ai -> {
                     if (ai instanceof AudioPlaylist ap) {
-                        return ap.getTracks().get(0);
+                        return new SpotifyAudioTrack((YoutubeAudioTrack) ap.getTracks().get(0), artistName, name, songName, url, this.sourceManager);
                     } else {
-                        return (AudioTrack) ai;
+                        return new SpotifyAudioTrack((YoutubeAudioTrack) ai, artistName, name, songName, url, this.sourceManager);
                     }
                 });
                 tasks.add(task);

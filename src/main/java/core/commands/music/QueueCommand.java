@@ -91,12 +91,12 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
             a.append("`[").append(CommandUtil.getTimestamp(decodedTrack.getDuration()))
                     .append("]` __[")
                     .append(decodedTrack.getInfo().title)
-                    .append("](").append(decodedTrack.getInfo().uri).append(")__\n");
+                    .append("](").append(CommandUtil.cleanMarkdownCharacter(decodedTrack.getInfo().uri)).append(")__\n");
             str.add(a.toString());
             length += decodedTrack.getDuration();
         }
         AudioTrack np = manager.getPlayer().getPlayingTrack();
-        embedBuilder.addField("Now Playing", np == null ? "Nothing" : String.format("**[%s](%s)**", np.getInfo().title, np.getInfo().uri), false);
+        embedBuilder.addField("Now Playing", np == null ? "Nothing" : String.format("**[%s](%s)**", np.getInfo().title, CommandUtil.cleanMarkdownCharacter(np.getInfo().uri)), false);
 
         if (manager.getRadio() != null) {
             String b = "Currently streaming music from radio station " + manager.getRadio().getSource().getName() +

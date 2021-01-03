@@ -1,4 +1,4 @@
 package dao.entities;
 
-public record CommandStats() {
+public record CommandStats(int commandCount, int imageCount) {
 }

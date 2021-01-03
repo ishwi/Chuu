@@ -197,6 +197,15 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 String strModes = NPMode.getListedName(modes);
                 sendMessageQueue(e, String.format("Successfully changed to the following %s: %s", CommandUtil.singlePlural(modes.size(), "mode", "modes"), strModes));
                 break;
+            case SCROBBLING:
+                b = Boolean.parseBoolean(value);
+                getService().changeScrobbling(e.getAuthor().getIdLong(), b);
+                if (b) {
+                    sendMessageQueue(e, "Will scrobble what you play on a voice channel");
+                } else {
+                    sendMessageQueue(e, "Won't scrobble what you play on a voice channel");
+                }
+                break;
             case TIMEZONE:
                 break;
         }

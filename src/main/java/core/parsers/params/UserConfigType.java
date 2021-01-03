@@ -26,6 +26,8 @@ public enum UserConfigType {
     PRIVATE_LASTFM("private-lastfm"),
     SHOW_BOTTED("show-botted"),
     NP("np"),
+    SCROBBLING("scrobbling"),
+
     TIMEZONE("timezone");
 
     static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
@@ -73,12 +75,15 @@ public enum UserConfigType {
                     }
 
                     switch (x.getValue()) {
-                        case PRIVATE_UPDATE:
+                        case PRIVATE_UPDATE: {
                             boolean privateUpdate = lastFMData != null && lastFMData.isPrivateUpdate();
                             return String.format("**%s** -> %s", key, privateUpdate);
-                        case NOTIFY_IMAGE:
+                        }
+                        case NOTIFY_IMAGE: {
+                            boolean privateUpdate;
                             privateUpdate = lastFMData != null && lastFMData.isImageNotify();
                             return String.format("**%s** -> %s", key, privateUpdate);
+                        }
                         case CHART_MODE:
                             String chartMode;
                             if (lastFMData == null || lastFMData.getChartMode() == null) {
@@ -95,7 +100,7 @@ public enum UserConfigType {
                                 whoknowsmode = lastFMData.getWhoKnowsMode().toString();
                             }
                             return String.format("**%s** -> %s", key, whoknowsmode);
-                        case REMAINING_MODE:
+                        case REMAINING_MODE: {
                             String remaining;
                             if (lastFMData == null || lastFMData.getRemainingImagesMode() == null) {
                                 remaining = "NOT SET";
@@ -103,24 +108,30 @@ public enum UserConfigType {
                                 remaining = lastFMData.getRemainingImagesMode().toString();
                             }
                             return String.format("**%s** -> %s", key, remaining);
-                        case CHART_SIZE:
+                        }
+                        case CHART_SIZE: {
+                            String remaining;
                             if (lastFMData == null) {
                                 remaining = "NOT SET";
                             } else {
                                 remaining = String.format("%dx%d", lastFMData.getDefaultX(), lastFMData.getDefaultY());
                             }
                             return String.format("**%s** -> %s", key, remaining);
-
-                        case PRIVACY_MODE:
+                        }
+                        case PRIVACY_MODE: {
+                            String remaining;
                             if (lastFMData == null) {
                                 remaining = "NOT SET";
                             } else {
                                 remaining = String.format("%s", lastFMData.getPrivacyMode().toString());
                             }
                             return String.format("**%s** -> %s", key, remaining);
-                        case NOTIFY_RATING:
+                        }
+                        case NOTIFY_RATING: {
+                            boolean privateUpdate;
                             privateUpdate = lastFMData != null && lastFMData.isRatingNotify();
                             return String.format("**%s** -> %s", key, privateUpdate);
+                        }
                         case PRIVATE_LASTFM:
                             boolean privateLastfmId = lastFMData != null && lastFMData.isPrivateLastfmId();
                             return String.format("**%s** -> %s", key, privateLastfmId);
@@ -131,6 +142,9 @@ public enum UserConfigType {
                             EnumSet<NPMode> modes = dao.getNPModes(discordId);
                             String strModes = NPMode.getListedName(modes);
                             return String.format("**%s** -> %s", key, strModes);
+                        case SCROBBLING:
+                            boolean scroobling = lastFMData != null && lastFMData.isScrobbling();
+                            return String.format("**%s** -> %s", key, scroobling);
                         case TIMEZONE:
                             return "";
                     }
@@ -150,7 +164,7 @@ public enum UserConfigType {
             case CHART_MODE -> chartMode.asMatchPredicate();
             case REMAINING_MODE, WHOKNOWS_MODE -> whoknowsMode.asMatchPredicate();
             case PRIVACY_MODE -> privacyMode.asMatchPredicate();
-            case PRIVATE_UPDATE, NOTIFY_IMAGE, NOTIFY_RATING, PRIVATE_LASTFM, SHOW_BOTTED -> bool.asMatchPredicate();
+            case PRIVATE_UPDATE, NOTIFY_IMAGE, NOTIFY_RATING, PRIVATE_LASTFM, SHOW_BOTTED, SCROBBLING -> bool.asMatchPredicate();
             case CHART_SIZE -> ChartParserAux.chartSizePattern.asMatchPredicate();
             case NP -> npMode.asMatchPredicate();
             case TIMEZONE -> stringPredicate;
@@ -193,6 +207,8 @@ public enum UserConfigType {
                 return "Setting this to false will mean that you wont have to include --nobotted in the global commands to exclude accounts flagged as bots)";
             case NP:
                 return "Setting this will alter the appearance of your np commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+            case SCROBBLING:
+                return "Setting this to false will mean that whatever you play with the bot on a voice channel won't scrooble";
             case TIMEZONE:
                 return "TIMEZONE ";
             default:

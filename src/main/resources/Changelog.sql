@@ -159,3 +159,6 @@ alter table user
     add column token varchar(50) null;
 alter table user
     add column sess varchar(50) null;
+
+alter table user
+    add column scrobbling boolean not null default true;

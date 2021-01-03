@@ -20,14 +20,14 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public void setServerTempTable(Connection connection, List<RYMImportRating> ratings) {
 
         @Language("MariaDB") String queryBody =
-                "                                CREATE TEMPORARY TABLE temp_rating(\n" +
-                        "                                        rym_id bigint(20) PRIMARY KEY,\n" +
-                        "                                        last_name varchar(400) COLLATE  utf8mb4_unicode_ci ,\n" +
-                        "                                        first_name varchar(20) COLLATE  utf8mb4_unicode_ci,\n" +
-                        "                                        first_localized_name varchar(20) COLLATE  utf8mb4_unicode_ci,\n" +
-                        "                                        last_localized_name varchar(400) COLLATE  utf8mb4_unicode_ci\n" +
-                        "                        ) DEFAULT CHARSET=utf8mb4" +
-                        " COLLATE =  utf8mb4_general_ci;";
+                """
+                                CREATE TEMPORARY TABLE temp_rating(
+                                        rym_id bigint(20) PRIMARY KEY,
+                                        last_name varchar(400) COLLATE  utf8mb4_unicode_ci ,
+                                        first_name varchar(20) COLLATE  utf8mb4_unicode_ci,
+                                        first_localized_name varchar(20) COLLATE  utf8mb4_unicode_ci,
+                                        last_localized_name varchar(400) COLLATE  utf8mb4_unicode_ci
+                        ) DEFAULT CHARSET=utf8mb4 COLLATE =  utf8mb4_general_ci;""".indent(24);
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
@@ -468,7 +468,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
             preparedStatement.setLong(1, discordId);
             ResultSet resultSet = preparedStatement.executeQuery();
             Map<Integer, Integer> ratingsMap = IntStream.rangeClosed(1, 10).boxed().collect(Collectors.toMap(x -> x, x -> 0));
-            if (resultSet.next()) {
+            while (resultSet.next()) {
                 int rating = resultSet.getInt(1);
                 int count = resultSet.getInt(2);
                 ratingsMap.put(rating, count);

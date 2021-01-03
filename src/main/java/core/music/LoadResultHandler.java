@@ -23,12 +23,12 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
+import core.commands.utils.CommandUtil;
 import core.music.utils.TrackContext;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class LoadResultHandler implements AudioLoadResultHandler {
@@ -45,7 +45,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
     private Object settings;
     private final boolean premiumGuild = false;
     private int retryCount = 0;
-    private final Set<AudioItem> audioItemSet = new HashSet<>();
+
 
     public LoadResultHandler(String query, MessageReceivedEvent e, MusicManager musicManager, TrackContext trackContext, Boolean isNext, String footnote) {
 
@@ -64,6 +64,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         if (!checkVoiceState() || !checkTrack(track, false)) {
             return;
         }
+
 
         var isImmediatePlay = musicManager.getPlayer().getPlayingTrack() == null && musicManager.getQueue().isEmpty();
         track.setUserData(trackContext);
@@ -88,9 +89,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         }
 
         var queueLimit = queueLimit();
-        var pendingEnqueue = playlist.getTracks().stream().filter(it -> {
-            return checkTrack(it, true);
-        }).collect(Collectors.toList());
+        var pendingEnqueue = playlist.getTracks().stream().filter(it -> checkTrack(it, true)).collect(Collectors.toList());
         var added = 0;
         for (AudioTrack track : pendingEnqueue) {
 
@@ -103,14 +102,16 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         }
 
         var ignored = pendingEnqueue.size() - added;
-        e.getChannel().sendMessage("Queued").queue();
+        e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setTitle("Music Queue")
+                .setDescription("Added **" + added + "** tracks to queue from playlist **" + playlist.getName() + "**")
+                .setFooter(footnote).build()).queue();
     }
 
     public void loadFailed(Exception exception) {
         if (musicManager.isIdle()) {
             musicManager.destroy();
         }
-        e.getChannel().sendMessage(" UNABLE TO LOAD " + exception.getMessage()).queue();
+        e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setTitle("Load Results").setDescription("Unable to load the track:\n`" + exception.getMessage() + "`").build()).queue();
     }
 
 
@@ -125,21 +126,24 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         if (musicManager.isIdle()) {
             musicManager.destroy();
         }
-        e.getChannel().sendMessage("NOTHING FOUND").queue();
+        e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setTitle("Load Results").setDescription("Nothing found by **" + identifier + "**").build()).queue();
     }
 
     @Override
     public void loadFailed(FriendlyException exception) {
-        e.getChannel().sendMessage(exception.getMessage()).queue();
+        if (musicManager.isIdle()) {
+            musicManager.destroy();
+        }
+        e.getChannel().sendMessage(new EmbedBuilder()
+                .setColor(CommandUtil.randomColor())
+                .setTitle("Load Results")
+                .setDescription("Unable to load the track:\n`" + exception.getMessage() + "`").build()).queue();
     }
 
     private boolean checkVoiceState() {
         AudioManager manager = e.getGuild().getAudioManager();
-        if (manager == null) {
-            return false;
-        }
         if (manager.getConnectedChannel() == null) {
-
+            assert e.getMember() != null && e.getMember().getVoiceState() != null : "Whatever";
             if (e.getMember().getVoiceState().getChannel() == null) {
                 e.getChannel().sendMessage("You left the voice channel before the track was loaded.").queue();
 
@@ -169,9 +173,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
 
 
             if (musicManager.getQueue().size() + 1 >= queueLimit) {
-                if (!isPlaylist) {
-                    e.getChannel().sendMessage("The queue can not exceed  songs." + queueLimitDisplay).queue();
-                }
+                e.getChannel().sendMessage("The queue can not exceed  songs." + queueLimitDisplay).queue();
                 return false;
             }
         }
@@ -189,9 +191,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
     }
 
     public void cache(AudioItem item) {
-        if (identifier != null) {
-            audioItemSet.add(item);
-        }
+
     }
 
     private static final int MAX_LOAD_RETRIES = 2;

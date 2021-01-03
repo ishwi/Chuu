@@ -43,6 +43,7 @@ public class NPModeBuilder {
     static {
         try {
             List<NPMode> tags = List.of(NPMode.TAGS,
+                    NPMode.EXTENDED_TAGS,
                     NPMode.ARTIST_PLAYS,
                     NPMode.ALBUM_PLAYS,
                     NPMode.SONG_PLAYS,
@@ -72,7 +73,8 @@ public class NPModeBuilder {
                     NPMode.SONG_DURATION,
                     NPMode.HIGHEST_STREAK,
                     NPMode.HIGHEST_SERVER_STREAK,
-                    NPMode.HIGHEST_BOT_STREAK);
+                    NPMode.HIGHEST_BOT_STREAK,
+                    NPMode.CURRENT_COMBO);
 
             Map<NPMode, Integer> temp = new HashMap<>();
             for (int i = 0; i < tags.size(); i++) {
@@ -102,10 +104,11 @@ public class NPModeBuilder {
     private final String serverName;
     private final MusicBrainzService mb;
     private final List<String> outputList;
+    private final CompletableFuture<List<TrackWithArtistId>> comboData;
     private final ExecutorService executor;
     private final DiscogsApi discogsApi;
 
-    public NPModeBuilder(NowPlayingArtist np, MessageReceivedEvent e, String[] footerSpaces, long discordId, String userName, EnumSet<NPMode> npModes, LastFMData lastFMName, EmbedBuilder embedBuilder, ScrobbledArtist scrobbledArtist, ChuuService service, ConcurrentLastFM lastFM, String serverName, MusicBrainzService mb, List<String> outputList) {
+    public NPModeBuilder(NowPlayingArtist np, MessageReceivedEvent e, String[] footerSpaces, long discordId, String userName, EnumSet<NPMode> npModes, LastFMData lastFMName, EmbedBuilder embedBuilder, ScrobbledArtist scrobbledArtist, ChuuService service, ConcurrentLastFM lastFM, String serverName, MusicBrainzService mb, List<String> outputList, CompletableFuture<List<TrackWithArtistId>> data) {
         this.np = np;
         this.e = e;
         this.footerSpaces = footerSpaces;
@@ -120,6 +123,7 @@ public class NPModeBuilder {
         this.serverName = serverName;
         this.mb = mb;
         this.outputList = outputList;
+        comboData = data;
         this.spotifyApi = SpotifySingleton.getInstance();
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         executor = ExecutorsSingleton.getInstance();
@@ -177,6 +181,40 @@ public class NPModeBuilder {
             assert index != null;
             long guildId = e.isFromGuild() ? e.getGuild().getIdLong() : -1L;
             switch (npMode) {
+                case CURRENT_COMBO:
+                    completableFutures.add(logger.apply(comboData.whenComplete((u, e) -> {
+                        if (e == null) {
+                            String previousArtist = np.getArtistName();
+                            int comboCounter = 1;
+                            boolean couldCheck = false;
+                            for (TrackWithArtistId datum : u) {
+                                if (datum.getArtist().equals(previousArtist)) {
+                                    comboCounter++;
+                                } else {
+                                    couldCheck = true;
+                                    break;
+                                }
+                            }
+                            if (!couldCheck) {
+                                comboCounter = service.getCurrentCombo(scrobbledArtist.getArtistId(), lastFMName.getName());
+                            }
+                            if (comboCounter > 1) {
+                                footerSpaces[footerIndexes.get(NPMode.CURRENT_COMBO)] =
+                                        String.format("%s's is on a 🔥 of %d %s", userName, comboCounter, CommandUtil.singlePlural(comboCounter, "play", "plays"));
+                            }
+                        } else {
+                            try {
+                                StreakEntity combo = lastFM.getCombo(lastFMName);
+                                if (combo.getaCounter() > 1) {
+                                    footerSpaces[footerIndexes.get(NPMode.CURRENT_COMBO)] =
+                                            String.format("%s's is on a 🔥 of %d %s", userName, combo.getaCounter(), CommandUtil.singlePlural(combo.getaCounter(), "play", "plays"));
+                                }
+                            } catch (LastFmException exception) {
+                                exception.printStackTrace();
+                            }
+                        }
+                    })));
+                    break;
                 case NORMAL:
                 case ARTIST_PIC:
                 case RANDOM:
@@ -210,17 +248,23 @@ public class NPModeBuilder {
                     })));
                     break;
                 case TAGS:
+                case EXTENDED_TAGS:
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
                         try {
-                            Set<String> tags = new HashSet<>(5);
-                            tags.addAll(lastFM.getTrackTags(1, TopEntity.TRACK, np.getArtistName(), np.getSongName()));
-                            if (tags.size() < 5) {
-                                tags.addAll(lastFM.getTrackTags(5, TopEntity.ARTIST, np.getArtistName(), null));
+                            boolean extended = npModes.contains(NPMode.EXTENDED_TAGS);
+                            Set<String> bannedTags = service.getBannedTags();
+                            int limit = extended ? 12 : 5;
+                            Set<String> tags = new HashSet<>(limit);
+                            tags.addAll(lastFM.getTrackTags(limit, TopEntity.TRACK, np.getArtistName(), np.getSongName()));
+                            tags.removeIf(bannedTags::contains);
+                            if (tags.size() < limit) {
+                                tags.addAll(lastFM.getTrackTags(limit, TopEntity.ARTIST, np.getArtistName(), null));
+                                tags.removeIf(bannedTags::contains);
                             }
                             if (!tags.isEmpty()) {
                                 executor.submit(new TagArtistService(service, lastFM, new ArrayList<>(tags), new ArtistInfo(null, np.getArtistName())));
-                                if (tags.size() > 5) {
-                                    tags = tags.stream().limit(5).collect(Collectors.toSet());
+                                if (tags.size() > limit) {
+                                    tags = tags.stream().limit(limit).collect(Collectors.toSet());
                                 }
                                 String tagsField = EmbedBuilder.ZERO_WIDTH_SPACE + " • " + String.join(" - ", tags);
                                 tagsField += '\n';
@@ -603,7 +647,7 @@ public class NPModeBuilder {
                         if (!userArtistTopStreaks.isEmpty()) {
                             StreakEntity globalStreakEntities = userArtistTopStreaks.get(0);
                             footerSpaces[footerIndexes.get(NPMode.HIGHEST_STREAK)] =
-                                    (String.format("%s \uD83D\uDD25 %d %s", userName, globalStreakEntities.getaCounter(), CommandUtil.singlePlural(globalStreakEntities.getaCounter(), "play", "plays")));
+                                    (String.format("%s 🔥 %d %s", userName, globalStreakEntities.getaCounter(), CommandUtil.singlePlural(globalStreakEntities.getaCounter(), "play", "plays")));
                         }
                     })));
                     break;

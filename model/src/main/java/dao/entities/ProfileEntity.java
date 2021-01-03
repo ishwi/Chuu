@@ -15,9 +15,10 @@ public class ProfileEntity {
     private int crowns;
     private int uniques;
     private int randomCount;
+    private final CommandStats commandStats;
     private String date;
 
-    public ProfileEntity(String username, String discordName, String crownArtist, String uniqueArtist, String uniqueUrl, String crownUrl, String lastfmUrl, String discordUrl, int scrobbles, int albums, int artist, int crowns, int uniques, int randomCount, String date) {
+    public ProfileEntity(String username, String discordName, String crownArtist, String uniqueArtist, String uniqueUrl, String crownUrl, String lastfmUrl, String discordUrl, int scrobbles, int albums, int artist, int crowns, int uniques, int randomCount, String date, CommandStats commandStats) {
         this.username = username;
         this.discordName = discordName;
         this.crownArtist = crownArtist;
@@ -33,6 +34,7 @@ public class ProfileEntity {
         this.crowns = crowns;
         this.uniques = uniques;
         this.randomCount = randomCount;
+        this.commandStats = commandStats;
     }
 
     public String getDate() {
@@ -153,5 +155,9 @@ public class ProfileEntity {
 
     public void setRandomCount(int randomCount) {
         this.randomCount = randomCount;
+    }
+
+    public CommandStats getCommandStats() {
+        return commandStats;
     }
 }

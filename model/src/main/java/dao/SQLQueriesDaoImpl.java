@@ -3418,6 +3418,35 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         return Optional.empty();
     }
 
+    @Override
+    public int getCurrentCombo(Connection connection, String lastfm_id, long artistId) {
+
+        @Language("MariaDB") String queryString = """
+                SELECT count(*)
+                 FROM user_billboard_data_scrobbles a where `timestamp` > (select  max(`timestamp`) from user_billboard_data_scrobbles where artist_id != ?  && lastfm_id = ?  )  and lastfm_id = ?     
+                """;
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i++, artistId);
+            preparedStatement.setString(i++, lastfm_id);
+            preparedStatement.setString(i, lastfm_id);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
+
 
     private void getScoredAlbums(List<ScoredAlbumRatings> returnList, ResultSet resultSet) throws SQLException {
 
