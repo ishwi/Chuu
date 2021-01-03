@@ -648,7 +648,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         boolean cont = true;
         boolean restarting = false;
         boolean restarted = false;
-        long previousUts;
+        long previousUts = Instant.now().getEpochSecond();
         int totalPages = 1;
         while (cont) {
             String comboUrl;
@@ -684,7 +684,9 @@ public class ConcurrentLastFM {//implements LastFMService {
                 String artistName = artistObj.getString("name");
                 String albumString = null;
                 JSONObject album = trackObj.getJSONObject("album");
-                previousUts = trackObj.getJSONObject("date").getLong("uts");
+                if (aCounter != 0) {
+                    previousUts = trackObj.getJSONObject("date").getLong("uts");
+                }
                 if (albumUrl.isBlank())
                     albumUrl = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
 
