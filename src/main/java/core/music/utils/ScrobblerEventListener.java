@@ -10,7 +10,7 @@ import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
 import core.music.MusicManager;
-import core.music.sources.spotify.loaders.SpotifyAudioTrack;
+import core.music.sources.MetadataTrack;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.Metadata;
@@ -132,7 +132,7 @@ public class ScrobblerEventListener implements AudioEventListener {
 
         String album = null;
         String image = null;
-        if (playingTrack instanceof SpotifyAudioTrack spo) {
+        if (playingTrack instanceof MetadataTrack spo) {
             album = spo.getAlbum();
             image = spo.getImage();
         }

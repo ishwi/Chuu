@@ -24,6 +24,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.music.MusicManager;
+import core.music.sources.MetadataTrack;
 import core.music.utils.TrackContext;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
@@ -59,12 +60,12 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public String getDescription() {
-        return "Queue";
+        return "Queued songs on a voice session";
     }
 
     @Override
     public List<String> getAliases() {
-        return List.of("q", "queue");
+        return List.of("queue", "q");
     }
 
     @Override
@@ -88,20 +89,36 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
             AudioTrack decodedTrack = Chuu.playerManager.decodeAudioTrack(s);
             StringBuilder a = new StringBuilder();
             decodedTrack.getUserData(TrackContext.class);
+            String title = decodedTrack.getInfo().title;
+            if (decodedTrack instanceof MetadataTrack mt) {
+                title = decodedTrack.getInfo().title + " - " + decodedTrack.getInfo().author + " | " + mt.getAlbum();
+            }
             a.append("`[").append(CommandUtil.getTimestamp(decodedTrack.getDuration()))
                     .append("]` __[")
-                    .append(decodedTrack.getInfo().title)
+                    .append(title)
                     .append("](").append(CommandUtil.cleanMarkdownCharacter(decodedTrack.getInfo().uri)).append(")__\n");
             str.add(a.toString());
             length += decodedTrack.getDuration();
         }
+        embedBuilder.setAuthor("Music Queue");
         AudioTrack np = manager.getPlayer().getPlayingTrack();
-        embedBuilder.addField("Now Playing", np == null ? "Nothing" : String.format("**[%s](%s)**", np.getInfo().title, CommandUtil.cleanMarkdownCharacter(np.getInfo().uri)), false);
+
+        String title = "Nothing";
+
+        if (np != null) {
+            if (np instanceof MetadataTrack mt) {
+                title = np.getInfo().title + " - " + np.getInfo().author + " | " + mt.getAlbum();
+                embedBuilder.setAuthor("Music Queue", mt.getImage());
+            } else {
+                title = np.getInfo().author;
+            }
+        }
+        embedBuilder.addField("Now Playing", np == null ? "Nothing" : String.format("**[%s](%s)**", title, CommandUtil.cleanMarkdownCharacter(np.getInfo().uri)), false);
 
         if (manager.getRadio() != null) {
             String b = "Currently streaming music from radio station " + manager.getRadio().getSource().getName() +
-                    ", requested by " + manager.getRadio().requester() +
-                    ". When the queue is empty, random tracks from the station will be added.";
+                    ", requested by <@" + manager.getRadio().requester() +
+                    ">. When the queue is empty, random tracks from the station will be added.";
             embedBuilder.addField("Radio", b, false);
         }
         embedBuilder
@@ -112,7 +129,6 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
 //        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, e.getAuthor().getIdLong());
         embedBuilder
                 .setDescription(str.stream().limit(10).collect(Collectors.joining()))
-                .setAuthor("Music Queue")
                 .setColor(CommandUtil.randomColor());
         channel.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(m -> new Reactionary<>(str, m, 10, embedBuilder, false, true));
     }

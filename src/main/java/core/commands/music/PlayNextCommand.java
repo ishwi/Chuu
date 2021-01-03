@@ -41,7 +41,7 @@ public class PlayNextCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.ARTIST_IMAGES;
+        return CommandCategory.MUSIC;
     }
 
     @Override
@@ -51,12 +51,12 @@ public class PlayNextCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public String getDescription() {
-        return "pn";
+        return "Play";
     }
 
     @Override
     public List<String> getAliases() {
-        return List.of("pn");
+        return List.of("playnext", "pn");
     }
 
     @Override

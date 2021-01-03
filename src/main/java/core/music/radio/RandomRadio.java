@@ -47,14 +47,16 @@ public class RandomRadio implements RadioSource {
         }
 
         RandomUrlEntity randomUrl;
-        if (guildId == null) {
-            randomUrl = Chuu.getDao().getRandomUrl();
-        } else {
-            randomUrl = Chuu.getDao().getRandomUrlFromServer(guildId);
-        }
-        if (randomUrl == null) {
-            return nextTrack0(context, attempts + 1);
-        }
+        int youtubeSkipAttemps = 0;
+        do {
+            youtubeSkipAttemps++;
+            if (guildId == null) {
+                randomUrl = Chuu.getDao().getRandomUrl();
+            } else {
+                randomUrl = Chuu.getDao().getRandomUrlFromServer(guildId);
+            }
+        } while (randomUrl.getUrl().startsWith("https://www.youtube.com") && youtubeSkipAttemps <= 5);
+
         var future = new CompletableFuture<AudioTrack>();
 
         Chuu.playerManager.loadItemOrdered(this, randomUrl.getUrl(), new AudioLoadResultHandler() {

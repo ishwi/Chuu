@@ -61,10 +61,15 @@ public class IndexCommand extends ConcurrentCommand<CommandParameters> {
         Set<Long> members = e.getGuild().getMembers().stream().filter(x -> x.getUser().getIdLong() != x.getJDA().getSelfUser().getIdLong()).map(x -> x.getUser().getIdLong()).collect(Collectors.toSet());
         List<Long> toInsert = members.stream().filter(x -> allBot.contains(x) && !thisServer.contains(x)).collect(Collectors.toList());
         toInsert.forEach(x -> getService().addGuildUser(x, e.getGuild().getIdLong()));
+        List<Long> notOnServer = thisServer.stream().filter(x -> !members.contains(x)).collect(Collectors.toList());
         if (toInsert.isEmpty()) {
             sendMessageQueue(e, "Didn't have anyone to add");
         } else {
             sendMessageQueue(e, String.format("Succesfully added %s %s to this server", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members")));
+        }
+        if (!notOnServer.isEmpty()) {
+            notOnServer.forEach(x -> getService().removeUserFromOneGuildConsequent(x, e.getGuild().getIdLong()));
+            sendMessageQueue(e, String.format("Removed %s %s that no longer were in this server", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members")));
         }
     }
 }

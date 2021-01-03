@@ -154,6 +154,7 @@ public class NPModeBuilder {
         AtomicBoolean mbLock = new AtomicBoolean(false);
         AtomicBoolean trackLock = new AtomicBoolean(false);
         AtomicBoolean embedLock = new AtomicBoolean(false);
+        AtomicBoolean tagsLock = new AtomicBoolean(false);
         Long preAlbumId = null;
         if (npModes.stream().anyMatch(albumModes::contains)) {
             try {
@@ -249,6 +250,9 @@ public class NPModeBuilder {
                     break;
                 case TAGS:
                 case EXTENDED_TAGS:
+                    if (!tagsLock.compareAndSet(false, true)) {
+                        break;
+                    }
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
                         try {
                             boolean extended = npModes.contains(NPMode.EXTENDED_TAGS);
@@ -692,7 +696,7 @@ public class NPModeBuilder {
                     List<String> collect = Arrays.stream(footerSpaces).filter(Objects::nonNull).collect(Collectors.toList());
 
                     for (int i = 0; i < collect.size(); i++) {
-                        if (npModes.contains(NPMode.TAGS) && (i == 0)) {
+                        if (npModes.contains(NPMode.TAGS) || npModes.contains(NPMode.EXTENDED_TAGS) && (i == 0)) {
                             continue;
                         }
                         Predicate<Integer> tester = (npModes.contains(NPMode.TAGS) ? (j) -> j % 2 != 0 : (j) -> j % 2 == 0);
@@ -710,6 +714,7 @@ public class NPModeBuilder {
                     outputList.addAll(collect);
                     EnumSet<NPMode> checker = EnumSet.copyOf(this.npModes);
                     checker.remove(NPMode.TAGS);
+                    checker.remove(NPMode.EXTENDED_TAGS);
                     if (
 
                             Sets.difference(checker, EnumSet.of(NPMode.HIGHEST_BOT_STREAK, NPMode.HIGHEST_SERVER_STREAK, NPMode.HIGHEST_STREAK)).isEmpty()

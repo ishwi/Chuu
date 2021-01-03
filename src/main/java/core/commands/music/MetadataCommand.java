@@ -5,7 +5,7 @@ import core.commands.abstracts.MusicCommand;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.music.MusicManager;
-import core.music.sources.spotify.loaders.SpotifyAudioTrack;
+import core.music.sources.MetadataTrack;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -64,7 +64,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
         String identifier = track.getInfo().uri;
         String album = null;
         String url = null;
-        if (track instanceof SpotifyAudioTrack spo) {
+        if (track instanceof MetadataTrack spo) {
             album = spo.getAlbum();
             url = spo.getImage();
         }

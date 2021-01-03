@@ -23,7 +23,7 @@ import core.commands.abstracts.MusicCommand;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.music.MusicManager;
-import core.music.sources.spotify.loaders.SpotifyAudioTrack;
+import core.music.sources.MetadataTrack;
 import core.music.utils.TrackContext;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -59,7 +59,7 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("vnp", "current", "current", "voice", "song");
+        return List.of("voice", "current", "current", "npv", "song");
     }
 
     @Override
@@ -83,7 +83,7 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
         }
         String album = null;
         String url = null;
-        if (track instanceof SpotifyAudioTrack spo) {
+        if (track instanceof MetadataTrack spo) {
             album = spo.getAlbum();
             url = spo.getImage();
         }

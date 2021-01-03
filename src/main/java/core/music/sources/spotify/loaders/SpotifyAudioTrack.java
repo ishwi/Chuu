@@ -4,9 +4,10 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import core.music.sources.MetadataTrack;
 import core.music.sources.spotify.SpotifyAudioSourceManager;
 
-public final class SpotifyAudioTrack extends YoutubeAudioTrack {
+public final class SpotifyAudioTrack extends YoutubeAudioTrack implements MetadataTrack {
     private final String album;
     private final String image;
     private final SpotifyAudioSourceManager sourceManager;
@@ -24,11 +25,12 @@ public final class SpotifyAudioTrack extends YoutubeAudioTrack {
         return sourceManager;
     }
 
+    @Override
     public String getAlbum() {
         return album;
     }
 
-
+    @Override
     public String getImage() {
         return image;
     }

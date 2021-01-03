@@ -20,7 +20,6 @@ package core.music;
 import com.sedmelluq.discord.lavaplayer.player.AudioConfiguration;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
-import com.sedmelluq.discord.lavaplayer.source.bandcamp.BandcampAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.beam.BeamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.getyarn.GetyarnAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
@@ -41,6 +40,7 @@ import com.sedmelluq.lava.extensions.youtuberotator.tools.ip.IpBlock;
 import com.sedmelluq.lava.extensions.youtuberotator.tools.ip.Ipv6Block;
 import com.sun.istack.Nullable;
 import core.Chuu;
+import core.music.sources.bandcamp.CustomBandcampAudioSourceManager;
 import core.music.sources.spotify.SpotifyAudioSourceManager;
 import core.music.utils.TrackContext;
 import org.json.JSONArray;
@@ -75,7 +75,7 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
                 youtubeAudioSourceManager,
                 SoundCloudAudioSourceManager.createDefault()
                 , new GetyarnAudioSourceManager(),
-                new BandcampAudioSourceManager(),
+                new CustomBandcampAudioSourceManager(),
                 new VimeoAudioSourceManager(),
                 new TwitchStreamAudioSourceManager(),
                 new BeamAudioSourceManager(),
