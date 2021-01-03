@@ -1,7 +1,6 @@
-package core.apis.last.chartentities;
+package core.apis.last.entities.chartentities;
 
 import core.apis.last.ConcurrentLastFM;
-import core.apis.last.TopEntity;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartGroupParameters;
 import core.parsers.params.ChartParameters;

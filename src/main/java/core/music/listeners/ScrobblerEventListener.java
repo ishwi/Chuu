@@ -1,4 +1,4 @@
-package core.music.utils;
+package core.music.listeners;
 
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEvent;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventListener;
@@ -8,6 +8,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
+import core.apis.last.entities.Scrobble;
 import core.exceptions.LastFmException;
 import core.music.MusicManager;
 import core.music.sources.MetadataTrack;

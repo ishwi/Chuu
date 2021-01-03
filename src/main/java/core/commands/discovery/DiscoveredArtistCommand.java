@@ -1,8 +1,8 @@
 package core.commands.discovery;
 
-import core.apis.last.TopEntity;
-import core.apis.last.chartentities.ChartUtil;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.ChartUtil;
+import core.apis.last.entities.chartentities.TopEntity;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.charts.ChartableCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;

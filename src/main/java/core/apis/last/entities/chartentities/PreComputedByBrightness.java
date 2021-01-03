@@ -1,4 +1,4 @@
-package core.apis.last.chartentities;
+package core.apis.last.entities.chartentities;
 
 import core.imagerenderer.GraphicUtils;
 import org.jetbrains.annotations.NotNull;

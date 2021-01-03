@@ -1,6 +1,6 @@
 package core.commands.charts;
 
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;

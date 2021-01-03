@@ -1,4 +1,4 @@
-package core.apis.last;
+package core.apis.last.entities;
 
 import dao.entities.Track;
 

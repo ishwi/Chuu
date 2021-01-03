@@ -1,10 +1,10 @@
 package core.commands.stats;
 
 import core.apis.discogs.DiscogsSingleton;
-import core.apis.last.TopEntity;
-import core.apis.last.chartentities.ArtistChart;
-import core.apis.last.chartentities.ChartUtil;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.ArtistChart;
+import core.apis.last.entities.chartentities.ChartUtil;
+import core.apis.last.entities.chartentities.TopEntity;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.last.queues.ArtistQueue;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.charts.ChartableCommand;

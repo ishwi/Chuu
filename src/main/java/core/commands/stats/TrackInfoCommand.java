@@ -1,6 +1,6 @@
 package core.commands.stats;
 
-import core.apis.last.TrackExtended;
+import core.apis.last.entities.TrackExtended;
 import core.commands.albums.AlbumPlaysCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;

@@ -1,6 +1,5 @@
-package core.apis.last.chartentities;
+package core.apis.last.entities.chartentities;
 
-import core.apis.last.TopEntity;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.ChartLine;
 import core.parsers.params.ChartParameters;

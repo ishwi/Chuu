@@ -15,7 +15,7 @@
  *
  From Octave bot https://github.com/Stardust-Discord/Octave/ Modified for integrating with JAVA and the current bot
  */
-package core.music;
+package core.music.utils;
 
 public enum RepeatOption {
     QUEUE("🔁"),

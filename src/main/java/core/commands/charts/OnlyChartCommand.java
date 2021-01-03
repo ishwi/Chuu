@@ -1,6 +1,6 @@
 package core.commands.charts;
 
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.exceptions.LastFmException;
 import core.imagerenderer.util.IPieableList;
 import core.parsers.params.ChartParameters;

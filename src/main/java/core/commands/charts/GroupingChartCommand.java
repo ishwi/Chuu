@@ -2,8 +2,8 @@ package core.commands.charts;
 
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
-import core.apis.last.chartentities.TrackDurationChart;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.TrackDurationChart;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.last.queues.GroupingQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;

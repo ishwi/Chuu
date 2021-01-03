@@ -3,15 +3,15 @@
 //import core.apis.last.ConcurrentLastFM;
 //import core.apis.last.LastFMFactory;
 //import core.apis.last.TopEntity;
-//import core.apis.last.chartentities.AlbumChart;
-//import core.apis.last.chartentities.PreComputedByBrightness;
+//import core.apis.last.entities.chartentities.AlbumChart;
+//import core.apis.last.entities.chartentities.PreComputedByBrightness;
 //import dao.exceptions.LastFmException;
 //import core.imagerenderer.ChartQuality;
 //import core.imagerenderer.CollageMaker;
 //import core.imagerenderer.GraphicUtils;
 //import core.imagerenderer.stealing.colorpicker.ColorThiefCustom;
 //import core.parsers.params.ChartParameters;
-//import core.apis.last.chartentities.UrlCapsule;
+//import core.apis.last.entities.chartentities.UrlCapsule;
 //import org.apache.commons.lang3.tuple.Pair;
 //
 //import javax.imageio.ImageIO;

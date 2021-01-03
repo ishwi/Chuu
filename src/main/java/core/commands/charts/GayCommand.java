@@ -2,11 +2,7 @@ package core.commands.charts;
 
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
-import core.apis.last.TopEntity;
-import core.apis.last.chartentities.ChartUtil;
-import core.apis.last.chartentities.PreComputedByGayness;
-import core.apis.last.chartentities.PreComputedChartEntity;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.*;
 import core.apis.last.queues.DiscardByQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;

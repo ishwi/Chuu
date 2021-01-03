@@ -1,7 +1,7 @@
 package core.commands.rym;
 
-import core.apis.last.chartentities.RYMChartEntity;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.RYMChartEntity;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.charts.ChartableCommand;
 import core.commands.utils.CommandUtil;
 import core.parsers.ChartableParser;

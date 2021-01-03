@@ -1,9 +1,9 @@
 package core.commands.charts;
 
-import core.apis.last.TopEntity;
-import core.apis.last.chartentities.AlbumChart;
-import core.apis.last.chartentities.ArtistChart;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.AlbumChart;
+import core.apis.last.entities.chartentities.ArtistChart;
+import core.apis.last.entities.chartentities.TopEntity;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.last.queues.ArtistQueue;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;

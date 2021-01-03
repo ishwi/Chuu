@@ -20,7 +20,7 @@ package core.commands.music.dj;
 import core.commands.abstracts.MusicCommand;
 import core.exceptions.LastFmException;
 import core.music.MusicManager;
-import core.music.RepeatOption;
+import core.music.utils.RepeatOption;
 import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;

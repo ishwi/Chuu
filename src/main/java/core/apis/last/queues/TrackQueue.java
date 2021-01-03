@@ -1,8 +1,8 @@
 package core.apis.last.queues;
 
 import core.apis.discogs.DiscogsApi;
-import core.apis.last.chartentities.TrackDurationChart;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.TrackDurationChart;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import dao.ChuuService;
 import org.jetbrains.annotations.NotNull;

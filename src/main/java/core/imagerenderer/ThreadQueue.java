@@ -1,8 +1,8 @@
 package core.imagerenderer;
 
 import core.Chuu;
-import core.apis.last.chartentities.PreComputedChartEntity;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.PreComputedChartEntity;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import org.imgscalr.Scalr;
 
 import java.awt.*;

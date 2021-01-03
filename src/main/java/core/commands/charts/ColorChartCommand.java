@@ -3,8 +3,7 @@ package core.commands.charts;
 import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
-import core.apis.last.TopEntity;
-import core.apis.last.chartentities.*;
+import core.apis.last.entities.chartentities.*;
 import core.apis.last.queues.DiscardByQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -149,13 +148,7 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
         BlockingQueue<UrlCapsule> queue = new DiscardByQueue(getService(), discogsApi, spotifyApi, discardGenerator.apply(params), factoryFunction, params.getX() * params.getY());
         if (params.isArtist()) {
 
-            count = lastFM.getChart(params.getUser(),
-                    params.getTimeFrameEnum(),
-                    3000,
-                    1,
-                    TopEntity.ARTIST,
-                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getUser()),
-                    queue);
+            count = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 3000, 1, TopEntity.ARTIST, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getUser()), queue);
         } else {
             count = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getUser()), queue);
         }

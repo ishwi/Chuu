@@ -2,7 +2,7 @@ package core.imagerenderer;
 
 import core.Chuu;
 import core.apis.ExecutorsSingleton;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import dao.exceptions.ChuuServiceException;
 
 import java.awt.*;

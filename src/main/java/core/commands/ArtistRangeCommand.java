@@ -80,9 +80,9 @@
 //                    t = ax.parseCustomTimeFrame(TimeFrameEnum.ALL);
 //                    var l = getService().findLastFMData(e.getAuthor().getIdLong());
 //                    var q = new core.apis.last.queues.DiscardableQueue<>(x -> !x.getArtistName().equalsIgnoreCase(a), x -> x, 1);
-//                    var te = core.apis.last.TopEntity.ARTIST;
-//                    lastFM.getChart(l.getName(), t, 1000, 1, te, core.apis.last.chartentities.ChartUtil.getParser(t, te, core.parsers.params.ChartParameters.toListParams(), lastFM, l.getName()), q);
-//                    var o = new ArrayList<core.apis.last.chartentities.UrlCapsule>();
+//                    var te = core.apis.last.entities.chartentities.TopEntity.ARTIST;
+//                    lastFM.getChart(l.getName(), t, 1000, 1, te, core.apis.last.entities.chartentities.ChartUtil.getParser(t, te, core.parsers.params.ChartParameters.toListParams(), lastFM, l.getName()), q);
+//                    var o = new ArrayList<core.apis.last.entities.chartentities.UrlCapsule>();
 //                    q.drainTo(o);
 //                    if (o.isEmpty()) {
 //                        sendMessageQueue(e, ax + " was not found on your top 1k artists" + t.getDisplayString() + ".");

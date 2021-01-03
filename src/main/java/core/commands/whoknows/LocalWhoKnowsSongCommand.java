@@ -2,7 +2,7 @@ package core.commands.whoknows;
 
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
-import core.apis.last.TrackExtended;
+import core.apis.last.entities.TrackExtended;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.utils.CommandCategory;

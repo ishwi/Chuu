@@ -1,7 +1,7 @@
 package core.commands.charts;
 
-import core.apis.last.chartentities.ArtistChart;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.ArtistChart;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.GraphicUtils;
 import core.otherlisteners.Reactionary;

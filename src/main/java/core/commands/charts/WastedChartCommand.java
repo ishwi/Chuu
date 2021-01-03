@@ -1,7 +1,7 @@
 package core.commands.charts;
 
-import core.apis.last.TopEntity;
-import core.apis.last.chartentities.ChartUtil;
+import core.apis.last.entities.chartentities.ChartUtil;
+import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.queues.GroupingQueue;
 import core.apis.last.queues.TrackGroupArtistQueue;
 import core.commands.utils.CommandUtil;

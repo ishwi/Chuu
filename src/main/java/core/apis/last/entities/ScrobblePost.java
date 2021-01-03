@@ -1,4 +1,4 @@
-package core.apis.last;
+package core.apis.last.entities;
 
 public final class ScrobblePost {
     public final String method;
@@ -14,7 +14,7 @@ public final class ScrobblePost {
     public final String sk;
     public String api_sig;
 
-    ScrobblePost(String method, String artist, String track, String album, Integer trackNumber, String mbid, Long timestamp, Integer duration, String albumArtist, String api_key, String sk) {
+    public ScrobblePost(String method, String artist, String track, String album, Integer trackNumber, String mbid, Long timestamp, Integer duration, String albumArtist, String api_key, String sk) {
         this.method = method;
         this.artist = artist;
         this.track = track;
@@ -29,7 +29,7 @@ public final class ScrobblePost {
         this.api_sig = generateApiSig(this);
     }
 
-    public String generateApiSig(core.apis.last.ScrobblePost scrobblePost) {
+    public String generateApiSig(ScrobblePost scrobblePost) {
 
         return null;
     }

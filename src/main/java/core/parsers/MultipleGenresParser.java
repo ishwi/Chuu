@@ -2,7 +2,7 @@ package core.parsers;
 
 import core.apis.ExecutorsSingleton;
 import core.apis.last.ConcurrentLastFM;
-import core.apis.last.TopEntity;
+import core.apis.last.entities.chartentities.TopEntity;
 import core.exceptions.LastFmException;
 import core.parsers.params.MultipleGenresParameters;
 import core.services.TagAlbumService;

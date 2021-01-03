@@ -1,9 +1,8 @@
-package core.apis.last.chartentities;
+package core.apis.last.entities.chartentities;
 
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.ConcurrentLastFM;
-import core.apis.last.TopEntity;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.utils.CommandUtil;

@@ -2,15 +2,18 @@ package core.apis.last;
 
 import core.Chuu;
 import core.apis.ClientSingleton;
-import core.apis.last.chartentities.ChartUtil;
-import core.apis.last.chartentities.TrackDurationChart;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.Scrobble;
+import core.apis.last.entities.ScrobblePost;
+import core.apis.last.entities.TrackExtended;
+import core.apis.last.entities.chartentities.ChartUtil;
+import core.apis.last.entities.chartentities.TopEntity;
+import core.apis.last.entities.chartentities.TrackDurationChart;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ArtistException;
 import core.apis.last.exceptions.ExceptionEntity;
 import core.apis.last.exceptions.TrackException;
 import core.exceptions.*;
-import core.music.utils.Scrobble;
 import core.parsers.params.ChartParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.NPService;
@@ -60,10 +63,10 @@ import java.util.stream.StreamSupport;
 
 public class ConcurrentLastFM {//implements LastFMService {
     static final String BASE = "http://ws.audioscrobbler.com/2.0/";
-    static final String GET_ALBUMS = "?method=user.gettopalbums&user=";
-    static final String GET_WEEKLY_CHART_TRACK = "?method=user.getWeeklyTrackChart&user=";
-    static final String GET_WEEKLY_CHART_ARTIST = "?method=user.getWeeklyArtistChart&user=";
-    static final String GET_WEEKLY_CHART_ALBUM = "?method=user.getWeeklyAlbumChart&user=";
+    public static final String GET_ALBUMS = "?method=user.gettopalbums&user=";
+    public static final String GET_WEEKLY_CHART_TRACK = "?method=user.getWeeklyTrackChart&user=";
+    public static final String GET_WEEKLY_CHART_ARTIST = "?method=user.getWeeklyArtistChart&user=";
+    public static final String GET_WEEKLY_CHART_ALBUM = "?method=user.getWeeklyAlbumChart&user=";
 
     static final String GET_LIBRARY = "?method=library.getartists&user=";
     static final String GET_USER = "?method=user.getinfo&user=";
@@ -71,10 +74,10 @@ public class ConcurrentLastFM {//implements LastFMService {
     static final String RECENT_TRACKS = "?method=user.getrecenttracks";
     static final String GET_NOW_PLAYINH = RECENT_TRACKS + "&limit=1&user=";
     static final String GET_ALL = RECENT_TRACKS + "&limit=1000&user=";
-    static final String GET_ARTIST = "?method=user.gettopartists&user=";
+    public static final String GET_ARTIST = "?method=user.gettopartists&user=";
     static final String GET_TRACKS = "?method=album.getinfo&username=";
     static final String GET_TRACK_INFO = "?method=track.getInfo&username=";
-    static final String GET_TOP_TRACKS = "?method=user.gettoptracks&user=";
+    public static final String GET_TOP_TRACKS = "?method=user.gettoptracks&user=";
     static final String GET_CORRECTION = "?method=artist.getcorrection&artist=";
     static final String GET_ARTIST_ALBUMS = "?method=artist.gettopalbums&artist=";
     static final String GET_ARTIST_INFO = "?method=artist.getinfo&artist=";

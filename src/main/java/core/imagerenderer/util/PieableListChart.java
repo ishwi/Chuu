@@ -1,6 +1,6 @@
 package core.imagerenderer.util;
 
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.imagerenderer.ChartLine;
 import core.parsers.Parser;
 import core.parsers.params.ChartParameters;
