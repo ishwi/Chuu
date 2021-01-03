@@ -35,7 +35,12 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.DecodedTrackHolder;
 import com.sedmelluq.discord.lavaplayer.track.playback.NonAllocatingAudioFrameBuffer;
+import com.sedmelluq.lava.extensions.youtuberotator.YoutubeIpRotatorSetup;
+import com.sedmelluq.lava.extensions.youtuberotator.planner.RotatingNanoIpRoutePlanner;
+import com.sedmelluq.lava.extensions.youtuberotator.tools.ip.IpBlock;
+import com.sedmelluq.lava.extensions.youtuberotator.tools.ip.Ipv6Block;
 import com.sun.istack.Nullable;
+import core.Chuu;
 import core.music.sources.spotify.SpotifyAudioSourceManager;
 import core.music.utils.TrackContext;
 import org.json.JSONArray;
@@ -59,27 +64,12 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
         configuration.setFilterHotSwapEnabled(true);
         configuration.setFrameBufferFactory(NonAllocatingAudioFrameBuffer::new);
         YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager(true);
-//        if (!config.isEmpty()) {
-//            List<IpBlock> blocks;
-//            blocks = List.of(new Ipv6Block(config));
-//            AbstractRoutePlanner planner = null;
-//            if (
-//                    config.isEmpty()) {
-//                new NanoIpRoutePlanner()
-//                planner = new RotatingNanoIpRoutePlanner(blocks);
-//                new
-//            } else {
-//                try {
-//                    var blacklistedGW = InetAddress.getByName("");
-//                    planner = new RotatingNanoIpRoutePlanner(blocks);
-//
-//                } catch (Exception ex) {
-//                    planner = new RotatingNanoIpRoutePlanner(blocks);
-//                }
-//            }
-//
-//
-//        }
+
+        if (Chuu.ipv6Block != null && !Chuu.ipv6Block.isEmpty()) {
+            @SuppressWarnings("rawtypes") List<IpBlock> blocks = List.of(new Ipv6Block(Chuu.ipv6Block));
+            RotatingNanoIpRoutePlanner planner = new RotatingNanoIpRoutePlanner(blocks);
+            new YoutubeIpRotatorSetup(planner).forSource(youtubeAudioSourceManager).setup();
+        }
         registerSourceManagers(
                 new SpotifyAudioSourceManager(youtubeAudioSourceManager),
                 youtubeAudioSourceManager,

@@ -77,6 +77,7 @@ public class Chuu {
     public static PlayerRegistry playerRegistry;
     public static ExtendedAudioPlayerManager playerManager;
     public static String chuuSess;
+    public static String ipv6Block;
 
 
     public static ScheduledExecutorService getScheduledExecutorService() {
@@ -189,6 +190,7 @@ public class Chuu {
         String channel = properties.getProperty("MODERATION_CHANNEL_ID");
         long channelId = Long.parseLong(channel);
         chuuSess = properties.getProperty("LASTFM_BOT_SESSION_KEY");
+        ipv6Block = properties.getProperty("IPV6_BLOCK");
         dao = new ChuuService();
         prefixMap = initPrefixMap(dao);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
