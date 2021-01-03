@@ -204,26 +204,23 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         String mySql =
                 """
                         SELECT d.NAME,\s
-                                                        b.album_name,\s
-                                                        c.duration,\s
-                                                        c.track_name,\s
-                                                        COALESCE(c.url, b.url, d.url),\s
-                                                        sum(e.playnumber),
-                                                        a.position\s
-                                                 FROM   album_tracklist a\s
-                                                        JOIN album b\s
-                                                          ON a.album_id = b.id\s
-                                                        JOIN track c\s
-                                                          ON a.track_id = c.id\s
-                                                        JOIN artist d\s
-                                                          ON c.artist_id = d.id\s
-                                                        LEFT JOIN (SELECT *\s
-                                                                   FROM   scrobbled_track\s
-                                                                   WHERE  lastfm_id  in (select lastfm_id from user_guild where guild_id = ? )) e\s
-                                                               ON a.track_id = e.track_id\s
-                                                 WHERE  a.album_id = ?\s
-                                                 group by a.track_id
-                                                 ORDER  BY a.position ASC\s
+                        b.album_name,\s
+                        c.duration,\s
+                        c.track_name,\s
+                        COALESCE(c.url, b.url, d.url),\s
+                        coalesce(sum(main.playnumber),0),
+                        a.position\s
+                        FROM   album_tracklist a\s
+                        left JOIN album b\s
+                        ON a.album_id = b.id\s
+                        left JOIN track c\s
+                        ON a.track_id = c.id\s
+                        left JOIN artist d\s
+                        ON c.artist_id = d.id								 \s
+                         left JOIN  ( select track_id,playnumber from scrobbled_track e join user f on e.lastfm_id = f.lastfm_id join user_guild g on f.discord_id = g.discord_id and g.guild_id = ?) main  on main.track_id = a.track_id                                     \s
+                        WHERE  a.album_id = ?  group by a.track_id
+                        ORDER  BY a.position ASC\s
+                                                
                          """;
 
         try
@@ -270,7 +267,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
                                                         c.duration,\s
                                                         c.track_name,\s
                                                         COALESCE(c.url, b.url, d.url),\s
-                                                        sum(e.playnumber),
+                                                        coalesce(sum(e.playnumber),0),
                                                         a.position\s
                                                  FROM   album_tracklist a\s
                                                         JOIN album b\s
