@@ -42,7 +42,6 @@ public class BarChartMaker {
         chart.getStyler().setLegendVisible(false)
                 .setChartBackgroundColor(color)
                 .setChartBackgroundColor(color)
-                .setCursorBackgroundColor(color)
                 .setAnnotationsFontColor(Color.white)
                 .setPlotBorderColor(color)
                 .setLegendPosition(Styler.LegendPosition.InsideN).setHasAnnotations(true)

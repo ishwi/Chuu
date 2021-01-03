@@ -45,7 +45,6 @@ public interface IPieable<T, Y extends CommandParameters> {
         styler.setStartAngleInDegrees(90);
         styler.setChartFontColor(better);
         styler.setPlotBackgroundColor(randomPalette.getBesselColour());
-        styler.setCursorFontColor(better);
         styler.setAnnotationsFontColor(better);
         styler.setPlotBorderVisible(false);
         styler.setStartAngleInDegrees(CommandUtil.rand.nextInt(360));

@@ -37,7 +37,7 @@ dependencies {
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     api group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
     api group: 'org.apache.commons', name: 'commons-text', version: '1.9'
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.0-rc1'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.0'
     api 'org.jetbrains:annotations:20.1.0'
     api 'com.neovisionaries:nv-i18n:1.27'
     implementation group: 'com.zaxxer', name: 'HikariCP', version: '3.4.5'
