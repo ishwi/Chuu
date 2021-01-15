@@ -3,6 +3,7 @@ package core.commands.abstracts;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
+import core.apis.last.TokenExceptionHandler;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.*;
@@ -132,17 +133,21 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
         } catch (LastFmEntityNotFoundException ex) {
             parser.sendError(ex.toMessage(), e);
         } catch (UnknownLastFmException ex) {
-            parser.sendError("Unknown last.fm exception found:\n" + ex.getSentMessage(), e);
+            parser.sendError(new TokenExceptionHandler(ex, getService()).handle(), e);
             Chuu.getLogger().warn(ex.getMessage(), ex);
             Chuu.getLogger().warn(String.valueOf(ex.getCode()));
         } catch (InstanceNotFoundException ex) {
+
             String instanceNotFoundTemplate = InstanceNotFoundException.getInstanceNotFoundTemplate();
 
             String s = instanceNotFoundTemplate
                     .replaceFirst("user_to_be_used_yep_yep", Matcher.quoteReplacement(getUserString(e, ex.getDiscordId(), ex
                             .getLastFMName())));
             s = s.replaceFirst("prefix_to_be_used_yep_yep", Matcher.quoteReplacement(String.valueOf(e.getMessage().getContentStripped().charAt(0))));
-            parser.sendError(s, e);
+
+            e.getChannel().sendMessage(new EmbedBuilder()
+                    .setColor(CommandUtil.randomColor())
+                    .setDescription(s).build()).reference(e.getMessage()).queue();
         } catch (LastFMConnectionException ex) {
             parser.sendError("Last.fm is not working well or the bot might be overloaded :(", e);
         } catch (

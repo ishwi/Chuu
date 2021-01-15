@@ -38,7 +38,11 @@ public class NPModeBuilder {
     static final Map<NPMode, Integer> footerIndexes;
 
     private static final EnumSet<NPMode> albumModes = EnumSet.of(NPMode.ALBUM_RYM, NPMode.SERVER_ALBUM_RYM, NPMode.BOT_ALBUM_RYM, NPMode.ALBUM_CROWN, NPMode.ALBUM_RANK, NPMode.ALBUM_PLAYS, NPMode.GLOBAL_ALBUM_CROWN, NPMode.GLOBAL_ALBUM_RANK);
-    private static final EnumSet<NPMode> trackModes = EnumSet.of(NPMode.ALBUM_RYM, NPMode.SERVER_ALBUM_RYM, NPMode.BOT_ALBUM_RYM, NPMode.ALBUM_CROWN, NPMode.ALBUM_RANK, NPMode.ALBUM_PLAYS, NPMode.GLOBAL_ALBUM_CROWN, NPMode.GLOBAL_ALBUM_RANK);
+    private static final EnumSet<NPMode> trackModes = EnumSet.of(
+            NPMode.ALBUM_RYM,
+            NPMode.SERVER_ALBUM_RYM,
+            NPMode.BOT_ALBUM_RYM,
+            NPMode.ALBUM_CROWN, NPMode.ALBUM_RANK, NPMode.ALBUM_PLAYS, NPMode.GLOBAL_ALBUM_CROWN, NPMode.GLOBAL_ALBUM_RANK, NPMode.TRACK_CROWN, NPMode.TRACK_RANK);
 
     static {
         try {
@@ -155,6 +159,7 @@ public class NPModeBuilder {
         AtomicBoolean trackLock = new AtomicBoolean(false);
         AtomicBoolean embedLock = new AtomicBoolean(false);
         AtomicBoolean tagsLock = new AtomicBoolean(false);
+        AtomicBoolean trackCrownsLock = new AtomicBoolean(false);
         Long preAlbumId = null;
         if (npModes.stream().anyMatch(albumModes::contains)) {
             try {
@@ -343,7 +348,7 @@ public class NPModeBuilder {
                 case TRACK_CROWN:
                 case TRACK_RANK:
                     if (e.isFromGuild() && trackId != null) {
-                        if (!whoKnowsAlbumLock.compareAndSet(false, true)) {
+                        if (!trackCrownsLock.compareAndSet(false, true)) {
                             break;
                         }
                         completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {

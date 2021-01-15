@@ -77,7 +77,8 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
 
         List<UsersWrapper> list = getService().getAllALL();
         Optional<UsersWrapper> globalName = (list.stream().filter(user -> user.getLastFMName().equals(lastFmID)).findFirst());
-        String repeatedMessage = "That username is already registered, if you think this is a mistake, please contact the bot developers";
+        String repeatedMessage = "That username is already registered. If you own the account pls use + **" + Chuu.getCorrespondingPrefix(e) + "login**\n" +
+                "Any doubt you might have please contact the bot developers on the support server";
         if (globalName.isPresent() && (globalName.get().getDiscordID() != userId)) {
             sendMessageQueue(e, repeatedMessage);
             return;

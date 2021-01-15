@@ -97,7 +97,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
 
         executor.submit(
                 new TagAlbumService(getService(), lastFM, collect1.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).collect(Collectors.toList()), params.getGenreParameters().getGenre()));
-        return new CountWrapper<>(strings.size(), collect1);
+        return new CountWrapper<>(ranker.get(), collect1);
     }
 
     @Override

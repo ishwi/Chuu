@@ -108,7 +108,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("pride", "gay", "flag", "trans", "ace", "lesbian", "nonbinary", "nb");
+        return List.of("pride", "gay", "flag", "trans", "ace", "lesbian", "nonbinary", "nb", "bi");
     }
 
     @Override
@@ -119,12 +119,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(GayParams params) throws LastFmException {
         String substring = params.getE().getMessage().getContentRaw().substring(1).split("\\s+")[0].toLowerCase();
-        switch (substring) {
-            case "trans" -> params.setGayType(GayType.TRANS);
-            case "ace" -> params.setGayType(GayType.ACE);
-            case "nonbinary", "nb" -> params.setGayType(GayType.NB);
-            case "lesbian" -> params.setGayType(GayType.LESBIAN);
-        }
+
         DiscardByQueue queue;
         List<Color> palettes = params.getGayType().getPalettes();
         Map<Color, Integer> gayColours = palettes.stream().collect(Collectors.toMap(x -> x, x -> 0, (x, y) -> x - params.getX()));

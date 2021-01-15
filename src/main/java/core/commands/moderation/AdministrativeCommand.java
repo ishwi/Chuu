@@ -59,7 +59,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
             event.getGuild().loadMembers().onSuccess(members -> {
                 Set<Long> allBot = getService().getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
                 Set<Long> thisServer = getService().getAll(event.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
-                List<Long> toInsert = members.stream().filter(x -> x.getIdLong() != x.getJDA().getSelfUser().getIdLong()).map(x -> x.getUser().getIdLong()).filter(x -> allBot.contains(x) && !thisServer.contains(x)).collect(Collectors.toList());
+                List<Long> toInsert = members.stream().filter(x -> !x.getUser().isBot()).map(x -> x.getUser().getIdLong()).filter(x -> allBot.contains(x) && !thisServer.contains(x)).collect(Collectors.toList());
                 toInsert.forEach(x -> getService().addGuildUser(x, event.getGuild().getIdLong()));
                 Chuu.getLogger().info("Succesfully added {} {} to server: {}", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members"), event.getGuild().getName());
             });

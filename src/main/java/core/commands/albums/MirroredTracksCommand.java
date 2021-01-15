@@ -8,7 +8,6 @@ import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.UserInfoService;
-import core.services.tracklist.TracklistService;
 import core.services.tracklist.UserTrackListService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -69,16 +68,15 @@ public class MirroredTracksCommand extends AlbumPlaysCommand {
 
         ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(getService(), scrobbledArtist.getArtistId(), album, lastFM);
         scrobbledAlbum.setArtist(scrobbledArtist.getArtist());
-        TracklistService tracklistService = new UserTrackListService(getService(), ogData.getName());
 
-        Optional<FullAlbumEntity> trackList1 = tracklistService.getTrackList(scrobbledAlbum, ogData, scrobbledArtist.getUrl());
+        Optional<FullAlbumEntity> trackList1 = new UserTrackListService(getService(), ogData.getName()).getTrackList(scrobbledAlbum, ogData, scrobbledArtist.getUrl());
         if (trackList1.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));
             return;
 
         }
-        Optional<FullAlbumEntity> trackList2 = tracklistService.getTrackList(scrobbledAlbum, secondUser, scrobbledArtist.getUrl());
+        Optional<FullAlbumEntity> trackList2 = new UserTrackListService(getService(), secondUser.getName()).getTrackList(scrobbledAlbum, secondUser, scrobbledArtist.getUrl());
         if (trackList2.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));

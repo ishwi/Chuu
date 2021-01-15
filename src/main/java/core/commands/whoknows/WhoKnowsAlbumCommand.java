@@ -132,7 +132,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
         userMapPlays.put(usersWrapper, temp.getPlays());
         userList.stream().skip(1).forEach(u -> {
             try {
-                AlbumUserPlays albumUserPlays = lastFM.getPlaysAlbumArtist(LastFMData.ofUserWrapper(usersWrapper), artist, album);
+                AlbumUserPlays albumUserPlays = lastFM.getPlaysAlbumArtist(LastFMData.ofUserWrapper(u), artist, album);
                 userMapPlays.put(u, albumUserPlays.getPlays());
             } catch (LastFmException ex) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);

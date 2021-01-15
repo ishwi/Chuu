@@ -111,7 +111,7 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
         artistQueue.addAll(collect1);
         executor.submit(
                 new TagArtistService(getService(), lastFM, collect1.stream().map(x -> new ArtistInfo(null, x.getArtistName(), x.getMbid())).collect(Collectors.toList()), params.getGenreParameters().getGenre()));
-        return new CountWrapper<>(strings.size(), artistQueue);
+        return new CountWrapper<>(ranker.get(), artistQueue);
     }
 
     @Override

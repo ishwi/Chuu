@@ -50,17 +50,17 @@ public class BillboardHoarder {
         Date weekStart = week.getWeekStart();
         LocalDate l = weekStart.toLocalDate();
         LocalDateTime weekBeginning = l.minus(1, ChronoUnit.WEEKS).atStartOfDay();
-        users.stream()
-                .filter(usersWrapper -> !usersBeingProcessed.contains(usersWrapper.getDiscordID()))
-                .filter(usersWrapper -> {
-                    int epochSecond = (int) OffsetDateTime.of(weekStart.toLocalDate().atStartOfDay(), ZoneOffset.ofTotalSeconds(usersWrapper.getTimeZone().getOffset(Calendar.getInstance().getTimeInMillis()) / 1000)).toInstant().getEpochSecond();
-                    return usersWrapper.getTimestamp() < epochSecond;
-                })
+        users
                 .forEach(usersWrapper -> {
                     try {
-                        usersBeingProcessed.add(usersWrapper.getDiscordID());
-                        UpdaterHoarder updaterHoarder = new UpdaterHoarder(usersWrapper, service, lastFM);
-                        updaterHoarder.updateUser();
+                        if (!usersBeingProcessed.contains(usersWrapper.getDiscordID())) {
+                            int untilToCalculate = (int) OffsetDateTime.of(weekStart.toLocalDate().atStartOfDay(), ZoneOffset.ofTotalSeconds(usersWrapper.getTimeZone().getOffset(Calendar.getInstance().getTimeInMillis()) / 1000)).toInstant().getEpochSecond();
+                            if (usersWrapper.getTimestamp() < untilToCalculate) {
+                                usersBeingProcessed.add(usersWrapper.getDiscordID());
+                                UpdaterHoarder updaterHoarder = new UpdaterHoarder(usersWrapper, service, lastFM);
+                                updaterHoarder.updateUser();
+                            }
+                        }
 
                     } catch (LastFmException ignored) {
                     } finally {

@@ -415,7 +415,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     @Override
     public List<ScoredAlbumRatings> getSelfRatingsScore(Connection connection, Short ratingNumber, long discordId) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
-        String s = "select  album_name, name,rating,(select avg(rating) from album_rating t  where t.album_id = a.album_id) as agg,(select count(*) from album_rating t  where t.album_id = a.album_id) as coun,c.url " +
+        String s = "select  album_name,a.id name,rating,(select avg(rating) from album_rating t  where t.album_id = a.album_id) as agg,(select count(*) from album_rating t  where t.album_id = a.album_id) as coun,c.url " +
                 "from album_rating a " +
                 "join artist b on a.artist_id = b.id " +
                 "join album c on a.album_id = c.id " +
@@ -423,7 +423,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
         if (ratingNumber != null) {
             s += " and rating = ? ";
         } else {
-            s += " order by rating desc ";
+            s += " order by rating desc,a.id asc ";
         }
         s += " limit 200";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {

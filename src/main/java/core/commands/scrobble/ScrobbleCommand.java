@@ -44,7 +44,7 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public String getDescription() {
-        return "Description";
+        return "Login your last.fm account";
     }
 
     @Override
@@ -54,7 +54,7 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public String getName() {
-        return "Name";
+        return "Login";
     }
 
     @Override

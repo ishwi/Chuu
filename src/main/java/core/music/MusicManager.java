@@ -58,6 +58,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     private RadioTrackContext radio = null;
     private final ScrobblerEventListener listener;
     private Metadata metadata;
+    private Metadata lastMetada;
 
     @Override
     public boolean canProvide() {
@@ -315,7 +316,8 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         lastPlayedAt = System.currentTimeMillis();
         this.lastTrack = track;
-
+        this.lastMetada = metadata;
+        this.metadata = null;
 
         if (endReason.mayStartNext) {
             nextTrack();
@@ -494,5 +496,13 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
 
     public int getScroobblers() {
         return this.listener.getScrooblersCount();
+    }
+
+    public Metadata getLastMetada() {
+        return lastMetada;
+    }
+
+    public void setLastMetada(Metadata lastMetada) {
+        this.lastMetada = lastMetada;
     }
 }

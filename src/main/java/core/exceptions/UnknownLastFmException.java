@@ -1,5 +1,9 @@
 package core.exceptions;
 
+import dao.entities.LastFMData;
+
+import javax.annotation.Nullable;
+
 public class UnknownLastFmException extends LastFmException {
     public static final int INVALID_SERVICE = 2;
     public static final int INVALID_METHOD = 3;
@@ -16,10 +20,13 @@ public class UnknownLastFmException extends LastFmException {
     public static final int SUSPENDED_API_KEY = 26;
     public static final int RATE_LIMIT_EXCEEDED = 29;
     private final int code;
+    @Nullable
+    private final LastFMData user;
 
-    public UnknownLastFmException(String message, int code) {
+    public UnknownLastFmException(String message, int code, @Nullable LastFMData user) {
         super(message);
         this.code = code;
+        this.user = user;
     }
 
     public int getCode() {
@@ -32,5 +39,10 @@ public class UnknownLastFmException extends LastFmException {
             case 9 -> "Your session key has been invalidated. Login again pls :(";
             default -> getMessage();
         };
+    }
+
+    @Nullable
+    public LastFMData getUser() {
+        return user;
     }
 }

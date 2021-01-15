@@ -173,11 +173,11 @@ public class ConcurrentLastFM {//implements LastFMService {
                     throw new ChuuServiceException(exception);
                 }
                 if (jsonObject.has("error")) {
-                    parseResponse(jsonObject, causeOfNotFound);
+                    parseResponse(jsonObject, causeOfNotFound, user);
                 }
                 if (Math.floor((float) responseCode / 100) == 4) {
                     Chuu.getLogger().warn("Error {} with url {}", responseCode, method.uri().toString());
-                    throw new UnknownLastFmException(jsonObject.toString(), responseCode);
+                    throw new UnknownLastFmException(jsonObject.toString(), responseCode, user);
                 }
 
                 return jsonObject;
@@ -205,11 +205,11 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     }
 
-    private void parseResponse(JSONObject jsonObject, ExceptionEntity exceptionEntity) throws LastFmEntityNotFoundException, UnknownLastFmException {
+    private void parseResponse(JSONObject jsonObject, ExceptionEntity exceptionEntity, LastFMData user) throws LastFmEntityNotFoundException, UnknownLastFmException {
         int code = jsonObject.getInt("error");
         if (code == 6) {
             throw new LastFmEntityNotFoundException(exceptionEntity);
-        } else throw new UnknownLastFmException(jsonObject.toString(), code);
+        } else throw new UnknownLastFmException(jsonObject.toString(), code, user);
     }
 
     private HttpRequest createMethod(String url) {
@@ -1770,7 +1770,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     public String getAuthSession(LastFMData lastFMData) throws LastFmException {
         String url = getSignature(BASE + GET_SESSION + lastFMData.getToken() + apiKey) + ENDING;
-        return doMethod(url, null, null).getJSONObject("session").getString("key");
+        return doMethod(url, null, LastFMData.ofUser(lastFMData.getName())).getJSONObject("session").getString("key");
 //        return doMethod(url, null).ge("token");
 
 
@@ -1875,11 +1875,11 @@ public class ConcurrentLastFM {//implements LastFMService {
                     throw new ChuuServiceException(exception);
                 }
                 if (jsonObject.has("error")) {
-                    parseResponse(jsonObject, null);
+                    parseResponse(jsonObject, null, null);
                 }
                 if (Math.floor((float) responseCode / 100) == 4) {
                     Chuu.getLogger().warn("Error {} with url {}", responseCode, method.uri().toString());
-                    throw new UnknownLastFmException(jsonObject.toString(), responseCode);
+                    throw new UnknownLastFmException(jsonObject.toString(), responseCode, null);
                 }
 
                 return jsonObject;

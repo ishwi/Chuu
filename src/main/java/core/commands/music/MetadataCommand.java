@@ -86,7 +86,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
         }
         String[] split = metadataExpr.split(words);
         if (split.length != 2) {
-            parser.sendError("Invalid metadata format: Use **ARTIST - SONG | ALBUM?** ", e);
+            parser.sendError("Invalid metadata format: Use **ARTIST - SONG | ALBUM?**\nAlso dont forget to escape the character **-** if it appears on an artist/album/song name '", e);
             return;
         }
         String artist = split[0].trim();

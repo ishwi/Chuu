@@ -74,7 +74,7 @@ public class ScrobblerEventListener implements AudioEventListener {
                 Set<LastFMData> scrobbleableUsers = db.findScrobbleableUsers(channel.getGuild().getIdLong()).stream().filter(x -> collect.contains(x.getDiscordId())).collect(Collectors.toSet());
 
 
-                Scrobble scrobble = obtainScrobble(playingTrack);
+                Scrobble scrobble = obtainScrobble(playingTrack, false);
 
                 if (Chuu.chuuSess != null) {
                     lastFM.flagNP(Chuu.chuuSess, scrobble);
@@ -113,7 +113,7 @@ public class ScrobblerEventListener implements AudioEventListener {
             List<Long> collect = channel.getMembers().stream().mapToLong(ISnowflake::getIdLong).boxed().collect(Collectors.toList());
             Set<LastFMData> scrobbleableUsers = db.findScrobbleableUsers(channel.getGuild().getIdLong()).stream().filter(x -> collect.contains(x.getDiscordId())).collect(Collectors.toSet());
 
-            Scrobble scrobble = obtainScrobble(playingTrack);
+            Scrobble scrobble = obtainScrobble(playingTrack, true);
 
             for (LastFMData data : scrobbleableUsers) {
                 lastFM.scrobble(data.getSession(), scrobble, start);
@@ -121,6 +121,7 @@ public class ScrobblerEventListener implements AudioEventListener {
             if (Chuu.chuuSess != null) {
                 lastFM.scrobble(Chuu.chuuSess, scrobble, start);
             }
+
         } finally {
             scrooblersCount = 0;
             this.todo.forEach(x -> x.cancel(true));
@@ -128,9 +129,8 @@ public class ScrobblerEventListener implements AudioEventListener {
         }
     }
 
-    private Scrobble obtainScrobble(AudioTrack playingTrack) {
-        Metadata metadata = musicManager.getMetadata();
-
+    private Scrobble obtainScrobble(AudioTrack playingTrack, boolean hasEnded) {
+        Metadata metadata = hasEnded ? musicManager.getLastMetada() : musicManager.getMetadata();
         String album = null;
         String image = null;
         if (playingTrack instanceof MetadataTrack spo) {

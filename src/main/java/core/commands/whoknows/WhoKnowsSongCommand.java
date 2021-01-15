@@ -57,7 +57,7 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
         }
         userList.stream().skip(1).forEach(u -> {
             try {
-                Track trackInfo = lastFM.getTrackInfo(LastFMData.ofUserWrapper(usersWrapper), artist, track);
+                Track trackInfo = lastFM.getTrackInfo(LastFMData.ofUserWrapper(u), artist, track);
                 userMapPlays.put(u, trackInfo.getPlays());
             } catch (LastFmException ex) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);

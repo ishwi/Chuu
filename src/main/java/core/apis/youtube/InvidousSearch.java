@@ -16,10 +16,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class InvidousSearch implements YoutubeSearch {
-    public static final List<String> domains = List.of("invidious.snopyta.org", "invidious.xyz");
+    public static final List<String> domains = List.of("invidious.snopyta.org", "invidious.zapashcanon.fr", "invidiou.site", "yewtu.be", "tube.connect.cafe", "vid.mint.lgbt");
+    public static final List<String> regions = List.of("us", "nz", "es", "fr");
     private static final String BASE_ENDPOINT = "https://";
     private static final String SEARCH_ENDPOINT = "/api/v1/search";
     private final HttpClient httpClient;
@@ -28,12 +32,20 @@ public class InvidousSearch implements YoutubeSearch {
         httpClient = ClientSingleton.getInstance();
     }
 
-    @Override
-    public String doSearch(String queryTerm) {
-        String responseUrl = "";
-        String api = BASE_ENDPOINT + domains.get(CommandUtil.rand.nextInt(domains.size())) + SEARCH_ENDPOINT;
+    private String search(String queryTerm, int retries, Set<String> retried, Set<String> regionsRetried) {
+        if (retries == 0) {
+            return "";
+        }
+        List<String> domains = InvidousSearch.domains.stream().filter(x -> !retried.contains(x)).collect(Collectors.toList());
+        List<String> regions = InvidousSearch.regions.stream().filter(x -> !regionsRetried.contains(x)).collect(Collectors.toList());
+        String domain = domains.get(CommandUtil.rand.nextInt(domains.size()));
+        String region = regions.get(CommandUtil.rand.nextInt(regions.size()));
+        retried.add(domain);
+        regionsRetried.add(region);
+        String api = BASE_ENDPOINT + domain + SEARCH_ENDPOINT;
         String q = api + "?q=" + URLEncoder
-                .encode(queryTerm, StandardCharsets.UTF_8) + "&fields=videoId";
+                .encode(queryTerm, StandardCharsets.UTF_8) + "&fields=videoId&region=" + region;
+        String responseUrl = "";
         try {
             HttpRequest build = HttpRequest.newBuilder()
                     .GET()
@@ -44,6 +56,9 @@ public class InvidousSearch implements YoutubeSearch {
             HttpResponse<InputStream> send = httpClient.send(build, HttpResponse.BodyHandlers.ofInputStream());
             int responseCode = send.statusCode();
             parseHttpCode(responseCode);
+            if (responseCode != 200) {
+                return search(queryTerm, retries - 1, retried, regionsRetried);
+            }
             JSONArray jsonObject;
             try (InputStream responseBodyAsStream = send.body()) {
                 jsonObject = new JSONArray(new JSONTokener(responseBodyAsStream));
@@ -58,6 +73,12 @@ public class InvidousSearch implements YoutubeSearch {
             exception.printStackTrace();
         }
         return responseUrl;
+
+    }
+
+    @Override
+    public String doSearch(String queryTerm) {
+        return search(queryTerm, 3, new HashSet<>(), new HashSet<>());
 
     }
 

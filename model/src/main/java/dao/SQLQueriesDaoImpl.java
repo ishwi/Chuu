@@ -1054,7 +1054,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 "    WHERE " +
                 "        t4.guild_id = ?  ";
         if (threshold != 0) {
-            queryString += " and t2.playnumber > ? ";
+            queryString += " and t2.playnumber >= ? ";
         }
 
 
