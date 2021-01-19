@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.List;
 
 public class Affinity {
-    private static final long CLOSE_MATCH_WEIGHT = 10;
-    private static final long TRUE_MATCH_WEIGHT = 25;
+    private static final long CLOSE_MATCH_WEIGHT = 45;
+    private static final long TRUE_MATCH_WEIGHT = 85;
     public static final long DEFAULT_THRESHOLD = 30;
 
     private final long threshold;
@@ -39,7 +39,7 @@ public class Affinity {
 
     public float getAffinity() {
         if (!this.hasCaculated()) {
-            this.percentage = (this.matchingCount + this.closeMatch * CLOSE_MATCH_WEIGHT + this.trueMatching * TRUE_MATCH_WEIGHT) * ((float) threshold / DEFAULT_THRESHOLD) / (sampleSize + 1);
+            this.percentage = ((this.matchingCount * 1.1f) + this.closeMatch * CLOSE_MATCH_WEIGHT + this.trueMatching * TRUE_MATCH_WEIGHT) * ((float) threshold / DEFAULT_THRESHOLD) / (sampleSize + 1);
         }
         return this.percentage;
 

@@ -370,8 +370,11 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             int i = 1;
             preparedStatement.setLong(i++, discordId);
             preparedStatement.setString(i++, url);
-            preparedStatement.setLong(i, guildId);
-
+            if (guildId == null) {
+                preparedStatement.setNull(i, Types.BIGINT);
+            } else {
+                preparedStatement.setLong(i, guildId);
+            }
 
             /* Execute query. */
             int rows = preparedStatement.executeUpdate();

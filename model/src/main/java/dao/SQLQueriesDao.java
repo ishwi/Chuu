@@ -195,10 +195,19 @@ interface SQLQueriesDao {
 
     Optional<String> findArtistUrlAbove(Connection connection, long artistId, int upvotes);
 
-    Optional<Instant> getLastScrobbled(Connection connection, String lastfmId, long artistId, String song);
+    Optional<Instant> getLastScrobbled(Connection connection, String lastfmId, long artistId, String song, boolean skipToday);
 
-    Optional<Instant> getLastScrobbledArtist(Connection connection, String lastfmId, long artistId);
+    Optional<Instant> getLastScrobbledArtist(Connection connection, String lastfmId, long artistId, boolean skipToday);
 
 
     int getCurrentCombo(Connection connection, String lastfm_id, long artistId);
+
+    Optional<Instant> getFirstScrobbled(Connection connection, String lastfmId, long artistId, String song);
+
+    Optional<Instant> getFirstScrobbledArtist(Connection connection, String lastfmId, long artistId);
+
+
+    List<UserListened> getServerFirstScrobbledArtist(Connection connection, long artistId, long guildId, SQLQueriesDaoImpl.Order Order);
+
+
 }

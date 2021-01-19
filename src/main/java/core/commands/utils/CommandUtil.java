@@ -261,16 +261,14 @@ public class CommandUtil {
             return (e.getGuild().getIdLong());
         else {
             User user;
-            if ((user = e.getJDA().getUserById(e.getAuthor().getIdLong())) == null) {
+            if ((user = Chuu.getShardManager().getUserById(e.getAuthor().getIdLong())) == null) {
                 return null;
             } else {
                 List<Guild> mutualGuilds = user.getMutualGuilds();
                 if (mutualGuilds.isEmpty()) {
                     return null;
                 } else {
-
                     return mutualGuilds.get(0).getIdLong();
-
                 }
             }
         }

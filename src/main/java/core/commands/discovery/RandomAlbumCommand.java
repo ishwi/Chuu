@@ -65,21 +65,12 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
                 try {
                     LastFMData lastFMData = getService().findLastFMData(randomUrl.getDiscordId());
                     PrivacyMode privacyMode = lastFMData.getPrivacyMode();
-                    switch (privacyMode) {
-                        case STRICT:
-                            ownerRec = "Private User";
-                            break;
-                        case DISCORD_NAME:
-                        case NORMAL:
-                            ownerRec = getUserString(e, lastFMData.getDiscordId());
-                            break;
-                        case TAG:
-                            ownerRec = e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
-                            break;
-                        case LAST_NAME:
-                            ownerRec = lastFMData.getName() + " (lastfm)";
-                            break;
-                    }
+                    ownerRec = switch (privacyMode) {
+                        case STRICT -> "Private User";
+                        case DISCORD_NAME, NORMAL -> getUserString(e, lastFMData.getDiscordId());
+                        case TAG -> e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
+                        case LAST_NAME -> lastFMData.getName() + " (lastfm)";
+                    };
                 } catch (InstanceNotFoundException ex) {
                     ownerRec = "Unknown";
                 }

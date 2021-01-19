@@ -3025,22 +3025,61 @@ public class ChuuService {
     public Optional<Instant> getLastScrobbled(long artistId, String song, String lastfmId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getLastScrobbled(connection, lastfmId, artistId, song);
+            return queriesDao.getLastScrobbled(connection, lastfmId, artistId, song, false);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
 
     }
 
-    public Optional<Instant> getLastScrobbledArtist(long artistId, String lastfmId) {
+    public Optional<Instant> getLastScrobbledArtist(long artistId, String lastfmId, boolean skipToday) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getLastScrobbledArtist(connection, lastfmId, artistId);
+            return queriesDao.getLastScrobbledArtist(connection, lastfmId, artistId, skipToday);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
 
     }
+
+    public Optional<Instant> getFirstScrobbledArtist(long artistId, String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getFirstScrobbledArtist(connection, lastfmId, artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public Optional<Instant> getFirstScrobbled(long artistId, String song, String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getFirstScrobbledArtist(connection, lastfmId, artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public List<UserListened> getServerFirstScrobbledArtist(long artistId, long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getServerFirstScrobbledArtist(connection, artistId, guildId, SQLQueriesDaoImpl.Order.ASC);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<UserListened> getServerLastScrobbledArtist(long artistId, long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getServerFirstScrobbledArtist(connection, artistId, guildId, SQLQueriesDaoImpl.Order.DESC);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
     public void storeToken(String authToken, String lastfm) {
         try (Connection connection = dataSource.getConnection()) {

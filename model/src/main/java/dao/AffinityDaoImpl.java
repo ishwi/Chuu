@@ -16,21 +16,22 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public void initTempTable(Connection connection, String ownerLastfmID, String receiverLastFMId, int threshold) {
         @Language("MariaDB") String queryBody =
-                "CREATE TEMPORARY TABLE affinity\n" +
-                        "SELECT *\n" +
-                        "FROM   (SELECT artist_id AS a1, \n" +
-                        "               a.lastfm_id AS l1, \n" +
-                        "               a.playnumber AS p1\n" +
-                        "        FROM   scrobbled_artist a \n" +
-                        "        WHERE  a.lastfm_id = ? \n" +
-                        "               AND a.playnumber > ?) usera \n" +
-                        "       JOIN (SELECT artist_id AS a2,\n" +
-                        "                    a.lastfm_id AS l2,\n" +
-                        "                    a.playnumber AS p2\n" +
-                        "             FROM   scrobbled_artist a \n" +
-                        "             WHERE  a.lastfm_id= ?\n" +
-                        "                    AND a.playnumber > ? ) userb \n" +
-                        "         ON usera.a1 = userb.a2; ";
+                """
+                        CREATE TEMPORARY TABLE affinity
+                        SELECT *
+                        FROM   (SELECT artist_id AS a1,\s
+                                       a.lastfm_id AS l1,\s
+                                       a.playnumber AS p1
+                                FROM   scrobbled_artist a\s
+                                WHERE  a.lastfm_id = ?\s
+                                       AND a.playnumber > ?) usera\s
+                               JOIN (SELECT artist_id AS a2,
+                                            a.lastfm_id AS l2,
+                                            a.playnumber AS p2
+                                     FROM   scrobbled_artist a\s
+                                     WHERE  a.lastfm_id= ?
+                                            AND a.playnumber > ? ) userb\s
+                                 ON usera.a1 = userb.a2;\s""";
         executeComparisonWithThreshold(connection, ownerLastfmID, receiverLastFMId, threshold, queryBody);
 
     }
@@ -51,15 +52,17 @@ public class AffinityDaoImpl implements AffinityDao {
 
     @Override
     public Affinity getPercentageStats(Connection connection, String ownerLastfmID, String receiverLastFMId, int threshold) {
-        @Language("MariaDB") String queryBody = "SELECT Count(*) AS matchingcount, \n" +
-                "       ((SELECT Count(*) \n" +
-                "              FROM   scrobbled_artist \n" +
-                "              WHERE  lastfm_id = ?) * (SELECT Count(*) \n" +
-                "                                                    FROM   scrobbled_artist \n" +
-                "                                                    WHERE  lastfm_id = ?))  AS minsize, \n" +
-                "\t   (SELECT count(*) FROM affinity WHERE abs(p1 - p2 ) < ? * 2) AS closematch,\n" +
-                "\t   (SELECT count(*) FROM affinity WHERE (p1 > (? * 10)  AND p2 > (? * 5)) OR (p2 > (? * 10) AND  p1 > (? * 5))) AS truematching\n" +
-                "\t   FROM affinity\n";
+        @Language("MariaDB") String queryBody = """
+                SELECT Count(*) AS matchingcount,
+                       ((SELECT Count(*)
+                              FROM   scrobbled_artist
+                              WHERE  lastfm_id = ?) + (SELECT Count(*)
+                                                                    FROM   scrobbled_artist
+                                                                    WHERE  lastfm_id = ?))   /2 AS minsize,
+                   (SELECT count(*) FROM affinity WHERE abs(p1 - p2 ) < ? * 2) AS closematch,
+                   (SELECT count(*) FROM affinity WHERE (p1 > (? * 10)  AND p2 > (? * 5)) OR (p2 > (? * 10) AND  p1 > (? * 5))) AS truematching
+                   FROM affinity
+                """;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             int i = 1;
             preparedStatement.setString(i++, ownerLastfmID);
@@ -90,18 +93,19 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public String[] doRecommendations(Connection connection, String ogLastFmId, String receiverLastFMId) {
         String[] artistRecs = new String[]{null, null};
-        @Language("MariaDB") String queryBody = "SELECT (SELECT \n" +
-                "b.name \n" +
-                "FROM scrobbled_artist a \n" +
-                "JOIN artist b ON a.artist_id = b.id \n" +
-                "WHERE a.lastfm_id = ? \n" +
-                "AND a.artist_id NOT IN (SELECT in_b.artist_id FROM scrobbled_artist in_b WHERE in_b.lastfm_id = ? ) ORDER BY a.playnumber DESC LIMIT 1) first,\n" +
-                "(SELECT \n" +
-                "b1.name \n" +
-                "FROM scrobbled_artist a1 \n" +
-                "JOIN artist b1 ON a1.artist_id = b1.id \n" +
-                "WHERE a1.lastfm_id = ?  \n" +
-                "AND a1.artist_id NOT IN (SELECT in1_b.artist_id FROM scrobbled_artist in1_b WHERE in1_b.lastfm_id = ? ) ORDER BY a1.playnumber DESC LIMIT 1) second";
+        @Language("MariaDB") String queryBody = """
+                SELECT (SELECT\s
+                b.name\s
+                FROM scrobbled_artist a\s
+                JOIN artist b ON a.artist_id = b.id\s
+                WHERE a.lastfm_id = ?\s
+                AND a.artist_id NOT IN (SELECT in_b.artist_id FROM scrobbled_artist in_b WHERE in_b.lastfm_id = ? ) ORDER BY a.playnumber DESC LIMIT 1) first,
+                (SELECT\s
+                b1.name\s
+                FROM scrobbled_artist a1\s
+                JOIN artist b1 ON a1.artist_id = b1.id\s
+                WHERE a1.lastfm_id = ? \s
+                AND a1.artist_id NOT IN (SELECT in1_b.artist_id FROM scrobbled_artist in1_b WHERE in1_b.lastfm_id = ? ) ORDER BY a1.playnumber DESC LIMIT 1) second""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             int i = 1;
             preparedStatement.setString(i++, ogLastFmId);
@@ -128,24 +132,25 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public void setServerTempTable(Connection connection, long guildId, String ogLastfmID, int threshold) {
         @Language("MariaDB") String queryBody =
-                "CREATE TEMPORARY TABLE server_affinity \n" +
-                        "SELECT * \n" +
-                        "FROM   (SELECT artist_id AS a1, \n" +
-                        "               a.lastfm_id AS l1, \n" +
-                        "               a.playnumber AS p1\n" +
-                        "        FROM   scrobbled_artist a \n" +
-                        "JOIN user b  ON a.lastfm_id = b.lastfm_id\n" +
-                        "JOIN user_guild c ON b.discord_id = c.discord_id \n" +
-                        "WHERE c.guild_id = ? \n" +
-                        "AND b.lastfm_id != ?\n" +
-                        "        AND a.playnumber >= ?) server \n" +
-                        " JOIN (SELECT artist_id AS a2,\n" +
-                        "                    a.lastfm_id AS l2,\n" +
-                        "                    a.playnumber AS p2\n" +
-                        "             FROM   scrobbled_artist a \n" +
-                        "             WHERE  a.lastfm_id= ?\n" +
-                        "                    AND a.playnumber >= ? ) \n" +
-                        "user ON server.a1 = user.a2 ";
+                """
+                        CREATE TEMPORARY TABLE server_affinity\s
+                        SELECT *\s
+                        FROM   (SELECT artist_id AS a1,\s
+                                       a.lastfm_id AS l1,\s
+                                       a.playnumber AS p1
+                                FROM   scrobbled_artist a\s
+                        JOIN user b  ON a.lastfm_id = b.lastfm_id
+                        JOIN user_guild c ON b.discord_id = c.discord_id\s
+                        WHERE c.guild_id = ?\s
+                        AND b.lastfm_id != ?
+                                AND a.playnumber >= ?) server\s
+                         JOIN (SELECT artist_id AS a2,
+                                            a.lastfm_id AS l2,
+                                            a.playnumber AS p2
+                                     FROM   scrobbled_artist a\s
+                                     WHERE  a.lastfm_id= ?
+                                            AND a.playnumber >= ? )\s
+                        user ON server.a1 = user.a2\s""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             int i = 1;
             preparedStatement.setLong(i++, guildId);
@@ -164,24 +169,23 @@ public class AffinityDaoImpl implements AffinityDao {
     public void setGlobalTable(Connection connection, String ogLastfmID, int threshold) {
 
         @Language("MariaDB") String queryBody
-                = "CREATE TEMPORARY TABLE global_server_affinity \n" +
-                "SELECT * \n" +
-                "FROM   (SELECT artist_id AS a1, \n" +
-                "               a.lastfm_id AS l1, \n" +
-                "               a.playnumber AS p1\n" +
-                "        FROM   scrobbled_artist a \n" +
-                "JOIN user b  ON a.lastfm_id = b.lastfm_id\n" +
-
-
-                "WHERE  b.privacy_mode  in ('TAG','LAST_NAME') AND b.lastfm_id != ?\n" +
-                "        AND a.playnumber >= ?) server \n" +
-                " JOIN (SELECT artist_id AS a2,\n" +
-                "                    a.lastfm_id AS l2,\n" +
-                "                    a.playnumber AS p2\n" +
-                "             FROM   scrobbled_artist a \n" +
-                "             WHERE  a.lastfm_id= ?\n" +
-                "                    AND a.playnumber >= ? ) \n" +
-                "user ON server.a1 = user.a2 ";
+                = """
+                CREATE TEMPORARY TABLE global_server_affinity\s
+                SELECT *\s
+                FROM   (SELECT artist_id AS a1,\s
+                               a.lastfm_id AS l1,\s
+                               a.playnumber AS p1
+                        FROM   scrobbled_artist a\s
+                JOIN user b  ON a.lastfm_id = b.lastfm_id
+                WHERE  b.privacy_mode  in ('TAG','LAST_NAME') AND b.lastfm_id != ?
+                        AND a.playnumber >= ?) server\s
+                 JOIN (SELECT artist_id AS a2,
+                                    a.lastfm_id AS l2,
+                                    a.playnumber AS p2
+                             FROM   scrobbled_artist a\s
+                             WHERE  a.lastfm_id= ?
+                                    AND a.playnumber >= ? )\s
+                user ON server.a1 = user.a2\s""";
         executeComparisonWithThreshold(connection, ogLastfmID, ogLastfmID, threshold, queryBody);
 
     }
@@ -189,12 +193,10 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public List<ArtistLbGlobalEntry> getGlobalMatchingCount(Connection connection) {
         List<ArtistLbGlobalEntry> affinityList = new ArrayList<>();
-        @Language("MariaDB") String queryBody = "SELECT u.discord_id ,l1 AS lastfmid,Count(*) AS matchingcount,u.privacy_mode  \n" +
-                "   FROM global_server_affinity main " +
-                "      JOIN user u ON main.l1 = u.lastfm_id\n" +
-                "   GROUP BY main.l1,u.lastfm_id" +
-                " order by matchingcount desc " +
-                " limit 50";
+        @Language("MariaDB") String queryBody = """
+                SELECT u.discord_id ,l1 AS lastfmid,Count(*) AS matchingcount,u.privacy_mode \s
+                   FROM global_server_affinity main       JOIN user u ON main.l1 = u.lastfm_id
+                   GROUP BY main.l1,u.lastfm_id order by matchingcount desc  limit 50""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -219,10 +221,10 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public List<LbEntry> getMatchingCount(Connection connection) {
         List<LbEntry> affinityList = new ArrayList<>();
-        @Language("MariaDB") String queryBody = "SELECT u.discord_id ,l1 AS lastfmid,Count(*) AS matchingcount  \n" +
-                "   FROM server_affinity main " +
-                "      JOIN user u ON main.l1 = u.lastfm_id\n" +
-                "   GROUP BY main.l1,u.lastfm_id";
+        @Language("MariaDB") String queryBody = """
+                SELECT u.discord_id ,l1 AS lastfmid,Count(*) AS matchingcount \s
+                   FROM server_affinity main       JOIN user u ON main.l1 = u.lastfm_id
+                   GROUP BY main.l1,u.lastfm_id""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -244,27 +246,26 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public List<GlobalAffinity> doGlobalAffinity(Connection connection, String ogLastfmId, int threshold) {
         List<GlobalAffinity> affinityList = new ArrayList<>();
-        @Language("MariaDB") String queryBody = "SELECT u.discord_id ,u.privacy_mode,l1 AS lastfmid,Count(*) AS matchingcount, \n" +
-                "       Least((SELECT Count(*) \n" +
-                "              FROM   scrobbled_artist \n" +
-                "              WHERE  lastfm_id = main.l1), (SELECT Count(*) \n" +
-                "                                                    FROM   scrobbled_artist \n" +
-                "                                                    WHERE  lastfm_id = ?)) AS minsize ,\n" +
-                "\n" +
-                "\n" +
-                "(SELECT count(*) FROM global_server_affinity t1 WHERE abs(p1 - p2 ) < ? * 2 AND t1.l1 = main.l1\n" +
-                ") AS closematch,\n" +
-                "    (SELECT count(*) \n" +
-                "   FROM global_server_affinity t2\n" +
-                "   WHERE t2.l1 = main.l1 AND \n" +
-                "   (\n" +
-                "   (p1 > (? * 10) AND p2 > (? * 5)) OR \n" +
-                "   (p2 > (? * 10) AND  p1 > (? * 5))) \n" +
-                "   ) AS truematching\n" +
-                "   FROM global_server_affinity main " +
-                "      JOIN user u ON main.l1 = u.lastfm_id\n" +
-                "   GROUP BY main.l1,u.lastfm_id " +
-                "order by truematching limit 100";
+        @Language("MariaDB") String queryBody = """
+                SELECT u.discord_id ,u.privacy_mode,l1 AS lastfmid,Count(*) AS matchingcount,\s
+                       ((SELECT Count(*)\s
+                              FROM   scrobbled_artist\s
+                              WHERE  lastfm_id = main.l1) + (SELECT Count(*)\s
+                                                                    FROM   scrobbled_artist\s
+                                                                    WHERE  lastfm_id = ?)) /2 AS minsize ,
+
+
+                (SELECT count(*) FROM global_server_affinity t1 WHERE abs(p1 - p2 ) < ? * 2 AND t1.l1 = main.l1
+                ) AS closematch,
+                    (SELECT count(*)\s
+                   FROM global_server_affinity t2
+                   WHERE t2.l1 = main.l1 AND\s
+                   (
+                   (p1 > (? * 10) AND p2 > (? * 5)) OR\s
+                   (p2 > (? * 10) AND  p1 > (? * 5)))\s
+                   ) AS truematching
+                   FROM global_server_affinity main       JOIN user u ON main.l1 = u.lastfm_id
+                   GROUP BY main.l1,u.lastfm_id order by truematching limit 100""";
         // Limit but order by what
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             int i = 1;
@@ -301,26 +302,26 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public List<Affinity> doServerAffinity(Connection connection, String ogLastfmId, int threshold) {
         List<Affinity> affinityList = new ArrayList<>();
-        @Language("MariaDB") String queryBody = "SELECT u.discord_id ,l1 AS lastfmid,Count(*) AS matchingcount, \n" +
-                "       Least((SELECT Count(*) \n" +
-                "              FROM   scrobbled_artist \n" +
-                "              WHERE  lastfm_id = main.l1), (SELECT Count(*) \n" +
-                "                                                    FROM   scrobbled_artist \n" +
-                "                                                    WHERE  lastfm_id = ?)) AS minsize ,\n" +
-                "\n" +
-                "\n" +
-                "(SELECT count(*) FROM server_affinity t1 WHERE abs(p1 - p2 ) < ? * 2 AND t1.l1 = main.l1\n" +
-                ") AS closematch,\n" +
-                "    (SELECT count(*) \n" +
-                "   FROM server_affinity t2\n" +
-                "   WHERE t2.l1 = main.l1 AND \n" +
-                "   (\n" +
-                "   (p1 > (? * 10) AND p2 > (? * 5)) OR \n" +
-                "   (p2 > (? * 10) AND  p1 > (? * 5))) \n" +
-                "   ) AS truematching\n" +
-                "   FROM server_affinity main " +
-                "      JOIN user u ON main.l1 = u.lastfm_id\n" +
-                "   GROUP BY main.l1,u.lastfm_id";
+        @Language("MariaDB") String queryBody = """
+                SELECT u.discord_id ,l1 AS lastfmid,Count(*) AS matchingcount,\s
+                       ((SELECT Count(*)\s
+                              FROM   scrobbled_artist\s
+                              WHERE  lastfm_id = main.l1) +  (SELECT Count(*)\s
+                                                                    FROM   scrobbled_artist\s
+                                                                    WHERE  lastfm_id = ?)) /2 AS minsize ,
+
+
+                (SELECT count(*) FROM server_affinity t1 WHERE abs(p1 - p2 ) < ? * 2 AND t1.l1 = main.l1
+                ) AS closematch,
+                    (SELECT count(*)\s
+                   FROM server_affinity t2
+                   WHERE t2.l1 = main.l1 AND\s
+                   (
+                   (p1 > (? * 10) AND p2 > (? * 5)) OR\s
+                   (p2 > (? * 10) AND  p1 > (? * 5)))\s
+                   ) AS truematching
+                   FROM server_affinity main       JOIN user u ON main.l1 = u.lastfm_id
+                   GROUP BY main.l1,u.lastfm_id""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             int i = 1;
             preparedStatement.setString(i++, ogLastfmId);

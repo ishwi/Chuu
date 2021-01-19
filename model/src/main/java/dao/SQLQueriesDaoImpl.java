@@ -3379,9 +3379,30 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public Optional<Instant> getLastScrobbled(Connection connection, String lastfmId, long artistId, String song) {
-        Set<Pair<String, String>> bannedTags = new HashSet<>();
-        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ? and track_name = ?  order by timestamp  desc limit 1";
+    public Optional<Instant> getLastScrobbled(Connection connection, String lastfmId, long artistId, String song, boolean skipToday) {
+        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ? and track_name = ? and (not ? || date(timestamp ) <> now()) order by timestamp  desc limit 1";
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, artistId);
+            preparedStatement.setString(2, lastfmId);
+            preparedStatement.setString(3, song);
+            preparedStatement.setBoolean(4, skipToday);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return Optional.ofNullable(resultSet.getTimestamp(1).toInstant());
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return Optional.empty();
+
+
+    }
+
+    @Override
+    public Optional<Instant> getFirstScrobbled(Connection connection, String lastfmId, long artistId, String song) {
+        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ? and track_name = ?  order by timestamp  asc limit 1";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, artistId);
@@ -3401,13 +3422,13 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public Optional<Instant> getLastScrobbledArtist(Connection connection, String lastfmId, long artistId) {
-        Set<Pair<String, String>> bannedTags = new HashSet<>();
-        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ?   order by timestamp  desc limit 1";
+    public Optional<Instant> getLastScrobbledArtist(Connection connection, String lastfmId, long artistId, boolean skipToday) {
+        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ? and (not ? || date(timestamp ) <> now())  order by timestamp  desc limit 1";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, artistId);
             preparedStatement.setString(2, lastfmId);
+            preparedStatement.setBoolean(3, skipToday);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return Optional.ofNullable(resultSet.getTimestamp(1).toInstant());
@@ -3445,6 +3466,63 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         }
 
 
+    }
+
+    @Override
+    public Optional<Instant> getFirstScrobbledArtist(Connection connection, String lastfmId, long artistId) {
+        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ?   order by timestamp  asc limit 1";
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, artistId);
+            preparedStatement.setString(2, lastfmId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.ofNullable(resultSet.getTimestamp(1).toInstant());
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public List<UserListened> getServerFirstScrobbledArtist(Connection connection, long artistId, long guildId, Order order) {
+        ArrayList<UserListened> listeneds = new ArrayList<>();
+        String ordering = order == Order.ASC ? "min(timestamp)" : "max(timestamp)";
+        String queryString = "Select  \n" +
+                "t.timestamp,a.discord_id,a.lastfm_id,a.timezone  \n" +
+                "from  user a join user_guild b on a.discord_id = b.discord_id \n" +
+                " join (select " + ordering + " as timestamp,lastfm_id from user_billboard_data_scrobbles where artist_id = ? group by lastfm_id ) t on a.lastfm_id = t.lastfm_id\n" +
+                "where guild_id = ? \n" +
+                "order by -timestamp " + order.getInverse().name();
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, artistId);
+            preparedStatement.setLong(2, guildId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+
+                long discordId = resultSet.getLong(2);
+                String lastfmId = resultSet.getString(3);
+                TimeZone timezone = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(4), "GMT"));
+                listeneds.add(new UserListened(discordId, lastfmId, timezone, Optional.ofNullable(resultSet.getTimestamp(1)).map(Timestamp::toInstant)));
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return listeneds;
+    }
+
+    public enum Order {
+        ASC, DESC;
+
+
+        public Order getInverse() {
+            return switch (this) {
+                case ASC -> DESC;
+                case DESC -> ASC;
+            };
+        }
     }
 
 
