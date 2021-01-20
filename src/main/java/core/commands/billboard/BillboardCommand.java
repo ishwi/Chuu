@@ -156,10 +156,10 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             }
             entities = getEntities(weekId, guildId, doListeners);
             if (entities.isEmpty()) {
-                sendMessageQueue(e, "Didn't found any scrobble in this server users");
+                sendMessageQueue(e, "Didn't find any scrobbles in this server users");
                 return;
             }
-            sendMessageQueue(e, "Successfully Generated these week's charts");
+            sendMessageQueue(e, "Successfully generated this week's charts");
         }
 
         String name = e.getGuild().getName();
