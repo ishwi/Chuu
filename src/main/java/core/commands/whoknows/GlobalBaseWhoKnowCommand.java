@@ -74,6 +74,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
                         x.setGenerateString(() -> {
                             PrivacyUtils.PrivateString privacy = PrivacyUtils.getPublicString(((GlobalReturnNowPlaying) x).getPrivacyMode(), x.getDiscordId(), x.getLastFMId(), atomicInteger, ap.getE(), showableUsers);
                             x.setDiscordName(privacy.discordName());
+                            x.setLastFMId(privacy.lastfmName());
                             return ". " +
                                     "**[" + privacy.discordName() + "](" +
                                     PrivacyUtils.getUrlTitle(x) +

@@ -15,14 +15,12 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.LongAdder;
@@ -127,18 +125,22 @@ public class NowPlayingCommand extends NpCommand {
         embedBuilder.setFooter(footer, url);
 
         e.getChannel().sendMessage(embedBuilder.build()).queue(message -> {
+            List<String> serverReactions = Collections.emptyList();
             if (e.isFromGuild()) {
-                List<String> serverReactions = getService().getServerReactions(e.getGuild().getIdLong());
-                if (serverReactions.isEmpty()) {
-                    serverReactions = getService().getUserReacts(e.getAuthor().getIdLong());
+                if (e.getMember() != null && e.getMember().hasPermission(Permission.MESSAGE_ADD_REACTION)) {
+                    serverReactions = getService().getServerReactions(e.getGuild().getIdLong());
+                    if (serverReactions.isEmpty()) {
+                        serverReactions = getService().getUserReacts(e.getAuthor().getIdLong());
+                    }
                 }
-                if (!serverReactions.isEmpty()) {
-                    RestAction.allOf(serverReactions.stream().map(unicode -> message.addReaction(unicode).mapToResult()).collect(Collectors.toList())).queue(results -> {
-                    });
-                }
+            } else {
+                serverReactions = getService().getUserReacts(e.getAuthor().getIdLong());
+            }
+            if (!serverReactions.isEmpty()) {
+                RestAction.allOf(serverReactions.stream().map(unicode -> message.addReaction(unicode).mapToResult()).collect(Collectors.toList())).queue(results -> {
+                });
             }
         });
-
     }
 
 
