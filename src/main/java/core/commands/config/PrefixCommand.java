@@ -3,12 +3,10 @@ package core.commands.config;
 import core.Chuu;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.parsers.CharacterParser;
 import core.parsers.Parser;
 import core.parsers.PrefixParser;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -45,7 +43,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParser> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CharacterParser params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CharacterParser params) {
 
 
         char newPrefix = params.getaChar();

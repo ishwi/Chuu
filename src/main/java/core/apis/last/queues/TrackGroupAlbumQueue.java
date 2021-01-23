@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
     public static final String defaultTrackImage = "https://lastfm.freetls.fastly.net/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png";
     private final transient List<UrlCapsule> albumEntities;
-    MusicBrainzService mbiz;
+    final MusicBrainzService mbiz;
 
     public TrackGroupAlbumQueue(ChuuService dao, DiscogsApi discogsApi, Spotify spotify, int requested, List<UrlCapsule> albumEntities) {
         super(dao, discogsApi, spotify, requested);

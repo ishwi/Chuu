@@ -17,19 +17,11 @@ public class PreComputedByColor extends PreComputedChartEntity {
 
     @Override
     public int compareTo(@NotNull PreComputedChartEntity o) {
-        switch (getComparisonType()) {
-            case ONLY_AVERAGE:
-                return compareTwoByColor(this.getAverageColor(), o.getAverageColor());
-            case AVERAGE_AND_DOMINANT:
-            case AVERAGE_AND_DOMINANT_PALETTE:
-            case ONLY_DOMINANT:
-            case ONLY_DOMINANT_PALETTE:
-                return compareTwoByColor(this.getDominantColor() == null || this.getDominantColor().isEmpty() ? null : this.getDominantColor().get(0),
-                        o.getDominantColor() == null || o.getDominantColor().isEmpty() ? null : o.getDominantColor().get(0));
-            default:
-                throw new UnsupportedOperationException();
-
-        }
+        return switch (getComparisonType()) {
+            case ONLY_AVERAGE -> compareTwoByColor(this.getAverageColor(), o.getAverageColor());
+            case AVERAGE_AND_DOMINANT, AVERAGE_AND_DOMINANT_PALETTE, ONLY_DOMINANT, ONLY_DOMINANT_PALETTE -> compareTwoByColor(this.getDominantColor() == null || this.getDominantColor().isEmpty() ? null : this.getDominantColor().get(0),
+                    o.getDominantColor() == null || o.getDominantColor().isEmpty() ? null : o.getDominantColor().get(0));
+        };
 
     }
 

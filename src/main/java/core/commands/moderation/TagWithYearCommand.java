@@ -3,7 +3,6 @@ package core.commands.moderation;
 import core.Chuu;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.otherlisteners.Confirmator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -59,7 +58,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         Pattern a = Pattern.compile(".*(?:year|y):(\\d{4}).*");
         // Check if it exists

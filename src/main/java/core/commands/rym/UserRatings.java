@@ -3,7 +3,6 @@ package core.commands.rym;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
 import core.parsers.RYMRatingParser;
@@ -12,7 +11,6 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.RymStats;
 import dao.entities.ScoredAlbumRatings;
-import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -55,7 +53,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull RYMRatingParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull RYMRatingParams params) {
 
 
         Short rating = params.getRating();

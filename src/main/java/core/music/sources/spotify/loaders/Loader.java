@@ -31,8 +31,7 @@ import java.util.regex.Pattern;
 public abstract class Loader {
 
     public AudioItem doYoutubeSearch(DefaultAudioPlayerManager manager, String identifier) {
-        AudioItem audioItem = youtubeAudioSourceManager.loadItem(manager, new AudioReference(identifier, null));
-        return audioItem;
+        return youtubeAudioSourceManager.loadItem(manager, new AudioReference(identifier, null));
     }
 
     protected final YoutubeAudioSourceManager youtubeAudioSourceManager;

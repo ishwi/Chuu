@@ -70,9 +70,8 @@ public class ArtistChart extends UrlCapsule {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ArtistChart)) return false;
+        if (!(o instanceof ArtistChart that)) return false;
         if (!super.equals(o)) return false;
-        ArtistChart that = (ArtistChart) o;
         return this.getArtistName().equals(that.getArtistName());
     }
 

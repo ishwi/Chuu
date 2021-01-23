@@ -16,7 +16,6 @@ import dao.entities.ArtistInfo;
 import dao.entities.Country;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
-import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.entities.Message;
@@ -81,7 +80,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException {
 
 
         Long pallete = (params.getExtraParam());

@@ -11,6 +11,7 @@ import dao.entities.UpdaterStatus;
 import dao.exceptions.InstanceNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -20,6 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import static core.apis.last.queues.TrackGroupAlbumQueue.defaultTrackImage;
 
 public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
+    @Serial
     private static final long serialVersionUID = 1L;
     protected final transient LinkedBlockingQueue<CompletableFuture<UrlCapsule>> wrapper;
     private final transient ChuuService dao;

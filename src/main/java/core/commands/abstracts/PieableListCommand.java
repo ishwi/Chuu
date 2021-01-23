@@ -6,7 +6,6 @@ import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.IPieableList;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
@@ -18,7 +17,7 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 public abstract class PieableListCommand<T, Y extends CommandParameters> extends ConcurrentCommand<Y> {
-    public IPieableList<T, Y> pie;
+    public final IPieableList<T, Y> pie;
 
     protected PieableListCommand(ChuuService dao) {
         super(dao);
@@ -27,7 +26,7 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
 
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull Y params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull Y params) throws LastFmException {
 
         if (params.hasOptional("pie")) {
             doPie(getList(params), params);
@@ -67,7 +66,7 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
 
     protected abstract String fillPie(PieChart pieChart, Y params, int count);
 
-    public abstract T getList(Y params) throws LastFmException;
+    public abstract T getList(Y params);
 
     public abstract void printList(T data, Y params);
 }

@@ -3,14 +3,12 @@ package core.commands.stats;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.artists.MultipleWhoIsTagCommand;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.parsers.GenreParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.GenreParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -49,7 +47,7 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull GenreParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull GenreParameters params) {
 
 
         String genre = params.getGenre();

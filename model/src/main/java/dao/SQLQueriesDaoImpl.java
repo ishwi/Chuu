@@ -2404,7 +2404,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 String lastfmId = resultSet.getString("b.lastfm_id");
                 int playNumber = resultSet.getInt("plays");
                 long discordId = resultSet.getLong("c.discord_ID");
-                returnList.add(new ReturnNowPlaying(discordId, lastfmId, null, playNumber));
+                returnList.add(new TagPlaying(discordId, lastfmId, genre, playNumber));
             }
             return new WrapperReturnNowPlaying(returnList, returnList.size(), null, genre);
 
@@ -2694,9 +2694,9 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 String lastfmId = resultSet.getString("b.lastfm_id");
                 int playNumber = resultSet.getInt("plays");
                 long discordId = resultSet.getLong("c.discord_ID");
-                returnList.add(new ReturnNowPlaying(discordId, lastfmId, null, playNumber));
+                returnList.add(new TagPlaying(discordId, lastfmId, tags.stream().findAny().orElse(null), playNumber));
             }
-            return new WrapperReturnNowPlaying(returnList, returnList.size(), null, null);
+            return new WrapperReturnNowPlaying(returnList, returnList.size(), null, String.join(" | ", tags));
 
 
         } catch (SQLException e) {

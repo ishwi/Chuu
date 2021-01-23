@@ -87,7 +87,7 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
             RYMChartEntity rymChartEntity = new RYMChartEntity(x.getUrl(), atomicInteger.getAndIncrement(), x.getArtist(), x.getName(), params.isWriteTitles(), !isNoRatings, useAverage, average, x.getNumberOfRatings());
             rymChartEntity.setPlays(score);
             return rymChartEntity;
-        }).limit(params.getX() * params.getY()).collect(Collectors.toCollection(LinkedBlockingDeque::new));// They in fact cannot be inferred you dumbass.
+        }).limit((long) params.getX() * params.getY()).collect(Collectors.toCollection(LinkedBlockingDeque::new));// They in fact cannot be inferred you dumbass.
         return new CountWrapper<>(chartRatings.size(), chartRatings);
     }
 

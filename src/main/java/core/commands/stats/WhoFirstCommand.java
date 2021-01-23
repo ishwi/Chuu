@@ -14,7 +14,6 @@ import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UserListened;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -59,7 +58,7 @@ public class WhoFirstCommand extends ConcurrentCommand<ArtistParameters> {
 
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
 
         String artist = params.getArtist();
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);

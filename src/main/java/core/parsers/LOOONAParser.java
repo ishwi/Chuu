@@ -1,6 +1,5 @@
 package core.parsers;
 
-import core.exceptions.LastFmException;
 import core.parsers.params.LOONAParameters;
 import dao.ChuuService;
 import dao.entities.LOONA;
@@ -32,7 +31,7 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
     }
 
     @Override
-    protected LOONAParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected LOONAParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
         EnumSet<LOONA> loonas = EnumSet.allOf(LOONA.class);
         Map<Predicate<String>, LOONA> collect = loonas.stream().collect(Collectors.toMap(LOONA::getParser, x -> x));
         LOONAParameters.Display display = LOONAParameters.Display.COLLAGE;

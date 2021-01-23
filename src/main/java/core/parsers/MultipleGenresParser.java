@@ -5,6 +5,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.exceptions.LastFmException;
 import core.parsers.params.MultipleGenresParameters;
+import core.services.NPService;
 import core.services.TagAlbumService;
 import core.services.TagArtistService;
 import dao.ChuuService;
@@ -12,6 +13,7 @@ import dao.entities.AlbumInfo;
 import dao.entities.ArtistInfo;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.HashSet;
@@ -38,8 +40,9 @@ public class MultipleGenresParser extends MultiStringParser<MultipleGenresParame
     }
 
     @Override
-    protected MultipleGenresParameters doSomethingNoWords(int limit, LastFMData lastFMData, MessageReceivedEvent e) throws LastFmException {
-        NowPlayingArtist nowPlayingInfo = lastFM.getNowPlayingInfo(lastFMData);
+    protected MultipleGenresParameters doSomethingNoWords(int limit, LastFMData lastFMData, MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+
+        NowPlayingArtist nowPlayingInfo = new NPService(lastFM, lastFMData).getNowPlaying();
         List<String> tags = lastFM.getTrackTags(1, TopEntity.TRACK, nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName());
         if (tags.isEmpty()) {
             tags = lastFM.getTrackTags(1, TopEntity.ALBUM, nowPlayingInfo.getArtistName(), nowPlayingInfo.getAlbumName());

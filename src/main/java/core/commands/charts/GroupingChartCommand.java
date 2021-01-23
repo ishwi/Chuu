@@ -15,9 +15,7 @@ import dao.ChuuService;
 import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.TimeFrameEnum;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.knowm.xchart.PieChart;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -44,7 +42,7 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChartGroupParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ChartGroupParameters params) throws LastFmException {
 
         CountWrapper<GroupingQueue> countWrapper = processGroupedQueue(params);
         if (countWrapper.getResult().isEmpty()) {
@@ -60,17 +58,9 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
             countWrapper.setRows(sum);
         }
         switch (effectiveMode) {
-
-            case LIST:
-                doList(urlCapsules, params, countWrapper.getRows());
-                return;
-            case IMAGE_INFO:
-            case IMAGE:
-                doImage(queue, params.getX(), params.getY(), params, countWrapper.getRows());
-                return;
-            case PIE:
-                PieChart pieChart = this.pie.doPie(params, urlCapsules);
-                doPie(pieChart, params, countWrapper.getRows());
+            case LIST -> doList(urlCapsules, params, countWrapper.getRows());
+            case IMAGE_INFO, IMAGE -> doImage(queue, params.getX(), params.getY(), params, countWrapper.getRows());
+            case PIE -> doPie(this.pie.doPie(params, urlCapsules), params, countWrapper.getRows());
         }
     }
 

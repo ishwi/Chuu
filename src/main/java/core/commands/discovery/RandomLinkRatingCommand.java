@@ -3,7 +3,6 @@ package core.commands.discovery;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
@@ -61,7 +60,7 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<UrlParameters> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<UrlParameters> params) {
 
 
         Long rating = params.getExtraParam();
@@ -89,22 +88,14 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
                 PrivacyMode privacyMode = ratingOwner.getPrivacyMode();
                 String s;
                 switch (privacyMode) {
-                    case NORMAL:
-                    case STRICT:
-                        s = "A private user";
-                        break;
-                    case TAG:
+                    case NORMAL, STRICT -> s = "A private user";
+                    case TAG -> {
                         User userById = e.getJDA().getUserById(ratingOwner.getDiscordId());
                         s = userById == null ? "A private user" : userById.getAsTag();
-                        break;
-                    case LAST_NAME:
-                        s = ratingOwner.getName() + " (last.fm)";
-                        break;
-                    case DISCORD_NAME:
-                        s = getUserString(e, ratingOwner.getDiscordId());
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + privacyMode);
+                    }
+                    case LAST_NAME -> s = ratingOwner.getName() + " (last.fm)";
+                    case DISCORD_NAME -> s = getUserString(e, ratingOwner.getDiscordId());
+                    default -> throw new IllegalStateException("Unexpected value: " + privacyMode);
                 }
                 String finalS = s;
                 e.getJDA().retrieveUserById(lastFMData.getDiscordId()).flatMap(User::openPrivateChannel).flatMap(x -> x.sendMessage(finalS + " has rated your random url " + url + " with a **" + rating + "**\nYou can disable this automated message with the config command")).queue();

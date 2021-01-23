@@ -4,7 +4,6 @@ import com.google.common.util.concurrent.RateLimiter;
 import core.Chuu;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.RateLimitParser;
 import core.parsers.params.RateLimitParams;
@@ -50,7 +49,7 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull RateLimitParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull RateLimitParams params) throws InstanceNotFoundException {
 
 
         long idLong = e.getAuthor().getIdLong();

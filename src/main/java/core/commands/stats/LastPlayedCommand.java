@@ -3,7 +3,6 @@ package core.commands.stats;
 import core.commands.albums.AlbumPlaysCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
@@ -11,7 +10,6 @@ import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Instant;
@@ -52,7 +50,7 @@ public class LastPlayedCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, MessageReceivedEvent e, long who, ArtistAlbumParameters params) {
         LastFMData lastFMData = params.getLastFMData();
 
         Optional<Instant> instant = getService().getLastScrobbled(artist.getArtistId(), song, params.getLastFMData().getName());

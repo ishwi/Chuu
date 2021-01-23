@@ -11,7 +11,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.UserInfo;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -69,7 +68,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<NumberParameters<NaturalTimeParams>> hopefullyNoOneSeesThis) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<NumberParameters<NaturalTimeParams>> hopefullyNoOneSeesThis) throws LastFmException {
 
 
         NumberParameters<NaturalTimeParams> unitCount = hopefullyNoOneSeesThis.getInnerParams();

@@ -1,0 +1,72 @@
+package core.parsers.params;
+
+import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.List;
+import java.util.SortedSet;
+import java.util.stream.Collectors;
+
+public class EmotiParameters extends CommandParameters {
+
+    private final SortedSet<Emotable<?>> getEmojis;
+
+    public EmotiParameters(MessageReceivedEvent e, SortedSet<Emotable<?>> getEmojis) {
+        super(e);
+        this.getEmojis = getEmojis;
+    }
+
+    public SortedSet<Emotable<?>> getEmotis() {
+        return getEmojis;
+    }
+
+    public boolean hasEmotes() {
+        return getEmojis.stream().anyMatch(t -> t instanceof CustomEmote);
+    }
+
+    public List<String> getEmojis() {
+        return getEmojis.stream().filter(t -> t instanceof CustomEmoji).map(t -> ((CustomEmoji) t).entity()).collect(Collectors.toList());
+    }
+
+    public List<Emote> getEmotes() {
+        return getEmojis.stream().filter(t -> t instanceof CustomEmote).map(t -> ((CustomEmote) t).entity()).collect(Collectors.toList());
+    }
+
+    public boolean hasEmojis() {
+        return getEmojis.stream().anyMatch(t -> t instanceof CustomEmoji);
+
+    }
+
+    public interface Emotable<T> {
+        static String toDisplay(String title) {
+            if (title.matches(".*\\d+")) {
+                return "<:" + title + ">";
+            }
+            return title;
+        }
+
+        int position();
+
+        T entity();
+
+        String getContent();
+    }
+
+    public record CustomEmote(int position, Emote entity) implements Emotable<Emote> {
+
+        @Override
+        public String getContent() {
+            return entity.getName() + ":" + entity.getId();
+        }
+
+
+    }
+
+    public record CustomEmoji(int position, String entity) implements Emotable<String> {
+        @Override
+        public String getContent() {
+            return entity;
+        }
+
+    }
+}

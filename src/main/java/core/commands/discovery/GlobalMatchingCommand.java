@@ -4,7 +4,6 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
-import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
@@ -16,7 +15,6 @@ import dao.entities.ArtistLbGlobalEntry;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.PrivacyMode;
 import dao.entities.UsersWrapper;
-import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -69,7 +67,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) {
 
 
         ChuuDataParams innerParams = params.getInnerParams();
@@ -106,20 +104,10 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
 
 
                     switch (privacyMode) {
-
-                        case STRICT:
-                        case NORMAL:
-                            x.setDiscordName(String.valueOf(c.getAndIncrement()));
-                            break;
-                        case DISCORD_NAME:
-                            x.setDiscordName(CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername());
-                            break;
-                        case TAG:
-                            x.setDiscordName(e.getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag());
-                            break;
-                        case LAST_NAME:
-                            x.setDiscordName(x.getLastFmId());
-                            break;
+                        case STRICT, NORMAL -> x.setDiscordName(String.valueOf(c.getAndIncrement()));
+                        case DISCORD_NAME -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername());
+                        case TAG -> x.setDiscordName(e.getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag());
+                        case LAST_NAME -> x.setDiscordName(x.getLastFmId());
                     }
                     calculatedString = ". **[" +
                             LinkUtils.cleanMarkdownCharacter(x.getDiscordName()) +

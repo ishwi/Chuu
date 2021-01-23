@@ -21,7 +21,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
 import core.commands.abstracts.MusicCommand;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.music.MusicManager;
 import core.music.sources.MetadataTrack;
 import core.music.utils.TrackContext;
@@ -30,7 +29,6 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.Metadata;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -68,7 +66,7 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         MusicManager manager = Chuu.playerRegistry.get(e.getGuild());
         AudioTrack track = manager.getPlayer().getPlayingTrack();
 

@@ -18,7 +18,6 @@ import java.util.function.BiFunction;
 
 public class CustomTimeFrameParser implements TimeFrameParserObtainer {
     private final ConcurrentLastFM lastFM;
-    private final LastFMData lastfmId;
     private final ChartParameters chartParameters;
     private final TopEntity topEntity;
     private final CustomTimeFrame timeFrameEnum;
@@ -29,7 +28,6 @@ public class CustomTimeFrameParser implements TimeFrameParserObtainer {
 
     public CustomTimeFrameParser(ConcurrentLastFM lastFM, LastFMData lastFMData, ChartParameters chartParameters, TopEntity topEntity, CustomTimeFrame timeFrameEnum, ChuuService chuuService) {
         this.lastFM = lastFM;
-        this.lastfmId = lastFMData;
         this.chartParameters = chartParameters;
         this.topEntity = topEntity;
         this.timeFrameEnum = timeFrameEnum;

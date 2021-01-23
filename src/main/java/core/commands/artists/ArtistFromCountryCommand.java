@@ -25,7 +25,6 @@ import dao.entities.ArtistUserPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
-import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -110,7 +109,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CountryParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CountryParameters params) throws LastFmException {
 
         CountryCode country = params.getCode();
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(2000);

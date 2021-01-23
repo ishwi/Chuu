@@ -18,7 +18,6 @@ import dao.ChuuService;
 import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -34,7 +33,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class ChartableCommand<T extends ChartParameters> extends ConcurrentCommand<T> {
-    public IPieableList<UrlCapsule, ChartParameters> pie;
+    public final IPieableList<UrlCapsule, ChartParameters> pie;
 
     public ChartableCommand(ChuuService dao) {
         super(dao);
@@ -65,7 +64,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException {
 
         CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(params);
         BlockingQueue<UrlCapsule> urlCapsules = countWrapper.getResult();

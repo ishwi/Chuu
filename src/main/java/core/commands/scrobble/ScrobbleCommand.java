@@ -58,7 +58,7 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException {
         boolean notExisting = false;
         LastFMData lastFMData = null;
         String tempUser = null;

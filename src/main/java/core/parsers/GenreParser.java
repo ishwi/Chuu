@@ -33,13 +33,16 @@ public class GenreParser extends DaoParser<GenreParameters> {
 
     @Override
     protected GenreParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
-        User sample = e.getAuthor();
         String genre;
         NowPlayingArtist nowPlayingInfo = null;
         LastFMData lastFMData;
+        ParserAux parserAux = new ParserAux(words);
+        User user = parserAux.getOneUser(e, dao);
+        words = parserAux.getMessage();
+
         boolean autoDetected = false;
         if (words.length == 0) {
-            lastFMData = findLastfmFromID(sample, e);
+            lastFMData = findLastfmFromID(user, e);
             nowPlayingInfo = new NPService(lastFM, lastFMData).getNowPlaying();
             List<String> tags = lastFM.getTrackTags(1, TopEntity.TRACK, nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName());
             if (tags.isEmpty()) {
@@ -64,10 +67,12 @@ public class GenreParser extends DaoParser<GenreParameters> {
             autoDetected = true;
             genre = tags.get(0);
         } else {
+            User oneUser = parserAux.getOneUser(e, dao);
+            words = parserAux.getMessage();
             genre = String.join(" ", words);
-            lastFMData = null;
+            lastFMData = findLastfmFromID(user, e);
         }
-        return new GenreParameters(e, WordUtils.capitalizeFully(genre), autoDetected, nowPlayingInfo, lastFMData, sample);
+        return new GenreParameters(e, WordUtils.capitalizeFully(genre), autoDetected, nowPlayingInfo, lastFMData, user);
 
     }
 

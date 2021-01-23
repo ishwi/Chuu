@@ -99,7 +99,7 @@ public class DateUtils {
 
     }
 
-    BiFunction<String, DateTimeFormatter[], Optional<OffsetDateTime>> eval = (s, formatArray) ->
+    final BiFunction<String, DateTimeFormatter[], Optional<OffsetDateTime>> eval = (s, formatArray) ->
             Arrays.stream(formatArray).map(x -> {
                 try {
                     TemporalAccessor parse = x.parse(s);
@@ -176,28 +176,10 @@ public class DateUtils {
         return null;
     }
 
-    public static class DateParsed {
-        private final String[] remainingWords;
-        private final OffsetDateTime from;
-        private final OffsetDateTime to;
+    public static record DateParsed(String[] remainingWords, OffsetDateTime from,
+                                    OffsetDateTime to) {
 
-        DateParsed(String[] remainingWords, OffsetDateTime from, OffsetDateTime to) {
-            this.remainingWords = remainingWords;
-            this.from = from;
-            this.to = to;
-        }
 
-        public String[] getRemainingWords() {
-            return remainingWords;
-        }
-
-        public OffsetDateTime getFrom() {
-            return from;
-        }
-
-        public OffsetDateTime getTo() {
-            return to;
-        }
     }
 }
 

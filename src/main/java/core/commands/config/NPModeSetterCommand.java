@@ -3,13 +3,11 @@ package core.commands.config;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.EnumListParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumListParameters;
 import dao.ChuuService;
 import dao.entities.NPMode;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -64,7 +62,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull EnumListParameters<NPMode> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull EnumListParameters<NPMode> params) {
 
         EnumSet<NPMode> modes = params.getEnums();
         if (params.isHelp()) {

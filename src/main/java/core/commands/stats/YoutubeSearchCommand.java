@@ -5,13 +5,11 @@ import core.apis.youtube.YoutubeSearch;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.UsernameAndNpQueryParser;
 import core.parsers.params.ExtraParameters;
 import core.parsers.params.WordParameter;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -50,7 +48,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<Word
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ExtraParameters<WordParameter, User> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ExtraParameters<WordParameter, User> params) {
 
 
         String query = params.getInnerParams().getWord();

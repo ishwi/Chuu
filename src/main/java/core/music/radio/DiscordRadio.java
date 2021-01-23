@@ -28,12 +28,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-public class DiscordRadio implements RadioSource {
-    private final String name;
-
-    public DiscordRadio(String name) {
-        this.name = name;
-    }
+public record DiscordRadio(String name) implements RadioSource {
 
     @Override
     public String getName() {

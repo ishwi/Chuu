@@ -11,7 +11,6 @@ import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -53,7 +52,7 @@ public class LastPlayedArtistCommand extends ConcurrentCommand<ArtistParameters>
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
         ScrobbledArtist artist = CommandUtil.onlyCorrection(getService(), params.getArtist(), lastFM, !params.isNoredirect());
         long whom = params.getLastFMData().getDiscordId();
         int a;

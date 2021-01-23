@@ -34,7 +34,7 @@ public class PlayerRegistry {
         executor.scheduleAtFixedRate(this::sweep, 3, 3, TimeUnit.MINUTES);
     }
 
-    Map<Long, MusicManager> registry = new ConcurrentHashMap<>(10);
+    final Map<Long, MusicManager> registry = new ConcurrentHashMap<>(10);
 
     private final long playTimeout = TimeUnit.MINUTES.toMillis(2);
 

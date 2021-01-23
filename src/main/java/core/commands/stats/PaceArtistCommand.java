@@ -24,7 +24,6 @@ import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UserInfo;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -87,7 +86,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ArtistTimeFrameParameters> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ArtistTimeFrameParameters> params) throws LastFmException {
 
 
         TimeFrameEnum time = params.getInnerParams().getTimeFrame();

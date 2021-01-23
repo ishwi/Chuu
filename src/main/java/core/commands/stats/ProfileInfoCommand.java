@@ -17,7 +17,6 @@ import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -64,7 +63,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException {
 
         String lastFmName = params.getLastFMData().getName();
         UserInfo userInfo;

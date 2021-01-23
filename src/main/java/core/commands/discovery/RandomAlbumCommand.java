@@ -3,7 +3,6 @@ package core.commands.discovery;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.UrlParameters;
@@ -44,7 +43,7 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull UrlParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull UrlParameters params) {
 
 
         String url = params.getUrl();

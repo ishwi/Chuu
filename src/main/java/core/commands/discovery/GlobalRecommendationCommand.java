@@ -4,7 +4,6 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.stats.AffinityCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
@@ -70,7 +69,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
 
         ChuuDataParams innerParams = params.getInnerParams();
 

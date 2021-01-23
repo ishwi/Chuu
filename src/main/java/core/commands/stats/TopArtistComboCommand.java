@@ -20,7 +20,6 @@ import dao.ChuuService;
 import dao.entities.GlobalStreakEntities;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UsersWrapper;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -83,7 +82,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ArtistParameters> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ArtistParameters> params) throws LastFmException {
 
         Long author = e.getAuthor().getIdLong();
 

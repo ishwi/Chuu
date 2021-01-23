@@ -18,7 +18,6 @@ import core.services.TagAlbumService;
 import core.services.TagArtistService;
 import dao.ChuuService;
 import dao.entities.*;
-import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -101,7 +100,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException {
 
 
         TimeFrameParameters innerParams = params.getInnerParams();

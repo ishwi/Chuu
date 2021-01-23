@@ -55,9 +55,9 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
 
     public abstract ResultWrapper<UserArtistComparison> getResult(LastFMData og, LastFMData second, T params) throws LastFmException;
 
-    public abstract Pair<Integer, Integer> getTasteBar(ResultWrapper<UserArtistComparison> resultWrapper, UserInfo og, UserInfo second, T params) throws LastFmException;
+    public abstract Pair<Integer, Integer> getTasteBar(ResultWrapper<UserArtistComparison> resultWrapper, UserInfo og, UserInfo second, T params);
 
-    public void handleResult(MessageReceivedEvent e, ResultWrapper<UserArtistComparison> resultWrapper, LastFMData og, LastFMData second, T params) throws LastFmException {
+    public void handleResult(MessageReceivedEvent e, ResultWrapper<UserArtistComparison> resultWrapper, LastFMData og, LastFMData second, T params) {
         if (resultWrapper.getRows() == 0) {
             sendMessageQueue(e, String.format("You don't share any %s :(", getEntity(params)));
             return;
@@ -68,7 +68,7 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         }
     }
 
-    private void doImage(MessageReceivedEvent e, ResultWrapper<UserArtistComparison> resultWrapper, long firstId, long secondId, T params) throws LastFmException {
+    private void doImage(MessageReceivedEvent e, ResultWrapper<UserArtistComparison> resultWrapper, long firstId, long secondId, T params) {
         String userA = resultWrapper.getResultList().get(0).getUserA();
         String userB = resultWrapper.getResultList().get(0).getUserB();
         UserInfoService userInfoService = new UserInfoService(getService());

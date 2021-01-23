@@ -78,17 +78,17 @@ public class ChartParserAux {
             message = ogMessage;
             DateUtils dateUtils = new DateUtils();
             DateUtils.DateParsed dateParsed = dateUtils.parseString(message);
-            if (dateParsed == null || dateParsed.getFrom() == null) {
+            if (dateParsed == null || dateParsed.from() == null) {
                 dateParsed = dateUtils.parseOnlyOne(message);
             }
-            if (dateParsed == null || dateParsed.getFrom() == null) {
+            if (dateParsed == null || dateParsed.from() == null) {
                 return new CustomTimeFrame(defaultTimeFrame);
             }
-            message = dateParsed.getRemainingWords();
-            if (dateParsed.getFrom().isAfter(dateParsed.getTo())) {
+            message = dateParsed.remainingWords();
+            if (dateParsed.from().isAfter(dateParsed.to())) {
                 throw new InvalidDateException();
             }
-            return new CustomTimeFrame(dateParsed.getFrom(), dateParsed.getTo());
+            return new CustomTimeFrame(dateParsed.from(), dateParsed.to());
         }
     }
 

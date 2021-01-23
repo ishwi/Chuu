@@ -7,6 +7,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +35,7 @@ public class ParserAux {
         this.doExpensiveSearch = doExpensiveSearch;
     }
 
-    User getOneUserPermissive(MessageReceivedEvent e) {
+    @NotNull User getOneUserPermissive(MessageReceivedEvent e) {
         User sample;
         String join = String.join(" ", message);
         if (e.isFromGuild()) {
@@ -83,7 +84,7 @@ public class ParserAux {
         return sample;
     }
 
-    User getOneUser(MessageReceivedEvent e, ChuuService dao) throws InstanceNotFoundException {
+    @NotNull User getOneUser(MessageReceivedEvent e, ChuuService dao) throws InstanceNotFoundException {
         User sample = null;
         List<String> tempArray = new ArrayList<>();
         boolean hasMatched = false;
@@ -137,9 +138,6 @@ public class ParserAux {
         if (e.isFromGuild()) {
             List<Member> members = e.getMessage().getMentionedMembers();
             if (!members.isEmpty()) {
-                if (members.size() != 1) {
-                    return null;
-                }
                 sample = members.get(0).getUser();
                 User finalSample = sample;
                 this.message = Arrays.stream(this.message).filter(s -> !s.equals(finalSample.getAsMention()) && !s.equals("<@!" + finalSample.getAsMention().substring(2))).toArray(String[]::new);

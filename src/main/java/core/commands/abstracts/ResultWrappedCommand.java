@@ -5,7 +5,6 @@ import core.imagerenderer.util.PieableListResultWrapper;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.ResultWrapper;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
@@ -20,7 +19,7 @@ public abstract class ResultWrappedCommand<T, Y extends CommandParameters> exten
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull Y params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull Y params) throws LastFmException {
 
         if (params.hasOptional("pie")) {
             doPie(getList(params), params);

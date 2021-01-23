@@ -22,7 +22,6 @@ import core.Chuu;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.music.MusicManager;
 import core.music.sources.MetadataTrack;
 import core.music.utils.TrackContext;
@@ -31,7 +30,6 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -74,7 +72,7 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         MusicManager manager = Chuu.playerRegistry.getExisting(e.getGuild().getIdLong());
         if (manager == null) {
             sendMessageQueue(e, "There's no music manager in this server");

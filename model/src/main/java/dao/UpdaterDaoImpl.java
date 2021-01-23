@@ -1340,6 +1340,9 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                 String mbid = resultSet.getString("mbid");
                 String url = resultSet.getString("url");
                 ScrobbledAlbum scrobbledAlbum = collect.get(mbid);
+                if (scrobbledAlbum == null) {
+                    continue;
+                }
                 scrobbledAlbum.setArtistId(artistId);
                 scrobbledAlbum.setAlbumId(id);
                 scrobbledAlbum.setUrl(url);

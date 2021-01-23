@@ -60,7 +60,9 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
         CompletableFuture<Optional<ScrobbledArtist>> completableFuture = CompletableFuture.supplyAsync(() -> getService().getTopInTag(params.getGenres(), e.getGuild().getIdLong(), mode));
 
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                whoKnowsMode.equals(WhoKnowsMode.IMAGE) ? this.getService().getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), 10, null, mode) : this.getService().getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode);
+                whoKnowsMode.equals(WhoKnowsMode.IMAGE) ?
+                        this.getService().getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode) :
+                        this.getService().getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode);
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(e, "No one knows " + CommandUtil.cleanMarkdownCharacter(params.getGenres().stream().map(WordUtils::capitalizeFully).collect(Collectors.joining(","))));
             return null;

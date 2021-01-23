@@ -2,12 +2,10 @@ package core.commands.config;
 
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.TimezoneParser;
 import core.parsers.params.TimezoneParams;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -47,7 +45,7 @@ public class TimezoneCommand extends ConcurrentCommand<TimezoneParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull TimezoneParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull TimezoneParams params) {
 
 
         TimeZone timeZone = params.getTimeZone();

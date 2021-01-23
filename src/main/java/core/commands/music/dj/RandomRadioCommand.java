@@ -3,7 +3,6 @@ package core.commands.music.dj;
 import core.Chuu;
 import core.commands.abstracts.MusicCommand;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.music.MusicManager;
 import core.music.radio.RadioTrackContext;
 import core.music.radio.RandomRadio;
@@ -11,7 +10,6 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -48,7 +46,7 @@ public class RandomRadioCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         MusicManager musicManager = Chuu.playerRegistry.get(e.getGuild());
         RadioTrackContext context = new RadioTrackContext(e.getAuthor().getIdLong(), e.getChannel().getIdLong(), new RandomRadio("Random Radio", params.hasOptional("server") ? e.getGuild().getIdLong() : null));
         musicManager.setRadio(context);

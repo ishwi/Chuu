@@ -18,7 +18,6 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
-import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -68,7 +67,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistAlbumParameters params) throws LastFmException {
         String song = params.getAlbum();
         String artist = params.getArtist();
         String url = null;

@@ -217,15 +217,6 @@ public class CustomBandcampAudioSourceManager implements AudioSourceManager, Htt
         AudioItem extract(HttpInterface httpInterface, String text) throws Exception;
     }
 
-    private static class UrlInfo {
-        public final String fullUrl;
-        public final String baseUrl;
-        public final boolean isAlbum;
-
-        private UrlInfo(String fullUrl, String baseUrl, boolean isAlbum) {
-            this.fullUrl = fullUrl;
-            this.baseUrl = baseUrl;
-            this.isAlbum = isAlbum;
-        }
+    private static record UrlInfo(String fullUrl, String baseUrl, boolean isAlbum) {
     }
 }

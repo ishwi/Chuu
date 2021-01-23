@@ -3,7 +3,6 @@ package core.commands.stats;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
@@ -11,7 +10,6 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -51,7 +49,7 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
 
 
         boolean server = params.hasOptional("server");

@@ -1,8 +1,6 @@
 package core.parsers;
 
-import core.exceptions.LastFmException;
 import core.parsers.params.EnumParameters;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.EnumSet;
@@ -23,7 +21,7 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     }
 
     @Override
-    protected EnumParameters<T> parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected EnumParameters<T> parseLogic(MessageReceivedEvent e, String[] words) {
         EnumSet<T> ts = EnumSet.allOf(clazz);
         List<String> collect = ts.stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).collect(Collectors.toList());
         if (words.length != 1) {

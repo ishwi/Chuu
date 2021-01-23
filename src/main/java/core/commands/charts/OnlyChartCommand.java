@@ -6,7 +6,6 @@ import core.imagerenderer.util.IPieableList;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
@@ -24,7 +23,7 @@ public abstract class OnlyChartCommand<T extends ChartParameters> extends Charta
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException {
 
         CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(params);
         BlockingQueue<UrlCapsule> urlCapsules = countWrapper.getResult();

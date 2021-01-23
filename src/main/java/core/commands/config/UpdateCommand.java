@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
-    public AtomicInteger maxConcurrency = new AtomicInteger(5);
+    public final AtomicInteger maxConcurrency = new AtomicInteger(5);
 
     public UpdateCommand(ChuuService dao) {
         super(dao);

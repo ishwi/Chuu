@@ -9,7 +9,6 @@ import core.parsers.params.GenreParameters;
 import dao.ChuuService;
 import dao.entities.GenreInfo;
 import dao.entities.NowPlayingArtist;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -48,7 +47,7 @@ public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull GenreParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull GenreParameters params) throws LastFmException {
 
 
         String genre = params.getGenre();

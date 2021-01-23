@@ -1093,3 +1093,20 @@ create table metadata
     song   varchar(400),
     image  varchar(400) collate ascii_general_ci
 );
+create table server_reactions
+(
+    id       bigint auto_increment                   not null PRIMARY KEY,
+    guild_id bigint                                  not null,
+    reaction varchar(100) collate utf8mb4_unicode_ci not null,
+    position int                                     not null,
+    unique (guild_id, reaction)
+);
+create table user_reactions
+(
+    id         bigint auto_increment                   not null PRIMARY KEY,
+    discord_id bigint                                  not null,
+    reaction   varchar(100) collate utf8mb4_unicode_ci not null,
+    position   int                                     not null,
+    unique (discord_id, reaction),
+    CONSTRAINT user_reactions_user FOREIGN KEY (discord_id) REFERENCES user (discord_id) ON UPDATE CASCADE ON DELETE CASCADE
+);

@@ -14,7 +14,6 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.TrackWithArtistId;
-import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -69,7 +68,7 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException {
         Long extraParam = params.getExtraParam();
         LastFMData lastFMData = params.getInnerParams().getLastFMData();
         Optional<TrackWithArtistId> milestoneOpt = lastFM.getMilestone(lastFMData, extraParam);
