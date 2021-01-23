@@ -228,7 +228,7 @@ public class ImageTester {
             int counter2 = 0;
             if (trim.startsWith("<clipPath id")) {
 
-                Pattern compile = Pattern.compile("([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?)[, \"]");
+                Pattern compile = Pattern.compile("([-+]?[0-9]*\\.?[0-9]+([eE][\\-+]?[0-9]+)?)[, \"]");
                 Matcher matcher = compile.matcher(trim);
                 System.out.println(trim);
                 int innerCounter = 0;

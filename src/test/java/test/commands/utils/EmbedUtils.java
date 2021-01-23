@@ -20,7 +20,7 @@ public class EmbedUtils {
 	//ending
 	public static final Pattern descriptionArtistRegexNoMarkDownLink = Pattern.compile(
 			"(\\d+)" + //Indexed list *captured
-					"\\. (?:.*) [-:] " + // aristName
+					"\\. (?:.*) [\\-:] " + // aristName
 					"(\\d+) " + //count of the description *captured
 					"(play(?:s)?|(?:album )?crown(?:s)?|obscurity points|artist(?:s)?|unique artist(?:s)?)");
 	public static final Pattern stolenRegex = Pattern.compile(

@@ -118,7 +118,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 }
                 break;
             case OVERRIDE_NP_REACTIONS:
-                OverrideMode overrideMode = OverrideMode.valueOf(value.trim().replaceAll("[ -_]", "_").toUpperCase());
+                OverrideMode overrideMode = OverrideMode.valueOf(value.trim().replaceAll("\s+|-", "_").toUpperCase());
                 getService().setServerOverrideReactions(guildId, overrideMode);
                 sendMessageQueue(e, "Set the override mode to: " + WordUtils.capitalizeFully(overrideMode.toString().replaceAll("_", " ")));
                 break;
@@ -151,7 +151,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 }
                 break;
             case NP:
-                String[] split = value.trim().replaceAll(" +", " ").split("[|,& ]+");
+                String[] split = value.trim().replaceAll("\s+", " ").split("[|,& ]+");
                 EnumSet<NPMode> modes = EnumSet.noneOf(NPMode.class);
                 for (String mode : split) {
                     if (mode.equalsIgnoreCase("CLEAR")) {

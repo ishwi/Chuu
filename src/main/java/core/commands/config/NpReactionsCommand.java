@@ -70,7 +70,7 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
         }
 
         AtomicLong messageId = new AtomicLong();
-        if (!e.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_ADD_REACTION)) {
+        if (e.isFromGuild() && !e.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_ADD_REACTION)) {
             sendMessageQueue(e, "Don't have permissions to add reactions in this server!");
             return;
         }
