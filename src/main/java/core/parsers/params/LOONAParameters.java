@@ -16,7 +16,7 @@ public class LOONAParameters extends ChuuDataParams {
     private final Mode mode;
     private final Subject subject;
 
-    public LOONAParameters(MessageReceivedEvent e, LastFMData lastFMData, SubCommand subCommand, Display display, @Nullable LOONA targetedLOONA, @Nullable LOONA.Type targetedType, Subject subject, Mode mode) {
+    public LOONAParameters(MessageReceivedEvent e, LastFMData lastFMData, SubCommand subCommand, Display display, @Nullable LOONA targetedLOONA, LOONA.@org.jetbrains.annotations.Nullable Type targetedType, Subject subject, Mode mode) {
         super(e, lastFMData);
         this.subCommand = subCommand;
         this.display = display;
