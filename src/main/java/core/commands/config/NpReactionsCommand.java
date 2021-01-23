@@ -9,7 +9,9 @@ import core.parsers.Parser;
 import core.parsers.params.EmotiParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -51,7 +53,7 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull EmotiParameters params) {
         if (params.hasOptional("check")) {
-            List<String> serverReactions = getService().getServerReactions(e.getAuthor().getIdLong());
+            List<String> serverReactions = getService().getUserReacts(e.getAuthor().getIdLong());
             if (serverReactions.isEmpty()) {
                 sendMessageQueue(e, "Don't have any reaction set");
                 return;
@@ -76,7 +78,24 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
 
         if (params.hasEmotes()) {
             sendMessage(e, "Checking permissions...").
-                    flatMap(ReactValidation.sender.apply(messageId, params.getEmotes()))
+                    flatMap(q -> {
+                        int count = 0;
+                        for (Emote emote : params.getEmotes()) {
+                            try {
+                                RestAction<Void> voidRestAction = q.addReaction(emote);
+                                count++;
+                            } catch (IllegalArgumentException ignored) {
+                                System.out.println("Check failed because emote not available in guild");
+                            }
+                        }
+                        if (count == 0) {
+                            q.getChannel().sendMessage("Couldn't use some emotes because of permissions or unknown emotes.\n" +
+                                    "The following emotes were ignored: " + params.getEmotes().stream().map(Emote::getAsMention).collect(Collectors.joining(" "))).queue();
+                            sendMessageQueue(e, "Will set the following reactions: " + params.getEmojis().stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" ")));
+                            getService().insertUserReactions(e.getAuthor().getIdLong(), params.getEmojis());
+                        }
+                        return count != 0;
+                    }, ReactValidation.sender.apply(messageId, params.getEmotes()))
                     .flatMap(aVoid -> e.getChannel().retrieveMessageById(messageId.get()))
                     .queue(ReactValidation.getMessageConsumer(e, params, (emotes) -> {
                         List<String> content = params.getEmotis().stream().filter(emotable -> {
@@ -93,7 +112,7 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
                         }
                     }));
         } else {
-            if (!params.hasEmojis()) {
+            if (params.hasEmojis()) {
                 String collect = params.getEmojis().stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" "));
                 sendMessageQueue(e, "Will set the following reactions: " + String.join(" ", collect));
                 getService().insertUserReactions(e.getAuthor().getIdLong(), params.getEmojis());

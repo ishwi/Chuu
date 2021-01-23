@@ -3196,11 +3196,11 @@ public class ChuuService {
         }
     }
 
-    public void insertUserReactions(long guildId, List<String> reactions) {
+    public void insertUserReactions(long userId, List<String> reactions) {
         try (Connection connection = dataSource.getConnection()) {
-            userGuildDao.clearUserReacts(connection, guildId);
+            userGuildDao.clearUserReacts(connection, userId);
             if (!reactions.isEmpty())
-                userGuildDao.insertUserReactions(connection, guildId, reactions);
+                userGuildDao.insertUserReactions(connection, userId, reactions);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

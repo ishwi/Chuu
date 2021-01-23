@@ -35,7 +35,7 @@ public class EmojeParser extends Parser<EmotiParameters> {
             }
         }
         Comparator<EmotiParameters.Emotable<?>> tComparator = Comparator.comparingInt(EmotiParameters.Emotable::position);
-        SortedSet<EmotiParameters.Emotable<?>> emotables = ImmutableSortedSet.copyOf(tComparator, emotable);
+        SortedSet<EmotiParameters.Emotable<?>> emotables = ImmutableSortedSet.copyOf(tComparator, new HashSet<>(emotable));
         return new EmotiParameters(e, emotables);
     }
 

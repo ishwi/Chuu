@@ -27,7 +27,8 @@ public class ReactValidation {
         id.set(message.getIdLong());
         for (Emote emote : emotes) {
             try {
-                actions.add(message.addReaction(emote).mapToResult());
+                RestAction<Void> voidRestAction = message.addReaction(emote);
+                actions.add(voidRestAction.mapToResult());
             } catch (IllegalArgumentException ignored) {
                 System.out.println("Check failed because emote not available in guild");
             }

@@ -59,7 +59,20 @@ public class EmotiParameters extends CommandParameters {
             return entity.getName() + ":" + entity.getId();
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
 
+            CustomEmote that = (CustomEmote) o;
+
+            return entity.equals(that.entity);
+        }
+
+        @Override
+        public int hashCode() {
+            return entity.hashCode();
+        }
     }
 
     public record CustomEmoji(int position, String entity) implements Emotable<String> {
@@ -68,5 +81,19 @@ public class EmotiParameters extends CommandParameters {
             return entity;
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            CustomEmoji that = (CustomEmoji) o;
+
+            return entity.equals(that.entity);
+        }
+
+        @Override
+        public int hashCode() {
+            return entity.hashCode();
+        }
     }
 }
