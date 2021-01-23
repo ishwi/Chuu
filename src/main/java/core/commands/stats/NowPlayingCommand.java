@@ -139,15 +139,22 @@ public class NowPlayingCommand extends NpCommand {
                 if (guildProperties != null && !guildProperties.allowReactions()) {
                     return;
                 }
-
+                OverrideMode overrideMode = guildProperties == null ? OverrideMode.OVERRIDE : guildProperties.overrideReactions();
                 serverReactions = getService().getServerReactions(e.getGuild().getIdLong());
 
                 if (e.getMember() != null && e.getMember().hasPermission(Permission.MESSAGE_ADD_REACTION)) {
-                    if (guildProperties != null && !guildProperties.overrideReactions()) {
-                        serverReactions.addAll(getService().getUserReacts(e.getAuthor().getIdLong()));
-                    } else {
-                        if (serverReactions.isEmpty()) {
-                            serverReactions = getService().getUserReacts(e.getAuthor().getIdLong());
+                    switch (overrideMode) {
+                        case ADD -> serverReactions.addAll(getService().getUserReacts(e.getAuthor().getIdLong()));
+                        case ADD_END -> {
+                            List<String> userReacts = getService().getUserReacts(e.getAuthor().getIdLong());
+                            userReacts.addAll(serverReactions);
+                            serverReactions = userReacts;
+                        }
+                        case EMPTY -> {
+                            List<String> userReacts = getService().getUserReacts(e.getAuthor().getIdLong());
+                            if (!userReacts.isEmpty()) {
+                                serverReactions = userReacts;
+                            }
                         }
                     }
                 }

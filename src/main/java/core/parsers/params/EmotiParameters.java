@@ -39,7 +39,9 @@ public class EmotiParameters extends CommandParameters {
 
     public interface Emotable<T> {
         static String toDisplay(String title) {
-            if (title.matches(".*\\d+")) {
+            if (title.matches("a:.*\\d+")) {
+                return "<" + title + ">";
+            } else if (title.matches(".*\\d+")) {
                 return "<:" + title + ">";
             }
             return title;
@@ -56,7 +58,7 @@ public class EmotiParameters extends CommandParameters {
 
         @Override
         public String getContent() {
-            return entity.getName() + ":" + entity.getId();
+            return (entity.isAnimated() ? "a:" : "") + entity.getName() + ":" + entity.getId();
         }
 
         @Override

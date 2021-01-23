@@ -1,24 +1,22 @@
 package core.commands.config;
 
-import core.Chuu;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.ReactValidation;
 import core.parsers.EmojeParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.EmotiParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+
+import static core.commands.utils.ReactValidation.validateEmotes;
 
 public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters> {
     public NpReactionsServerCommand(ChuuService dao) {
@@ -62,7 +60,7 @@ public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters>
             }
             List<String> displaying = serverReactions.stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.toList());
 
-            sendMessageQueue(e, "Have this reactions: " + String.join(" ", displaying));
+            sendMessageQueue(e, "Have these reactions: " + String.join(" ", displaying));
             return;
 
         }
@@ -83,46 +81,13 @@ public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters>
         }
 
         if (params.hasEmotes()) {
-            sendMessage(e, "Checking permissions...").
-                    flatMap(q -> {
-                        int count = 0;
-                        for (Emote emote : params.getEmotes()) {
-                            try {
-                                RestAction<Void> voidRestAction = q.addReaction(emote);
-                                count++;
-                            } catch (IllegalArgumentException ignored) {
-                                System.out.println("Check failed because emote not available in guild");
-                            }
-                        }
-                        if (count == 0) {
-                            q.getChannel().sendMessage("Couldn't use some emotes because of permissions or unknown emotes.\n" +
-                                    "The following emotes were ignored: " + params.getEmotes().stream().map(Emote::getAsMention).collect(Collectors.joining(" "))).queue();
-                            sendMessageQueue(e, "Will set the following reactions: " + params.getEmojis().stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" ")));
-                            getService().insertUserReactions(e.getAuthor().getIdLong(), params.getEmojis());
-                        }
-                        return count != 0;
-                    }, ReactValidation.sender.apply(messageId, params.getEmotes()))
-                    .flatMap(aVoid -> e.getChannel().retrieveMessageById(messageId.get()))
-                    .queue(ReactValidation.getMessageConsumer(e, params, (emotes) -> {
-                        List<String> content = params.getEmotis().stream().filter(emotable -> {
-                            if (emotable instanceof EmotiParameters.CustomEmote emote) {
-                                return !emotes.contains(emote.entity());
-                            }
-                            return true;
-                        }).map(EmotiParameters.Emotable::getContent).collect(Collectors.toList());
-                        if (content.isEmpty()) {
-                            sendMessageQueue(e, "Didn't have any reaction to add :(");
-                        } else {
-                            sendMessageQueue(e, "Will set the following reactions: " + content.stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" ")));
-                            try {
-                                getService().insertServerReactions(e.getGuild().getIdLong(), content);
-                            } catch (Exception exception) {
-                                Chuu.getLogger().warn(exception.getMessage(), exception);
-                                sendMessageQueue(e, "An error happened while saving the reactions :pensive:");
-
-                            }
-                        }
-                    }));
+            List<String> content = validateEmotes(e, params);
+            if (content.isEmpty()) {
+                sendMessageQueue(e, "Didn't add any reaction.");
+            } else {
+                getService().insertServerReactions(e.getGuild().getIdLong(), content);
+                sendMessageQueue(e, "Will set the following reactions: " + content.stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" ")));
+            }
         } else {
             if (params.hasEmojis()) {
                 String collect = params.getEmojis().stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" "));
@@ -131,4 +96,6 @@ public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters>
             }
         }
     }
+
+
 }

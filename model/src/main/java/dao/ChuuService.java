@@ -1596,7 +1596,7 @@ public class ChuuService {
         }
     }
 
-    public void setServerOverrideReactions(long guildId, boolean overrideReactions) {
+    public void setServerOverrideReactions(long guildId, OverrideMode overrideReactions) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setGuildProperty(connection, guildId, "override_reactions", overrideReactions);
         } catch (SQLException e) {

@@ -11,10 +11,7 @@ import core.parsers.Parser;
 import core.parsers.params.GuildConfigParams;
 import core.parsers.params.GuildConfigType;
 import dao.ChuuService;
-import dao.entities.ChartMode;
-import dao.entities.NPMode;
-import dao.entities.RemainingImagesMode;
-import dao.entities.WhoKnowsMode;
+import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -121,13 +118,9 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 }
                 break;
             case OVERRIDE_NP_REACTIONS:
-                b = Boolean.parseBoolean(value);
-                getService().setServerOverrideReactions(guildId, b);
-                if (b) {
-                    sendMessageQueue(e, "All np reactions will be as configured for the server");
-                } else {
-                    sendMessageQueue(e, "User np reactions won't be overridden.");
-                }
+                OverrideMode overrideMode = OverrideMode.valueOf(value.trim().replaceAll("[ -_]", "_").toUpperCase());
+                getService().setServerOverrideReactions(guildId, overrideMode);
+                sendMessageQueue(e, "Set the override mode to: " + WordUtils.capitalizeFully(overrideMode.toString().replaceAll("_", " ")));
                 break;
             case DELETE_MESSAGE:
                 b = Boolean.parseBoolean(value);

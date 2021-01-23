@@ -22,6 +22,7 @@ public enum GuildConfigType {
     static final Pattern npMode = Pattern.compile("((" + "CLEAR|" +
             EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
             ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
+    static final Pattern overrideMode = Pattern.compile("(override|add|add[-_ ]end|empty)", Pattern.CASE_INSENSITIVE);
 
     private static final Map<String, GuildConfigType> ENUM_MAP;
     private static final Pattern number = Pattern.compile("\\d+");
@@ -87,8 +88,8 @@ public enum GuildConfigType {
                             boolean del = guildProperties.allowReactions();
                             return String.format("**%s** -> %s", key, del);
                         case OVERRIDE_NP_REACTIONS:
-                            del = guildProperties.overrideReactions();
-                            return String.format("**%s** -> %s", key, del);
+                            OverrideMode overrideMode = guildProperties.overrideReactions();
+                            return String.format("**%s** -> %s", key, overrideMode.toString());
                         case DELETE_MESSAGE:
                             del = guildProperties.deleteMessages();
                             return String.format("**%s** -> %s", key, del);
@@ -119,7 +120,8 @@ public enum GuildConfigType {
             case CROWNS_THRESHOLD -> number.asMatchPredicate();
             case CHART_MODE -> UserConfigType.chartMode.asMatchPredicate();
             case REMAINING_MODE, WHOKNOWS_MODE -> UserConfigType.whoknowsMode.asMatchPredicate();
-            case ALLOW_NP_REACTIONS, OVERRIDE_NP_REACTIONS, DELETE_MESSAGE, SHOW_DISABLED_WARNING -> UserConfigType.bool.asMatchPredicate();
+            case ALLOW_NP_REACTIONS, DELETE_MESSAGE, SHOW_DISABLED_WARNING -> UserConfigType.bool.asMatchPredicate();
+            case OVERRIDE_NP_REACTIONS -> overrideMode.asMatchPredicate();
             case NP -> GuildConfigType.npMode.asMatchPredicate();
         };
     }
@@ -146,7 +148,9 @@ public enum GuildConfigType {
             case ALLOW_NP_REACTIONS:
                 return "Whether you want the bot to add reactions to nps in this server.";
             case OVERRIDE_NP_REACTIONS:
-                return "Whether you want the server reactions to override the users reactions or simply add to those added.";
+                explanation = EnumSet.allOf(OverrideMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString().replaceAll("_", "-"), '-', ' ') + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                return "Whether you want the server reactions to override the users reactions, add to the user added or only use them when the user doesnt have any.\n"
+                        + "\t\tThe possible values for the chart mode are the following:" + explanation;
             case DELETE_MESSAGE:
                 return "Whether you want the bot to delete the original message the user wrote.";
             case SHOW_DISABLED_WARNING:

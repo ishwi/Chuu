@@ -165,6 +165,7 @@ alter table user
 
 
 alter table guild
-    add column override_reactions boolean not null default false;
-alter table guild
     add column allow_reactions boolean not null default true;
+
+alter table guild
+    add column override_reactions ENUM ('OVERRIDE', 'ADD', 'ADD_END', 'EMPTY') DEFAULT 'OVERRIDE';

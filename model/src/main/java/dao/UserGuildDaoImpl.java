@@ -773,7 +773,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             String remaining_mode = resultSet.getString("remaining_mode");
             boolean deleteMessages = resultSet.getBoolean("delete_message");
             boolean disabledWarning = resultSet.getBoolean("disabled_warning");
-            boolean override_reactions = resultSet.getBoolean("override_reactions");
+            OverrideMode override_reactions = OverrideMode.valueOf(resultSet.getString("override_reactions"));
             boolean allowReactions = resultSet.getBoolean("allow_reactions");
 
 
