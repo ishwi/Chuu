@@ -2,7 +2,6 @@ package core.commands.config;
 
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.otherlisteners.Confirmator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -49,7 +48,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         // Check if it exists
         getService().findLastFMData(idLong);

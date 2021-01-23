@@ -118,4 +118,16 @@ interface UserGuildDao {
     CommandStats getCommandStats(long discordId, Connection connection);
 
     Set<LastFMData> findScrobbleableUsers(Connection connection, long guildId);
+
+    void insertServerReactions(Connection connection, long guildId, List<String> reactions);
+
+    void insertUserReactions(Connection connection, long userId, List<String> reactions);
+
+    void clearServerReactions(Connection connection, long guildId);
+
+    void clearUserReacts(Connection connection, long userId);
+
+    List<String> getServerReactions(Connection connection, long guildId);
+
+    List<String> getUserReacts(Connection connection, long userId);
 }

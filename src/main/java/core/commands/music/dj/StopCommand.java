@@ -19,13 +19,11 @@ package core.commands.music.dj;
 
 import core.Chuu;
 import core.commands.abstracts.MusicCommand;
-import core.exceptions.LastFmException;
 import core.music.MusicManager;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -57,7 +55,7 @@ public class StopCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         MusicManager manager = getManager(e);
         manager.setRadio(null);
         manager.getQueue().clear();

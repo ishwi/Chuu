@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 abstract class TagService<T extends EntityInfo, Y extends ScrobbledArtist> implements ChuuRunnable {
     final ChuuService dao;
     final ConcurrentLastFM lastFM;
-    Map<Genre, List<T>> genres;
+    final Map<Genre, List<T>> genres;
 
     public TagService(ChuuService dao, ConcurrentLastFM lastFM, List<T> collect, String genre) {
         this(dao, lastFM, Map.of(new Genre(genre, ""), collect));

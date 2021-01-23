@@ -3,7 +3,6 @@ package core.commands.stats;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.NumberParser;
@@ -15,7 +14,6 @@ import dao.ChuuService;
 import dao.entities.GlobalStreakEntities;
 import dao.entities.PrivacyMode;
 import dao.entities.UsersWrapper;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -72,7 +70,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) {
 
         Long author = e.getAuthor().getIdLong();
 
@@ -109,20 +107,10 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
             int andIncrement = positionCounter.getAndIncrement();
             String dayNumberSuffix = CommandUtil.getDayNumberSuffix(andIncrement);
             switch (privacyMode) {
-
-                case STRICT:
-                case NORMAL:
-                    x.setCalculatedDisplayName(dayNumberSuffix + " **Private User #" + atomicInteger.getAndIncrement() + "**");
-                    break;
-                case DISCORD_NAME:
-                    x.setCalculatedDisplayName(dayNumberSuffix + " **" + getUserString(params.getE(), x.getDiscordId()) + "**");
-                    break;
-                case TAG:
-                    x.setCalculatedDisplayName(dayNumberSuffix + " **" + params.getE().getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag() + "**");
-                    break;
-                case LAST_NAME:
-                    x.setCalculatedDisplayName(dayNumberSuffix + " **" + x.getLastfmId() + " (last.fm)**");
-                    break;
+                case STRICT, NORMAL -> x.setCalculatedDisplayName(dayNumberSuffix + " **Private User #" + atomicInteger.getAndIncrement() + "**");
+                case DISCORD_NAME -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + getUserString(params.getE(), x.getDiscordId()) + "**");
+                case TAG -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + params.getE().getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag() + "**");
+                case LAST_NAME -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + x.getLastfmId() + " (last.fm)**");
             }
 
         };

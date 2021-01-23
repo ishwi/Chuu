@@ -19,9 +19,12 @@ public class NPService {
     private final LastFMData user;
     private final ChuuService db;
 
-    public NPService(ConcurrentLastFM lastFM, LastFMData user) {
+    public NPService(ConcurrentLastFM lastFM, LastFMData user) throws InstanceNotFoundException {
         this.lastFM = lastFM;
         this.user = user;
+        if (user.getName() == null) {
+            throw new InstanceNotFoundException(user.getDiscordId());
+        }
         this.db = Chuu.getDao();
     }
 
@@ -34,7 +37,7 @@ public class NPService {
         NPUpdate npWithUpdate = lastFM.getNPWithUpdate(user, wrapper.getTimestamp(), true);
         boolean removeFlag = true;
         try {
-            if (!UpdaterService.lockAndContinue(user.getName())) {
+            if (!UpdaterService.lockAndContinue(wrapper.getLastFMName())) {
                 removeFlag = false;
                 Chuu.getLogger().warn("User was being updated while querying for NP " + user.getName());
                 npWithUpdate.data.cancel(true);
@@ -44,7 +47,7 @@ public class NPService {
             return npWithUpdate;
         } finally {
             if (removeFlag) {
-                UpdaterService.remove(user.getName());
+                UpdaterService.remove(wrapper.getLastFMName());
             }
         }
     }

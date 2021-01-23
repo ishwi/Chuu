@@ -59,7 +59,9 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
             return null;
         }
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.getService().getWhoKnowsTrack(10, trackId, ap.getE().getGuild().getIdLong()) : this.getService().getWhoKnowsTrack(Integer.MAX_VALUE, trackId, ap.getE().getGuild().getIdLong());
+                effectiveMode.equals(WhoKnowsMode.IMAGE) ?
+                        this.getService().getWhoKnowsTrack(10, trackId, ap.getE().getGuild().getIdLong()) :
+                        this.getService().getWhoKnowsTrack(Integer.MAX_VALUE, trackId, ap.getE().getGuild().getIdLong());
         wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist());
         try {
             TrackExtended trackInfo = lastFM.getTrackInfoExtended(ap.getLastFMData(), ap.getArtist(), ap.getAlbum());

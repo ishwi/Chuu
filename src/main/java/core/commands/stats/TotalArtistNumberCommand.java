@@ -2,14 +2,12 @@ package core.commands.stats;
 
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -54,7 +52,7 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<NumberParameters
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) {
 
         ChuuDataParams innerParams = params.getInnerParams();
         String lastFmName = innerParams.getLastFMData().getName();

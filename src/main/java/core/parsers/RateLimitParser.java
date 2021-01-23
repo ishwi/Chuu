@@ -1,9 +1,7 @@
 package core.parsers;
 
-import core.exceptions.LastFmException;
 import core.parsers.params.RateLimitParams;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.regex.Pattern;
@@ -17,7 +15,7 @@ public class RateLimitParser extends DaoParser<RateLimitParams> {
     }
 
     @Override
-    protected RateLimitParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected RateLimitParams parseLogic(MessageReceivedEvent e, String[] words) {
         if (words.length != 1 && words.length != 2) {
             sendError("A raw discordId is expected, optionally with a new rate limit to apply to that user", e);
             return null;

@@ -109,16 +109,10 @@ public class ColorThiefCustom {
             throw new IllegalArgumentException("Specified quality should be greater then 0.");
         }
 
-        Pair<int[][], Color> returnValue;
-        switch (sourceImage.getType()) {
-            case BufferedImage.TYPE_3BYTE_BGR:
-            case BufferedImage.TYPE_4BYTE_ABGR:
-                returnValue = getPixelsFast(sourceImage, quality, ignoreWhite);
-                break;
-
-            default:
-                returnValue = getPixelsSlow(sourceImage, quality, ignoreWhite);
-        }
+        Pair<int[][], Color> returnValue = switch (sourceImage.getType()) {
+            case BufferedImage.TYPE_3BYTE_BGR, BufferedImage.TYPE_4BYTE_ABGR -> getPixelsFast(sourceImage, quality, ignoreWhite);
+            default -> getPixelsSlow(sourceImage, quality, ignoreWhite);
+        };
 
         // Send array to quantize function which clusters values using median cut algorithm
         return Pair.of(MMCQ.quantize(returnValue.getLeft(), colorCount), returnValue.getRight());
@@ -134,18 +128,11 @@ public class ColorThiefCustom {
 
         int colorDepth;
         int type = sourceImage.getType();
-        switch (type) {
-            case BufferedImage.TYPE_3BYTE_BGR:
-                colorDepth = 3;
-                break;
-
-            case BufferedImage.TYPE_4BYTE_ABGR:
-                colorDepth = 4;
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unhandled type: " + type);
-        }
+        colorDepth = switch (type) {
+            case BufferedImage.TYPE_3BYTE_BGR -> 3;
+            case BufferedImage.TYPE_4BYTE_ABGR -> 4;
+            default -> throw new IllegalArgumentException("Unhandled type: " + type);
+        };
 
         int expectedDataLength = pixelCount * colorDepth;
         if (expectedDataLength != pixels.length) {

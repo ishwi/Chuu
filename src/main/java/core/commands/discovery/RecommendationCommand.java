@@ -4,7 +4,6 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.stats.AffinityCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
@@ -56,7 +55,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull RecommendationsParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull RecommendationsParams params) throws InstanceNotFoundException {
 
         long firstDiscordID;
         long secondDiscordID;

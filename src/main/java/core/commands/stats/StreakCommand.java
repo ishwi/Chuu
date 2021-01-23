@@ -16,7 +16,6 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.entities.StreakEntity;
-import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -67,7 +66,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException {
 
 
         String lastfmId = params.getLastFMData().getName();

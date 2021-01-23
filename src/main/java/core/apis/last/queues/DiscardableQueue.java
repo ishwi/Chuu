@@ -19,7 +19,7 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
 
     private final Function<UrlCapsule, T> factoryFunction;
     private final Predicate<T> discard;
-    protected LinkedBlockingQueue<CompletableFuture<?>> taskQueue;
+    protected final LinkedBlockingQueue<CompletableFuture<?>> taskQueue;
 
     public DiscardableQueue(Predicate<T> discard, Function<UrlCapsule, T> factoryFunction, int maxNumberOfElements) {
         this(maxNumberOfElements, factoryFunction, discard, true);

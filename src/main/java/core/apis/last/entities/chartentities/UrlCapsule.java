@@ -96,8 +96,7 @@ public abstract class UrlCapsule {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof UrlCapsule)) return false;
-        UrlCapsule that = (UrlCapsule) o;
+        if (!(o instanceof UrlCapsule that)) return false;
         return
                 Objects.equals(getArtistName(), that.getArtistName()) &&
                         Objects.equals(getAlbumName(), that.getAlbumName());

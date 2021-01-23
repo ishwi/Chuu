@@ -14,7 +14,6 @@ import core.parsers.params.UrlParameters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.*;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -179,7 +178,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull UrlParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull UrlParameters params) {
         Member member = e.getGuild().getMember(e.getAuthor());
         if (member == null || !member.hasPermission(Permission.ADMINISTRATOR)) {
             sendMessageQueue(e, "Only an admin can export the data");

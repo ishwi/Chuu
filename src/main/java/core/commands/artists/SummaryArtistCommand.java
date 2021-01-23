@@ -14,7 +14,6 @@ import core.parsers.params.ArtistParameters;
 import core.services.TagArtistService;
 import dao.ChuuService;
 import dao.entities.*;
-import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
@@ -65,7 +64,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
 
         final ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);

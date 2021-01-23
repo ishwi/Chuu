@@ -45,20 +45,11 @@ public class AlbumChart extends UrlCapsule {
         JSONObject artistObj = trackObj.getJSONObject("artist");
         String artistName = artistObj.getString("#text");
         JSONObject album = trackObj.getJSONObject("album");
-        String mbid;
-        switch (topEntity) {
-            case ALBUM:
-                mbid = album.getString("mbid");
-                break;
-            case TRACK:
-                mbid = trackObj.getString("mbid");
-                break;
-            case ARTIST:
-                mbid = artistObj.getString("mbid");
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + topEntity);
-        }
+        String mbid = switch (topEntity) {
+            case ALBUM -> album.getString("mbid");
+            case TRACK -> trackObj.getString("mbid");
+            case ARTIST -> artistObj.getString("mbid");
+        };
         JSONArray image = trackObj.getJSONArray("image");
         JSONObject bigImage = image.getJSONObject(image.length() - 1);
         String albumName = album.getString("#text");

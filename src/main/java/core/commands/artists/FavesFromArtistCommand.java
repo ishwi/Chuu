@@ -18,7 +18,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
 import dao.entities.Track;
-import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -67,7 +66,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistTimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistTimeFrameParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
         TimeFrameEnum timeframew = params.getTimeFrame();

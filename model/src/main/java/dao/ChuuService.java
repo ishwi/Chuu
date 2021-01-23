@@ -3169,4 +3169,56 @@ public class ChuuService {
         }
 
     }
+
+    public void insertServerReactions(long guildId, List<String> reactions) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.clearServerReactions(connection, guildId);
+            if (!reactions.isEmpty())
+                userGuildDao.insertServerReactions(connection, guildId, reactions);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void clearServerReacts(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.clearServerReactions(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<String> getServerReactions(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.getServerReactions(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void insertUserReactions(long guildId, List<String> reactions) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.clearUserReacts(connection, guildId);
+            if (!reactions.isEmpty())
+                userGuildDao.insertUserReactions(connection, guildId, reactions);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void clearUserReacts(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.clearUserReacts(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<String> getUserReacts(long userId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.getUserReacts(connection, userId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }

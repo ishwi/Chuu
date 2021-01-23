@@ -50,7 +50,7 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
 
     protected abstract T doSomethingNoWords(int limit, LastFMData lastFMData, MessageReceivedEvent e) throws InstanceNotFoundException, LastFmException;
 
-    protected abstract T doSomethingWords(LastFMData lastFMData, MessageReceivedEvent e, Set<String> strings) throws InstanceNotFoundException, LastFmException;
+    protected abstract T doSomethingWords(LastFMData lastFMData, MessageReceivedEvent e, Set<String> strings);
 
 
 }

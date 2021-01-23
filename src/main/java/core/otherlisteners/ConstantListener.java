@@ -11,24 +11,16 @@ import javax.annotation.Nonnull;
 import java.time.Year;
 import java.util.List;
 
-public class ConstantListener implements EventListener {
+public record ConstantListener(long channelId, ChuuService service) implements EventListener {
     private static final String ACCEPT = "U+2714";
     private static final String REJECT = "U+274c";
-    private final long channelId;
-    private final ChuuService service;
-
-    public ConstantListener(long channelId, ChuuService service) {
-        this.channelId = channelId;
-        this.service = service;
-    }
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
-        if (event instanceof MessageReactionAddEvent) {
-            MessageReactionAddEvent event1 = (MessageReactionAddEvent) event;
-            long idLong = event1.getChannel().getIdLong();
-            if (idLong == channelId && event1.getUser() != null && !event1.getUser().isBot()) {
-                onMessageReactionAdd(event1);
+        if (event instanceof MessageReactionAddEvent e) {
+            long idLong = e.getChannel().getIdLong();
+            if (idLong == channelId && e.getUser() != null && !e.getUser().isBot()) {
+                onMessageReactionAdd(e);
             }
         }
     }

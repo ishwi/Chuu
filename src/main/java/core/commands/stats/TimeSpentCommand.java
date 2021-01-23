@@ -10,7 +10,6 @@ import core.parsers.params.TimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -44,7 +43,7 @@ public class TimeSpentCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException {
 
         String username = params.getLastFMData().getName();
         long discordId = params.getLastFMData().getDiscordId();

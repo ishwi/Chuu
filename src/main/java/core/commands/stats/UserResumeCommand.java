@@ -16,7 +16,6 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -59,7 +58,7 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException {
 
         LastFMData name = params.getLastFMData();
         BlockingQueue<UrlCapsule> capsules = new LinkedBlockingQueue<>();

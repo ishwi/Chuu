@@ -3,7 +3,6 @@ package core.commands.stats;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
@@ -69,7 +68,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
 
 
         LastFMData ogData = getService().findLastFMData(e.getAuthor().getIdLong());
@@ -79,7 +78,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
 
         StringBuilder stringBuilder = new StringBuilder();
         List<String> string = collect.stream().map(x -> {
-                    String name;
+            String name;
                     if (x.getPrivacyMode() == PrivacyMode.TAG) {
                         name = e.getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag();
                     } else if (x.getPrivacyMode() == PrivacyMode.LAST_NAME) {

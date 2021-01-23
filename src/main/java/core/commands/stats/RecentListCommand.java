@@ -12,7 +12,6 @@ import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -57,7 +56,7 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException {
 
 
         long limit = params.getExtraParam();

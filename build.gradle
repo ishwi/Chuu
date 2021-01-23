@@ -73,6 +73,7 @@ dependencies {
     implementation group: 'org.apache.xmlgraphics', name: 'batik-codec', version: '1.13'
     implementation group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.13'
     implementation group: 'com.zaxxer', name: 'HikariCP', version: '3.4.5'
+    implementation 'com.vdurmont:emoji-java:5.1.1'
 
 
     // TEST

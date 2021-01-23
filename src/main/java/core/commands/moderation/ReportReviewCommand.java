@@ -4,7 +4,6 @@ import core.Chuu;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -78,7 +77,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = getService().findLastFMData(idLong);
         if (lastFMData.getRole() != Role.ADMIN) {

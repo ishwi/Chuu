@@ -81,9 +81,8 @@ public class TrackDurationArtistChart extends TrackDurationChart {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TrackDurationArtistChart)) return false;
+        if (!(o instanceof TrackDurationArtistChart that)) return false;
         if (!super.equals(o)) return false;
-        TrackDurationArtistChart that = (TrackDurationArtistChart) o;
         return this.getArtistName().equals(that.getArtistName());
     }
 

@@ -14,7 +14,6 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -61,7 +60,7 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
         String artist = params.getArtist();
         char prefix = CommandUtil.getMessagePrefix(e);
 

@@ -13,7 +13,6 @@ import dao.entities.LastFMData;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
 import dao.entities.Track;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -56,7 +55,7 @@ public class DailyCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException {
 
         LastFMData user = params.getLastFMData();
         String lastFmName = user.getName();

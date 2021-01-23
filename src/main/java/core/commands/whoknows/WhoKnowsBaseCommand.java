@@ -18,9 +18,10 @@ import core.parsers.OptionalEntity;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.ReturnNowPlaying;
+import dao.entities.WKMode;
 import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
-import dao.exceptions.InstanceNotFoundException;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.imgscalr.Scalr;
@@ -29,7 +30,7 @@ import org.knowm.xchart.PieChart;
 import javax.validation.constraints.NotNull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.function.Consumer;
+import java.util.EnumSet;
 
 public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends ConcurrentCommand<T> {
     final DiscogsApi discogsApi;
@@ -61,7 +62,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException {
 
 
         WhoKnowsMode whoknowsMode = getWhoknowsMode(params);
@@ -80,18 +81,29 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
 
     public void generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, T ap, long author, WhoKnowsMode effectiveMode) {
         wrapperReturnNowPlaying.getReturnNowPlayings()
-                .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername()));
+                .forEach(x ->
+                        x.setGenerateString(() -> {
+                            String userString = getUserString(ap.getE(), x.getDiscordId());
+                            x.setDiscordName(userString);
+                            return ". " +
+                                    "**[" + LinkUtils.cleanMarkdownCharacter(userString) + "](" +
+                                    PrivacyUtils.getUrlTitle(x) +
+                                    ")** - " +
+                                    x.getPlayNumber() + " plays\n";
+                        })
+                );
         switch (effectiveMode) {
 
-            case IMAGE:
-                doImage(ap, wrapperReturnNowPlaying);
-                break;
-            case LIST:
-                doList(ap, wrapperReturnNowPlaying);
-                break;
-            case PIE:
-                doPie(ap, wrapperReturnNowPlaying);
-                break;
+            case IMAGE, PIE -> {
+                wrapperReturnNowPlaying.getReturnNowPlayings().stream().limit(15)
+                        .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername()));
+                if (effectiveMode.equals(WhoKnowsMode.IMAGE)) {
+                    doImage(ap, wrapperReturnNowPlaying);
+                } else {
+                    doPie(ap, wrapperReturnNowPlaying);
+                }
+            }
+            case LIST -> doList(ap, wrapperReturnNowPlaying);
         }
     }
 
@@ -106,7 +118,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         } else {
             title = e.getJDA().getSelfUser().getName();
         }
-        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title, logo);
+        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong());
         sendImage(image, e);
 
         return logo;
@@ -117,14 +129,6 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         StringBuilder builder = new StringBuilder();
 
         MessageReceivedEvent e = ap.getE();
-        Consumer<ReturnNowPlaying> a = (x) -> {
-            String itemUrl = PrivacyUtils.getUrlTitle(x);
-            x.setItemUrl(itemUrl);
-        };
-        wrapperReturnNowPlaying.getReturnNowPlayings()
-                .forEach(x ->
-                        x.setDisplayer(a)
-                );
 
         int counter = 1;
         for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {

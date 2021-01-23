@@ -2,9 +2,7 @@ package core.parsers;
 
 import core.commands.abstracts.MyCommand;
 import core.commands.moderation.DisabledCommand;
-import core.exceptions.LastFmException;
 import core.parsers.params.DisabledCommandParameters;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -30,7 +28,7 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> {
     }
 
     @Override
-    protected DisabledCommandParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected DisabledCommandParameters parseLogic(MessageReceivedEvent e, String[] words) {
         List<Character> acceptecChars = PrefixParser.acceptecChars;
         if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
             sendError("Only server admins can disable commands", e);

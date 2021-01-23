@@ -6,7 +6,6 @@ import com.google.common.cache.LoadingCache;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.OptionableParser;
 import core.parsers.OptionalEntity;
@@ -16,7 +15,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.entities.UsersWrapper;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -67,7 +65,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @javax.validation.constraints.NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @javax.validation.constraints.NotNull CommandParameters params) {
 
 
         boolean showFresh = !params.hasOptional("recent");

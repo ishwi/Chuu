@@ -19,13 +19,11 @@ package core.commands.music.dj;
 
 import core.Chuu;
 import core.commands.abstracts.MusicCommand;
-import core.exceptions.LastFmException;
 import core.music.MusicManager;
 import core.parsers.ChannelParser;
 import core.parsers.Parser;
 import core.parsers.params.ChannelParameters;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -61,7 +59,7 @@ public class SummonCommand extends MusicCommand<ChannelParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChannelParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ChannelParameters params) {
         MusicManager manager = Chuu.playerRegistry.get(e.getGuild());
         GuildChannel targetChannel = params.getGuildChannel();
         if (targetChannel instanceof VoiceChannel voiceChannel) {

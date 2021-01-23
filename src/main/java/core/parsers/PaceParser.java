@@ -31,30 +31,18 @@ public class PaceParser extends NumberParser<NumberParameters<NaturalTimeParams>
                                 (item, number) -> {
                                     NaturalTimeFrameEnum naturalTimeFrameEnum = item.getTime();
                                     LocalDate now = LocalDate.now();
-                                    switch (naturalTimeFrameEnum) {
-                                        case YEAR:
-                                            return number > (int) ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now);
-                                        case QUARTER:
-                                            return number > (int) ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now) * 4;
-                                        case MONTH:
-                                            return number > ChronoUnit.MONTHS.between(LASTFM_CREATION_DATE, now);
-                                        case ALL:
-                                            return false;
-                                        case SEMESTER:
-                                            return number > ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now) * 2;
-                                        case WEEK:
-                                            return number > ChronoUnit.WEEKS.between(LASTFM_CREATION_DATE, now);
-                                        case DAY:
-                                            return number > ChronoUnit.DAYS.between(LASTFM_CREATION_DATE, now);
-                                        case HOUR:
-                                            return number > ChronoUnit.HOURS.between(LASTFM_CREATION_DATE, now);
-                                        case MINUTE:
-                                            return number > ChronoUnit.MINUTES.between(LASTFM_CREATION_DATE, now);
-                                        case SECOND:
-                                            return number > ChronoUnit.SECONDS.between(LASTFM_CREATION_DATE, now);
-                                        default:
-                                            throw new IllegalArgumentException();
-                                    }
+                                    return switch (naturalTimeFrameEnum) {
+                                        case YEAR -> number > (int) ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now);
+                                        case QUARTER -> number > (int) ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now) * 4L;
+                                        case MONTH -> number > ChronoUnit.MONTHS.between(LASTFM_CREATION_DATE, now);
+                                        case ALL -> false;
+                                        case SEMESTER -> number > ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now) * 2;
+                                        case WEEK -> number > ChronoUnit.WEEKS.between(LASTFM_CREATION_DATE, now);
+                                        case DAY -> number > ChronoUnit.DAYS.between(LASTFM_CREATION_DATE, now);
+                                        case HOUR -> number > ChronoUnit.HOURS.between(LASTFM_CREATION_DATE, now);
+                                        case MINUTE -> number > ChronoUnit.MINUTES.between(LASTFM_CREATION_DATE, now);
+                                        case SECOND -> number > ChronoUnit.SECONDS.between(LASTFM_CREATION_DATE, now);
+                                    };
                                 }
                         ), null,
                 Long.MAX_VALUE,

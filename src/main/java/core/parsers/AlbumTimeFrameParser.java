@@ -45,6 +45,9 @@ public class AlbumTimeFrameParser extends DaoParser<AlbumTimeFrameParameters> {
         LastFMData lastFMData = findLastfmFromID(sample, e);
 
         if (words.length == 0) {
+            if (lastFMData.getName() == null) {
+                throw new InstanceNotFoundException(sample.getIdLong());
+            }
             NowPlayingArtist np = new NPService(lastFM, lastFMData).getNowPlaying();
             return new AlbumTimeFrameParameters(e, np.getArtistName(), np.getAlbumName(), lastFMData, new CustomTimeFrame(timeFrame));
         } else {

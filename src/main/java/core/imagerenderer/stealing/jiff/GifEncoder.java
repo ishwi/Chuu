@@ -47,7 +47,7 @@ public class GifEncoder {
     protected byte[] indexedPixels; // converted frame indexed to palette
     protected int colorDepth; // number of bit planes
     protected byte[] colorTab; // RGB palette
-    protected boolean[] usedEntry = new boolean[256]; // active palette entries
+    protected final boolean[] usedEntry = new boolean[256]; // active palette entries
     protected int palSize = 7; // color table size (bits-1)
     protected int dispose = -1; // disposal code (-1 = use default)
     protected boolean closeStream = false; // close stream when finished

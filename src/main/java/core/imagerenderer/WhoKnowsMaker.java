@@ -1,7 +1,7 @@
 package core.imagerenderer;
 
-import core.Chuu;
 import core.imagerenderer.stealing.blur.GaussianFilter;
+import dao.entities.WKMode;
 import dao.entities.WrapperReturnNowPlaying;
 import org.imgscalr.Scalr;
 
@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.EnumSet;
 
 public class WhoKnowsMaker {
     static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 32);
@@ -25,17 +26,11 @@ public class WhoKnowsMaker {
 
     }
 
-    public static BufferedImage generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, String discordName, BufferedImage logo) {
+    public static BufferedImage generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, EnumSet<WKMode> modes, String discordName, BufferedImage logo, long author) {
 
         BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
         String artist;
-        if (wrapperReturnNowPlaying.getArtist() == null) {
-            artist = wrapperReturnNowPlaying.getReturnNowPlayings().get(0).getArtist().toUpperCase();
-            Chuu.getLogger().warn("ARTIST NULL ON WK  {} ,{} ", artist, discordName);
-            Chuu.getLogger().warn("ARTIST NULL ON WK  {} ,{} ", artist, discordName);
-        } else {
-            artist = wrapperReturnNowPlaying.getArtist().toUpperCase();
-        }
+        artist = wrapperReturnNowPlaying.getArtist().toUpperCase();
         String urlString = wrapperReturnNowPlaying.getUrl();
         FontMetrics metrics;
 
@@ -112,6 +107,24 @@ public class WhoKnowsMaker {
         if (guildLogo != null)
             g.drawImage(guildLogo, X_MARGIN + 320 + rectWidth - guildLogo.getWidth(), yCounter - 16 - guildLogo
                     .getHeight(), null);
+
+//        if (modes.contains(WKMode.RANK)) {
+//            boolean draw = false;
+//            int j = 0;
+//            List<ReturnNowPlaying> returnNowPlayings = wrapperReturnNowPlaying.getReturnNowPlayings();
+//            for (int returnNowPlayingsSize = returnNowPlayings.size(); j < returnNowPlayingsSize; j++) {
+//                ReturnNowPlaying returnNowPlaying = returnNowPlayings.get(j);
+//                if (returnNowPlaying.getDiscordId() == author && j >= 10) {
+//                    draw = true;
+//                    break;
+//                }
+//            }
+//            if (draw) {
+//                WrapperReturnNowPlaying authorWrapper = new WrapperReturnNowPlaying(List.of(wrapperReturnNowPlaying.getReturnNowPlayings().get(j)), 1, wrapperReturnNowPlaying.getUrl(), wrapperReturnNowPlaying.getArtist());
+//                GraphicUtils
+//                        .doChart(g, X_MARGIN + 320, yCounter + 334, rectWidth, 32, 10, authorWrapper, colorB1, colorB, lastFmLogo, true, DESC_FONT.deriveFont(18f), j + 1);
+//            }
+//        }
 
         GraphicUtils
                 .doChart(g, X_MARGIN + 320, yCounter, rectWidth, 32, 10, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, DESC_FONT

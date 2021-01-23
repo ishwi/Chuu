@@ -102,23 +102,23 @@ public class BandRendered {
             int posX;
             int baseline;
             switch (albumsImages.size()) {
-                case 3:
+                case 3 -> {
                     int[] pos = {20, 370, 175};
                     posX = albumsStartPosition + pos[count - 1];
                     baseline = 105 + 400 * (imagesDrawn / 2);
-                    break;
-                case 2:
+                }
+                case 2 -> {
                     posX = albumsStartPosition + 175;
                     baseline = 105 + 400 * (imagesDrawn);
-                    break;
-                case 1:
+                }
+                case 1 -> {
                     posX = albumsStartPosition + 175;
                     baseline = 105 + 200;
-                    break;
-                default:
+                }
+                default -> {
                     posX = albumsStartPosition + 350 * (imagesDrawn % 2);
                     baseline = 105 + 400 * (imagesDrawn / 2);
-                    break;
+                }
             }
             g.drawImage(albumsImage, posX, baseline, 300, 300, null);
             baseline += 300;

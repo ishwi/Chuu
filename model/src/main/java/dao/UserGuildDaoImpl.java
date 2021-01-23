@@ -16,6 +16,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class UserGuildDaoImpl implements UserGuildDao {
 
@@ -1129,6 +1131,105 @@ public class UserGuildDaoImpl implements UserGuildDao {
             throw new ChuuServiceException(e);
         }
         return lastFMData;
+
+    }
+
+    @Override
+    public void insertServerReactions(Connection connection, long guildId, List<String> reactions) {
+        String variables = IntStream.range(0, reactions.size()).mapToObj(t -> "(?,?,?)").collect(Collectors.joining(","));
+        String queryString = "INSERT INTO  server_reactions"
+                + " (guild_id, reaction,position)  VALUES  " + variables;
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            for (int i = 0; i < reactions.size(); i++) {
+                preparedStatement.setLong(i * 3 + 1, guildId);
+                preparedStatement.setString(i * 3 + 2, reactions.get(i));
+                preparedStatement.setInt(i * 3 + 3, i);
+            }
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void insertUserReactions(Connection connection, long userId, List<String> reactions) {
+        String variables = IntStream.range(0, reactions.size()).mapToObj(t -> "(?,?,?)").collect(Collectors.joining(","));
+        String queryString = "INSERT INTO  user_reactions"
+                + " (discord_id, reaction,position)  VALUES  " + variables;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            for (int i = 0; i < reactions.size(); i++) {
+                preparedStatement.setLong(i * 3 + 1, userId);
+                preparedStatement.setString(i * 3 + 2, reactions.get(i));
+                preparedStatement.setInt(i * 3 + 3, i);
+            }
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void clearServerReactions(Connection connection, long guildId) {
+        Set<Long> returnSet = new HashSet<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("delete from server_reactions where guild_id = ? ")) {
+
+            preparedStatement.setLong(1, guildId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void clearUserReacts(Connection connection, long userId) {
+        Set<Long> returnSet = new HashSet<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("delete from user_reactions where discord_id = ? ")) {
+
+            preparedStatement.setLong(1, userId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<String> getServerReactions(Connection connection, long guildId) {
+        List<String> results = new ArrayList<>();
+        String queryString = "select reaction from server_reactions where guild_id = ? order by position asc";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(1, guildId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                results.add(resultSet.getString(1));
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return results;
+
+    }
+
+    @Override
+    public List<String> getUserReacts(Connection connection, long userId) {
+        List<String> results = new ArrayList<>();
+        String queryString = "select reaction from user_reactions where discord_id = ? order by position asc";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(1, userId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                results.add(resultSet.getString(1));
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return results;
 
     }
 

@@ -6,12 +6,10 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.EvalClassLoader;
 import core.commands.utils.EvalContext;
-import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
@@ -23,18 +21,18 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class EvalCommand extends ConcurrentCommand<CommandParameters> {
-    private static final String JAVA_EVAL_IMPORTS = "" +
-            "package core.commands;\n " +
-            "import dao.ChuuService;\n" +
-            "import core.commands.utils.EvalContext;\n" +
-            "import core.apis.last.ConcurrentLastFM;\n" +
-            "import dao.entities.*;\n" +
-            "import java.util.*;\n" +
-            "import net.dv8tion.jda.api.JDA;\n" +
-            "import net.dv8tion.jda.api.entities.Guild;\n" +
-            "import net.dv8tion.jda.api.entities.User;\n" +
-            "import core.Chuu.*;" +
-            "import net.dv8tion.jda.api.events.message.MessageReceivedEvent;\n";
+    private static final String JAVA_EVAL_IMPORTS = """
+            package core.commands;
+             import dao.ChuuService;
+            import core.commands.utils.EvalContext;
+            import core.apis.last.ConcurrentLastFM;
+            import dao.entities.*;
+            import java.util.*;
+            import net.dv8tion.jda.api.JDA;
+            import net.dv8tion.jda.api.entities.Guild;
+            import net.dv8tion.jda.api.entities.User;
+            import core.Chuu.*;import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+            """;
     private static final Pattern emmbed = Pattern.compile("```(:?java)?[\\s\\S]*```");
     private static Long ownerId = null;
 
@@ -69,7 +67,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         if (ownerId == null) {
             e.getJDA().retrieveApplicationInfo().queue(x -> ownerId = x.getOwner().getIdLong());
             return;

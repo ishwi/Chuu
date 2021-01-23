@@ -27,7 +27,7 @@ public class ClockService {
     private final List<PreBillboardUserDataTimestamped> data;
     private final TimeZone timeZone;
     private final Function<PreBillboardUserDataTimestamped, OffsetDateTime> dateTimeFunction;
-    TemporalField weekOfYear = WeekFields.of(Locale.getDefault()).weekOfYear();
+    final TemporalField weekOfYear = WeekFields.of(Locale.getDefault()).weekOfYear();
 
     public ClockService(ClockMode clockMode, List<PreBillboardUserDataTimestamped> data, TimeZone timeZone) {
         this.clockMode = clockMode;

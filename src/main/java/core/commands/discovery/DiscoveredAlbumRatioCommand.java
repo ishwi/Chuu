@@ -12,7 +12,6 @@ import dao.ChuuService;
 import dao.entities.ScoredAlbumRatings;
 import dao.entities.ScrobbledAlbum;
 import dao.entities.TimeFrameEnum;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -50,7 +49,7 @@ public class DiscoveredAlbumRatioCommand extends ConcurrentCommand<TimeFramePara
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException {
 
 
         if (params.getTime().equals(TimeFrameEnum.ALL)) {

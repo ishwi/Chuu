@@ -3,7 +3,6 @@ package core.commands.billboard;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.imagerenderer.HotMaker;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
@@ -17,7 +16,6 @@ import dao.ChuuService;
 import dao.entities.BillboardEntity;
 import dao.entities.UsersWrapper;
 import dao.entities.Week;
-import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -96,7 +94,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) {
 
 
         long guildId = e.getGuild().getIdLong();

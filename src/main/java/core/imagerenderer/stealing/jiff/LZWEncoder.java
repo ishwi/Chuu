@@ -24,7 +24,7 @@ class LZWEncoder {
 
     // General DEFINEs
     int n_bits; // number of bits/code
-    int maxbits = BITS; // user settable max # bits/code
+    final int maxbits = BITS; // user settable max # bits/code
 
     // GIF Image compression - modified 'compress'
     //
@@ -37,10 +37,10 @@ class LZWEncoder {
     //              James A. Woods         (decvax!ihnp4!ames!jaw)
     //              Joe Orost              (decvax!vax135!petsd!joe)
     int maxcode; // maximum code, given n_bits
-    int maxmaxcode = 1 << BITS; // should NEVER generate this code
-    int[] htab = new int[HSIZE];
-    int[] codetab = new int[HSIZE];
-    int hsize = HSIZE; // for dynamic table sizing
+    final int maxmaxcode = 1 << BITS; // should NEVER generate this code
+    final int[] htab = new int[HSIZE];
+    final int[] codetab = new int[HSIZE];
+    final int hsize = HSIZE; // for dynamic table sizing
     int free_ent = 0; // first unused entry
     // block compression parameters -- after all codes are used up,
     // and compression rate changes, start over.
@@ -77,7 +77,7 @@ class LZWEncoder {
     //      Maintain a BITS character long buffer (so that 8 codes will
     // fit in it exactly).  Use the VAX insv instruction to insert each
     // code in turn.  When the buffer fills up empty it and start over.
-    int[] masks =
+    final int[] masks =
             {
                     0x0000,
                     0x0001,
@@ -99,7 +99,7 @@ class LZWEncoder {
     // Number of characters so far in this 'packet'
     int a_count;
     // Define the storage for the packet accumulator
-    byte[] accum = new byte[256];
+    final byte[] accum = new byte[256];
     private int remaining;
     private int curPixel;
 

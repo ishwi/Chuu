@@ -3,7 +3,6 @@ package core.commands.artists;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.MultipleGenresParser;
 import core.parsers.OptionalEntity;
@@ -13,7 +12,6 @@ import core.parsers.params.MultipleGenresParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.SearchMode;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
@@ -81,7 +79,7 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull MultipleGenresParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull MultipleGenresParameters params) {
 
 
         Set<String> genres = params.getGenres();

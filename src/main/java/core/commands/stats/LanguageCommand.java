@@ -20,7 +20,6 @@ import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.*;
-import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -76,7 +75,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException {
 
 
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(3000);

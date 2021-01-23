@@ -3,7 +3,6 @@ package core.commands.music;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.commands.abstracts.MusicCommand;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.music.MusicManager;
 import core.music.sources.MetadataTrack;
 import core.parsers.NoOpParser;
@@ -12,7 +11,6 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.Metadata;
 import dao.entities.TriFunction;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -24,7 +22,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class MetadataCommand extends MusicCommand<CommandParameters> {
-    protected static TriFunction<String, String, String, String> mapper = (artist, album, song) -> {
+    protected static final TriFunction<String, String, String, String> mapper = (artist, album, song) -> {
         String s = album == null || album.isBlank() ? "" : "\nAlbum: **" + album + "**";
         return String
                 .format("Artist: **%s**\nSong: **%s**%s", artist, song, s);
@@ -57,7 +55,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         String[] message = parser.getSubMessage(e.getMessage());
         MusicManager manager = getManager(e);
         AudioTrack track = manager.getCurrentTrack();

@@ -1,6 +1,7 @@
 package dao.entities;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.TimeZone;
@@ -48,7 +49,7 @@ public class UsersWrapper {
         this.discordID = discordID;
     }
 
-    public String getLastFMName() {
+    public @NotNull String getLastFMName() {
         return lastFMName;
     }
 

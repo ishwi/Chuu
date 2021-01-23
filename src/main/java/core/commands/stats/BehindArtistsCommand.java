@@ -3,7 +3,6 @@ package core.commands.stats;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.NumberParser;
 import core.parsers.Parser;
@@ -14,7 +13,6 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.StolenCrown;
 import dao.entities.StolenCrownWrapper;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -63,7 +61,7 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TwoUsersParamaters> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TwoUsersParamaters> params) {
 
 
         TwoUsersParamaters innerParams = params.getInnerParams();

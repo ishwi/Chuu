@@ -1,13 +1,11 @@
 package core.commands.billboard;
 
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.BillboardEntity;
 import dao.entities.Week;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -50,7 +48,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) {
 
         Week week = getService().getCurrentWeekId();
         if (week.getId() == 1) {

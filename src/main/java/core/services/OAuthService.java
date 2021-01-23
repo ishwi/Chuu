@@ -8,14 +8,7 @@ import dao.entities.LastFMData;
 
 import javax.annotation.Nullable;
 
-public class OAuthService {
-    private final ChuuService db;
-    private final ConcurrentLastFM lastFM;
-
-    public OAuthService(ChuuService db, ConcurrentLastFM lastFM) {
-        this.db = db;
-        this.lastFM = lastFM;
-    }
+public record OAuthService(ChuuService db, ConcurrentLastFM lastFM) {
 
     public String generateURL(String url, @Nullable LastFMData lastFMData) throws LastFmException {
         if (lastFMData == null) {

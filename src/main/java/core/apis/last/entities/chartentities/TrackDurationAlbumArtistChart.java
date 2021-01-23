@@ -32,10 +32,8 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
             List<UrlCapsule> value = x.getValue();
             Optional<UrlCapsule> reduce = value.stream().reduce((urlCapsule, urlCapsule2) -> {
                 urlCapsule.setPlays(urlCapsule.getPlays() + urlCapsule2.getPlays());
-                if (urlCapsule instanceof TrackDurationArtistChart) {
-                    TrackDurationArtistChart capsule = (TrackDurationArtistChart) urlCapsule;
-                    if (urlCapsule2 instanceof TrackDurationArtistChart) {
-                        TrackDurationArtistChart capsule2 = (TrackDurationArtistChart) urlCapsule2;
+                if (urlCapsule instanceof TrackDurationArtistChart capsule) {
+                    if (urlCapsule2 instanceof TrackDurationArtistChart capsule2) {
                         capsule.setSeconds(capsule.getSeconds() + capsule2.getSeconds());
                         return capsule;
                     }

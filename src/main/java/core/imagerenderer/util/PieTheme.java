@@ -7,44 +7,29 @@ public enum PieTheme {
 
 
     public Color getBackgroundColor() {
-        switch (this) {
-            case PINK_THEME:
-                return Color.decode("#f6def6");
-            case DARK_THEME:
-                return Color.decode("#2c2f33");
-            case BLUE_THEME:
-                return Color.decode("#85c1e5");
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (this) {
+            case PINK_THEME -> Color.decode("#f6def6");
+            case DARK_THEME -> Color.decode("#2c2f33");
+            case BLUE_THEME -> Color.decode("#85c1e5");
+        };
     }
 
     public Color getBesselColour() {
 
-        switch (this) {
-            case PINK_THEME:
-                return Color.decode("#ffa5b0");
-            case DARK_THEME:
-                return Color.decode("#23272a");
-            case BLUE_THEME:
-                return Color.decode("#254e7b");
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (this) {
+            case PINK_THEME -> Color.decode("#ffa5b0");
+            case DARK_THEME -> Color.decode("#23272a");
+            case BLUE_THEME -> Color.decode("#254e7b");
+        };
     }
 
     public Color getTitleColour() {
 
-        switch (this) {
-            case PINK_THEME:
-                return Color.decode("#ffa5b0");
-            case DARK_THEME:
-                return Color.decode("#23272a");
-            case BLUE_THEME:
-                return Color.decode("#5584b1");
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (this) {
+            case PINK_THEME -> Color.decode("#ffa5b0");
+            case DARK_THEME -> Color.decode("#23272a");
+            case BLUE_THEME -> Color.decode("#5584b1");
+        };
 
     }
 

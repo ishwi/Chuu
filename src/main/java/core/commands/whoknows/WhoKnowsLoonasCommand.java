@@ -2,7 +2,6 @@ package core.commands.whoknows;
 
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageGenerator;
 import core.imagerenderer.WhoKnowsMaker;
@@ -11,11 +10,7 @@ import core.parsers.LOOONAParser;
 import core.parsers.Parser;
 import core.parsers.params.LOONAParameters;
 import dao.ChuuService;
-import dao.entities.LOONA;
-import dao.entities.ReturnNowPlaying;
-import dao.entities.WhoKnowsMode;
-import dao.entities.WrapperReturnNowPlaying;
-import dao.exceptions.InstanceNotFoundException;
+import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -94,7 +89,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull LOONAParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull LOONAParameters params) {
 
 
         @Nullable String nullableOwner = params.getSubject() == LOONAParameters.Subject.ME ? params.getLastFMData().getName() : null;
@@ -104,19 +99,16 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
         Set<String> artists;
         switch (subCommand) {
-            case GENERAL:
-                artists = new HashSet<>(loonas.values());
-                break;
-            case SPECIFIC:
+            case GENERAL -> artists = new HashSet<>(loonas.values());
+            case SPECIFIC -> {
                 assert params.getTargetedLOONA() != null;
                 artists = new HashSet<>(loonas.get(params.getTargetedLOONA()));
-                break;
-            case GROUPED:
+            }
+            case GROUPED -> {
                 assert params.getTargetedType() != null;
                 artists = loonas.asMap().entrySet().stream().filter(x -> x.getKey().getType() == params.getTargetedType()).flatMap(x -> x.getValue().stream()).collect(Collectors.toSet());
-                break;
-            default:
-                throw new IllegalStateException();
+            }
+            default -> throw new IllegalStateException();
         }
         LOONAParameters.Mode mode = params.getMode();
         List<WrapperReturnNowPlaying> whoKnowsArtistSet = getService().getWhoKnowsArtistSet(artists, e.getGuild().getIdLong(), limit, nullableOwner);
@@ -152,19 +144,18 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                                 })
                                 .collect(Collectors.toList());
                         switch (params.getTargetedType()) {
-                            case GROUP:
-                            case MISC:
+                            case GROUP, MISC -> {
                                 xSize = 1;
                                 y = 1;
-                                break;
-                            case SUBUNIT:
+                            }
+                            case SUBUNIT -> {
                                 xSize = 3;
                                 y = 1;
-                                break;
-                            case MEMBER:
+                            }
+                            case MEMBER -> {
                                 xSize = 4;
                                 y = 3;
-                                break;
+                            }
                         }
 
                     } else if (subCommand == LOONAParameters.SubCommand.GENERAL) {
@@ -276,20 +267,19 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         String representativeArtist;
         String represenentativeUrl;
         switch (parse.getSubCommand()) {
-            case GENERAL:
+            case GENERAL -> {
                 representativeArtist = "LOONAVERSE";
                 represenentativeUrl = getService().getArtistUrl(representativeArtist);
-                break;
-            case SPECIFIC:
+            }
+            case SPECIFIC -> {
                 representativeArtist = LOONA.getRepresentative(parse.getTargetedLOONA());
                 represenentativeUrl = getService().getArtistUrl(representativeArtist);
-                break;
-            case GROUPED:
+            }
+            case GROUPED -> {
                 representativeArtist = LOONA.getRepresentative(parse.getTargetedType());
                 represenentativeUrl = getService().getArtistUrl(representativeArtist);
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + parse.getSubCommand());
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + parse.getSubCommand());
         }
         return new WrapperReturnNowPlaying(collect1.values().stream().sorted(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed()).collect(Collectors.toList()), 0, represenentativeUrl, representativeArtist);
     }
@@ -305,7 +295,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         } else {
             title = e.getJDA().getSelfUser().getName();
         }
-        return WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title, logo);
+        return WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, e.getAuthor().getIdLong());
 
     }
 

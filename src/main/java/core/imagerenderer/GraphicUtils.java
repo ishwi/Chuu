@@ -216,6 +216,12 @@ public class GraphicUtils {
     public static void doChart(Graphics2D g, int x, int yCounter, int width, int rowHeight,
                                int maxRows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage
                                        lastFmLogo, boolean doNumber, Font font) {
+        doChart(g, x, yCounter, width, rowHeight, maxRows, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, doNumber, font, 0);
+    }
+
+    public static void doChart(Graphics2D g, int x, int yCounter, int width, int rowHeight,
+                               int maxRows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage
+                                       lastFmLogo, boolean doNumber, Font font, int phase) {
 
         Font ogFont = g.getFont();
         Color ogColor = g.getColor();
@@ -246,7 +252,7 @@ public class GraphicUtils {
 
             int startName = x;
             if (doNumber) {
-                String strNumber = "#" + (i + 1) + " ";
+                String strNumber = "#" + (phase + i + 1) + " ";
                 g.drawString(strNumber, x, yCounter + (margin - metrics.getAscent() / 2));
                 startName += g.getFontMetrics().stringWidth(strNumber);
             }

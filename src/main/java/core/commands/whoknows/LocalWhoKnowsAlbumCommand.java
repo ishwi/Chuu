@@ -7,13 +7,10 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.imagerenderer.util.IPieableList;
-import core.imagerenderer.util.PieableListKnows;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.*;
 
@@ -28,12 +25,10 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
 
     private final Spotify spotify;
     private final DiscogsApi discogsApi;
-    private final IPieableList<ReturnNowPlaying, ArtistParameters> pie;
 
     public LocalWhoKnowsAlbumCommand(ChuuService dao) {
         super(dao);
         respondInPrivate = false;
-        this.pie = new PieableListKnows<>(this.parser);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
     }
@@ -86,7 +81,9 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
             return null;
         }
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.getService().getWhoKnowsAlbums(10, albumId, ap.getE().getGuild().getIdLong()) : this.getService().getWhoKnowsAlbums(Integer.MAX_VALUE, albumId, ap.getE().getGuild().getIdLong());
+                effectiveMode.equals(WhoKnowsMode.IMAGE) ?
+                        this.getService().getWhoKnowsAlbums(10, albumId, ap.getE().getGuild().getIdLong()) :
+                        this.getService().getWhoKnowsAlbums(Integer.MAX_VALUE, albumId, ap.getE().getGuild().getIdLong());
         wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist());
         try {
 

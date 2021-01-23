@@ -2,12 +2,10 @@ package core.commands.moderation;
 
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -49,7 +47,7 @@ public class InviteCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         EnumSet<Permission> permissions = Permission.getPermissions(PERMISSIONS);
         String inviteUrl = e.getJDA().getInviteUrl(permissions);
         sendMessageQueue(e, "Using the following link you can invite me to your server:\n" + inviteUrl);

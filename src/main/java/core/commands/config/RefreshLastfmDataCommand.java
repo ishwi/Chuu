@@ -8,7 +8,6 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.UserInfo;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -46,7 +45,7 @@ public class RefreshLastfmDataCommand extends ConcurrentCommand<ChuuDataParams> 
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException {
         UserInfo userInfo = lastFM.getUserInfo(List.of(params.getLastFMData().getName()), params.getLastFMData()).get(0);
         getService().insertUserInfo(userInfo);
         sendMessageQueue(e, "Sucessfully updated your profile data");

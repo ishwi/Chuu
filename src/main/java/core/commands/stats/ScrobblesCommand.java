@@ -9,7 +9,6 @@ import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.UserInfo;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -47,7 +46,7 @@ public class ScrobblesCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException {
 
         LastFMData lastFMData = params.getLastFMData();
         List<UserInfo> userInfoes = lastFM.getUserInfo(Collections.singletonList(lastFMData.getName()), lastFMData);

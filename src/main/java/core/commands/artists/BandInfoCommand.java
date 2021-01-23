@@ -19,7 +19,6 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.*;
-import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -167,7 +166,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
         CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());

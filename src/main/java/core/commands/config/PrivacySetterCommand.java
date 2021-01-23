@@ -2,7 +2,6 @@ package core.commands.config;
 
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
@@ -46,7 +45,7 @@ public class PrivacySetterCommand extends ConcurrentCommand<EnumParameters<Priva
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull EnumParameters<PrivacyMode> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull EnumParameters<PrivacyMode> params) throws InstanceNotFoundException {
 
 
         PrivacyMode element = params.getElement();

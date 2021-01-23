@@ -11,7 +11,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.entities.ScrobbledArtist;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -35,17 +34,17 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NowPlayingParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NowPlayingParameters params) {
         doSomethingWithArtist(params.getNowPlayingArtist(), e, params.getLastFMData().getDiscordId(), params.getLastFMData(), params);
         CompletableFuture.runAsync(() -> {
-                    if (params.getNowPlayingArtist().getUrl() != null && !params.getNowPlayingArtist().getUrl().isBlank()) {
-                        try {
-                            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), params.getNowPlayingArtist().getArtistName(), lastFM, true);
-                            long trackValidate = CommandUtil.trackValidate(getService(), scrobbledArtist, lastFM, params.getNowPlayingArtist().getSongName());
-                            getService().updateTrackImage(trackValidate, params.getNowPlayingArtist().getUrl());
-                        } catch (LastFmException instanceNotFoundException) {
-                            Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
-                        }
+            if (params.getNowPlayingArtist().getUrl() != null && !params.getNowPlayingArtist().getUrl().isBlank()) {
+                try {
+                    ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), params.getNowPlayingArtist().getArtistName(), lastFM, true);
+                    long trackValidate = CommandUtil.trackValidate(getService(), scrobbledArtist, lastFM, params.getNowPlayingArtist().getSongName());
+                    getService().updateTrackImage(trackValidate, params.getNowPlayingArtist().getUrl());
+                } catch (LastFmException instanceNotFoundException) {
+                    Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
+                }
                     }
                 }
         );

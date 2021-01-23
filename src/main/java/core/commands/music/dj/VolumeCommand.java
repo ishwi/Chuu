@@ -19,7 +19,6 @@ package core.commands.music.dj;
 
 import core.commands.abstracts.MusicCommand;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.music.MusicManager;
 import core.parsers.NoOpParser;
 import core.parsers.NumberParser;
@@ -27,7 +26,6 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -73,7 +71,7 @@ public class VolumeCommand extends MusicCommand<NumberParameters<CommandParamete
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) {
         Long volume = params.getExtraParam();
         MusicManager manager = getManager(e);
         int currentVolume = manager.getPlayer().getVolume();

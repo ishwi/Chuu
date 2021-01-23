@@ -3,13 +3,11 @@ package core.commands.moderation;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.UsersWrapper;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -50,7 +48,7 @@ public class IndexCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
             sendMessageQueue(e, "Only server mods can use this command");
             return;

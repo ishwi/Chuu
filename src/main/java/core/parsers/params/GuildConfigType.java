@@ -106,22 +106,13 @@ public enum GuildConfigType {
     }
 
     public Predicate<String> getParser() {
-        switch (this) {
-            case CROWNS_THRESHOLD:
-                return number.asMatchPredicate();
-            case CHART_MODE:
-                return UserConfigType.chartMode.asMatchPredicate();
-            case REMAINING_MODE:
-            case WHOKNOWS_MODE:
-                return UserConfigType.whoknowsMode.asMatchPredicate();
-            case DELETE_MESSAGE:
-            case SHOW_DISABLED_WARNING:
-                return UserConfigType.bool.asMatchPredicate();
-            case NP:
-                return GuildConfigType.npMode.asMatchPredicate();
-            default:
-                return (s) -> true;
-        }
+        return switch (this) {
+            case CROWNS_THRESHOLD -> number.asMatchPredicate();
+            case CHART_MODE -> UserConfigType.chartMode.asMatchPredicate();
+            case REMAINING_MODE, WHOKNOWS_MODE -> UserConfigType.whoknowsMode.asMatchPredicate();
+            case DELETE_MESSAGE, SHOW_DISABLED_WARNING -> UserConfigType.bool.asMatchPredicate();
+            case NP -> GuildConfigType.npMode.asMatchPredicate();
+        };
     }
 
     public String getExplanation() {

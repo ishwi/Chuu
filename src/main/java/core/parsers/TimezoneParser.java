@@ -24,8 +24,8 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
                                     .normalized().getRules().getStandardOffset(Instant.now()).getId()
                             , x -> x, (x, y) -> x));
 
-    Predicate<String> errored = Pattern.compile("[+-]*00?:?0?0?[ ]*(gmt)?").asMatchPredicate();
-    Pattern weekPattern = Pattern.compile("([+-])*(\\d{0,2})(:(\\d){0,2})?[ ]*(gmt)?", Pattern.CASE_INSENSITIVE);
+    final Predicate<String> errored = Pattern.compile("[+-]*00?:?0?0?[ ]*(gmt)?").asMatchPredicate();
+    final Pattern weekPattern = Pattern.compile("([+-])*(\\d{0,2})(:(\\d){0,2})?[ ]*(gmt)?", Pattern.CASE_INSENSITIVE);
 
     Predicate<String> gmtBased = Pattern.compile("[+-]*[ ]*(\\d{1,2}):\\d{1,2}").asMatchPredicate();
 
@@ -40,10 +40,10 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
 
     @Override
     protected void setUpErrorMessages() {
-        this.errorMessages.put(10, "Couldn't parse any timezone from the given message :(\n " +
-                "The timezone can be written either as a abbreviate of the timezone(CET, PT...),the offset of the timezone " +
-                " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)" +
-                "\n Refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for the full name of the timezones that are accepted.");
+        this.errorMessages.put(10, """
+                Couldn't parse any timezone from the given message :(
+                 The timezone can be written either as a abbreviate of the timezone(CET, PT...),the offset of the timezone  (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)
+                 Refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for the full name of the timezones that are accepted.""");
 
     }
 

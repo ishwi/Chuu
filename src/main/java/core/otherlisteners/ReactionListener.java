@@ -21,7 +21,7 @@ public abstract class ReactionListener implements EventListener {
     public final EmbedBuilder who;
     private final long activeSeconds;
     public Message message;
-    public JDA jda;
+    public final JDA jda;
 
     public ReactionListener(EmbedBuilder who, Message message) {
         this(who, message, 30);

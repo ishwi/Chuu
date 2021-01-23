@@ -1,8 +1,6 @@
 package core.parsers;
 
-import core.exceptions.LastFmException;
 import core.parsers.params.ChannelParameters;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -19,7 +17,7 @@ public class ChannelParser extends Parser<ChannelParameters> {
     }
 
     @Override
-    protected ChannelParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected ChannelParameters parseLogic(MessageReceivedEvent e, String[] words) {
 
         if (words.length == 0) {
             Member member = e.getMember();

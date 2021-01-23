@@ -65,7 +65,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
         ScrobbledArtist validable = new ScrobbledArtist(params.getArtist(), 0, "");
@@ -94,21 +94,12 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
                 try {
                     LastFMData lastFMData = getService().findLastFMData(globalArtistRanking.get(0).getDiscordId());
                     if (EnumSet.of(PrivacyMode.LAST_NAME, PrivacyMode.TAG, PrivacyMode.DISCORD_NAME).contains(lastFMData.getPrivacyMode())) {
-                        String embedText;
-                        switch (lastFMData.getPrivacyMode()) {
-                            case DISCORD_NAME:
-                                embedText = getUserString(e, lastFMData.getDiscordId());
-                                break;
-                            case TAG:
-                                embedText = e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
-                                break;
-                            case LAST_NAME:
-                                embedText = lastFMData.getName() + " (lastfm)";
-                                break;
-                            default:
-                                embedText =
-                                        "Unknown";
-                        }
+                        String embedText = switch (lastFMData.getPrivacyMode()) {
+                            case DISCORD_NAME -> getUserString(e, lastFMData.getDiscordId());
+                            case TAG -> e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
+                            case LAST_NAME -> lastFMData.getName() + " (lastfm)";
+                            default -> "Unknown";
+                        };
                         embedBuilder.addField("Crown Holder: ", embedText, true);
                     }
                 } catch (InstanceNotFoundException ignored) {

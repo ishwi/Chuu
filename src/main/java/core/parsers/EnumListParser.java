@@ -1,8 +1,6 @@
 package core.parsers;
 
-import core.exceptions.LastFmException;
 import core.parsers.params.EnumListParameters;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
@@ -32,7 +30,7 @@ public class EnumListParser<T extends Enum<T>> extends Parser<EnumListParameters
     }
 
     @Override
-    protected EnumListParameters<T> parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected EnumListParameters<T> parseLogic(MessageReceivedEvent e, String[] words) {
         EnumSet<T> building = EnumSet.noneOf(clazz);
 
         if (words.length == 0) {

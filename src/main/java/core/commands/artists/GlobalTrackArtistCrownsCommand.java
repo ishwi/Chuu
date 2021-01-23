@@ -20,7 +20,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TrackPlays;
 import dao.entities.UniqueWrapper;
-import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -97,7 +96,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ArtistParameters> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ArtistParameters> params) throws LastFmException {
 
 
         ArtistParameters innerParams = params.getInnerParams();

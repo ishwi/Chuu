@@ -181,6 +181,7 @@ public class Chuu {
                 MessageReceivedEvent.class
         );
         gatewayIntents.add(GatewayIntent.GUILD_VOICE_STATES);
+        gatewayIntents.add(GatewayIntent.GUILD_EMOJIS);
         return gatewayIntents;
     }
 
@@ -224,10 +225,9 @@ public class Chuu {
         AtomicInteger counter = new AtomicInteger(0);
         IEventManager customManager = new CustomInterfacedEventManager(0);
         EnumSet<CacheFlag> cacheFlags = EnumSet.allOf(CacheFlag.class);
-        cacheFlags.remove(CacheFlag.VOICE_STATE);
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL)
                 //.setMemberCachePolicy(Chuu.cacheMember)
-//                .disableCache(cacheFlags)
+                .enableCache(CacheFlag.EMOTE)
                 .enableCache(CacheFlag.VOICE_STATE)
                 .setAudioSendFactory(new NativeAudioSendFactory())
 

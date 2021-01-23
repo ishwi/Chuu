@@ -17,6 +17,7 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,7 +125,19 @@ public class NowPlayingCommand extends NpCommand {
             footer += EmbedBuilder.ZERO_WIDTH_SPACE;
         }
         embedBuilder.setFooter(footer, url);
-        e.getChannel().sendMessage(embedBuilder.build()).queue();
+
+        e.getChannel().sendMessage(embedBuilder.build()).queue(message -> {
+            if (e.isFromGuild()) {
+                List<String> serverReactions = getService().getServerReactions(e.getGuild().getIdLong());
+                if (serverReactions.isEmpty()) {
+                    serverReactions = getService().getUserReacts(e.getAuthor().getIdLong());
+                }
+                if (!serverReactions.isEmpty()) {
+                    RestAction.allOf(serverReactions.stream().map(unicode -> message.addReaction(unicode).mapToResult()).collect(Collectors.toList())).queue(results -> {
+                    });
+                }
+            }
+        });
 
     }
 

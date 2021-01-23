@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ServerTags extends PieableListCommand<List<TagPlays>, CommandParameters> {
-    public PieableListResultWrapper<TagPlays, CommandParameters> pie;
+    public final PieableListResultWrapper<TagPlays, CommandParameters> pie;
 
     public ServerTags(ChuuService dao) {
         super(dao);

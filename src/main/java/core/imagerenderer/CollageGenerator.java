@@ -22,12 +22,9 @@ public class CollageGenerator {
 
         switch (chartQuality) {
             case PNG_BIG:
-                break;
-            case JPEG_BIG:
-                imageType = BufferedImage.TYPE_INT_RGB;
-                break;
             case PNG_SMALL:
                 break;
+            case JPEG_BIG:
             case JPEG_SMALL:
                 imageType = BufferedImage.TYPE_INT_RGB;
                 break;

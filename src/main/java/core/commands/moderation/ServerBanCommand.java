@@ -2,12 +2,10 @@ package core.commands.moderation;
 
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -46,7 +44,7 @@ public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) {
 
 
         if (e.getMember() != null && !e.getMember().hasPermission(Permission.ADMINISTRATOR)) {

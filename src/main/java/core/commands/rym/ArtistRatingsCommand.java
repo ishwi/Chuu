@@ -17,7 +17,6 @@ import dao.ChuuService;
 import dao.entities.AlbumRatings;
 import dao.entities.Rating;
 import dao.entities.ScrobbledArtist;
-import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -69,7 +68,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
 
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);

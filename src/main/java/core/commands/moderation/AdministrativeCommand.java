@@ -5,7 +5,6 @@ import core.apis.ExecutorsSingleton;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.UrlParser;
 import core.parsers.params.UrlParameters;
@@ -166,7 +165,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull UrlParameters urlParameters) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull UrlParameters urlParameters) {
         String url = urlParameters.getUrl();
         if (url.length() == 0) {
             getService().removeLogo(e.getGuild().getIdLong());

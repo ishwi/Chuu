@@ -18,14 +18,12 @@
 package core.commands.music.dj;
 
 import core.commands.abstracts.MusicCommand;
-import core.exceptions.LastFmException;
 import core.music.MusicManager;
 import core.music.utils.RepeatOption;
 import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -59,7 +57,7 @@ public class RepeatCommand extends MusicCommand<EnumParameters<RepeatOption>> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull EnumParameters<RepeatOption> params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull EnumParameters<RepeatOption> params) {
         RepeatOption element = params.getElement();
         MusicManager manager = getManager(e);
         manager.setRepeatOption(element);

@@ -15,9 +15,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> extends WhoKnowsBaseCommand<T> {
@@ -44,7 +44,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
         if (e.isFromGuild()) {
             logo = CommandUtil.getLogo(getService(), e);
         }
-        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title, logo);
+        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, e.getAuthor().getIdLong());
         if (obtainPrivacyMode(ap) == PrivacyMode.NORMAL && CommandUtil.rand.nextFloat() >= 0.95f) {
             Character prefix = Chuu.getCorrespondingPrefix(e);
             DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, e.getAuthor().getIdLong());
@@ -69,38 +69,17 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
             showableUsers = Set.of(author);
         }
         AtomicInteger atomicInteger = new AtomicInteger(1);
-        Consumer<GlobalReturnNowPlaying> a = (x) -> {
-            PrivacyMode privacyMode = x.getPrivacyMode();
-            if (showableUsers.contains(x.getDiscordId())) {
-                privacyMode = PrivacyMode.DISCORD_NAME;
-            }
-            switch (privacyMode) {
-                case STRICT, NORMAL -> {
-                    x.setDiscordName("Private User #" + atomicInteger.getAndIncrement());
-                    x.setLastFMId(Chuu.DEFAULT_LASTFM_ID);
-                }
-                case DISCORD_NAME -> {
-                    x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername());
-                    x.setLastFMId(Chuu.getLastFmId(x.getLastFMId()));
-                }
-                case TAG -> {
-                    x.setDiscordName(ap.getE().getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag());
-                    x.setLastFMId(Chuu.getLastFmId(x.getLastFMId()));
-                }
-                case LAST_NAME -> {
-                    x.setDiscordName(x.getLastFMId() + " (last.fm)");
-                    x.setLastFMId(Chuu.getLastFmId(x.getLastFMId()));
-                }
-            }
-            String itemUrl = PrivacyUtils.getUrlTitle(x);
-            x.setItemUrl(itemUrl);
-        };
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x ->
-                        {
-                            GlobalReturnNowPlaying x1 = (GlobalReturnNowPlaying) x;
-                            x1.setGlobalDisplayer(a);
-                        }
+                        x.setGenerateString(() -> {
+                            PrivacyUtils.PrivateString privacy = PrivacyUtils.getPublicString(((GlobalReturnNowPlaying) x).getPrivacyMode(), x.getDiscordId(), x.getLastFMId(), atomicInteger, ap.getE(), showableUsers);
+                            x.setDiscordName(privacy.discordName());
+                            return ". " +
+                                    "**[" + privacy.discordName() + "](" +
+                                    PrivacyUtils.getUrlTitle(x) +
+                                    ")** - " +
+                                    x.getPlayNumber() + " plays\n";
+                        })
                 );
         switch (effectiveMode) {
             case IMAGE -> doImage(ap, wrapperReturnNowPlaying);

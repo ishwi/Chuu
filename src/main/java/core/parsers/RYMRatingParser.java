@@ -1,6 +1,5 @@
 package core.parsers;
 
-import core.exceptions.LastFmException;
 import core.parsers.params.RYMRatingParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -20,7 +19,7 @@ public class RYMRatingParser extends DaoParser<RYMRatingParams> {
     }
 
     @Override
-    protected RYMRatingParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected RYMRatingParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
         Predicate<String> stringPredicate = doublePatter.asMatchPredicate();
         Pair<String[], Double> doubleFilter = filterMessage(words, stringPredicate, x -> Double.valueOf(x.replaceAll(",", ".")), null);
         Double decimalRating = doubleFilter.second;
