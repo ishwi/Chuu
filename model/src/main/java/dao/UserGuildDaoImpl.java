@@ -753,7 +753,8 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public GuildProperties getGuild(Connection connection, long discordId) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "select guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning from guild where guild_id = ? ";
+        @Language("MariaDB") String queryString = "select " +
+                "guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning,override_reactions,allow_reactions from guild where guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -772,11 +773,13 @@ public class UserGuildDaoImpl implements UserGuildDao {
             String remaining_mode = resultSet.getString("remaining_mode");
             boolean deleteMessages = resultSet.getBoolean("delete_message");
             boolean disabledWarning = resultSet.getBoolean("disabled_warning");
+            boolean override_reactions = resultSet.getBoolean("override_reactions");
+            boolean allowReactions = resultSet.getBoolean("allow_reactions");
 
 
             RemainingImagesMode remainingImagesMode = remaining_mode == null ? null : RemainingImagesMode.valueOf(remaining_mode);
 
-            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, remainingImagesMode, deleteMessages, disabledWarning);
+            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, override_reactions, allowReactions, remainingImagesMode, deleteMessages, disabledWarning);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

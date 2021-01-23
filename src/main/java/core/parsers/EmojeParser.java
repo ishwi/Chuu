@@ -41,6 +41,8 @@ public class EmojeParser extends Parser<EmotiParameters> {
 
     @Override
     public String getUsageLogic(String commandName) {
-        return "";
+        return "**" + commandName + " *emotes** \n" +
+                "\tIf no emotes are provided, the reactions will be cleared\n" +
+                "\tEmotes can be either server emotes or emojis\n";
     }
 }

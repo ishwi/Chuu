@@ -111,8 +111,26 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                     sendMessageQueue(e, "The mode of the remaining image commands to the default");
                 }
                 break;
-            case DELETE_MESSAGE:
+            case ALLOW_NP_REACTIONS:
                 boolean b = Boolean.parseBoolean(value);
+                getService().setServerAllowReactions(guildId, b);
+                if (b) {
+                    sendMessageQueue(e, "Np reactions are now allowed");
+                } else {
+                    sendMessageQueue(e, "Np reactions are not allowed anymore");
+                }
+                break;
+            case OVERRIDE_NP_REACTIONS:
+                b = Boolean.parseBoolean(value);
+                getService().setServerOverrideReactions(guildId, b);
+                if (b) {
+                    sendMessageQueue(e, "All np reactions will be as configured for the server");
+                } else {
+                    sendMessageQueue(e, "User np reactions won't be overridden.");
+                }
+                break;
+            case DELETE_MESSAGE:
+                b = Boolean.parseBoolean(value);
                 if (b) {
                     if (!e.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
                         sendMessageQueue(e, "Don't have MESSAGE_MANAGE permissions so can't delete messages :(");

@@ -162,3 +162,9 @@ alter table user
 
 alter table user
     add column scrobbling boolean not null default true;
+
+
+alter table guild
+    add column override_reactions boolean not null default false;
+alter table guild
+    add column allow_reactions boolean not null default true;

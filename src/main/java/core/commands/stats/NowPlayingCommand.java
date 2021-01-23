@@ -11,6 +11,7 @@ import core.parsers.params.NowPlayingParameters;
 import core.services.NPModeBuilder;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
@@ -20,7 +21,10 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.LongAdder;
@@ -125,12 +129,26 @@ public class NowPlayingCommand extends NpCommand {
         embedBuilder.setFooter(footer, url);
 
         e.getChannel().sendMessage(embedBuilder.build()).queue(message -> {
-            List<String> serverReactions = Collections.emptyList();
+            List<String> serverReactions;
             if (e.isFromGuild()) {
+                GuildProperties guildProperties = null;
+                try {
+                    guildProperties = getService().getGuildProperties(e.getGuild().getIdLong());
+                } catch (InstanceNotFoundException ignored) {
+                }
+                if (guildProperties != null && !guildProperties.allowReactions()) {
+                    return;
+                }
+
+                serverReactions = getService().getServerReactions(e.getGuild().getIdLong());
+
                 if (e.getMember() != null && e.getMember().hasPermission(Permission.MESSAGE_ADD_REACTION)) {
-                    serverReactions = getService().getServerReactions(e.getGuild().getIdLong());
-                    if (serverReactions.isEmpty()) {
-                        serverReactions = getService().getUserReacts(e.getAuthor().getIdLong());
+                    if (guildProperties != null && !guildProperties.overrideReactions()) {
+                        serverReactions.addAll(getService().getUserReacts(e.getAuthor().getIdLong()));
+                    } else {
+                        if (serverReactions.isEmpty()) {
+                            serverReactions = getService().getUserReacts(e.getAuthor().getIdLong());
+                        }
                     }
                 }
             } else {

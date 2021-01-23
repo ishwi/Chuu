@@ -14,8 +14,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum GuildConfigType {
-    CROWNS_THRESHOLD("crowns"), CHART_MODE("chart"), WHOKNOWS_MODE("whoknows"), REMAINING_MODE("rest"), DELETE_MESSAGE("delete-message"), SHOW_DISABLED_WARNING("disabled-warning"),
-    NP("np");
+    CHART_MODE("chart"), CROWNS_THRESHOLD("crowns"),
+    ALLOW_NP_REACTIONS("np-reactions"),
+    OVERRIDE_NP_REACTIONS("override-reactions"),
+    DELETE_MESSAGE("delete-message"), NP("np"), REMAINING_MODE("rest"), SHOW_DISABLED_WARNING("disabled-warning"),
+    WHOKNOWS_MODE("whoknows");
     static final Pattern npMode = Pattern.compile("((" + "CLEAR|" +
             EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
             ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
@@ -50,10 +53,10 @@ public enum GuildConfigType {
                     String key = x.getKey();
                     switch (x.getValue()) {
                         case CROWNS_THRESHOLD:
-                            int guildCrownThreshold = guildProperties.getCrown_threshold();
+                            int guildCrownThreshold = guildProperties.crown_threshold();
                             return String.format("**%s** -> %d", key, guildCrownThreshold);
                         case CHART_MODE:
-                            ChartMode chartMode = guildProperties.getChartMode();
+                            ChartMode chartMode = guildProperties.chartMode();
                             String mode;
                             if (chartMode == null) {
                                 mode = "NOT SET";
@@ -63,7 +66,7 @@ public enum GuildConfigType {
                             return String.format("**%s** -> %s", key, mode);
                         case WHOKNOWS_MODE:
                             String whoknowsmode;
-                            WhoKnowsMode modes = guildProperties.getWhoKnowsMode();
+                            WhoKnowsMode modes = guildProperties.whoKnowsMode();
 
                             if (modes == null) {
                                 whoknowsmode = "NOT SET";
@@ -72,7 +75,7 @@ public enum GuildConfigType {
                             }
                             return String.format("**%s** -> %s", key, whoknowsmode);
                         case REMAINING_MODE:
-                            RemainingImagesMode modes2 = guildProperties.getRemainingImagesMode();
+                            RemainingImagesMode modes2 = guildProperties.remainingImagesMode();
 
                             if (modes2 == null) {
                                 whoknowsmode = "NOT SET";
@@ -80,11 +83,17 @@ public enum GuildConfigType {
                                 whoknowsmode = modes2.toString();
                             }
                             return String.format("**%s** -> %s", key, whoknowsmode);
+                        case ALLOW_NP_REACTIONS:
+                            boolean del = guildProperties.allowReactions();
+                            return String.format("**%s** -> %s", key, del);
+                        case OVERRIDE_NP_REACTIONS:
+                            del = guildProperties.overrideReactions();
+                            return String.format("**%s** -> %s", key, del);
                         case DELETE_MESSAGE:
-                            boolean del = guildProperties.isDeleteMessages();
+                            del = guildProperties.deleteMessages();
                             return String.format("**%s** -> %s", key, del);
                         case SHOW_DISABLED_WARNING:
-                            boolean showWarnings = guildProperties.isShowWarnings();
+                            boolean showWarnings = guildProperties.showWarnings();
                             return String.format("**%s** -> %s", key, showWarnings);
                         case NP:
                             EnumSet<NPMode> npModes = dao.getServerNPModes(guildId);
@@ -110,7 +119,7 @@ public enum GuildConfigType {
             case CROWNS_THRESHOLD -> number.asMatchPredicate();
             case CHART_MODE -> UserConfigType.chartMode.asMatchPredicate();
             case REMAINING_MODE, WHOKNOWS_MODE -> UserConfigType.whoknowsMode.asMatchPredicate();
-            case DELETE_MESSAGE, SHOW_DISABLED_WARNING -> UserConfigType.bool.asMatchPredicate();
+            case ALLOW_NP_REACTIONS, OVERRIDE_NP_REACTIONS, DELETE_MESSAGE, SHOW_DISABLED_WARNING -> UserConfigType.bool.asMatchPredicate();
             case NP -> GuildConfigType.npMode.asMatchPredicate();
         };
     }
@@ -134,6 +143,10 @@ public enum GuildConfigType {
                 explanation += "\n\t\t\t**Clear**: Sets the default mode";
                 return "Set the mode for all charts of the remaining images of the users in this server. While this is set any user configuration will be overridden \n" +
                         "\t\tThe possible values for the rest of the commands are the following:" + explanation;
+            case ALLOW_NP_REACTIONS:
+                return "Whether you want the bot to add reactions to nps in this server.";
+            case OVERRIDE_NP_REACTIONS:
+                return "Whether you want the server reactions to override the users reactions or simply add to those added.";
             case DELETE_MESSAGE:
                 return "Whether you want the bot to delete the original message the user wrote.";
             case SHOW_DISABLED_WARNING:

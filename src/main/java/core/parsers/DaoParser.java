@@ -44,9 +44,9 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
 
                 if (event.isFromGuild()) {
                     GuildProperties guildProperties = this.dao.getGuildProperties(event.getGuild().getIdLong());
-                    whoKnowsMode = guildProperties.getWhoKnowsMode() != null ? guildProperties.getWhoKnowsMode() : whoKnowsMode;
-                    chartMode = guildProperties.getChartMode() != null ? guildProperties.getChartMode() : chartMode;
-                    remainingImagesMode = guildProperties.getRemainingImagesMode() != null ? guildProperties.getRemainingImagesMode() : remainingImagesMode;
+                    whoKnowsMode = guildProperties.whoKnowsMode() != null ? guildProperties.whoKnowsMode() : whoKnowsMode;
+                    chartMode = guildProperties.chartMode() != null ? guildProperties.chartMode() : chartMode;
+                    remainingImagesMode = guildProperties.remainingImagesMode() != null ? guildProperties.remainingImagesMode() : remainingImagesMode;
                 }
                 return DEFAULT_DATA.apply(event, chartMode, whoKnowsMode, remainingImagesMode);
             }

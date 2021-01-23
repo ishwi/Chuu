@@ -1588,6 +1588,22 @@ public class ChuuService {
         }
     }
 
+    public void setServerAllowReactions(long guildId, boolean allowReactions) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildProperty(connection, guildId, "allow_reactions", allowReactions);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setServerOverrideReactions(long guildId, boolean overrideReactions) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildProperty(connection, guildId, "override_reactions", overrideReactions);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void setServer(long guildId, boolean deleteMode) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setGuildProperty(connection, guildId, "delete_message", deleteMode);
