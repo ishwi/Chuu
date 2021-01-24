@@ -37,12 +37,15 @@ import static core.commands.rym.AlbumRatings.getStartsFromScore;
 public class NPModeBuilder {
     static final Map<NPMode, Integer> footerIndexes;
 
-    private static final EnumSet<NPMode> albumModes = EnumSet.of(NPMode.ALBUM_RYM, NPMode.SERVER_ALBUM_RYM, NPMode.BOT_ALBUM_RYM, NPMode.ALBUM_CROWN, NPMode.ALBUM_RANK, NPMode.ALBUM_PLAYS, NPMode.GLOBAL_ALBUM_CROWN, NPMode.GLOBAL_ALBUM_RANK);
+    private static final EnumSet<NPMode> albumModes = EnumSet.of(NPMode.ALBUM_RYM,
+            NPMode.SERVER_ALBUM_RYM, NPMode.BOT_ALBUM_RYM, NPMode.ALBUM_CROWN, NPMode.ALBUM_RANK, NPMode.ALBUM_PLAYS, NPMode.GLOBAL_ALBUM_CROWN, NPMode.GLOBAL_ALBUM_RANK);
     private static final EnumSet<NPMode> trackModes = EnumSet.of(
             NPMode.ALBUM_RYM,
             NPMode.SERVER_ALBUM_RYM,
             NPMode.BOT_ALBUM_RYM,
-            NPMode.ALBUM_CROWN, NPMode.ALBUM_RANK, NPMode.ALBUM_PLAYS, NPMode.GLOBAL_ALBUM_CROWN, NPMode.GLOBAL_ALBUM_RANK, NPMode.TRACK_CROWN, NPMode.TRACK_RANK);
+            NPMode.GLOBAL_TRACK_CROWN,
+            NPMode.GLOBAL_TRACK_RANK,
+            NPMode.ALBUM_CROWN, NPMode.ALBUM_RANK, NPMode.ALBUM_PLAYS, NPMode.TRACK_CROWN, NPMode.TRACK_RANK);
 
     static {
         try {
@@ -160,6 +163,7 @@ public class NPModeBuilder {
         AtomicBoolean embedLock = new AtomicBoolean(false);
         AtomicBoolean tagsLock = new AtomicBoolean(false);
         AtomicBoolean trackCrownsLock = new AtomicBoolean(false);
+        AtomicBoolean globalTrackCrownsLock = new AtomicBoolean(false);
         Long preAlbumId = null;
         if (npModes.stream().anyMatch(albumModes::contains)) {
             try {
@@ -543,8 +547,8 @@ public class NPModeBuilder {
                     break;
                 case GLOBAL_TRACK_CROWN:
                 case GLOBAL_TRACK_RANK:
-                    if (preAlbumId != null) {
-                        if (!globalWhoKnowsAlbumLock.compareAndSet(false, true)) {
+                    if (trackId != null) {
+                        if (!globalTrackCrownsLock.compareAndSet(false, true)) {
                             break;
                         }
                         completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
