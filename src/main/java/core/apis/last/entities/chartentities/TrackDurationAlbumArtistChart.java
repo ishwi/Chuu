@@ -12,16 +12,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
-    public TrackDurationAlbumArtistChart(String url, int pos, String trackName, String artistName, String mbid, int plays, int seconds, boolean drawTitles, boolean drawPlays, boolean showDuration) {
-        super(url, pos, trackName, artistName, mbid, plays, seconds, drawTitles, drawPlays, showDuration);
+    public TrackDurationAlbumArtistChart(String url, int pos, String trackName, String artistName, String mbid, int plays, int seconds, boolean drawTitles, boolean drawPlays, boolean showDuration, boolean isAside) {
+        super(url, pos, trackName, artistName, mbid, plays, seconds, drawTitles, drawPlays, showDuration, isAside);
     }
 
     @NotNull
@@ -62,7 +59,7 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
             JSONArray image = trackObj.getJSONArray("image");
             JSONObject bigImage = image.getJSONObject(image.length() - 1);
 
-            return new TrackDurationAlbumArtistChart(bigImage.getString("#text"), size, name, artistName, mbid, frequency, frequency * duration, parameters.isWriteTitles(), parameters.isWritePlays(), parameters.isShowTime());
+            return new TrackDurationAlbumArtistChart(bigImage.getString("#text"), size, name, artistName, mbid, frequency, frequency * duration, parameters.isWriteTitles(), parameters.isWritePlays(), parameters.isShowTime(), parameters.isAside());
         };
 
     }
@@ -75,7 +72,7 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
             Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.getArtistName(), x.getSongName(), 1, false, 0), 200);
             return new TrackDurationAlbumArtistChart(x.getUrl(), 0, x.getSongName(), x.getArtistName(), x.getArtistMbid(),
                     1
-                    , orDefault, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
+                    , orDefault, params.isWriteTitles(), params.isWritePlays(), params.isShowTime(), params.isAside());
         };
     }
 
@@ -86,7 +83,7 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
             Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.getArtistName(), x.getSongName(), 1, false, 0), 200);
             return new TrackDurationAlbumArtistChart(x.getUrl(), 0, x.getSongName(), x.getArtistName(), x.getArtistMbid(),
                     1
-                    , orDefault, params.isWriteTitles(), params.isWritePlays(), true);
+                    , orDefault, params.isWriteTitles(), params.isWritePlays(), true, params.isAside());
         };
     }
 
@@ -100,7 +97,7 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
             String mbid = albumObj.getString("mbid");
             int plays = albumObj.getInt("playcount");
             JSONObject bigImage = image.getJSONObject(image.length() - 1);
-            return new TrackDurationAlbumArtistChart(bigImage.getString("#text"), size, albumName, artistName, mbid, plays, plays, params.isWriteTitles(), params.isWritePlays(), true);
+            return new TrackDurationAlbumArtistChart(bigImage.getString("#text"), size, albumName, artistName, mbid, plays, plays, params.isWriteTitles(), params.isWritePlays(), true, params.isAside());
         };
     }
 
@@ -111,6 +108,9 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
         if (drawTitles) {
             list.add(new ChartLine(getAlbumName(), ChartLine.Type.TITLE));
             list.add(new ChartLine(getArtistName()));
+            if (isAside) {
+                Collections.reverse(list);
+            }
         }
         if (showDuration) {
             list.add(new ChartLine(String.format("%d:%02d hours", seconds / 3600, seconds / 60 % 60)));

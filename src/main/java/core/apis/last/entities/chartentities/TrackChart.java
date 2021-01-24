@@ -9,23 +9,28 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 
 public class TrackChart extends UrlCapsule {
     final boolean drawTitles;
     final boolean drawPlays;
+    final boolean isAside;
 
-    public TrackChart(String url, int pos, String trackName, String artistName, String mbid, int plays, boolean drawTitles, boolean drawPlays) {
+    public TrackChart(String url, int pos, String trackName, String artistName, String mbid, int plays, boolean drawTitles, boolean drawPlays, boolean isAside) {
         super(url, pos, trackName, artistName, mbid, plays);
         this.drawTitles = drawTitles;
         this.drawPlays = drawPlays;
+        this.isAside = isAside;
     }
 
-    public TrackChart(String url, int pos, String trackName, String albumName, String mbid, boolean drawTitles, boolean drawPlays) {
+    public TrackChart(String url, int pos, String trackName, String albumName, String mbid, boolean drawTitles, boolean drawPlays, boolean isAside) {
         super(url, pos, trackName, albumName, mbid);
         this.drawTitles = drawTitles;
         this.drawPlays = drawPlays;
+        this.isAside = isAside;
+
     }
 
     public static BiFunction<JSONObject, Integer, UrlCapsule> getTrackParser(ChartParameters chartParameters) {
@@ -36,7 +41,7 @@ public class TrackChart extends UrlCapsule {
             JSONArray image = trackObj.getJSONArray("image");
             JSONObject bigImage = image.getJSONObject(image.length() - 1);
 
-            return new TrackChart(bigImage.getString("#text"), size, name, artistName, null, frequency, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
+            return new TrackChart(bigImage.getString("#text"), size, name, artistName, null, frequency, chartParameters.isWriteTitles(), chartParameters.isWritePlays(), chartParameters.isAside());
         };
     }
 
@@ -46,7 +51,7 @@ public class TrackChart extends UrlCapsule {
             NowPlayingArtist x = AlbumChart.fromRecentTrack(jsonObject, TopEntity.TRACK);
             return new TrackChart(x.getUrl(), 0, x.getSongName(), x.getArtistName(), x.getArtistMbid(), 1,
                     chartParameters.isWriteTitles()
-                    , chartParameters.isWritePlays());
+                    , chartParameters.isWritePlays(), chartParameters.isAside());
         };
     }
 
@@ -57,6 +62,9 @@ public class TrackChart extends UrlCapsule {
         if (drawTitles) {
             list.add(new ChartLine(getAlbumName(), ChartLine.Type.TITLE));
             list.add(new ChartLine(getArtistName()));
+            if (isAside) {
+                Collections.reverse(list);
+            }
         }
         if (drawPlays) {
             list.add(new ChartLine(getPlays() + " " + CommandUtil.singlePlural(getPlays(), "play", "plays")));

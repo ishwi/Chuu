@@ -53,7 +53,7 @@ public class CustomTimeFrameParser implements TimeFrameParserObtainer {
                 String artistName = trackObj.getJSONObject("artist").getString("#text");
                 JSONArray image = trackObj.getJSONArray("image");
                 JSONObject bigImage = image.getJSONObject(image.length() - 1);
-                return new TrackChart(bigImage.getString("#text"), size, name, artistName, null, frequency, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
+                return new TrackChart(bigImage.getString("#text"), size, name, artistName, null, frequency, chartParameters.isWriteTitles(), chartParameters.isWritePlays(), chartParameters.isAside());
             };
             case ALBUM -> (albumObj, size) ->
             {

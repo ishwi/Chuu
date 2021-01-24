@@ -102,13 +102,13 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         String thumbnail = isServer && e.isFromGuild() ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl();
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(params.getE(), params.getLastFMData().getDiscordId());
         String footer;
-        String conditionalFiltering = outerParmams.getExtraParam() != Integer.MAX_VALUE ? "and you are less than " + outerParmams.getExtraParam() + " plays away from first" : "";
+        String conditionalFiltering = outerParmams.getExtraParam() != Integer.MAX_VALUE ? " and you are less than " + outerParmams.getExtraParam() + " plays away from first" : "";
         if (onlySecond) {
-            footer = String.format("Displaying artist where %s is the second top listener %s in %s", uInfo.getUsername(), conditionalFiltering, s);
+            footer = String.format("Displaying artist where %s is the second top listener%s in %s", uInfo.getUsername(), conditionalFiltering, s);
         } else if (outerParmams.hasOptional("nofirst")) {
-            footer = String.format("Displaying artist where %s is yet to be the top listener %s in %s", uInfo.getUsername(), conditionalFiltering, s);
+            footer = String.format("Displaying artist where %s is yet to be the top listener%s in %s", uInfo.getUsername(), conditionalFiltering, s);
         } else {
-            footer = String.format("Displaying rank of %s's artist %s in %s", uInfo.getUsername(), conditionalFiltering, s);
+            footer = String.format("Displaying rank of %s's artist%s in %s", uInfo.getUsername(), conditionalFiltering, s);
         }
         embedBuilder.setDescription(a)
                 .setFooter("")

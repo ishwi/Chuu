@@ -17,8 +17,8 @@ import java.util.function.BiFunction;
 public class TrackDurationArtistChart extends TrackDurationChart {
 
 
-    public TrackDurationArtistChart(String url, int pos, String trackName, String artistName, String mbid, int plays, int seconds, boolean drawTitles, boolean drawPlays, boolean showDuration) {
-        super(url, pos, trackName, artistName, mbid, plays, seconds, drawTitles, drawPlays, showDuration);
+    public TrackDurationArtistChart(String url, int pos, String trackName, String artistName, String mbid, int plays, int seconds, boolean drawTitles, boolean drawPlays, boolean showDuration, boolean isAside) {
+        super(url, pos, trackName, artistName, mbid, plays, seconds, drawTitles, drawPlays, showDuration, isAside);
 
     }
 
@@ -30,7 +30,7 @@ public class TrackDurationArtistChart extends TrackDurationChart {
             int frequency = trackObj.getInt("playcount");
             duration = duration == 0 ? 200 : duration;
             String artistName = trackObj.getJSONObject("artist").getString("name");
-            return new TrackDurationArtistChart(null, size, name, artistName, null, frequency, frequency * duration, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
+            return new TrackDurationArtistChart(null, size, name, artistName, null, frequency, frequency * duration, params.isWriteTitles(), params.isWritePlays(), params.isShowTime(), params.isAside());
         };
     }
 
@@ -41,7 +41,7 @@ public class TrackDurationArtistChart extends TrackDurationChart {
             Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.getArtistName(), x.getSongName(), 1, false, 0), 200);
             return new TrackDurationArtistChart(x.getUrl(), 0, x.getSongName(), x.getArtistName(), x.getArtistMbid(),
                     1
-                    , orDefault, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
+                    , orDefault, params.isWriteTitles(), params.isWritePlays(), params.isShowTime(), params.isAside());
         };
     }
 

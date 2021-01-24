@@ -38,7 +38,7 @@ public class FirstPlayedCommand extends AlbumPlaysCommand {
 
     @Override
     public List<String> getAliases() {
-        return List.of("lasttrack", "lastsong", "lasttr");
+        return List.of("firsttrack", "firstsong", "firsttr");
     }
 
     @Override

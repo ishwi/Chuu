@@ -2384,6 +2384,15 @@ public class ChuuService {
         }
     }
 
+    public ResultWrapper<ScrobbledTrack> getGuildTrackTop(Long guildID, int limit, boolean doCount) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return trackDao.getGuildTopTracks(connection, guildID, limit, doCount);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void updateAlbumImage(long albumId, String albumUrl) {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.updateAlbumImage(connection, albumId, albumUrl);
@@ -2931,6 +2940,24 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return trackDao.getUserTopArtistTracks(connection, lastFmName, artistId, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<AlbumUserPlays> getServerTopArtistTracks(long guildId, long artistId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return trackDao.getServerTopArtistTracks(connection, guildId, artistId, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<AlbumUserPlays> getGlboalTopArtistTracks(long guildId, long artistId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return trackDao.getGlobalTopArtistTracks(connection, artistId, limit);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

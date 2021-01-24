@@ -104,54 +104,21 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                 }
             } else {
                 UpdaterUserWrapper userUpdateStatus = db.getUserUpdateStatus(lastFMData.getDiscordId());
-                List<ScrobbledTrack> topTracks = db.getTopTracks(userUpdateStatus.getLastFMName());
-                if (topTracks.size() < db.getUserArtistCount(lastFmName, 0)) {
-                    if (maxConcurrency.decrementAndGet() == 0) {
-                        maxConcurrency.incrementAndGet();
-                        UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, db, lastFM);
-                        updaterHoarder.updateUser();
+                try {
+                    UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, db, lastFM);
+                    updaterHoarder.updateUser();
 
-                    } else {
-                        try {
-                            sendMessageQueue(e, "Since you haven't indexed your tracks yet, all your tracks will be indexed on the bot. This will take a while.");
-                            e.getChannel().sendTyping().queue();
-                            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-                            db.insertArtistDataList(artistData, lastFmName);
-                            e.getChannel().sendTyping().queue();
-                            //sendMessageQueue(e, "Finished updating your artist, now the album process will start");
-                            try {
-                                List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-                                e.getChannel().sendTyping().queue();
-                                db.albumUpdate(albumData, artistData, lastFmName);
-                            } catch (LastFMNoPlaysException ignored) {
-                            }
-                            List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-                            db.trackUpdate(trackData, artistData, lastFmName);
-                            sendMessageQueue(e, "Successfully indexed " + userString + " tracks");
-                        } finally {
-                            synchronized (this) {
-                                maxConcurrency.incrementAndGet();
-                            }
-                        }
-                        return;
-                    }
-                } else {
-                    try {
-                        UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, db, lastFM);
-                        updaterHoarder.updateUser();
-
-                        //db.incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
-                    } catch (LastFMNoPlaysException ex) {
-                        db.updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
-                                (int) (Instant.now().getEpochSecond() + 4000));
-                        sendMessageQueue(e, "You were already up to date!");
-                        return;
-                    }
+                    //db.incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
+                } catch (LastFMNoPlaysException ex) {
+                    db.updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
+                            (int) (Instant.now().getEpochSecond() + 4000));
+                    sendMessageQueue(e, "You were already up to date!");
+                    return;
                 }
-                sendMessageQueue(e, "Successfully updated " + userString + " info!");
-
-
             }
+            sendMessageQueue(e, "Successfully updated " + userString + " info!");
+
+
         } finally {
             if (removeFlag) {
                 UpdaterService.remove(lastFmName);

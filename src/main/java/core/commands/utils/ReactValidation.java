@@ -37,9 +37,6 @@ public class ReactValidation {
                     }
                 }
             }
-            if (!emote.canInteract(e.getJDA().getSelfUser(), channelToTestIn, true)) {
-                rejected.add(emote);
-            }
         }
         if (!rejected.isEmpty()) {
             e.getChannel().sendMessage("Couldn't use some emotes because of permissions or unknown emotes.\n" +

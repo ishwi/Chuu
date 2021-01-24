@@ -19,14 +19,14 @@ public class TrackDurationChart extends TrackChart {
     final boolean showDuration;
     int seconds;
 
-    public TrackDurationChart(String url, int pos, String trackName, String artistName, String mbid, int plays, int seconds, boolean drawTitles, boolean drawPlays, boolean showDuration) {
-        super(url, pos, trackName, artistName, mbid, plays, drawTitles, drawPlays);
+    public TrackDurationChart(String url, int pos, String trackName, String artistName, String mbid, int plays, int seconds, boolean drawTitles, boolean drawPlays, boolean showDuration, boolean isAside) {
+        super(url, pos, trackName, artistName, mbid, plays, drawTitles, drawPlays, isAside);
         this.showDuration = showDuration;
         this.seconds = seconds;
     }
 
-    public TrackDurationChart(String url, int pos, String trackName, String albumName, String mbid, boolean drawTitles, boolean drawPlays, boolean showDuration, int seconds) {
-        super(url, pos, trackName, albumName, mbid, drawTitles, drawPlays);
+    public TrackDurationChart(String url, int pos, String trackName, String albumName, String mbid, boolean drawTitles, boolean drawPlays, boolean showDuration, int seconds, boolean isAside) {
+        super(url, pos, trackName, albumName, mbid, drawTitles, drawPlays, isAside);
         this.showDuration = showDuration;
         this.seconds = seconds;
     }
@@ -40,7 +40,7 @@ public class TrackDurationChart extends TrackChart {
             String artistName = trackObj.getJSONObject("artist").getString("name");
             JSONArray image = trackObj.getJSONArray("image");
             JSONObject bigImage = image.getJSONObject(image.length() - 1);
-            return new TrackDurationChart(bigImage.getString("#text"), size, name, artistName, null, frequency, frequency * duration, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
+            return new TrackDurationChart(bigImage.getString("#text"), size, name, artistName, null, frequency, frequency * duration, params.isWriteTitles(), params.isWritePlays(), params.isShowTime(), params.isAside());
         };
     }
 
@@ -51,7 +51,7 @@ public class TrackDurationChart extends TrackChart {
             Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.getArtistName(), x.getSongName(), 1, false, 0), 200);
             return new TrackDurationChart(null, 0, x.getSongName(), x.getArtistName(), x.getArtistMbid(),
                     1
-                    , orDefault, params.isWriteTitles(), params.isWritePlays(), params.isShowTime());
+                    , orDefault, params.isWriteTitles(), params.isWritePlays(), params.isShowTime(), params.isAside());
         };
     }
 
@@ -74,6 +74,7 @@ public class TrackDurationChart extends TrackChart {
         if (drawTitles) {
             list.add(new ChartLine(getAlbumName(), ChartLine.Type.TITLE));
             list.add(new ChartLine(getArtistName()));
+
         }
         if (showDuration) {
             list.add(new ChartLine(String.format("%d:%02d hours", seconds / 3600, seconds / 60 % 60)));

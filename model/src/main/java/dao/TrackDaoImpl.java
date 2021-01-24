@@ -314,6 +314,74 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     }
 
     @Override
+    public ResultWrapper<ScrobbledTrack> getGuildTopTracks(Connection connection, Long guildID, int limit, boolean doCount) {
+
+
+        @Language("MariaDB") String normalQUery = "SELECT d.name,f.track_name,coalesce(f.url,e.url,d.url) as url,sum(playnumber) AS orden ,e.mbid  ";
+
+        String countQuery = "Select count(*) as orden ";
+
+
+        String queryBody = "FROM  scrobbled_track a" +
+                " JOIN user b" +
+                " ON a.lastfm_id = b.lastfm_id" +
+                " JOIN artist d " +
+                " ON a.artist_id = d.id" +
+                " join track f on a.track_id = f.id " +
+                " left join album e on f.album_id = e.id ";
+
+        if (guildID != null) {
+            queryBody += " JOIN  user_guild c" +
+                    " ON b.discord_id=c.discord_id" +
+                    " WHERE c.guild_id = ?";
+        }
+
+        List<ScrobbledTrack> list = new ArrayList<>();
+        int count = 0;
+        int i = 1;
+        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY track_id,url  ORDER BY orden DESC  limit ?")) {
+            if (guildID != null)
+                preparedStatement1.setLong(i++, guildID);
+
+            preparedStatement1.setInt(i, limit);
+
+            ResultSet resultSet1 = preparedStatement1.executeQuery();
+
+            while (resultSet1.next()) {
+                String artist = resultSet1.getString("d.name");
+                String album = resultSet1.getString("f.track_name");
+                String mbid = resultSet1.getString("e.mbid");
+
+
+                String url = resultSet1.getString("url");
+
+                int plays = resultSet1.getInt("orden");
+                ScrobbledTrack who = new ScrobbledTrack(artist, album, plays, false, 0, url, null, null);
+                who.setCount(plays);
+                list.add(who);
+            }
+            if (doCount) {
+
+                PreparedStatement preparedStatement = connection.prepareStatement(countQuery + queryBody);
+                i = 1;
+                if (guildID != null)
+                    preparedStatement.setLong(i, guildID);
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    count = resultSet.getInt(1);
+                }
+
+
+            }
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return new ResultWrapper<>(count, list);
+    }
+
+    @Override
     public List<ScrobbledTrack> getUserTopTracksNoSpotifyId(Connection connection, String lastfmid, int limit) {
         List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
 

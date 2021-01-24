@@ -92,7 +92,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         String userString = uInfo.getUsername();
 
         StringBuilder a = new StringBuilder();
-        List<String> s = ai.stream().map(g -> ". **[" + g.getName() + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getName()) + ")** - " + g.getPlays() + " plays" +
+        List<String> s = ai.stream().map(g -> ". **[" + CommandUtil.cleanMarkdownCharacter(g.getName()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getName()) + ")** - " + g.getPlays() + " plays" +
                 "\n").collect(Collectors.toList());
         for (int i = 0; i < ai.size() && i < 10; i++) {
             String sb = s.get(i);
@@ -104,6 +104,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
         if (ai.size() > 10) {
+            embedBuilder.setFooter(userString + " has listened to " + s.size() + " different " + who.getArtist() + " songs!");
             e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
                     new Reactionary<>(s, mes, embedBuilder));
         } else {

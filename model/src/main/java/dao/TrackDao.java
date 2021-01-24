@@ -50,4 +50,6 @@ public interface TrackDao {
     Optional<FullAlbumEntity> getServerAlbumTrackList(Connection connection, long albumId, long guildId);
 
     Optional<FullAlbumEntity> getGlobalAlbumTrackList(Connection connection, long albumId);
+
+    ResultWrapper<ScrobbledTrack> getGuildTopTracks(Connection connection, Long guildID, int limit, boolean doCount);
 }
