@@ -1,6 +1,8 @@
 package core.imagerenderer;
 
 import core.imagerenderer.stealing.blur.GaussianFilter;
+import core.imagerenderer.util.fitter.StringFitter;
+import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.WKMode;
 import dao.entities.WrapperReturnNowPlaying;
 import org.imgscalr.Scalr;
@@ -18,6 +20,10 @@ public class WhoKnowsMaker {
     private static final int X_MARGIN = 80;
     private static final int Y_MARGIN = 25;
     private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 32);
+    private static final StringFitter artistFitter = new StringFitterBuilder(32, X_MAX)
+            .setStep(1)
+            .setBaseFont(NORMAL_FONT)
+            .setMinSize(14f).build();
     private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP", Font.PLAIN, 32);
     private static final Font DESC_FONT = new Font("Noto Sans CJK JP Light", Font.PLAIN, 32);
     private static final String FIRST_LINE = "Who knows";
@@ -73,23 +79,13 @@ public class WhoKnowsMaker {
 
         yCounter += 10;
         Font fontToUse;
-        if (NORMAL_FONT.canDisplayUpTo(artist) == -1) {
-            fontToUse = NORMAL_FONT;
 
-        } else
-            fontToUse = JAPANESE_FONT;
-
-        g.setFont(fontToUse);
-        metrics = g.getFontMetrics(fontToUse);
+        StringFitter.FontMetadata fontMetadata = artistFitter.getFontMetadata(g, artist);
+        width = (int) fontMetadata.bounds().getWidth();
+        metrics = g.getFontMetrics(fontMetadata.maxFont());
         yCounter += metrics.getAscent() - metrics.getDescent();
-        float size = 32;
-        while ((width = g.getFontMetrics(g.getFont()).stringWidth(artist)) > (canvas.getWidth() * 0.70) && size > 14f) {
-            g.setFont(g.getFont().deriveFont(size -= 2));
-        }
-        GraphicUtils.drawStringNicely(g, artist, X_MAX / 2 - width / 2, yCounter, canvas);
-
+        GraphicUtils.drawStringNicely(g, fontMetadata, X_MAX / 2 - width / 2, yCounter, canvas);
         yCounter += metrics.getDescent();
-
         g.setFont(DESC_FONT);
         metrics = g.getFontMetrics(DESC_FONT);
         yCounter += metrics.getAscent() - metrics.getDescent();

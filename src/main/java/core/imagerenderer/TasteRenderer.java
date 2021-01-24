@@ -1,5 +1,7 @@
 package core.imagerenderer;
 
+import core.imagerenderer.util.fitter.StringFitter;
+import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.ResultWrapper;
 import dao.entities.UserArtistComparison;
 import dao.entities.UserInfo;
@@ -8,7 +10,6 @@ import org.imgscalr.Scalr;
 
 import javax.annotation.Nullable;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,9 +50,9 @@ public class TasteRenderer {
 
         //Init Of Variables
         Font artistFont = new Font("Roboto", Font.PLAIN, 21);
-        Font numberFont = new Font("Heebo-Light", Font.PLAIN, 21);
-        Font titleFont = new Font("Heebo-Light", Font.PLAIN, 23);
-        Font scrobbleFont = new Font("Heebo-Light", Font.BOLD, 17);
+        Font numberFont = new Font("Heebo Light", Font.PLAIN, 21);
+        Font titleFont = new Font("Heebo Light", Font.PLAIN, 23);
+        Font scrobbleFont = new Font("Heebo Light", Font.BOLD, 17);
         int startFont = 26;
         Font usernameFont = (new Font("Roboto Medium", Font.PLAIN, startFont));
         Font subtitle = new Font("Roboto Condensed Bold Italic", Font.ITALIC, 12);
@@ -183,16 +184,15 @@ public class TasteRenderer {
 
             GraphicUtils.drawStringNicely(g, "" + countA, 100, y, canvas);
             GraphicUtils.drawStringNicely(g, "" + countB, countBStart, y, canvas);
-            g.setFont(artistFont);
-
-            Font fontToUse;
-            if (g.getFont().canDisplayUpTo(artistID) != -1) {
-                fontToUse = new Font("Noto Serif CJK JP", Font.PLAIN, 21);
-                g.setFont(fontToUse);
-            }
             Font ogFont = g.getFont();
-            Rectangle2D widthes = GraphicUtils.fitAndGetBounds(artistID, g, X_MAX - 200 - widthB * 2, 14);
-            GraphicUtils.drawStringNicely(g, artistID, (int) (X_MAX / 2 - (widthes.getWidth() / 2)), y, canvas);
+
+
+            StringFitter.FontMetadata artistMetadata = new StringFitterBuilder(21, X_MAX - 200 - widthB * 2)
+                    .setBaseFont(artistFont)
+                    .setMinSize(14).build()
+                    .getFontMetadata(g, artistID);
+
+            GraphicUtils.drawStringNicely(g, artistMetadata, (int) (X_MAX / 2 - (artistMetadata.bounds().getWidth() / 2)), y, canvas);
             g.setFont(ogFont);
             y += 32;
         }

@@ -144,6 +144,11 @@ public class NowPlayingCommand extends NpCommand {
 
                 if (e.getMember() != null && e.getMember().hasPermission(Permission.MESSAGE_ADD_REACTION)) {
                     switch (overrideMode) {
+                        case OVERRIDE -> {
+                            if (!serverReactions.isEmpty()) {
+                                serverReactions = db.getUserReacts(e.getAuthor().getIdLong());
+                            }
+                        }
                         case ADD -> serverReactions.addAll(db.getUserReacts(e.getAuthor().getIdLong()));
                         case ADD_END -> {
                             List<String> userReacts = db.getUserReacts(e.getAuthor().getIdLong());

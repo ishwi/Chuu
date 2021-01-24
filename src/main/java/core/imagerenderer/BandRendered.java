@@ -1,6 +1,8 @@
 package core.imagerenderer;
 
 
+import core.imagerenderer.util.fitter.StringFitter;
+import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ArtistAlbums;
 import dao.entities.ReturnNowPlaying;
@@ -24,6 +26,9 @@ public class BandRendered {
     private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 32);
     private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP", Font.PLAIN, 32);
     private static final Font DESC_FONT = new Font("Noto Sans CJK JP Light", Font.PLAIN, 32);
+    private static final StringFitter fitter = new StringFitterBuilder(32, 300)
+            .setBaseFont(NORMAL_FONT)
+            .setMinSize(8).build();
 
 
     private BandRendered() {
@@ -36,7 +41,6 @@ public class BandRendered {
         BufferedImage artistReplacement;
 
         String artist = wrapperReturnNowPlaying.getArtist();
-        boolean needsJapanese = false;
 
         //Loads logo if it were to exist
         try (InputStream in = BandRendered.class.getResourceAsStream("/images/logo2.png")) {
@@ -58,28 +62,19 @@ public class BandRendered {
 
         g.setColor(fontColor);
 
-        if (NORMAL_FONT.canDisplayUpTo(artist) != -1) {
-            needsJapanese = true;
-        }
 
         List<AlbumUserPlays> albumUserPlaysList = ai.getAlbumList();
-        int count = 0;
-        List<BufferedImage> albumsImages = new ArrayList<>(4);
-        for (AlbumUserPlays albumUserPlays : albumUserPlaysList) {
-            if (count++ == 4)
-                break;
-
-            if (NORMAL_FONT.canDisplayUpTo(albumUserPlays.getAlbum()) != -1) {
-                needsJapanese = true;
-            }
+        List<BufferedImage> albumsImages = new ArrayList<>();
+        for (int i = 0, albumUserPlaysListSize = albumUserPlaysList.size(); i < albumUserPlaysListSize && i < 4; i++) {
+            AlbumUserPlays albumUserPlays = albumUserPlaysList.get(i);
             BufferedImage image = GraphicUtils.getImage(albumUserPlays.getAlbumUrl());
+            if (image == null) {
+                image = GraphicUtils.noArtistImage;
+            }
             albumsImages.add(image);
         }
 
-        if (needsJapanese)
-            g.setFont(JAPANESE_FONT);
-        else
-            g.setFont(NORMAL_FONT);
+        g.setFont(NORMAL_FONT);
 
         FontMetrics metrics = g.getFontMetrics();
         String people = "Top 5 people";
@@ -90,15 +85,12 @@ public class BandRendered {
                 .doChart(g, X_MARGIN + 40, 700 - 20, 400, 50, 5, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, DESC_FONT
                         .deriveFont(36f));
 
-        count = 0;
+        int count = 0;
         int imagesDrawn = 0;
 
         int albumsStartPosition = X_MARGIN + 400 + 195 + 40;
         for (BufferedImage albumsImage : albumsImages) {
             count++;
-            if (albumsImage == null) {
-                continue;
-            }
             int posX;
             int baseline;
             switch (albumsImages.size()) {
@@ -129,12 +121,12 @@ public class BandRendered {
 
             Font ogFont = g.getFont();
             float sizeFont = ogFont.getSize();
-            while ((width = g.getFontMetrics(g.getFont()).stringWidth(album)) > 300 && sizeFont > 8f) {
-                g.setFont(g.getFont().deriveFont(sizeFont -= 2));
-            }
-            GraphicUtils
-                    .drawStringNicely(g, album, posX + (300 / 2) - width / 2, baseline + metrics.getAscent(), canvas);
 
+            StringFitter.FontMetadata albumFont = fitter
+                    .getFontMetadata(g, album);
+            width = (int) albumFont.bounds().getWidth();
+            GraphicUtils
+                    .drawStringNicely(g, albumFont, posX + (300 / 2) - width / 2, baseline + metrics.getAscent(), canvas);
             g.setFont(ogFont);
 
             baseline += metrics.getAscent() + metrics.getDescent();

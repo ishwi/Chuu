@@ -4,6 +4,8 @@ import core.Chuu;
 import core.imagerenderer.stealing.blur.GaussianFilter;
 import core.imagerenderer.util.CIELab;
 import core.imagerenderer.util.D;
+import core.imagerenderer.util.fitter.StringFitter;
+import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
 import dao.exceptions.ChuuServiceException;
@@ -12,12 +14,15 @@ import org.imgscalr.Scalr;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.font.TextAttribute;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.AttributedString;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -27,11 +32,18 @@ public class GraphicUtils {
     static final Random ran = new Random();
     static final File CacheDirectory;
     public static final BufferedImage noArtistImage;
-    private static final Font NORMAL_FONT = new Font("Noto Sans", Font.PLAIN, 14);
+    public static final Font NORMAL_FONT = new Font("Noto Sans", Font.PLAIN, 14);
     private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, 14);
     //private static final Font UNICODE_FONT = new Font("Sun-ExtA", Font.PLAIN, 14);
     private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, 14);
     private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 14);
+    static final Font EMOJI_FONT_BACKUP = new Font("Segoe UI Emoji", Font.PLAIN, 14);
+    static final Font NAMARE_FONT = new Font("Nirmala UI semilight", Font.PLAIN, 14);
+    static final Font HEBREW_FONT = new Font("Heebo Light", Font.PLAIN, 14);
+    static final Font ARABIC_FONT = new Font("Noto Sans Arabic Light", Font.PLAIN, 14);
+    static final Font JAPANESE_FIRST = new Font("Noto Sans CJK JP Light", Font.PLAIN, 14);
+
+    public static final Font[] palletes = new Font[]{JAPANESE_FIRST, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT};
 
     static {
         try (InputStream in = GraphicUtils.class.getResourceAsStream("/" + "all.properties")) {
@@ -115,24 +127,92 @@ public class GraphicUtils {
     }
 
     public static Font chooseFont(String string) {
-        Font font = NORMAL_FONT;
-        if (font.canDisplayUpTo(string) != -1) {
-            font = JAPANESE_FONT;
-            if (font.canDisplayUpTo(string) != -1) {
-                font = KOREAN_FONT;
-                if (font.canDisplayUpTo(string) != -1) {
-                    font = EMOJI_FONT;
-                    if (font.canDisplayUpTo(string) != -1) {
-                        /*font = UNICODE_FONT;
-                        if (font.canDisplayUpTo(string) != -1) {*/
-                        font = NORMAL_FONT;
-                        //    }
-                    }
+        return getFont(string, NORMAL_FONT);
+    }
+
+    public static Font getFont(String test, Font startFont, Font... fonts) {
+        Font font = startFont;
+        int i = font.canDisplayUpTo(test);
+        int maxI = i;
+        if (i != -1) {
+            for (Font value : fonts) {
+                int i1 = value.canDisplayUpTo(test);
+                if (i1 == -1) {
+                    font = value;
+                    break;
+                }
+                if (i1 > 0 && i1 > maxI) {
+                    maxI = i1;
+                    font = value;
                 }
             }
         }
         return font;
     }
+
+    public static Font getFont(String test, Font startFont) {
+        return getFont(test, startFont, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT);
+    }
+
+
+    public static StringFitter.FontMetadata getFont(Graphics2D g, String test, Font startFont, float size, int maxWidth, int minFontSize, int fontStyle, Font... fonts) {
+        AttributedString result = new AttributedString(test);
+        int length = test.length();
+        int i = startFont.canDisplayUpTo(test);
+
+        // Can display at least a character
+        int maxSize = 0;
+        Font maxFont = startFont;
+
+
+        List<StringFitter.StringAtrributes> temp = new ArrayList<>();
+        if (i != 0) {
+            result.addAttribute(TextAttribute.FONT, startFont.deriveFont(fontStyle, size), 0, length);
+            maxSize = i;
+        }
+        // Couldnt display the whole string
+        if (i != -1) {
+            for (Font value : fonts) {
+                String continued = test.substring(i);
+                int j = value.canDisplayUpTo(continued);
+                // We didnt have a main font.
+                if ((j != 0) && i == 0) {
+                    maxSize = j;
+                    temp.add(new StringFitter.StringAtrributes(value, 0, length));
+                    if (j == -1) {
+                        i = j;
+                        maxFont = value;
+                        break;
+                    }
+                } else if (j == -1) {
+                    temp.add(new StringFitter.StringAtrributes(value, i, length));
+                    maxFont = value;
+                    break;
+                } else if (j != 0) {
+                    if (j > maxSize) {
+                        maxSize = j;
+                        maxFont = value;
+                    }
+                    temp.add(new StringFitter.StringAtrributes(value, i, i + j));
+                    i += j;
+                }
+            }
+        }
+        float sizeFont = size;
+        while (g.getFontMetrics(maxFont.deriveFont(sizeFont)).stringWidth(test) > maxWidth && sizeFont > minFontSize) {
+            sizeFont -= 2;
+        }
+        g.getFontMetrics(maxFont).getStringBounds(test, g);
+        for (StringFitter.StringAtrributes t : temp) {
+            result.addAttribute(TextAttribute.FONT, t.font().deriveFont(fontStyle, sizeFont), t.begginging(), t.end());
+        }
+        Rectangle2D bounds = g.getFontMetrics(maxFont).getStringBounds(test, g);
+        if (i == 0) {
+            result.addAttribute(TextAttribute.FONT, startFont.deriveFont(fontStyle, sizeFont), 0, length);
+        }
+        return new StringFitter.FontMetadata(result, bounds, maxFont.deriveFont(fontStyle, sizeFont));
+    }
+
 
     public static void inserArtistImage(String urlImage, Graphics2D g) {
         BufferedImage read = GraphicUtils.getImage(urlImage);
@@ -236,6 +316,9 @@ public class GraphicUtils {
         FontMetrics metrics;
         g.setFont(font);
         float initialSize = g.getFont().getSize();
+        StringFitter userMetadata = new StringFitterBuilder(initialSize, (int) (width * 0.55))
+                .setBaseFont(g.getFont())
+                .setMinSize(14).build();
         metrics = g.getFontMetrics(g.getFont());
         List<ReturnNowPlaying> nowPlayingArtistList = wrapperReturnNowPlaying.getReturnNowPlayings();
         yCounter += metrics.getAscent() + metrics.getDescent();
@@ -246,7 +329,6 @@ public class GraphicUtils {
 
             g.setColor(GraphicUtils.getBetter(colorB1));
 
-            float size = initialSize;
             String name = nowPlayingArtistList.get(i).getDiscordName();
             Font tempFont = g.getFont();
 
@@ -256,16 +338,13 @@ public class GraphicUtils {
                 g.drawString(strNumber, x, yCounter + (margin - metrics.getAscent() / 2));
                 startName += g.getFontMetrics().stringWidth(strNumber);
             }
-            if (g.getFont().canDisplayUpTo(name) != -1 && WhoKnowsMaker.EMOJI_FONT.canDisplayUpTo(name) == -1)
-                g.setFont(WhoKnowsMaker.EMOJI_FONT.deriveFont(size));
 
-            while (g.getFontMetrics(g.getFont()).stringWidth(name) > (width * 0.55) && size > 14f)
-                g.setFont(g.getFont().deriveFont(size -= 2));
 
-            g.drawString(name, startName, yCounter + (margin - metrics.getAscent() / 2));
+            StringFitter.FontMetadata fontMetadata = userMetadata.getFontMetadata(g, name);
 
-            size = initialSize;
-            g.setFont(tempFont.deriveFont(size));
+            g.drawString(fontMetadata.atrribute().getIterator(), startName, yCounter + (margin - metrics.getAscent() / 2));
+
+            g.setFont(tempFont.deriveFont(initialSize));
             String plays = String.valueOf(nowPlayingArtistList.get(i).getPlayNumber());
             int stringWidth = metrics.stringWidth(plays);
             int playPos = x + width - (rowHeight + stringWidth);
@@ -274,7 +353,6 @@ public class GraphicUtils {
                     .getAscent() / 2));
             g.drawImage(lastFmLogo, playEnd + 9, (int) (yCounter - metrics.getAscent() * 0.85), null);
             yCounter += rowHeight;
-
 
         }
         g.setFont(ogFont);
@@ -318,12 +396,41 @@ public class GraphicUtils {
 
     }
 
+    static void drawStringNicely(Graphics2D g, StringFitter.FontMetadata fontMetadata, int x, int y, BufferedImage bufferedImage) {
+
+        Color temp = g.getColor();
+        int length = (int) fontMetadata.bounds().getWidth();
+        try {
+            Color col1 = new Color(bufferedImage.getRGB(
+                    Math.min(bufferedImage.getWidth() - 1, Math.max(0, x))
+                    , y));
+            Color col2 = new Color(bufferedImage.getRGB(Math.max(0, Math.min(bufferedImage.getWidth() - 5, x + length / 2)), y));
+            Color col3 = new Color(bufferedImage.getRGB(Math.max(0, Math.min(bufferedImage.getWidth() - 5, x + length)), y));
+            g.setColor(getBetter(col1, col2, col3));
+        } catch (ArrayIndexOutOfBoundsException debugger) {
+            Chuu.getLogger().warn(x + " " + y + " " + " " + length + " " + bufferedImage.getWidth() + " " + bufferedImage.getHeight());
+            Chuu.getLogger().warn(debugger.getMessage(), debugger);
+        }
+        g.drawString(fontMetadata.atrribute().getIterator(), x, y);
+        g.setColor(temp);
+
+    }
+
     static void drawStringChartly(Graphics2D g, String string, int x, int y) {
         Color temp = g.getColor();
         g.setColor(Color.BLACK);
         g.drawString(string, x, y);
         g.setColor(Color.WHITE);
         g.drawString(string, x + 1, y);
+        g.setColor(temp);
+    }
+
+    static void drawStringChartly(Graphics2D g, StringFitter.FontMetadata string, int x, int y) {
+        Color temp = g.getColor();
+        g.setColor(Color.BLACK);
+        g.drawString(string.atrribute().getIterator(), x, y);
+        g.setColor(Color.WHITE);
+        g.drawString(string.atrribute().getIterator(), x + 1, y);
         g.setColor(temp);
     }
 

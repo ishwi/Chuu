@@ -415,7 +415,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     @Override
     public List<ScoredAlbumRatings> getSelfRatingsScore(Connection connection, Short ratingNumber, long discordId) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
-        String s = "select  album_name,a.id name,rating,(select avg(rating) from album_rating t  where t.album_id = a.album_id) as agg,(select count(*) from album_rating t  where t.album_id = a.album_id) as coun,c.url " +
+        String s = "select  album_name,a.id, name,rating,(select avg(rating) from album_rating t  where t.album_id = a.album_id) as agg,(select count(*) from album_rating t  where t.album_id = a.album_id) as coun,c.url " +
                 "from album_rating a " +
                 "join artist b on a.artist_id = b.id " +
                 "join album c on a.album_id = c.id " +
@@ -434,11 +434,11 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 String albumName = resultSet.getString(1);
-                String artist = resultSet.getString(2);
-                short rating = resultSet.getShort(3);
-                double avg = resultSet.getDouble(4);
-                long count = resultSet.getLong(5);
-                String url = resultSet.getString(6);
+                String artist = resultSet.getString(3);
+                short rating = resultSet.getShort(4);
+                double avg = resultSet.getDouble(5);
+                long count = resultSet.getLong(6);
+                String url = resultSet.getString(7);
 
 
                 returnList.add(new ScoredAlbumRatings(rating, albumName, url, count, avg, artist));

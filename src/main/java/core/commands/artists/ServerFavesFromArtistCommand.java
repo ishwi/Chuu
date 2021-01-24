@@ -15,7 +15,6 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import dao.ChuuService;
 import dao.entities.AlbumUserPlays;
-import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -77,7 +76,6 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
             sendMessageQueue(e, ("Couldn't find any tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + " in this server!"));
             return;
         }
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, userId);
         String userString = e.getGuild().getName();
 
         StringBuilder a = new StringBuilder();
@@ -89,7 +87,7 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         }
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(a)
-                .setFooter(userString + " user have listened to " + s.size() + " different " + who.getArtist() + " songs!")
+                .setFooter(userString + " users have listened to " + s.size() + " different " + who.getArtist() + " songs!")
                 .setAuthor(String.format("%s's top %s tracks", userString, who.getArtist()), PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), e.getGuild().getIconUrl())
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));

@@ -1,5 +1,7 @@
 package core.imagerenderer;
 
+import core.imagerenderer.util.fitter.StringFitter;
+import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.ProfileEntity;
 import org.imgscalr.Scalr;
 

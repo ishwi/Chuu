@@ -3,6 +3,8 @@ package core.imagerenderer;
 import core.Chuu;
 import core.apis.last.entities.chartentities.PreComputedChartEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.imagerenderer.util.fitter.StringFitter;
+import core.imagerenderer.util.fitter.StringFitterBuilder;
 import org.imgscalr.Scalr;
 
 import java.awt.*;
@@ -13,8 +15,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import static core.imagerenderer.WhoKnowsMaker.EMOJI_FONT;
 
 
 class ThreadQueue implements Runnable {
@@ -28,7 +28,8 @@ class ThreadQueue implements Runnable {
     int START_FONT_SIZE = 24;
     final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, START_FONT_SIZE);
     final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, START_FONT_SIZE);
-
+    private final StringFitter titleFitter;
+    private final StringFitter subTitleFitter;
     int lowerLimitStringSize = 14;
     int imageSize = 300;
 
@@ -44,27 +45,41 @@ class ThreadQueue implements Runnable {
             START_FONT_SIZE = 12;
             lowerLimitStringSize = 7;
         }
+
         START_FONT = new Font("Noto Sans", Font.PLAIN, START_FONT_SIZE);
+        titleFitter = new StringFitterBuilder(START_FONT_SIZE, imageSize - 5)
+                .setStep(1)
+                .setMinSize(lowerLimitStringSize)
+                .setFitStrategy(asideMode ? StringFitter.FitStrategy.HEIGHT : StringFitter.FitStrategy.WIDTH)
+                .setBaseFont(START_FONT)
+                .setStyle(Font.BOLD).build();
+        subTitleFitter = new StringFitterBuilder(START_FONT_SIZE - 2, imageSize - 5)
+                .setStep(1)
+                .setMinSize(lowerLimitStringSize)
+                .setFitStrategy(asideMode ? StringFitter.FitStrategy.HEIGHT : StringFitter.FitStrategy.WIDTH)
+                .setBaseFont(START_FONT)
+                .setStyle(Font.PLAIN).build();
     }
 
     protected static OptionalInt maxWidth(BlockingQueue<UrlCapsule> queue, int imageHeight, int columns) {
-        Graphics2D g1 = new BufferedImage(10000, 10000, BufferedImage.TYPE_INT_ARGB).createGraphics();
+        BufferedImage bufferedImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g1 = bufferedImage.createGraphics();
         int actualSize = columns * imageHeight;
         int heightPerItem = actualSize / queue.size();
         LinkedBlockingQueue<UrlCapsule> c = new LinkedBlockingQueue<>();
         queue.drainTo(c);
         OptionalInt max = Arrays.stream(c.toArray(UrlCapsule[]::new)).mapToInt(x -> {
             String join = x.getLines().stream().map(ChartLine::getLine).collect(Collectors.joining(" - "));
-            Font font = GraphicUtils.chooseFont(join).deriveFont(Font.BOLD, imageHeight / columns == 300 ? 22 : 8);
+            Font font = GraphicUtils.chooseFont(join).deriveFont(Font.BOLD, imageHeight / columns == 300 ? 24 : 12);
             g1.setFont(font);
-
-
             while (g1.getFontMetrics().getStringBounds(join, g1).getHeight() >= heightPerItem) {
                 g1.setFont(g1.getFont().deriveFont((float) g1.getFont().getSize() - 1.0f));
             }
             g1.setFont(font);
             return (int) g1.getFontMetrics().getStringBounds(join, g1).getWidth();
         }).max();
+        g1.dispose();
+        bufferedImage.flush();
         queue.addAll(c);
         return max;
     }
@@ -177,33 +192,26 @@ class ThreadQueue implements Runnable {
         }
     }
 
-    private int calculateHeight(List<ChartLine> lines, Map<ChartLine, Font> mapToFill) {
+    private int calculateHeight(List<ChartLine> lines, Map<ChartLine, StringFitter.FontMetadata> mapToFill) {
         int height = 3;
         for (ChartLine chartLine : lines) {
             String line = chartLine.getLine();
-            Font fontToUse = chooseFont(line, chartLine.getType().equals(ChartLine.Type.TITLE));
+            StringFitter.FontMetadata fontMetadata = chooseFont(line, chartLine.getType().equals(ChartLine.Type.TITLE));
+            FontMetrics fontMetrics = g.getFontMetrics(fontMetadata.maxFont());
             FontMetrics metrics = g.getFontMetrics(START_FONT);
             height += metrics.getAscent() - metrics.getDescent() + 7;
-            mapToFill.put(chartLine, fontToUse);
+            mapToFill.put(chartLine, fontMetadata);
         }
         return height;
     }
 
-    private Font chooseFont(String string, boolean isTitle) {
-        Font font = START_FONT;
-        if (font.canDisplayUpTo(string) != -1) {
-            font = JAPANESE_FONT;
-            if (font.canDisplayUpTo(string) != -1) {
-                font = KOREAN_FONT;
-                if (font.canDisplayUpTo(string) != -1) {
-                    font = EMOJI_FONT;
-                    if (font.canDisplayUpTo(string) != -1) {
-                        font = START_FONT;
-                    }
-                }
-            }
-        }
-        return font.deriveFont(isTitle ? Font.BOLD : Font.PLAIN, isTitle ? START_FONT_SIZE : START_FONT_SIZE - 2);
+
+    private StringFitter.FontMetadata chooseFont(String string, boolean isTitle) {
+        return isTitle ? this.titleFitter.getFontMetadata(g, string) : this.subTitleFitter.getFontMetadata(g, string);
+    }
+
+    private StringFitter.FontMetadata chooseFont(String string, int size) {
+        return this.titleFitter.getFontMetadata(g, string, size);
     }
 
     void drawNeverEndingCharts(UrlCapsule capsule, int y, int x, int imageWidth) {
@@ -217,11 +225,7 @@ class ThreadQueue implements Runnable {
         int itemPerLine;
 
         String join = chartLines.stream().map(ChartLine::getLine).collect(Collectors.joining(" - "));
-        Font font = chooseFont(join, false).deriveFont(Font.BOLD);
-
-        while (g.getFontMetrics(font).getStringBounds(join, g).getHeight() >= heightPerLine) {
-            font = font.deriveFont((float) font.getSize() - 1.0f);
-        }
+        StringFitter.FontMetadata fontMetadata = chooseFont(join, heightPerLine);
         int lineStart = y * imageSize;
         int lineEnd = lineStart + imageSize;
         itemPerLine = this.x;
@@ -232,8 +236,7 @@ class ThreadQueue implements Runnable {
             Color temp = g.getColor();
             g.setColor(Color.WHITE);
             Font ogFont = g.getFont();
-            g.setFont(font);
-            g.drawString(join, this.x * imageWidth + 5, (int) ((baseline + (v + 1) * x) + (1 * v)));
+            g.drawString(fontMetadata.atrribute().getIterator(), this.x * imageWidth + 5, (int) ((baseline + (v + 1) * x) + (1 * v)));
             g.setFont(ogFont);
             g.setColor(temp);
         }
@@ -244,7 +247,7 @@ class ThreadQueue implements Runnable {
         if (chartLines.isEmpty()) {
             return;
         }
-        Map<ChartLine, Font> map = new HashMap<>();
+        Map<ChartLine, StringFitter.FontMetadata> map = new HashMap<>();
         int gradientHeight = calculateHeight(chartLines, map);
         int oneLine = gradientHeight / chartLines.size();
         if (image != null) {
@@ -256,29 +259,27 @@ class ThreadQueue implements Runnable {
 
         for (ChartLine chartLine : chartLines) {
             int fontSize = START_FONT_SIZE;
-            Font font = map.get(chartLine);
-            g.setFont(font);
-            FontMetrics metric = g.getFontMetrics();
+            StringFitter.FontMetadata font = map.get(chartLine);
+            FontMetrics metric = g.getFontMetrics(font.maxFont());
             int nextIncrease = metric.getAscent() - metric.getDescent() + 7;
+            int artistWidth = (int) font.bounds().getWidth();
             int xOffset = 5;
             String line = chartLine.getLine();
-            int artistWidth = g.getFontMetrics().stringWidth(line);
-            while (artistWidth > (imageWidth - 5) && fontSize-- > lowerLimitStringSize) {
-                font = font.deriveFont((float) fontSize);
-                g.setFont(font);
-                artistWidth = g.getFontMetrics().stringWidth(line);
-            }
             accum += nextIncrease;
             if (image != null) {
                 g.setColor(Color.WHITE);
-                GraphicUtils.drawStringChartly(g, line, xOffset, accum);
+                synchronized (this.g) {
+                    GraphicUtils.drawStringChartly(g, font, xOffset, accum);
+                }
             } else {
                 if (capsule instanceof PreComputedChartEntity) {
                     g.setColor(((PreComputedChartEntity) capsule).isDarkToWhite() ? Color.WHITE : Color.BLACK);
                 } else {
                     g.setColor(Color.BLACK);
                 }
-                g.drawString(line, x * imageSize + xOffset, y * imageSize + accum);
+                synchronized (this.g) {
+                    g.drawString(font.atrribute().getIterator(), x * imageSize + xOffset, y * imageSize + accum);
+                }
             }
         }
     }
