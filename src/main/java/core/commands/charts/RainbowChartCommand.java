@@ -44,7 +44,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
 
     @Override
     public ChartableParser<RainbowParams> initParser() {
-        return new RainbowParser(getService(), TimeFrameEnum.ALL);
+        return new RainbowParser(db, TimeFrameEnum.ALL);
 
     }
 
@@ -86,7 +86,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
 
         int count;
         if (param.isArtist()) {
-            queue = new ArtistQueue(getService(), discogsApi, spotifyApi, true);
+            queue = new ArtistQueue(db, discogsApi, spotifyApi, true);
             count = lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), (int) (param.getX() * 1.4),
                     (int) (param.getY() * 1.4), TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getUser()), queue);
         } else {

@@ -49,7 +49,7 @@ public class TasteArtistCommand extends BaseTasteCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        return new ArtistParser(getService(), lastFM, new OptionalEntity("list", "display in a list format"));
+        return new ArtistParser(db, lastFM, new OptionalEntity("list", "display in a list format"));
     }
 
     @Override
@@ -71,7 +71,7 @@ public class TasteArtistCommand extends BaseTasteCommand<ArtistParameters> {
             sendMessageQueue(e, "You need to provide at least one other user (ping,discord id,tag format, u:username or lfm:lastfm_name )");
             return null;
         }
-        LastFMData ogData = getService().findLastFMData(author.getIdLong());
+        LastFMData ogData = db.findLastFMData(author.getIdLong());
         return Pair.of(ogData, secondUser);
     }
 
@@ -81,8 +81,8 @@ public class TasteArtistCommand extends BaseTasteCommand<ArtistParameters> {
         String artist = params.getArtist();
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         params.setScrobbledArtist(scrobbledArtist);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotifyApi);
-        return getService().getSimilaritiesAlbum(List.of(og.getName(), second.getName()), scrobbledArtist.getArtistId(), isList ? 200 : Integer.MAX_VALUE);
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
+        return db.getSimilaritiesAlbum(List.of(og.getName(), second.getName()), scrobbledArtist.getArtistId(), isList ? 200 : Integer.MAX_VALUE);
     }
 
     @Override

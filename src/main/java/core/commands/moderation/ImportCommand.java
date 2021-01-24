@@ -71,14 +71,14 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
             errorCounter[0]++;
             return;
         }
-        List<UsersWrapper> guildlist = getService().getAll(guildID);
+        List<UsersWrapper> guildlist = db.getAll(guildID);
 
 
         if (guildlist.isEmpty()) {
-            getService().createGuild(guildID);
+            db.createGuild(guildID);
         }
 
-        List<UsersWrapper> list = getService().getAllALL();
+        List<UsersWrapper> list = db.getAllALL();
         Optional<UsersWrapper> globalName = (list.stream().filter(user -> user.getLastFMName().equals(lastfmid)).findFirst());
         if (globalName.isPresent() && globalName.get().getDiscordID() != userId) {
             m.append(error).append(" That last.fm id was already taken\"}\n");
@@ -105,9 +105,9 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
                 m.append(error).append(" This user is already registered with another last.fm name. Won't do anything\"}\n");
             } else {
                 //If it was registered in at least other  guild there's no need to update
-                if (getService().getGuildList(userId).stream().anyMatch(s -> s != guildID)) {
+                if (db.getGuildList(userId).stream().anyMatch(s -> s != guildID)) {
                     //Adds the user to the guild
-                    getService().addGuildUser(userId, guildID);
+                    db.addGuildUser(userId, guildID);
                 }
             }
             return;
@@ -118,23 +118,23 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
         LastFMData lastFMData = new LastFMData(lastfmid, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true);
         lastFMData.setGuildID(guildID);
 
-        getService().
+        db.
 
                 insertNewUser(lastFMData);
 
         try {
 
             List<ScrobbledArtist> allArtists = lastFM.getAllArtists(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
-            getService().insertArtistDataList(allArtists, lastfmid);
+            db.insertArtistDataList(allArtists, lastfmid);
             List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
-            getService().albumUpdate(albumData, allArtists, lastfmid);
+            db.albumUpdate(albumData, allArtists, lastfmid);
             List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-            getService().trackUpdate(trackData, allArtists, lastfmid);
+            db.trackUpdate(trackData, allArtists, lastfmid);
         } catch (
                 LastFMNoPlaysException ignored) {
         } catch (
                 LastFmEntityNotFoundException ex) {
-            getService().removeUserCompletely(userId);
+            db.removeUserCompletely(userId);
             m.append(error).append("This username doesn't exist on last.fm\"}\n");
             errorCounter[0]++;
 

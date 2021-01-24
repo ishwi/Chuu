@@ -20,13 +20,15 @@ public class ReactValidation {
         boolean sentMessage = false;
         for (Emote emote : params.getEmotes()) {
             if (emote.getGuild() != null) {
-                emote.canInteract(e.getJDA().getSelfUser(), channelToTestIn, true);
-                rejected.add(emote);
+                if (!emote.canInteract(e.getJDA().getSelfUser(), channelToTestIn, true)) {
+                    rejected.add(emote);
+                }
             } else {
                 Emote emoteById = Chuu.getShardManager().getEmoteById(emote.getId());
                 if (emoteById != null) {
-                    emoteById.canInteract(e.getJDA().getSelfUser(), channelToTestIn, true);
-                    rejected.add(emote);
+                    if (!emoteById.canInteract(e.getJDA().getSelfUser(), channelToTestIn, true)) {
+                        rejected.add(emote);
+                    }
                 } else {
                     rejected.add(emote);
                     if (Chuu.getShardManager().getShardsQueued() > 0 && !sentMessage) {

@@ -47,7 +47,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService());
+        return new OnlyUsernameParser(db);
     }
 
     @Override
@@ -79,10 +79,10 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         StreakEntity combo = lastFM.getCombo(params.getLastFMData());
 
         ScrobbledArtist artist = new ScrobbledArtist(combo.getCurrentArtist(), 0, "");
-        CommandUtil.validate(getService(), artist, lastFM, discogsApi, spotifyApi);
+        CommandUtil.validate(db, artist, lastFM, discogsApi, spotifyApi);
         Long albumId = null;
         if (combo.getAlbCounter() > 1) {
-            albumId = CommandUtil.albumvalidate(getService(), artist, lastFM, combo.getCurrentAlbum());
+            albumId = CommandUtil.albumvalidate(db, artist, lastFM, combo.getCurrentAlbum());
         }
 
         if (combo.getaCounter() >= 3) {
@@ -91,11 +91,11 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                 combo.setStreakStart(Instant.EPOCH);
             }
             Long finalAlbumId = albumId;
-            CompletableFuture.runAsync(() -> getService().insertCombo(combo, discordID, artist.getArtistId(), finalAlbumId));
+            CompletableFuture.runAsync(() -> db.insertCombo(combo, discordID, artist.getArtistId(), finalAlbumId));
         }
 
 
-        int artistPlays = getService().getArtistPlays(artist.getArtistId(), lastfmId);
+        int artistPlays = db.getArtistPlays(artist.getArtistId(), lastfmId);
         String aString = CommandUtil.cleanMarkdownCharacter(artist.getArtist());
         StringBuilder description = new StringBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -110,7 +110,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         }
         if (combo.getAlbCounter() > 1) {
             if (combo.getUrl() == null || combo.getUrl().isBlank() || combo.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
-                String s = CommandUtil.albumUrl(getService(), lastFM, combo.getCurrentArtist(), combo.getCurrentAlbum(), discogsApi, spotifyApi);
+                String s = CommandUtil.albumUrl(db, lastFM, combo.getCurrentArtist(), combo.getCurrentAlbum(), discogsApi, spotifyApi);
                 if (s != null) {
                     embedBuilder.setThumbnail(s);
                 }

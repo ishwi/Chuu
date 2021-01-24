@@ -69,7 +69,7 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
             sendMessageQueue(e, "You must introduce a rating and the url to rate");
             return;
         }
-        RandomUrlEntity randomUrl = getService().findRandomUrl(url);
+        RandomUrlEntity randomUrl = db.findRandomUrl(url);
         if (randomUrl == null) {
             char messagePrefix = CommandUtil.getMessagePrefix(e);
             sendMessageQueue(e, "The given url was not in the pool therefore it cannot be rated. You might also consider adding it using the " + messagePrefix + "random .");
@@ -79,12 +79,12 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
             sendMessageQueue(e, "You submitted this url so you are not allowed to rate it");
             return;
         }
-        getService().addUrlRating(e.getAuthor().getIdLong(), Math.toIntExact(rating), url);
+        db.addUrlRating(e.getAuthor().getIdLong(), Math.toIntExact(rating), url);
         Long discordId = randomUrl.getDiscordId();
         try {
-            LastFMData lastFMData = getService().findLastFMData(discordId);
+            LastFMData lastFMData = db.findLastFMData(discordId);
             if (lastFMData.isImageNotify()) {
-                LastFMData ratingOwner = getService().findLastFMData(e.getAuthor().getIdLong());
+                LastFMData ratingOwner = db.findLastFMData(e.getAuthor().getIdLong());
                 PrivacyMode privacyMode = ratingOwner.getPrivacyMode();
                 String s;
                 switch (privacyMode) {

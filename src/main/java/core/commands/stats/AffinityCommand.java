@@ -42,7 +42,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
 
     @Override
     public Parser<AffinityParameters> initParser() {
-        return new AffinityParser(getService());
+        return new AffinityParser(db);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     void doIndividual(AffinityParameters ap) throws LastFmException {
         MessageReceivedEvent e = ap.getE();
 
-        Affinity affinity = getService().getAffinity(ap.getFirstLastfmId().getName(), ap.getSecondLastfmId().getName(), ap.getThreshold());
+        Affinity affinity = db.getAffinity(ap.getFirstLastfmId().getName(), ap.getSecondLastfmId().getName(), ap.getThreshold());
         DiscordUserDisplay first = CommandUtil.getUserInfoNotStripped(e, ap.getFirstDiscordID());
         DiscordUserDisplay second = CommandUtil.getUserInfoNotStripped(e, ap.getSecondDiscordID());
         List<UserInfo> userInfo = lastFM.getUserInfo(List.of(ap.getFirstLastfmId().getName(), ap.getSecondLastfmId().getName()), ap.getFirstLastfmId());
@@ -82,8 +82,8 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
 
     void doGuild(AffinityParameters ap) throws InstanceNotFoundException {
         MessageReceivedEvent e = ap.getE();
-        LastFMData ogData = getService().findLastFMData(e.getAuthor().getIdLong());
-        List<Affinity> serverAffinity = getService().getServerAffinity(ogData.getName(), e.getGuild().getIdLong(), ap.getThreshold());
+        LastFMData ogData = db.findLastFMData(e.getAuthor().getIdLong());
+        List<Affinity> serverAffinity = db.getServerAffinity(ogData.getName(), e.getGuild().getIdLong(), ap.getThreshold());
         List<Affinity> collect = serverAffinity.stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).collect(Collectors.toList());
 
         StringBuilder stringBuilder = new StringBuilder();

@@ -38,7 +38,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
 
     @Override
     public ChartableParser<ChartableGenreParameters> initParser() {
-        return new GenreChartParser(getService(), TimeFrameEnum.WEEK, lastFM);
+        return new GenreChartParser(db, TimeFrameEnum.WEEK, lastFM);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
         TimeFrameEnum timeFrameEnum = custom.getTimeFrameEnum();
         if (timeFrameEnum.equals(TimeFrameEnum.ALL)) {
 
-            List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumByMbid(user.getName());
+            List<ScrobbledAlbum> userAlbumByMbid = db.getUserAlbumByMbid(user.getName());
             albums = userAlbumByMbid.stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
                     new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
             queue = userAlbumByMbid.stream().map(x -> new AlbumChart(x.getUrl(), 0, x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), params.isWriteTitles(), params.isWritePlays(), params.isAside())).collect(Collectors.toCollection(LinkedBlockingDeque::new));
@@ -82,7 +82,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
             albums = c.stream()
                     .filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid())).collect(Collectors.toList());
         }
-        List<AlbumInfo> albumsWithTags = getService().getAlbumsWithTags(queue.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).collect(Collectors.toList()), params.getDiscordId(), params.getGenreParameters().getGenre());
+        List<AlbumInfo> albumsWithTags = db.getAlbumsWithTags(queue.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).collect(Collectors.toList()), params.getDiscordId(), params.getGenreParameters().getGenre());
         Set<AlbumInfo> albumInfos = new HashSet<>(albumsWithTags);
         albums.removeIf(albumInfos::contains);
         Set<String> strings = this.mb.albumsGenre(albums, params.getGenreParameters().getGenre());
@@ -96,7 +96,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
                 .collect(Collectors.toCollection(LinkedBlockingQueue::new));
 
         executor.submit(
-                new TagAlbumService(getService(), lastFM, collect1.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).collect(Collectors.toList()), params.getGenreParameters().getGenre()));
+                new TagAlbumService(db, lastFM, collect1.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).collect(Collectors.toList()), params.getGenreParameters().getGenre()));
         return new CountWrapper<>(ranker.get(), collect1);
     }
 

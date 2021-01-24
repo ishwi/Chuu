@@ -49,7 +49,7 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
 
     @Override
     public ResultWrapper<ArtistPlays> getList(CommandParameters parmas) {
-        return getService().getArtistsFrequenciesGlobal();
+        return db.getArtistsFrequenciesGlobal();
     }
 
     @Override

@@ -55,7 +55,7 @@ public class ArtistCountLeaderboard extends LeaderboardCommand<NumberParameters<
     @Override
     public List<LbEntry> getList(NumberParameters<CommandParameters> params) {
         int threshold = params.getExtraParam().intValue();
-        return getService().getArtistLeaderboard(params.getE().getGuild().getIdLong(), threshold == 0 ? -1 : threshold);
+        return db.getArtistLeaderboard(params.getE().getGuild().getIdLong(), threshold == 0 ? -1 : threshold);
 
     }
 

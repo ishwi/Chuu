@@ -53,12 +53,12 @@ public class IndexCommand extends ConcurrentCommand<CommandParameters> {
             sendMessageQueue(e, "Only server mods can use this command");
             return;
         }
-        Set<Long> allBot = getService().getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
-        Set<Long> thisServer = getService().getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
+        Set<Long> allBot = db.getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
+        Set<Long> thisServer = db.getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
 
         Set<Long> members = e.getGuild().getMembers().stream().filter(x -> x.getUser().getIdLong() != x.getJDA().getSelfUser().getIdLong()).map(x -> x.getUser().getIdLong()).collect(Collectors.toSet());
         List<Long> toInsert = members.stream().filter(x -> allBot.contains(x) && !thisServer.contains(x)).collect(Collectors.toList());
-        toInsert.forEach(x -> getService().addGuildUser(x, e.getGuild().getIdLong()));
+        toInsert.forEach(x -> db.addGuildUser(x, e.getGuild().getIdLong()));
         List<Long> notOnServer = thisServer.stream().filter(x -> !members.contains(x)).collect(Collectors.toList());
         if (toInsert.isEmpty()) {
             sendMessageQueue(e, "Didn't have anyone to add");
@@ -66,7 +66,7 @@ public class IndexCommand extends ConcurrentCommand<CommandParameters> {
             sendMessageQueue(e, String.format("Succesfully added %s %s to this server", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members")));
         }
         if (!notOnServer.isEmpty()) {
-            notOnServer.forEach(x -> getService().removeUserFromOneGuildConsequent(x, e.getGuild().getIdLong()));
+            notOnServer.forEach(x -> db.removeUserFromOneGuildConsequent(x, e.getGuild().getIdLong()));
             sendMessageQueue(e, String.format("Removed %s %s that no longer were in this server", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members")));
         }
     }

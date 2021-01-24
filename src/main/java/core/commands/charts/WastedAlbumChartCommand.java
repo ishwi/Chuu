@@ -35,9 +35,9 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
         albumQueu.drainTo(albumList);
         GroupingQueue queue;
         if (params.isList()) {
-            queue = new TrackGroupAlbumQueue(getService(), discogsApi, spotifyApi, 200, albumList);
+            queue = new TrackGroupAlbumQueue(db, discogsApi, spotifyApi, 200, albumList);
         } else {
-            queue = new TrackGroupAlbumQueue(getService(), discogsApi, spotifyApi, params.getX() * params.getY(), albumList);
+            queue = new TrackGroupAlbumQueue(db, discogsApi, spotifyApi, params.getX() * params.getY(), albumList);
         }
         lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 1499, 1, TopEntity.TRACK, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getUser()), queue);
         return new CountWrapper<>(albumsQueried, queue);

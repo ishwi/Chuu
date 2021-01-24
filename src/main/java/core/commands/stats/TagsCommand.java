@@ -42,7 +42,7 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        return new ArtistParser(getService(), lastFM);
+        return new ArtistParser(db, lastFM);
     }
 
 
@@ -68,11 +68,11 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
         String artist = parse.getArtist();
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
 
 
         String correctedArtist = CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist());
-        List<String> artistTags = getService().getArtistTag(scrobbledArtist.getArtistId())
+        List<String> artistTags = db.getArtistTag(scrobbledArtist.getArtistId())
 
                 .stream().map(x -> String.format(". **[%s](%s)**%n",
                         WordUtils.capitalizeFully(x)

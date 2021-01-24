@@ -36,7 +36,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
 
     @Override
     public Parser<RecommendationsParams> initParser() {
-        return new RecommendationParser(getService());
+        return new RecommendationParser(db);
     }
 
     @Override
@@ -60,10 +60,10 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
         long firstDiscordID;
         long secondDiscordID;
         if (params.isNoUser()) {
-            LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
-            List<Affinity> serverAffinity = getService().getServerAffinity(lastFMData.getName(), e.getGuild().getIdLong(), AffinityCommand.DEFAULT_THRESHOLD);
+            LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
+            List<Affinity> serverAffinity = db.getServerAffinity(lastFMData.getName(), e.getGuild().getIdLong(), AffinityCommand.DEFAULT_THRESHOLD);
             if (serverAffinity.isEmpty()) {
-                serverAffinity = getService().getServerAffinity(lastFMData.getName(), e.getGuild().getIdLong(), 1);
+                serverAffinity = db.getServerAffinity(lastFMData.getName(), e.getGuild().getIdLong(), 1);
                 if (serverAffinity.isEmpty()) {
                     sendMessageQueue(e, "Couldn't get you any recommendation :(");
                     return;
@@ -94,7 +94,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
             firstDiscordID = params.getFirstUser().getDiscordId();
             secondDiscordID = params.getSecondUser().getDiscordId();
         }
-        List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, params.isShowRepeated(), Math.toIntExact(params.getRecCount()));
+        List<ScrobbledArtist> recs = db.getRecommendation(secondDiscordID, firstDiscordID, params.isShowRepeated(), Math.toIntExact(params.getRecCount()));
 
         String receiver = "you";
         if (firstDiscordID != e.getAuthor().getIdLong()) {
@@ -109,7 +109,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
             if (recs.size() == 1) {
                 sendMessageQueue(e, String.format("**%s** has recommended %s to listen to **%s** (they have %d plays)",
                         giver, receiver, CommandUtil.cleanMarkdownCharacter(recs.get(0).getArtist()), recs.get(0).getCount()));
-                getService().insertRecommendation(secondDiscordID, firstDiscordID, recs.get(0).getArtistId());
+                db.insertRecommendation(secondDiscordID, firstDiscordID, recs.get(0).getArtistId());
             } else {
                 int artistNum = 1;
                 StringBuilder s = new StringBuilder();

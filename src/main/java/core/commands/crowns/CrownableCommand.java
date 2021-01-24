@@ -42,7 +42,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce the playcount to only show crowns achievable within that number of plays, defaults to a number big enough to not filter anything";
-        OnlyUsernameParser onlyUsernameParser = new OnlyUsernameParser(getService());
+        OnlyUsernameParser onlyUsernameParser = new OnlyUsernameParser(db);
         onlyUsernameParser.addOptional(new OptionalEntity("nofirst", "show only the artists in which you are not first"));
         onlyUsernameParser.addOptional(new OptionalEntity("server", "make the ranking only count for this server"));
         onlyUsernameParser.addOptional(new OptionalEntity("secondonly", "only shows artist where you are second"));
@@ -63,7 +63,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         Long guildId = params.getE().isFromGuild() ? outerParams.hasOptional("server") ? params.getE().getGuild().getIdLong() : null : null;
         boolean onlySecond = outerParams.hasOptional("secondonly") || outerParams.hasOptional("second") || outerParams.hasOptional("onlysecond");
         int crownDistance = Math.toIntExact(outerParams.getExtraParam());
-        return getService().getCrownable(params.getLastFMData().getDiscordId(), guildId, crownDistance != Integer.MAX_VALUE || outerParams.hasOptional("nofirst"), onlySecond, crownDistance);
+        return db.getCrownable(params.getLastFMData().getDiscordId(), guildId, crownDistance != Integer.MAX_VALUE || outerParams.hasOptional("nofirst"), onlySecond, crownDistance);
     }
 
     @Override

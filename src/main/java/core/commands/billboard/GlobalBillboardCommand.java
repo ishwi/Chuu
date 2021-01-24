@@ -50,7 +50,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) {
 
-        Week week = getService().getCurrentWeekId();
+        Week week = db.getCurrentWeekId();
         if (week.getId() == 1) {
             sendMessageQueue(e, "A full week needs to be completed before this command can work");
             return;
@@ -62,7 +62,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
             try {
                 if (settingUp.compareAndSet(false, true)) {
                     sendMessageQueue(e, "The global billboard chart didn't exist. Will begin the process to build it.");
-                    getService().insertGlobalBillboardData(week.getId() - 1);
+                    db.insertGlobalBillboardData(week.getId() - 1);
                     settingUp.set(false);
                 } else {
                     sendMessageQueue(e, "The global billboard chart was already being computed, check again later!");
@@ -88,7 +88,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
     // You have to call the insert_weeks procedure first that is declared in MariadBnew. on the mysql client it would be something like `call inert_weeks()`
 
     public List<BillboardEntity> getEntities(int weekId, boolean doListeners) {
-        return getService().getGlobalBillboard(weekId, doListeners);
+        return db.getGlobalBillboard(weekId, doListeners);
 
     }
 

@@ -3237,4 +3237,44 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+
+    public List<ScrobbledArtist> regexArtist(long userId, String regex) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.regexArtist(connection, regex, userId);
+        } catch (ChuuServiceException exception) {
+            if (exception.getCause() instanceof SQLSyntaxErrorException)
+                return regexArtist(userId, "\\Q" + regex + "\\E");
+            throw exception;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScrobbledAlbum> regexAlbum(long userId, String regex) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.regexAlbum(connection, regex, userId);
+        } catch (ChuuServiceException exception) {
+            if (exception.getCause() instanceof SQLSyntaxErrorException)
+                return regexAlbum(userId, "\\Q" + regex + "\\E");
+            throw exception;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<ScrobbledTrack> regexTrack(long userId, String regex) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.regexTrack(connection, regex, userId);
+        } catch (ChuuServiceException exception) {
+            if (exception.getCause() instanceof SQLSyntaxErrorException)
+                return regexTrack(userId, "\\Q" + regex + "\\E");
+            throw exception;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 }

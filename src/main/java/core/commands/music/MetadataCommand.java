@@ -95,7 +95,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
         String image = e.getMessage().getAttachments().stream().filter(Message.Attachment::isImage).findFirst().map(Message.Attachment::getUrl).orElse(null);
         Metadata metadata = new Metadata(artist, song, matchedAlbum, image);
         manager.setMetadata(metadata);
-        getService().storeMetadata(identifier, metadata);
+        db.storeMetadata(identifier, metadata);
         e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(image)
                 .setTitle("Current song metadata", identifier)
                 .setDescription(mapper.apply(artist, matchedAlbum, song))

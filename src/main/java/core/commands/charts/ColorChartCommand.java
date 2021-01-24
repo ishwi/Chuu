@@ -106,7 +106,7 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
 
     @Override
     public ChartableParser<ColorChartParams> initParser() {
-        return new ColorChartParser(getService(), TimeFrameEnum.MONTH);
+        return new ColorChartParser(db, TimeFrameEnum.MONTH);
     }
 
     @Override
@@ -145,7 +145,7 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
                     return new PreComputedByBrightness(capsule, image, isDarkToWhite, comparison);
                 };
 
-        BlockingQueue<UrlCapsule> queue = new DiscardByQueue(getService(), discogsApi, spotifyApi, discardGenerator.apply(params), factoryFunction, params.getX() * params.getY());
+        BlockingQueue<UrlCapsule> queue = new DiscardByQueue(db, discogsApi, spotifyApi, discardGenerator.apply(params), factoryFunction, params.getX() * params.getY());
         if (params.isArtist()) {
 
             count = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 3000, 1, TopEntity.ARTIST, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getUser()), queue);

@@ -58,7 +58,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to only get streak with more than that number of plays. ";
-        NumberParser<ArtistParameters, ArtistParser> artistParametersArtistParserNumberParser = new NumberParser<>(new ArtistParser(getService(), lastFM),
+        NumberParser<ArtistParameters, ArtistParser> artistParametersArtistParserNumberParser = new NumberParser<>(new ArtistParser(db, lastFM),
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);
@@ -98,12 +98,12 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         }
         ArtistParameters innerParams = params.getInnerParams();
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(innerParams.getArtist(), 0, "");
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !innerParams.isNoredirect());
-        List<GlobalStreakEntities> topStreaks = getService().getArtistTopStreaks(params.getExtraParam(), guildId, scrobbledArtist.getArtistId(), null);
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !innerParams.isNoredirect());
+        List<GlobalStreakEntities> topStreaks = db.getArtistTopStreaks(params.getExtraParam(), guildId, scrobbledArtist.getArtistId(), null);
 
         Set<Long> showableUsers;
         if (params.getE().isFromGuild()) {
-            showableUsers = getService().getAll(params.getE().getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
+            showableUsers = db.getAll(params.getE().getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
             showableUsers.add(author);
         } else {
             showableUsers = Set.of(author);

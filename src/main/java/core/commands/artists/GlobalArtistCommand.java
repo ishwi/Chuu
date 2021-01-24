@@ -43,7 +43,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        ArtistParser parser = new ArtistParser(getService(), lastFM);
+        ArtistParser parser = new ArtistParser(db, lastFM);
         parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
         parser.addOptional(new OptionalEntity("botted", "discard users that have been manually flagged as potentially botted accounts"));
         return parser;
@@ -69,10 +69,10 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
         long userId = params.getLastFMData().getDiscordId();
         ScrobbledArtist validable = new ScrobbledArtist(params.getArtist(), 0, "");
-        CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
+        CommandUtil.validate(db, validable, lastFM, discogsApi, spotify);
         params.setScrobbledArtist(validable);
-        boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, getService());
-        List<GlobalCrown> globalArtistRanking = getService().getGlobalArtistRanking(validable.getArtistId(), b, e.getAuthor().getIdLong());
+        boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
+        List<GlobalCrown> globalArtistRanking = db.getGlobalArtistRanking(validable.getArtistId(), b, e.getAuthor().getIdLong());
         String artist = CommandUtil.cleanMarkdownCharacter(validable.getArtist());
         if (globalArtistRanking.isEmpty()) {
             sendMessageQueue(e, "No one knows " + artist);
@@ -92,7 +92,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
             //It means we have someone ahead of us
             if (position != 1) {
                 try {
-                    LastFMData lastFMData = getService().findLastFMData(globalArtistRanking.get(0).getDiscordId());
+                    LastFMData lastFMData = db.findLastFMData(globalArtistRanking.get(0).getDiscordId());
                     if (EnumSet.of(PrivacyMode.LAST_NAME, PrivacyMode.TAG, PrivacyMode.DISCORD_NAME).contains(lastFMData.getPrivacyMode())) {
                         String embedText = switch (lastFMData.getPrivacyMode()) {
                             case DISCORD_NAME -> getUserString(e, lastFMData.getDiscordId());
@@ -131,9 +131,9 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         }
         if (e.isFromGuild()) {
             StringBuilder serverStats = new StringBuilder();
-            long artistFrequencies = getService().getArtistFrequencies(e.getGuild().getIdLong(), validable.getArtistId());
+            long artistFrequencies = db.getArtistFrequencies(e.getGuild().getIdLong(), validable.getArtistId());
             serverStats.append(String.format("**%d** listeners%n", artistFrequencies));
-            long serverArtistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), validable.getArtistId());
+            long serverArtistPlays = db.getServerArtistPlays(e.getGuild().getIdLong(), validable.getArtistId());
             serverStats.append(String.format("**%d** plays%n", serverArtistPlays));
             embedBuilder.
                     addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), serverStats.toString(), true);

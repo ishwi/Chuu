@@ -210,4 +210,11 @@ interface SQLQueriesDao {
     List<UserListened> getServerFirstScrobbledArtist(Connection connection, long artistId, long guildId, SQLQueriesDaoImpl.Order Order);
 
 
+    List<ScrobbledArtist> regexArtist(Connection connection, String regex, long userId);
+
+    List<ScrobbledAlbum> regexAlbum(Connection connection, String regex, long userId);
+
+    List<ScrobbledTrack> regexTrack(Connection connection, String regex, long userId);
+
+
 }

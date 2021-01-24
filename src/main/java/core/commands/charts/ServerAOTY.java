@@ -37,7 +37,7 @@ public class ServerAOTY extends ChartableCommand<ChartYearParameters> {
 
     @Override
     public ChartableParser<ChartYearParameters> initParser() {
-        return new ChartYearParser(getService(), TimeFrameEnum.ALL);
+        return new ChartYearParser(db, TimeFrameEnum.ALL);
 
     }
 
@@ -64,7 +64,7 @@ public class ServerAOTY extends ChartableCommand<ChartYearParameters> {
         }
         List<AlbumInfo> nonEmptyMbid;
 
-        ResultWrapper<ScrobbledAlbum> rapper = getService().getGuildAlbumTop(params.getE().getGuild().getIdLong(), 4_000, false);
+        ResultWrapper<ScrobbledAlbum> rapper = db.getGuildAlbumTop(params.getE().getGuild().getIdLong(), 4_000, false);
         List<ScrobbledAlbum> userAlbumByMbid = rapper.getResultList();
         AtomicInteger atomicInteger = new AtomicInteger(0);
 

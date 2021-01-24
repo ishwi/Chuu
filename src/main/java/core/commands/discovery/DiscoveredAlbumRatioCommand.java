@@ -30,7 +30,7 @@ public class DiscoveredAlbumRatioCommand extends ConcurrentCommand<TimeFramePara
 
     @Override
     public Parser<TimeFrameParameters> initParser() {
-        return new TimerFrameParser(getService(), TimeFrameEnum.WEEK);
+        return new TimerFrameParser(db, TimeFrameEnum.WEEK);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class DiscoveredAlbumRatioCommand extends ConcurrentCommand<TimeFramePara
             return;
         }
         List<ScrobbledAlbum> allArtists = lastFM.getAllAlbums(params.getLastFMData(), new CustomTimeFrame(params.getTime()));
-        int size = getService().getDiscoveredAlbums(allArtists, params.getLastFMData().getName()).size();
+        int size = db.getDiscoveredAlbums(allArtists, params.getLastFMData().getName()).size();
         String userString = getUserString(e, params.getLastFMData().getDiscordId());
         sendMessageQueue(e, String.format("%s has discovered **%s** new %s%s, making that **%s%%** of new albums discovered.", userString, size, CommandUtil.singlePlural(size, "album", "albums"), params.getTime().getDisplayString(), ScoredAlbumRatings.formatter.format(size * 100. / allArtists.size())));
 

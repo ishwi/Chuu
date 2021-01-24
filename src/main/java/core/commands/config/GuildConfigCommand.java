@@ -34,7 +34,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
 
     @Override
     public Parser<GuildConfigParams> initParser() {
-        return new GuildConfigParser(getService());
+        return new GuildConfigParser(db);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
         switch (config) {
             case CROWNS_THRESHOLD:
                 int threshold = Integer.parseInt(value);
-                getService().updateGuildCrownThreshold(guildId, threshold);
+                db.updateGuildCrownThreshold(guildId, threshold);
                 sendMessageQueue(e, "Successfully updated the crown threshold to " + threshold);
                 break;
             case CHART_MODE:
@@ -73,7 +73,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 } else {
                     chartMode = ChartMode.valueOf(value.replace("-", "_").toUpperCase());
                 }
-                getService().setServerChartMode(guildId, chartMode);
+                db.setServerChartMode(guildId, chartMode);
                 if (cleansing) {
                     sendMessageQueue(e, "Now all charts are back to the default");
                 } else {
@@ -87,7 +87,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 } else {
                     whoKnowsMode = WhoKnowsMode.valueOf(value.replace("-", "_").toUpperCase());
                 }
-                getService().setServerWhoknowMode(guildId, whoKnowsMode);
+                db.setServerWhoknowMode(guildId, whoKnowsMode);
                 if (cleansing) {
                     sendMessageQueue(e, "Now your who knows are back to the default");
                 } else {
@@ -101,7 +101,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 } else {
                     remainingImagesMode = RemainingImagesMode.valueOf(value.replace("-", "_").toUpperCase());
                 }
-                getService().setRemainingImagesModeServer(guildId, remainingImagesMode);
+                db.setRemainingImagesModeServer(guildId, remainingImagesMode);
                 if (!cleansing) {
                     sendMessageQueue(e, "The mode of the remaining image commands was set to: **" + WordUtils.capitalizeFully(remainingImagesMode.toString()) + "**");
                 } else {
@@ -110,7 +110,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 break;
             case ALLOW_NP_REACTIONS:
                 boolean b = Boolean.parseBoolean(value);
-                getService().setServerAllowReactions(guildId, b);
+                db.setServerAllowReactions(guildId, b);
                 if (b) {
                     sendMessageQueue(e, "Np reactions are now allowed");
                 } else {
@@ -119,7 +119,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 break;
             case OVERRIDE_NP_REACTIONS:
                 OverrideMode overrideMode = OverrideMode.valueOf(value.trim().replaceAll("\s+|-", "_").toUpperCase());
-                getService().setServerOverrideReactions(guildId, overrideMode);
+                db.setServerOverrideReactions(guildId, overrideMode);
                 sendMessageQueue(e, "Set the override mode to: " + WordUtils.capitalizeFully(overrideMode.toString().replaceAll("_", " ")));
                 break;
             case DELETE_MESSAGE:
@@ -129,7 +129,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                         sendMessageQueue(e, "Don't have MESSAGE_MANAGE permissions so can't delete messages :(");
                     }
                 }
-                getService().setServerDeleteMessage(guildId, b);
+                db.setServerDeleteMessage(guildId, b);
                 if (b) {
                     Chuu.getMessageDeletionService().addServerToDelete(guildId);
                     sendMessageQueue(e, "The commands will be deleted by the bot.");
@@ -141,7 +141,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 break;
             case SHOW_DISABLED_WARNING:
                 b = Boolean.parseBoolean(value);
-                getService().setServerShowDisabledWarning(guildId, b);
+                db.setServerShowDisabledWarning(guildId, b);
                 Chuu.getMessageDisablingService().setDontRespondOnError(b, guildId);
                 if (b) {
                     sendMessageQueue(e, "You will be notified when you run a disabled command");
@@ -164,7 +164,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 if (modes.size() > 15) {
                     sendMessageQueue(e, "You can't set more than 15 as a default for the server");
                 } else {
-                    getService().setServerNPModes(guildId, modes);
+                    db.setServerNPModes(guildId, modes);
                     String strModes = NPMode.getListedName(modes);
                     if (Sets.difference(modes, EnumSet.of(NPMode.UNKNOWN)).isEmpty()) {
                         sendMessageQueue(e, "Successfully cleared the server config");

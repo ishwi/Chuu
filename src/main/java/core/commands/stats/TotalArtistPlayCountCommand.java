@@ -48,7 +48,7 @@ public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlay
 
     @Override
     public ResultWrapper<ArtistPlays> getList(CommandParameters params) {
-        return getService().getServerArtistsPlays(params.getE().getGuild().getIdLong());
+        return db.getServerArtistsPlays(params.getE().getGuild().getIdLong());
     }
 
     @Override

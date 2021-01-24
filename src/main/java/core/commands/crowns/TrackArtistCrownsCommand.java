@@ -35,9 +35,9 @@ public class TrackArtistCrownsCommand extends GlobalTrackArtistCrownsCommand {
         long guildId = params.getE().getGuild().getIdLong();
 
         if (threshold == null) {
-            threshold = (long) getService().getGuildCrownThreshold(guildId);
+            threshold = (long) db.getGuildCrownThreshold(guildId);
         }
-        return getService().getUserArtistTrackCrowns(params.getInnerParams().getLastFMData().getName(), params.getInnerParams().getScrobbledArtist().getArtistId(), guildId, Math.toIntExact(threshold));
+        return db.getUserArtistTrackCrowns(params.getInnerParams().getLastFMData().getName(), params.getInnerParams().getScrobbledArtist().getArtistId(), guildId, Math.toIntExact(threshold));
     }
 
     @Override

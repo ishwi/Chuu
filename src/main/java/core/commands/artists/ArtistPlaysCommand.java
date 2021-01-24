@@ -29,7 +29,7 @@ public class ArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        return new ArtistParser(getService(), lastFM);
+        return new ArtistParser(db, lastFM);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class ArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
 
-        ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), params.getArtist(), lastFM, !params.isNoredirect());
+        ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, params.getArtist(), lastFM, !params.isNoredirect());
         long whom = params.getLastFMData().getDiscordId();
         int a;
         LastFMData data = params.getLastFMData();

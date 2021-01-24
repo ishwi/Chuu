@@ -36,7 +36,7 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        return new ArtistParser(getService(), lastFM);
+        return new ArtistParser(db, lastFM);
     }
 
     @Override
@@ -60,14 +60,14 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
         String artist = params.getArtist();
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
 
         long artistPlays;
         if (e.isFromGuild()) {
-            artistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
+            artistPlays = db.getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
         } else {
             LastFMData data = params.getLastFMData();
-            artistPlays = getService().getArtistPlays(scrobbledArtist.getArtistId(), data.getName());
+            artistPlays = db.getArtistPlays(scrobbledArtist.getArtistId(), data.getName());
         }
         String usableString;
         if (e.isFromGuild()) {

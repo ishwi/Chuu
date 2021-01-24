@@ -31,7 +31,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService(), new OptionalEntity("image", "displays it as a bar chart"));
+        return new OnlyUsernameParser(db, new OptionalEntity("image", "displays it as a bar chart"));
     }
 
     @Override
@@ -65,7 +65,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
         Map<Track, Integer> durationsFromWeek = lastFM.getTrackDurations(lastFmName, TimeFrameEnum.WEEK);
 
         Instant instant = Instant.now();
-        ZoneId zoneId = getService().getUserTimezone(discordID).toZoneId();
+        ZoneId zoneId = db.getUserTimezone(discordID).toZoneId();
         ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, zoneId);
         ZonedDateTime zdtStart = zdt.toLocalDate().atStartOfDay(zoneId);
         ZonedDateTime zdtPrevious7Days = zdtStart.plusDays(-7);

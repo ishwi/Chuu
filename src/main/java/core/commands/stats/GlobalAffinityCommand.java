@@ -46,7 +46,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays needed to award a match, " +
                    "defaults to 30";
-        return new NumberParser<>(new OnlyUsernameParser(getService()),
+        return new NumberParser<>(new OnlyUsernameParser(db),
                 30L,
                 Integer.MAX_VALUE,
                 map, s, false, true);
@@ -71,9 +71,9 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
     protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
 
 
-        LastFMData ogData = getService().findLastFMData(e.getAuthor().getIdLong());
+        LastFMData ogData = db.findLastFMData(e.getAuthor().getIdLong());
         int threshold = Math.toIntExact(params.getExtraParam());
-        List<dao.entities.GlobalAffinity> serverAffinity = getService().getGlobalAffinity(ogData.getName(), threshold);
+        List<dao.entities.GlobalAffinity> serverAffinity = db.getGlobalAffinity(ogData.getName(), threshold);
         List<dao.entities.GlobalAffinity> collect = serverAffinity.stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).collect(Collectors.toList());
 
         StringBuilder stringBuilder = new StringBuilder();

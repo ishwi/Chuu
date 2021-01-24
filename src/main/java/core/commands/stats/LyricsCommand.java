@@ -48,7 +48,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        return new ArtistSongParser(getService(), lastFM);
+        return new ArtistSongParser(db, lastFM);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
         String url = null;
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         try {
-            CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotifyApi);
+            CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
             url = scrobbledArtist.getUrl();
         } catch (LastFmEntityNotFoundException exception) {
             //Ignored

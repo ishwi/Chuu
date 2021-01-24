@@ -58,7 +58,7 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
 
     @Override
     public Parser<MultipleGenresParameters> initParser() {
-        MultipleGenresParser genreParser = new MultipleGenresParser(getService(), lastFM);
+        MultipleGenresParser genreParser = new MultipleGenresParser(db, lastFM);
         genreParser.addOptional(new OptionalEntity("global", " show artist with the given tags from all bot users instead of only from this server"));
         return genreParser;
     }
@@ -87,8 +87,8 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
         String genre = genres.stream().map(WordUtils::capitalizeFully).collect(Collectors.joining(params.getMode() == SearchMode.EXCLUSIVE ? ", " : "| "));
 
         topInTag = e.isFromGuild()
-                ? getService().getTopInTag(genres, e.getGuild().getIdLong(), 400, params.getMode())
-                : getService().getTopInTag(genres, null, 400, params.getMode());
+                ? db.getTopInTag(genres, e.getGuild().getIdLong(), 400, params.getMode())
+                : db.getTopInTag(genres, null, 400, params.getMode());
         sendTopTags(e, params, genre, topInTag);
     }
 }

@@ -30,7 +30,7 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
 
     @Override
     public Parser<DateParameters> initParser() {
-        return new DateParser(getService());
+        return new DateParser(db);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull DateParameters params) throws LastFmException, InstanceNotFoundException {
 
-        LastFMData lastFMData = getService().findLastFMData(params.getUser().getIdLong());
+        LastFMData lastFMData = db.findLastFMData(params.getUser().getIdLong());
         ZonedDateTime date = params.getDate().atZoneSameInstant(lastFMData.getTimeZone().toZoneId());
         int i = lastFM.scrobblesSince(lastFMData, date.toOffsetDateTime());
         String username = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getUser().getIdLong()).getUsername();

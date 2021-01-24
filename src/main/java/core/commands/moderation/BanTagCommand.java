@@ -47,14 +47,14 @@ public class BanTagCommand extends ConcurrentCommand<CommandParameters> {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
-        LastFMData lastFMData = getService().findLastFMData(idLong);
+        LastFMData lastFMData = db.findLastFMData(idLong);
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Only bot admins can delete tags");
             return;
         }
         String[] subMessage = parser.getSubMessage(e.getMessage());
         String joined = String.join(" ", subMessage).trim();
-        getService().addBannedTag(joined, idLong);
+        db.addBannedTag(joined, idLong);
         if (!joined.isBlank()) {
             sendMessageQueue(e, "Succesfully banned the tag: " + joined);
             return;

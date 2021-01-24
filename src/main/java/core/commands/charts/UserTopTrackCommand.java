@@ -58,7 +58,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public ChartableParser<ChartParameters> initParser() {
-        ChartParser chartParser = new ChartParser(getService());
+        ChartParser chartParser = new ChartParser(db);
         chartParser.replaceOptional("list", new OptionalEntity("image", "show this with a chart instead of a list "));
         chartParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, "image"));
         chartParser.setExpensiveSearch(false);
@@ -84,7 +84,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters param) throws LastFmException {
-        ArtistQueue queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !param.isList());
+        ArtistQueue queue = new ArtistQueue(db, discogsApi, spotifyApi, !param.isList());
         int i = param.makeCommand(lastFM, queue, TopEntity.TRACK, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.TRACK, param, lastFM, param.getUser()));
         return new CountWrapper<>(i, queue);
     }

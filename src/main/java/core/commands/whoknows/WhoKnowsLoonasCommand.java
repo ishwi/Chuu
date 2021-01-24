@@ -111,7 +111,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
             default -> throw new IllegalStateException();
         }
         LOONAParameters.Mode mode = params.getMode();
-        List<WrapperReturnNowPlaying> whoKnowsArtistSet = getService().getWhoKnowsArtistSet(artists, e.getGuild().getIdLong(), limit, nullableOwner);
+        List<WrapperReturnNowPlaying> whoKnowsArtistSet = db.getWhoKnowsArtistSet(artists, e.getGuild().getIdLong(), limit, nullableOwner);
         Map<Long, String> mapper = new HashMap<>();
         whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).forEach(x -> {
             String s = mapper.get(x.getDiscordId());
@@ -139,7 +139,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                                 .map(x ->
                                 {
                                     String representative = LOONA.getRepresentative(x.getKey());
-                                    String artistUrl = getService().getArtistUrl(representative);
+                                    String artistUrl = db.getArtistUrl(representative);
                                     return new WrapperReturnNowPlaying(x.getValue(), x.getValue().size(), artistUrl, representative);
                                 })
                                 .collect(Collectors.toList());
@@ -167,7 +167,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                                 .map(x ->
                                 {
                                     String representative = LOONA.getRepresentative(x.getKey());
-                                    String artistUrl = getService().getArtistUrl(representative);
+                                    String artistUrl = db.getArtistUrl(representative);
                                     return new WrapperReturnNowPlaying(x.getValue(), x.getValue().size(), artistUrl, representative);
                                 })
                                 .collect(Collectors.toList());
@@ -256,7 +256,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                 .map(x ->
                 {
                     String representative = mapper.apply(x.getKey());
-                    String artistUrl = getService().getArtistUrl(representative);
+                    String artistUrl = db.getArtistUrl(representative);
                     consumer.accept(representative, x);
                     return new WrapperReturnNowPlaying(x.getValue(), x.getValue().size(), artistUrl, representative);
                 }).collect(Collectors.toList());
@@ -269,15 +269,15 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         switch (parse.getSubCommand()) {
             case GENERAL -> {
                 representativeArtist = "LOONAVERSE";
-                represenentativeUrl = getService().getArtistUrl(representativeArtist);
+                represenentativeUrl = db.getArtistUrl(representativeArtist);
             }
             case SPECIFIC -> {
                 representativeArtist = LOONA.getRepresentative(parse.getTargetedLOONA());
-                represenentativeUrl = getService().getArtistUrl(representativeArtist);
+                represenentativeUrl = db.getArtistUrl(representativeArtist);
             }
             case GROUPED -> {
                 representativeArtist = LOONA.getRepresentative(parse.getTargetedType());
-                represenentativeUrl = getService().getArtistUrl(representativeArtist);
+                represenentativeUrl = db.getArtistUrl(representativeArtist);
             }
             default -> throw new IllegalStateException("Unexpected value: " + parse.getSubCommand());
         }
@@ -290,7 +290,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         BufferedImage logo = null;
         String title;
         if (e.isFromGuild()) {
-            logo = CommandUtil.getLogo(getService(), e);
+            logo = CommandUtil.getLogo(db, e);
             title = e.getGuild().getName();
         } else {
             title = e.getJDA().getSelfUser().getName();
@@ -335,7 +335,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
     @Override
     public Parser<LOONAParameters> initParser() {
-        return new LOOONAParser(getService());
+        return new LOOONAParser(db);
     }
 
 

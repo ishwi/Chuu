@@ -75,7 +75,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
             return;
         }
         if (params.isListing()) {
-            modes = getService().getNPModes(e.getAuthor().getIdLong());
+            modes = db.getNPModes(e.getAuthor().getIdLong());
             String strMode = NPMode.getListedName(modes);
             sendMessageQueue(e,
                     "Do `" + e.getMessage().getContentRaw().split("\\s+")[0] + " help` for a list of all options.\n" +
@@ -83,7 +83,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
                             strMode);
         } else {
             String strMode = NPMode.getListedName(modes);
-            getService().changeNpMode(e.getAuthor().getIdLong(), modes);
+            db.changeNpMode(e.getAuthor().getIdLong(), modes);
             sendMessageQueue(e, String.format("Successfully changed to the following %s: %s", CommandUtil.singlePlural(modes.size(), "mode", "modes"), strMode));
         }
     }

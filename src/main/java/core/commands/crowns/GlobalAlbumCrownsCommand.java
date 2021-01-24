@@ -35,15 +35,15 @@ public class GlobalAlbumCrownsCommand extends CrownsCommand {
         if (threshold == null) {
             if (params.getE().isFromGuild()) {
                 long idLong = params.getE().getGuild().getIdLong();
-                threshold = (long) getService().getGuildCrownThreshold(idLong);
+                threshold = (long) db.getGuildCrownThreshold(idLong);
             } else {
                 threshold = 0L;
             }
 
         }
-        return getService().getGlobalAlbumCrowns(params.getInnerParams().getLastFMData().getName(),
+        return db.getGlobalAlbumCrowns(params.getInnerParams().getLastFMData().getName(),
                 Math.toIntExact(threshold),
-                CommandUtil.showBottedAccounts(params.getInnerParams().getLastFMData(), params, getService()), params.getE().getAuthor().getIdLong());
+                CommandUtil.showBottedAccounts(params.getInnerParams().getLastFMData(), params, db), params.getE().getAuthor().getIdLong());
     }
 
     @Override

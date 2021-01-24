@@ -21,7 +21,7 @@ public class ArtistCommand extends ArtistAbleCommand<ChartParameters> {
 
     @Override
     public ChartableParser<ChartParameters> initParser() {
-        return new ChartParser(getService());
+        return new ChartParser(db);
     }
 
     @Override

@@ -39,7 +39,7 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
 
     @Override
     public Parser<TimeFrameParameters> initParser() {
-        return new TimerFrameParser(getService(), TimeFrameEnum.WEEK);
+        return new TimerFrameParser(db, TimeFrameEnum.WEEK);
     }
 
     @Override

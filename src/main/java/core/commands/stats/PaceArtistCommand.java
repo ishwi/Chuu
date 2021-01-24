@@ -64,7 +64,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can introduce a goal that will be the number of scrobbles that you want to obtain.";
-        return new NumberParser<>(new ArtistTimeFrameParser(getService(), lastFM),
+        return new NumberParser<>(new ArtistTimeFrameParser(db, lastFM),
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);
@@ -94,7 +94,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         String artist = params.getInnerParams().getArtist();
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
 
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !params.getInnerParams().isNoredirect());
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.getInnerParams().isNoredirect());
         BlockingQueue<UrlCapsule> queue = new DiscardableQueue<>(
                 x -> !x.getArtistName().equalsIgnoreCase(scrobbledArtist.getArtist())
                 , x -> x, 1);

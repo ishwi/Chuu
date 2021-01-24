@@ -57,7 +57,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
 
-        return new ArtistAlbumParser(getService(), lastFM);
+        return new ArtistAlbumParser(db, lastFM);
     }
 
     @Override
@@ -80,11 +80,11 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
         EmbedBuilder embedBuilder = new EmbedBuilder();
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, false, !params.isNoredirect());
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, false, !params.isNoredirect());
         String album = params.getAlbum();
         String artist = params.getArtist();
 
-        dao.entities.AlbumRatings ratingss = getService().getRatingsByName(e.getGuild().getIdLong(), album, scrobbledArtist.getArtistId());
+        dao.entities.AlbumRatings ratingss = db.getRatingsByName(e.getGuild().getIdLong(), album, scrobbledArtist.getArtistId());
 
         NumberFormat average = new DecimalFormat("#0.##");
         Function<Byte, String> starFormatter = getStartsFromScore();

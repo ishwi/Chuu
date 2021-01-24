@@ -53,7 +53,7 @@ public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters>
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull EmotiParameters params) {
         if (params.hasOptional("check")) {
-            List<String> serverReactions = getService().getServerReactions(e.getGuild().getIdLong());
+            List<String> serverReactions = db.getServerReactions(e.getGuild().getIdLong());
             if (serverReactions.isEmpty()) {
                 sendMessageQueue(e, "Don't have any reaction set");
                 return;
@@ -70,7 +70,7 @@ public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters>
         }
         if (params.getEmotis().isEmpty()) {
             sendMessageQueue(e, "Clearing reactions");
-            getService().insertServerReactions(e.getGuild().getIdLong(), new ArrayList<>());
+            db.insertServerReactions(e.getGuild().getIdLong(), new ArrayList<>());
             return;
         }
 
@@ -85,14 +85,14 @@ public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters>
             if (content.isEmpty()) {
                 sendMessageQueue(e, "Didn't add any reaction.");
             } else {
-                getService().insertServerReactions(e.getGuild().getIdLong(), content);
+                db.insertServerReactions(e.getGuild().getIdLong(), content);
                 sendMessageQueue(e, "Will set the following reactions: " + content.stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" ")));
             }
         } else {
             if (params.hasEmojis()) {
                 String collect = params.getEmojis().stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" "));
                 sendMessageQueue(e, "Will set the following reactions: " + collect);
-                getService().insertServerReactions(e.getGuild().getIdLong(), params.getEmojis());
+                db.insertServerReactions(e.getGuild().getIdLong(), params.getEmojis());
             }
         }
     }

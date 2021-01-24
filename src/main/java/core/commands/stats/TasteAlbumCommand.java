@@ -49,7 +49,7 @@ public class TasteAlbumCommand extends BaseTasteCommand<ArtistAlbumParameters> {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        return new ArtistAlbumParser(getService(), lastFM, new OptionalEntity("list", "display in a list format"));
+        return new ArtistAlbumParser(db, lastFM, new OptionalEntity("list", "display in a list format"));
     }
 
     @Override
@@ -72,7 +72,7 @@ public class TasteAlbumCommand extends BaseTasteCommand<ArtistAlbumParameters> {
 
             return null;
         }
-        LastFMData ogData = getService().findLastFMData(author.getIdLong());
+        LastFMData ogData = db.findLastFMData(author.getIdLong());
         return Pair.of(ogData, secondUser);
     }
 
@@ -82,9 +82,9 @@ public class TasteAlbumCommand extends BaseTasteCommand<ArtistAlbumParameters> {
         String artist = params.getArtist();
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         params.setScrobbledArtist(scrobbledArtist);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotifyApi);
-        long albumvalidate = CommandUtil.albumvalidate(getService(), scrobbledArtist, lastFM, params.getAlbum());
-        return getService().getSimilaritiesAlbumTracks(List.of(og.getName(), second.getName()), albumvalidate, isList ? 200 : Integer.MAX_VALUE);
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
+        long albumvalidate = CommandUtil.albumvalidate(db, scrobbledArtist, lastFM, params.getAlbum());
+        return db.getSimilaritiesAlbumTracks(List.of(og.getName(), second.getName()), albumvalidate, isList ? 200 : Integer.MAX_VALUE);
     }
 
     @Override

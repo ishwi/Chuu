@@ -37,7 +37,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
 
     @Override
     public ChartableParser<ChartSizeParameters> initParser() {
-        OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(getService(), TimeFrameEnum.ALL,
+        OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(db, TimeFrameEnum.ALL,
                 new OptionalEntity("global", " shows artist from all bot users instead of only from this server"));
         onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noplays", "don't display plays"));
         onlyChartSizeParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
@@ -60,7 +60,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartSizeParameters gp) {
         ChartMode effectiveMode = getEffectiveMode(gp);
-        ResultWrapper<ScrobbledArtist> guildTop = getService().getGuildTop(gp.hasOptional("global") ? null : gp.getE().getGuild().getIdLong(),
+        ResultWrapper<ScrobbledArtist> guildTop = db.getGuildTop(gp.hasOptional("global") ? null : gp.getE().getGuild().getIdLong(),
                 gp.getX() * gp.getY(),
                 !(effectiveMode.equals(ChartMode.IMAGE) && gp.chartMode().equals(ChartMode.IMAGE) || gp.chartMode().equals(ChartMode.IMAGE_ASIDE)));
         AtomicInteger counter = new AtomicInteger(0);

@@ -32,7 +32,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService());
+        return new OnlyUsernameParser(db);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
-        List<StreakEntity> userStreaks = getService().getUserStreaks(discordID);
+        List<StreakEntity> userStreaks = db.getUserStreaks(discordID);
         AtomicInteger atomicInteger = new AtomicInteger(1);
         List<String> streaks = userStreaks
                 .stream().map(combo -> {

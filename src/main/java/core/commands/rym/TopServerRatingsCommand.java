@@ -50,7 +50,7 @@ public class TopServerRatingsCommand extends ListCommand<ScoredAlbumRatings, Com
 
     @Override
     public List<ScoredAlbumRatings> getList(CommandParameters params) {
-        return getService().getServerTopRatings(params.getE().getGuild().getIdLong());
+        return db.getServerTopRatings(params.getE().getGuild().getIdLong());
     }
 
     @Override
@@ -71,7 +71,7 @@ public class TopServerRatingsCommand extends ListCommand<ScoredAlbumRatings, Com
             a.append(i + 1).append(list.get(i).toString());
         }
         String name = e.getGuild().getName();
-        RymStats rymServerStats = getService().getRYMServerStats(e.getGuild().getIdLong());
+        RymStats rymServerStats = db.getRYMServerStats(e.getGuild().getIdLong());
         embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(name) + "'s Top Ranked Albums")
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setFooter(String.format("This server has rated a total of %s albums with an average of %s!", rymServerStats.getNumberOfRatings(), formatter.format(rymServerStats.getAverage() / 2f)), null)

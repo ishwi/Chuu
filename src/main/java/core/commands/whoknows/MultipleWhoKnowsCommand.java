@@ -33,7 +33,7 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
     @Override
     WrapperReturnNowPlaying generateWrapper(MultiArtistParameters params, WhoKnowsMode whoKnowsMode) {
         int i = whoKnowsMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE;
-        List<WrapperReturnNowPlaying> whoKnowsArtistSet = getService().getWhoKnowsArtistSet(params.getArtists(), params.getE().getGuild().getIdLong(), i, null);
+        List<WrapperReturnNowPlaying> whoKnowsArtistSet = db.getWhoKnowsArtistSet(params.getArtists(), params.getE().getGuild().getIdLong(), i, null);
         if (whoKnowsArtistSet.isEmpty()) {
             sendMessageQueue(params.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(join(params.getArtists())));
             return null;
@@ -62,7 +62,7 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
 
     @Override
     public Parser<MultiArtistParameters> initParser() {
-        return new MultipleArtistsParser(getService(), lastFM);
+        return new MultipleArtistsParser(db, lastFM);
     }
 
     @Override

@@ -53,7 +53,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        ArtistAlbumParser parser = new ArtistAlbumParser(getService(), lastFM);
+        ArtistAlbumParser parser = new ArtistAlbumParser(db, lastFM);
         parser.addOptional(new OptionalEntity("list", "display in list format"));
 
         parser.setExpensiveSearch(true);
@@ -74,9 +74,9 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
     protected void doSomethingWithAlbumArtist(ScrobbledArtist scrobbledArtist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
 
         String artist = scrobbledArtist.getArtist();
-        ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(getService(), scrobbledArtist.getArtistId(), album, lastFM);
+        ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, scrobbledArtist.getArtistId(), album, lastFM);
         scrobbledAlbum.setArtist(scrobbledArtist.getArtist());
-        TracklistService tracklistService = new UserTrackListService(getService(), params.getLastFMData().getName());
+        TracklistService tracklistService = new UserTrackListService(db, params.getLastFMData().getName());
 
         Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData(), scrobbledArtist.getUrl());
         if (trackList.isEmpty()) {

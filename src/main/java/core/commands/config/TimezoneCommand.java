@@ -26,7 +26,7 @@ public class TimezoneCommand extends ConcurrentCommand<TimezoneParams> {
 
     @Override
     public Parser<TimezoneParams> initParser() {
-        return new TimezoneParser(getService());
+        return new TimezoneParser(db);
     }
 
     @Override
@@ -50,10 +50,10 @@ public class TimezoneCommand extends ConcurrentCommand<TimezoneParams> {
 
         TimeZone timeZone = params.getTimeZone();
         if (params.isCheck()) {
-            timeZone = getService().getUserTimezone(params.getUser().getIdLong());
+            timeZone = db.getUserTimezone(params.getUser().getIdLong());
             sendMessageQueue(e, String.format("%s timezone is: %s (%s)\n Current time: %s", getUserString(e, e.getAuthor().getIdLong()), timeZone.getDisplayName(), timeZone.toZoneId().getRules().getStandardOffset(Instant.now()), DateTimeFormatter.RFC_1123_DATE_TIME.format(Instant.now().atZone(timeZone.toZoneId()))));
         } else {
-            getService().setTimezoneUser(timeZone, e.getAuthor().getIdLong());
+            db.setTimezoneUser(timeZone, e.getAuthor().getIdLong());
             sendMessageQueue(e, String.format("Successfully set %s timezone to: %s (%s)", getUserString(e, e.getAuthor().getIdLong()), timeZone.getDisplayName(), timeZone.toZoneId().getRules().getStandardOffset(Instant.now())));
 
         }

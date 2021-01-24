@@ -62,9 +62,9 @@ public class AlbumCrownsLeaderboardCommand extends LeaderboardCommand<NumberPara
         long idLong = params.getE().getGuild().getIdLong();
 
         if (threshold == null) {
-            threshold = (long) getService().getGuildCrownThreshold(idLong);
+            threshold = (long) db.getGuildCrownThreshold(idLong);
         }
-        return getService().albumCrownsLeaderboard(params.getE().getGuild().getIdLong(), Math.toIntExact(threshold));
+        return db.albumCrownsLeaderboard(params.getE().getGuild().getIdLong(), Math.toIntExact(threshold));
     }
 
     @Override

@@ -54,7 +54,7 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
 
     @Override
     public ResultWrapper<ArtistPlays> getList(CommandParameters parmas) {
-        return getService().getArtistsFrequencies(parmas.getE().getGuild().getIdLong());
+        return db.getArtistsFrequencies(parmas.getE().getGuild().getIdLong());
     }
 
     @Override

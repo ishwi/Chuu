@@ -44,7 +44,7 @@ public class UniqueLeaderboardCommand extends LeaderboardCommand<CommandParamete
 
     @Override
     public List<LbEntry> getList(CommandParameters parameters) {
-        return getService().getUniqueLeaderboard(parameters.getE().getGuild().getIdLong());
+        return db.getUniqueLeaderboard(parameters.getE().getGuild().getIdLong());
     }
 
     @Override

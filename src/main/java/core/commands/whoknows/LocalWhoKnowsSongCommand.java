@@ -38,7 +38,7 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        ArtistSongParser parser = new ArtistSongParser(getService(), lastFM, new OptionalEntity("list", "display in list format")
+        ArtistSongParser parser = new ArtistSongParser(db, lastFM, new OptionalEntity("list", "display in list format")
                 , new OptionalEntity("pie", "display it as a chart pie"));
         parser.setExpensiveSearch(true);
         return parser;
@@ -47,12 +47,12 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsMode whoKnowsMode) throws LastFmException {
         ScrobbledArtist validable = new ScrobbledArtist(ap.getArtist(), 0, "");
-        CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify, false, !ap.isNoredirect());
+        CommandUtil.validate(db, validable, lastFM, discogsApi, spotify, false, !ap.isNoredirect());
         ap.setScrobbledArtist(validable);
         ScrobbledArtist who = ap.getScrobbledArtist();
         long artistId = who.getArtistId();
         WhoKnowsMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
-        long trackId = CommandUtil.trackValidate(getService(), ap
+        long trackId = CommandUtil.trackValidate(db, ap
                 .getScrobbledArtist(), lastFM, ap.getAlbum());
         if (trackId == -1) {
             sendMessageQueue(ap.getE(), "Couldn't confirm the song " + ap.getAlbum() + " by " + ap.getScrobbledArtist().getArtist() + " exists :(");
@@ -60,13 +60,13 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
         }
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 effectiveMode.equals(WhoKnowsMode.IMAGE) ?
-                        this.getService().getWhoKnowsTrack(10, trackId, ap.getE().getGuild().getIdLong()) :
-                        this.getService().getWhoKnowsTrack(Integer.MAX_VALUE, trackId, ap.getE().getGuild().getIdLong());
+                        this.db.getWhoKnowsTrack(10, trackId, ap.getE().getGuild().getIdLong()) :
+                        this.db.getWhoKnowsTrack(Integer.MAX_VALUE, trackId, ap.getE().getGuild().getIdLong());
         wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist());
         try {
             TrackExtended trackInfo = lastFM.getTrackInfoExtended(ap.getLastFMData(), ap.getArtist(), ap.getAlbum());
             if (trackInfo.getImageUrl() != null && !trackInfo.getImageUrl().isBlank()) {
-                getService().updateTrackImage(trackId, trackInfo.getImageUrl());
+                db.updateTrackImage(trackId, trackInfo.getImageUrl());
                 wrapperReturnNowPlaying.setUrl(trackInfo.getImageUrl());
             }
             if (trackInfo.getPlays() > 0) {

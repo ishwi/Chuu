@@ -96,7 +96,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                 .setThumbnail(artist.getUrl());
         e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
         if (!albumSummary.getTagList().isEmpty()) {
-            executor.submit(new TagAlbumService(getService(), lastFM, albumSummary.getTagList(), new AlbumInfo(albumSummary.getMbid(), albumSummary.getAlbum(), albumSummary.getArtist())));
+            executor.submit(new TagAlbumService(db, lastFM, albumSummary.getTagList(), new AlbumInfo(albumSummary.getMbid(), albumSummary.getAlbum(), albumSummary.getArtist())));
 
         }
     }

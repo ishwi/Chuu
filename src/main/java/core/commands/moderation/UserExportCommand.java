@@ -64,7 +64,7 @@ public class UserExportCommand extends ConcurrentCommand<CommandParameters> {
         }
         sendMessage(e, "Check your DMs!").queue();
 
-        List<UsersWrapper> all = getService().getAll(e.getGuild().getIdLong());
+        List<UsersWrapper> all = db.getAll(e.getGuild().getIdLong());
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             new ObjectMapper().writeValue(baos, all);
             e.getAuthor().openPrivateChannel().flatMap(

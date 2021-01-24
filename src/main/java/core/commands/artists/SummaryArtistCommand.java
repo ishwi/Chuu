@@ -45,7 +45,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        return new ArtistParser(getService(), lastFM);
+        return new ArtistParser(db, lastFM);
     }
 
     @Override
@@ -67,13 +67,13 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
     protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
 
         final ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
         LastFMData data = params.getLastFMData();
         long whom = data.getDiscordId();
         ArtistSummary summary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data);
         ArtistMusicBrainzDetails artistDetails = mb.getArtistDetails(new ArtistInfo(null, summary.getArtistname(), summary.getMbid()));
-        long globalArtistPlays = getService().getGlobalArtistPlays(scrobbledArtist.getArtistId());
-        long globalArtistFrequencies = getService().getGlobalArtistFrequencies(scrobbledArtist.getArtistId());
+        long globalArtistPlays = db.getGlobalArtistPlays(scrobbledArtist.getArtistId());
+        long globalArtistFrequencies = db.getGlobalArtistFrequencies(scrobbledArtist.getArtistId());
 
         String username = getUserString(e, whom, data.getName());
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -94,9 +94,9 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
         if (e.isFromGuild()) {
             StringBuilder serverStats = new StringBuilder();
-            long artistFrequencies = getService().getArtistFrequencies(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
+            long artistFrequencies = db.getArtistFrequencies(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
             serverStats.append(String.format("**%d** listeners%n", artistFrequencies));
-            long serverArtistPlays = getService().getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
+            long serverArtistPlays = db.getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
             serverStats.append(String.format("**%d** plays%n", serverArtistPlays));
             embedBuilder.
                     addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), serverStats.toString(), true);
@@ -128,7 +128,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                 .setColor(CommandUtil.randomColor());
         e.getChannel().sendMessage(embedBuilder.build()).queue();
         if (!summary.getTags().isEmpty()) {
-            executor.submit(new TagArtistService(getService(), lastFM, summary.getTags(), new ArtistInfo(scrobbledArtist.getUrl(), summary.getArtistname(), summary.getMbid())));
+            executor.submit(new TagArtistService(db, lastFM, summary.getTags(), new ArtistInfo(scrobbledArtist.getUrl(), summary.getArtistname(), summary.getMbid())));
         }
     }
 }

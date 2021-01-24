@@ -49,7 +49,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         Map<Integer, String> map = new HashMap<>(2);
         map.put(INNER_ERROR, "The number introduced must be lower");
         map.put(LIMIT_ERROR, "You introduced a real big number");
-        return new PaceParser(getService(), map);
+        return new PaceParser(db, map);
     }
 
     @Override

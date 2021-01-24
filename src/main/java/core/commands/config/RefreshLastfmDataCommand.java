@@ -26,7 +26,7 @@ public class RefreshLastfmDataCommand extends ConcurrentCommand<ChuuDataParams> 
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService());
+        return new OnlyUsernameParser(db);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class RefreshLastfmDataCommand extends ConcurrentCommand<ChuuDataParams> 
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException {
         UserInfo userInfo = lastFM.getUserInfo(List.of(params.getLastFMData().getName()), params.getLastFMData()).get(0);
-        getService().insertUserInfo(userInfo);
+        db.insertUserInfo(userInfo);
         sendMessageQueue(e, "Sucessfully updated your profile data");
     }
 }

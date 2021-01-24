@@ -63,13 +63,13 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
         LastFMData lastFMData = null;
         String tempUser = null;
         try {
-            lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
+            lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
         } catch (InstanceNotFoundException exception) {
             notExisting = true;
         }
         String authToken = lastFM.getAuthToken();
         if (!notExisting) {
-            getService().storeToken(authToken, lastFMData.getName());
+            db.storeToken(authToken, lastFMData.getName());
         }
         String s = lastFM.generateSessionUrl(authToken);
         boolean finalNotExisting = notExisting;
@@ -84,7 +84,7 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
                 scheduledExecutor.scheduleWithFixedDelay(() -> {
                     counter.incrementAndGet();
                     if (counter.get() >= 25) {
-                        getService().storeSess(null, authToken);
+                        db.storeSess(null, authToken);
                         scheduledExecutor.shutdown();
                         z.editMessage(new EmbedBuilder().setTitle("Link expired").setColor(Color.red).build()).queue();
                     }
@@ -96,19 +96,19 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
 
                         if (!finalNotExisting) {
                             if (userAccount.equalsIgnoreCase(finalLastFMData.getName())) {
-                                getService().storeSess(session, finalLastFMData.getName());
+                                db.storeSess(session, finalLastFMData.getName());
                                 z.editMessage(new EmbedBuilder().setColor(Color.green).setTitle(":white_check_mark: Succesfully logged in!").build()).queue();
                                 scheduledExecutor.shutdown();
                                 return;
                             } else {
                                 t.sendMessage("You had previously logged in with a different account. Will reset eveything now").queue();
                                 try {
-                                    getService().changeLastFMName(e.getAuthor().getIdLong(), userAccount);
-                                    getService().storeSess(session, userAccount);
+                                    db.changeLastFMName(e.getAuthor().getIdLong(), userAccount);
+                                    db.storeSess(session, userAccount);
                                 } catch (DuplicateInstanceException duplicateInstanceException) {
-                                    getService().removeUserCompletely(e.getAuthor().getIdLong());
-                                    getService().changeDiscordId(e.getAuthor().getIdLong(), userAccount);
-                                    getService().storeSess(session, userAccount);
+                                    db.removeUserCompletely(e.getAuthor().getIdLong());
+                                    db.changeDiscordId(e.getAuthor().getIdLong(), userAccount);
+                                    db.storeSess(session, userAccount);
                                 } catch (InstanceNotFoundException duplicateInstanceException) {
                                     Chuu.getLogger().warn("infe shouldnt happen here {}", duplicateInstanceException.getMessage());
                                     t.sendMessage("Something unusual happpened, try again later :(").queue();
@@ -126,16 +126,16 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
                             newUser.setGuildID(e.getGuild().getIdLong());
                         }
                         try {
-                            getService().getDiscordIdFromLastfm(userAccount);
+                            db.getDiscordIdFromLastfm(userAccount);
                             // Exists
-                            getService().removeUserCompletely(e.getAuthor().getIdLong());
-                            getService().changeDiscordId(e.getAuthor().getIdLong(), userAccount);
-                            getService().storeSess(session, userAccount);
+                            db.removeUserCompletely(e.getAuthor().getIdLong());
+                            db.changeDiscordId(e.getAuthor().getIdLong(), userAccount);
+                            db.storeSess(session, userAccount);
 
                         } catch (InstanceNotFoundException ex) {
                             newUser.setDiscordId(e.getAuthor().getIdLong());
-                            getService().insertNewUser(newUser);
-                            getService().storeSess(session, userAccount);
+                            db.insertNewUser(newUser);
+                            db.storeSess(session, userAccount);
                             z.editMessage(new EmbedBuilder().setTitle(":white_check_mark: Succesfully logged in!").setDescription("Now will try to index your library").setColor(Color.green).build()).queue();
                             setCommand.setProcess(t, userAccount, e.getAuthor().getIdLong(), LastFMData.ofUser(userAccount), e.getAuthor().getName());
                             scheduledExecutor.shutdown();

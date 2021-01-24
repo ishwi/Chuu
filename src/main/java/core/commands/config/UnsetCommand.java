@@ -51,7 +51,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         // Check if it exists
-        getService().findLastFMData(idLong);
+        db.findLastFMData(idLong);
         String userString = getUserString(e, idLong);
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -59,7 +59,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
                 .setDescription(String.format("%s, are you sure you want to delete all your info from the bot?", userString));
         e.getChannel().sendMessage(new MessageBuilder(embedBuilder.build()).build())
                 .queue(message -> new Confirmator(embedBuilder, message, idLong,
-                        () -> getService().removeUserCompletely(idLong), () -> {
+                        () -> db.removeUserCompletely(idLong), () -> {
                 }
                         , who -> who.clear().setTitle(String.format("%s was removed completely from the bot", userString)),
                         who -> who.clear().setTitle(String.format("Didn't do anything with user %s", userString))));

@@ -40,7 +40,7 @@ public class MirroredTracksCommand extends AlbumPlaysCommand {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        ArtistAlbumParser parser = new ArtistAlbumParser(getService(), lastFM);
+        ArtistAlbumParser parser = new ArtistAlbumParser(db, lastFM);
         parser.setExpensiveSearch(true);
         return parser;
     }
@@ -64,25 +64,25 @@ public class MirroredTracksCommand extends AlbumPlaysCommand {
             return;
         }
         String artist = scrobbledArtist.getArtist();
-        LastFMData ogData = getService().findLastFMData(author.getIdLong());
+        LastFMData ogData = db.findLastFMData(author.getIdLong());
 
-        ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(getService(), scrobbledArtist.getArtistId(), album, lastFM);
+        ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, scrobbledArtist.getArtistId(), album, lastFM);
         scrobbledAlbum.setArtist(scrobbledArtist.getArtist());
 
-        Optional<FullAlbumEntity> trackList1 = new UserTrackListService(getService(), ogData.getName()).getTrackList(scrobbledAlbum, ogData, scrobbledArtist.getUrl());
+        Optional<FullAlbumEntity> trackList1 = new UserTrackListService(db, ogData.getName()).getTrackList(scrobbledAlbum, ogData, scrobbledArtist.getUrl());
         if (trackList1.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));
             return;
 
         }
-        Optional<FullAlbumEntity> trackList2 = new UserTrackListService(getService(), secondUser.getName()).getTrackList(scrobbledAlbum, secondUser, scrobbledArtist.getUrl());
+        Optional<FullAlbumEntity> trackList2 = new UserTrackListService(db, secondUser.getName()).getTrackList(scrobbledAlbum, secondUser, scrobbledArtist.getUrl());
         if (trackList2.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));
             return;
         }
-        UserInfoService userInfoService = new UserInfoService(getService());
+        UserInfoService userInfoService = new UserInfoService(db);
         UserInfo userInfo = userInfoService.getUserInfo(ogData);
         userInfo.setUsername(CommandUtil.getUserInfoNotStripped(e, ogData.getDiscordId()).getUsername());
         UserInfo userInfo2 = userInfoService.getUserInfo(secondUser);

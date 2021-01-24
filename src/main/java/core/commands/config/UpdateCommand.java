@@ -38,7 +38,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService(), new OptionalEntity("force", "Does a full heavy update"));
+        return new OnlyUsernameParser(db, new OptionalEntity("force", "Does a full heavy update"));
     }
 
     @Override
@@ -61,16 +61,16 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
             sendMessageQueue(e, "This user cannot be updated by other users");
             return;
         }
-        getService().findLastFMData(discordID);
+        db.findLastFMData(discordID);
         boolean force = params.hasOptional("force");
         String userString = getUserString(e, discordID, lastFmName);
         if (e.isFromGuild()) {
-            if (getService().getAll(e.getGuild().getIdLong()).stream()
+            if (db.getAll(e.getGuild().getIdLong()).stream()
                     .noneMatch(s -> s.getLastFMName().equals(lastFmName))) {
                 sendMessageQueue(e, userString + " is not registered in this server");
                 return;
             }
-        } else if (!getService().getMapGuildUsers().containsValue(e.getAuthor().getIdLong())) {
+        } else if (!db.getMapGuildUsers().containsValue(e.getAuthor().getIdLong())) {
             sendMessageQueue(e, "You are not registered yet, go to any server and register there!");
             return;
         }
@@ -90,12 +90,12 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                 }
                 try {
                     List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-                    getService().insertArtistDataList(artistData, lastFmName);
+                    db.insertArtistDataList(artistData, lastFmName);
                     List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                     e.getChannel().sendTyping().queue();
-                    getService().albumUpdate(albumData, artistData, lastFmName);
+                    db.albumUpdate(albumData, artistData, lastFmName);
                     List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-                    getService().trackUpdate(trackData, artistData, lastFmName);
+                    db.trackUpdate(trackData, artistData, lastFmName);
                     sendMessageQueue(e, "Successfully updated " + userString + " info!");
                 } finally {
                     synchronized (this) {
@@ -103,12 +103,12 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                     }
                 }
             } else {
-                UpdaterUserWrapper userUpdateStatus = getService().getUserUpdateStatus(lastFMData.getDiscordId());
-                List<ScrobbledTrack> topTracks = getService().getTopTracks(userUpdateStatus.getLastFMName());
-                if (topTracks.size() < getService().getUserArtistCount(lastFmName, 0)) {
+                UpdaterUserWrapper userUpdateStatus = db.getUserUpdateStatus(lastFMData.getDiscordId());
+                List<ScrobbledTrack> topTracks = db.getTopTracks(userUpdateStatus.getLastFMName());
+                if (topTracks.size() < db.getUserArtistCount(lastFmName, 0)) {
                     if (maxConcurrency.decrementAndGet() == 0) {
                         maxConcurrency.incrementAndGet();
-                        UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, getService(), lastFM);
+                        UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, db, lastFM);
                         updaterHoarder.updateUser();
 
                     } else {
@@ -116,17 +116,17 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                             sendMessageQueue(e, "Since you haven't indexed your tracks yet, all your tracks will be indexed on the bot. This will take a while.");
                             e.getChannel().sendTyping().queue();
                             List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-                            getService().insertArtistDataList(artistData, lastFmName);
+                            db.insertArtistDataList(artistData, lastFmName);
                             e.getChannel().sendTyping().queue();
                             //sendMessageQueue(e, "Finished updating your artist, now the album process will start");
                             try {
                                 List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                                 e.getChannel().sendTyping().queue();
-                                getService().albumUpdate(albumData, artistData, lastFmName);
+                                db.albumUpdate(albumData, artistData, lastFmName);
                             } catch (LastFMNoPlaysException ignored) {
                             }
                             List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-                            getService().trackUpdate(trackData, artistData, lastFmName);
+                            db.trackUpdate(trackData, artistData, lastFmName);
                             sendMessageQueue(e, "Successfully indexed " + userString + " tracks");
                         } finally {
                             synchronized (this) {
@@ -137,12 +137,12 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                     }
                 } else {
                     try {
-                        UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, getService(), lastFM);
+                        UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, db, lastFM);
                         updaterHoarder.updateUser();
 
-                        //getService().incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
+                        //db.incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
                     } catch (LastFMNoPlaysException ex) {
-                        getService().updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
+                        db.updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
                                 (int) (Instant.now().getEpochSecond() + 4000));
                         sendMessageQueue(e, "You were already up to date!");
                         return;

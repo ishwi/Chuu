@@ -86,7 +86,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
         if ((emmbed.matcher(contentRaw).matches())) {
             contentRaw = contentRaw.replaceAll("```(java)?", "");
         }
-        EvalContext evalContext = new EvalContext(e.getJDA(), e, e.getAuthor(), e.isFromGuild() ? e.getGuild() : null, null, getService(), lastFM);
+        EvalContext evalContext = new EvalContext(e.getJDA(), e, e.getAuthor(), e.isFromGuild() ? e.getGuild() : null, null, db, lastFM);
         try {
             JavaEvaluator javaEvaluator = new JavaEvaluator();
             CompilationResult r = javaEvaluator.compile()

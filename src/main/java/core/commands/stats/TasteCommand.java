@@ -47,7 +47,7 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
 
     @Override
     public Parser<TwoUsersTimeframeParamaters> initParser() {
-        TwoUsersTimeframeParser twoUsersParser = new TwoUsersTimeframeParser(getService(), new OptionalEntity("list", "display in a list format"));
+        TwoUsersTimeframeParser twoUsersParser = new TwoUsersTimeframeParser(db, new OptionalEntity("list", "display in a list format"));
         twoUsersParser.setExpensiveSearch(true);
         return twoUsersParser;
     }
@@ -72,7 +72,7 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
     public ResultWrapper<UserArtistComparison> getResult(LastFMData og, LastFMData second, TwoUsersTimeframeParamaters params) {
         boolean isList = params.hasOptional("list");
         if (params.getTimeFrameEnum() == TimeFrameEnum.ALL) {
-            return getService().getSimilarities(List.of(og.getName(), second.getName()), isList ? 200 : 10);
+            return db.getSimilarities(List.of(og.getName(), second.getName()), isList ? 200 : 10);
         } else {
             Queue<UrlCapsule> lQ = new ArrayDeque<>();
             Queue<UrlCapsule> rQ = new ArrayDeque<>();

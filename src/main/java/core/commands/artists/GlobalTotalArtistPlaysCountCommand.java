@@ -48,7 +48,7 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
 
     @Override
     public ResultWrapper<ArtistPlays> getList(CommandParameters params) {
-        return getService().getArtistPlayCountGlobal();
+        return db.getArtistPlayCountGlobal();
     }
 
     @Override

@@ -3513,6 +3513,100 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         return listeneds;
     }
 
+    @Override
+    public List<ScrobbledArtist> regexArtist(Connection connection, String regex, long userId) {
+        List<ScrobbledArtist> scrobbledAlbums = new ArrayList<>();
+        String s = "select name,b.url,b.mbid,a.playnumber  from scrobbled_artist a join artist b on a.artist_id = b.id join user c on a.lastfm_id = c.lastfm_id    " +
+                "where c.discord_id  = ? and b.name regexp ? order by a.playnumber desc";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            preparedStatement.setLong(1, userId);
+            preparedStatement.setString(2, regex);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String artist = resultSet.getString(1);
+                String url = resultSet.getString(2);
+                String mbid = resultSet.getString(3);
+                int playnumber = resultSet.getInt(4);
+                ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, playnumber, url);
+                scrobbledArtist.setArtistMbid(mbid);
+                scrobbledArtist.setCount(playnumber);
+                scrobbledAlbums.add(scrobbledArtist);
+            }
+        } catch (
+                SQLException throwables) {
+
+            throw new ChuuServiceException(throwables);
+        }
+        return scrobbledAlbums;
+
+    }
+
+    @Override
+    public List<ScrobbledAlbum> regexAlbum(Connection connection, String regex, long userId) {
+        List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
+        String s = "select b.album_name,c.name,b.url,b.mbid,a.playnumber  " +
+                "from scrobbled_album a join album b on a.album_id = b.id join artist c on a.artist_id = c.id  join user d on a.lastfm_id = d.discord_id  " +
+                "where d.discord_id = ? and b.album_name regexp  ? order by a.playnumber desc";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            preparedStatement.setLong(1, userId);
+            preparedStatement.setString(2, regex);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String album = resultSet.getString(1);
+                String artist = resultSet.getString(2);
+                String url = resultSet.getString(3);
+                String mbid = resultSet.getString(4);
+                int playnumber = resultSet.getInt(5);
+
+                ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, artist, url, mbid);
+                scrobbledAlbum.setCount(playnumber);
+                scrobbledAlbums.add(scrobbledAlbum);
+            }
+        } catch (
+                SQLException throwables) {
+
+            throw new ChuuServiceException(throwables);
+        }
+        return scrobbledAlbums;
+    }
+
+    @Override
+    public List<ScrobbledTrack> regexTrack(Connection connection, String regex, long userId) {
+        List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
+
+        String mySql = "Select b.id,d.id,c.id,c.name,d.album_name,b.duration,b.track_name,coalesce(b.url,d.url,c.url),a.playnumber,a.loved " +
+                "from scrobbled_track a join track b on a.track_id = b.id join artist c on b.artist_id = c.id left join album d on b.album_id = d.id join user e on a.lastfm_id = e.lastfm_id " +
+                "where e.discord_id = ? and b.track_name regexp  ? order by playnumber desc";
+        try
+                (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
+            preparedStatement.setLong(1, userId);
+            preparedStatement.setString(2, regex);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                long trackId = resultSet.getLong(1);
+                long albumId = resultSet.getLong(2);
+                long artistId = resultSet.getLong(3);
+                String artsitName = resultSet.getString(4);
+                String albumName = resultSet.getString(5);
+                int duration = resultSet.getInt(6);
+                String trackName = resultSet.getString(7);
+                String url = resultSet.getString(8);
+                int plays = resultSet.getInt(9);
+                boolean loved = resultSet.getBoolean(10);
+
+                ScrobbledTrack e = new ScrobbledTrack(artsitName, trackName, plays, loved, duration, url, null, null);
+                e.setArtistId(artistId);
+                e.setAlbumId(albumId);
+                e.setTrackId(trackId);
+                scrobbledTracks.add(e);
+            }
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return scrobbledTracks;
+    }
+
     public enum Order {
         ASC, DESC;
 

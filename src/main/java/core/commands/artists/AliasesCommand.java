@@ -40,7 +40,7 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        return new ArtistParser(getService(), lastFM);
+        return new ArtistParser(db, lastFM);
     }
 
 
@@ -65,10 +65,10 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
         char prefix = CommandUtil.getMessagePrefix(e);
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
 
         String correctedArtist = CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist());
-        List<String> artistAliases = getService().getArtistAliases(scrobbledArtist.getArtistId())
+        List<String> artistAliases = db.getArtistAliases(scrobbledArtist.getArtistId())
                 .stream().map(x -> ". **" + CommandUtil.cleanMarkdownCharacter(x) + "**\n").collect(Collectors.toList());
         if (artistAliases.isEmpty()) {
             sendMessageQueue(e, correctedArtist + " doesn't have any correction:");

@@ -37,7 +37,7 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        ArtistSongParser parser = new ArtistSongParser(getService(), lastFM, new OptionalEntity("list", "display in list format")
+        ArtistSongParser parser = new ArtistSongParser(db, lastFM, new OptionalEntity("list", "display in list format")
                 , new OptionalEntity("pie", "display it as a chart pie"));
         parser.setExpensiveSearch(true);
         return parser;
@@ -53,7 +53,7 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
 
         fillWithUrl.setAlbum(temp.getName());
         if (temp.getImageUrl() == null || temp.getImageUrl().isBlank()) {
-            fillWithUrl.setAlbumUrl(CommandUtil.getArtistImageUrl(getService(), artist, lastFM, discogsApi, spotify));
+            fillWithUrl.setAlbumUrl(CommandUtil.getArtistImageUrl(db, artist, lastFM, discogsApi, spotify));
         }
         userList.stream().skip(1).forEach(u -> {
             try {

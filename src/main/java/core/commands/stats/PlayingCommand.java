@@ -70,7 +70,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
 
         boolean showFresh = !params.hasOptional("recent");
 
-        List<UsersWrapper> list = getService().getAll(e.getGuild().getIdLong());
+        List<UsersWrapper> list = db.getAll(e.getGuild().getIdLong());
         if (list.size() > 50) {
             LocalDateTime ifPresent = controlAccess.getIfPresent(e.getGuild().getIdLong());
             if (ifPresent != null) {

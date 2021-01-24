@@ -87,11 +87,11 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
             title = selfUser.getName();
             validUrl = selfUser.getAvatarUrl();
         }
-        List<GlobalStreakEntities> topStreaks = getService().getTopStreaks(params.getExtraParam(), guildId);
+        List<GlobalStreakEntities> topStreaks = db.getTopStreaks(params.getExtraParam(), guildId);
 
         Set<Long> showableUsers;
         if (params.getE().isFromGuild()) {
-            showableUsers = getService().getAll(params.getE().getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
+            showableUsers = db.getAll(params.getE().getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
             showableUsers.add(author);
         } else {
             showableUsers = Set.of(author);

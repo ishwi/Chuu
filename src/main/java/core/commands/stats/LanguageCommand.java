@@ -54,7 +54,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
 
     @Override
     public Parser<TimeFrameParameters> initParser() {
-        TimerFrameParser timerFrameParser = new TimerFrameParser(getService(), TimeFrameEnum.ALL);
+        TimerFrameParser timerFrameParser = new TimerFrameParser(db, TimeFrameEnum.ALL);
         timerFrameParser.addOptional(new OptionalEntity("pie", "display it as a chart pie"));
         return timerFrameParser;
     }
@@ -84,7 +84,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         Long discordId = user.getDiscordId();
         List<AlbumInfo> albumInfos;
         if (params.getTime().equals(TimeFrameEnum.ALL)) {
-            albumInfos = getService().getUserAlbumByMbid(name).stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
+            albumInfos = db.getUserAlbumByMbid(name).stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
                     new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
 
         } else {

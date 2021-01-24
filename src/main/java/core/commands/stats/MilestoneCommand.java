@@ -45,7 +45,7 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays to award a crown, " +
                 "defaults to whatever the guild has configured (0 if not configured)";
-        return new NumberParser<>(new OnlyUsernameParser(getService()),
+        return new NumberParser<>(new OnlyUsernameParser(db),
                 1L,
                 Integer.MAX_VALUE,
                 map, s, false, true, false);

@@ -113,7 +113,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         BufferedImage logo = null;
         String title;
         if (e.isFromGuild()) {
-            logo = CommandUtil.getLogo(getService(), e);
+            logo = CommandUtil.getLogo(db, e);
             title = e.getGuild().getName();
         } else {
             title = e.getJDA().getSelfUser().getName();

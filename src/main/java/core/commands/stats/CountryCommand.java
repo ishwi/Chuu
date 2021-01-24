@@ -52,7 +52,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and 5");
         String s = "A number which represent the palette to use.\n" +
                 "If it is not indicated it defaults to a random palette";
-        return new NumberParser<>(new TimerFrameParser(getService(), TimeFrameEnum.ALL),
+        return new NumberParser<>(new TimerFrameParser(db, TimeFrameEnum.ALL),
                 null,
                 5,
                 map, s, false, true, false);

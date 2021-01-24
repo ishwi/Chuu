@@ -47,7 +47,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParser> {
 
 
         char newPrefix = params.getaChar();
-        getService().addGuildPrefix(Chuu.getPrefixMap(), e.getGuild().getIdLong(), newPrefix);
+        db.addGuildPrefix(Chuu.getPrefixMap(), e.getGuild().getIdLong(), newPrefix);
         Chuu.addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
 
         sendMessageQueue(e, newPrefix + " is the new server prefix");
@@ -65,7 +65,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParser> {
         for (Guild guild : guilds) {
             long guildId = guild.getIdLong();
             if (!prefixMap.containsKey(guildId)) {
-                getService().addGuildPrefix(prefixMap, guildId, Chuu.DEFAULT_PREFIX);
+                db.addGuildPrefix(prefixMap, guildId, Chuu.DEFAULT_PREFIX);
                 prefixMap.put(guildId, Chuu.DEFAULT_PREFIX);
             }
         }

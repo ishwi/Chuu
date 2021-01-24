@@ -42,7 +42,7 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays to award a crown, " +
                 "defaults to whatever the guild has configured (0 if not configured)";
-        return new NumberParser<>(new TwoUsersParser(getService()),
+        return new NumberParser<>(new TwoUsersParser(db),
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);
@@ -82,9 +82,9 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
         long idLong = innerParams.getE().getGuild().getIdLong();
 
         if (threshold == null) {
-            threshold = (long) getService().getGuildCrownThreshold(idLong);
+            threshold = (long) db.getGuildCrownThreshold(idLong);
         }
-        StolenCrownWrapper resultWrapper = getService()
+        StolenCrownWrapper resultWrapper = db
                 .getCrownsStolenBy(ogLastFmId, secondlastFmId, e.getGuild().getIdLong(), Math.toIntExact(threshold));
 
         int rows = resultWrapper.getList().size();

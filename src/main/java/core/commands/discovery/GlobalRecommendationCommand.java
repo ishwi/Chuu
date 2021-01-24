@@ -45,7 +45,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
         map.put(LIMIT_ERROR, "The number introduced must be positive and smaller than 25");
         String s = "You can also introduce a number to vary the number of recommendations that you will receive, " +
                 "defaults to 1";
-        NumberParser<ChuuDataParams, OnlyUsernameParser> parser = new NumberParser<>(new OnlyUsernameParser(getService()),
+        NumberParser<ChuuDataParams, OnlyUsernameParser> parser = new NumberParser<>(new OnlyUsernameParser(db),
                 1L,
                 Integer.MAX_VALUE,
                 map, s, false, true);
@@ -75,8 +75,8 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
 
         long firstDiscordID;
         long secondDiscordID;
-        LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
-        List<dao.entities.GlobalAffinity> serverAffinity = getService().getGlobalAffinity(lastFMData.getName(), AffinityCommand.DEFAULT_THRESHOLD);
+        LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
+        List<dao.entities.GlobalAffinity> serverAffinity = db.getGlobalAffinity(lastFMData.getName(), AffinityCommand.DEFAULT_THRESHOLD);
         if (serverAffinity.isEmpty()) {
             sendMessageQueue(e, "Couldn't get you any global recommendation :(");
             return;
@@ -104,7 +104,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
         firstDiscordID = e.getAuthor().getIdLong();
         secondDiscordID = affinity.getDiscordId();
 
-        List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, params.hasOptional("repeated"), Math.toIntExact(params.getExtraParam()));
+        List<ScrobbledArtist> recs = db.getRecommendation(secondDiscordID, firstDiscordID, params.hasOptional("repeated"), Math.toIntExact(params.getExtraParam()));
 
         String receiver = "you";
         if (firstDiscordID != e.getAuthor().getIdLong()) {
@@ -113,7 +113,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
 
         String giver;
         try {
-            LastFMData cl = getService().findLastFMData(secondDiscordID);
+            LastFMData cl = db.findLastFMData(secondDiscordID);
             if (cl.getPrivacyMode() == PrivacyMode.TAG) {
                 giver = e.getJDA().retrieveUserById(cl.getDiscordId()).complete().getAsTag();
             } else if (cl.getPrivacyMode() == PrivacyMode.LAST_NAME) {
@@ -131,7 +131,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
             if (recs.size() == 1) {
                 sendMessageQueue(e, String.format("**%s** has recommended %s to listen to **%s** (they have %d plays)",
                         giver, receiver, CommandUtil.cleanMarkdownCharacter(recs.get(0).getArtist()), recs.get(0).getCount()));
-                getService().insertRecommendation(secondDiscordID, firstDiscordID, recs.get(0).getArtistId());
+                db.insertRecommendation(secondDiscordID, firstDiscordID, recs.get(0).getArtistId());
             } else {
                 StringBuilder s = new StringBuilder();
                 for (ScrobbledArtist rec : recs) {

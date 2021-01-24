@@ -41,7 +41,7 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public ChartableParser<ChartParameters> initParser() {
-        ChartParser chartParser = new ChartParser(getService());
+        ChartParser chartParser = new ChartParser(db);
         chartParser.replaceOptional("plays", new OptionalEntity("noplays", "don't display plays"));
         chartParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
         return chartParser;
@@ -80,7 +80,7 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
                     x.setPlays(x.getPlays() + y.getPlays());
                     return x;
                 }));
-        List<ScrobbledArtist> discoveredArtists = getService().getDiscoveredArtists(collect.keySet(), param.getUser().getName());
+        List<ScrobbledArtist> discoveredArtists = db.getDiscoveredArtists(collect.keySet(), param.getUser().getName());
         marker.set(0);
         queue = collect.entrySet().stream().filter(x -> {
             boolean contains = discoveredArtists.contains(x.getKey());

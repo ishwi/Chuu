@@ -98,7 +98,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
     @Override
     public ChartableParser<GayParams> initParser() {
-        return new GayParser(getService(), TimeFrameEnum.ALL);
+        return new GayParser(db, TimeFrameEnum.ALL);
     }
 
     @Override
@@ -133,7 +133,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
                     return new PreComputedByGayness(capsule, image, true, comparison);
                 };
 
-        queue = new DiscardByQueue(getService(), discogsApi, spotify, discardGenerator.apply(gayColours, params), factoryFunction, params.getX() * params.getY());
+        queue = new DiscardByQueue(db, discogsApi, spotify, discardGenerator.apply(gayColours, params), factoryFunction, params.getX() * params.getY());
         if (params.hasOptional("artist")) {
             count = lastFM.getChart(params.getUser(),
                     params.getTimeFrameEnum(),

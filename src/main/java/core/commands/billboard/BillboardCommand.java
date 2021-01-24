@@ -85,7 +85,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
     // You have to call the insert_weeks procedure first that is declared in MariadBnew. on the mysql client it would be something like `call inert_weeks()`
 
     public List<BillboardEntity> getEntities(int weekId, long guildId, boolean doListeners) {
-        return getService().getBillboard(weekId, guildId, doListeners);
+        return db.getBillboard(weekId, guildId, doListeners);
 
     }
 
@@ -98,12 +98,12 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
 
 
         long guildId = e.getGuild().getIdLong();
-        List<UsersWrapper> all = getService().getAllNonPrivate(guildId);
+        List<UsersWrapper> all = db.getAllNonPrivate(guildId);
         if (all.isEmpty()) {
             sendMessageQueue(e, "There is not a single person registered in this server");
             return;
         }
-        Week week = getService().getCurrentWeekId();
+        Week week = db.getCurrentWeekId();
         Date weekStart = week.getWeekStart();
         Optional<UsersWrapper> min = all.stream().min(Comparator.comparingInt(x -> x.getTimeZone().getOffset(Instant.now().getEpochSecond())));
 
@@ -133,7 +133,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
         List<BillboardEntity> entities = getEntities(weekId, guildId, doListeners);
         LocalDateTime weekBeggining = weekStart.toLocalDate().minus(1, ChronoUnit.WEEKS).atStartOfDay();
 
-        if (entities.isEmpty() && weekId == 1 && this instanceof BillboardAlbumCommand && !getService().getBillboard(weekId, guildId, doListeners).isEmpty()) {
+        if (entities.isEmpty() && weekId == 1 && this instanceof BillboardAlbumCommand && !db.getBillboard(weekId, guildId, doListeners).isEmpty()) {
             sendMessageQueue(e, "The album trend couldn't be computed this week because it was the first one.");
             return;
         }
@@ -146,9 +146,9 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             try {
                 inProcessSets.add(guildId);
                 sendMessageQueue(e, "Didn't have the top from this week, will start to make it now.");
-                BillboardHoarder billboardHoarder = new BillboardHoarder(all, getService(), week, lastFM);
+                BillboardHoarder billboardHoarder = new BillboardHoarder(all, db, week, lastFM);
                 billboardHoarder.hoardUsers();
-                getService().insertBillboardData(weekId, guildId);
+                db.insertBillboardData(weekId, guildId);
             } finally {
                 inProcessSets.remove(guildId);
             }
@@ -191,7 +191,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                     new Reactionary<>(artistAliases, message1, embedBuilder));
         } else {
-            BufferedImage logo = CommandUtil.getLogo(getService(), e);
+            BufferedImage logo = CommandUtil.getLogo(db, e);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM");
             String one = formatter.format(weekBeggining.toLocalDate());
             String dayOne = weekBeggining.getDayOfMonth() + CommandUtil.getDayNumberSuffix(weekBeggining.getDayOfMonth());

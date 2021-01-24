@@ -27,7 +27,7 @@ public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlb
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        return new ArtistSongParser(getService(), lastFM);
+        return new ArtistSongParser(db, lastFM);
     }
 
     @Override
@@ -55,18 +55,18 @@ public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlb
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
         MessageReceivedEvent e = params.getE();
         long artistId = scrobbledArtist.getArtistId();
         params.setScrobbledArtist(scrobbledArtist);
-        long trackId = CommandUtil.trackValidate(getService(), scrobbledArtist, lastFM, params.getAlbum());
+        long trackId = CommandUtil.trackValidate(db, scrobbledArtist, lastFM, params.getAlbum());
         WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
-        boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, getService());
+        boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
         long author = params.getE().getAuthor().getIdLong();
         int limit = effectiveMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE;
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                this.getService().getGlobalWhoKnowsTrack(limit, trackId, author, b);
+                this.db.getGlobalWhoKnowsTrack(limit, trackId, author, b);
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(params.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist() + " - " + params.getAlbum()));
             return null;

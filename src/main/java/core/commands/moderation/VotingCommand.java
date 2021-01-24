@@ -57,7 +57,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        return new ArtistParser(getService(), lastFM);
+        return new ArtistParser(db, lastFM);
     }
 
     @Override
@@ -80,14 +80,14 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
 
 
         long idLong = e.getAuthor().getIdLong();
-        LastFMData lastFMData = getService().findLastFMData(idLong);
+        LastFMData lastFMData = db.findLastFMData(idLong);
         if (lastFMData.getRole() == Role.IMAGE_BLOCKED) {
             sendMessageQueue(e, "You don't have enough permissions to vote for images");
             return;
         }
         String preCorrectionArtist = params.getArtist();
-        ScrobbledArtist artist = CommandUtil.onlyCorrection(getService(), preCorrectionArtist, lastFM, !params.isNoredirect());
-        List<VotingEntity> allArtistImages = getService().getAllArtistImages(artist.getArtistId());
+        ScrobbledArtist artist = CommandUtil.onlyCorrection(db, preCorrectionArtist, lastFM, !params.isNoredirect());
+        List<VotingEntity> allArtistImages = db.getAllArtistImages(artist.getArtistId());
         if (allArtistImages.isEmpty()) {
             sendMessageQueue(e, artist.getArtist() + " doesn't have any image");
             return;
@@ -99,18 +99,18 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
         AtomicInteger counter = new AtomicInteger(0);
         HashMap<String, BiFunction<VotingEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
         List<Long> guildList = e.isFromGuild()
-                ? getService().getAll(e.getGuild().getIdLong()).stream().filter(u -> !u.getRole().equals(Role.IMAGE_BLOCKED)).map(UsersWrapper::getDiscordID).collect(Collectors.toList())
+                ? db.getAll(e.getGuild().getIdLong()).stream().filter(u -> !u.getRole().equals(Role.IMAGE_BLOCKED)).map(UsersWrapper::getDiscordID).collect(Collectors.toList())
                 : List.of(e.getAuthor().getIdLong());
 
         actionMap.put(REPORT, (a, r) -> {
             if (guildList.contains(r.getUserIdLong())) {
-                getService().report(a.getUrlId(), r.getUserIdLong());
+                db.report(a.getUrlId(), r.getUserIdLong());
             }
             return false;
         });
         actionMap.put(UP_VOTE, (a, r) -> {
             if (guildList.contains(r.getUserIdLong())) {
-                VoteStatus voteStatus = getService().castVote(a.getUrlId(), r.getUserIdLong(), true);
+                VoteStatus voteStatus = db.castVote(a.getUrlId(), r.getUserIdLong(), true);
                 if (voteStatus.equals(VoteStatus.CHANGE_VALUE)) {
                     a.changeToAPositive();
                 } else if (voteStatus.equals(VoteStatus.NEW_VOTE)) {
@@ -122,7 +122,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
         });
         actionMap.put(DOWN_VOTE, (a, r) -> {
             if (guildList.contains(r.getUserIdLong())) {
-                VoteStatus voteStatus = getService().castVote(a.getUrlId(), r.getUserIdLong(), false);
+                VoteStatus voteStatus = db.castVote(a.getUrlId(), r.getUserIdLong(), false);
                 if (voteStatus.equals(VoteStatus.CHANGE_VALUE)) {
                     a.changeToANegative();
                 } else if (voteStatus.equals(VoteStatus.NEW_VOTE)) {

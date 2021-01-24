@@ -29,7 +29,7 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
 
     @Override
     public ChartableParser<ChartSizeParameters> initParser() {
-        OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(getService(), TimeFrameEnum.ALL);
+        OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(db, TimeFrameEnum.ALL);
         onlyChartSizeParser.addOptional(new OptionalEntity("global", " show ratings from all bot users instead of only from this server"));
         onlyChartSizeParser.addOptional(new OptionalEntity("server", " show ratings from users only in this server"));
         onlyChartSizeParser.addOptional(new OptionalEntity("usestars", "show stars instead of numbers on global and server chart"));
@@ -61,12 +61,12 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
         boolean global = params.hasOptional("global");
         if (server && params.getE().isFromGuild()) {
             long idLong = params.getE().getGuild().getIdLong();
-            selfRatingsScore = getService().getServerTopRatings(idLong);
+            selfRatingsScore = db.getServerTopRatings(idLong);
         } else {
             if (global || (server && !params.getE().isFromGuild())) {
-                selfRatingsScore = getService().getGlobalTopRatings();
+                selfRatingsScore = db.getGlobalTopRatings();
             } else {
-                selfRatingsScore = getService().getSelfRatingsScore(params.getLastFMData().getDiscordId(), null);
+                selfRatingsScore = db.getSelfRatingsScore(params.getLastFMData().getDiscordId(), null);
             }
         }
         AtomicInteger atomicInteger = new AtomicInteger(0);

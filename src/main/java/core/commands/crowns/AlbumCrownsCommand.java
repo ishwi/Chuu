@@ -43,7 +43,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays to award a crown, " +
                 "defaults to whatever the guild has configured (0 if not configured)";
-        return new NumberParser<>(new OnlyUsernameParser(getService()),
+        return new NumberParser<>(new OnlyUsernameParser(db),
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);
@@ -75,9 +75,9 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
         long idLong = innerParams.getE().getGuild().getIdLong();
 
         if (threshold == null) {
-            threshold = (long) getService().getGuildCrownThreshold(idLong);
+            threshold = (long) db.getGuildCrownThreshold(idLong);
         }
-        UniqueWrapper<AlbumPlays> uniqueDataUniqueWrapper = getService()
+        UniqueWrapper<AlbumPlays> uniqueDataUniqueWrapper = db
                 .getUserAlbumCrowns(innerParams.getLastFMData().getName(), e.getGuild().getIdLong(), Math.toIntExact(threshold));
         List<AlbumPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 

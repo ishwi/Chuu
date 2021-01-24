@@ -57,7 +57,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        ArtistParser artistTimeFrameParser = new ArtistParser(getService(), lastFM);
+        ArtistParser artistTimeFrameParser = new ArtistParser(db, lastFM);
         artistTimeFrameParser.addOptional(new OptionalEntity("list", "display in list format"));
         artistTimeFrameParser.setExpensiveSearch(true);
         return artistTimeFrameParser;
@@ -84,7 +84,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         boolean b1 = ap.hasOptional("pie");
         int limit = b || b1 ? Integer.MAX_VALUE : 4;
         ScrobbledArtist who = ap.getScrobbledArtist();
-        List<AlbumUserPlays> userTopArtistAlbums = getService().getUserTopArtistAlbums(limit, who.getArtistId(), idLong);
+        List<AlbumUserPlays> userTopArtistAlbums = db.getUserTopArtistAlbums(limit, who.getArtistId(), idLong);
         MessageReceivedEvent e = ap.getE();
 
         ArtistAlbums ai = new ArtistAlbums(who.getArtist(), userTopArtistAlbums);
@@ -93,16 +93,16 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
             doList(ap, ai);
             return;
         }
-        WrapperReturnNowPlaying np = getService().whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
+        WrapperReturnNowPlaying np = db.whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
         np.getReturnNowPlayings().forEach(element ->
                 element.setDiscordName(CommandUtil.getUserInfoNotStripped(e, element.getDiscordId()).getUsername())
         );
-        BufferedImage logo = CommandUtil.getLogo(getService(), e);
+        BufferedImage logo = CommandUtil.getLogo(db, e);
         if (b1) {
             doPie(ap, np, ai, logo);
             return;
         }
-        int plays = getService().getArtistPlays(who.getArtistId(), username);
+        int plays = db.getArtistPlays(who.getArtistId(), username);
         doImage(ap, np, ai, plays, logo);
 
 
@@ -169,7 +169,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
         params.setScrobbledArtist(scrobbledArtist);
         bandLogic(params);
     }

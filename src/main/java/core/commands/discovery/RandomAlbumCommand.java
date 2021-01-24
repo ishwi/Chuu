@@ -51,9 +51,9 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
             //get randomurl
             RandomUrlEntity randomUrl;
             if (params.hasOptional("server") && e.isFromGuild()) {
-                randomUrl = getService().getRandomUrlFromServer(e.getGuild().getIdLong());
+                randomUrl = db.getRandomUrlFromServer(e.getGuild().getIdLong());
             } else {
-                randomUrl = getService().getRandomUrl();
+                randomUrl = db.getRandomUrl();
             }
             if (randomUrl == null) {
                 sendMessageQueue(e, "The pool of urls was empty, add one first!");
@@ -62,7 +62,7 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
             String ownerRec = null;// getUserString(e, randomUrl.getDiscordId());
             if (randomUrl.getDiscordId() != null && randomUrl.getDiscordId() != e.getJDA().getSelfUser().getIdLong()) {
                 try {
-                    LastFMData lastFMData = getService().findLastFMData(randomUrl.getDiscordId());
+                    LastFMData lastFMData = db.findLastFMData(randomUrl.getDiscordId());
                     PrivacyMode privacyMode = lastFMData.getPrivacyMode();
                     ownerRec = switch (privacyMode) {
                         case STRICT -> "Private User";
@@ -83,9 +83,9 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
         }
         //add url
         Long guildId = CommandUtil.getGuildIdConsideringPrivateChannel(e);
-        //getService().findLastFMData(e.getAuthor().getIdLong());
+        //db.findLastFMData(e.getAuthor().getIdLong());
 
-        if (!getService().addToRandomPool(new RandomUrlEntity(url, e.getAuthor().getIdLong(), guildId))) {
+        if (!db.addToRandomPool(new RandomUrlEntity(url, e.getAuthor().getIdLong(), guildId))) {
             sendMessageQueue(e, String.format("The provided url: %s was already on the pool", url));
             return;
         }

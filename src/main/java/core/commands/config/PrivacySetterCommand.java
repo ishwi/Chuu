@@ -49,13 +49,13 @@ public class PrivacySetterCommand extends ConcurrentCommand<EnumParameters<Priva
 
 
         PrivacyMode element = params.getElement();
-        LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
+        LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
         if (lastFMData.getPrivacyMode().equals(element)) {
             sendMessageQueue(e, "You already had " + element + " as your privacy config");
             return;
 
         }
-        getService().setPrivacyMode(e.getAuthor().getIdLong(), element);
+        db.setPrivacyMode(e.getAuthor().getIdLong(), element);
         sendMessageQueue(e, "Changed your privacy setting from " + lastFMData.getPrivacyMode() + " to " + element);
 
     }

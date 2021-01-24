@@ -33,6 +33,6 @@ public class GlobalAlbumBillboardCommand extends GlobalBillboardCommand {
 
     @Override
     public List<BillboardEntity> getEntities(int weekId, boolean doListeners) {
-        return getService().getGlobalAlbumBillboard(weekId, doListeners);
+        return db.getGlobalAlbumBillboard(weekId, doListeners);
     }
 }

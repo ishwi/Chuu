@@ -69,7 +69,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
             parser.sendError(String.format("Invalid format. You must provide the artist name and then the year with the following format: artist - album year:%s", Year.now().toString()), e);
             return;
         }
-        LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
+        LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
         String year = matcher.group(1);
         Year parse;
         try {
@@ -101,7 +101,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
                 .queue(queu -> new Confirmator(embedBuilder, queu, idLong,
                         () -> {
                             if (lastFMData.getRole() == Role.ADMIN) {
-                                getService().insertAlbumsOfYear(List.of(new AlbumInfo(album, artist)), parse);
+                                db.insertAlbumsOfYear(List.of(new AlbumInfo(album, artist)), parse);
                             } else {
                                 TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(channelId);
                                 if (textChannelById != null)

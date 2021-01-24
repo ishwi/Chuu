@@ -71,7 +71,7 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
     private void doImage(MessageReceivedEvent e, ResultWrapper<UserArtistComparison> resultWrapper, long firstId, long secondId, T params) {
         String userA = resultWrapper.getResultList().get(0).getUserA();
         String userB = resultWrapper.getResultList().get(0).getUserB();
-        UserInfoService userInfoService = new UserInfoService(getService());
+        UserInfoService userInfoService = new UserInfoService(db);
         UserInfo userInfo = userInfoService.getUserInfo(LastFMData.ofUser(userA));
         UserInfo userInfo1 = userInfoService.getUserInfo(LastFMData.ofUser(userB));
         if (Chuu.getLastFmId(userInfo.getUsername()).equals(Chuu.DEFAULT_LASTFM_ID)) {

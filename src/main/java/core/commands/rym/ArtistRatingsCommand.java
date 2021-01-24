@@ -49,7 +49,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        return new ArtistParser(getService(), lastFM);
+        return new ArtistParser(db, lastFM);
     }
 
     @Override
@@ -72,9 +72,9 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
 
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
         String artist = scrobbledArtist.getArtist();
-        List<AlbumRatings> rating = getService().getArtistRatings(scrobbledArtist.getArtistId(), e.getGuild().getIdLong()).stream()
+        List<AlbumRatings> rating = db.getArtistRatings(scrobbledArtist.getArtistId(), e.getGuild().getIdLong()).stream()
                 .sorted(Comparator.comparingDouble((AlbumRatings y) -> y.getUserRatings().stream().filter(Rating::isSameGuild).mapToLong(Rating::getRating).average().orElse(0) * y.getUserRatings().size()).reversed()).collect(Collectors.toList());
         EmbedBuilder embedBuilder = new EmbedBuilder();
 

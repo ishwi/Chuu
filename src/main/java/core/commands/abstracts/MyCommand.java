@@ -35,15 +35,15 @@ import java.util.regex.Matcher;
 
 public abstract class MyCommand<T extends CommandParameters> extends ListenerAdapter {
     public final ConcurrentLastFM lastFM;
-    private final ChuuService dao;
+    protected final ChuuService db;
     private final CommandCategory category;
     public boolean respondInPrivate = true;
     boolean isLongRunningCommand = false;
     protected final Parser<T> parser;
 
 
-    protected MyCommand(ChuuService dao) {
-        this.dao = dao;
+    protected MyCommand(ChuuService db) {
+        this.db = db;
         lastFM = LastFMFactory.getNewInstance();
         this.parser = initParser();
         this.category = initCategory();
@@ -62,9 +62,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
         return parser;
     }
 
-    public ChuuService getService() {
-        return dao;
-    }
+
 
     public abstract String getDescription();
 
@@ -103,7 +101,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
         handleCommand(e);
         long timeElapsed = System.nanoTime() - startTime;
         System.out.printf("Execution time in milliseconds %s: %d%n", getName(), timeElapsed / 1000);
-        logCommand(getService(), e, this, timeElapsed);
+        logCommand(db, e, this, timeElapsed);
     }
 
 
@@ -118,7 +116,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
             if (e.isFromGuild()) {
                 long idLong = e.getGuild().getIdLong();
                 try {
-                    long discordIdFromLastfm = dao.getDiscordIdFromLastfm(ex.getUsername(), idLong);
+                    long discordIdFromLastfm = db.getDiscordIdFromLastfm(ex.getUsername(), idLong);
                     username = getUserString(e, discordIdFromLastfm, username);
                 } catch (InstanceNotFoundException ignored) {
                     // We left the inital value
@@ -133,7 +131,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
         } catch (LastFmEntityNotFoundException ex) {
             parser.sendError(ex.toMessage(), e);
         } catch (UnknownLastFmException ex) {
-            parser.sendError(new TokenExceptionHandler(ex, getService()).handle(), e);
+            parser.sendError(new TokenExceptionHandler(ex, db).handle(), e);
             Chuu.getLogger().warn(ex.getMessage(), ex);
             Chuu.getLogger().warn(String.valueOf(ex.getCode()));
         } catch (InstanceNotFoundException ex) {

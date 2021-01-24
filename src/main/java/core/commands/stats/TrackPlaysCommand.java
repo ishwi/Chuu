@@ -28,7 +28,7 @@ public class TrackPlaysCommand extends AlbumPlaysCommand {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        return new ArtistSongParser(getService(), lastFM);
+        return new ArtistSongParser(db, lastFM);
     }
 
 

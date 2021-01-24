@@ -53,7 +53,7 @@ public class BanArtistTagCommand extends ConcurrentCommand<CommandParameters> {
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
 
         long idLong = e.getAuthor().getIdLong();
-        LastFMData lastFMData = getService().findLastFMData(idLong);
+        LastFMData lastFMData = db.findLastFMData(idLong);
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Only bot admins can delete tags");
             return;
@@ -74,8 +74,8 @@ public class BanArtistTagCommand extends ConcurrentCommand<CommandParameters> {
             sendMessageQueue(e, "Bruh.");
             return;
         }
-        ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), artist, lastFM, true);
-        getService().addArtistBannedTag(tag, scrobbledArtist.getArtistId(), e.getAuthor().getIdLong());
+        ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, artist, lastFM, true);
+        db.addArtistBannedTag(tag, scrobbledArtist.getArtistId(), e.getAuthor().getIdLong());
         sendMessageQueue(e, String.format("Deleted tag %s for artist %s.", tag, artist));
 
 

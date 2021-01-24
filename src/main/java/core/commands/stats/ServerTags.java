@@ -62,7 +62,7 @@ public class ServerTags extends PieableListCommand<List<TagPlays>, CommandParame
 
     @Override
     public List<TagPlays> getList(CommandParameters parmas) {
-        return getService().getServerTags(parmas.getE().getGuild().getIdLong(), !parmas.hasOptional("plays"));
+        return db.getServerTags(parmas.getE().getGuild().getIdLong(), !parmas.hasOptional("plays"));
     }
 
 

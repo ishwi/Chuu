@@ -47,7 +47,7 @@ public class BandInfoGlobalCommand extends BandInfoCommand {
         boolean b1 = ap.hasOptional("pie");
         int limit = b || b1 ? Integer.MAX_VALUE : 4;
         ScrobbledArtist who = ap.getScrobbledArtist();
-        List<AlbumUserPlays> userTopArtistAlbums = getService().getGlobalTopArtistAlbums(limit, who.getArtistId());
+        List<AlbumUserPlays> userTopArtistAlbums = db.getGlobalTopArtistAlbums(limit, who.getArtistId());
         MessageReceivedEvent e = ap.getE();
 
 
@@ -57,16 +57,16 @@ public class BandInfoGlobalCommand extends BandInfoCommand {
             doList(ap, ai);
             return;
         }
-        WrapperReturnNowPlaying np = getService().whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
+        WrapperReturnNowPlaying np = db.whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
         np.getReturnNowPlayings().forEach(element ->
                 element.setDiscordName(CommandUtil.getUserInfoNotStripped(e, element.getDiscordId()).getUsername())
         );
-        BufferedImage logo = CommandUtil.getLogo(getService(), e);
+        BufferedImage logo = CommandUtil.getLogo(db, e);
         if (b1) {
             doPie(ap, np, ai, logo);
             return;
         }
-        long plays = getService().getGlobalArtistPlays(who.getArtistId());
+        long plays = db.getGlobalArtistPlays(who.getArtistId());
         doImage(ap, np, ai, Math.toIntExact(plays), logo);
     }
 

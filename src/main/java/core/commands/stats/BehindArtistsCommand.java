@@ -39,7 +39,7 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to filter artist below that number ";
-        return new NumberParser<>(new TwoUsersParser(getService()),
+        return new NumberParser<>(new TwoUsersParser(db),
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);
@@ -80,7 +80,7 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
         if (threshold == null) {
             threshold = 0L;
         }
-        StolenCrownWrapper resultWrapper = getService()
+        StolenCrownWrapper resultWrapper = db
                 .getArtistsBehind(ogLastFmId, secondlastFmId, Math.toIntExact(threshold));
 
         int rows = resultWrapper.getList().size();

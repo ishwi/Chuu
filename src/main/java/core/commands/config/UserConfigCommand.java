@@ -34,7 +34,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
 
     @Override
     public Parser<UserConfigParameters> initParser() {
-        return new UserConfigParser(getService());
+        return new UserConfigParser(db);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
         switch (config) {
             case PRIVATE_UPDATE:
                 boolean b = Boolean.parseBoolean(value);
-                getService().setPrivateUpdate(e.getAuthor().getIdLong(), b);
+                db.setPrivateUpdate(e.getAuthor().getIdLong(), b);
                 if (b) {
                     sendMessageQueue(e, "Successfully made private the update for user " + getUserString(e, e.getAuthor().getIdLong()));
                 } else {
@@ -71,7 +71,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 break;
             case NOTIFY_IMAGE:
                 b = Boolean.parseBoolean(value);
-                getService().setImageNotify(e.getAuthor().getIdLong(), b);
+                db.setImageNotify(e.getAuthor().getIdLong(), b);
                 if (b) {
                     sendMessageQueue(e, "Now you will get notified whenever an image you uploaded gets approved");
                 } else {
@@ -85,7 +85,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 } else {
                     chartMode = ChartMode.valueOf(value.replace("-", "_").toUpperCase());
                 }
-                getService().setChartEmbed(e.getAuthor().getIdLong(), chartMode);
+                db.setChartEmbed(e.getAuthor().getIdLong(), chartMode);
                 if (cleansing) {
                     sendMessageQueue(e, "Now your charts are back to the default");
                 } else {
@@ -99,7 +99,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 } else {
                     whoKnowsMode = WhoKnowsMode.valueOf(value.replace("-", "_").toUpperCase());
                 }
-                getService().setWhoknowsMode(e.getAuthor().getIdLong(), whoKnowsMode);
+                db.setWhoknowsMode(e.getAuthor().getIdLong(), whoKnowsMode);
                 if (cleansing) {
                     sendMessageQueue(e, "Now your who knows are back to the default");
                 } else {
@@ -113,7 +113,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 } else {
                     remainingImagesMode = RemainingImagesMode.valueOf(value.replace("-", "_").toUpperCase());
                 }
-                getService().setRemainingImagesMode(e.getAuthor().getIdLong(), remainingImagesMode);
+                db.setRemainingImagesMode(e.getAuthor().getIdLong(), remainingImagesMode);
                 if (cleansing) {
                     sendMessageQueue(e, "The mode of the remaining image commands to the default");
                 } else {
@@ -140,7 +140,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                     sendMessageQueue(e, "The default value can't be greater than 7x7");
                     return;
                 }
-                getService().setChartDefaults(x, y, e.getAuthor().getIdLong());
+                db.setChartDefaults(x, y, e.getAuthor().getIdLong());
                 sendMessageQueue(e, "Successfully changed default chart size for user " + getUserString(e, e.getAuthor().getIdLong()));
                 break;
             case PRIVACY_MODE:
@@ -150,7 +150,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 } else {
                     privacyMode = PrivacyMode.valueOf(value.replace("-", "_").toUpperCase());
                 }
-                getService().setPrivacyMode(e.getAuthor().getIdLong(), privacyMode);
+                db.setPrivacyMode(e.getAuthor().getIdLong(), privacyMode);
                 if (cleansing) {
                     sendMessageQueue(e, "Your privacy setting has changed to the default");
                 } else {
@@ -158,7 +158,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 }
             case NOTIFY_RATING:
                 b = Boolean.parseBoolean(value);
-                getService().setImageNotify(e.getAuthor().getIdLong(), b);
+                db.setImageNotify(e.getAuthor().getIdLong(), b);
                 if (b) {
                     sendMessageQueue(e, "Now you will get notified whenever an url you uploaded to the random command gets rated");
                 } else {
@@ -167,8 +167,8 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 break;
             case PRIVATE_LASTFM:
                 b = Boolean.parseBoolean(value);
-                String name = getService().findLastFMData(e.getAuthor().getIdLong()).getName();
-                getService().setPrivateLastfm(e.getAuthor().getIdLong(), b);
+                String name = db.findLastFMData(e.getAuthor().getIdLong()).getName();
+                db.setPrivateLastfm(e.getAuthor().getIdLong(), b);
                 Chuu.changePrivacyLastfm(name, b);
                 if (b) {
 
@@ -179,7 +179,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 break;
             case SHOW_BOTTED:
                 b = Boolean.parseBoolean(value);
-                getService().setShowBotted(e.getAuthor().getIdLong(), b);
+                db.setShowBotted(e.getAuthor().getIdLong(), b);
                 if (b) {
                     sendMessageQueue(e, "Will show botted acounts on the global leadearboard");
                 } else {
@@ -193,13 +193,13 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                     NPMode npMode = NPMode.valueOf(mode.replace("-", "_").toUpperCase());
                     modes.add(npMode);
                 }
-                getService().changeNpMode(e.getAuthor().getIdLong(), modes);
+                db.changeNpMode(e.getAuthor().getIdLong(), modes);
                 String strModes = NPMode.getListedName(modes);
                 sendMessageQueue(e, String.format("Successfully changed to the following %s: %s", CommandUtil.singlePlural(modes.size(), "mode", "modes"), strModes));
                 break;
             case SCROBBLING:
                 b = Boolean.parseBoolean(value);
-                getService().changeScrobbling(e.getAuthor().getIdLong(), b);
+                db.changeScrobbling(e.getAuthor().getIdLong(), b);
                 if (b) {
                     sendMessageQueue(e, "Will scrobble what you play on a voice channel");
                 } else {

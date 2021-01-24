@@ -70,12 +70,12 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             sendMessageQueue(e, "The provided username doesn't exist on last.fm, choose another one");
             return;
         }
-        List<UsersWrapper> guildlist = getService().getAll(guildID);
+        List<UsersWrapper> guildlist = db.getAll(guildID);
         if (guildlist.isEmpty()) {
-            getService().createGuild(guildID);
+            db.createGuild(guildID);
         }
 
-        List<UsersWrapper> list = getService().getAllALL();
+        List<UsersWrapper> list = db.getAllALL();
         Optional<UsersWrapper> globalName = (list.stream().filter(user -> user.getLastFMName().equals(lastFmID)).findFirst());
         String repeatedMessage = "That username is already registered. If you own the account pls use + **" + Chuu.getCorrespondingPrefix(e) + "login**\n" +
                 "Any doubt you might have please contact the bot developers on the support server";
@@ -100,7 +100,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             if (!u.get().getLastFMName().equalsIgnoreCase(lastFmID)) {
                 sendMessageQueue(e, "Changing your username, might take a while");
                 try {
-                    getService().changeLastFMName(userId, lastFmID);
+                    db.changeLastFMName(userId, lastFmID);
                 } catch (DuplicateInstanceException ex) {
                     sendMessageQueue(e, repeatedMessage);
                     return;
@@ -112,13 +112,13 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             //First Time on the guild
         } else {
             //If it was registered in at least other  guild theres no need to update
-            if (getService().getGuildList(userId).stream().anyMatch(guild -> guild != guildID)) {
+            if (db.getGuildList(userId).stream().anyMatch(guild -> guild != guildID)) {
                 //Adds the user to the guild
-                if (getService().isUserServerBanned(userId, guildID)) {
+                if (db.isUserServerBanned(userId, guildID)) {
                     sendMessageQueue(e, String.format("%s, you have been not allowed to appear on the server leaderboards as a choice of this server admins. Rest of commands should work fine.", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName())));
                     return;
                 }
-                getService().addGuildUser(userId, guildID);
+                db.addGuildUser(userId, guildID);
                 sendMessageQueue(e, String.format("%s, you are good to go!", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName())));
                 return;
             }
@@ -137,7 +137,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
         LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true);
         lastFMData.setGuildID(guildID);
 
-        getService().insertNewUser(lastFMData);
+        db.insertNewUser(lastFMData);
 
         setProcess(e.getChannel(), lastFmID, userId, lastFMData, e.getAuthor().getName());
 
@@ -148,14 +148,14 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
 
 
             List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
-            getService().insertArtistDataList(artistData, lastFmID);
+            db.insertArtistDataList(artistData, lastFmID);
             channel.sendMessage("Finished updating your artist, now the album/track process will start").queue();
 
             channel.sendTyping().queue();
             List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
-            getService().albumUpdate(albumData, artistData, lastFmID);
+            db.albumUpdate(albumData, artistData, lastFmID);
             List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
-            getService().trackUpdate(trackData, artistData, lastFmID);
+            db.trackUpdate(trackData, artistData, lastFmID);
             channel.sendMessage("Successfully updated " + lastFmID + " info!").queue();
             //  e.getGuild().loadMembers((Chuu::caching));
         } catch (
@@ -163,7 +163,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             channel.sendMessage("Finished updating " + CommandUtil.cleanMarkdownCharacter(name) + "'s library, you are good to go!").queue();
         } catch (
                 LastFmEntityNotFoundException ex) {
-            getService().removeUserCompletely(userId);
+            db.removeUserCompletely(userId);
             Chuu.getLogger().warn(ex.getMessage(), ex);
             channel.sendMessage("The provided username doesn't exist anymore on last.fm, please re-set your account").queue();
         } catch (
@@ -171,7 +171,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             System.out.println("Error while updating " + lastFmID + LocalDateTime.now()
                     .format(DateTimeFormatter.ISO_DATE));
             Chuu.getLogger().warn(ex.getMessage(), ex);
-            getService().updateUserTimeStamp(lastFmID, 0, null);
+            db.updateUserTimeStamp(lastFmID, 0, null);
             channel.sendMessage("Error downloading your library, try to run !update, try again later or contact bot admins if the error persists").queue();
         }
     }

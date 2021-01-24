@@ -149,7 +149,7 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
             }
             sendMessageQueue(e, String.format("Read %d ratings, now the import process will start.", ratings.size()));
             e.getChannel().sendTyping().queue();
-            getService().insertRatings(e.getAuthor().getIdLong(), ratings);
+            db.insertRatings(e.getAuthor().getIdLong(), ratings);
             sendMessageQueue(e, String.format("Finished the import process of %s with no errors", getUserString(e, e.getAuthor().getIdLong())));
         } finally {
             usersInProcess.remove(e.getAuthor().getIdLong());

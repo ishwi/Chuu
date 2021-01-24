@@ -29,7 +29,7 @@ public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService());
+        return new OnlyUsernameParser(db);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) {
         Long discordId = params.getLastFMData().getDiscordId();
-        Map<Integer, Integer> userCurve = getService().getUserCurve(discordId);
+        Map<Integer, Integer> userCurve = db.getUserCurve(discordId);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("Breakdown by rating for " + uInfo.getUsername(), PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())

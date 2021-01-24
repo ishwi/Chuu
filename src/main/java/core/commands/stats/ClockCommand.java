@@ -34,7 +34,7 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService(), new OptionalEntity("week", "show of the last week"));
+        return new OnlyUsernameParser(db, new OptionalEntity("week", "show of the last week"));
     }
 
     @Override
@@ -57,13 +57,13 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
         Long discordId = params.getLastFMData().getDiscordId();
-        Week currentWeekId = getService().getCurrentWeekId();
-        TimeZone userTimezone = getService().getUserTimezone(discordId);
-        UpdaterUserWrapper userUpdateStatus = getService().getUserUpdateStatus(discordId);
+        Week currentWeekId = db.getCurrentWeekId();
+        TimeZone userTimezone = db.getUserTimezone(discordId);
+        UpdaterUserWrapper userUpdateStatus = db.getUserUpdateStatus(discordId);
 
-        BillboardHoarder billboardHoarder = new BillboardHoarder(Collections.singletonList(userUpdateStatus), getService(), currentWeekId, lastFM);
+        BillboardHoarder billboardHoarder = new BillboardHoarder(Collections.singletonList(userUpdateStatus), db, currentWeekId, lastFM);
         billboardHoarder.hoardUsers();
-        List<PreBillboardUserDataTimestamped> ungroupedUserData = getService().getUngroupedUserData(currentWeekId.getId(), params.getLastFMData().getName());
+        List<PreBillboardUserDataTimestamped> ungroupedUserData = db.getUngroupedUserData(currentWeekId.getId(), params.getLastFMData().getName());
         if (ungroupedUserData.isEmpty()) {
             sendMessageQueue(e, "Couldn't get any data from you in the previous week");
             return;

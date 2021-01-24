@@ -32,7 +32,7 @@ public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService());
+        return new OnlyUsernameParser(db);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     public UniqueWrapper<ArtistPlays> getList(long guildId, String lastFmName) {
-        return getService().getUniqueArtist(guildId, lastFmName);
+        return db.getUniqueArtist(guildId, lastFmName);
     }
 
 

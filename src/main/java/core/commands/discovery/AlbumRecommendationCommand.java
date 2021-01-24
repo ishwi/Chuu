@@ -43,7 +43,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
 
     @Override
     public Parser<RecommendationsParams> initParser() {
-        return new RecommendationParser(getService(), 1);
+        return new RecommendationParser(db, 1);
     }
 
     @Override
@@ -68,9 +68,9 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
         long secondDiscordID;
         LastFMData firstLastFMId;
         if (params.isNoUser()) {
-            LastFMData lastFMData = getService().findLastFMData(e.getAuthor().getIdLong());
+            LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
             firstLastFMId = lastFMData;
-            List<Affinity> serverAffinity = getService().getServerAffinity(lastFMData.getName(), e.getGuild().getIdLong(), AffinityCommand.DEFAULT_THRESHOLD);
+            List<Affinity> serverAffinity = db.getServerAffinity(lastFMData.getName(), e.getGuild().getIdLong(), AffinityCommand.DEFAULT_THRESHOLD);
             if (serverAffinity.isEmpty()) {
                 sendMessageQueue(e, "Couldn't get you any recommendation :(");
                 return;
@@ -104,7 +104,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
 
         }
 
-        List<ScrobbledArtist> recs = getService().getRecommendation(secondDiscordID, firstDiscordID, params.isShowRepeated(), Integer.MAX_VALUE);
+        List<ScrobbledArtist> recs = db.getRecommendation(secondDiscordID, firstDiscordID, params.isShowRepeated(), Integer.MAX_VALUE);
 
         List<AlbumInfo> albumInfos = lastFM.getTopAlbums(firstLastFMId, new CustomTimeFrame(TimeFrameEnum.ALL), 500).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                 .collect(Collectors.toList());

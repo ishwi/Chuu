@@ -25,7 +25,7 @@ public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService());
+        return new OnlyUsernameParser(db);
     }
 
     @Override
@@ -60,11 +60,11 @@ public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
         String user = getUserString(e, discordId);
         String server = e.getGuild().getName();
         if (contentRaw.startsWith("serverblock") || contentRaw.startsWith("serverban")) {
-            getService().serverBlock(discordId, e.getGuild().getIdLong());
+            db.serverBlock(discordId, e.getGuild().getIdLong());
             sendMessageQueue(e, String.format("Successfully blocked %s from %s's leaderboards", user, server));
 
         } else {
-            getService().serverUnblock(discordId, e.getGuild().getIdLong());
+            db.serverUnblock(discordId, e.getGuild().getIdLong());
             sendMessageQueue(e, String.format("Successfully unblocked %s from %s's leaderboards", user, server));
         }
     }

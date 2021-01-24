@@ -25,7 +25,7 @@ public class ScrooblingCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService());
+        return new OnlyUsernameParser(db);
     }
 
     @Override
@@ -55,11 +55,11 @@ public class ScrooblingCommand extends ConcurrentCommand<ChuuDataParams> {
             return;
         }
         if (params.hasOptional("enable")) {
-            getService().changeScrobbling(params.getLastFMData().getDiscordId(), true);
+            db.changeScrobbling(params.getLastFMData().getDiscordId(), true);
             sendMessageQueue(e, "**Enabled** the scrobbling features for your account");
             return;
         } else if (params.hasOptional("disable")) {
-            getService().changeScrobbling(params.getLastFMData().getDiscordId(), false);
+            db.changeScrobbling(params.getLastFMData().getDiscordId(), false);
             sendMessageQueue(e, "**Disabled** the scrobbling features for your account");
             return;
         }

@@ -29,7 +29,7 @@ public class LastPlayedCommand extends AlbumPlaysCommand {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        ArtistSongParser artistSongParser = new ArtistSongParser(getService(), lastFM);
+        ArtistSongParser artistSongParser = new ArtistSongParser(db, lastFM);
         artistSongParser.addOptional(new OptionalEntity("today", "to not include the current day"));
         return artistSongParser;
     }
@@ -53,7 +53,7 @@ public class LastPlayedCommand extends AlbumPlaysCommand {
     protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, MessageReceivedEvent e, long who, ArtistAlbumParameters params) {
         LastFMData lastFMData = params.getLastFMData();
 
-        Optional<Instant> instant = getService().getLastScrobbled(artist.getArtistId(), song, params.getLastFMData().getName());
+        Optional<Instant> instant = db.getLastScrobbled(artist.getArtistId(), song, params.getLastFMData().getName());
         if (instant.isEmpty()) {
             sendMessageQueue(e, "Couldn't get the last time you scrobbled **" + song + "** by _" + artist.getArtist() + "_");
             return;

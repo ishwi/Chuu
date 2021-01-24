@@ -51,7 +51,7 @@ public class TopRatingsCommand extends ListCommand<ScoredAlbumRatings, CommandPa
     @Override
     public List<ScoredAlbumRatings> getList(CommandParameters params) {
 
-        return getService().getGlobalTopRatings();
+        return db.getGlobalTopRatings();
     }
 
     @Override
@@ -71,7 +71,7 @@ public class TopRatingsCommand extends ListCommand<ScoredAlbumRatings, CommandPa
         for (int i = 0; i < 10 && i < list.size(); i++) {
             a.append(i + 1).append(list.get(i).toString());
         }
-        RymStats rymServerStats = getService().getRYMBotStats();
+        RymStats rymServerStats = db.getRYMBotStats();
         embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName()) + "'s Top Ranked Albums")
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl())
                 .setFooter(String.format(e.getJDA().getSelfUser().getName() + " users have rated a total of %s albums with an average of %s!", rymServerStats.getNumberOfRatings(), formatter.format(rymServerStats.getAverage() / 2f)), null)

@@ -31,11 +31,11 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
     @Override
     WrapperReturnNowPlaying generateWrapper(GenreParameters params, WhoKnowsMode whoKnowsMode) {
         MessageReceivedEvent e = params.getE();
-        CompletableFuture<Optional<ScrobbledArtist>> completableFuture = CompletableFuture.supplyAsync(() -> getService().getTopInTag(params.getGenre(), e.getGuild().getIdLong()));
+        CompletableFuture<Optional<ScrobbledArtist>> completableFuture = CompletableFuture.supplyAsync(() -> db.getTopInTag(params.getGenre(), e.getGuild().getIdLong()));
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 whoKnowsMode.equals(WhoKnowsMode.IMAGE) ?
-                        this.getService().whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong()) :
-                        this.getService().whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
+                        this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong()) :
+                        this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(e, "No one knows " + CommandUtil.cleanMarkdownCharacter(params.getGenre()));
             return null;
@@ -57,7 +57,7 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
 
     @Override
     public Parser<GenreParameters> initParser() {
-        return new GenreParser(getService(), lastFM);
+        return new GenreParser(db, lastFM);
     }
 
     @Override

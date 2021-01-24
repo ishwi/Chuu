@@ -40,7 +40,7 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
 
     @Override
     public ChartableParser<ChartableGenreParameters> initParser() {
-        return new GenreChartParser(getService(), TimeFrameEnum.WEEK, lastFM);
+        return new GenreChartParser(db, TimeFrameEnum.WEEK, lastFM);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
         BlockingQueue<UrlCapsule> queue;
         if (params.getTimeFrameEnum().isAllTime()) {
 
-            List<ScrobbledArtist> userAlbumByMbid = getService().getUserArtistByMbid(name.getName());
+            List<ScrobbledArtist> userAlbumByMbid = db.getUserArtistByMbid(name.getName());
             artists = userAlbumByMbid.stream().filter(u -> u.getArtistMbid() != null && !u.getArtistMbid().isEmpty()).map(x ->
                     new ArtistInfo(x.getUrl(), x.getArtist(), x.getArtistMbid())).collect(Collectors.toList());
             queue = userAlbumByMbid.stream().map(x -> new ArtistChart(x.getUrl(), 0, x.getArtist(), x.getArtistMbid(), x.getCount(), params.isWriteTitles(), params.isWritePlays())).collect(Collectors.toCollection(LinkedBlockingDeque::new));
@@ -86,7 +86,7 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
                         return artistInfo;
                     }).collect(Collectors.toList());
         }
-        List<ArtistInfo> albumsWithTags = getService().getArtistWithTag(queue.stream().map(x -> new ArtistInfo(x.getUrl(), x.getArtistName())).collect(Collectors.toList()), params.getDiscordId(), params.getGenreParameters().getGenre());
+        List<ArtistInfo> albumsWithTags = db.getArtistWithTag(queue.stream().map(x -> new ArtistInfo(x.getUrl(), x.getArtistName())).collect(Collectors.toList()), params.getDiscordId(), params.getGenreParameters().getGenre());
         Map<ArtistInfo, ArtistInfo> identityMap = albumsWithTags.stream().collect(Collectors.toMap(x -> x, x -> x, (x, y) -> x));
         artists.removeIf(identityMap::containsKey);
         Set<String> strings = this.mb.artistGenres(artists, params.getGenreParameters().getGenre());
@@ -107,10 +107,10 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
                 .peek(x -> x.setPos(ranker.getAndIncrement()))
                 .limit((long) params.getX() * params.getY())
                 .collect(Collectors.toCollection(LinkedBlockingQueue::new));
-        ArtistQueue artistQueue = new ArtistQueue(getService(), DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstance());
+        ArtistQueue artistQueue = new ArtistQueue(db, DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstance());
         artistQueue.addAll(collect1);
         executor.submit(
-                new TagArtistService(getService(), lastFM, collect1.stream().map(x -> new ArtistInfo(null, x.getArtistName(), x.getMbid())).collect(Collectors.toList()), params.getGenreParameters().getGenre()));
+                new TagArtistService(db, lastFM, collect1.stream().map(x -> new ArtistInfo(null, x.getArtistName(), x.getMbid())).collect(Collectors.toList()), params.getGenreParameters().getGenre()));
         return new CountWrapper<>(ranker.get(), artistQueue);
     }
 

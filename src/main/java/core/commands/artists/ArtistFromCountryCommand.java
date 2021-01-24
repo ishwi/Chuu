@@ -61,7 +61,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
 
     @Override
     public Parser<CountryParameters> initParser() {
-        CountryParser countryParser = new CountryParser(getService());
+        CountryParser countryParser = new CountryParser(db);
         countryParser.addOptional(new OptionalEntity("image", "show this with a chart instead of a list "));
         return countryParser;
     }
@@ -91,7 +91,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
                 })
                 .peek(x -> {
                     try {
-                        String artistImageUrl = CommandUtil.getArtistImageUrl(getService(), x.getArtistName(), lastFM, discogsApi, spotifyApi);
+                        String artistImageUrl = CommandUtil.getArtistImageUrl(db, x.getArtistName(), lastFM, discogsApi, spotifyApi);
                         x.setUrl(artistImageUrl);
                     } catch (LastFmException ignored) {
 

@@ -27,7 +27,7 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService());
+        return new OnlyUsernameParser(db);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
 
     @Override
     public List<AlbumPlays> getList(ChuuDataParams params) {
-        return getService().getUnratedAlbums(params.getLastFMData().getDiscordId());
+        return db.getUnratedAlbums(params.getLastFMData().getDiscordId());
     }
 
     @Override

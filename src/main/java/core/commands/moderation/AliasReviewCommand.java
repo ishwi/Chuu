@@ -68,7 +68,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
-        LastFMData lastFMData = getService().findLastFMData(idLong);
+        LastFMData lastFMData = db.findLastFMData(idLong);
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Only bot admins can review the alias queue!");
             return;
@@ -85,15 +85,15 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
             HashMap<String, BiFunction<AliasEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
             actionMap.put("U+2714", (aliasEntity, r) -> {
                 try {
-                    getService().addAlias(aliasEntity.getAlias(), aliasEntity.getArtistId());
-                    getService().deleteAliasById(aliasEntity.getId());
+                    db.addAlias(aliasEntity.getAlias(), aliasEntity.getArtistId());
+                    db.deleteAliasById(aliasEntity.getId());
                     r.getJDA().retrieveUserById(aliasEntity.getDiscorId())
                             .queue(user -> user.openPrivateChannel()
                                     .flatMap(privateChannel -> privateChannel.sendMessage("Your alias: " + aliasEntity.getAlias() + " has been approved!"))
                                     .queue(), throwable -> Chuu.getLogger().warn(throwable.getMessage(), throwable));
                 } catch (DuplicateInstanceException | InstanceNotFoundException ignored) {
                     try {
-                        getService().deleteAliasById(aliasEntity.getId());
+                        db.deleteAliasById(aliasEntity.getId());
                     } catch (InstanceNotFoundException ignored1) {
                         //Doesnt exists on the server
                     }
@@ -103,7 +103,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
             });
             actionMap.put("U+274c", (a, r) -> {
                 try {
-                    getService().deleteAliasById(a.getId());
+                    db.deleteAliasById(a.getId());
                 } catch (InstanceNotFoundException e1) {
                     Chuu.getLogger().error(e1.getMessage());
                 }
@@ -111,7 +111,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
             });
             new Validator<>(
                     embedBuilder1 -> embedBuilder.setTitle("No more  Aliases to Review").clearFields(),
-                    () -> getService().getNextInAliasQueue(),
+                    db::getNextInAliasQueue,
                     builder
                     , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, false);
         } catch (Exception ex) {

@@ -39,7 +39,7 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
         Map<Integer, String> map = new HashMap<>(1);
         map.put(LIMIT_ERROR, "The number introduced must be lower than 15");
         String s = "You can also introduce a number to vary the number of songs shown, defaults to " + 5 + ", max " + 15;
-        return new NumberParser<>(new OnlyUsernameParser(getService()),
+        return new NumberParser<>(new OnlyUsernameParser(db),
                 5L,
                 15L,
                 map, s, false, true);

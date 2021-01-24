@@ -89,12 +89,12 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
         for (MyCommand<?> command : commandsToAllow) {
             boolean messageAllowed = previouslyAllowedCommands.contains(command);
             if (params.isExceptThis()) {
-                messageDisablingService.toggleCommandDisabledness(command, params.getGuildId(), messageAllowed, getService());
-                messageDisablingService.toggleCommandChannelDisabledness(command, params.getGuildId(), params.getChannelId(), !messageAllowed, getService());
+                messageDisablingService.toggleCommandDisabledness(command, params.getGuildId(), messageAllowed, db);
+                messageDisablingService.toggleCommandChannelDisabledness(command, params.getGuildId(), params.getChannelId(), !messageAllowed, db);
             } else if (params.isOnlyChannel()) {
-                messageDisablingService.toggleCommandChannelDisabledness(command, params.getGuildId(), params.getChannelId(), messageAllowed, getService());
+                messageDisablingService.toggleCommandChannelDisabledness(command, params.getGuildId(), params.getChannelId(), messageAllowed, db);
             } else {
-                messageDisablingService.toggleCommandDisabledness(command, params.getGuildId(), messageAllowed, getService());
+                messageDisablingService.toggleCommandDisabledness(command, params.getGuildId(), messageAllowed, db);
             }
         }
         Character prefix = Chuu.getCorrespondingPrefix(e);

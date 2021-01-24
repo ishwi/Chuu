@@ -56,11 +56,11 @@ public class NowPlayingCommand extends NpCommand {
 
         EnumSet<NPMode> npModes = EnumSet.noneOf(NPMode.class);
         if (e.isFromGuild()) {
-            npModes = getService().getServerNPModes(e.getGuild().getIdLong());
+            npModes = db.getServerNPModes(e.getGuild().getIdLong());
         }
 
         if (npModes.isEmpty() || npModes.size() == 1 && npModes.contains(NPMode.UNKNOWN)) {
-            npModes = getService().getNPModes(discordId);
+            npModes = db.getNPModes(discordId);
         }
 
         String title = String.format("%s's %s song:", userName, nowPlayingArtist.isNowPlaying() ? "current" : "last");
@@ -79,7 +79,7 @@ public class NowPlayingCommand extends NpCommand {
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(nowPlayingArtist.getArtistName(), 0, null);
         try {
-            CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotifyApi);
+            CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
         } catch (LastFmException ignored) {
 
         }
@@ -92,7 +92,7 @@ public class NowPlayingCommand extends NpCommand {
 
             npModes = EnumSet.copyOf(IntStream.range(0, CommandUtil.rand.nextInt(4) + 1).mapToObj(x -> allModes.get(CommandUtil.rand.nextInt(allModes.size()))).collect(Collectors.toSet()));
         }
-        NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, user, embedBuilder, scrobbledArtist, getService(), lastFM, serverName, mb, outputList, parameters.getData());
+        NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, user, embedBuilder, scrobbledArtist, db, lastFM, serverName, mb, outputList, parameters.getData());
         CompletableFuture<?> completableFutures = npModeBuilder.buildNp();
 
 
@@ -133,25 +133,25 @@ public class NowPlayingCommand extends NpCommand {
             if (e.isFromGuild()) {
                 GuildProperties guildProperties = null;
                 try {
-                    guildProperties = getService().getGuildProperties(e.getGuild().getIdLong());
+                    guildProperties = db.getGuildProperties(e.getGuild().getIdLong());
                 } catch (InstanceNotFoundException ignored) {
                 }
                 if (guildProperties != null && !guildProperties.allowReactions()) {
                     return;
                 }
                 OverrideMode overrideMode = guildProperties == null ? OverrideMode.OVERRIDE : guildProperties.overrideReactions();
-                serverReactions = getService().getServerReactions(e.getGuild().getIdLong());
+                serverReactions = db.getServerReactions(e.getGuild().getIdLong());
 
                 if (e.getMember() != null && e.getMember().hasPermission(Permission.MESSAGE_ADD_REACTION)) {
                     switch (overrideMode) {
-                        case ADD -> serverReactions.addAll(getService().getUserReacts(e.getAuthor().getIdLong()));
+                        case ADD -> serverReactions.addAll(db.getUserReacts(e.getAuthor().getIdLong()));
                         case ADD_END -> {
-                            List<String> userReacts = getService().getUserReacts(e.getAuthor().getIdLong());
+                            List<String> userReacts = db.getUserReacts(e.getAuthor().getIdLong());
                             userReacts.addAll(serverReactions);
                             serverReactions = userReacts;
                         }
                         case EMPTY -> {
-                            List<String> userReacts = getService().getUserReacts(e.getAuthor().getIdLong());
+                            List<String> userReacts = db.getUserReacts(e.getAuthor().getIdLong());
                             if (!userReacts.isEmpty()) {
                                 serverReactions = userReacts;
                             }
@@ -159,7 +159,7 @@ public class NowPlayingCommand extends NpCommand {
                     }
                 }
             } else {
-                serverReactions = getService().getUserReacts(e.getAuthor().getIdLong());
+                serverReactions = db.getUserReacts(e.getAuthor().getIdLong());
             }
             if (!serverReactions.isEmpty()) {
                 RestAction.allOf(serverReactions.stream().map(unicode -> message.addReaction(unicode).mapToResult()).collect(Collectors.toList())).queue(results -> {

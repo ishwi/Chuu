@@ -49,17 +49,17 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
         params.setScrobbledArtist(scrobbledArtist);
         MessageReceivedEvent e = params.getE();
         long artistId = scrobbledArtist.getArtistId();
         WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
-        boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, getService());
+        boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
 
         long author = params.getE().getAuthor().getIdLong();
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.getService().globalWhoKnows(artistId, b, author) : this.getService().globalWhoKnows(artistId, Integer.MAX_VALUE, b, author);
+                effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.db.globalWhoKnows(artistId, b, author) : this.db.globalWhoKnows(artistId, Integer.MAX_VALUE, b, author);
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(params.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()));
             return null;
@@ -76,6 +76,6 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        return new ArtistParser(getService(), lastFM);
+        return new ArtistParser(db, lastFM);
     }
 }

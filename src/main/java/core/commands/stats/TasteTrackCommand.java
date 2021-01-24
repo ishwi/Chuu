@@ -55,8 +55,8 @@ public class TasteTrackCommand extends TasteArtistCommand {
         String artist = params.getArtist();
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         params.setScrobbledArtist(scrobbledArtist);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotifyApi);
-        return getService().getSimilaritiesTracks(List.of(og.getName(), second.getName()), scrobbledArtist.getArtistId(), isList ? 200 : Integer.MAX_VALUE);
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
+        return db.getSimilaritiesTracks(List.of(og.getName(), second.getName()), scrobbledArtist.getArtistId(), isList ? 200 : Integer.MAX_VALUE);
     }
 
 

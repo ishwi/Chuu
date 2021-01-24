@@ -42,7 +42,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
 
     @Override
     public ChartableParser<ChartYearParameters> initParser() {
-        ChartYearParser chartYearParser = new ChartYearParser(getService(), searchSpace);
+        ChartYearParser chartYearParser = new ChartYearParser(db, searchSpace);
         chartYearParser.addOptional(new OptionalEntity("time", "make the chart to be sorted by duration (quite inaccurate)"));
 
         return
@@ -77,11 +77,11 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
 
         Year year = param.getYear();
         if (!isByTime && param.getTimeFrameEnum().isAllTime()) {
-            List<ScrobbledAlbum> userAlbumByMbid = getService().getUserAlbumsOfYear(param.getUser().getName(), year);
+            List<ScrobbledAlbum> userAlbumByMbid = db.getUserAlbumsOfYear(param.getUser().getName(), year);
             albumsMbizMatchingYear.addAll(userAlbumByMbid.stream().map(x -> new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList()));
 
             AtomicInteger atomicInteger = new AtomicInteger(0);
-            List<ScrobbledAlbum> userAlbumsWithNoYear = getService().getUserAlbumsWithNoYear(param.getUser().getName());
+            List<ScrobbledAlbum> userAlbumsWithNoYear = db.getUserAlbumsWithNoYear(param.getUser().getName());
             userAlbumByMbid.forEach(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays(), param.isAside())));
             userAlbumsWithNoYear.forEach(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays(), param.isAside())));
             Map<Boolean, List<AlbumInfo>> results = userAlbumsWithNoYear.stream()
@@ -112,7 +112,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
                     .map(capsule ->
                             new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName())).collect(Collectors.toList());
 
-            List<AlbumInfo> albumInfos = getService().albumsOfYear(collect, param.getYear());
+            List<AlbumInfo> albumInfos = db.albumsOfYear(collect, param.getYear());
             albumsMbizMatchingYear.addAll(albumInfos);
 
 
@@ -131,12 +131,12 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
             return handleTimedChart(param, nonEmptyMbid, emptyMbid, queue);
         }
         List<AlbumInfo> foundByYear = mb.listOfYearReleases(nonEmptyMbid, year);
-        CompletableFuture.runAsync(() -> getService().insertAlbumsOfYear(foundByYear, year));
+        CompletableFuture.runAsync(() -> db.insertAlbumsOfYear(foundByYear, year));
 
         albumsMbizMatchingYear.addAll(foundByYear);
         List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(emptyMbid, year);
-        CompletableFuture.runAsync(() -> getService().insertAlbumsOfYear(mbFoundBYName, year));
-        //CompletableFuture.supplyAsync( x -> getService().insertAlbum(x))
+        CompletableFuture.runAsync(() -> db.insertAlbumsOfYear(mbFoundBYName, year));
+        //CompletableFuture.supplyAsync( x -> db.insertAlbum(x))
         emptyMbid.removeAll(mbFoundBYName);
 
         int discogsMetrics = 0;
@@ -153,7 +153,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
                     return false;
                 }
             }).collect(Collectors.toList());
-            CompletableFuture.runAsync(() -> getService().insertAlbumsOfYear(foundDiscogsMatchingYear, year));
+            CompletableFuture.runAsync(() -> db.insertAlbumsOfYear(foundDiscogsMatchingYear, year));
             albumsMbizMatchingYear.addAll(foundDiscogsMatchingYear);
             discogsMetrics = foundDiscogsMatchingYear.size();
         }
@@ -171,7 +171,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
             }
             return true;
         });
-        getService().updateMetrics(discogsMetrics, mbFoundBYName.size(), albumsMbizMatchingYear
+        db.updateMetrics(discogsMetrics, mbFoundBYName.size(), albumsMbizMatchingYear
                 .size(), ((long) param.getX()) * param.getX());
         return new CountWrapper<>(albumsMbizMatchingYear.size(), queue);
     }

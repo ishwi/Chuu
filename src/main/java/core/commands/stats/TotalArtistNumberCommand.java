@@ -34,7 +34,7 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<NumberParameters
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce the playcount to only show artists above that number of plays";
-        return new NumberParser<>(new OnlyUsernameParser(getService()),
+        return new NumberParser<>(new OnlyUsernameParser(db),
                 -0L,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);
@@ -60,7 +60,7 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<NumberParameters
         String username = getUserString(e, discordID, lastFmName);
         int threshold = params.getExtraParam().intValue();
 
-        int plays = getService().getUserArtistCount(lastFmName, threshold == 0 ? -1 : threshold);
+        int plays = db.getUserArtistCount(lastFmName, threshold == 0 ? -1 : threshold);
         String filler = "";
         if (threshold != 0) {
             filler += " with more than " + threshold + " plays";

@@ -34,7 +34,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
 
     @Override
     public Parser<RYMRatingParams> initParser() {
-        return new RYMRatingParser(getService());
+        return new RYMRatingParser(db);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
 
 
         Short rating = params.getRating();
-        List<ScoredAlbumRatings> myRatings = getService().getSelfRatingsScore(params.getLastFMData().getDiscordId(), rating);
+        List<ScoredAlbumRatings> myRatings = db.getSelfRatingsScore(params.getLastFMData().getDiscordId(), rating);
 
         if (rating == null) {
             listWithRating(myRatings, params);
@@ -119,7 +119,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         for (int i = 0; i < 8 && i < stringList.size(); i++) {
             a.append(stringList.get(i));
         }
-        RymStats stats = getService().getUserRymStatms(params.getLastFMData().getDiscordId());
+        RymStats stats = db.getUserRymStatms(params.getLastFMData().getDiscordId());
         embedBuilder
                 .setColor(CommandUtil.randomColor())
                 .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage())

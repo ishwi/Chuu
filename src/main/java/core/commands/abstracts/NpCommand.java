@@ -30,7 +30,7 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
 
     @Override
     public Parser<NowPlayingParameters> initParser() {
-        return new NpParser(getService(), lastFM);
+        return new NpParser(db, lastFM);
     }
 
     @Override
@@ -39,9 +39,9 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
         CompletableFuture.runAsync(() -> {
             if (params.getNowPlayingArtist().getUrl() != null && !params.getNowPlayingArtist().getUrl().isBlank()) {
                 try {
-                    ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(getService(), params.getNowPlayingArtist().getArtistName(), lastFM, true);
-                    long trackValidate = CommandUtil.trackValidate(getService(), scrobbledArtist, lastFM, params.getNowPlayingArtist().getSongName());
-                    getService().updateTrackImage(trackValidate, params.getNowPlayingArtist().getUrl());
+                    ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, params.getNowPlayingArtist().getArtistName(), lastFM, true);
+                    long trackValidate = CommandUtil.trackValidate(db, scrobbledArtist, lastFM, params.getNowPlayingArtist().getSongName());
+                    db.updateTrackImage(trackValidate, params.getNowPlayingArtist().getUrl());
                 } catch (LastFmException instanceNotFoundException) {
                     Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
                 }

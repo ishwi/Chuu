@@ -28,7 +28,7 @@ public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
 
     @Override
     public Parser<GenreParameters> initParser() {
-        return new GenreParser(getService(), lastFM);
+        return new GenreParser(db, lastFM);
     }
 
     @Override

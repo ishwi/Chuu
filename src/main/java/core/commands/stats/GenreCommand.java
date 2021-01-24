@@ -69,7 +69,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         String s = "You can also introduce a number to vary the number of genres shown in the pie," +
                 "defaults to 10";
 
-        TimerFrameParser timerFrameParser = new TimerFrameParser(getService(), TimeFrameEnum.ALL);
+        TimerFrameParser timerFrameParser = new TimerFrameParser(db, TimeFrameEnum.ALL);
         timerFrameParser.addOptional(new OptionalEntity("artist", "use artists instead of albums for the genres"));
         timerFrameParser.addOptional(new OptionalEntity("lastfm", "use lastfm tags instead of musicbrainz"));
         timerFrameParser.addOptional(new OptionalEntity("mix", "use both lastfm and musicbrainz tags"));
@@ -127,11 +127,11 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                 return;
             }
             if (mix || lastfm) {
-                map.putAll(getService().genreCountsByArtist(artistInfos));
+                map.putAll(db.genreCountsByArtist(artistInfos));
             }
             if (mix || !lastfm) {
                 Map<Genre, List<ArtistInfo>> genreListMap = musicBrainz.genreCountByartist(mbidArtists);
-                executor.submit(new TagArtistService(getService(), lastFM, genreListMap));
+                executor.submit(new TagArtistService(db, lastFM, genreListMap));
                 map.putAll(genreListMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size())));
             }
 
@@ -140,7 +140,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
             List<AlbumInfo> albumMbids;
 
             if (timeframe == TimeFrameEnum.ALL) {
-                albumInfos = getService().getUserAlbumByMbid(username).stream().map(x ->
+                albumInfos = db.getUserAlbumByMbid(username).stream().map(x ->
                         new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
                 albumMbids = albumInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty()).collect(Collectors.toList());
             } else {
@@ -152,11 +152,11 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                 return;
             }
             if (mix || lastfm) {
-                map.putAll(getService().genreCountsByAlbum(albumInfos));
+                map.putAll(db.genreCountsByAlbum(albumInfos));
             }
             if (mix || !lastfm) {
                 Map<Genre, List<AlbumInfo>> genreListMap = musicBrainz.genreCount(albumMbids);
-                executor.submit(new TagAlbumService(getService(), lastFM, genreListMap));
+                executor.submit(new TagAlbumService(db, lastFM, genreListMap));
                 map = genreListMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size()));
             }
 

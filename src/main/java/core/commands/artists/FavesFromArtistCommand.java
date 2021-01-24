@@ -46,7 +46,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
 
     @Override
     public Parser<ArtistTimeFrameParameters> initParser() {
-        return new ArtistTimeFrameParser(getService(), lastFM);
+        return new ArtistTimeFrameParser(db, lastFM);
     }
 
     @Override
@@ -72,11 +72,11 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         TimeFrameEnum timeframew = params.getTimeFrame();
         String artist = params.getArtist();
         ScrobbledArtist who = new ScrobbledArtist(artist, 0, "");
-        CommandUtil.validate(getService(), who, lastFM, discogs, spotify);
+        CommandUtil.validate(db, who, lastFM, discogs, spotify);
         List<Track> ai;
         String lastFmName = params.getLastFMData().getName();
         if (timeframew.equals(TimeFrameEnum.ALL)) {
-            ai = getService().getTopArtistTracks(lastFmName, who.getArtistId(), Integer.MAX_VALUE);
+            ai = db.getTopArtistTracks(lastFmName, who.getArtistId(), Integer.MAX_VALUE);
             if (ai.isEmpty()) {
                 sendMessageQueue(e, ("Couldn't find your fav tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString() + ", try updating first!"));
                 return;

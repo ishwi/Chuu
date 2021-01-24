@@ -31,7 +31,7 @@ public class TopCommand extends ArtistAbleCommand<TopParameters> {
 
     @Override
     public ChartableParser<TopParameters> initParser() {
-        return new TopParser(getService());
+        return new TopParser(db);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class TopCommand extends ArtistAbleCommand<TopParameters> {
             queue = new ArrayBlockingQueue<>(params.getX() * params.getY());
             count = lastFM.getChart(params.getUser(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
         } else {
-            queue = new ArtistQueue(getService(), discogsApi, spotifyApi, !params.isList());
+            queue = new ArtistQueue(db, discogsApi, spotifyApi, !params.isList());
             count = lastFM.getChart(params.getUser(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ARTIST, ArtistChart.getArtistParser(params), queue);
         }
         return new CountWrapper<>(count, queue);

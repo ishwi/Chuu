@@ -30,7 +30,7 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
 
     @Override
     public Parser<RateLimitParams> initParser() {
-        return new RateLimitParser(getService());
+        return new RateLimitParser(db);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
 
 
         long idLong = e.getAuthor().getIdLong();
-        LastFMData lastFMData = getService().findLastFMData(idLong);
+        LastFMData lastFMData = db.findLastFMData(idLong);
         if (!lastFMData.getRole().equals(Role.ADMIN)) {
 
             sendMessageQueue(e, "Only bot admins can modify rate limits");
@@ -68,7 +68,7 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
     private void handleUser(MessageReceivedEvent e, RateLimitParams params, Map<Long, RateLimiter> ratelimited, long discordId) {
         if (params.isDeleting()) {
             ratelimited.remove(discordId);
-            getService().removeRateLimit(discordId);
+            db.removeRateLimit(discordId);
             sendMessageQueue(e, "Successfully removed the rate limit from user " + discordId);
             return;
         }
@@ -76,7 +76,7 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
         RateLimiter rateLimiter = ratelimited.get(discordId);
         RateLimiter newRateLimiter = rateLimit == null ? (rateLimiter == null ? RateLimiter.create(0.1) : rateLimiter) : RateLimiter.create(rateLimit);
         ratelimited.put(discordId, newRateLimiter);
-        getService().addRateLimit(discordId, (float) newRateLimiter.getRate());
+        db.addRateLimit(discordId, (float) newRateLimiter.getRate());
         sendMessageQueue(e, "Successfully added a rate limit to user " + discordId);
     }
 }

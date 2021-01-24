@@ -47,7 +47,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        OnlyUsernameParser parser = new OnlyUsernameParser(getService(), new OptionalEntity("list", "display in list format"));
+        OnlyUsernameParser parser = new OnlyUsernameParser(db, new OptionalEntity("list", "display in list format"));
         parser.setExpensiveSearch(true);
         return parser;
     }
@@ -71,14 +71,14 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
         long guildId = e.getGuild().getIdLong();
-        int guildCrownThreshold = getService().getGuildCrownThreshold(guildId);
-        CompletableFuture<UniqueWrapper<ArtistPlays>> completablecrowns = CompletableFuture.supplyAsync(() -> getService().getCrowns(lastFmName, guildId, guildCrownThreshold));
-        CompletableFuture<UniqueWrapper<ArtistPlays>> completableUnique = CompletableFuture.supplyAsync(() -> getService().getUniqueArtist(guildId, lastFmName));
-        CommandStats commandStats = getService().getCommandStats(params.getLastFMData().getDiscordId());
+        int guildCrownThreshold = db.getGuildCrownThreshold(guildId);
+        CompletableFuture<UniqueWrapper<ArtistPlays>> completablecrowns = CompletableFuture.supplyAsync(() -> db.getCrowns(lastFmName, guildId, guildCrownThreshold));
+        CompletableFuture<UniqueWrapper<ArtistPlays>> completableUnique = CompletableFuture.supplyAsync(() -> db.getUniqueArtist(guildId, lastFmName));
+        CommandStats commandStats = db.getCommandStats(params.getLastFMData().getDiscordId());
         userInfo = lastFM.getUserInfo(Collections.singletonList(params.getLastFMData().getName()), params.getLastFMData()).get(0);
-        albumCount = getService().getUserAlbumCount(params.getLastFMData().getDiscordId());
-        int totalArtist = getService().getUserArtistCount(lastFmName, 0);
-        int randomCount = getService().randomCount(params.getLastFMData().getDiscordId());
+        albumCount = db.getUserAlbumCount(params.getLastFMData().getDiscordId());
+        int totalArtist = db.getUserArtistCount(lastFmName, 0);
+        int randomCount = db.randomCount(params.getLastFMData().getDiscordId());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String date = LocalDateTime.ofEpochSecond(userInfo.getUnixtimestamp(), 0, ZoneOffset.UTC)
@@ -117,11 +117,11 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
         String crownImage = !crowns.getUniqueData().isEmpty() ?
                 CommandUtil
-                        .getArtistImageUrl(getService(), crownRepresentative, lastFM, discogsApi, spotify)
+                        .getArtistImageUrl(db, crownRepresentative, lastFM, discogsApi, spotify)
                 : null;
 
         String uniqueImage = !unique.getUniqueData().isEmpty() ? CommandUtil
-                .getArtistImageUrl(getService(), uniqueRepresentative, lastFM, discogsApi, spotify) : null;
+                .getArtistImageUrl(db, uniqueRepresentative, lastFM, discogsApi, spotify) : null;
 
         String lastFmId = Chuu.getLastFmId(lastFmName);
         if (lastFmId.equals(Chuu.DEFAULT_LASTFM_ID)) {

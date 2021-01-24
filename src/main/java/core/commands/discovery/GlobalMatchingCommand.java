@@ -45,7 +45,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays needed to award a match, " +
                 "defaults to 1";
-        return new NumberParser<>(new OnlyUsernameParser(getService()),
+        return new NumberParser<>(new OnlyUsernameParser(db),
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true);
@@ -72,7 +72,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
 
         ChuuDataParams innerParams = params.getInnerParams();
         int threshold = params.getExtraParam() == null ? 1 : Math.toIntExact(params.getExtraParam());
-        List<ArtistLbGlobalEntry> list = getService().globalMatchings(innerParams.getLastFMData().getName(), e.isFromGuild() ? e.getGuild().getIdLong() : null, threshold);
+        List<ArtistLbGlobalEntry> list = db.globalMatchings(innerParams.getLastFMData().getName(), e.isFromGuild() ? e.getGuild().getIdLong() : null, threshold);
 
         Long discordId = innerParams.getLastFMData().getDiscordId();
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
@@ -83,7 +83,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
                 .setThumbnail(url);
         Set<Long> found;
         if (e.isFromGuild()) {
-            found = getService().getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
+            found = db.getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
         } else {
             found = Set.of(e.getAuthor().getIdLong());
         }
@@ -126,7 +126,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
             a.append(i + 1).append((strings.get(i).toString()));
         }
         embedBuilder.setDescription(a).setTitle("Global Matching artists with " + usableName)
-                .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), getService()
+                .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), db
                         .getUserArtistCount(innerParams.getLastFMData().
                                 getName(), 0)), null);
         e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->

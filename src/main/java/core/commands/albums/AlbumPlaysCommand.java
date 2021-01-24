@@ -40,7 +40,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        return new ArtistAlbumParser(getService(), lastFM);
+        return new ArtistAlbumParser(db, lastFM);
     }
 
 
@@ -63,7 +63,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
     protected void onCommand(MessageReceivedEvent e, @NotNull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
 
         ScrobbledArtist validable = new ScrobbledArtist(params.getArtist(), 0, "");
-        CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify);
+        CommandUtil.validate(db, validable, lastFM, discogsApi, spotify);
         params.setScrobbledArtist(validable);
         doSomethingWithAlbumArtist(validable, params.getAlbum(), e, params.getLastFMData().getDiscordId(), params);
 

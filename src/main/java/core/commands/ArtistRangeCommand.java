@@ -78,7 +78,7 @@
 //                    var ax = new core.parsers.ChartParserAux(new String[]{p});
 //                    core.parsers.utils.CustomTimeFrame t;
 //                    t = ax.parseCustomTimeFrame(TimeFrameEnum.ALL);
-//                    var l = getService().findLastFMData(e.getAuthor().getIdLong());
+//                    var l = db.findLastFMData(e.getAuthor().getIdLong());
 //                    var q = new core.apis.last.queues.DiscardableQueue<>(x -> !x.getArtistName().equalsIgnoreCase(a), x -> x, 1);
 //                    var te = core.apis.last.entities.chartentities.TopEntity.ARTIST;
 //                    lastFM.getChart(l.getName(), t, 1000, 1, te, core.apis.last.entities.chartentities.ChartUtil.getParser(t, te, core.parsers.params.ChartParameters.toListParams(), lastFM, l.getName()), q);
@@ -100,7 +100,7 @@
 //
 //            }
 //        }
-//        b b = new b(getService());
+//        b b = new b(db);
 //        ctx.jda.addEventListener(new WeezerCommand(ctx.db));
 //
 //    }

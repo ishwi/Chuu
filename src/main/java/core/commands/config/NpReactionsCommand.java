@@ -52,7 +52,7 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull EmotiParameters params) {
         if (params.hasOptional("check")) {
-            List<String> serverReactions = getService().getUserReacts(e.getAuthor().getIdLong());
+            List<String> serverReactions = db.getUserReacts(e.getAuthor().getIdLong());
             if (serverReactions.isEmpty()) {
                 sendMessageQueue(e, "Don't have any reaction set");
                 return;
@@ -65,7 +65,7 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
 
         if (params.getEmotis().isEmpty()) {
             sendMessageQueue(e, "Clearing your reactions");
-            getService().clearUserReacts(e.getAuthor().getIdLong());
+            db.clearUserReacts(e.getAuthor().getIdLong());
             return;
         }
 
@@ -80,14 +80,14 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
             if (content.isEmpty()) {
                 sendMessageQueue(e, "Didn't add any reaction.");
             } else {
-                getService().insertUserReactions(e.getAuthor().getIdLong(), content);
+                db.insertUserReactions(e.getAuthor().getIdLong(), content);
                 sendMessageQueue(e, "Will set the following reactions: " + content.stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" ")));
             }
         } else {
             if (params.hasEmojis()) {
                 String collect = params.getEmojis().stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" "));
                 sendMessageQueue(e, "Will set the following reactions: " + String.join(" ", collect));
-                getService().insertUserReactions(e.getAuthor().getIdLong(), params.getEmojis());
+                db.insertUserReactions(e.getAuthor().getIdLong(), params.getEmojis());
             }
         }
     }

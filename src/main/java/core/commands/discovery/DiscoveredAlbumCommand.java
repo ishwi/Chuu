@@ -41,7 +41,7 @@ public class DiscoveredAlbumCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public ChartableParser<ChartParameters> initParser() {
-        ChartParser chartParser = new ChartParser(getService());
+        ChartParser chartParser = new ChartParser(db);
         chartParser.replaceOptional("plays", new OptionalEntity("noplays", "don't display plays"));
         chartParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
         return chartParser;
@@ -79,7 +79,7 @@ public class DiscoveredAlbumCommand extends ChartableCommand<ChartParameters> {
                     x.setPlays(x.getPlays() + y.getPlays());
                     return x;
                 }));
-        List<ScrobbledAlbum> discoveredAlbums = getService().getDiscoveredAlbums(collect.keySet(), param.getUser().getName());
+        List<ScrobbledAlbum> discoveredAlbums = db.getDiscoveredAlbums(collect.keySet(), param.getUser().getName());
         marker.set(0);
         queue = collect.entrySet().stream().filter(x -> discoveredAlbums.contains(x.getKey()))
                 .map(Map.Entry::getValue).sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())

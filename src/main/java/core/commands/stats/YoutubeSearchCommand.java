@@ -34,7 +34,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<Word
 
     @Override
     public Parser<ExtraParameters<WordParameter, User>> initParser() {
-        return new UsernameAndNpQueryParser(getService(), lastFM);
+        return new UsernameAndNpQueryParser(db, lastFM);
     }
 
     @Override

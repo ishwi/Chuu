@@ -27,7 +27,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        return new ArtistAlbumParser(getService(), lastFM);
+        return new ArtistAlbumParser(db, lastFM);
     }
 
     @Override
@@ -54,13 +54,13 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsMode whoKnowsMode) throws LastFmException {
         ScrobbledArtist validable = new ScrobbledArtist(ap.getArtist(), 0, "");
-        CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify, true, !ap.isNoredirect());
+        CommandUtil.validate(db, validable, lastFM, discogsApi, spotify, true, !ap.isNoredirect());
         ap.setScrobbledArtist(validable);
         MessageReceivedEvent e = ap.getE();
         ScrobbledArtist artist = ap.getScrobbledArtist();
         long id = e.getGuild().getIdLong();
         // Gets list of users registered in guild
-        List<UsersWrapper> userList = getService().getAll(id);
+        List<UsersWrapper> userList = db.getAll(id);
         if (userList.isEmpty()) {
             sendMessageQueue(e, "There are no users registered on this server");
             return null;
@@ -68,7 +68,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
         // Gets play number for each registered artist
         AlbumUserPlays urlContainter = new AlbumUserPlays("", "");
-        Set<Long> usersThatKnow = getService().whoKnows(artist.getArtistId(), id, 25).getReturnNowPlayings().stream()
+        Set<Long> usersThatKnow = db.whoKnows(artist.getArtistId(), id, 25).getReturnNowPlayings().stream()
                 .map(ReturnNowPlaying::getDiscordId)
                 .collect(Collectors.toSet());
 
@@ -117,7 +117,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
     void doExtraThings(List<ReturnNowPlaying> list2, long id, long artistId, String album) {
         ReturnNowPlaying crownUser = list2.get(0);
-        getService().insertAlbumCrown(artistId, album, crownUser.getDiscordId(), id, crownUser.getPlayNumber());
+        db.insertAlbumCrown(artistId, album, crownUser.getDiscordId(), id, crownUser.getPlayNumber());
     }
 
     Map<UsersWrapper, Integer> fillPlayCounter(List<UsersWrapper> userList, String artist, String album,

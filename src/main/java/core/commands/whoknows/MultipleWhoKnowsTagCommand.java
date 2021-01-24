@@ -43,7 +43,7 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
         if (lastFMData == null) {
             try {
                 if (params.getE().isFromGuild())
-                    return getService().computeLastFmData(params.getE().getAuthor().getIdLong(), params.getE().getGuild().getIdLong()).getWhoKnowsMode();
+                    return db.computeLastFmData(params.getE().getAuthor().getIdLong(), params.getE().getGuild().getIdLong()).getWhoKnowsMode();
                 return WhoKnowsMode.IMAGE;
             } catch (InstanceNotFoundException exception) {
                 return WhoKnowsMode.IMAGE;
@@ -57,12 +57,12 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
     WrapperReturnNowPlaying generateWrapper(MultipleGenresParameters params, WhoKnowsMode whoKnowsMode) {
         MessageReceivedEvent e = params.getE();
         SearchMode mode = params.getMode();
-        CompletableFuture<Optional<ScrobbledArtist>> completableFuture = CompletableFuture.supplyAsync(() -> getService().getTopInTag(params.getGenres(), e.getGuild().getIdLong(), mode));
+        CompletableFuture<Optional<ScrobbledArtist>> completableFuture = CompletableFuture.supplyAsync(() -> db.getTopInTag(params.getGenres(), e.getGuild().getIdLong(), mode));
 
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 whoKnowsMode.equals(WhoKnowsMode.IMAGE) ?
-                        this.getService().getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode) :
-                        this.getService().getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode);
+                        this.db.getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode) :
+                        this.db.getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode);
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(e, "No one knows " + CommandUtil.cleanMarkdownCharacter(params.getGenres().stream().map(WordUtils::capitalizeFully).collect(Collectors.joining(","))));
             return null;
@@ -83,7 +83,7 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
 
     @Override
     public Parser<MultipleGenresParameters> initParser() {
-        return new MultipleGenresParser(getService(), lastFM);
+        return new MultipleGenresParser(db, lastFM);
     }
 
     @Override

@@ -79,7 +79,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        return new ArtistParser(getService(), lastFM);
+        return new ArtistParser(db, lastFM);
     }
 
     @Override
@@ -103,9 +103,9 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
         String artist = params.getArtist();
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        CommandUtil.validate(getService(), scrobbledArtist, lastFM, discogsApi, spotify);
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
         params.setScrobbledArtist(scrobbledArtist);
-        List<UserListened> lasts = getService().getServerLastScrobbledArtist(scrobbledArtist.getArtistId(), e.getGuild().getIdLong());
+        List<UserListened> lasts = db.getServerLastScrobbledArtist(scrobbledArtist.getArtistId(), e.getGuild().getIdLong());
         if (lasts.isEmpty()) {
             sendMessageQueue(e, "Couldn't get the last time this server scrobbled **" + artist + "**");
             return;

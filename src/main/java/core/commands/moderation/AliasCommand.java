@@ -55,23 +55,23 @@ public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
     protected void onCommand(MessageReceivedEvent e, @NotNull TwoArtistParams params) throws LastFmException, InstanceNotFoundException {
 
         long idLong = e.getAuthor().getIdLong();
-        LastFMData lastFMData = getService().findLastFMData(idLong);
+        LastFMData lastFMData = db.findLastFMData(idLong);
         String alias = params.getFirstArtist();
         String to = params.getSecondArtist();
         long artistId;
-        String corrected = getService().findCorrection(alias);
+        String corrected = db.findCorrection(alias);
         if (corrected != null) {
             sendMessageQueue(e, "The alias: " + CommandUtil.cleanMarkdownCharacter(alias) + " already exists on the bot");
             return;
         }
         try {
-            artistId = getService().getArtistId(to);
+            artistId = db.getArtistId(to);
         } catch (InstanceNotFoundException ex) {
             sendMessageQueue(e, "The artist: " + CommandUtil.cleanMarkdownCharacter(to) + " doesn't exist in the bot");
             return;
         }
         try {
-            getService().getArtistId(alias);
+            db.getArtistId(alias);
             sendMessageQueue(e, "The alias: " + CommandUtil.cleanMarkdownCharacter(alias) + " points to an existing artist within the bot!");
             return;
         } catch (InstanceNotFoundException ex) {
@@ -87,12 +87,12 @@ public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
         }
 
         if (!lastFMData.getRole().equals(Role.ADMIN)) {
-            getService().enqueAlias(alias, artistId, idLong);
+            db.enqueAlias(alias, artistId, idLong);
             sendMessageQueue(e, "Your alias will be added to the review queue, only bot admins can add an alias");
 
         } else {
             try {
-                getService().addAlias(alias, artistId);
+                db.addAlias(alias, artistId);
                 sendMessageQueue(e, "Successfully aliased " + alias + " to " + to);
             } catch (DuplicateInstanceException ex) {
                 sendMessageQueue(e, "The alias: " + alias + " is an already existing alias within the bot");

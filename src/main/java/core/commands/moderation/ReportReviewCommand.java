@@ -79,7 +79,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
-        LastFMData lastFMData = getService().findLastFMData(idLong);
+        LastFMData lastFMData = db.findLastFMData(idLong);
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Only bot admins can review the reported images!");
             return;
@@ -94,7 +94,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new EmbedBuilder().setTitle("Reports Review");
         // TODO :DD
         long maxId;
-        ReportEntity nextReport = getService().getNextReport(Long.MAX_VALUE, new HashSet<>());
+        ReportEntity nextReport = db.getNextReport(Long.MAX_VALUE, new HashSet<>());
         if (nextReport == null) {
             maxId = Long.MAX_VALUE;
         } else {
@@ -102,17 +102,17 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         }
         Set<Long> skippedIds = new HashSet<>();
         try {
-            int totalReports = getService().getReportCount();
+            int totalReports = db.getReportCount();
             HashMap<String, BiFunction<ReportEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
             actionMap.put(DELETE, (reportEntity, r) -> {
-                getService().removeReportedImage(reportEntity.getImageReported(), reportEntity.getWhoGotReported(), idLong);
+                db.removeReportedImage(reportEntity.getImageReported(), reportEntity.getWhoGotReported(), idLong);
                 statBan.getAndIncrement();
                 navigationCounter.incrementAndGet();
                 return false;
 
             });
             actionMap.put(ACCEPT, (a, r) -> {
-                getService().ignoreReportedImage(a.getImageReported());
+                db.ignoreReportedImage(a.getImageReported());
                 statIgnore.getAndIncrement();
                 navigationCounter.incrementAndGet();
                 return false;
@@ -126,7 +126,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
 
             new Validator<>(
                     finalEmbed -> {
-                        int reportCount = getService().getReportCount();
+                        int reportCount = db.getReportCount();
                         String description = (navigationCounter.get() == 0) ? null : String.format("You have seen %d %s and decided to delete %d %s and to ignore %d", navigationCounter.get(), CommandUtil.singlePlural(navigationCounter.get(), "image", "images"), statBan.get(), CommandUtil.singlePlural(statBan.get(), "image", "images"), statIgnore.get());
                         String title;
                         if (navigationCounter.get() == 0) {
@@ -143,7 +143,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                                 .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
                                 .setColor(CommandUtil.randomColor());
                     },
-                    () -> getService().getNextReport(maxId, skippedIds),
+                    () -> db.getNextReport(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
                     , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
         } catch (Throwable ex) {

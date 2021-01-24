@@ -48,6 +48,6 @@ public class ScrobblesLbCommand extends LeaderboardCommand<CommandParameters> {
 
     @Override
     public List<LbEntry> getList(CommandParameters params) {
-        return getService().getScrobblesLeaderboard(params.getE().getGuild().getIdLong());
+        return db.getScrobblesLeaderboard(params.getE().getGuild().getIdLong());
     }
 }

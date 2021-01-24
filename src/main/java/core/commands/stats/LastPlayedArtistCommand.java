@@ -31,7 +31,7 @@ public class LastPlayedArtistCommand extends ConcurrentCommand<ArtistParameters>
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        ArtistParser artistParser = new ArtistParser(getService(), lastFM);
+        ArtistParser artistParser = new ArtistParser(db, lastFM);
         artistParser.addOptional(new OptionalEntity("today", "to not include the current day"));
         return artistParser;
     }
@@ -53,11 +53,11 @@ public class LastPlayedArtistCommand extends ConcurrentCommand<ArtistParameters>
 
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
-        ScrobbledArtist artist = CommandUtil.onlyCorrection(getService(), params.getArtist(), lastFM, !params.isNoredirect());
+        ScrobbledArtist artist = CommandUtil.onlyCorrection(db, params.getArtist(), lastFM, !params.isNoredirect());
         long whom = params.getLastFMData().getDiscordId();
         int a;
         LastFMData data = params.getLastFMData();
-        Optional<Instant> instant = getService().getLastScrobbledArtist(artist.getArtistId(), params.getLastFMData().getName(), false);
+        Optional<Instant> instant = db.getLastScrobbledArtist(artist.getArtistId(), params.getLastFMData().getName(), false);
         if (instant.isEmpty()) {
             sendMessageQueue(e, "Couldn't get the last time you scrobbled **" + artist.getArtist() + "**");
             return;

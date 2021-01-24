@@ -40,7 +40,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        ArtistAlbumParser parser = new ArtistAlbumParser(getService(), lastFM, new OptionalEntity("list", "display in list format"));
+        ArtistAlbumParser parser = new ArtistAlbumParser(db, lastFM, new OptionalEntity("list", "display in list format"));
         parser.setExpensiveSearch(true);
         return parser;
     }
@@ -69,12 +69,12 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsMode whoKnowsMode) throws LastFmException {
         ScrobbledArtist validable = new ScrobbledArtist(ap.getArtist(), 0, "");
-        CommandUtil.validate(getService(), validable, lastFM, discogsApi, spotify, false, !ap.isNoredirect());
+        CommandUtil.validate(db, validable, lastFM, discogsApi, spotify, false, !ap.isNoredirect());
         ap.setScrobbledArtist(validable);
         ScrobbledArtist who = ap.getScrobbledArtist();
         long artistId = who.getArtistId();
         WhoKnowsMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
-        long albumId = CommandUtil.albumvalidate(getService(), ap
+        long albumId = CommandUtil.albumvalidate(db, ap
                 .getScrobbledArtist(), lastFM, ap.getAlbum());
         if (albumId == -1) {
             sendMessageQueue(ap.getE(), "Couldn't confirm the album " + ap.getAlbum() + " by " + ap.getScrobbledArtist().getArtist() + " exists :(");
@@ -82,14 +82,14 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
         }
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 effectiveMode.equals(WhoKnowsMode.IMAGE) ?
-                        this.getService().getWhoKnowsAlbums(10, albumId, ap.getE().getGuild().getIdLong()) :
-                        this.getService().getWhoKnowsAlbums(Integer.MAX_VALUE, albumId, ap.getE().getGuild().getIdLong());
+                        this.db.getWhoKnowsAlbums(10, albumId, ap.getE().getGuild().getIdLong()) :
+                        this.db.getWhoKnowsAlbums(Integer.MAX_VALUE, albumId, ap.getE().getGuild().getIdLong());
         wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist());
         try {
 
             AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(ap.getLastFMData(), ap.getArtist(), ap.getAlbum());
             if (playsAlbumArtist.getAlbumUrl() != null && !playsAlbumArtist.getAlbumUrl().isBlank()) {
-                getService().updateAlbumImage(albumId, playsAlbumArtist.getAlbumUrl());
+                db.updateAlbumImage(albumId, playsAlbumArtist.getAlbumUrl());
                 wrapperReturnNowPlaying.setUrl(playsAlbumArtist.getAlbumUrl());
             }
             if (playsAlbumArtist.getPlays() > 0) {

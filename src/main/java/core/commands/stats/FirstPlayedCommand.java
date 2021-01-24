@@ -28,7 +28,7 @@ public class FirstPlayedCommand extends AlbumPlaysCommand {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        return new ArtistSongParser(getService(), lastFM);
+        return new ArtistSongParser(db, lastFM);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class FirstPlayedCommand extends AlbumPlaysCommand {
     protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, MessageReceivedEvent e, long who, ArtistAlbumParameters params) {
         LastFMData lastFMData = params.getLastFMData();
 
-        Optional<Instant> instant = getService().getFirstScrobbled(artist.getArtistId(), song, params.getLastFMData().getName());
+        Optional<Instant> instant = db.getFirstScrobbled(artist.getArtistId(), song, params.getLastFMData().getName());
         if (instant.isEmpty()) {
             sendMessageQueue(e, "Couldn't get the first time you scrobbled **" + song + "** by _" + artist.getArtist() + "_");
             return;

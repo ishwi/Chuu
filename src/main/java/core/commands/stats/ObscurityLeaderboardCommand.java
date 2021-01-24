@@ -53,7 +53,7 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParam
 
     @Override
     public List<LbEntry> getList(CommandParameters params) {
-        return getService().getObscurityRankings(params.getE().getGuild().getIdLong());
+        return db.getObscurityRankings(params.getE().getGuild().getIdLong());
 
     }
 

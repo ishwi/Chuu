@@ -54,7 +54,7 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(getService());
+        return new OnlyUsernameParser(db);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
 
 
         long idLong = e.getAuthor().getIdLong();
-        List<ScoredAlbumRatings> ratings = getService().getUserTopRatedUrlsByEveryoneElse(idLong);
+        List<ScoredAlbumRatings> ratings = db.getUserTopRatedUrlsByEveryoneElse(idLong);
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), idLong);
         String title = userInfoConsideringGuildOrNot.getUsername();
         String url = userInfoConsideringGuildOrNot.getUrlImage();

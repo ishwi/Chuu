@@ -47,7 +47,7 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
-        BotStats botStats = getService().getBotStats();
+        BotStats botStats = db.getBotStats();
         int shardTotal = e.getJDA().getShardInfo().getShardTotal();
         int mb = 1024 * 1024;
         Runtime instance = Runtime.getRuntime();

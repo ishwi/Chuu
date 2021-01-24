@@ -26,7 +26,7 @@ public class GlobalUniquesCommand extends UniqueCommand {
 
     @Override
     public UniqueWrapper<ArtistPlays> getList(long ignored, String lastFmName) {
-        return getService().getGlobalUniques(lastFmName);
+        return db.getGlobalUniques(lastFmName);
     }
 
     @Override

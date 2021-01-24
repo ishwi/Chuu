@@ -77,7 +77,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
-        LastFMData lastFMData = getService().findLastFMData(idLong);
+        LastFMData lastFMData = db.findLastFMData(idLong);
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Only bot admins can review the reported images!");
             return;
@@ -91,7 +91,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         AtomicInteger statAccepeted = new AtomicInteger(0);
         EmbedBuilder embedBuilder = new EmbedBuilder().setTitle("Image Queue Review");
         long maxId;
-        ImageQueue nextQueue = getService().getNextQueue(Long.MAX_VALUE, new HashSet<>());
+        ImageQueue nextQueue = db.getNextQueue(Long.MAX_VALUE, new HashSet<>());
         if (nextQueue == null) {
             maxId = Long.MAX_VALUE;
         } else {
@@ -99,19 +99,19 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         }
         Set<Long> skippedIds = new HashSet<>();
         try {
-            int totalReports = getService().getQueueUrlCount();
+            int totalReports = db.getQueueUrlCount();
             HashMap<String, BiFunction<ImageQueue, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
             actionMap.put(DELETE, (reportEntity, r) -> {
-                getService().rejectQueuedImage(reportEntity.getQueuedId());
+                db.rejectQueuedImage(reportEntity.getQueuedId());
                 statDeclined.getAndIncrement();
                 navigationCounter.incrementAndGet();
                 return false;
 
             });
             actionMap.put(ACCEPT, (a, r) -> {
-                getService().acceptImageQueue(a.getQueuedId(), a.getUrl(), a.getArtistId(), a.getUploader());
+                db.acceptImageQueue(a.getQueuedId(), a.getUrl(), a.getArtistId(), a.getUploader());
                 try {
-                    LastFMData lastFMData1 = getService().findLastFMData(a.getUploader());
+                    LastFMData lastFMData1 = db.findLastFMData(a.getUploader());
                     if (lastFMData1.isImageNotify()) {
                         r.getJDA().retrieveUserById(a.getUploader()).flatMap(User::openPrivateChannel).queue(x ->
                                 x.sendMessage("Your image for " + a.getArtistName() + " has been approved:\n" +
@@ -131,7 +131,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
             });
             new Validator<>(
                     finalEmbed -> {
-                        int reportCount = getService().getQueueUrlCount();
+                        int reportCount = db.getQueueUrlCount();
                         String description = (navigationCounter.get() == 0) ? null :
                                 String.format("You have seen %d %s and decided to reject %d %s and to accept %d",
                                         navigationCounter.get(),
@@ -154,7 +154,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                                 .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
                                 .setColor(CommandUtil.randomColor());
                     },
-                    () -> getService().getNextQueue(maxId, skippedIds),
+                    () -> db.getNextQueue(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
                     , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
         } catch (Throwable ex) {

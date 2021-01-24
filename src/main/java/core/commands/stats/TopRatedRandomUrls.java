@@ -63,16 +63,16 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
             title = "users in this server";
             url = params.getE().getGuild().getIconUrl();
             long idLong = params.getE().getGuild().getIdLong();
-            ratings = getService().getServerTopUrl(idLong);
+            ratings = db.getServerTopUrl(idLong);
         } else {
             if (!myself || (server && !params.getE().isFromGuild())) {
-                ratings = getService().getGlobalTopUrl();
+                ratings = db.getGlobalTopUrl();
 
                 title = "users in the bot";
                 url = params.getE().getJDA().getSelfUser().getAvatarUrl();
             } else {
                 long idLong = e.getAuthor().getIdLong();
-                ratings = getService().getByUserTopRatedUrls(idLong);
+                ratings = db.getByUserTopRatedUrls(idLong);
                 DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), idLong);
                 title = userInfoConsideringGuildOrNot.getUsername();
                 url = userInfoConsideringGuildOrNot.getUrlImage();

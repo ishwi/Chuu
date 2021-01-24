@@ -54,12 +54,12 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
     @Override
     public void onGuildJoin(@Nonnull GuildJoinEvent event) {
         ExecutorsSingleton.getInstance().submit(() -> {
-            getService().createGuild(event.getGuild().getIdLong());
+            db.createGuild(event.getGuild().getIdLong());
             event.getGuild().loadMembers().onSuccess(members -> {
-                Set<Long> allBot = getService().getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
-                Set<Long> thisServer = getService().getAll(event.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
+                Set<Long> allBot = db.getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
+                Set<Long> thisServer = db.getAll(event.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
                 List<Long> toInsert = members.stream().filter(x -> !x.getUser().isBot()).map(x -> x.getUser().getIdLong()).filter(x -> allBot.contains(x) && !thisServer.contains(x)).collect(Collectors.toList());
-                toInsert.forEach(x -> getService().addGuildUser(x, event.getGuild().getIdLong()));
+                toInsert.forEach(x -> db.addGuildUser(x, event.getGuild().getIdLong()));
                 Chuu.getLogger().info("Succesfully added {} {} to server: {}", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members"), event.getGuild().getName());
             });
         });
@@ -71,8 +71,8 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
             return;
         }
         try {
-            LastFMData lastFMData = getService().findLastFMData(event.getUser().getIdLong());
-            getService().addGuildUser(lastFMData.getDiscordId(), event.getGuild().getIdLong());
+            LastFMData lastFMData = db.findLastFMData(event.getUser().getIdLong());
+            db.addGuildUser(lastFMData.getDiscordId(), event.getGuild().getIdLong());
             Chuu.getLogger().info("Succesfully added {} to server: {} ", lastFMData.getDiscordId(), event.getGuild().getName());
         } catch (InstanceNotFoundException e) {
             //Ignored
@@ -88,14 +88,14 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
                 .execute(() -> {
 
                     try {
-                        getService().findLastFMData(idLong);
+                        db.findLastFMData(idLong);
                         Guild guild = event.getJDA().getGuildById(event.getGuild().getIdLong());
                         Chuu.getLogger().info("USER was a registered user {} ", idLong);
 
 
                         // Making sure they really left?
                         if (guild != null && guild.getMember(event.getUser()) == null)
-                            getService()
+                            db
                                     .removeUserFromOneGuildConsequent(idLong, event.getGuild().getIdLong())
                                     ;
 
@@ -106,7 +106,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     public void onStartup(ShardManager jda) {
-        MultiValuedMap<Long, Long> map = getService().getMapGuildUsers();
+        MultiValuedMap<Long, Long> map = db.getMapGuildUsers();
         map.mapIterator().forEachRemaining(key -> {
             List<Long> usersToDelete;
             //Users in guild key
@@ -127,7 +127,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
 //                    //if user in app but not in guild -> mark to delete
 //                    usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser))
 //                            .collect(Collectors.toList());
-//                    usersToDelete.forEach(u -> getService().removeUserFromOneGuildConsequent(u, key));
+//                    usersToDelete.forEach(u -> db.removeUserFromOneGuildConsequent(u, key));
 //                    Chuu.getLogger().info("Deleted Users: {}", usersToDelete.size());
 //                });
                 List<Member> memberList = guild.getMembers();
@@ -138,13 +138,13 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
                 //if user in app but not in guild -> mark to delete
                 usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser))
                         .collect(Collectors.toList());
-                usersToDelete.forEach(u -> getService().removeUserFromOneGuildConsequent(u, key));
+                usersToDelete.forEach(u -> db.removeUserFromOneGuildConsequent(u, key));
                 if (!usersToDelete.isEmpty())
                     Chuu.getLogger().info("Deleted Users in {}: {}", guild.getName(), usersToDelete.size());
 
 
             } else {
-                user.forEach(u -> getService().removeUserFromOneGuildConsequent(u, key));
+                user.forEach(u -> db.removeUserFromOneGuildConsequent(u, key));
             }
         });
     }
@@ -168,7 +168,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
     protected void onCommand(MessageReceivedEvent e, @NotNull UrlParameters urlParameters) {
         String url = urlParameters.getUrl();
         if (url.length() == 0) {
-            getService().removeLogo(e.getGuild().getIdLong());
+            db.removeLogo(e.getGuild().getIdLong());
             sendMessageQueue(e, "Removed logo from the server");
         } else {
 
@@ -180,7 +180,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
                 }
                 image = Scalr.resize(image, Scalr.Method.QUALITY, 75, Scalr.OP_ANTIALIAS);
 
-                getService().addLogo(e.getGuild().getIdLong(), image);
+                db.addLogo(e.getGuild().getIdLong(), image);
                 sendMessageQueue(e, "Logo updated");
             } catch (IOException exception) {
                 Chuu.getLogger().warn(exception.getMessage(), exception);

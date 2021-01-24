@@ -35,7 +35,7 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
             try {
                 PresenceInfo presenceInfo;
 
-                presenceInfo = getService().getRandomArtistWithUrl();
+                presenceInfo = db.getRandomArtistWithUrl();
                 Chuu.updatePresence(presenceInfo.getArtist());
                 this.currentPresence = presenceInfo;
                 Chuu.getLogger()

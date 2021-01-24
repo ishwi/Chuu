@@ -26,7 +26,7 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
 
     @Override
     public Parser<GenreParameters> initParser() {
-        GenreParser genreParser = new GenreParser(getService(), lastFM);
+        GenreParser genreParser = new GenreParser(db, lastFM);
         genreParser.addOptional(new OptionalEntity("global", " show artist with the given tags from all bot users instead of only from this server"));
         return genreParser;
     }
@@ -52,8 +52,8 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
 
         String genre = params.getGenre();
         List<ScrobbledArtist> topInTag = e.isFromGuild()
-                ? getService().getTopInTag(genre, e.getGuild().getIdLong(), 400)
-                : getService().getTopInTag(genre, null, 400);
+                ? db.getTopInTag(genre, e.getGuild().getIdLong(), 400)
+                : db.getTopInTag(genre, null, 400);
 
         MultipleWhoIsTagCommand.sendTopTags(e, params, genre, topInTag);
     }
