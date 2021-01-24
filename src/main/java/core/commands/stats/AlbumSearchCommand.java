@@ -12,11 +12,13 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledAlbum;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AlbumSearchCommand extends ListCommand<ScrobbledAlbum, UserStringParameters> {
     public AlbumSearchCommand(ChuuService dao) {
@@ -67,10 +69,16 @@ public class AlbumSearchCommand extends ListCommand<ScrobbledAlbum, UserStringPa
             e.getChannel().sendMessage(uInfo.getUsername() + " doesnt have any album searching by `" + abbreviate + '`').queue();
             return;
         }
+
+        List<String> strs = list.stream().map(t ->
+                String.format(". **[%s - %s](%s)** - %d %s%n",
+                        LinkUtils.cleanMarkdownCharacter(t.getAlbum()),
+                        LinkUtils.cleanMarkdownCharacter(t.getArtist()), PrivacyUtils.getLastFmAlbumUserUrl(t.getArtist(), t.getAlbum(), params.getLastFMData().getName()),
+                        t.getCount(), CommandUtil.singlePlural(t.getCount(), "play", "plays"))).collect(Collectors.toList());
         StringBuilder a = new StringBuilder();
 
-        for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i).toString());
+        for (int i = 0; i < 10 && i < strs.size(); i++) {
+            a.append(i + 1).append(strs.get(i));
         }
 
         String title = uInfo.getUsername() + "'s albums that match " + abbreviate;
@@ -79,7 +87,7 @@ public class AlbumSearchCommand extends ListCommand<ScrobbledAlbum, UserStringPa
                 .setFooter(list.size() + " matching albums!")
                 .setDescription(a);
         e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(list, mes, embedBuilder));
+                new Reactionary<>(strs, mes, embedBuilder));
     }
 
 

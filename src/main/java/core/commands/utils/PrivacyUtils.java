@@ -38,6 +38,10 @@ public class PrivacyUtils {
         return getLastFmUser(username) + "/library/music/" + encodeUrl(artist);
     }
 
+    public static String getLastFmArtistTrackUserUrl(String artist, String track, String username) {
+        return getLastFmUser(username) + "/library/music/" + encodeUrl(artist) + "/_/" + encodeUrl(track);
+    }
+
     public static String getLastFmGenreUserUrl(String genre, String username) {
         return getLastFmUser(username) + "/tags/" + encodeUrl(genre);
     }

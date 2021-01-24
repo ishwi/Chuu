@@ -12,11 +12,13 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledTrack;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TrackSearchCommand extends ListCommand<ScrobbledTrack, UserStringParameters> {
     public TrackSearchCommand(ChuuService dao) {
@@ -66,20 +68,24 @@ public class TrackSearchCommand extends ListCommand<ScrobbledTrack, UserStringPa
             e.getChannel().sendMessage(uInfo.getUsername() + " doesnt have any track searching by `" + abbreviate + '`').queue();
             return;
         }
+        List<String> strs = list.stream().map(t ->
+                String.format(". **[%s - %s](%s)** - %d %s%n",
+                        LinkUtils.cleanMarkdownCharacter(t.getName()),
+                        LinkUtils.cleanMarkdownCharacter(t.getArtist()), PrivacyUtils.getLastFmArtistTrackUserUrl(t.getArtist(), t.getName(), params.getLastFMData().getName()),
+                        t.getCount(), CommandUtil.singlePlural(t.getCount(), "play", "plays"))).collect(Collectors.toList());
         StringBuilder a = new StringBuilder();
 
-        for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i).toString());
+        for (int i = 0; i < 10 && i < strs.size(); i++) {
+            a.append(i + 1).append(strs.get(i));
         }
 
         String title = uInfo.getUsername() + "'s tracks that match " + abbreviate + "";
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
                 .setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
                 .setFooter(list.size() + " matching tracks!")
-                .setTitle(title)
                 .setDescription(a);
         e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(list, mes, embedBuilder));
+                new Reactionary<>(strs, mes, embedBuilder));
     }
 
 

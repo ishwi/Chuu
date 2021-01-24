@@ -3545,7 +3545,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public List<ScrobbledAlbum> regexAlbum(Connection connection, String regex, long userId) {
         List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
         String s = "select b.album_name,c.name,b.url,b.mbid,a.playnumber  " +
-                "from scrobbled_album a join album b on a.album_id = b.id join artist c on a.artist_id = c.id  join user d on a.lastfm_id = d.discord_id  " +
+                "from scrobbled_album a join album b on a.album_id = b.id join artist c on a.artist_id = c.id  join user d on a.lastfm_id = d.lastfm_id  " +
                 "where d.discord_id = ? and b.album_name regexp  ? order by a.playnumber desc";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, userId);

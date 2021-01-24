@@ -12,11 +12,13 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ArtistSearchCommand extends ListCommand<ScrobbledArtist, UserStringParameters> {
     public ArtistSearchCommand(ChuuService dao) {
@@ -67,10 +69,14 @@ public class ArtistSearchCommand extends ListCommand<ScrobbledArtist, UserString
             e.getChannel().sendMessage(uInfo.getUsername() + " doesnt have any artist searching by `" + abbreviate + "`").queue();
             return;
         }
+        List<String> strs = list.stream().map(t ->
+                String.format(". **[%s](%s)** - %d %s%n",
+                        LinkUtils.cleanMarkdownCharacter(t.getArtist()), PrivacyUtils.getLastFmArtistUserUrl(t.getArtist(), params.getLastFMData().getName()),
+                        t.getCount(), CommandUtil.singlePlural(t.getCount(), "play", "plays"))).collect(Collectors.toList());
         StringBuilder a = new StringBuilder();
 
-        for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i).toString());
+        for (int i = 0; i < 10 && i < strs.size(); i++) {
+            a.append(i + 1).append(strs.get(i));
         }
 
         String title = uInfo.getUsername() + "'s artist that match " + abbreviate;
@@ -79,7 +85,7 @@ public class ArtistSearchCommand extends ListCommand<ScrobbledArtist, UserString
                 .setFooter(list.size() + " matching artists!")
                 .setDescription(a);
         e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(list, mes, embedBuilder));
+                new Reactionary<>(strs, mes, embedBuilder));
     }
 
 
