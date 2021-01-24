@@ -129,12 +129,13 @@ public class ProfileMaker {
     }
 
     private static void makeDrawingStringProcess(String string, Graphics2D g, BufferedImage image, Font ogFont, int xStartingPoint, int widthFit, int ySTARTINGPOINT) {
-        Font font = GraphicUtils.chooseFont(string);
-        g.setFont(font.deriveFont((float) DEFAULT_FONT));
-        int width = (int) GraphicUtils.fitAndGetBounds(string, g, widthFit, 14f).getWidth();
+        StringFitter.FontMetadata fontMetadata = new StringFitterBuilder(DEFAULT_FONT, widthFit)
+                .setMinSize(14).build()
+                .getFontMetadata(g, string);
+        int width = (int) fontMetadata.bounds().getWidth();
         FontMetrics fontMetrics = g.getFontMetrics();
         GraphicUtils
-                .drawStringNicely(g, string, xStartingPoint + (widthFit / 2) - width / 2, ySTARTINGPOINT + fontMetrics
+                .drawStringNicely(g, fontMetadata, xStartingPoint + (widthFit / 2) - width / 2, ySTARTINGPOINT + fontMetrics
                         .getAscent(), image);
         g.setFont(ogFont);
     }

@@ -96,7 +96,6 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                     db.albumUpdate(albumData, artistData, lastFmName);
                     List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                     db.trackUpdate(trackData, artistData, lastFmName);
-                    sendMessageQueue(e, "Successfully updated " + userString + " info!");
                 } finally {
                     synchronized (this) {
                         maxConcurrency.incrementAndGet();
