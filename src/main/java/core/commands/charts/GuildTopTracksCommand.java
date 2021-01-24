@@ -60,7 +60,7 @@ public class GuildTopTracksCommand extends GuildTopCommand {
         AtomicInteger counter = new AtomicInteger(0);
         BlockingQueue<UrlCapsule> collect = guildTop.getResultList().stream().sorted(Comparator.comparingInt(ScrobbledTrack::getCount).reversed()).
                 map(x ->
-                        new TrackChart(x.getUrl(), counter.getAndIncrement(), x.getName(), x.getArtist(), null, x.getCount(), gp.isWriteTitles(), gp.isWritePlays(), gp.isAside())
+                        new TrackChart(x.getImageUrl(), counter.getAndIncrement(), x.getName(), x.getArtist(), null, x.getCount(), gp.isWriteTitles(), gp.isWritePlays(), gp.isAside())
                 ).collect(Collectors.toCollection(LinkedBlockingDeque::new));
         return new CountWrapper<>(guildTop.getRows(), collect);
     }
