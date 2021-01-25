@@ -3098,7 +3098,7 @@ public class ChuuService {
     public Optional<Instant> getFirstScrobbled(long artistId, String song, String lastfmId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getFirstScrobbledArtist(connection, lastfmId, artistId);
+            return queriesDao.getFirstScrobbled(connection, lastfmId, artistId, song);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
