@@ -12,6 +12,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -83,7 +84,7 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(a)
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setTitle(correctedArtist + "'s aliases")
                 .setFooter("You can submit an alias using " + prefix + "alias", null)
                 .setThumbnail(scrobbledArtist.getUrl());

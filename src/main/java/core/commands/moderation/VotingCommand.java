@@ -8,6 +8,7 @@ import core.otherlisteners.Validator;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -44,7 +45,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                     .addField("Vote Count:", String.valueOf(votingEntity.getTotalVotes()), true)
                     .setFooter("Image Count: " + integer + " \nUse \uD83D\uDEAB to report this image")
                     .setImage(CommandUtil.noImageUrl(votingEntity.getUrl()))
-                    .setColor(CommandUtil.randomColor());
+                    .setColor(CommandUtil.pastelColor());
 
     public VotingCommand(ChuuService dao) {
         super(dao);
@@ -170,7 +171,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                             .setDescription(description)
                             .setFooter(String.format("Has %d %s with %d%s", first.getVotes(), CommandUtil.singlePlural(first.getVotes(), "point", "points"), first.getTotalVotes(),
                                     CommandUtil.singlePlural(first.getTotalVotes(), " vote", " votes")))
-                            .setColor(CommandUtil.randomColor());
+                            .setColor(ColorService.computeColor(e));
                 },
                 () -> {
                     if (counter.get() >= allArtistImages.size() - 1) {

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GuildConfigParser extends DaoParser<GuildConfigParams> {
-    private static final Set<String> multipleWordsConfigs = Stream.of(GuildConfigType.NP).map(GuildConfigType::getCommandName).collect(Collectors.toSet());
+    private static final Set<String> multipleWordsConfigs = Stream.of(GuildConfigType.NP, GuildConfigType.COLOR).map(GuildConfigType::getCommandName).collect(Collectors.toSet());
 
     public GuildConfigParser(ChuuService dao, OptionalEntity... opts) {
         super(dao, opts);

@@ -9,6 +9,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.LOOONAParser;
 import core.parsers.Parser;
 import core.parsers.params.LOONAParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.utils.LinkUtils;
@@ -321,7 +322,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         }
         embedBuilder.setTitle(getTitle(ap, usable)).
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
-                .setColor(CommandUtil.randomColor());
+                .setColor(ColorService.computeColor(e));
         e.getChannel().sendMessage(embedBuilder.build())
                 .queue(message1 ->
                         new Reactionary<>(wrapperReturnNowPlaying

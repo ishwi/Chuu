@@ -7,6 +7,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.PresenceInfo;
 import dao.utils.LinkUtils;
@@ -75,7 +76,7 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         String userString = this.getUserString(e, currentPresence.getDiscordId(), DEFAULT_USER);
         EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
                 .setTitle(e.getJDA().getSelfUser().getName() + "'s Featured Artist:", LinkUtils
                         .getLastFmArtistUrl(currentPresence.getArtist()))

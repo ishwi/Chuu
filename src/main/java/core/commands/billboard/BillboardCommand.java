@@ -12,6 +12,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import core.services.BillboardHoarder;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.BillboardEntity;
 import dao.entities.UsersWrapper;
@@ -186,7 +187,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             }
 
             embedBuilder.setTitle("Billboard Top 100 " + getTitle() + "from " + name)
-                    .setColor(CommandUtil.randomColor())
+                    .setColor(ColorService.computeColor(e))
                     .setDescription(a);
             e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                     new Reactionary<>(artistAliases, message1, embedBuilder));

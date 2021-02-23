@@ -47,6 +47,7 @@ public enum NPMode {
     GLOBAL_TRACK_RANK(35),
     EXTENDED_TAGS(36),
     CURRENT_COMBO(37),
+    SCROBBLE_COUNT(38),
     UNKNOWN(-1);
 
     private final int offset;
@@ -145,6 +146,7 @@ public enum NPMode {
             case GLOBAL_TRACK_RANK -> "Your position towards the track crown of the artist in the bot.";
             case EXTENDED_TAGS -> "More tags than the normal mode";
             case CURRENT_COMBO -> "Your current combo";
+            case SCROBBLE_COUNT -> "Total scrobble count on your account";
             case UNKNOWN -> throw new IllegalStateException("Unexpected value: " + this);
         };
 

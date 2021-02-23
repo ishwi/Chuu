@@ -18,6 +18,7 @@ import core.parsers.params.ChartParameters;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
@@ -118,7 +119,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
 
         String title = userName + "'s most common languages" + params.getTime().getDisplayString();
         long count = languageCountByMbid.keySet().size();
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(userUrl)
                 .setFooter(String.format("%s has %d%s%s", CommandUtil.markdownLessUserString(userName, discordId, e), count, count == 1 ? " language" : " languages", usableTime), null)
                 .setTitle(title)

@@ -11,6 +11,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.ColorService;
 import core.services.TagArtistService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -125,7 +126,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                 .addField("Similars:", similarField, false)
                 .addField("Bio:", CommandUtil.cleanMarkdownCharacter(summary.getSummary()), false)
                 .setImage(scrobbledArtist.getUrl())
-                .setColor(CommandUtil.randomColor());
+                .setColor(ColorService.computeColor(e));
         e.getChannel().sendMessage(embedBuilder.build()).queue();
         if (!summary.getTags().isEmpty()) {
             executor.submit(new TagArtistService(db, lastFM, summary.getTags(), new ArtistInfo(scrobbledArtist.getUrl(), summary.getArtistname(), summary.getMbid())));

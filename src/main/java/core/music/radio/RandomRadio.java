@@ -14,11 +14,13 @@ import java.util.concurrent.CompletableFuture;
 
 public class RandomRadio implements RadioSource {
     private final String name;
-    private final Long guildId;
+    private final long guildId;
+    private final boolean onlyServer;
 
-    public RandomRadio(String name, Long guildId) {
+    public RandomRadio(String name, long guildId, boolean onlyServer) {
         this.name = name;
         this.guildId = guildId;
+        this.onlyServer = onlyServer;
     }
 
     @Override
@@ -38,6 +40,7 @@ public class RandomRadio implements RadioSource {
         writer.writeInt(3);
         writer.writeUTF(name);
         writer.writeLong(guildId);
+        writer.writeBoolean(onlyServer);
         writer.close(); // This invokes flush.
     }
 
@@ -50,10 +53,10 @@ public class RandomRadio implements RadioSource {
         int youtubeSkipAttemps = 0;
         do {
             youtubeSkipAttemps++;
-            if (guildId == null) {
-                randomUrl = Chuu.getDao().getRandomUrl();
-            } else {
+            if (onlyServer && guildId != -1L) {
                 randomUrl = Chuu.getDao().getRandomUrlFromServer(guildId);
+            } else {
+                randomUrl = Chuu.getDao().getRandomUrl();
             }
         } while (randomUrl.getUrl().startsWith("https://www.youtube.com") && youtubeSkipAttemps <= 5);
 
@@ -63,6 +66,7 @@ public class RandomRadio implements RadioSource {
             @Override
             public void trackLoaded(AudioTrack track) {
                 track.setUserData(context);
+
                 future.complete(track);
             }
 
@@ -85,7 +89,6 @@ public class RandomRadio implements RadioSource {
                     nextTrack0(context, attempts + 1);
                 }
             }
-
         });
 
         return future;

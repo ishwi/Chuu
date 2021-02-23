@@ -23,8 +23,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
-import core.commands.utils.CommandUtil;
 import core.music.utils.TrackContext;
+import core.services.ColorService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -102,7 +102,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         }
 
         var ignored = pendingEnqueue.size() - added;
-        e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setTitle("Music Queue")
+        e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Music Queue")
                 .setDescription("Added **" + added + "** tracks to queue from playlist **" + playlist.getName() + "**")
                 .setFooter(footnote).build()).queue();
     }
@@ -111,7 +111,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         if (musicManager.isIdle()) {
             musicManager.destroy();
         }
-        e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setTitle("Load Results").setDescription("Unable to load the track:\n`" + exception.getMessage() + "`").build()).queue();
+        e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Load Results").setDescription("Unable to load the track:\n`" + exception.getMessage() + "`").build()).queue();
     }
 
 
@@ -126,7 +126,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         if (musicManager.isIdle()) {
             musicManager.destroy();
         }
-        e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setTitle("Load Results").setDescription("Nothing found by **" + identifier + "**").build()).queue();
+        e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Load Results").setDescription("Nothing found by **" + identifier + "**").build()).queue();
     }
 
     @Override
@@ -135,7 +135,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
             musicManager.destroy();
         }
         e.getChannel().sendMessage(new EmbedBuilder()
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setTitle("Load Results")
                 .setDescription("Unable to load the track:\n`" + exception.getMessage() + "`").build()).queue();
     }

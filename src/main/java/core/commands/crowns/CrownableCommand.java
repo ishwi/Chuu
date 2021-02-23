@@ -10,6 +10,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.CrownableArtist;
 import dao.entities.DiscordUserDisplay;
@@ -76,7 +77,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         }
         boolean isServer = outerParmams.hasOptional("server") && e.isFromGuild();
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(isServer ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl());
         StringBuilder a = new StringBuilder();
         List<String> collect = list.stream().map(x ->

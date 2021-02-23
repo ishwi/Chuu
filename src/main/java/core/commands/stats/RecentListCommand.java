@@ -9,6 +9,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
@@ -70,7 +71,7 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
         //Can't be empty because NoPLaysException
         NowPlayingArtist header = list.get(0);
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(CommandUtil.noImageUrl(header.getUrl()))
                 .setTitle(String.format("%s's last %d tracks", usable, limit),
                         CommandUtil.getLastFmUser(lastFmName));

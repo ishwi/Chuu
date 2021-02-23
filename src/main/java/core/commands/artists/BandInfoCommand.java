@@ -17,6 +17,7 @@ import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.utils.LinkUtils;
@@ -126,7 +127,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         }
         embedBuilder.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.cleanMarkdownCharacter(ai.getArtist()) + " albums").
                 setThumbnail(CommandUtil.noImageUrl(ap.getScrobbledArtist().getUrl())).setDescription(str)
-                .setColor(CommandUtil.randomColor());
+                .setColor(ColorService.computeColor(e));
         e.getChannel().sendMessage(embedBuilder.build())
                 .queue(message ->
                         new Reactionary<>(collect, message, 10, embedBuilder));

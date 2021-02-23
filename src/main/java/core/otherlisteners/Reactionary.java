@@ -1,6 +1,5 @@
 package core.otherlisteners;
 
-import core.commands.utils.CommandUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -72,7 +71,7 @@ public class Reactionary<T> extends ReactionListener {
             a.append(list.get(i).toString());
         }
         who.setDescription(a);
-        who.setColor(CommandUtil.randomColor());
+//        who.setColor(CommandUtil.pastelColor());
         message.editMessage(who.build()).queue();
     }
 
@@ -112,7 +111,7 @@ public class Reactionary<T> extends ReactionListener {
         }
         counter = start;
         who.setDescription(a);
-        who.setColor(CommandUtil.randomColor());
+//        who.setColor(ColorService.computeColor(e));
         message.editMessage(who.build()).queue();
         clearOneReact(event);
 

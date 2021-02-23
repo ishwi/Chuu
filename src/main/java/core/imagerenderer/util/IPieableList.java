@@ -17,21 +17,20 @@ public interface IPieableList<T, Y extends CommandParameters> extends IPieable<L
         parted.put(true, new HashMap<>());
         parted.put(false, new HashMap<>());
         var entries = parted.get(true);
+        var others = parted.get(false);
         Set<String> values = new HashSet<>();
         AtomicInteger counter = new AtomicInteger(1);
-        data.forEach(x -> {
+        data.stream().limit(12).forEach(x -> {
             String newTitles = keyMapping.apply(x);
             if (values.contains(newTitles)) {
                 newTitles += "\u200B".repeat(counter.getAndIncrement());
             } else {
                 values.add(newTitles);
             }
-            if (partitioner.test(x)) {
-                entries.put(newTitles, valueMapping.applyAsInt(x));
-            } else {
-                parted.get(false).put(newTitles, valueMapping.applyAsInt(x));
-            }
+            entries.put(newTitles, valueMapping.applyAsInt(x));
         });
+        int sum = data.stream().skip(12).parallel().mapToInt(valueMapping).sum();
+        others.put("Others\u200B", sum);
         return parted;
     }
 

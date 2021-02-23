@@ -1,0 +1,34 @@
+volumes:
+  lastfm:
+services:
+  musicbrainz:
+    build: ./mb
+    environment:
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+
+  lastfm:
+    image: "mariadb:latest"
+    hostname: lastfm
+    environment:
+      - MYSQL_ROOT_PASSWORD=lastfm
+      - MYSQL_DATABASE=lastfm
+      - MYSQL_USER=lastfm
+      - MYSQL_PASSWORD=lastfm
+    volumes:
+      - lastfm:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    expose:
+      - 3306
+
+  chuu:
+    build: .
+    depends_on:
+      - lastfm
+      - musicbrainz
+    command: sh -c 'bin/wait-for lastfm:3306 --  gradle shadowJar --no-daemon  && java --enable-preview -jar /app/chuu.jar  stop-asking
+
+  redis:
+    image: "redis:alpine"

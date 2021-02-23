@@ -20,6 +20,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.CountryParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ArtistUserPlays;
 import dao.entities.DiscordUserDisplay;
@@ -149,7 +150,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         }
 
         String title = userName + "'s top artists from " + countryRep + (":");
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(userUrl)
                 .setFooter(CommandUtil.markdownLessUserString(userName, discordId, e) + " has " + list.size() +
                         (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)

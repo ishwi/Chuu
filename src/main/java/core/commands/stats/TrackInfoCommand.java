@@ -8,6 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -83,7 +84,7 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
                         , true);
 
         embedBuilder.setImage(trackInfo.getImageUrl() == null || trackInfo.getImageUrl().isBlank() ? null : trackInfo.getImageUrl())
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setThumbnail(artist.getUrl());
         e.getChannel().sendMessage(embedBuilder.build()).
 

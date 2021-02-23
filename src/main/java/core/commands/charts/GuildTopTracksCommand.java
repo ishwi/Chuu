@@ -72,7 +72,7 @@ public class GuildTopTracksCommand extends GuildTopCommand {
         String name = params.getE().getGuild().getName();
         return embedBuilder.setAuthor(name + titleInit,
                 null, params.getE().getGuild().getIconUrl())
-                .setFooter(CommandUtil.markdownLessString(name) + footerText).setColor(CommandUtil.randomColor());
+                .setFooter(CommandUtil.markdownLessString(name) + footerText).setColor(CommandUtil.randomColor(params.getE()));
     }
 
 

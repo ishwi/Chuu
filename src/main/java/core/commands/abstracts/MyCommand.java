@@ -10,6 +10,8 @@ import core.exceptions.*;
 import core.imagerenderer.ChartQuality;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
+import core.services.HeavyCommandRateLimiter;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -38,7 +40,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
     protected final ChuuService db;
     private final CommandCategory category;
     public boolean respondInPrivate = true;
-    boolean isLongRunningCommand = false;
+    protected boolean isLongRunningCommand = false;
     protected final Parser<T> parser;
 
 
@@ -63,7 +65,6 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
     }
 
 
-
     public abstract String getDescription();
 
     public String getUsageInstructions() {
@@ -86,6 +87,21 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
         if (!e.isFromGuild() && !respondInPrivate) {
             sendMessageQueue(e, "This command only works in a server");
             return;
+        }
+        if (isLongRunningCommand) {
+            HeavyCommandRateLimiter.RateLimited rateLimited = HeavyCommandRateLimiter.checkRateLimit(e);
+            switch (rateLimited) {
+                case SERVER -> {
+                    sendMessageQueue(e, "This command takes a while to execute so it cannot be executed in this server more than 2 times per 10 minutes.");
+                    return;
+                }
+                case GLOBAL -> {
+                    sendMessageQueue(e, "This command takes a while to execute so it cannot be executed more than 7 times per 10 minutes.");
+                    return;
+                }
+                case NONE -> measureTime(e);
+
+            }
         }
         measureTime(e);
     }
@@ -144,7 +160,7 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
             s = s.replaceFirst("prefix_to_be_used_yep_yep", Matcher.quoteReplacement(String.valueOf(e.getMessage().getContentStripped().charAt(0))));
 
             e.getChannel().sendMessage(new EmbedBuilder()
-                    .setColor(CommandUtil.randomColor())
+                    .setColor(ColorService.computeColor(e))
                     .setDescription(s).build()).reference(e.getMessage()).queue();
         } catch (LastFMConnectionException ex) {
             parser.sendError("Last.fm is not working well or the bot might be overloaded :(", e);

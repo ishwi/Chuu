@@ -10,6 +10,7 @@ import core.parsers.GuildConfigParser;
 import core.parsers.Parser;
 import core.parsers.params.GuildConfigParams;
 import core.parsers.params.GuildConfigType;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -79,6 +80,21 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 } else {
                     sendMessageQueue(e, "Server chart mode set to: **" + WordUtils.capitalizeFully(chartMode.toString()) + "**");
                 }
+                break;
+            case COLOR:
+                EmbedColor embedColor = EmbedColor.fromString(value);
+                if (embedColor.type() == EmbedColor.EmbedColorType.COLOURS && embedColor.colorList().isEmpty()) {
+                    sendMessageQueue(e, "Couldn't read any colour :(\nTry with different values.");
+                    return;
+                }
+                if (!embedColor.isValid()) {
+                    parser.sendError("Too many colours were introduced. Pls reduce your input a bit", e);
+                    return;
+                }
+                db.setServerColorMode(guildId, embedColor);
+                ColorService.handleServerChange(guildId, embedColor);
+                sendMessageQueue(e, "Guild color mode set to: **" + WordUtils.capitalizeFully(embedColor.toDisplayString()) + "**");
+
                 break;
             case WHOKNOWS_MODE:
                 WhoKnowsMode whoKnowsMode;
@@ -173,6 +189,8 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                     }
                 }
                 break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + config);
         }
     }
 }

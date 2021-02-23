@@ -27,7 +27,7 @@ public enum UserConfigType {
     SHOW_BOTTED("show-botted"),
     NP("np"),
     SCROBBLING("scrobbling"),
-
+    COLOR("color"),
     TIMEZONE("timezone");
 
     static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
@@ -145,6 +145,8 @@ public enum UserConfigType {
                         case SCROBBLING:
                             boolean scroobling = lastFMData != null && lastFMData.isScrobbling();
                             return String.format("**%s** -> %s", key, scroobling);
+                        case COLOR:
+                            return String.format("**%s** -> %s", key, lastFMData == null ? EmbedColor.defaultColor() : lastFMData.getEmbedColor().toDisplayString());
                         case TIMEZONE:
                             return "";
                     }
@@ -167,6 +169,7 @@ public enum UserConfigType {
             case PRIVATE_UPDATE, NOTIFY_IMAGE, NOTIFY_RATING, PRIVATE_LASTFM, SHOW_BOTTED, SCROBBLING -> bool.asMatchPredicate();
             case CHART_SIZE -> ChartParserAux.chartSizePattern.asMatchPredicate();
             case NP -> npMode.asMatchPredicate();
+            case COLOR -> GuildConfigType.colorMode.asMatchPredicate();
             case TIMEZONE -> stringPredicate;
         };
     }
@@ -209,6 +212,10 @@ public enum UserConfigType {
                 return "Setting this will alter the appearance of your np commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
             case SCROBBLING:
                 return "Setting this to false will mean that whatever you play with the bot on a voice channel won't scrooble";
+            case COLOR:
+                collect = EnumSet.allOf(EmbedColor.EmbedColorType.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                return "Set the color for your embeds.\n" +
+                        "\t\tThe possible values for the embed colour are the following:" + collect;
             case TIMEZONE:
                 return "TIMEZONE ";
             default:

@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Date;
@@ -21,6 +22,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
@@ -1427,6 +1429,14 @@ public class ChuuService {
         }
     }
 
+    public void setEmbedColor(long discordId, EmbedColor embedColor) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setUserProperty(connection, discordId, "color", embedColor.toString());
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void setImageNotify(long discordId, boolean imageNotify) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setUserProperty(connection, discordId, "notify_image", imageNotify);
@@ -1559,6 +1569,14 @@ public class ChuuService {
     public void setServerWhoknowMode(long guildId, @Nullable WhoKnowsMode images) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setGuildProperty(connection, guildId, "whoknows_mode", images);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setServerColorMode(long guildId, @NotNull EmbedColor color) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildProperty(connection, guildId, "color", color.toString());
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3304,4 +3322,43 @@ public class ChuuService {
         }
     }
 
+    public Map<Long, Color[]> getServerWithPalette() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getServerWithPalette(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public Map<Long, Color[]> getUsersWithPalette() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getUsersWithPalette(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public Set<Long> getUserWithColorRole() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getUserWithColorRole(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public Set<Long> getServerWithColorRole() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getGuildWithColorRole(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
 }

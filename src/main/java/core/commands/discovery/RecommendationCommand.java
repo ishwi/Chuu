@@ -7,6 +7,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.Parser;
 import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
@@ -121,7 +122,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
 
                 embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
                         .setThumbnail(giverUI.getUrlImage())
-                        .setColor(CommandUtil.randomColor())
+                        .setColor(ColorService.computeColor(e))
                         .setDescription(s);
                 e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
             }

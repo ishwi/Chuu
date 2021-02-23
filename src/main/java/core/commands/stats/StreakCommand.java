@@ -12,6 +12,7 @@ import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
@@ -135,7 +136,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
         embedBuilder.setDescription(description)
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setFooter(String.format("%s has played %s %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), artist.getArtist(), artistPlays, CommandUtil.singlePlural(artistPlays, "time", "times")));
         e.getChannel().sendMessage(embedBuilder.build()).
                 queue();

@@ -11,7 +11,7 @@ import java.util.TimeZone;
 
 public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
     private static final QuadFunction<MessageReceivedEvent, ChartMode, WhoKnowsMode, RemainingImagesMode, LastFMData> DEFAULT_DATA = (e, c, w, r) ->
-            new LastFMData(null, e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : 693124899220226178L, false, false, w, c, r, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true);
+            new LastFMData(null, e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : 693124899220226178L, false, false, w, c, r, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor());
     final ChuuService dao;
     private boolean expensiveSearch = false;
     private boolean allowUnaothorizedUsers = false;

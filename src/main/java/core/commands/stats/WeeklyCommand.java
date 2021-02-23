@@ -9,6 +9,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -131,7 +132,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
             String usableName = userInfo.getUsername();
             minutesWastedOnMusicDaily.setSeconds(totalSeconds.get());
             EmbedBuilder embedBuilder = new EmbedBuilder().setDescription(s)
-                    .setColor(CommandUtil.randomColor())
+                    .setColor(ColorService.computeColor(e))
                     .setTitle(usableName + "'s week", CommandUtil.getLastFmUser(lastFmName.getName()))
                     .setThumbnail(url)
                     .setFooter(String.format("%s has listen to %d distinct tracks (%d total tracks)%n for a total of %s", CommandUtil.markdownLessUserString(usableName, discordID, e), durationsFromWeek.size(), totalTracks.get(),

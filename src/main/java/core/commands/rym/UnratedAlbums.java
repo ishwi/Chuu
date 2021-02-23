@@ -7,6 +7,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.AlbumPlays;
 import dao.entities.DiscordUserDisplay;
@@ -70,7 +71,7 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setDescription(a);
-        embedBuilder.setColor(CommandUtil.randomColor());
+        embedBuilder.setColor(ColorService.computeColor(e));
         embedBuilder.setTitle(dp.getUsername() + "'s Unrated Albums");
         embedBuilder.setFooter("You can link your rym account using " + prefix + "rymimport\n You have " + list.size() + " unrated albums", null);
         embedBuilder.setThumbnail(dp.getUrlImage());

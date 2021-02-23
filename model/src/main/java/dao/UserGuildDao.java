@@ -9,10 +9,12 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -77,7 +79,12 @@ interface UserGuildDao {
 
     void setUserProperty(Connection connection, long discordId, String additional_embed, boolean chartEmbed);
 
+    void setUserProperty(Connection connection, long discordId, String additional_embed, String value);
+
     void setGuildProperty(Connection connection, long guildId, String property, boolean value);
+
+    void setGuildProperty(Connection connection, long guildId, String property, String value);
+
 
     <T extends Enum<T>> void setUserProperty(Connection connection, long discordId, String propertyName, T value);
 
@@ -130,4 +137,12 @@ interface UserGuildDao {
     List<String> getServerReactions(Connection connection, long guildId);
 
     List<String> getUserReacts(Connection connection, long userId);
+
+    Map<Long, Color[]> getServerWithPalette(Connection connection);
+
+    Map<Long, Color[]> getUsersWithPalette(Connection connection);
+
+    Set<Long> getUserWithColorRole(Connection connection);
+
+    Set<Long> getGuildWithColorRole(Connection connection);
 }

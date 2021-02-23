@@ -5,11 +5,11 @@ import core.apis.lyrics.TextSplitter;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
 import core.parsers.DisabledCommandParser;
 import core.parsers.Parser;
 import core.parsers.params.DisabledCommandParameters;
+import core.services.ColorService;
 import core.services.MessageDisablingService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -116,7 +116,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
         }
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setDescription(desc)
-                .setColor(CommandUtil.randomColor());
+                .setColor(ColorService.computeColor(e));
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(pages, message1, 1, embedBuilder, false, true));
     }

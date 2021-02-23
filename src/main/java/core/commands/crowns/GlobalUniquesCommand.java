@@ -12,6 +12,8 @@ public class GlobalUniquesCommand extends UniqueCommand {
     public GlobalUniquesCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = true;
+        isLongRunningCommand = true;
+
     }
 
     @Override

@@ -8,6 +8,7 @@ import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ReportEntity;
@@ -45,7 +46,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                     .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(reportEntity.getArtistName()), LinkUtils.getLastFmArtistUrl(reportEntity.getArtistName())), false)
                     .setFooter(String.format("%d/%d%nUse \uD83D\uDC69\u200D\u2696\ufe0f to remove this image", pos.get() + 1, integer))
                     .setImage(CommandUtil.noImageUrl(reportEntity.getUrl()))
-                    .setColor(CommandUtil.randomColor());
+                    .setColor(CommandUtil.pastelColor());
 
     public ReportReviewCommand(ChuuService dao) {
         super(dao);
@@ -141,7 +142,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                                 .clearFields()
                                 .setDescription(description)
                                 .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
-                                .setColor(CommandUtil.randomColor());
+                                .setColor(ColorService.computeColor(e));
                     },
                     () -> db.getNextReport(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)

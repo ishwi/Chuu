@@ -13,6 +13,7 @@ import core.parsers.DaoParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.ColorService;
 import core.services.tracklist.GlobalTracklistService;
 import core.services.tracklist.TracklistService;
 import dao.ChuuService;
@@ -121,7 +122,7 @@ public class AlbumTracksGlobalDistributionCommand extends AlbumPlaysCommand {
                     }
                     EmbedBuilder embedBuilder = new EmbedBuilder()
                             .setDescription(a)
-                            .setColor(CommandUtil.randomColor())
+                            .setColor(ColorService.computeColor(e))
                             .setTitle(String.format("%s tracklist", album), LinkUtils.getLastFmArtistAlbumUrl(artist, album))
                             .setFooter(String.format("%s has %d total plays on the album!!%n", e.getJDA().getSelfUser().getName(), fullAlbumEntity.getTrackList().stream().mapToInt(Track::getPlays).sum()), null)
                             .setThumbnail(fullAlbumEntity.getAlbumUrl());

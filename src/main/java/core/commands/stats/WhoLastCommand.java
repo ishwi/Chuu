@@ -13,6 +13,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Memoized;
 import dao.entities.ScrobbledArtist;
@@ -63,10 +64,10 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
                 break;
         }
         String usable = CommandUtil.cleanMarkdownCharacter(e.getGuild().getName());
-        embedBuilder.setTitle("Who listened first to " + params.getScrobbledArtist().getArtist() + " in " + usable).
+        embedBuilder.setTitle("Who listened last to " + params.getScrobbledArtist().getArtist() + " in " + usable).
                 setThumbnail(CommandUtil.noImageUrl(params.getScrobbledArtist().getUrl())).setDescription(builder)
                 .setFooter(strings.size() + CommandUtil.singlePlural(strings.size(), " listener", " listeners"))
-                .setColor(CommandUtil.randomColor());
+                .setColor(ColorService.computeColor(e));
         e.getChannel().sendMessage(embedBuilder.build())
                 .queue(message1 ->
                         new Reactionary<>(strings, message1, embedBuilder));

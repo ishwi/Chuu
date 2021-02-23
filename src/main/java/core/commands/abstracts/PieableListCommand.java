@@ -1,10 +1,10 @@
 package core.commands.abstracts;
 
-import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.IPieableList;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -37,7 +37,7 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
 
     public abstract void doPie(T data, Y parameters);
 
-    public EmbedBuilder initList(List<String> strList) {
+    public EmbedBuilder initList(List<String> strList, MessageReceivedEvent event) {
         StringBuilder a = new StringBuilder();
         for (int i = 0, size = strList.size(); i < 10 && i < size; i++) {
             String text = strList.get(i);
@@ -45,7 +45,7 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
         }
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setDescription(a);
-        return embedBuilder.setColor(CommandUtil.randomColor());
+        return embedBuilder.setColor(ColorService.computeColor(event));
     }
 
     public void doPie(PieChart pieChart, Y chartParameters, int count) {

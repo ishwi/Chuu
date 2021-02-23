@@ -8,6 +8,7 @@ import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.ImageQueue;
 import dao.entities.LastFMData;
@@ -43,7 +44,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                     .addField("#Times user got reported:", String.valueOf(reportEntity.getUserReportCount()), true)
                     .setFooter(String.format("%d/%d%nUse \uD83D\uDC69\u200D\u2696\ufe0f to reject this image", pos.get() + 1, totalCount))
                     .setImage(CommandUtil.noImageUrl(reportEntity.getUrl()))
-                    .setColor(CommandUtil.randomColor());
+                    .setColor(CommandUtil.pastelColor());
 
     public UrlQueueReview(ChuuService dao) {
         super(dao);
@@ -152,7 +153,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                                 .clearFields()
                                 .setDescription(description)
                                 .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
-                                .setColor(CommandUtil.randomColor());
+                                .setColor(ColorService.computeColor(e));
                     },
                     () -> db.getNextQueue(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)

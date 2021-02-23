@@ -10,6 +10,7 @@ import core.commands.utils.PrivacyUtils;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.services.ColorService;
 import core.services.SpotifyTrackService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
@@ -71,19 +72,23 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
                     new dao.entities.AudioFeatures(t.getAcousticness(), t.getAnalysisUrl(), t.getDanceability(), t.getDurationMs(), t.getEnergy(), t.getId(), t.getInstrumentalness(), t.getKey(), t.getLiveness(), t.getLoudness(), t.getSpeechiness(), t.getTempo(), t.getTimeSignature(), t.getTrackHref(), t.getUri(), t.getValence())).collect(Collectors.toList());
             db.insertAudioFeatures(audioFeaturesStream);
         });
-        Optional<AudioFeatures> reduce = audioFeatures.stream().reduce((a, b) ->
-                a.builder().setAcousticness(a.getAcousticness() + b.getAcousticness())
-                        .setDanceability(a.getDanceability() + b.getDanceability())
-                        .setDurationMs(a.getDurationMs() + b.getDurationMs())
-                        .setEnergy(a.getEnergy() + b.getEnergy())
-                        .setInstrumentalness(a.getInstrumentalness() + b.getInstrumentalness())
-                        .setKey(a.getKey() + b.getKey())
-                        .setLiveness(a.getLiveness() + b.getLiveness())
-                        .setLoudness((float) (Math.pow(10, (a.getLoudness() + 60) / 10.0) + Math.pow(10, (a.getLoudness() + 60) / 10.0)))
-                        .setSpeechiness(a.getSpeechiness() + b.getSpeechiness())
-                        .setTempo(a.getTempo() + b.getTempo())
-                        .setValence(a.getValence() + b.getValence())
-                        .build());
+        Optional<AudioFeatures> reduce = audioFeatures.stream().reduce((a, b) -> {
+            if (b == null) {
+                return a;
+            }
+            return a.builder().setAcousticness(a.getAcousticness() + b.getAcousticness())
+                    .setDanceability(a.getDanceability() + b.getDanceability())
+                    .setDurationMs(a.getDurationMs() + b.getDurationMs())
+                    .setEnergy(a.getEnergy() + b.getEnergy())
+                    .setInstrumentalness(a.getInstrumentalness() + b.getInstrumentalness())
+                    .setKey(a.getKey() + b.getKey())
+                    .setLiveness(a.getLiveness() + b.getLiveness())
+                    .setLoudness((float) (Math.pow(10, (a.getLoudness() + 60) / 10.0) + Math.pow(10, (a.getLoudness() + 60) / 10.0)))
+                    .setSpeechiness(a.getSpeechiness() + b.getSpeechiness())
+                    .setTempo(a.getTempo() + b.getTempo())
+                    .setValence(a.getValence() + b.getValence())
+                    .build();
+        });
         double[] doubles = audioFeatures.stream().mapToDouble(AudioFeatures::getLoudness).toArray();
         OptionalDouble average = Arrays.stream(doubles).map(x -> Math.pow(10, (x + 60) / 10.0)).average();
         if (reduce.isEmpty()) {
@@ -98,7 +103,7 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
         AudioFeatures audioFeature = reduce.get();
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("Audio features for " + userInfoNotStripped.getUsername(), PrivacyUtils.getLastFmUser(lastFMData.getName()), userInfoNotStripped.getUrlImage())
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .addField("Happiness:", df.format(audioFeature.getValence() / s), true)
                 .addField("Acousticness:", df.format(audioFeature.getAcousticness() / s), true)
                 .addField("Danceability:", df.format(audioFeature.getDanceability() / s), true)

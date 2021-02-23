@@ -14,6 +14,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
@@ -151,7 +152,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle(name + "'s profile", CommandUtil.getLastFmUser(lastFmName))
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setThumbnail(userInfo.getImage().isEmpty() ? null : userInfo.getImage())
                 .setDescription(stringBuilder)
                 .setFooter("Account created on " + date);

@@ -7,6 +7,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
 import core.parsers.RYMRatingParser;
 import core.parsers.params.RYMRatingParams;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.RymStats;
@@ -121,7 +122,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         }
         RymStats stats = db.getUserRymStatms(params.getLastFMData().getDiscordId());
         embedBuilder
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage())
                 .setFooter(userInfoConsideringGuildOrNot.getUsername() + " has rated " + stats.getNumberOfRatings() + " albums with an average of " + formatter.format(stats.getAverage() / 2f))
                 .setDescription(a);

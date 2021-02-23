@@ -115,8 +115,8 @@ public class Spotify {
     }
 
     public List<AudioFeatures> getAudioFeatures(Set<String> ids) {
-        List<AudioFeatures> audioFeatures = new ArrayList<>();
         initRequest();
+        List<AudioFeatures> audioFeatures = new ArrayList<>();
         if (ids.isEmpty()) {
             return audioFeatures;
         }
@@ -128,7 +128,7 @@ public class Spotify {
             GetAudioFeaturesForSeveralTracksRequest build = spotifyApi.getAudioFeaturesForSeveralTracks(strings).build();
             try {
                 AudioFeatures[] execute = build.execute();
-                audioFeatures.addAll(Arrays.asList(execute));
+                audioFeatures.addAll(Arrays.stream(execute).filter(Objects::nonNull).collect(Collectors.toList()));
             } catch (IOException | SpotifyWebApiException | ParseException e) {
                 Chuu.getLogger().warn(e.getMessage(), e);
             }
@@ -146,7 +146,9 @@ public class Spotify {
         try {
             Paging<AlbumSimplified> albumSimplifiedPaging = searchAlbum(artist, album);
             for (AlbumSimplified item : albumSimplifiedPaging.getItems()) {
-                returned = item.getId();
+                if (item != null) {
+                    returned = item.getId();
+                }
             }
 
         } catch (IOException | SpotifyWebApiException | ParseException e) {

@@ -19,12 +19,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ServerTags extends PieableListCommand<List<TagPlays>, CommandParameters> {
+public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, CommandParameters> {
     public final PieableListResultWrapper<TagPlays, CommandParameters> pie;
 
-    public ServerTags(ChuuService dao) {
+    public ServerTagsCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
+        isLongRunningCommand = true;
         this.pie = new PieableListResultWrapper<>(this.parser,
                 TagPlays::getTag,
                 TagPlays::getCount);
@@ -78,7 +79,7 @@ public class ServerTags extends PieableListCommand<List<TagPlays>, CommandParame
                 String.format(". [%s](%s) - %d %s\n", LinkUtils.cleanMarkdownCharacter(x.getTag()),
                         LinkUtils.getLastFmArtistUrl(x.getTag()), x.getCount(), buzzz))
                 .collect(Collectors.toList());
-        EmbedBuilder embedBuilder = initList(collect)
+        EmbedBuilder embedBuilder = initList(collect, e)
                 .setTitle("Server Tags")
                 .setThumbnail(e.getGuild().getIconUrl());
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->

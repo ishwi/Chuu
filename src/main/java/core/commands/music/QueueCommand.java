@@ -29,6 +29,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -127,7 +128,7 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
 //        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, e.getAuthor().getIdLong());
         embedBuilder
                 .setDescription(str.stream().limit(10).collect(Collectors.joining()))
-                .setColor(CommandUtil.randomColor());
+                .setColor(ColorService.computeColor(e));
         channel.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(m -> new Reactionary<>(str, m, 10, embedBuilder, false, true));
     }
 }

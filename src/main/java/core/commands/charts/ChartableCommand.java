@@ -156,7 +156,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
 
         EmbedBuilder embedBuilder = configEmbed(new EmbedBuilder()
                 .setDescription(a)
-                .setColor(CommandUtil.randomColor())
+                .setColor(CommandUtil.randomColor(params.getE()))
                 .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage()), params, count);
         params.getE().getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(urlCapsules, message1, embedBuilder));

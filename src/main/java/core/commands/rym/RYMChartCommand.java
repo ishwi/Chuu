@@ -114,7 +114,7 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
         return embedBuilder.setAuthor(tile, url)
                 .setThumbnail(url)
                 .setFooter("Top " + params.getX() * params.getY() + " rated albums in " + tile)
-                .setColor(CommandUtil.randomColor());
+                .setColor(CommandUtil.randomColor(params.getE()));
 
     }
 

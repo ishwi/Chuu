@@ -12,6 +12,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.FullAlbumEntityExtended;
 import dao.entities.Rating;
@@ -120,7 +121,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
                         , userRatings.size(),
                         CommandUtil.singlePlural(userRatings.size(), "person", "people")))
                 .setThumbnail(chuu)
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setDescription(a.toString() + "\n" + name + "\n" + global);
 
         e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->

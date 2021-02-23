@@ -11,6 +11,7 @@ import core.parsers.UserConfigParser;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.UserConfigParameters;
 import core.parsers.params.UserConfigType;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -68,6 +69,20 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 } else {
                     sendMessageQueue(e, "Successfully made non private the update for user " + getUserString(e, e.getAuthor().getIdLong()));
                 }
+                break;
+            case COLOR:
+                EmbedColor embedColor = EmbedColor.fromString(value);
+                if (embedColor.type() == EmbedColor.EmbedColorType.COLOURS && embedColor.colorList().isEmpty()) {
+                    sendMessageQueue(e, "Couldn't read any colour :(\nTry with different values.");
+                    return;
+                }
+                if (!embedColor.isValid()) {
+                    parser.sendError("Too many colours were introduced. Pls reduce your input a bit", e);
+                    return;
+                }
+                db.setEmbedColor(e.getAuthor().getIdLong(), embedColor);
+                ColorService.handleUserChange(e.getAuthor().getIdLong(), embedColor);
+                sendMessageQueue(e, "Guild color mode set to: **" + WordUtils.capitalizeFully(embedColor.toDisplayString()) + "**");
                 break;
             case NOTIFY_IMAGE:
                 b = Boolean.parseBoolean(value);

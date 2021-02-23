@@ -12,6 +12,7 @@ import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.GlobalCrown;
 import dao.entities.LastFMData;
@@ -82,7 +83,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         int totalPeople = globalArtistRanking.size();
         int totalPlays = globalArtistRanking.stream().mapToInt(GlobalCrown::getPlaycount).sum();
         EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setColor(CommandUtil.randomColor());
+                .setColor(ColorService.computeColor(e));
 
         if (yourPosition.isPresent()) {
             GlobalCrown globalCrown = yourPosition.get();

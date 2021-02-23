@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class UserConfigParser extends DaoParser<UserConfigParameters> {
-    private static final Set<String> multipleWordsConfigs = Stream.of(UserConfigType.NP).map(UserConfigType::getCommandName).collect(Collectors.toSet());
+    private static final Set<String> multipleWordsConfigs = Stream.of(UserConfigType.NP, UserConfigType.COLOR).map(UserConfigType::getCommandName).collect(Collectors.toSet());
 
     public UserConfigParser(ChuuService dao, OptionalEntity... opts) {
         super(dao, opts);

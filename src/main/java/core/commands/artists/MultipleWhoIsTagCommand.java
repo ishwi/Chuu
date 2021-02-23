@@ -9,6 +9,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.MultipleGenresParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.SearchMode;
@@ -42,7 +43,7 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
 
         String title = usableServer + "'s top tagged artist with " + genre + (":");
         String text = CommandUtil.rand.nextInt(324) % 5 == 2 ? "Use artistgenre or albumgenre for your artist or albums of the given genre" : null;
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(url)
                 .setFooter(text, null)
                 .setTitle(title)

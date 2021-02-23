@@ -8,6 +8,7 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.TasteRenderer;
 import core.otherlisteners.Reactionary;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import core.services.UserInfoService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -100,7 +101,7 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(stringBuilder)
                 .setTitle(String.format("%s vs %s", uinfo.getUsername(), uinfo1.getUsername()))
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setFooter(String.format("Both user have %d common %s", resultWrapper.getRows(), getEntity(params)), null)
                 .setThumbnail(uinfo1.getUrlImage());
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->

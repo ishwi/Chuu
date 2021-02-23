@@ -1,3 +1,4 @@
+/*!40014 SET FOREIGN_KEY_CHECKS = 0 */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `album`
@@ -1583,3 +1584,15 @@ DELIMITER ;
 /*!40111 SET SQL_NOTES = @OLD_SQL_NOTES */;
 
 -- Dump completed on 2021-01-25 22:40:27
+DELIMITER ;;
+CREATE PROCEDURE `insert_weeks`()
+BEGIN
+    SET @t_current = date('2002-01-01' - interval weekday('2002-01-01') day);
+    SET @t_end = DATE_ADD(date(curdate() - interval weekday(curdate()) day), INTERVAL 10 YEAR);
+    WHILE(@t_current < @t_end)
+        DO
+            INSERT INTO week(week_start) VALUES (@t_current);
+            SET @t_current = DATE_ADD(@t_current, INTERVAL 7 day);
+        END WHILE;
+END ;;
+DELIMITER ;

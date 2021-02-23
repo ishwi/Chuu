@@ -12,6 +12,7 @@ import core.parsers.Parser;
 import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
 import core.parsers.utils.CustomTimeFrame;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -157,7 +158,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle(String.format("%s album recommendations for %s", giver, receiver))
                 .setThumbnail(giverUI.getUrlImage())
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setDescription(a);
         e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(stringedList, mes, 10, embedBuilder));

@@ -11,6 +11,7 @@ import core.parsers.OptionableParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
@@ -85,7 +86,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                 controlAccess.refresh(e.getGuild().getIdLong());
             }
         }
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setTitle(
                         (showFresh ? "What is being played now in " : "What was being played in ")

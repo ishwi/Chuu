@@ -44,7 +44,7 @@ public interface RadioSource {
         RadioSource ctx = switch (reader.readInt()) {
             case 1 -> new DiscordRadio(reader.readUTF());
             case 2 -> new PlaylistRadio(reader.readUTF(), reader.readUTF());
-            case 3 -> new RandomRadio(reader.readUTF(), reader.readLong());
+            case 3 -> new RandomRadio(reader.readUTF(), reader.readLong(), reader.readBoolean());
             default -> throw new IllegalArgumentException("Invalid contextType $sourceType!");
         };
 

@@ -33,7 +33,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
                     .addField("Alias:", aliasEntity.getAlias(), false)
                     .addField("Artist to be aliased:", aliasEntity.getArtistName(), false)
                     .addField("Added:", aliasEntity.getDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-dd-mm HH:mm 'UTC'")), false)
-                    .setColor(CommandUtil.randomColor());
+                    .setColor(CommandUtil.pastelColor());
 
     public AliasReviewCommand(ChuuService dao) {
         super(dao);

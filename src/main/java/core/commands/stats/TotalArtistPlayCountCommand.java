@@ -63,7 +63,7 @@ public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlay
         List<String> collect = list.stream().map(x -> String.format(". [%s](%s) - %d plays %n",
                 CommandUtil.cleanMarkdownCharacter(x.getArtistName()), LinkUtils.getLastFmArtistUrl(x.getArtistName()), x.getCount()))
                 .collect(Collectors.toList());
-        EmbedBuilder embedBuilder = initList(collect)
+        EmbedBuilder embedBuilder = initList(collect, e)
                 .setTitle("Total artist plays")
                 .setFooter(String.format("%s has %d total plays!%n", e.getGuild().getName(), wrapper.getRows()), null)
                 .setThumbnail(e.getGuild().getIconUrl());

@@ -64,7 +64,6 @@ dependencies {
     implementation('net.dv8tion:JDA:4.2.0_227')
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'org.json', name: 'json', version: '20201115'
-    implementation 'org.beryx:awt-color-factory:1.0.2'
     implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.98'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-core', version: '3.6.1'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.6.1'

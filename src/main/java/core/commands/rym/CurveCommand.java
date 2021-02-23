@@ -7,6 +7,7 @@ import core.commands.utils.PrivacyUtils;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -54,7 +55,7 @@ public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("Breakdown by rating for " + uInfo.getUsername(), PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
-                .setColor(CommandUtil.randomColor());
+                .setColor(ColorService.computeColor(e));
         userCurve.entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey)).forEachOrdered(x -> {
 
             Integer key = x.getKey();

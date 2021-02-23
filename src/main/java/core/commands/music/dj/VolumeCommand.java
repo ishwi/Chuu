@@ -25,6 +25,7 @@ import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -77,13 +78,13 @@ public class VolumeCommand extends MusicCommand<NumberParameters<CommandParamete
         int currentVolume = manager.getPlayer().getVolume();
         if (volume == null) {
             String bar = buildBar(currentVolume);
-            e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setTitle("Volume").setDescription(bar)
+            e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Volume").setDescription(bar)
                     .setFooter("Set the volume by using " + CommandUtil.getMessagePrefix(e) + "volume (number)").build()).queue();
             return;
         }
         String bar = buildBar(volume);
         manager.getPlayer().setVolume(volume.intValue());
-        e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setTitle("Volume").setDescription(bar)
+        e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Volume").setDescription(bar)
                 .setFooter("Volume changed from " + currentVolume + " to " + volume).build()).queue();
     }
 

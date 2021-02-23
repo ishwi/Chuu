@@ -70,7 +70,7 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
                 "](" + LinkUtils.getLastFmArtistUrl(x.getArtistName()) +
                 ") - " + x.getCount() +
                 " listeners \n").collect(Collectors.toList());
-        EmbedBuilder embedBuilder = initList(collect)
+        EmbedBuilder embedBuilder = initList(collect, e)
                 .setTitle("Artist's frequencies")
                 .setFooter(String.format("%s has %d different artists!%n", e.getGuild().getName(), wrapper.getRows()), null)
                 .setThumbnail(e.getGuild().getIconUrl());

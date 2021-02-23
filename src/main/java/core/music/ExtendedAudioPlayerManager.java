@@ -43,6 +43,7 @@ import core.Chuu;
 import core.music.sources.bandcamp.CustomBandcampAudioSourceManager;
 import core.music.sources.spotify.SpotifyAudioSourceManager;
 import core.music.utils.TrackContext;
+import core.music.utils.YoutubeSearchManagerSingleton;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -63,7 +64,7 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
         AudioConfiguration configuration = getConfiguration();
         configuration.setFilterHotSwapEnabled(true);
         configuration.setFrameBufferFactory(NonAllocatingAudioFrameBuffer::new);
-        YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager(true);
+        YoutubeAudioSourceManager youtubeAudioSourceManager = YoutubeSearchManagerSingleton.getInstance();
 
         if (Chuu.ipv6Block != null && !Chuu.ipv6Block.isEmpty()) {
             @SuppressWarnings("rawtypes") List<IpBlock> blocks = List.of(new Ipv6Block(Chuu.ipv6Block));

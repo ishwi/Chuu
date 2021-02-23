@@ -3,7 +3,6 @@ package core.commands.moderation;
 import core.Chuu;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
@@ -12,6 +11,7 @@ import core.parsers.FileParser;
 import core.parsers.Parser;
 import core.parsers.params.UrlParameters;
 import core.parsers.utils.CustomTimeFrame;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -115,7 +115,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
 
         //Never registered before
-        LastFMData lastFMData = new LastFMData(lastfmid, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true);
+        LastFMData lastFMData = new LastFMData(lastfmid, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor());
         lastFMData.setGuildID(guildID);
 
         db.
@@ -207,7 +207,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
         }
 //        PrivateChannel privateChannel = e.getAuthor().openPrivateChannel().complete();
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setTitle("Import In Progress")
                 .setFooter("Total users to import: " + arr.length())
                 .setThumbnail("https://cdnjs.cloudflare.com/ajax/libs/prettyPhoto/3.1.6/images/prettyPhoto/dark_rounded/loader.gif");
@@ -226,7 +226,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
             long userId = Long.parseLong(jsonObject.optString("discordUserID"));
             String lastfmid = jsonObject.getString("lastFMUsername");
-            LastFMData lastFMData = new LastFMData(lastfmid, userId, guildID, respondInPrivate, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true);
+            LastFMData lastFMData = new LastFMData(lastfmid, userId, guildID, respondInPrivate, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor());
             queue.add(consumer.executeCallback(lastFMData, stringBuilder, complete, embedBuilder, e.getAuthor(), i, counter));
 
         }

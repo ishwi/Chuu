@@ -8,6 +8,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
@@ -73,7 +74,7 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(a)
                 .setTitle("Most Popular artists")
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setFooter(String.format("%s has %d different artists!%n", e.getJDA().getSelfUser().getName(), list.getRows()), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->

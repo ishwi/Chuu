@@ -2,13 +2,13 @@ package core.commands.music.dj;
 
 import core.Chuu;
 import core.commands.abstracts.MusicCommand;
-import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
-import core.music.radio.RadioTrackContext;
 import core.music.radio.RandomRadio;
+import core.music.radio.RandomRadioTrackContext;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.VoiceChannel;
@@ -48,11 +48,11 @@ public class RandomRadioCommand extends MusicCommand<CommandParameters> {
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         MusicManager musicManager = Chuu.playerRegistry.get(e.getGuild());
-        RadioTrackContext context = new RadioTrackContext(e.getAuthor().getIdLong(), e.getChannel().getIdLong(), new RandomRadio("Random Radio", params.hasOptional("server") ? e.getGuild().getIdLong() : null));
+        RandomRadioTrackContext context = new RandomRadioTrackContext(e.getAuthor().getIdLong(), e.getChannel().getIdLong(), new RandomRadio("Random Radio", params.hasOptional("server") ? e.getGuild().getIdLong() : -1, params.hasOptional("server")));
         musicManager.setRadio(context);
 
 
-        e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor())
+        e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setTitle("Radio")
                 .setDescription("Radio set to " + "`Random Radio`. The radio will be played when there's nothing else queued").build()).queue();
         if (musicManager.isIdle()) {

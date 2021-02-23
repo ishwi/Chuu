@@ -7,6 +7,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.RymStats;
 import dao.entities.ScoredAlbumRatings;
@@ -59,7 +60,7 @@ public class TopRatingsCommand extends ListCommand<ScoredAlbumRatings, CommandPa
         MessageReceivedEvent e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
         StringBuilder a = new StringBuilder();
 
@@ -75,7 +76,7 @@ public class TopRatingsCommand extends ListCommand<ScoredAlbumRatings, CommandPa
         embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName()) + "'s Top Ranked Albums")
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl())
                 .setFooter(String.format(e.getJDA().getSelfUser().getName() + " users have rated a total of %s albums with an average of %s!", rymServerStats.getNumberOfRatings(), formatter.format(rymServerStats.getAverage() / 2f)), null)
-                .setColor(CommandUtil.randomColor());
+                .setColor(ColorService.computeColor(e));
 
         e.getChannel().sendMessage(embedBuilder.build()).queue(message ->
                 new Reactionary<>(list, message, embedBuilder));

@@ -10,6 +10,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Affinity;
 import dao.entities.LastFMData;
@@ -140,7 +141,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
                 EmbedBuilder embedBuilder = new EmbedBuilder();
 
                 embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
-                        .setColor(CommandUtil.randomColor())
+                        .setColor(ColorService.computeColor(e))
                         .setDescription(s);
                 e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
             }

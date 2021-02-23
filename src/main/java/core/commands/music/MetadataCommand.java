@@ -8,6 +8,7 @@ import core.music.sources.MetadataTrack;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Metadata;
 import dao.entities.TriFunction;
@@ -72,10 +73,10 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
             Optional<Metadata> metadata = Optional.ofNullable(manager.getMetadata());
             String finalUrl = url;
             String finalAlbum = album;
-            metadata.ifPresentOrElse(meta -> e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(meta.image()).setTitle("Current song metadata", identifier)
+            metadata.ifPresentOrElse(meta -> e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(meta.image()).setTitle("Current song metadata", identifier)
                     .setDescription(mapper.apply(meta.artist(), meta.album(), meta.song())).build()).
                     queue(), () ->
-                    e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(finalUrl)
+                    e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(finalUrl)
                             .setTitle("Current song metadata", identifier)
                             .setThumbnail(finalUrl)
                             .setDescription(mapper.apply(track.getInfo().author, finalAlbum, track.getInfo().title))
@@ -96,7 +97,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
         Metadata metadata = new Metadata(artist, song, matchedAlbum, image);
         manager.setMetadata(metadata);
         db.storeMetadata(identifier, metadata);
-        e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setThumbnail(image)
+        e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(image)
                 .setTitle("Current song metadata", identifier)
                 .setDescription(mapper.apply(artist, matchedAlbum, song))
                 .build()).

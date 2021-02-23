@@ -9,6 +9,7 @@ import core.exceptions.LastFMServiceException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -48,7 +49,11 @@ public class CommandUtil {
                 .isEmpty() ? "https://lastfm-img2.akamaized.net/i/u/174s/4128a6eb29f94943c9d206c08e625904" : artist;
     }
 
-    public static Color randomColor() {
+    public static Color randomColor(MessageReceivedEvent event) {
+        return ColorService.computeColor(event);
+    }
+
+    public static Color pastelColor() {
         double r = rand.nextFloat() / 2f + 0.5;
         double g = rand.nextFloat() / 2f + 0.5;
         double b = rand.nextFloat() / 2f + 0.5;

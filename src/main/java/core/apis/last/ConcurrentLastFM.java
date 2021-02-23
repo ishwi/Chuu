@@ -21,7 +21,6 @@ import core.services.OAuthService;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import net.dv8tion.jda.internal.utils.tuple.Pair;
-import org.apache.commons.io.output.StringBuilderWriter;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -93,10 +92,10 @@ public class ConcurrentLastFM {//implements LastFMService {
     final String apiKey;
     final HttpClient client;
     private static final int SONG_AVERAGE_DURATION = 200;
-    private final String secret;
+    private final @Nullable String secret;
     private final OAuthService oAuthService;
 
-    public ConcurrentLastFM(String apikey, String secret) {
+    public ConcurrentLastFM(String apikey, @Nullable String secret) {
         this.apiKey = "&api_key=" + apikey;
         this.secret = secret;
         this.client = ClientSingleton.getInstance();
@@ -1838,19 +1837,13 @@ public class ConcurrentLastFM {//implements LastFMService {
 
         ScrobblePost scrobblePost = new ScrobblePost("track.scrobble", scrobble.artist(), scrobble.song(), scrobble.album(), null, null, instant.getEpochSecond(), null, null, apiKey.split("=")[1], sessionKey);
         JSONObject jsonObject = doPost(scrobblePost);
-        StringBuilderWriter writer = new StringBuilderWriter();
-        jsonObject.write(writer);
-        System.out.println(writer.toString());
+
     }
 
     public void flagNP(String sessionKey, Scrobble scrobble) throws LastFmException {
 
         ScrobblePost scrobblePost = new ScrobblePost("track.updateNowPlaying", scrobble.artist(), scrobble.song(), scrobble.album(), null, null, null, null, null, apiKey.split("=")[1], sessionKey);
         JSONObject jsonObject = doPost(scrobblePost);
-        StringBuilderWriter writer = new StringBuilderWriter();
-        jsonObject.write(writer);
-        System.out.println(writer.toString());
-
 
     }
 

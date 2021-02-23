@@ -34,6 +34,7 @@ import core.music.radio.RadioTrackContext;
 import core.music.utils.RepeatOption;
 import core.music.utils.Task;
 import core.music.utils.TrackContext;
+import core.services.ColorService;
 import dao.entities.Metadata;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -189,7 +190,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             audioManager.setSendingHandler(this);
             audioManager.openAudioConnection(channel);
 
-            e.getChannel().sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setTitle("Music Playback").setDescription("Joining channel <#" + channel.getId() + ">").build()).queue();
+            e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Music Playback").setDescription("Joining channel <#" + channel.getId() + ">").build()).queue();
 
             return true;
         }
@@ -294,7 +295,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
                     .append(" requested by ").append("<@").append(reqData.requester()).append(">");
             announcementChannel.sendMessage(new EmbedBuilder()
                     .setDescription(a)
-                    .setColor(CommandUtil.randomColor()).build()).queue(t -> lastTimeAnnounced = System.currentTimeMillis());
+                    .setColor(CommandUtil.pastelColor()).build()).queue(t -> lastTimeAnnounced = System.currentTimeMillis());
         }
     }
 

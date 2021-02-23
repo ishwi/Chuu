@@ -21,6 +21,7 @@ import core.scheduledtasks.ArtistMbidUpdater;
 import core.scheduledtasks.ImageUpdaterThread;
 import core.scheduledtasks.SpotifyUpdaterThread;
 import core.scheduledtasks.UpdaterThread;
+import core.services.ColorService;
 import core.services.MessageDeletionService;
 import core.services.MessageDisablingService;
 import dao.ChuuService;
@@ -195,6 +196,7 @@ public class Chuu {
         ipv6Block = properties.getProperty("IPV6_BLOCK");
         dao = new ChuuService();
         prefixMap = initPrefixMap(dao);
+        ColorService.init(dao);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
         playerManager = new ExtendedAudioPlayerManager();

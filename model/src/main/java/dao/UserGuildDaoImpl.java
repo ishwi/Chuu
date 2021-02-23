@@ -12,9 +12,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.*;
+import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -94,7 +96,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
         /* Create "queryString". */
-        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling FROM user WHERE discord_id = ?";
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color FROM user WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -129,10 +131,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
             boolean showBotted = resultSet.getBoolean(i++);
             String token = (resultSet.getString(i++));
             String session = (resultSet.getString(i++));
-            boolean scrobbling = (resultSet.getBoolean(i));
+            boolean scrobbling = (resultSet.getBoolean(i++));
+            String color = resultSet.getString(i);
+            EmbedColor embedColor = EmbedColor.fromString(color);
 
-
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling);
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -486,7 +489,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException {
         @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image," +
                 "a.chart_mode,a.whoknows_mode,a.remaining_mode,a.default_x,a.default_y,a.privacy_mode,a.notify_rating,a.private_lastfm," +
-                "timezone,show_botted,token,sess,scrobbling " +
+                "timezone,show_botted,token,sess,scrobbling,color " +
                 "FROM   user a" +
                 " WHERE  a.lastfm_id = ? ";
 
@@ -519,9 +522,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
             String token = (resultSet.getString(16));
             String session = (resultSet.getString(17));
             boolean scrobbling = (resultSet.getBoolean(18));
+            String color = resultSet.getString(19);
+            EmbedColor embedColor = EmbedColor.fromString(color);
 
-
-            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling);
+            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor);
 
 
             /* Get results. */
@@ -719,6 +723,22 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
+    public void setUserProperty(Connection connection, long discordId, String property, String value) {
+        @Language("MariaDB") String queryString = "UPDATE  user SET  " + property + " = ? WHERE discord_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setString(i++, value);
+            preparedStatement.setLong(i, discordId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public void setGuildProperty(Connection connection, long guildId, String property, boolean value) {
         @Language("MariaDB") String queryString = "UPDATE  guild SET  " + property + " = ? WHERE guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -734,6 +754,24 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
 
     }
+
+    @Override
+    public void setGuildProperty(Connection connection, long guildId, String property, String value) {
+        @Language("MariaDB") String queryString = "UPDATE  guild SET  " + property + " = ? WHERE guild_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setString(i++, value);
+            preparedStatement.setLong(i, guildId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
 
     @Override
     public <T extends Enum<T>> void setUserProperty(Connection connection, long discordId, String propertyName, T value) {
@@ -754,7 +792,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public GuildProperties getGuild(Connection connection, long discordId) throws InstanceNotFoundException {
         @Language("MariaDB") String queryString = "select " +
-                "guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning,override_reactions,allow_reactions from guild where guild_id = ? ";
+                "guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning,override_reactions,allow_reactions,color from guild where guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -775,11 +813,12 @@ public class UserGuildDaoImpl implements UserGuildDao {
             boolean disabledWarning = resultSet.getBoolean("disabled_warning");
             OverrideMode override_reactions = OverrideMode.valueOf(resultSet.getString("override_reactions"));
             boolean allowReactions = resultSet.getBoolean("allow_reactions");
-
+            String color = resultSet.getString("color");
+            EmbedColor embedColor = EmbedColor.fromString(color);
 
             RemainingImagesMode remainingImagesMode = remaining_mode == null ? null : RemainingImagesMode.valueOf(remaining_mode);
 
-            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, override_reactions, allowReactions, remainingImagesMode, deleteMessages, disabledWarning);
+            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, override_reactions, allowReactions, remainingImagesMode, deleteMessages, disabledWarning, embedColor);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -798,7 +837,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 "a.notify_rating, " +
                 " private_lastfm," +
                 "timezone, " +
-                "show_botted, token, sess,scrobbling " +
+                "show_botted, token, sess,scrobbling,color " +
                 "FROM user a join guild c" +
 
                 " WHERE a.discord_id = ? AND  c.guild_id = ? ";
@@ -838,10 +877,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
             boolean showBotted = resultSet.getBoolean(i++);
             String token = (resultSet.getString(i++));
             String session = (resultSet.getString(i++));
-            boolean scrobbling = (resultSet.getBoolean(i));
+            boolean scrobbling = (resultSet.getBoolean(i++));
+            String color = resultSet.getString(i);
+            EmbedColor embedColor = EmbedColor.fromString(color);
 
-
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling);
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1090,7 +1130,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public Set<LastFMData> findScrobbleableUsers(Connection con, long guildId) {
         /* Create "queryString". */
         Set<LastFMData> lastFMData = new HashSet<>();
-        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling FROM user a natural  join user_guild b where b.guild_id = ? and sess is not null ";
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color FROM user a natural  join user_guild b where b.guild_id = ? and sess is not null ";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -1124,9 +1164,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 boolean showBotted = resultSet.getBoolean(i++);
                 String token = (resultSet.getString(i++));
                 String session = (resultSet.getString(i++));
-                boolean scrobbling = (resultSet.getBoolean(i));
+                boolean scrobbling = (resultSet.getBoolean(i++));
+                String color = resultSet.getString(i);
+                EmbedColor embedColor = EmbedColor.fromString(color);
 
-                LastFMData e = new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling);
+                LastFMData e = new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor);
                 lastFMData.add(e);
             }
 
@@ -1236,6 +1278,75 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     }
 
+    @Override
+    public Map<Long, Color[]> getServerWithPalette(Connection connection) {
+        Map<Long, Color[]> map = new HashMap<>();
+        String queryString = "select guild_id,color from guild where color is not null and color <> 'ROLE'";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                long color = resultSet.getLong(1);
+                String string = resultSet.getString(2);
+                map.put(color, EmbedColor.fromString(string).mapList());
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return map;
+    }
+
+    @Override
+    public Map<Long, Color[]> getUsersWithPalette(Connection connection) {
+        Map<Long, Color[]> map = new HashMap<>();
+        String queryString = "select discord_id,color from user where color is not null and color <> 'ROLE'";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                long color = resultSet.getLong(1);
+                String string = resultSet.getString(2);
+                map.put(color, EmbedColor.fromString(string).mapList());
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return map;
+    }
+
+    @Override
+    public Set<Long> getUserWithColorRole(Connection connection) {
+        Set<Long> map = new HashSet<>();
+        String queryString = "select discord_id  from user where  color = 'ROLE'";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                long color = resultSet.getLong(1);
+                map.add(color);
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return map;
+    }
+
+    @Override
+    public Set<Long> getGuildWithColorRole(Connection connection) {
+        Set<Long> map = new HashSet<>();
+        String queryString = "select guild_id  from guild where  color = 'ROLE'";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                long color = resultSet.getLong(1);
+                map.add(color);
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return map;
+    }
 
     @NotNull
     private Set<Long> getIdList(Connection connection, String queryString) {

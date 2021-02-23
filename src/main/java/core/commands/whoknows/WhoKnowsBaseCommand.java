@@ -16,6 +16,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.DaoParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WKMode;
@@ -145,7 +146,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         }
         embedBuilder.setTitle(getTitle(ap, usable)).
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
-                .setColor(CommandUtil.randomColor());
+                .setColor(ColorService.computeColor(e));
         e.getChannel().sendMessage(embedBuilder.build())
                 .queue(message1 ->
                         new Reactionary<>(wrapperReturnNowPlaying

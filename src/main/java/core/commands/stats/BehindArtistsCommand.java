@@ -9,6 +9,7 @@ import core.parsers.Parser;
 import core.parsers.TwoUsersParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.TwoUsersParamaters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.StolenCrown;
@@ -95,7 +96,7 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
             sendMessageQueue(e, userName2 + " doesn't have any artist with more plays than " + userName);
             return;
         }
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(e.getGuild().getIconUrl());
         StringBuilder a = new StringBuilder();
 

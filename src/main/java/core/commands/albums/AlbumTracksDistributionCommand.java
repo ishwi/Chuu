@@ -12,6 +12,7 @@ import core.parsers.ArtistAlbumParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.ColorService;
 import core.services.tracklist.TracklistService;
 import core.services.tracklist.UserTrackListService;
 import dao.ChuuService;
@@ -117,7 +118,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                     }
                     EmbedBuilder embedBuilder = new EmbedBuilder()
                             .setDescription(a)
-                            .setColor(CommandUtil.randomColor())
+                            .setColor(ColorService.computeColor(e))
                             .setTitle(String.format("%s tracklist", album), LinkUtils.getLastFmArtistAlbumUrl(artist, album))
                             .setFooter(String.format("%s has %d total plays on the album!!%n", CommandUtil.markdownLessUserString(getUserString(e, params.getLastFMData().getDiscordId()), params.getLastFMData().getDiscordId(), e), fullAlbumEntity.getTotalPlayNumber()), null)
                             .setThumbnail(fullAlbumEntity.getAlbumUrl());

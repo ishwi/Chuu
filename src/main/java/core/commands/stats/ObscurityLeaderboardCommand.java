@@ -21,8 +21,10 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParam
     private final AtomicInteger maxConcurrency = new AtomicInteger(4);
     public static final boolean disabled = true;
 
+
     public ObscurityLeaderboardCommand(ChuuService dao) {
         super(dao);
+        isLongRunningCommand = true;
     }
 
 

@@ -9,6 +9,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.AffinityParser;
 import core.parsers.Parser;
 import core.parsers.params.AffinityParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
@@ -98,7 +99,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(stringBuilder)
                 .setTitle(uinfo.getUsername() + "'s soulmates in " + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()))
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uinfo.getUsername()), ap.getThreshold()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->

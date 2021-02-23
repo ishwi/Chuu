@@ -81,7 +81,9 @@ public class NPModeBuilder {
                     NPMode.HIGHEST_STREAK,
                     NPMode.HIGHEST_SERVER_STREAK,
                     NPMode.HIGHEST_BOT_STREAK,
-                    NPMode.CURRENT_COMBO);
+                    NPMode.CURRENT_COMBO,
+                    NPMode.SCROBBLE_COUNT
+            );
 
             Map<NPMode, Integer> temp = new HashMap<>();
             for (int i = 0; i < tags.size(); i++) {
@@ -223,6 +225,13 @@ public class NPModeBuilder {
                                 exception.printStackTrace();
                             }
                         }
+                    })));
+                    break;
+                case SCROBBLE_COUNT:
+                    completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
+                        int playCount = new UserInfoService(service).getUserInfo(lastFMName).getPlayCount();
+                        footerSpaces[footerIndexes.get(NPMode.ALBUM_CROWN)] =
+                                "%d total scrobbles".formatted(playCount);
                     })));
                     break;
                 case NORMAL:

@@ -4,11 +4,11 @@ import core.Chuu;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.config.SetCommand;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.DuplicateInstanceException;
@@ -77,7 +77,7 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
         e.getAuthor().openPrivateChannel().queue(t -> {
 
             sendMessage(e, "Sent you a DM with the login details!").queue();
-            t.sendMessage(new EmbedBuilder().setColor(CommandUtil.randomColor()).setTitle("Last.fm login").setDescription(String.format("**[%s](%s)**", "Follow this link to complete the login", s)).build()).queue(z -> {
+            t.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Last.fm login").setDescription(String.format("**[%s](%s)**", "Follow this link to complete the login", s)).build()).queue(z -> {
 
                 ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
                 AtomicInteger counter = new AtomicInteger();

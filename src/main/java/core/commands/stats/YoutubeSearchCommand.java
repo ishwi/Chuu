@@ -1,10 +1,15 @@
 package core.commands.stats;
 
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.track.AudioItem;
+import com.sedmelluq.discord.lavaplayer.track.AudioReference;
+import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import core.apis.youtube.InvidousSearch;
 import core.apis.youtube.YoutubeSearch;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.music.utils.YoutubeSearchManagerSingleton;
 import core.parsers.Parser;
 import core.parsers.UsernameAndNpQueryParser;
 import core.parsers.params.ExtraParameters;
@@ -20,10 +25,12 @@ import java.util.List;
 public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<WordParameter, User>> {
     public static boolean ONLY_YT = false;
     private final YoutubeSearch optionalSearch;
+    private final YoutubeAudioSourceManager audioSourceManager;
 
     public YoutubeSearchCommand(ChuuService dao) {
         super(dao);
         optionalSearch = new InvidousSearch();
+        audioSourceManager = YoutubeSearchManagerSingleton.getInstance();
 
     }
 
@@ -52,7 +59,11 @@ public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<Word
 
 
         String query = params.getInnerParams().getWord();
-        String s = optionalSearch.doSearch(query);
+        AudioItem audioItem = audioSourceManager.loadItem(null, new AudioReference("ytsearch: " + query, null));
+        String s = null;
+        if (audioItem instanceof BasicAudioPlaylist playlist) {
+            s = playlist.getTracks().stream().findFirst().map(t -> t.getInfo().uri).orElse(null);
+        }
         s = s == null || s.isBlank() ? String.format("Couldn't find \"%s\" on youtube", CommandUtil.cleanMarkdownCharacter(query)) : s;
         sendMessageQueue(e, s);
 

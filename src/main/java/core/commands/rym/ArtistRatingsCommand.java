@@ -13,6 +13,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.AlbumRatings;
 import dao.entities.Rating;
@@ -112,7 +113,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
         embedBuilder.setTitle(String.format("%s albums rated in %s", artist, e.getGuild().getName()), LinkUtils.getLastFmArtistUrl(artist))
                 .setFooter(String.format("%s has been rated %d times in this server", artist, counter.get()))
                 .setDescription(a)
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setThumbnail(scrobbledArtist.getUrl());
 
         e.getChannel().

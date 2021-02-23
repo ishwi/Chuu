@@ -7,6 +7,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
@@ -71,7 +72,7 @@ public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, resultWrapper.getDiscordId());
 
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(e.getGuild().getIconUrl());
         embedBuilder.setDescription(a).setTitle(String.format("%s's Top 10%s unique artists", userInfo.getUsername(), isGlobal() ? " global" : ""), CommandUtil
                 .getLastFmUser(lastFmName))

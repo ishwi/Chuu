@@ -8,6 +8,7 @@ import core.commands.abstracts.NpCommand;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.NowPlayingParameters;
+import core.services.ColorService;
 import core.services.NPModeBuilder;
 import dao.ChuuService;
 import dao.entities.*;
@@ -70,7 +71,7 @@ public class NowPlayingCommand extends NpCommand {
         a.append("**").append(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getArtistName()))
                 .append("** | ").append(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getAlbumName())).append("\n");
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(CommandUtil.randomColor())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setAuthor(title, CommandUtil.getLastFmUser(lastFMName), urlHolder)
                 .setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
                 .setTitle(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getSongName()), LinkUtils.getLastFMArtistTrack(nowPlayingArtist.getArtistName(), nowPlayingArtist.getSongName()))

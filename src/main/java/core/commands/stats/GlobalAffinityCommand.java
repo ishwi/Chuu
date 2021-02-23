@@ -9,6 +9,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
@@ -104,7 +105,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(stringBuilder)
                 .setTitle(uinfo.getUsername() + "'s soulmates in " + CommandUtil.cleanMarkdownCharacter(name))
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setFooter(String.format("%s's global affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uinfo.getUsername()), threshold), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
         e.getChannel().sendMessage(embedBuilder.build())

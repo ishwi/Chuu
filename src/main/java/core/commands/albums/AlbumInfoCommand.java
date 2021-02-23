@@ -4,6 +4,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.ColorService;
 import core.services.TagAlbumService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -92,7 +93,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                             , true);
         }
         embedBuilder.setImage(albumSummary.getAlbumUrl())
-                .setColor(CommandUtil.randomColor())
+                .setColor(ColorService.computeColor(e))
                 .setThumbnail(artist.getUrl());
         e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
         if (!albumSummary.getTagList().isEmpty()) {
