@@ -92,14 +92,13 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
             HeavyCommandRateLimiter.RateLimited rateLimited = HeavyCommandRateLimiter.checkRateLimit(e);
             switch (rateLimited) {
                 case SERVER -> {
-                    sendMessageQueue(e, "This command takes a while to execute so it cannot be executed in this server more than 2 times per 10 minutes.");
+                    sendMessageQueue(e, "This command takes a while to execute so it cannot be executed in this server more than 4 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(e));
                     return;
                 }
                 case GLOBAL -> {
-                    sendMessageQueue(e, "This command takes a while to execute so it cannot be executed more than 7 times per 10 minutes.");
+                    sendMessageQueue(e, "This command takes a while to execute so it cannot be executed more than 12 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(e));
                     return;
                 }
-                case NONE -> measureTime(e);
 
             }
         }

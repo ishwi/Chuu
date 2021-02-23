@@ -32,6 +32,7 @@ public class HotMaker {
 
 
     private final static Font normalFont = GraphicUtils.chooseFont(metric1);
+    private static final StringFitter serverFitter = new StringFitterBuilder(14, 450).setBaseFont(normalFont.deriveFont(14f).deriveFont(Font.BOLD)).setMinSize(14).build();
     private static BufferedImage upboats;
     private static BufferedImage downvote;
 
@@ -85,7 +86,9 @@ public class HotMaker {
             g.drawImage(logo, x, (yCounter - 50) / 2, null);
             x += logo.getWidth();
         }
-        g.drawString(title, (x + 15), yCounter - 50);
+        StringFitter.FontMetadata titleMetadata = serverFitter.getFontMetadata(g, title);
+
+        g.drawString(titleMetadata.atrribute().getIterator(), (x + 15), yCounter - 50);
         g.setFont(g.getFont().deriveFont(12f));
         g.drawString(subtitle, (x + 15), yCounter - 25);
 
@@ -94,7 +97,7 @@ public class HotMaker {
             g.setColor(secondaryColor);
             g.drawRect(0, yCounter, X_MAX - 2, BOX_SIZE);
             int innerYCounter = yCounter;
-            g.setFont(g.getFont().deriveFont(42f));
+            g.setFont(g.getFont().deriveFont(42f).deriveFont(Font.BOLD));
             Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(String.valueOf(hot.getPosition()), g);
             int rankX = (int) (((X_MAX * .15) - stringBounds.getWidth()) / 2);
             int rankY = innerYCounter + (int) ((BOX_SIZE - stringBounds.getHeight() + 40) / 2);
@@ -142,7 +145,7 @@ public class HotMaker {
                 g.drawString(artistMetadata.atrribute().getIterator(), xCounter, innerYCounter);
             }
 
-
+            g.setFont(g.getFont().deriveFont(Font.PLAIN, 14));
             doMetric(g, widthMetrics1, startMetrics, innerYCounter, previousWeek, String.valueOf(previousWeek));
 
             int peak = hot.getPeak();

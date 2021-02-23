@@ -11,7 +11,6 @@ import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +35,10 @@ public class TrackDistributor {
     private static final List<Color> lightPalettes;
     private static final StringFitter trackFitter = new StringFitterBuilder(FONT_SIZE, 400)
             .setMinSize(8)
+            .setBaseFont(NORMAL_FONT)
+            .build();
+    private static final StringFitter userFitter = new StringFitterBuilder(FONT_SIZE, 330)
+            .setMinSize(14)
             .setBaseFont(NORMAL_FONT)
             .build();
 
@@ -117,11 +120,14 @@ public class TrackDistributor {
         //Upper Template Part
         g.drawImage(template, 0, 0, null);
 
-        GraphicUtils.drawStringNicely(g, fae.getArtist(), 397, 160, dist);
-        GraphicUtils.drawStringNicely(g, "Artist", 397, 199, dist);
 
-        GraphicUtils.drawStringNicely(g, fae.getAlbum(), 397, 235, dist);
-        GraphicUtils.drawStringNicely(g, "Album", 397, 274, dist);
+        StringFitter.FontMetadata fontMetadata = trackFitter.getFontMetadata(g, fae.getArtist());
+
+        GraphicUtils.drawStringNicely(g, fontMetadata, 397, 160, dist);
+
+
+        fontMetadata = trackFitter.getFontMetadata(g, fae.getAlbum());
+        GraphicUtils.drawStringNicely(g, fontMetadata, 397, 235, dist);
 
         g.drawImage(Scalr.resize(albumImage, 330, 330), 22, 22, null);
 
@@ -164,19 +170,19 @@ public class TrackDistributor {
         //Image Artist
         Graphics2D g = GraphicUtils.initArtistBackground(dist, artistImageFill);
         Font firstUserFont = chooseFont(firstInfo.getUsername());
-        g.setFont(firstUserFont.deriveFont(30f));
-        Rectangle2D f = GraphicUtils.fitAndGetBounds(firstInfo.getUsername(), g, 330, 18f);
-        firstUserFont = g.getFont();
-        Font secondUserFont = chooseFont(secondInfo.getUsername());
-        g.setFont(secondUserFont.deriveFont(30f));
-        Rectangle2D n = GraphicUtils.fitAndGetBounds(secondInfo.getUsername(), g, 330, 18f);
-        secondUserFont = g.getFont();
 
-        int baseline = (int) Math.max(f.getHeight(), n.getHeight());
+        g.setFont(firstUserFont.deriveFont(30f));
+        firstUserFont = g.getFont();
+
+
+        StringFitter.FontMetadata firstMetadata = userFitter.getFontMetadata(g, firstInfo.getUsername());
+        StringFitter.FontMetadata secondMetadata = userFitter.getFontMetadata(g, secondInfo.getUsername());
+
+        int baseline = (int) Math.max(firstMetadata.bounds().getHeight(), secondMetadata.bounds().getHeight());
+
         g.setFont(firstUserFont);
-        GraphicUtils.drawStringNicely(g, firstInfo.getUsername(), (int) (22 + (330 / 2 - f.getWidth() / 2)), 22 + 330 + baseline, dist);
-        g.setFont(secondUserFont);
-        GraphicUtils.drawStringNicely(g, secondInfo.getUsername(), (int) (mirroredWidth - 22 - 330 + ((330 / 2 - n.getWidth() / 2))), 22 + 330 + baseline, dist);
+        GraphicUtils.drawStringNicely(g, firstMetadata, (int) (22 + (330 / 2 - firstMetadata.bounds().getWidth() / 2)), 22 + 330 + baseline, dist);
+        GraphicUtils.drawStringNicely(g, secondMetadata, (int) (mirroredWidth - 22 - 330 + ((330 / 2 - secondMetadata.bounds().getWidth() / 2))), 22 + 330 + baseline, dist);
         g.setFont(NORMAL_FONT);
 
         //Upper Template Part
@@ -187,20 +193,18 @@ public class TrackDistributor {
         BufferedImage albumImage = GraphicUtils.getImageFromUrl(first.getAlbumUrl(), noalbumImage);
 
 
-        int i = g.getFontMetrics().stringWidth(first.getArtist());
-        GraphicUtils.drawStringNicely(g, first.getArtist(), 397, 160, dist);
-        GraphicUtils.drawStringNicely(g, first.getArtist(), mirroredWidth - 397 - i, 160, dist);
+        StringFitter.FontMetadata fontMetadata = trackFitter.getFontMetadata(g, first.getArtist());
+        int i = (int) fontMetadata.bounds().getWidth();
 
-        i = g.getFontMetrics().stringWidth("Artist");
-        GraphicUtils.drawStringNicely(g, "Artist", 397, 199, dist);
-        GraphicUtils.drawStringNicely(g, "Artist", mirroredWidth - 397 - i, 199, dist);
+        GraphicUtils.drawStringNicely(g, fontMetadata, 397, 160, dist);
+        GraphicUtils.drawStringNicely(g, fontMetadata, mirroredWidth - 397 - i, 160, dist);
 
-        i = g.getFontMetrics().stringWidth(first.getAlbum());
-        GraphicUtils.drawStringNicely(g, first.getAlbum(), 397, 235, dist);
-        GraphicUtils.drawStringNicely(g, first.getAlbum(), mirroredWidth - 397 - i, 235, dist);
-        i = g.getFontMetrics().stringWidth("Album");
-        GraphicUtils.drawStringNicely(g, "Album", 397, 274, dist);
-        GraphicUtils.drawStringNicely(g, "Album", mirroredWidth - 397 - i, 274, dist);
+        fontMetadata = trackFitter.getFontMetadata(g, first.getAlbum());
+
+        i = (int) fontMetadata.bounds().getWidth();
+
+        GraphicUtils.drawStringNicely(g, fontMetadata, 397, 235, dist);
+        GraphicUtils.drawStringNicely(g, fontMetadata, mirroredWidth - 397 - i, 235, dist);
 
         g.drawImage(Scalr.resize(userImage, 330, 330), 22, 22, null);
         g.drawImage(Scalr.resize(userImage2, 330, 330), mirroredWidth - 22 - 330, 22, null);
@@ -237,18 +241,18 @@ public class TrackDistributor {
         g.setColor(GraphicUtils.makeMoreTransparent(color, 0.7f));
 
         int startingPoint = starttingY;
-        OptionalInt max = trackList.stream().map(Track::getName)
-                .mapToInt(x -> g.getFontMetrics().stringWidth(x))
+        StringFitter.FontMetadata[] metadatas = trackList.stream().map(t -> trackFitter.getFontMetadata(g, t.getName())).toArray(StringFitter.FontMetadata[]::new);
+        OptionalInt max = Arrays.stream(metadatas).mapToInt(t -> (int) t.bounds().getWidth())
                 .max();
         int realMax = Math.min(452, max.orElse(400));
         int extra = 45;
 
         int minimunAmmount = realMax + extra;
-        for (Track track : trackList) {
-            float fontSize = FONT_SIZE;
+        for (int j = 0, trackListSize = trackList.size(); j < trackListSize; j++) {
+            Track track = trackList.get(j);
 
 
-            StringFitter.FontMetadata fontMetadata = trackFitter.getFontMetadata(g, track.getName());
+            StringFitter.FontMetadata fontMetadata = metadatas[j];
 
 
             int rectWidth = (int) (minimunAmmount + (widthBarsSpace - minimunAmmount) * (float) track.getPlays() / maxList);
@@ -262,7 +266,7 @@ public class TrackDistributor {
 
             String plays = String.valueOf(track.getPlays());
             ogFont = g.getFont();
-            g.setFont(fontMetadata.maxFont());
+            g.setFont(fontMetadata.maxFont().deriveFont((float) FONT_SIZE));
             GraphicUtils.drawStringNicely(g, plays, i1 - 15 - rectWidth + 5, startingPoint +
                             (TILE_SIZE - 7 - g.getFontMetrics(fontMetadata.maxFont()).getHeight()) / 2 + g.getFontMetrics(fontMetadata.maxFont()).getAscent()
                     , dist);
@@ -292,19 +296,20 @@ public class TrackDistributor {
 
         //I like transparency
         g.setColor(GraphicUtils.makeMoreTransparent(color, 0.7f));
-
+        StringFitter.FontMetadata[] metadatas = trackList.stream().map(t -> trackFitter.getFontMetadata(g, t.getName())).toArray(StringFitter.FontMetadata[]::new);
         int startingPoint = yStart;
-        OptionalInt max = trackList.stream().map(Track::getName)
-                .mapToInt(x -> g.getFontMetrics().stringWidth(x))
+        OptionalInt max = Arrays.stream(metadatas).mapToInt(t -> (int) t.bounds().getWidth())
                 .max();
         int realMax = Math.min(452, max.orElse(400));
         int extra = 45;
 
         int minimunAmmount = realMax + extra;
-        for (Track track : trackList) {
-            float fontSize = FONT_SIZE;
 
-            StringFitter.FontMetadata fontMetadata = trackFitter.getFontMetadata(g, track.getName());
+        for (int i = 0, trackListSize = trackList.size(); i < trackListSize; i++) {
+            Track track = trackList.get(i);
+
+
+            StringFitter.FontMetadata fontMetadata = metadatas[i];
 
             int rectWidth = (int) (minimunAmmount + (widthBarsSpace - minimunAmmount) * (float) track.getPlays() / maxList);
             g.fillRect(15, startingPoint, rectWidth, 38);
@@ -314,7 +319,7 @@ public class TrackDistributor {
                     , dist);
             String plays = String.valueOf(track.getPlays());
             ogFont = g.getFont();
-            g.setFont(fontMetadata.maxFont());
+            g.setFont(fontMetadata.maxFont().deriveFont((float) FONT_SIZE));
             GraphicUtils.drawStringNicely(g, plays, 15 + rectWidth - g.getFontMetrics()
                             .stringWidth(plays) - 5, startingPoint +
                             (TILE_SIZE - 7 - g.getFontMetrics(fontMetadata.maxFont()).getHeight()) / 2 + g.getFontMetrics(fontMetadata.maxFont()).getAscent()

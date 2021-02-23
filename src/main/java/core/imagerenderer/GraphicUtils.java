@@ -42,8 +42,9 @@ public class GraphicUtils {
     static final Font HEBREW_FONT = new Font("Heebo Light", Font.PLAIN, 14);
     static final Font ARABIC_FONT = new Font("Noto Sans Arabic Light", Font.PLAIN, 14);
     static final Font JAPANESE_FIRST = new Font("Noto Sans CJK JP Light", Font.PLAIN, 14);
+    static final Font THAI_FONT = new Font("Noto Sans Thai Light", Font.PLAIN, 14);
 
-    public static final Font[] palletes = new Font[]{JAPANESE_FIRST, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT};
+    public static final Font[] palletes = new Font[]{JAPANESE_FIRST, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT, THAI_FONT};
 
     static {
         try (InputStream in = GraphicUtils.class.getResourceAsStream("/" + "all.properties")) {
@@ -151,7 +152,7 @@ public class GraphicUtils {
     }
 
     public static Font getFont(String test, Font startFont) {
-        return getFont(test, startFont, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT);
+        return getFont(test, startFont, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT, THAI_FONT);
     }
 
 

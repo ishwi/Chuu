@@ -73,6 +73,7 @@ public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, Comman
         MessageReceivedEvent e = params.getE();
         if (list.isEmpty()) {
             sendMessageQueue(e, "No one has played any artist yet!");
+            return;
         }
 
         List<String> collect = list.stream().map(x ->

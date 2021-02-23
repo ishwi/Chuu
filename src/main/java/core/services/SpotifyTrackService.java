@@ -32,4 +32,16 @@ public class SpotifyTrackService {
         });
         return service.getTopSpotifyTracksIds(lastfmId, 500);
     }
+
+    public List<Pair<ScrobbledTrack, Track>> searchTracks(List<ScrobbledTrack> tracks) {
+        List<Pair<ScrobbledTrack, Track>> pairs = spotifyApi.searchMultipleTracks(tracks);
+        pairs.forEach(x -> {
+            ScrobbledTrack left = x.getLeft();
+            Track right = x.getRight();
+            left.setSpotifyId(right.getId());
+            left.setDuration(right.getDurationMs() / 1000);
+            service.updateSpotifyInfo(left.getTrackId(), right.getId(), right.getDurationMs() / 1000, right.getPopularity());
+        });
+        return pairs;
+    }
 }

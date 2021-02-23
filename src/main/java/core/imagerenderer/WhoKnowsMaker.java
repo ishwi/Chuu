@@ -24,8 +24,16 @@ public class WhoKnowsMaker {
             .setStep(1)
             .setBaseFont(NORMAL_FONT)
             .setMinSize(14f).build();
+
+
     private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP", Font.PLAIN, 32);
     private static final Font DESC_FONT = new Font("Noto Sans CJK JP Light", Font.PLAIN, 32);
+
+    private static final StringFitter serverFitter = new StringFitterBuilder(32, X_MAX)
+            .setStep(1)
+            .setBaseFont(DESC_FONT)
+            .setMinSize(32f).build();
+
     private static final String FIRST_LINE = "Who knows";
 
     private WhoKnowsMaker() {
@@ -90,8 +98,11 @@ public class WhoKnowsMaker {
         metrics = g.getFontMetrics(DESC_FONT);
         yCounter += metrics.getAscent() - metrics.getDescent();
         String thirdLine = "in " + discordName;
-        width = metrics.stringWidth(thirdLine);
-        GraphicUtils.drawStringNicely(g, thirdLine, X_MAX / 2 - width / 2, yCounter, canvas);
+
+        StringFitter.FontMetadata serverMetadata = serverFitter.getFontMetadata(g, thirdLine);
+
+        width = (int) serverMetadata.bounds().getWidth();
+        GraphicUtils.drawStringNicely(g, serverMetadata, X_MAX / 2 - width / 2, yCounter, canvas);
         yCounter += 16;
 
         int rectWidth = X_MAX - X_MARGIN - (X_MARGIN + 320);

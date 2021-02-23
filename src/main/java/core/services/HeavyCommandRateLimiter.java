@@ -16,10 +16,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class HeavyCommandRateLimiter {
 
-    private final static long MAX_SERVER = 2L;
-    private final static long MAX_GLOBAL = 7L;
+    private final static long MAX_SERVER = 4L;
+    private final static long MAX_GLOBAL = 12L;
     private final static Map<Long, LocalDateTime> accesibleAgain = new HashMap<>();
-    private static final LocalDateTime globalAccesibleAgain = LocalDateTime.now();
+    private static LocalDateTime globalAccesibleAgain = LocalDateTime.now();
     private static final LoadingCache<Long, AtomicInteger> serverCache = CacheBuilder.newBuilder()
             .maximumSize(10000)
 
@@ -38,35 +38,35 @@ public class HeavyCommandRateLimiter {
                     });
     private static final LoadingCache<Boolean, AtomicInteger> globalCache = CacheBuilder.newBuilder()
             .maximumSize(10000)
-            .expireAfterWrite(100, TimeUnit.MINUTES)
+            .expireAfterWrite(10, TimeUnit.MINUTES)
             .removalListener(notification -> {
                 Object key = notification.getKey();
                 if (key instanceof Long k)
-                    accesibleAgain.remove(k);
+                    globalAccesibleAgain = null;
             })
             .build(
                     new CacheLoader<>() {
                         public AtomicInteger load(@NotNull Boolean key) {
+                            globalAccesibleAgain = LocalDateTime.now().plus(10, ChronoUnit.MINUTES);
                             return new AtomicInteger();
                         }
                     });
 
     public static RateLimited checkRateLimit(MessageReceivedEvent e) {
         try {
-            AtomicInteger globalAdder = globalCache.get(true);
-            if (globalAdder.incrementAndGet() >= MAX_GLOBAL) {
-                return RateLimited.GLOBAL;
-            } else {
-                globalCache.refresh(true);
-            }
+
             if (e.isFromGuild()) {
                 AtomicInteger longAdder = serverCache.get(e.getGuild().getIdLong());
                 if (longAdder.incrementAndGet() >= MAX_SERVER) {
                     return RateLimited.SERVER;
-                } else {
-                    serverCache.refresh(e.getGuild().getIdLong());
                 }
             }
+
+            AtomicInteger globalAdder = globalCache.get(true);
+            if (globalAdder.incrementAndGet() >= MAX_GLOBAL) {
+                return RateLimited.GLOBAL;
+            }
+
             return RateLimited.NONE;
         } catch (Exception exception) {
             // Impossible Exception
@@ -76,6 +76,26 @@ public class HeavyCommandRateLimiter {
     }
 
     public enum RateLimited {
-        SERVER, GLOBAL, NONE
+
+        SERVER, GLOBAL, NONE;
+
+        private static String formate(LocalDateTime time) {
+            LocalDateTime now = LocalDateTime.now();
+            long hours = now.until(time, ChronoUnit.MINUTES);
+            now = now.plus(hours, ChronoUnit.MINUTES);
+            long minutes = now.until(time, ChronoUnit.SECONDS);
+            return "%d minutes and %d seconds".formatted(hours, minutes);
+        }
+
+        public String remainingTime(MessageReceivedEvent e) {
+            return switch (this) {
+                case SERVER -> {
+                    LocalDateTime localDateTime = accesibleAgain.get(e.getGuild().getIdLong());
+                    yield formate(localDateTime);
+                }
+                case GLOBAL -> formate(globalAccesibleAgain);
+                case NONE -> null;
+            };
+        }
     }
 }

@@ -61,6 +61,9 @@ public class FullAlbumEntity {
     }
 
     public int getTotalPlayNumber() {
+        if (totalPlayNumber == 0) {
+            return trackList.stream().mapToInt(Track::getPlays).sum();
+        }
         return totalPlayNumber;
     }
 

@@ -837,7 +837,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 "a.notify_rating, " +
                 " private_lastfm," +
                 "timezone, " +
-                "show_botted, token, sess,scrobbling,color " +
+                "show_botted, token, sess,scrobbling,ifnull(c.color,a.color) " +
                 "FROM user a join guild c" +
 
                 " WHERE a.discord_id = ? AND  c.guild_id = ? ";
