@@ -1,7 +1,57 @@
 /*!40014 SET FOREIGN_KEY_CHECKS = 0 */;
+
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `album`
+CREATE TABLE if not exists `user`
+(
+    `lastfm_id`         varchar(45) CHARACTER SET ascii                                     NOT NULL,
+    `discord_id`        bigint(20)                                                          NOT NULL,
+    `last_update`       timestamp                                                           NULL                             DEFAULT current_timestamp(),
+    `control_timestamp` timestamp                                                           NULL                             DEFAULT current_timestamp(),
+    `role`              enum ('USER','IMAGE_BLOCKED','ADMIN') COLLATE utf8mb4_unicode_ci    NOT NULL                         DEFAULT 'USER',
+    `private_update`    tinyint(1)                                                          NOT NULL                         DEFAULT 0,
+    `notify_image`      tinyint(1)                                                          NOT NULL                         DEFAULT 1,
+    `additional_embed`  tinyint(1)                                                          NOT NULL                         DEFAULT 0,
+    `whoknows_mode`     enum ('IMAGE','LIST','PIE') COLLATE utf8mb4_unicode_ci              NOT NULL                         DEFAULT 'IMAGE',
+    `chart_mode`        enum ('IMAGE','IMAGE_INFO','IMAGE_ASIDE','IMAGE_ASIDE_INFO','LIST','PIE') COLLATE utf8mb4_unicode_ci DEFAULT 'IMAGE',
+    `remaining_mode`    enum ('IMAGE','IMAGE_INFO','LIST','PIE') COLLATE utf8mb4_unicode_ci NOT NULL                         DEFAULT 'IMAGE',
+    `botted_account`    tinyint(1)                                                                                           DEFAULT 0,
+    `default_x`         int(11)                                                                                              DEFAULT 5,
+    `default_y`         int(11)                                                                                              DEFAULT 5,
+    `privacy_mode`      enum ('STRICT','NORMAL','TAG','LAST_NAME','DISCORD_NAME') COLLATE utf8mb4_unicode_ci                 DEFAULT 'NORMAL',
+    `notify_rating`     tinyint(1)                                                          NOT NULL                         DEFAULT 1,
+    `private_lastfm`    tinyint(1)                                                          NOT NULL                         DEFAULT 0,
+    `np_mode`           bigint(20)                                                          NOT NULL                         DEFAULT 1,
+    `timezone`          varchar(100) COLLATE utf8mb4_unicode_ci                                                              DEFAULT 'Europe/Brussels',
+    `token`             varchar(50) COLLATE utf8mb4_unicode_ci                                                               DEFAULT NULL,
+    `sess`              varchar(50) COLLATE utf8mb4_unicode_ci                                                               DEFAULT NULL,
+    `show_botted`       tinyint(1)                                                                                           DEFAULT 1,
+    `scrobbling`        tinyint(1)                                                          NOT NULL                         DEFAULT 1,
+    PRIMARY KEY (`discord_id`),
+    UNIQUE KEY `lastfm_id` (`lastfm_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE if not exists `artist`
+(
+    `id`                bigint(20)                              NOT NULL AUTO_INCREMENT,
+    `name`              varchar(400) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `url`               varchar(400) CHARACTER SET ascii DEFAULT NULL,
+    `url_status`        tinyint(1)                       DEFAULT 1,
+    `correction_status` tinyint(1)                       DEFAULT 0,
+    `mbid`              varchar(36) CHARACTER SET ascii  DEFAULT NULL,
+    `spotify_id`        varchar(40) CHARACTER SET ascii  DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `name` (`name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT = DYNAMIC;
+
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE if not exists `album`
 (
     `id`           bigint(20)                              NOT NULL AUTO_INCREMENT,
     `artist_id`    bigint(20)                              DEFAULT NULL,
@@ -22,10 +72,99 @@ CREATE TABLE `album`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
+
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE if not exists `user_guild`
+(
+    `discord_id` bigint(20) NOT NULL,
+    `guild_id`   bigint(20) NOT NULL,
+    PRIMARY KEY (`discord_id`, `guild_id`),
+    CONSTRAINT `user_guild_fk_user` FOREIGN KEY (`discord_id`) REFERENCES `user` (`discord_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE if not exists `track`
+(
+    `id`           bigint(20)                              NOT NULL AUTO_INCREMENT,
+    `artist_id`    bigint(20)                              DEFAULT NULL,
+    `track_name`   varchar(400) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `url`          varchar(400) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `mbid`         varchar(36) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
+    `spotify_id`   varchar(40) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
+    `release_year` smallint(6)                             DEFAULT NULL,
+    `duration`     int(11)                                 DEFAULT NULL,
+    `album_id`     bigint(20)                              DEFAULT NULL,
+    `popularity`   int(11)                                 DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `track_and_artist` (`artist_id`, `track_name`),
+    KEY `spotify_id_track` (`spotify_id`),
+    KEY `mbid` (`mbid`),
+    KEY `track_fk_album` (`album_id`),
+    CONSTRAINT `track_fk_album` FOREIGN KEY (`album_id`) REFERENCES `album` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `track_fk_artist` FOREIGN KEY (`artist_id`) REFERENCES `artist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE if not exists `guild`
+(
+    `guild_id`           bigint(20)                                         NOT NULL,
+    `logo`               blob                                                                                                 DEFAULT NULL,
+    `prefix`             char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL                                          DEFAULT '!',
+    `crown_threshold`    int(11)                                            NOT NULL                                          DEFAULT 0,
+    `additional_embed`   tinyint(1)                                         NOT NULL                                          DEFAULT 0,
+    `whoknows_mode`      enum ('IMAGE','LIST','PIE') COLLATE utf8mb4_unicode_ci                                               DEFAULT NULL,
+    `chart_mode`         enum ('IMAGE','IMAGE_INFO','IMAGE_ASIDE','IMAGE_ASIDE_INFO','LIST','PIE') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `remaining_mode`     enum ('IMAGE','IMAGE_INFO','LIST','PIE') COLLATE utf8mb4_unicode_ci                                  DEFAULT NULL,
+    `np_mode`            bigint(20)                                         NOT NULL                                          DEFAULT -1,
+    `disabled_response`  tinyint(1)                                         NOT NULL                                          DEFAULT 0,
+    `delete_message`     tinyint(1)                                         NOT NULL                                          DEFAULT 0,
+    `disabled_warning`   tinyint(1)                                         NOT NULL                                          DEFAULT 0,
+    `allow_reactions`    tinyint(1)                                         NOT NULL                                          DEFAULT 1,
+    `override_reactions` enum ('OVERRIDE','ADD','ADD_END','EMPTY') COLLATE utf8mb4_unicode_ci                                 DEFAULT 'EMPTY',
+    PRIMARY KEY (`guild_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE if not exists `randomlinks`
+(
+    `discord_id` bigint(20) DEFAULT NULL,
+    `guild_id`   bigint(20)                              NOT NULL,
+    `url`        varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+    PRIMARY KEY (`url`),
+    UNIQUE KEY `unique_url_random` (`url`),
+    KEY `randomlinks_fk_guild` (`guild_id`),
+    KEY `randomlinks_fk_user` (`discord_id`),
+    CONSTRAINT `randomlinks_fk_guild` FOREIGN KEY (`guild_id`) REFERENCES `guild` (`guild_id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT = DYNAMIC;
+
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `week`
+(
+    `id`         int(11) NOT NULL AUTO_INCREMENT,
+    `week_start` date DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+/* break*/
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `album_crowns`
+CREATE TABLE if not exists `album_crowns`
 (
     `artist_id` bigint(20)                              NOT NULL,
     `discordid` bigint(20)                              NOT NULL,
@@ -44,7 +183,7 @@ CREATE TABLE `album_crowns`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `album_rating`
+CREATE TABLE if not exists `album_rating`
 (
     `id`         bigint(20)  NOT NULL AUTO_INCREMENT,
     `artist_id`  bigint(20)                      DEFAULT NULL,
@@ -66,7 +205,7 @@ CREATE TABLE `album_rating`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `album_tags`
+CREATE TABLE if not exists `album_tags`
 (
     `id`        bigint(20)   NOT NULL AUTO_INCREMENT,
     `artist_id` bigint(20)   NOT NULL,
@@ -82,7 +221,7 @@ CREATE TABLE `album_tags`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `album_tracklist`
+CREATE TABLE if not exists `album_tracklist`
 (
     `id`       bigint(20) NOT NULL AUTO_INCREMENT,
     `album_id` bigint(20) NOT NULL,
@@ -98,7 +237,7 @@ CREATE TABLE `album_tracklist`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `alt_url`
+CREATE TABLE if not exists `alt_url`
 (
     `id`         bigint(20)                       NOT NULL AUTO_INCREMENT,
     `artist_id`  bigint(20)                       NOT NULL,
@@ -121,7 +260,7 @@ CREATE TABLE `alt_url`
 /*!50003 SET @saved_sql_mode = @@sql_mode */;
 /*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
 DELIMITER ;;
-/*!50003 CREATE TRIGGER alt_url_insert
+/*!50003 CREATE TRIGGER if not exists alt_url_insert
     AFTER INSERT
     ON alt_url
     FOR EACH ROW
@@ -146,7 +285,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode = @@sql_mode */;
 /*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
 DELIMITER ;;
-/*!50003 CREATE TRIGGER alt_url_update
+/*!50003 CREATE TRIGGER if not exists alt_url_update
     AFTER UPDATE
     ON alt_url
     FOR EACH ROW
@@ -182,7 +321,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode = @@sql_mode */;
 /*!50003 SET sql_mode = '' */;
 DELIMITER ;;
-/*!50003 CREATE TRIGGER alt_url_delete
+/*!50003 CREATE TRIGGER if not exists alt_url_delete
     AFTER DELETE
     ON alt_url
     FOR EACH ROW
@@ -200,25 +339,10 @@ DELIMITER ;
 /*!50003 SET collation_connection = @saved_col_connection */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `artist`
-(
-    `id`                bigint(20)                              NOT NULL AUTO_INCREMENT,
-    `name`              varchar(400) COLLATE utf8mb4_unicode_ci NOT NULL,
-    `url`               varchar(400) CHARACTER SET ascii DEFAULT NULL,
-    `url_status`        tinyint(1)                       DEFAULT 1,
-    `correction_status` tinyint(1)                       DEFAULT 0,
-    `mbid`              varchar(36) CHARACTER SET ascii  DEFAULT NULL,
-    `spotify_id`        varchar(40) CHARACTER SET ascii  DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `name` (`name`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci
-  ROW_FORMAT = DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `artist_tags`
+CREATE TABLE if not exists `artist_tags`
 (
     `id`        bigint(20)   NOT NULL AUTO_INCREMENT,
     `artist_id` bigint(20)   NOT NULL,
@@ -233,7 +357,7 @@ CREATE TABLE `artist_tags`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `audio_features`
+CREATE TABLE if not exists `audio_features`
 (
     `id`               bigint(20)                                                   NOT NULL AUTO_INCREMENT,
     `spotify_id`       varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -255,7 +379,7 @@ CREATE TABLE `audio_features`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `backup`
+CREATE TABLE if not exists `backup`
 (
     `id`           bigint(20) NOT NULL DEFAULT 0,
     `discord_id`   bigint(20) NOT NULL,
@@ -270,7 +394,7 @@ CREATE TABLE `backup`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `banned_artist_tags`
+CREATE TABLE if not exists `banned_artist_tags`
 (
     `id`         bigint(20)   NOT NULL AUTO_INCREMENT,
     `tag`        varchar(100) NOT NULL,
@@ -282,7 +406,7 @@ CREATE TABLE `banned_artist_tags`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `banned_tags`
+CREATE TABLE if not exists `banned_tags`
 (
     `id`  bigint(20)   NOT NULL AUTO_INCREMENT,
     `tag` varchar(100) NOT NULL,
@@ -293,7 +417,7 @@ CREATE TABLE `banned_tags`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `command_guild_channel_disabled`
+CREATE TABLE if not exists `command_guild_channel_disabled`
 (
     `guild_id`     bigint(20)  NOT NULL,
     `channel_id`   bigint(20)  NOT NULL,
@@ -306,7 +430,7 @@ CREATE TABLE `command_guild_channel_disabled`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `command_guild_disabled`
+CREATE TABLE if not exists `command_guild_disabled`
 (
     `guild_id`     bigint(20)  NOT NULL,
     `command_name` varchar(40) NOT NULL,
@@ -317,7 +441,7 @@ CREATE TABLE `command_guild_disabled`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `command_logs`
+CREATE TABLE if not exists `command_logs`
 (
     `id`         bigint(20)  NOT NULL AUTO_INCREMENT,
     `discord_id` bigint(20)  NOT NULL,
@@ -331,7 +455,7 @@ CREATE TABLE `command_logs`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `corrected_tags`
+CREATE TABLE if not exists `corrected_tags`
 (
     `id`         bigint(20)   NOT NULL AUTO_INCREMENT,
     `invalid`    varchar(100) NOT NULL,
@@ -343,7 +467,7 @@ CREATE TABLE `corrected_tags`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `corrections`
+CREATE TABLE if not exists `corrections`
 (
     `id`        bigint(20)                              NOT NULL AUTO_INCREMENT,
     `alias`     varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -355,33 +479,11 @@ CREATE TABLE `corrections`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
   ROW_FORMAT = DYNAMIC;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `guild`
-(
-    `guild_id`           bigint(20)                                         NOT NULL,
-    `logo`               blob                                                                                                 DEFAULT NULL,
-    `prefix`             char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL                                          DEFAULT '!',
-    `crown_threshold`    int(11)                                            NOT NULL                                          DEFAULT 0,
-    `additional_embed`   tinyint(1)                                         NOT NULL                                          DEFAULT 0,
-    `whoknows_mode`      enum ('IMAGE','LIST','PIE') COLLATE utf8mb4_unicode_ci                                               DEFAULT NULL,
-    `chart_mode`         enum ('IMAGE','IMAGE_INFO','IMAGE_ASIDE','IMAGE_ASIDE_INFO','LIST','PIE') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `remaining_mode`     enum ('IMAGE','IMAGE_INFO','LIST','PIE') COLLATE utf8mb4_unicode_ci                                  DEFAULT NULL,
-    `np_mode`            bigint(20)                                         NOT NULL                                          DEFAULT -1,
-    `disabled_response`  tinyint(1)                                         NOT NULL                                          DEFAULT 0,
-    `delete_message`     tinyint(1)                                         NOT NULL                                          DEFAULT 0,
-    `disabled_warning`   tinyint(1)                                         NOT NULL                                          DEFAULT 0,
-    `allow_reactions`    tinyint(1)                                         NOT NULL                                          DEFAULT 1,
-    `override_reactions` enum ('OVERRIDE','ADD','ADD_END','EMPTY') COLLATE utf8mb4_unicode_ci                                 DEFAULT 'EMPTY',
-    PRIMARY KEY (`guild_id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `log_reported`
+CREATE TABLE if not exists `log_reported`
 (
     `id`       bigint(20) NOT NULL AUTO_INCREMENT,
     `reported` bigint(20) NOT NULL,
@@ -395,7 +497,7 @@ CREATE TABLE `log_reported`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `log_tags`
+CREATE TABLE if not exists `log_tags`
 (
     `id`         bigint(20)   NOT NULL AUTO_INCREMENT,
     `tag`        varchar(100) NOT NULL,
@@ -406,7 +508,7 @@ CREATE TABLE `log_tags`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `metadata`
+CREATE TABLE if not exists `metadata`
 (
     `url`    varchar(400) CHARACTER SET ascii NOT NULL,
     `artist` varchar(400)                     DEFAULT NULL,
@@ -500,23 +602,6 @@ CREATE TABLE `random_links_ratings`
     CONSTRAINT `random_links_ratings_url` FOREIGN KEY (`url`) REFERENCES `randomlinks` (`url`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `randomlinks`
-(
-    `discord_id` bigint(20) DEFAULT NULL,
-    `guild_id`   bigint(20)                              NOT NULL,
-    `url`        varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
-    PRIMARY KEY (`url`),
-    UNIQUE KEY `unique_url_random` (`url`),
-    KEY `randomlinks_fk_guild` (`guild_id`),
-    KEY `randomlinks_fk_user` (`discord_id`),
-    CONSTRAINT `randomlinks_fk_guild` FOREIGN KEY (`guild_id`) REFERENCES `guild` (`guild_id`) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci
-  ROW_FORMAT = DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -683,64 +768,8 @@ CREATE TABLE `top_combos`
     UNIQUE KEY `combo_uniqueness` (`discord_id`, `artist_id`, `streak_start`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `track`
-(
-    `id`           bigint(20)                              NOT NULL AUTO_INCREMENT,
-    `artist_id`    bigint(20)                              DEFAULT NULL,
-    `track_name`   varchar(400) COLLATE utf8mb4_unicode_ci NOT NULL,
-    `url`          varchar(400) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `mbid`         varchar(36) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
-    `spotify_id`   varchar(40) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
-    `release_year` smallint(6)                             DEFAULT NULL,
-    `duration`     int(11)                                 DEFAULT NULL,
-    `album_id`     bigint(20)                              DEFAULT NULL,
-    `popularity`   int(11)                                 DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `track_and_artist` (`artist_id`, `track_name`),
-    KEY `spotify_id_track` (`spotify_id`),
-    KEY `mbid` (`mbid`),
-    KEY `track_fk_album` (`album_id`),
-    CONSTRAINT `track_fk_album` FOREIGN KEY (`album_id`) REFERENCES `album` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT `track_fk_artist` FOREIGN KEY (`artist_id`) REFERENCES `artist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `user`
-(
-    `lastfm_id`         varchar(45) CHARACTER SET ascii                                     NOT NULL,
-    `discord_id`        bigint(20)                                                          NOT NULL,
-    `last_update`       timestamp                                                           NULL                             DEFAULT current_timestamp(),
-    `control_timestamp` timestamp                                                           NULL                             DEFAULT current_timestamp(),
-    `role`              enum ('USER','IMAGE_BLOCKED','ADMIN') COLLATE utf8mb4_unicode_ci    NOT NULL                         DEFAULT 'USER',
-    `private_update`    tinyint(1)                                                          NOT NULL                         DEFAULT 0,
-    `notify_image`      tinyint(1)                                                          NOT NULL                         DEFAULT 1,
-    `additional_embed`  tinyint(1)                                                          NOT NULL                         DEFAULT 0,
-    `whoknows_mode`     enum ('IMAGE','LIST','PIE') COLLATE utf8mb4_unicode_ci              NOT NULL                         DEFAULT 'IMAGE',
-    `chart_mode`        enum ('IMAGE','IMAGE_INFO','IMAGE_ASIDE','IMAGE_ASIDE_INFO','LIST','PIE') COLLATE utf8mb4_unicode_ci DEFAULT 'IMAGE',
-    `remaining_mode`    enum ('IMAGE','IMAGE_INFO','LIST','PIE') COLLATE utf8mb4_unicode_ci NOT NULL                         DEFAULT 'IMAGE',
-    `botted_account`    tinyint(1)                                                                                           DEFAULT 0,
-    `default_x`         int(11)                                                                                              DEFAULT 5,
-    `default_y`         int(11)                                                                                              DEFAULT 5,
-    `privacy_mode`      enum ('STRICT','NORMAL','TAG','LAST_NAME','DISCORD_NAME') COLLATE utf8mb4_unicode_ci                 DEFAULT 'NORMAL',
-    `notify_rating`     tinyint(1)                                                          NOT NULL                         DEFAULT 1,
-    `private_lastfm`    tinyint(1)                                                          NOT NULL                         DEFAULT 0,
-    `np_mode`           bigint(20)                                                          NOT NULL                         DEFAULT 1,
-    `timezone`          varchar(100) COLLATE utf8mb4_unicode_ci                                                              DEFAULT 'Europe/Brussels',
-    `token`             varchar(50) COLLATE utf8mb4_unicode_ci                                                               DEFAULT NULL,
-    `sess`              varchar(50) COLLATE utf8mb4_unicode_ci                                                               DEFAULT NULL,
-    `show_botted`       tinyint(1)                                                                                           DEFAULT 1,
-    `scrobbling`        tinyint(1)                                                          NOT NULL                         DEFAULT 1,
-    PRIMARY KEY (`discord_id`),
-    UNIQUE KEY `lastfm_id` (`lastfm_id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
+
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -782,18 +811,6 @@ CREATE TABLE `user_billboard_data_scrobbles`
     CONSTRAINT `user_billboard_data_scrobbles_week_id` FOREIGN KEY (`week_id`) REFERENCES `week` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `user_guild`
-(
-    `discord_id` bigint(20) NOT NULL,
-    `guild_id`   bigint(20) NOT NULL,
-    PRIMARY KEY (`discord_id`, `guild_id`),
-    CONSTRAINT `user_guild_fk_user` FOREIGN KEY (`discord_id`) REFERENCES `user` (`discord_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -916,15 +933,7 @@ DELIMITER ;
 /*!50003 SET character_set_client = @saved_cs_client */;
 /*!50003 SET character_set_results = @saved_cs_results */;
 /*!50003 SET collation_connection = @saved_col_connection */;
-/*!40101 SET @saved_cs_client = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `week`
-(
-    `id`         int(11) NOT NULL AUTO_INCREMENT,
-    `week_start` date DEFAULT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -1574,25 +1583,11 @@ DELIMITER ;
 /*!50003 SET character_set_client = @saved_cs_client */;
 /*!50003 SET character_set_results = @saved_cs_results */;
 /*!50003 SET collation_connection = @saved_col_connection */;
-/*!40103 SET TIME_ZONE = @OLD_TIME_ZONE */;
+/*!40103 SET TIME_ZONE = "+00:00" */;
 
-/*!40101 SET SQL_MODE = @OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS = @OLD_FOREIGN_KEY_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT = @OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS = @OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION = @OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES = @OLD_SQL_NOTES */;
+-- /*!40101 SET CHARACTER_SET_CLIENT = @OLD_CHARACTER_SET_CLIENT */;
+-- /*!40101 SET CHARACTER_SET_RESULTS = @OLD_CHARACTER_SET_RESULTS */;
+-- /*!40101 SET COLLATION_CONNECTION = @OLD_COLLATION_CONNECTION */;
+-- /*!40111 SET SQL_NOTES = @OLD_SQL_NOTES */;
 
 -- Dump completed on 2021-01-25 22:40:27
-DELIMITER ;;
-CREATE PROCEDURE `insert_weeks`()
-BEGIN
-    SET @t_current = date('2002-01-01' - interval weekday('2002-01-01') day);
-    SET @t_end = DATE_ADD(date(curdate() - interval weekday(curdate()) day), INTERVAL 10 YEAR);
-    WHILE(@t_current < @t_end)
-        DO
-            INSERT INTO week(week_start) VALUES (@t_current);
-            SET @t_current = DATE_ADD(@t_current, INTERVAL 7 day);
-        END WHILE;
-END ;;
-DELIMITER ;
