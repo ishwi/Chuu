@@ -82,7 +82,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 }
                 db.setEmbedColor(e.getAuthor().getIdLong(), embedColor);
                 ColorService.handleUserChange(e.getAuthor().getIdLong(), embedColor);
-                sendMessageQueue(e, "Guild color mode set to: **" + WordUtils.capitalizeFully(embedColor.toDisplayString()) + "**");
+                sendMessageQueue(e, "User color mode set to: **" + WordUtils.capitalizeFully(embedColor.toDisplayString()) + "**");
                 break;
             case NOTIFY_IMAGE:
                 b = Boolean.parseBoolean(value);

@@ -37,7 +37,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
         this.spotify = SpotifySingleton.getInstance();
     }
 
-    public static void handleUserListened(MessageReceivedEvent e, ArtistParameters params, List<UserListened> firsts) {
+    public static void handleUserListened(MessageReceivedEvent e, ArtistParameters params, List<UserListened> firsts, boolean isFirst) {
         Function<UserListened, String> toMemoize = (userListened) -> {
             String whem;
             if (userListened.moment().isEmpty()) {
@@ -64,7 +64,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
                 break;
         }
         String usable = CommandUtil.cleanMarkdownCharacter(e.getGuild().getName());
-        embedBuilder.setTitle("Who listened last to " + params.getScrobbledArtist().getArtist() + " in " + usable).
+        embedBuilder.setTitle("Who listened " + (isFirst ? "first" : "last") + " to" + params.getScrobbledArtist().getArtist() + "in" + usable).
                 setThumbnail(CommandUtil.noImageUrl(params.getScrobbledArtist().getUrl())).setDescription(builder)
                 .setFooter(strings.size() + CommandUtil.singlePlural(strings.size(), " listener", " listeners"))
                 .setColor(ColorService.computeColor(e));
@@ -112,7 +112,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
             return;
         }
 
-        handleUserListened(e, params, lasts);
+        handleUserListened(e, params, lasts, false);
 
     }
 

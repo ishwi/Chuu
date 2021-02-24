@@ -322,7 +322,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         String countQuery = "Select count(*) as orden ";
 
 
-        String queryBody = "FROM  scrobbled_track a" +
+        String queryBody = "FROM  scrobbled_track a use index (scrobbled_track_fk_user)" +
                 " JOIN user b" +
                 " ON a.lastfm_id = b.lastfm_id" +
                 " JOIN artist d " +

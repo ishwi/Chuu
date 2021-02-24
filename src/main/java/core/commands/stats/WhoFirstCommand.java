@@ -71,7 +71,7 @@ public class WhoFirstCommand extends ConcurrentCommand<ArtistParameters> {
         }
 
 
-        handleUserListened(e, params, firsts);
+        handleUserListened(e, params, firsts, true);
 
     }
 

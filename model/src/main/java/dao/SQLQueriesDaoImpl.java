@@ -647,7 +647,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         @Language("MariaDB")
         String queryString =
                 "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id,c.privacy_mode " +
-                        "FROM  scrobbled_artist a " +
+                        "FROM  scrobbled_artist a use index (artist_id)" +
                         "JOIN artist a2 ON a.artist_id = a2.id  " +
                         "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
                         " where   (? or not c.botted_account or c.discord_id = ? )  " +
@@ -843,7 +843,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         @Language("MariaDB")
         String queryString =
                 "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id " +
-                        "FROM  scrobbled_artist a" +
+                        "FROM  scrobbled_artist a  use index (artist_id)" +
                         " JOIN artist a2 ON a.artist_id = a2.id  " +
                         "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
                         "JOIN user_guild d on c.discord_ID = d.discord_Id " +
@@ -947,7 +947,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         String countQuery = "Select count(*) as orden ";
 
 
-        String queryBody = "FROM  scrobbled_artist a" +
+        String queryBody = "FROM  scrobbled_artist a use index (scrobbled_artist_fk_user)" +
                 " JOIN user b" +
                 " ON a.lastfm_id = b.lastfm_id" +
                 " JOIN artist d " +
@@ -2268,7 +2268,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         String countQuery = "Select count(*) as orden ";
 
 
-        String queryBody = "FROM  scrobbled_album a" +
+        String queryBody = "FROM  scrobbled_album a use index (scrobbled_album_fk_user)" +
                 " JOIN user b" +
                 " ON a.lastfm_id = b.lastfm_id" +
                 " JOIN artist d " +
@@ -2575,7 +2575,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         @Language("MariaDB")
         String queryString =
                 "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id " +
-                        "FROM  scrobbled_artist a" +
+                        "FROM  scrobbled_artist a  use index (artist_id)" +
                         " JOIN artist a2 ON a.artist_id = a2.id  " +
                         "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
                         "JOIN user_guild d on c.discord_ID = d.discord_Id " +

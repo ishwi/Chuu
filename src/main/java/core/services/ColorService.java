@@ -30,7 +30,7 @@ public class ColorService {
             idLong = event.getGuild().getIdLong();
             if (serversByRole.contains(idLong) || (usersByRole.contains(event.getAuthor().getIdLong()) && !serversByColor.containsKey(event.getGuild().getIdLong()))) {
                 return Optional.ofNullable(event.getMember())
-                        .flatMap(t -> t.getRoles().stream().findFirst())
+                        .flatMap(t -> t.getRoles().stream().filter(z -> z.getColor() != null).findFirst())
                         .map(Role::getColor)
                         .orElseGet(CommandUtil::pastelColor);
             }
