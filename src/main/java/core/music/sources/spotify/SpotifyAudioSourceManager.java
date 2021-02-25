@@ -17,7 +17,7 @@
  */
 package core.music.sources.spotify;
 
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
@@ -55,7 +55,7 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
     }
 
     @Override
-    public AudioItem loadItem(DefaultAudioPlayerManager manager, AudioReference reference) {
+    public AudioItem loadItem(AudioPlayerManager manager, AudioReference reference) {
         try {
             return loadItemOnce(manager, reference.identifier);
         } catch (FriendlyException exception) {
@@ -94,7 +94,7 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
 
     }
 
-    private AudioItem loadItemOnce(DefaultAudioPlayerManager manager, String identifier) {
+    private AudioItem loadItemOnce(AudioPlayerManager manager, String identifier) {
         for (var loader : loaders) {
             var matcher = loader.pattern().matcher(identifier);
 

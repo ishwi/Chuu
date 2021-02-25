@@ -17,7 +17,7 @@
  */
 package core.music.sources.spotify.loaders;
 
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
@@ -56,7 +56,7 @@ public class SpotifyTrackLoader extends Loader {
 
     @Nullable
     @Override
-    public AudioItem load(DefaultAudioPlayerManager manager, SpotifyApi spotifyApi, Matcher matcher) {
+    public AudioItem load(AudioPlayerManager manager, SpotifyApi spotifyApi, Matcher matcher) {
         var albumId = matcher.group(2);
 
         Track execute;

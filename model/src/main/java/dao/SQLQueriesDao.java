@@ -6,6 +6,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.time.Instant;
+import java.time.Year;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -145,6 +146,8 @@ interface SQLQueriesDao {
 
     ResultWrapper<ScrobbledAlbum> getGuildTopAlbum(Connection connection, Long guildID, int limit, boolean doCount);
 
+
+    ResultWrapper<ScrobbledAlbum> getCollectiveAOTY(Connection connection, Year year, @Nullable Long guildID, int limit, boolean doCount);
 
     List<ScrobbledArtist> getTopTag(Connection connection, String genre, @Nullable Long guildId, int limit);
 

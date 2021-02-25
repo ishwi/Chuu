@@ -1,6 +1,11 @@
 package core.commands.charts;
 
+import core.apis.discogs.DiscogsApi;
+import core.apis.discogs.DiscogsSingleton;
+import core.apis.last.entities.chartentities.AlbumChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.apis.spotify.Spotify;
+import core.apis.spotify.SpotifySingleton;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -18,6 +23,7 @@ import dao.ChuuService;
 import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
+import dao.entities.ScrobbledAlbum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -34,11 +40,15 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class ChartableCommand<T extends ChartParameters> extends ConcurrentCommand<T> {
     public final IPieableList<UrlCapsule, ChartParameters> pie;
+    private final Spotify spotify;
+    private final DiscogsApi discogsApi;
 
     public ChartableCommand(ChuuService dao) {
         super(dao);
         this.pie = getPie();
         ((DaoParser<?>) getParser()).setExpensiveSearch(true);
+        this.spotify = SpotifySingleton.getInstance();
+        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
     }
 
 
@@ -141,7 +151,24 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         if (x * y > 100) {
             future = e.getChannel().sendMessage("Going to take a while").submit();
         }
+        UrlCapsule first = queue.peek();
+        if (first instanceof AlbumChart c && CommandUtil.rand.nextFloat() >= 0.7f) {
+            List<UrlCapsule> items = new ArrayList<>(queue);
+            CompletableFuture.runAsync(() -> items.stream()
+                    .filter(t -> t.getUrl() != null && !t.getUrl().isBlank())
+                    .map(t -> (AlbumChart) t)
+                    .forEach(z -> {
+                        try {
+                            ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, z.getArtistName(), z.getAlbumName(), lastFM, null, null, false, false);
+                            db.updateAlbumImage(scrobbledAlbum.getAlbumId(), z.getUrl());
+                        } catch (LastFmException ignored) {
+                        }
+                    }), executor);
+        }
+
         generateImage(queue, x, y, e, parameters, size);
+        // Store some album covers
+
         CommandUtil.handleConditionalMessage(future);
     }
 

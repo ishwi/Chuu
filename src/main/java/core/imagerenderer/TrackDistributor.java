@@ -322,7 +322,7 @@ public class TrackDistributor {
             g.setFont(fontMetadata.maxFont().deriveFont((float) FONT_SIZE));
             GraphicUtils.drawStringNicely(g, plays, 15 + rectWidth - g.getFontMetrics()
                             .stringWidth(plays) - 5, startingPoint +
-                            (TILE_SIZE - 7 - g.getFontMetrics(fontMetadata.maxFont()).getHeight()) / 2 + g.getFontMetrics(fontMetadata.maxFont()).getAscent()
+                            (TILE_SIZE - 7 - g.getFontMetrics(g.getFont()).getHeight()) / 2 + g.getFontMetrics().getAscent()
                     , dist);
             startingPoint += TILE_SIZE;
             g.setFont(ogFont);

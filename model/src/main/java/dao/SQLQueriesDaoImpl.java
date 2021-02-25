@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.sql.*;
 import java.time.Instant;
+import java.time.Year;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -2324,6 +2325,79 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         }
         return new ResultWrapper<>(count, list);
     }
+
+
+    @Override
+    public ResultWrapper<ScrobbledAlbum> getCollectiveAOTY(Connection connection, Year year, Long guildID, int limit, boolean doCount) {
+
+        @Language("MariaDB") String normalQUery = "SELECT d.name,e.album_name, sum(playnumber) AS orden ,e.url,e.mbid  ";
+
+        String countQuery = "Select count(*) as orden ";
+
+
+        String queryBody = "FROM  scrobbled_album a use index (scrobbled_album_fk_user)" +
+                " JOIN user b" +
+                " ON a.lastfm_id = b.lastfm_id" +
+                " JOIN artist d " +
+                " ON a.artist_id = d.id" +
+                " join album e on a.album_id = e.id";
+        if (guildID != null) {
+            queryBody += " JOIN  user_guild c" +
+                    " ON b.discord_id=c.discord_id" +
+                    " WHERE c.guild_id = ?";
+        } else {
+            queryBody += " where 1 = 1 ";
+        }
+        queryBody += " and e.release_year = ? ";
+
+        List<ScrobbledAlbum> list = new ArrayList<>();
+        int count = 0;
+        int i = 1;
+        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY album_id  ORDER BY orden DESC  limit ?")) {
+            if (guildID != null)
+                preparedStatement1.setLong(i++, guildID);
+
+            preparedStatement1.setInt(i++, year.getValue());
+            preparedStatement1.setInt(i, limit);
+
+            ResultSet resultSet1 = preparedStatement1.executeQuery();
+
+            while (resultSet1.next()) {
+                String artist = resultSet1.getString("d.name");
+                String album = resultSet1.getString("e.album_name");
+                String mbid = resultSet1.getString("e.mbid");
+
+
+                String url = resultSet1.getString("e.url");
+
+                int plays = resultSet1.getInt("orden");
+                ScrobbledAlbum who = new ScrobbledAlbum(album, artist, url, mbid);
+                who.setCount(plays);
+                list.add(who);
+            }
+            if (doCount) {
+
+                PreparedStatement preparedStatement = connection.prepareStatement(countQuery + queryBody);
+                i = 1;
+                if (guildID != null)
+                    preparedStatement.setLong(i++, guildID);
+
+                preparedStatement1.setInt(i, year.getValue());
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    count = resultSet.getInt(1);
+                }
+
+
+            }
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+        return new ResultWrapper<>(count, list);
+    }
+
 
     @Override
     public List<ScrobbledArtist> getTopTag(Connection connection, String genre, @Nullable Long guildId, int limit) {

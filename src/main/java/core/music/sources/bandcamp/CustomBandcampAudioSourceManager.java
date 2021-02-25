@@ -1,6 +1,6 @@
 package core.music.sources.bandcamp;
 
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.DataFormatTools;
 import com.sedmelluq.discord.lavaplayer.tools.ExceptionTools;
@@ -52,7 +52,7 @@ public class CustomBandcampAudioSourceManager implements AudioSourceManager, Htt
     }
 
     @Override
-    public AudioItem loadItem(DefaultAudioPlayerManager manager, AudioReference reference) {
+    public AudioItem loadItem(AudioPlayerManager manager, AudioReference reference) {
         UrlInfo urlInfo = parseUrl(reference.identifier);
 
         if (urlInfo != null) {

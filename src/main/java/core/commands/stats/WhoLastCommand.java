@@ -64,7 +64,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
                 break;
         }
         String usable = CommandUtil.cleanMarkdownCharacter(e.getGuild().getName());
-        embedBuilder.setTitle("Who listened " + (isFirst ? "first" : "last") + " to" + params.getScrobbledArtist().getArtist() + "in" + usable).
+        embedBuilder.setTitle("Who listened " + (isFirst ? "first" : "last") + " to " + params.getScrobbledArtist().getArtist() + " in " + usable).
                 setThumbnail(CommandUtil.noImageUrl(params.getScrobbledArtist().getUrl())).setDescription(builder)
                 .setFooter(strings.size() + CommandUtil.singlePlural(strings.size(), " listener", " listeners"))
                 .setColor(ColorService.computeColor(e));

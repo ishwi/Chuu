@@ -17,7 +17,7 @@
  */
 package core.music.sources.spotify.loaders;
 
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
@@ -60,7 +60,7 @@ public class SpotifyPlaylistLoader extends Loader {
 
     @Nullable
     @Override
-    public AudioItem load(DefaultAudioPlayerManager manager, SpotifyApi spotifyApi, Matcher matcher) {
+    public AudioItem load(AudioPlayerManager manager, SpotifyApi spotifyApi, Matcher matcher) {
         var playlistId = matcher.group(2);
 
         Playlist execute;
@@ -81,7 +81,7 @@ public class SpotifyPlaylistLoader extends Loader {
         return new BasicAudioPlaylist(albumName, audioTracks, null, false);
     }
 
-    private List<AudioTrack> fetchAlbumTracks(DefaultAudioPlayerManager manager,
+    private List<AudioTrack> fetchAlbumTracks(AudioPlayerManager manager,
                                               SpotifyApi spotifyApi, PlaylistTrack[] track) {
         var tasks = new ArrayList<CompletableFuture<AudioTrack>>();
         for (PlaylistTrack plTrack : track) {
