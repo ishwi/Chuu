@@ -3,6 +3,7 @@ package core.commands.charts;
 import core.apis.last.entities.chartentities.AlbumChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.utils.CommandUtil;
+import core.imagerenderer.util.PieSetUp;
 import core.parsers.ChartYearParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearParameters;
@@ -15,6 +16,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
+import java.awt.image.BufferedImage;
 import java.time.Year;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -22,7 +24,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class GlobalAOTY extends ServerAOTY {
+public class GlobalAOTY extends ChartableCommand<ChartYearParameters> {
 
     public GlobalAOTY(ChuuService dao) {
         super(dao);
@@ -36,7 +38,7 @@ public class GlobalAOTY extends ServerAOTY {
 
     @Override
     public String getDescription() {
-        return "Like Aoty but for the whole bot";
+        return "Like AOTY but for the whole bot";
     }
 
     @Override
@@ -71,13 +73,21 @@ public class GlobalAOTY extends ServerAOTY {
     }
 
     @Override
+    public void doPie(PieChart pieChart, ChartYearParameters gp, int count) {
+        String subtitle = configPieChart(pieChart, gp, count, gp.getE().getJDA().getSelfUser().getName());
+        String urlImage = gp.getE().getJDA().getSelfUser().getAvatarUrl();
+        BufferedImage bufferedImage = new PieSetUp(subtitle, urlImage, pieChart).setUp();
+        sendImage(bufferedImage, gp.getE());
+    }
+
+    @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartYearParameters params, int count) {
         String s = params.getYear().toString();
         String titleInit = "'s top albums from " + s;
         String footerText = " has " + count + " albums from " + s;
         String name = params.getE().getJDA().getSelfUser().getName();
         return embedBuilder.setAuthor(name + titleInit,
-                null, params.getE().getGuild().getIconUrl())
+                null, params.getE().getJDA().getSelfUser().getAvatarUrl())
                 .setFooter(CommandUtil.markdownLessString(name) + footerText).setColor(CommandUtil.randomColor(params.getE()));
     }
 

@@ -220,4 +220,5 @@ interface SQLQueriesDao {
     List<ScrobbledTrack> regexTrack(Connection connection, String regex, long userId);
 
 
+    ResultWrapper<ScrobbledAlbum> getCollectiveAOTD(Connection connection, Year year, int range, Long guildID, int limit, boolean doCount);
 }

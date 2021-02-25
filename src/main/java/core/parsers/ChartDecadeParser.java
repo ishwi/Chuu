@@ -108,9 +108,10 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
 
     @Override
     public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *[d,w,m,q,s,y,a]* *Username* *Decade_Range*** \n" +
+        return "**" + commandName + " *[d,w,m,q,s,y,a]* *sizeXsize*  *Username* *Decade_Range*** \n" +
                 "\tIf time is not specified defaults to " + defaultTFE.toString() + "\n" +
                 "\tIf username is not specified defaults to authors account \n" +
+                "\tIf Size not specified it defaults to 5x5\n" +
                 "\tDecade Range can be either two years separated by a - (E.g.  2009 - 2013) or a two digit representative of a decade " +
                 "(E.g. 20, 20s, 20's, 80s...)\n\t Default to the current decade if left empty";
     }

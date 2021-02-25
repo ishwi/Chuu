@@ -70,9 +70,10 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
 
     @Override
     public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *[d,w,m,q,s,y,a]* *Username* *YEAR*** \n" +
+        return "**" + commandName + " *[d,w,m,q,s,y,a]* *sizeXsize* *Username* *YEAR*** \n" +
                 "\tIf time is not specified defaults to " + defaultTFE.toString() + "\n" +
                 "\tIf username is not specified defaults to authors account \n" +
+                "\tIf Size not specified it defaults to 5x5\n" +
                 "\tIf YEAR not specified it default to current year\n";
     }
 

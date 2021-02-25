@@ -2411,6 +2411,15 @@ public class ChuuService {
         }
     }
 
+    public ResultWrapper<ScrobbledAlbum> getCollectiveAOTD(@Nullable Long guildID, int limit, boolean doCount, Year year, int range) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getCollectiveAOTD(connection, year, range, guildID, limit, doCount);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public ResultWrapper<ScrobbledTrack> getGuildTrackTop(Long guildID, int limit, boolean doCount) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
