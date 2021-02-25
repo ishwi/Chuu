@@ -3,7 +3,7 @@ plugins {
     id 'java-library'
     id 'se.patrikerdes.use-latest-versions'
     id 'com.github.ben-manes.versions'
-    id 'org.liquibase.gradle' version '2.0.3'
+    id 'org.liquibase.gradle' version '2.0.4'
 
 }
 
@@ -37,8 +37,8 @@ repositories {
 }
 
 dependencies {
-    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
-    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.18'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.19'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     api group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
     api group: 'org.apache.commons', name: 'commons-text', version: '1.9'
@@ -46,17 +46,17 @@ dependencies {
     api 'org.jetbrains:annotations:20.1.0'
     api 'com.neovisionaries:nv-i18n:1.27'
     api 'org.beryx:awt-color-factory:1.0.2'
-    implementation group: 'com.zaxxer', name: 'HikariCP', version: '3.4.5'
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '4.0.2'
     api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.23'
 
 
-    liquibaseRuntime 'org.liquibase:liquibase-core:3.8.1'
-    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:2.1.1'
-    liquibaseRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.21'
-    liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.3.1'
+    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.0'
+    liquibaseRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.23'
+    liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
 // https://mvnrepository.com/artifact/org.yaml/snakeyaml
-    liquibaseRuntime group: 'org.yaml', name: 'snakeyaml', version: '1.27'
+    liquibaseRuntime group: 'org.yaml', name: 'snakeyaml', version: '1.28'
     liquibaseRuntime files('build/classes/java/main')
     liquibaseRuntime files('build/resources/db')
 }
