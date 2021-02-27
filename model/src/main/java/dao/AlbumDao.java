@@ -44,4 +44,5 @@ public interface AlbumDao {
     void insertAlbumsOfYear(Connection connection, List<AlbumInfo> foundByYear, Year year);
 
 
+    Map<Year, Integer> countByYears(Connection connection, String lastfmId, List<AlbumInfo> albumInfos);
 }

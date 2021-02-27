@@ -3379,4 +3379,24 @@ public class ChuuService {
         }
 
     }
+
+    public Map<Year, Integer> getUserYears(String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getUserYears(connection, lastfmId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public Map<Year, Integer> getUserYearsFromList(String lastfmId, List<AlbumInfo> albums) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return albumDao.countByYears(connection, lastfmId, albums);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
 }

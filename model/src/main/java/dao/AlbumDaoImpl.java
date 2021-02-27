@@ -484,4 +484,39 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
         }
     }
 
+
+    @Override
+    public Map<Year, Integer> countByYears(Connection connection, String lastfmId, List<AlbumInfo> albumInfos) {
+
+        @Language("MariaDB") String queryString = "SELECT" +
+                " release_year,count(*) as coun FROM scrobbled_album c join  album a on c.album_id = a.id  join artist b on a.artist_id =b.id  WHERE (name) in (%s) and (album_name)  IN (%s) and release_year is not null  and lastfm_id = ? group by release_year";
+
+        String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()));
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            for (int i = 0; i < albumInfos.size(); i++) {
+                preparedStatement.setString(i + 1, albumInfos.get(i).getArtist());
+                preparedStatement.setString(i + 1 + albumInfos.size(), albumInfos.get(i).getName());
+            }
+            preparedStatement.setString(albumInfos.size() * 2 + 1, lastfmId);
+
+
+            Map<Year, Integer> years = new HashMap<>();
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                int year = resultSet.getInt(1);
+                int count = resultSet.getInt(2);
+
+                years.put(Year.of(year), count);
+            }
+            return years;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
 }

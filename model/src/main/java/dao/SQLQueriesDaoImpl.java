@@ -3756,6 +3756,28 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     }
 
+    @Override
+    public Map<Year, Integer> getUserYears(Connection connection, String lastfmId) {
+        Map<Year, Integer> years = new HashMap<>();
+
+        String mySql = "Select count(*),release_year from scrobbled_album a join album b on a.album_id = b.id where a.lastfm_id = ?  and release_year is not null group by release_year order by release_year asc ";
+
+        try
+                (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
+            preparedStatement.setString(1, lastfmId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int count = resultSet.getInt(1);
+                int year = resultSet.getInt(2);
+                years.put(Year.of(year), count);
+            }
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return years;
+    }
+
     public enum Order {
         ASC, DESC;
 

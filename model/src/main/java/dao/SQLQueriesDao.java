@@ -221,4 +221,7 @@ interface SQLQueriesDao {
 
 
     ResultWrapper<ScrobbledAlbum> getCollectiveAOTD(Connection connection, Year year, int range, Long guildID, int limit, boolean doCount);
+
+    Map<Year, Integer> getUserYears(Connection connection, String lastfmId);
+
 }
