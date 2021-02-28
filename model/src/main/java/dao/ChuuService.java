@@ -1119,6 +1119,15 @@ public class ChuuService {
 
     }
 
+    public LastFMData findByLastfmName(String lastFmID) throws InstanceNotFoundException {
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.findByLastFMId(connection, lastFmID);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public List<LbEntry> matchingArtistsCount(String lastFmId, long guildId, int extraParam) {
         try (Connection connection = dataSource.getConnection()) {
             affinityDao.setServerTempTable(connection, guildId, lastFmId, extraParam);
@@ -1280,8 +1289,9 @@ public class ChuuService {
         }
     }
 
-    public void rejectQueuedImage(long queuedId) {
+    public void rejectQueuedImage(long queuedId, ImageQueue reportEntity) {
         try (Connection connection = dataSource.getConnection()) {
+            updaterDao.storeRejected(connection, reportEntity);
             updaterDao.removeQueuedImage(connection, queuedId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3398,5 +3408,36 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    public boolean strikeQueue(long queuedId, ImageQueue image) {
+        try (Connection connection = dataSource.getConnection()) {
+            long rejectedId = updaterDao.storeRejected(connection, image);
+            updaterDao.removeQueuedImage(connection, queuedId);
+            updaterDao.addStrike(connection, image.uploader(), rejectedId);
+            long count = updaterDao.userStrikes(connection, image.uploader());
+            if (count >= 5) {
+                try {
+                    LastFMData lastFmData = userGuildDao.findLastFmData(connection, image.uploader());
+                    if (lastFmData.getRole() == Role.USER) {
+                        updaterDao.banUserImage(connection, image.uploader());
+                        return true;
+                    }
+                } catch (InstanceNotFoundException exception) {
+                    exception.printStackTrace();
+                }
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void flagAsBotted(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.flagBotted(discordId, connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 }

@@ -1348,6 +1348,19 @@ public class UserGuildDaoImpl implements UserGuildDao {
         return map;
     }
 
+    @Override
+    public void flagBotted(long discordId, Connection connection) {
+        @Language("MariaDB") String queryString = "update user set botted_account  = true WHERE discord_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            preparedStatement.setLong(1, discordId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     @NotNull
     private Set<Long> getIdList(Connection connection, String queryString) {
         Set<Long> returnSet = new HashSet<>();

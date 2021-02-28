@@ -19,9 +19,10 @@ import java.util.regex.Pattern;
 
 public class ParserAux {
     private static final Pattern user = Pattern.compile("(.{2,32})#(\\d{4})");
-    private static final Pattern discordId = Pattern.compile("\\d{17,}");
+    public static final Pattern discordId = Pattern.compile("\\d{17,}");
     private static final Pattern lfm = Pattern.compile("lfm:(\\S+)");
     private static final Pattern userRaw = Pattern.compile("u:(\\S+)");
+    private static final Pattern idParser = Pattern.compile("^(?:<(?:@!?|@&|#)(?<sid>[0-9]{17,21})>|(?<id>[0-9]{17,21}))$");
 
     private final boolean doExpensiveSearch;
     private String[] message;
@@ -33,6 +34,23 @@ public class ParserAux {
     public ParserAux(String[] message, boolean doExpensiveSearch) {
         this.message = message;
         this.doExpensiveSearch = doExpensiveSearch;
+    }
+
+    public static Optional<Snowflake> parseSnowflake(String words) {
+        var match = idParser.matcher(words);
+
+        if (match.matches()) {
+            String sid = match.group("sid");
+            if (sid == null) {
+                sid = match.group("id");
+            }
+            Snowflake value = new Snowflake(Long.parseLong(sid));
+            return Optional.of(value);
+        }
+        return Optional.empty();
+    }
+
+    public record Snowflake(long id) {
     }
 
     @NotNull User getOneUserPermissive(MessageReceivedEvent e) {

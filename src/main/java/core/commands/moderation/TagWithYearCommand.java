@@ -25,11 +25,9 @@ import java.util.regex.Pattern;
 
 public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
 
-    private final long channelId;
 
-    public TagWithYearCommand(ChuuService dao, long channelId) {
+    public TagWithYearCommand(ChuuService dao) {
         super(dao);
-        this.channelId = channelId;
     }
 
     @Override
@@ -103,7 +101,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
                             if (lastFMData.getRole() == Role.ADMIN) {
                                 db.insertAlbumsOfYear(List.of(new AlbumInfo(album, artist)), parse);
                             } else {
-                                TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(channelId);
+                                TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channelId);
                                 if (textChannelById != null)
                                     textChannelById.sendMessage(new EmbedBuilder().setTitle("Year submission")
                                             .setDescription("Artist: **" + artist + "**\nAlbum: **" + album + "**\nYear: **" + year + "**\nAuthor: " + e.getAuthor().getIdLong()).build()).flatMap(q ->

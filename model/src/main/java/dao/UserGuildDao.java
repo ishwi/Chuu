@@ -145,4 +145,7 @@ interface UserGuildDao {
     Set<Long> getUserWithColorRole(Connection connection);
 
     Set<Long> getGuildWithColorRole(Connection connection);
+
+    void flagBotted(long discordId, Connection connection);
+
 }

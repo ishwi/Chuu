@@ -80,6 +80,7 @@ public class Chuu {
     public static String chuuSess;
     public static String ipv6Block;
     public static long channelId;
+    public static long channel2Id;
 
 
     public static ScheduledExecutorService getScheduledExecutorService() {
@@ -191,7 +192,9 @@ public class Chuu {
         logger = LoggerFactory.getLogger(Chuu.class);
         Properties properties = readToken();
         String channel = properties.getProperty("MODERATION_CHANNEL_ID");
+        String channel2 = properties.getProperty("MODERATION_CHANNEL_2_ID");
         channelId = Long.parseLong(channel);
+        channel2Id = Long.parseLong(channel2);
         chuuSess = properties.getProperty("LASTFM_BOT_SESSION_KEY");
         ipv6Block = properties.getProperty("IPV6_BLOCK");
         dao = new ChuuService();
@@ -207,7 +210,7 @@ public class Chuu {
         HelpCommand help = new HelpCommand(dao);
         AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
         PrefixCommand prefixCommand = new PrefixCommand(dao);
-        TagWithYearCommand tagWithYearCommand = new TagWithYearCommand(dao, channelId);
+        TagWithYearCommand tagWithYearCommand = new TagWithYearCommand(dao);
         EvalCommand evalCommand = new EvalCommand(dao);
         FeaturedCommand featuredCommand = new FeaturedCommand(dao, scheduledExecutorService);
 

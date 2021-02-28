@@ -179,5 +179,11 @@ interface UpdaterDao {
 
     void clearSess(Connection connection, String lastfm);
 
-    void storeRejected(Connection connection, ImageQueue reportEntity);
+    long storeRejected(Connection connection, ImageQueue reportEntity);
+
+    void banUserImage(Connection connection, long uploader);
+
+    void addStrike(Connection connection, long uploader, long rejectedId);
+
+    long userStrikes(Connection connection, long uploader);
 }

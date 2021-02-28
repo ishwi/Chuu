@@ -6,10 +6,8 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 public class ChannelParser extends Parser<ChannelParameters> {
-    private static final Pattern idParser = Pattern.compile("^(?:<(?:@!?|@&|#)(?<sid>[0-9]{17,21})>|(?<id>[0-9]{17,21}))$");
 
     @Override
     protected void setUpErrorMessages() {
@@ -26,8 +24,8 @@ public class ChannelParser extends Parser<ChannelParameters> {
             }
         }
         String join = String.join(" ", words);
-        var snowflake = parseSnowflake(join);
-        Optional<GuildChannel> guildChannel = snowflake.map(value -> e.getGuild().getGuildChannelById(value.id))
+        var snowflake = ParserAux.parseSnowflake(join);
+        Optional<GuildChannel> guildChannel = snowflake.map(value -> e.getGuild().getGuildChannelById(value.id()))
                 .or(() -> e.getGuild().getChannels().stream().filter(x -> x.getName().equalsIgnoreCase(join)).findFirst());
         if (guildChannel.isEmpty()) {
             sendError("Couldn't find a channel", e);
@@ -37,25 +35,11 @@ public class ChannelParser extends Parser<ChannelParameters> {
 
     }
 
-    private Optional<Snowflake> parseSnowflake(String words) {
-        var match = idParser.matcher(words);
-
-        if (match.matches()) {
-            String sid = match.group("sid");
-            if (sid == null) {
-                sid = match.group("id");
-            }
-            Snowflake value = new Snowflake(Long.parseLong(sid));
-            return Optional.of(value);
-        }
-        return Optional.empty();
-    }
 
     @Override
     public String getUsageLogic(String commandName) {
-        return "**" + commandName + "**channel_name|channel_id**";
+        return "**" + commandName + " **channel_name|channel_id**";
     }
 
-    record Snowflake(long id) {
-    }
+
 }

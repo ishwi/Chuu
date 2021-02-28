@@ -1033,7 +1033,10 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     public ImageQueue getUrlQueue(Connection connection, long maxIdAllowed, Set<Long> skippedIds) {
 
         String queryString = """
-                SELECT a.id,a.url,a.artist_id,a.discord_id,a.added_date, c.name,(SELECT count(*) FROM log_reported WHERE reported = a.discord_id) as reportedCount
+                SELECT a.id,a.url,a.artist_id,a.discord_id,a.added_date, c.name,
+                (SELECT count(*) FROM queued_url d WHERE d.discord_id = a.discord_id) as submitted,
+                (SELECT count(*) FROM rejected WHERE rejected.discord_id = a.discord_id) as reportedCount,
+                (SELECT count(*) FROM strike WHERE strike.discord_id = a.discord_id) as reportedCount
                 FROM queued_url a JOIN
                 artist c ON a.artist_id = c.id
                 WHERE a.id <= ?\s""";
@@ -1055,9 +1058,11 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                 long uploader = resultSet.getLong(4);
                 Timestamp addedDate = resultSet.getTimestamp(5);
                 String artistName = resultSet.getString(6);
-                int userReportCount = resultSet.getInt(7);
+                int count = resultSet.getInt(7);
+                int userReportCount = resultSet.getInt(8);
+                int strikes = resultSet.getInt(9);
                 return new ImageQueue(queuedId, url, artistId, uploader,
-                        artistName, addedDate.toLocalDateTime(), userReportCount);
+                        artistName, addedDate.toLocalDateTime(), userReportCount, count, strikes);
             }
             return null;
         } catch (SQLException e) {
@@ -1680,17 +1685,65 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
-    public void storeRejected(Connection connection, ImageQueue reportEntity) {
-        @Language("MariaDB") String queryString = "insert into rejected(url,artist_id,discord_id) values (?,?,?) ";
+    public long storeRejected(Connection connection, ImageQueue reportEntity) {
+        @Language("MariaDB") String queryString = "insert into rejected(url,artist_id,discord_id) values (?,?,?) returning id  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
-            preparedStatement.setString(i++, reportEntity.getUrl());
-            preparedStatement.setLong(i++, reportEntity.getArtistId());
-            preparedStatement.setLong(i, reportEntity.getUploader());
+            preparedStatement.setString(i++, reportEntity.url());
+            preparedStatement.setLong(i++, reportEntity.artistId());
+            preparedStatement.setLong(i, reportEntity.uploader());
+            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+            throw new ChuuServiceException(new RuntimeException("Nothing created while storing rejection"));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void banUserImage(Connection connection, long uploader) {
+        @Language("MariaDB") String queryString = "update user set role = 'IMAGE_BLOCKED' where discord_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i, uploader);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+    }
+
+    @Override
+    public void addStrike(Connection connection, long uploader, long rejectedId) {
+        @Language("MariaDB") String queryString = "insert into strike(discord_id,rejected_id) values (?,?)  ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i++, uploader);
+            preparedStatement.setLong(i, rejectedId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public long userStrikes(Connection connection, long uploader) {
+        @Language("MariaDB") String queryString = "select count(*) from strike where discord_id = ?  ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i, uploader);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+            throw new ChuuServiceException(new RuntimeException(" No rows"));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
     }
 
 

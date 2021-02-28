@@ -18,15 +18,13 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -36,18 +34,31 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
     private static final String ACCEPT = "U+2714";
     private static final String DELETE = "U+1f469U+200dU+2696U+fe0f";
     private static final String RIGHT_ARROW = "U+27a1";
+    private static final String STRIKE = "U+1f3f3U+fe0f";
     private final AtomicBoolean isActive = new AtomicBoolean(false);
+
+
     private final TriFunction<JDA, Integer, Supplier<Integer>, BiFunction<ImageQueue, EmbedBuilder, EmbedBuilder>> builder = (jda, totalCount, pos) -> (reportEntity, embedBuilder) ->
-            embedBuilder.clearFields()
-                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(reportEntity.getArtistName()), LinkUtils.getLastFmArtistUrl(reportEntity.getArtistName())), false)
-                    .addField("Author", CommandUtil.getGlobalUsername(jda, reportEntity.getUploader()), true)
-                    .addField("#Times user got reported:", String.valueOf(reportEntity.getUserReportCount()), true)
+            addStrikeField(reportEntity, embedBuilder.clearFields()
+                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(reportEntity.artistName()), LinkUtils.getLastFmArtistUrl(reportEntity.artistName())), false)
+                    .addField("Author", CommandUtil.getGlobalUsername(jda, reportEntity.uploader()), true)
+                    .addField("# Rejected:", String.valueOf(reportEntity.userRejectedCount()), true)
+                    .addField("# Submitted:", String.valueOf(reportEntity.count()), true)
                     .setFooter(String.format("%d/%d%nUse \uD83D\uDC69\u200D\u2696\ufe0f to reject this image", pos.get() + 1, totalCount))
-                    .setImage(CommandUtil.noImageUrl(reportEntity.getUrl()))
-                    .setColor(CommandUtil.pastelColor());
+                    .setImage(CommandUtil.noImageUrl(reportEntity.url()))
+                    .setColor(CommandUtil.pastelColor()));
 
     public UrlQueueReview(ChuuService dao) {
         super(dao);
+    }
+
+    private static EmbedBuilder addStrikeField(ImageQueue q, EmbedBuilder embedBuilder) {
+        int strikes = q.strikes();
+        if (strikes != 0) {
+            embedBuilder
+                    .addField("# Strikes:", String.valueOf(q.strikes()), true);
+        }
+        return embedBuilder;
     }
 
     @Override
@@ -96,27 +107,32 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         if (nextQueue == null) {
             maxId = Long.MAX_VALUE;
         } else {
-            maxId = nextQueue.getQueuedId();
+            maxId = nextQueue.queuedId();
         }
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = db.getQueueUrlCount();
-            HashMap<String, BiFunction<ImageQueue, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
+            HashMap<String, BiFunction<ImageQueue, MessageReactionAddEvent, Boolean>> actionMap = new LinkedHashMap<>();
             actionMap.put(DELETE, (reportEntity, r) -> {
-                db.rejectQueuedImage(reportEntity.getQueuedId());
+                db.rejectQueuedImage(reportEntity.queuedId(), reportEntity);
                 statDeclined.getAndIncrement();
                 navigationCounter.incrementAndGet();
                 return false;
 
             });
+            actionMap.put(RIGHT_ARROW, (a, r) -> {
+                skippedIds.add(a.queuedId());
+                navigationCounter.incrementAndGet();
+                return false;
+            });
             actionMap.put(ACCEPT, (a, r) -> {
-                db.acceptImageQueue(a.getQueuedId(), a.getUrl(), a.getArtistId(), a.getUploader());
+                db.acceptImageQueue(a.queuedId(), a.url(), a.artistId(), a.uploader());
                 try {
-                    LastFMData lastFMData1 = db.findLastFMData(a.getUploader());
+                    LastFMData lastFMData1 = db.findLastFMData(a.uploader());
                     if (lastFMData1.isImageNotify()) {
-                        r.getJDA().retrieveUserById(a.getUploader()).flatMap(User::openPrivateChannel).queue(x ->
-                                x.sendMessage("Your image for " + a.getArtistName() + " has been approved:\n" +
-                                        "You can disable this automated message with the config command.\n" + a.getUrl()).queue());
+                        r.getJDA().retrieveUserById(a.uploader(), false).flatMap(User::openPrivateChannel).queue(x ->
+                                x.sendMessage("Your image for " + a.artistName() + " has been approved:\n" +
+                                        "You can disable this automated message with the config command.\n" + a.url()).queue());
                     }
                 } catch (InstanceNotFoundException ignored) {
                     // Do nothing
@@ -125,8 +141,16 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 navigationCounter.incrementAndGet();
                 return false;
             });
-            actionMap.put(RIGHT_ARROW, (a, r) -> {
-                skippedIds.add(a.getQueuedId());
+
+            actionMap.put(STRIKE, (a, r) -> {
+                boolean banned = db.strikeQueue(a.queuedId(), a);
+                if (banned) {
+                    TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
+                    if (textChannelById != null)
+                        textChannelById.sendMessage(new EmbedBuilder().setTitle("Banned user for adding pics")
+                                .setDescription("User: **%s**\n".formatted(User.fromId(a.uploader()).getAsMention())).build()).queue();
+                }
+                statDeclined.getAndIncrement();
                 navigationCounter.incrementAndGet();
                 return false;
             });

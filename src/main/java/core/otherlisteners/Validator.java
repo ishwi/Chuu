@@ -50,7 +50,7 @@ public class Validator<T> extends ReactionListener {
 
     private void noMoreElements() {
         RestAction<Message> a;
-        if (!hasCleaned.get()) {
+        if (hasCleaned.compareAndSet(false, true)) {
             boolean check;
             if (message == null) {
                 check = true;
@@ -64,7 +64,6 @@ public class Validator<T> extends ReactionListener {
                     message = z;
                 }
                 clearReacts();
-                hasCleaned.set(true);
             });
             this.unregister();
         }
