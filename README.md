@@ -1,7 +1,7 @@
 # Chuu
 
-Chuu is a Discord bot that integrates [Last.fm]([https://www.last.fm/](https://www.last.fm/)) with Discord. It also has some unique integrations with RateYourMusic.com.
-There are a ton of available commands like:
+Chuu is a Discord bot that integrates [Last.fm]([https://www.last.fm/](https://www.last.fm/)) with Discord. It also has
+some unique integrations with RateYourMusic.com. There are a ton of available commands like:
 
 - Your top of albums that were released in a given year<br>
 - Image charts of both albums and artists<br>
@@ -13,12 +13,14 @@ There are a ton of available commands like:
 
 ## Invite Link
 
-You can invite the bot to your discord server using [this link:](https://discordapp.com/oauth2/authorize?scope=bot&client_id=537353774205894676&permissions=387136)
+You can invite the bot to your discord server
+using [this link:](https://discordapp.com/oauth2/authorize?scope=bot&client_id=537353774205894676&permissions=387136)
 
 There is also a support server if you want to ask any questions directly. [Join here:](https://discord.gg/HQGqYD7)
+
 ## Set-Up
-You can also build the bot and install it on your own.
-In order to do that you need:<br><br>
+
+You can also build the bot and install it on your own. In order to do that you need:<br><br>
 
 - Java 15+ with preview features enabled<br><br>
 - MariaDB 10.5+<br><br>
@@ -47,6 +49,7 @@ In order to do that you need:<br><br>
 
 - OTHER
   - MODERATION_CHANNEL_ID (A discord channel where the bot will dump some info)
+  - MODERATION_CHANNEL_2_ID (Another discord channel where the bot will dump some info)
 
 Then you should set all those properties in the
 file [all.properties](https://github.com/ishwi/chuu/blob/master/src/main/resources/all.properties)
