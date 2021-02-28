@@ -280,7 +280,7 @@ public class CommandUtil {
     }
 
     public static String getGlobalUsername(JDA jda, long discordID) {
-        return CommandUtil.cleanMarkdownCharacter(jda.retrieveUserById(discordID).complete().getName());
+        return CommandUtil.cleanMarkdownCharacter(jda.retrieveUserById(discordID, false).complete().getName());
     }
 
     // ugh
@@ -290,14 +290,20 @@ public class CommandUtil {
         if (e.isFromGuild()) {
             Member whoD = e.getGuild().getMemberById(discordID);
             if (whoD == null) {
-                user = e.getJDA().retrieveUserById(discordID).complete();
-                username = user.getName();
+                Member member = e.getGuild().retrieveMemberById(discordID).complete();
+                if (member == null) {
+                    user = e.getJDA().retrieveUserById(discordID, false).complete();
+                    username = user.getName();
+                } else {
+                    user = member.getUser();
+                    username = member.getEffectiveName();
+                }
             } else {
                 username = whoD.getEffectiveName();
                 user = whoD.getUser();
             }
         } else {
-            user = e.getJDA().retrieveUserById(discordID).complete();
+            user = e.getJDA().retrieveUserById(discordID, false).complete();
             username = user.getName();
 
         }

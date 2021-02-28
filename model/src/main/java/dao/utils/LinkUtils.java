@@ -11,6 +11,7 @@ public class LinkUtils {
     public static String getLastFmArtistUrl(String artist) {
         return "https://www.last.fm/music/" + encodeUrl(artist);
     }
+
     public static String getLastFmArtistAlbumUrl(String artist, String album) {
         return "https://www.last.fm/music/" + encodeUrl(artist) + "/" + encodeUrl(album);
     }
@@ -30,7 +31,10 @@ public class LinkUtils {
     }
 
     public static String encodeUrl(String url) {
-        return URLEncoder.encode(url, StandardCharsets.UTF_8);
+        return URLEncoder.encode(url, StandardCharsets.UTF_8)
+                .replaceAll("\\*", "%2A")
+                .replaceAll("_", "%5F")
+                ;
     }
 
     public static String cleanMarkdownCharacter(String string) {

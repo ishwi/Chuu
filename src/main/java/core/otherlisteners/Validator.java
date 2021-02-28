@@ -4,18 +4,20 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 public class Validator<T> extends ReactionListener {
 
@@ -47,21 +49,31 @@ public class Validator<T> extends ReactionListener {
 
 
     private void noMoreElements() {
+        RestAction<Message> a;
         if (!hasCleaned.get()) {
+            boolean check;
             if (message == null) {
-                this.message = messageChannel.sendMessage(getLastMessage.apply(who).build()).complete();
-            } else
-                message.editMessage(getLastMessage.apply(who).build()).complete();
-            clearReacts();
-            hasCleaned.set(true);
+                check = true;
+                a = messageChannel.sendMessage(getLastMessage.apply(who).build());
+            } else {
+                check = false;
+                a = message.editMessage(getLastMessage.apply(who).build());
+            }
+            a.queue(z -> {
+                if (check) {
+                    message = z;
+                }
+                clearReacts();
+                hasCleaned.set(true);
+            });
             this.unregister();
         }
     }
 
     @SuppressWarnings("rawtypes")
     private void initEmotes() {
-        CompletableFuture[] completableFutures1 = this.actionMap.keySet().stream().map(x -> message.addReaction(x).submit()).toArray(CompletableFuture[]::new);
-        CompletableFuture.allOf(completableFutures1).join();
+        List<RestAction<Void>> reacts = this.actionMap.keySet().stream().map(x -> message.addReaction(x)).collect(Collectors.toList());
+        RestAction.allOf(reacts).queue();
     }
 
     private MessageAction doTheThing(boolean newElement) {
@@ -89,12 +101,14 @@ public class Validator<T> extends ReactionListener {
         if (messageAction == null) {
             return;
         }
-        this.message = messageAction.complete();
-        while (!tbp.isEmpty()) {
-            MessageReactionAddEvent poll = tbp.poll();
-            onMessageReactionAdd(poll);
-        }
-        initEmotes();
+        messageAction.queue(z -> {
+            this.message = z;
+            while (!tbp.isEmpty()) {
+                MessageReactionAddEvent poll = tbp.poll();
+                onMessageReactionAdd(poll);
+            }
+            initEmotes();
+        });
     }
 
     @Override

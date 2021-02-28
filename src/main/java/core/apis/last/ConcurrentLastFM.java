@@ -689,8 +689,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                 if (aCounter != 0) {
                     previousUts = trackObj.getJSONObject("date").getLong("uts");
                 }
-                if (albumUrl.isBlank())
-                    albumUrl = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
+
 
                 if (album.has("#text")) {
                     albumString = album.getString("#text");
@@ -713,9 +712,11 @@ public class ConcurrentLastFM {//implements LastFMService {
                             break;
                         }
                     }
-                    if (!stopTCounter && currentSong.equals(trackName))
+                    if (!stopTCounter && currentSong.equals(trackName)) {
                         tCounter++;
-                    else
+                        if (albumUrl.isBlank())
+                            albumUrl = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
+                    } else
                         stopTCounter = true;
                 } else {
                     if (!stopAlbCounter) {

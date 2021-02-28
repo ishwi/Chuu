@@ -116,7 +116,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
         try {
             LastFMData cl = db.findLastFMData(secondDiscordID);
             if (cl.getPrivacyMode() == PrivacyMode.TAG) {
-                giver = e.getJDA().retrieveUserById(cl.getDiscordId()).complete().getAsTag();
+                giver = e.getJDA().retrieveUserById(cl.getDiscordId(), false).complete().getAsTag();
             } else if (cl.getPrivacyMode() == PrivacyMode.LAST_NAME) {
                 giver = cl.getName();
             } else {

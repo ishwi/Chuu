@@ -3,6 +3,7 @@ package core.commands.stats;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.PrivacyUtils;
 import core.otherlisteners.Reactionary;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
@@ -14,7 +15,6 @@ import dao.ChuuService;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
-import dao.entities.PrivacyMode;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -46,7 +46,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays needed to award a match, " +
-                   "defaults to 30";
+                "defaults to 30";
         return new NumberParser<>(new OnlyUsernameParser(db),
                 30L,
                 Integer.MAX_VALUE,
@@ -79,15 +79,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
 
         StringBuilder stringBuilder = new StringBuilder();
         List<String> string = collect.stream().map(x -> {
-            String name;
-                    if (x.getPrivacyMode() == PrivacyMode.TAG) {
-                        name = e.getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag();
-                    } else if (x.getPrivacyMode() == PrivacyMode.LAST_NAME) {
-                        name = x.getReceivingLastFmId();
-                    } else {
-                        name = getUserString(e, x.getDiscordId());
-                    }
-
+            String name = PrivacyUtils.getPublicStr(x.getPrivacyMode(), x.getDiscordId(), x.getReceivingLastFmId(), e);
                     return String.format(". [%s](%s) - %.2f%%%s matching%n", name,
                             CommandUtil.getLastFmUser(x.getReceivingLastFmId()),
                             (x.getAffinity() > 1 ? 1 : x.getAffinity()) * 100, x.getAffinity() > 1 ? "+" : "");

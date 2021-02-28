@@ -228,7 +228,8 @@ public class Chuu {
         AtomicInteger counter = new AtomicInteger(0);
         IEventManager customManager = new CustomInterfacedEventManager(0);
         EnumSet<CacheFlag> cacheFlags = EnumSet.allOf(CacheFlag.class);
-        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL)
+        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents())
+                .setChunkingFilter(ChunkingFilter.ALL)
                 //.setMemberCachePolicy(Chuu.cacheMember)
                 .enableCache(CacheFlag.EMOTE)
                 .enableCache(CacheFlag.VOICE_STATE)

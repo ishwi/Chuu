@@ -23,7 +23,7 @@ public class PrivacyUtils {
         switch (privacyMode) {
             case STRICT, NORMAL -> x.setCalculatedDisplayName(dayNumberSuffix + " **Private User #" + c.getAndIncrement() + "**");
             case DISCORD_NAME -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername() + "**");
-            case TAG -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + e.getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag() + "**");
+            case TAG -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + e.getJDA().retrieveUserById(x.getDiscordId(), false).complete().getAsTag() + "**");
             case LAST_NAME -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + x.getLastfmId() + " (last.fm)**");
         }
 
@@ -83,6 +83,17 @@ public class PrivacyUtils {
 
     public record PrivateString(String discordName, String lastfmName) {
     }
+
+
+    public static String getPublicStr(PrivacyMode privacyMode, long discordId, String lastfmId, MessageReceivedEvent e) {
+        return switch (privacyMode) {
+            case DISCORD_NAME -> CommandUtil.getUserInfoNotStripped(e, discordId).getUsername();
+            case TAG -> Chuu.getShardManager().retrieveUserById(discordId).complete().getAsTag();
+            case LAST_NAME -> lastfmId + " (last.fm)";
+            default -> "Unknown";
+        };
+    }
+
 }
 
 

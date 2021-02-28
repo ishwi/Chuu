@@ -3,6 +3,7 @@ package core.commands.stats;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.PrivacyUtils;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.NumberParser;
@@ -12,8 +13,9 @@ import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.GlobalStreakEntities;
-import dao.entities.PrivacyMode;
+import dao.entities.Memoized;
 import dao.entities.UsersWrapper;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -25,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
@@ -99,35 +101,30 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
         AtomicInteger atomicInteger = new AtomicInteger(1);
         AtomicInteger positionCounter = new AtomicInteger(1);
 
-        Consumer<GlobalStreakEntities> consumer = (x) -> {
-            PrivacyMode privacyMode = x.getPrivacyMode();
-            if (showableUsers.contains(x.getDiscordId())) {
-                privacyMode = PrivacyMode.DISCORD_NAME;
-            }
+
+        Function<GlobalStreakEntities, String> mapper = (x) -> {
+            PrivacyUtils.PrivateString publicString = PrivacyUtils.getPublicString(x.getPrivacyMode(), x.getDiscordId(), x.getLastfmId(), atomicInteger, e, showableUsers);
             int andIncrement = positionCounter.getAndIncrement();
             String dayNumberSuffix = CommandUtil.getDayNumberSuffix(andIncrement);
-            switch (privacyMode) {
-                case STRICT, NORMAL -> x.setCalculatedDisplayName(dayNumberSuffix + " **Private User #" + atomicInteger.getAndIncrement() + "**");
-                case DISCORD_NAME -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + getUserString(params.getE(), x.getDiscordId()) + "**");
-                case TAG -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + params.getE().getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag() + "**");
-                case LAST_NAME -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + x.getLastfmId() + " (last.fm)**");
-            }
+            x.setCalculatedDisplayName("%s **%s**".formatted(dayNumberSuffix, publicString.discordName()));
 
+
+            String aString = LinkUtils.cleanMarkdownCharacter(x.getCurrentArtist());
+            StringBuilder description = new StringBuilder("" + publicString.discordName() + "\n");
+            return GlobalStreakEntities.getComboString(aString, description, x.getaCounter(), x.getCurrentArtist(), x.getAlbCounter(), x.getCurrentAlbum(), x.gettCounter(), x.getCurrentSong());
         };
-        topStreaks
-                .forEach(x ->
-                        x.setDisplayer(consumer)
-                );
-        atomicInteger.set(0);
-        topStreaks.forEach(x -> x.setDisplayer(consumer));
-        if (topStreaks.isEmpty()) {
+
+        List<Memoized<GlobalStreakEntities, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).collect(Collectors.toList());
+
+
+        if (z.isEmpty()) {
             sendMessageQueue(e, title + " doesn't have any stored streaks.");
             return;
         }
 
         StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 5 && i < topStreaks.size(); i++) {
-            a.append(i + 1).append(topStreaks.get(i).toString());
+        for (int i = 0; i < 5 && i < z.size(); i++) {
+            a.append(i + 1).append(z.get(i).toString());
         }
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -137,7 +134,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
                 .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s!", CommandUtil.cleanMarkdownCharacter(title), topStreaks.size(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(topStreaks, message1, 5, embedBuilder));
+                new Reactionary<>(z, message1, 5, embedBuilder));
     }
 }
 

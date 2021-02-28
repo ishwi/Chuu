@@ -7,6 +7,7 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
@@ -95,12 +96,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
                 try {
                     LastFMData lastFMData = db.findLastFMData(globalArtistRanking.get(0).getDiscordId());
                     if (EnumSet.of(PrivacyMode.LAST_NAME, PrivacyMode.TAG, PrivacyMode.DISCORD_NAME).contains(lastFMData.getPrivacyMode())) {
-                        String embedText = switch (lastFMData.getPrivacyMode()) {
-                            case DISCORD_NAME -> getUserString(e, lastFMData.getDiscordId());
-                            case TAG -> e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
-                            case LAST_NAME -> lastFMData.getName() + " (lastfm)";
-                            default -> "Unknown";
-                        };
+                        String embedText = PrivacyUtils.getPublicStr(lastFMData.getPrivacyMode(), lastFMData.getDiscordId(), lastFMData.getName(), e);
                         embedBuilder.addField("Crown Holder: ", embedText, true);
                     }
                 } catch (InstanceNotFoundException ignored) {

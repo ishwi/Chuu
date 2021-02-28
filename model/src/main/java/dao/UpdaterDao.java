@@ -178,4 +178,6 @@ interface UpdaterDao {
     void storeSession(Connection connection, String session, String lastfm);
 
     void clearSess(Connection connection, String lastfm);
+
+    void storeRejected(Connection connection, ImageQueue reportEntity);
 }

@@ -1679,6 +1679,20 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
         }
     }
 
+    @Override
+    public void storeRejected(Connection connection, ImageQueue reportEntity) {
+        @Language("MariaDB") String queryString = "insert into rejected(url,artist_id,discord_id) values (?,?,?) ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i++, reportEntity.getUrl());
+            preparedStatement.setLong(i++, reportEntity.getArtistId());
+            preparedStatement.setLong(i, reportEntity.getUploader());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
 }
 

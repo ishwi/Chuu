@@ -67,7 +67,7 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
                     ownerRec = switch (privacyMode) {
                         case STRICT -> "Private User";
                         case DISCORD_NAME, NORMAL -> getUserString(e, lastFMData.getDiscordId());
-                        case TAG -> e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
+                        case TAG -> e.getJDA().retrieveUserById(lastFMData.getDiscordId(), false).complete().getAsTag();
                         case LAST_NAME -> lastFMData.getName() + " (lastfm)";
                     };
                 } catch (InstanceNotFoundException ex) {

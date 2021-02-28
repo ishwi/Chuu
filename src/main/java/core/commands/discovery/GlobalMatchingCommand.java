@@ -14,7 +14,7 @@ import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ArtistLbGlobalEntry;
 import dao.entities.DiscordUserDisplay;
-import dao.entities.PrivacyMode;
+import dao.entities.Memoized;
 import dao.entities.UsersWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -26,11 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
+
+
     public GlobalMatchingCommand(ChuuService dao) {
         super(dao);
     }
@@ -91,34 +94,17 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
 
         StringBuilder a = new StringBuilder();
         AtomicInteger c = new AtomicInteger(0);
-        List<Object> strings = list.stream().map(x -> new Object() {
-            private String calculatedString = null;
+        Function<ArtistLbGlobalEntry, String> mapper = (ArtistLbGlobalEntry s) -> {
+            PrivacyUtils.PrivateString privacy =
+                    PrivacyUtils.getPublicString(s.getPrivacyMode(), s.getDiscordId(), s.getLastFmId(), c, e, found);
+            return ". **[" +
+                    LinkUtils.cleanMarkdownCharacter(privacy.discordName()) +
+                    "](" + privacy.lastfmName() +
+                    ")** - " + s.getEntryCount() +
+                    " artists\n";
+        };
 
-            @Override
-            public String toString() {
-                if (calculatedString == null) {
-
-                    PrivacyMode privacyMode = x.getPrivacyMode();
-                    if (found.contains(x.getDiscordId())) {
-                        privacyMode = PrivacyMode.DISCORD_NAME;
-                    }
-
-
-                    switch (privacyMode) {
-                        case STRICT, NORMAL -> x.setDiscordName(String.valueOf(c.getAndIncrement()));
-                        case DISCORD_NAME -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername());
-                        case TAG -> x.setDiscordName(e.getJDA().retrieveUserById(x.getDiscordId()).complete().getAsTag());
-                        case LAST_NAME -> x.setDiscordName(x.getLastFmId());
-                    }
-                    calculatedString = ". **[" +
-                            LinkUtils.cleanMarkdownCharacter(x.getDiscordName()) +
-                            "](" + PrivacyUtils.getLastFmUser(x.getLastFmId()) +
-                            ")** - " + x.getEntryCount() +
-                            " artists\n";
-                }
-                return calculatedString;
-            }
-        }).collect(Collectors.toList());
+        List<Memoized<ArtistLbGlobalEntry, String>> strings = list.stream().map(x -> new Memoized<>(x, mapper)).collect(Collectors.toList());
         if (list.isEmpty()) {
             sendMessageQueue(e, "No one has any matching artist with you :(");
             return;

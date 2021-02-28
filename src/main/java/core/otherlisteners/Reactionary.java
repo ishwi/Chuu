@@ -116,7 +116,7 @@ public class Reactionary<T> extends ReactionListener {
         clearOneReact(event);
 
         if (currentPage == 1 && asCodepoints.equals(LEFT_ARROW)) {
-            message.removeReaction(LEFT_ARROW).complete();
+            message.removeReaction(LEFT_ARROW).queue();
             missingArrow = true;
         } else if (currentPage == 2 && asCodepoints.equals(RIGHT_ARROW) && missingArrow) {
             clearReacts((Void t) -> message.addReaction(LEFT_ARROW).queue(x -> {
@@ -127,7 +127,7 @@ public class Reactionary<T> extends ReactionListener {
             missingArrow = false;
         }
         if (currentPage == totalPageNumber && asCodepoints.equals(RIGHT_ARROW)) {
-            message.removeReaction(RIGHT_ARROW).complete();
+            message.removeReaction(RIGHT_ARROW).queue();
             missingArrow = true;
         } else if (currentPage == totalPageNumber - 1 && asCodepoints.equals(LEFT_ARROW) && missingArrow) {
             message.addReaction(RIGHT_ARROW).queue();

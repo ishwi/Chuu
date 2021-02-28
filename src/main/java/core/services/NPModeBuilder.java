@@ -680,6 +680,7 @@ public class NPModeBuilder {
                             if (!artistTopStreaks.isEmpty()) {
                                 Consumer<GlobalStreakEntities> consumer = PrivacyUtils.consumer.apply(e, new AtomicInteger(0), x -> true);
                                 GlobalStreakEntities globalStreakEntities = artistTopStreaks.get(0);
+                                PrivacyUtils.PrivateString publicString = PrivacyUtils.getPublicString(globalStreakEntities.getPrivacyMode(), globalStreakEntities.getDiscordId(), globalStreakEntities.getLastfmId(), new AtomicInteger(0), e, Set.of(e.getAuthor().getIdLong()));
                                 globalStreakEntities.setDisplayer(consumer);
                                 String name = globalStreakEntities.getName().replace("*", "").substring(2).trim();
                                 footerSpaces[footerIndexes.get(NPMode.HIGHEST_SERVER_STREAK)] =
