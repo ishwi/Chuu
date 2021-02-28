@@ -106,7 +106,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
                     return;
                 }
             } else {
-                sendMessageQueue(e, String.format("%s, you are goo d to go!", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName())));
+                sendMessageQueue(e, String.format("%s, you are good to go!", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName())));
                 return;
             }
             //First Time on the guild

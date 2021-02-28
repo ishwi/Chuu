@@ -43,7 +43,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                     .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(reportEntity.artistName()), LinkUtils.getLastFmArtistUrl(reportEntity.artistName())), false)
                     .addField("Author", CommandUtil.getGlobalUsername(jda, reportEntity.uploader()), true)
                     .addField("# Rejected:", String.valueOf(reportEntity.userRejectedCount()), true)
-                    .addField("# Submitted:", String.valueOf(reportEntity.count()), true)
+                    .addField("# Approved:", String.valueOf(reportEntity.count()), true)
                     .setFooter(String.format("%d/%d%nUse \uD83D\uDC69\u200D\u2696\ufe0f to reject this image", pos.get() + 1, totalCount))
                     .setImage(CommandUtil.noImageUrl(reportEntity.url()))
                     .setColor(CommandUtil.pastelColor()));

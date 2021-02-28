@@ -1034,7 +1034,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
         String queryString = """
                 SELECT a.id,a.url,a.artist_id,a.discord_id,a.added_date, c.name,
-                (SELECT count(*) FROM queued_url d WHERE d.discord_id = a.discord_id) as submitted,
+                (SELECT count(*) FROM alt_url d WHERE d.discord_id = a.discord_id) as submitted,
                 (SELECT count(*) FROM rejected WHERE rejected.discord_id = a.discord_id) as reportedCount,
                 (SELECT count(*) FROM strike WHERE strike.discord_id = a.discord_id) as reportedCount
                 FROM queued_url a JOIN

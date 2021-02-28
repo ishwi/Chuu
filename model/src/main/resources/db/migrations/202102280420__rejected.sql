@@ -23,3 +23,5 @@ CREATE TABLE strike
     CONSTRAINT `strike_fk_rejected` FOREIGN KEY (`rejected_id`) REFERENCES `rejected` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+create index alt_url_discord_id on alt_url (discord_id);

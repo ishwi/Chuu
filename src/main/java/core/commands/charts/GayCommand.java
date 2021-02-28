@@ -196,7 +196,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, GayParams params, int count) {
 
-        return params.initEmbed("'s pride chart", embedBuilder, ", Happy Pride Month UwU", params.getUser().getName());
+        return params.initEmbed("'s pride chart", embedBuilder, "UwU", params.getUser().getName());
 
     }
 

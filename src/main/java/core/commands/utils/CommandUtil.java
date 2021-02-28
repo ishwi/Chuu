@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.internal.requests.CompletedRestAction;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -290,7 +291,7 @@ public class CommandUtil {
         if (e.isFromGuild()) {
             Member whoD = e.getGuild().getMemberById(discordID);
             if (whoD == null) {
-                Member member = e.getGuild().retrieveMemberById(discordID).complete();
+                Member member = e.getGuild().retrieveMemberById(discordID).onErrorFlatMap((t) -> new CompletedRestAction<>(e.getJDA(), null, null)).complete();
                 if (member == null) {
                     user = e.getJDA().retrieveUserById(discordID, false).complete();
                     username = user.getName();
