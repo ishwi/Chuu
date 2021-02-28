@@ -80,7 +80,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                 now = now.plus(hours, ChronoUnit.HOURS);
                 long minutes = now.until(ifPresent, ChronoUnit.MINUTES);
 
-                sendMessageQueue(e, "This server has too many user, so the playing command can only be executed twice per day (usable in " + hours + " hours and " + minutes + " minutes)");
+                sendMessageQueue(e, "This server has too many users, so the playing command can only be executed twice per day (usable in " + hours + " hours and " + minutes + " minutes)");
                 return;
             } else {
                 controlAccess.refresh(e.getGuild().getIdLong());
