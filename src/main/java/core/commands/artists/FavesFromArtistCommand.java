@@ -47,7 +47,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
 
     @Override
     public Parser<ArtistTimeFrameParameters> initParser() {
-        return new ArtistTimeFrameParser(db, lastFM);
+        return new ArtistTimeFrameParser(db, lastFM, true);
     }
 
     @Override

@@ -73,9 +73,31 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
             return;
         }
 
+        int maxLength = streaks.stream().mapToInt(String::length).max().orElse(0);
+        int j = 0;
+        while (j < streaks.size()) {
+            int size = 0;
+            for (int i = j; i < 5 + j && i < streaks.size(); i++) {
+                size += streaks.get(i).length();
+            }
+            if (size >= 2400) {
+                for (int i = j; i < 5 + j && i < streaks.size(); i++) {
+                    streaks.set(i, streaks.get(i).replaceAll("\\[(.*)]\\(.*\\)", "$1"));
+                }
+            }
+            j += 5;
+        }
+
+
         StringBuilder a = new StringBuilder();
+        AtomicInteger maxSize = new AtomicInteger(0);
         for (int i = 0; i < 5 && i < streaks.size(); i++) {
-            a.append(i + 1).append(streaks.get(i));
+            String str = streaks.get(i);
+            if (a.length() + str.length() > 2400) {
+                break;
+            }
+            a.append(i + 1).append(str);
+            maxSize.incrementAndGet();
         }
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -84,6 +106,6 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), streaks.size(), CommandUtil.singlePlural(streaks.size(), "streak", "streaks")));
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(streaks, message1, 5, embedBuilder));
+                new Reactionary<>(streaks, message1, maxSize.get(), embedBuilder));
     }
 }

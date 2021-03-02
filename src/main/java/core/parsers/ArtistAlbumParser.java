@@ -15,11 +15,16 @@ import java.util.Arrays;
 
 public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
     final ConcurrentLastFM lastFM;
-
+    private final boolean forComparison;
 
     public ArtistAlbumParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... o) {
+        this(dao, lastFM, true, o);
+    }
+
+    public ArtistAlbumParser(ChuuService dao, ConcurrentLastFM lastFM, boolean forComparison, OptionalEntity... o) {
         super(dao);
         this.lastFM = lastFM;
+        this.forComparison = forComparison;
         this.opts.addAll(Arrays.asList(o));
     }
 
@@ -38,12 +43,14 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
         LastFMData userName = findLastfmFromID(sample, e);
 
         if (subMessage.length == 0) {
-
             NowPlayingArtist np;
-
             try {
-                LastFMData lastfmFromID = findLastfmFromID(e.getAuthor(), e);
-                np = new NPService(lastFM, lastfmFromID).getNowPlaying();
+                if (forComparison && e.getAuthor().getIdLong() != sample.getIdLong()) {
+                    LastFMData lastfmFromID = findLastfmFromID(e.getAuthor(), e);
+                    np = new NPService(lastFM, lastfmFromID).getNowPlaying();
+                } else {
+                    np = new NPService(lastFM, userName).getNowPlaying();
+                }
             } catch (InstanceNotFoundException ex) {
                 np = new NPService(lastFM, userName).getNowPlaying();
             }

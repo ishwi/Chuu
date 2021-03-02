@@ -9,6 +9,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ArtistSongParser extends ArtistAlbumParser {
 
+
+    public ArtistSongParser(ChuuService dao, ConcurrentLastFM lastFM, boolean forComparison, OptionalEntity... o) {
+        super(dao, lastFM, forComparison, o);
+    }
+
     public ArtistSongParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... o) {
         super(dao, lastFM, o);
     }

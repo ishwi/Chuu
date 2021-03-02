@@ -284,6 +284,10 @@ public class CommandUtil {
         return CommandUtil.cleanMarkdownCharacter(jda.retrieveUserById(discordID, false).complete().getName());
     }
 
+    public static int getDecade(int year) {
+        return year < 2000 ? (year / 10 * 10 - 1900) : (year / 10 * 10);
+    }
+
     // ugh
     private static DiscordUserDisplay handleUser(MessageReceivedEvent e, long discordID) {
         User user;

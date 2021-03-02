@@ -1,5 +1,6 @@
 package core.commands.config;
 
+import core.apis.lyrics.TextSplitter;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -70,8 +71,11 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
                 sendMessageQueue(e, getUsageInstructions());
                 return;
             }
-            String collect = modes.stream().map(x -> NPMode.getListedName(List.of(x)) + " -> " + x.getHelpMessage()).collect(Collectors.joining("\n"));
-            sendMessageQueue(e, collect);
+            String collect = modes.stream().map(x -> "**%s** -> %s".formatted(NPMode.getListedName(List.of(x)), x.getHelpMessage())).collect(Collectors.joining("\n"));
+            List<String> split = TextSplitter.split(collect, 2000);
+            for (String s : split) {
+                sendMessageQueue(e, s);
+            }
             return;
         }
         if (params.isListing()) {

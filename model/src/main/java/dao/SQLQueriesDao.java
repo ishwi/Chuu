@@ -176,7 +176,7 @@ interface SQLQueriesDao {
 
     WrapperReturnNowPlaying globalWhoKnowsTrack(Connection connection, long trackId, int limit, long ownerId, boolean includeBotted);
 
-    UniqueWrapper<AlbumPlays> getUserTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId);
+    UniqueWrapper<TrackPlays> getUserTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId);
 
     List<LbEntry> trackCrownsLeaderboard(Connection connection, long guildId, int threshold);
 
@@ -222,6 +222,10 @@ interface SQLQueriesDao {
 
     ResultWrapper<ScrobbledAlbum> getCollectiveAOTD(Connection connection, Year year, int range, Long guildID, int limit, boolean doCount);
 
-    Map<Year, Integer> getUserYears(Connection connection, String lastfmId);
+    Map<Year, Integer> getUserYears(Connection connection, String lastfmId, boolean isDecade);
+
+
+    Map<Year, Integer> getCollectiveYears(Connection connection, @Nullable Long guildId, boolean isDecade);
+
 
 }

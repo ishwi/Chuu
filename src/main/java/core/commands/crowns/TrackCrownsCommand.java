@@ -11,9 +11,8 @@ import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import core.services.ColorService;
 import dao.ChuuService;
-import dao.entities.AlbumPlays;
-import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
+import dao.entities.TrackPlays;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -78,9 +77,9 @@ public class TrackCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
         if (threshold == null) {
             threshold = (long) db.getGuildCrownThreshold(idLong);
         }
-        UniqueWrapper<AlbumPlays> uniqueDataUniqueWrapper = db
+        UniqueWrapper<TrackPlays> uniqueDataUniqueWrapper = db
                 .getUserTrackCrowns(innerParams.getLastFMData().getName(), e.getGuild().getIdLong(), Math.toIntExact(threshold));
-        List<AlbumPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
+        List<TrackPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 
         int rows = resultWrapper.size();
         if (rows == 0) {
@@ -90,7 +89,7 @@ public class TrackCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
 
         StringBuilder a = new StringBuilder();
         for (int i = 0; i < 10 && i < rows; i++) {
-            ArtistPlays g = resultWrapper.get(i);
+            TrackPlays g = resultWrapper.get(i);
             a.append(i + 1).append(g.toString());
         }
         EmbedBuilder embedBuilder = new EmbedBuilder()

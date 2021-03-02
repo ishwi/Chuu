@@ -27,7 +27,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        return new ArtistAlbumParser(db, lastFM);
+        return new ArtistAlbumParser(db, lastFM, false);
     }
 
     @Override

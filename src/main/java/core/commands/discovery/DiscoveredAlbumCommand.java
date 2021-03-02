@@ -54,7 +54,7 @@ public class DiscoveredAlbumCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("albumdiscovered", "albdiscovered", "discoveredalb");
+        return List.of("albumdiscovered", "albdiscovered", "discoveredalb", "discoveredalbums");
     }
 
     @Override

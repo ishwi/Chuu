@@ -15,11 +15,17 @@ import java.util.Arrays;
 
 public class ArtistParser extends DaoParser<ArtistParameters> {
     final ConcurrentLastFM lastFM;
+    private final boolean forComparison;
 
 
     public ArtistParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... strings) {
+        this(dao, lastFM, true, strings);
+    }
+
+    public ArtistParser(ChuuService dao, ConcurrentLastFM lastFM, boolean forComparison, OptionalEntity... strings) {
         super(dao);
         this.lastFM = lastFM;
+        this.forComparison = forComparison;
         opts.addAll(Arrays.asList(strings));
     }
 
@@ -34,21 +40,25 @@ public class ArtistParser extends DaoParser<ArtistParameters> {
         User oneUser = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
 
-        LastFMData lastFMData = findLastfmFromID(oneUser, e);
+        LastFMData data = findLastfmFromID(oneUser, e);
         if (words.length == 0) {
             NowPlayingArtist np;
-            if (isAllowUnaothorizedUsers() && lastFMData.getName() == null) {
+            if (isAllowUnaothorizedUsers() && data.getName() == null) {
                 throw new InstanceNotFoundException(oneUser.getIdLong());
             }
             try {
-                LastFMData lastfmFromID = findLastfmFromID(e.getAuthor(), e);
-                np = new NPService(lastFM, lastfmFromID).getNowPlaying();
+                if (forComparison && e.getAuthor().getIdLong() != oneUser.getIdLong()) {
+                    LastFMData lastfmFromID = findLastfmFromID(e.getAuthor(), e);
+                    np = new NPService(lastFM, lastfmFromID).getNowPlaying();
+                } else {
+                    np = new NPService(lastFM, data).getNowPlaying();
+                }
             } catch (InstanceNotFoundException ex) {
-                np = new NPService(lastFM, lastFMData).getNowPlaying();
+                np = new NPService(lastFM, data).getNowPlaying();
             }
-            return new ArtistParameters(e, np.getArtistName(), lastFMData);
+            return new ArtistParameters(e, np.getArtistName(), data);
         } else {
-            return new ArtistParameters(e, String.join(" ", words), lastFMData);
+            return new ArtistParameters(e, String.join(" ", words), data);
         }
     }
 

@@ -842,7 +842,7 @@ public class ChuuService {
         }
     }
 
-    public UniqueWrapper<AlbumPlays> getUserTrackCrowns(String lastfmId, long guildId, int crownthreshold) {
+    public UniqueWrapper<TrackPlays> getUserTrackCrowns(String lastfmId, long guildId, int crownthreshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.getUserTrackCrowns(connection, lastfmId, crownthreshold, guildId);
@@ -3393,11 +3393,57 @@ public class ChuuService {
     public Map<Year, Integer> getUserYears(String lastfmId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getUserYears(connection, lastfmId);
+            return queriesDao.getUserYears(connection, lastfmId, false);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    public Map<Year, Integer> getUserDecades(String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getUserYears(connection, lastfmId, false);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public Map<Year, Integer> getGuildYears(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getCollectiveYears(connection, guildId, false);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public Map<Year, Integer> getGuildDecades(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getCollectiveYears(connection, guildId, true);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public Map<Year, Integer> getGlobalYears() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getCollectiveYears(connection, null, false);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public Map<Year, Integer> getGlobalDecades() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getCollectiveYears(connection, null, true);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 
     public Map<Year, Integer> getUserYearsFromList(String lastfmId, List<AlbumInfo> albums) {
@@ -3408,6 +3454,15 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    public Map<Year, Integer> getUserDecadesFromList(String lastfmId, List<AlbumInfo> albums) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return albumDao.countByDecades(connection, lastfmId, albums);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 
     public boolean strikeQueue(long queuedId, ImageQueue image) {

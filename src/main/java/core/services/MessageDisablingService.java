@@ -104,7 +104,7 @@ public class MessageDisablingService {
             service.deleteServerCommandStatus(guildId, myCommand.getName());
 
             Set<Long> collect = disabledChannelsMap.entries().stream().filter(x -> x.getKey().getLeft().equals(guildId)).map(x -> x.getKey().getRight()).collect(Collectors.toSet());
-            disabledChannelsMap.entries().removeIf(x -> x.getKey().getLeft().equals(guildId));
+            disabledChannelsMap.entries().removeIf(x -> x.getKey().getLeft().equals(guildId) && x.getValue().equals(myCommand));
             collect.forEach(y -> service.deleteChannelCommandStatus(guildId, y, myCommand.getName()));
             service.deleteServerCommandStatus(guildId, myCommand.getName());
 

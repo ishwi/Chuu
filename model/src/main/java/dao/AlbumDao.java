@@ -45,4 +45,6 @@ public interface AlbumDao {
 
 
     Map<Year, Integer> countByYears(Connection connection, String lastfmId, List<AlbumInfo> albumInfos);
+
+    Map<Year, Integer> countByDecades(Connection connection, String lastfmId, List<AlbumInfo> albumInfos);
 }

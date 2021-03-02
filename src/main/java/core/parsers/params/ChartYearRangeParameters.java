@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
 
+import static core.commands.utils.CommandUtil.getDecade;
+
 public class ChartYearRangeParameters extends ChartParameters {
     private final Year baseYear;
     private final int numberOfYears;
@@ -37,9 +39,6 @@ public class ChartYearRangeParameters extends ChartParameters {
         return getBaseYear().plus(numberOfYears, ChronoUnit.YEARS).getValue();
     }
 
-    private int getDecade(int year) {
-        return year < 2000 ? (year / 10 * 10 - 1900) : (year / 10 * 10);
-    }
 
     public String getDisplayString() {
         if (numberOfYears == 10 && baseYear.isAfter(Year.now().minus(100, ChronoUnit.YEARS))) {

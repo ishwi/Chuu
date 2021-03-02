@@ -105,5 +105,6 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
                 InstanceNotFoundException ex) {
             // Well
         }
+        sendMessageQueue(e, "Successfully rated the url with a %d/10!".formatted(rating));
     }
 }

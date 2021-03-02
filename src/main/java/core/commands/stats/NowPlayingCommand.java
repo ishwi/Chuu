@@ -146,7 +146,7 @@ public class NowPlayingCommand extends NpCommand {
                 if (e.getMember() != null && e.getMember().hasPermission(Permission.MESSAGE_ADD_REACTION)) {
                     switch (overrideMode) {
                         case OVERRIDE -> {
-                            if (!serverReactions.isEmpty()) {
+                            if (serverReactions.isEmpty()) {
                                 serverReactions = db.getUserReacts(e.getAuthor().getIdLong());
                             }
                         }
@@ -168,8 +168,7 @@ public class NowPlayingCommand extends NpCommand {
                 serverReactions = db.getUserReacts(e.getAuthor().getIdLong());
             }
             if (!serverReactions.isEmpty()) {
-                RestAction.allOf(serverReactions.stream().map(unicode -> message.addReaction(unicode).mapToResult()).collect(Collectors.toList())).queue(results -> {
-                });
+                RestAction.allOf(serverReactions.stream().map(unicode -> message.addReaction(unicode).mapToResult()).collect(Collectors.toList())).queue();
             }
         });
     }

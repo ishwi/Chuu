@@ -236,35 +236,35 @@ public class ParserAux {
     LastFMData handleRawMessage(String message, MessageReceivedEvent e, ChuuService dao) throws InstanceNotFoundException {
 
         List<UsersWrapper> all = dao.getAll(e.getGuild().getIdLong());
-        Predicate<Member> biPredicate = member -> all.stream().anyMatch(x -> member != null && x.getDiscordID() == member.getIdLong());
+        Predicate<Member> isOnServer = member -> all.stream().anyMatch(x -> member != null && x.getDiscordID() == member.getIdLong());
         if (discordId.matcher(message).matches()) {
             Member memberById = e.getGuild().getMemberById(message);
-            if (!biPredicate.test(memberById) && memberById != null) {
+            if (!isOnServer.test(memberById) && memberById != null) {
                 throw new InstanceNotFoundException(memberById.getId());
             }
             return getLastFMData(Optional.ofNullable(memberById).map(Member::getUser), message, dao, e);
         }
         if (user.matcher(message).matches()) {
             Member memberByTag = e.getGuild().getMemberByTag(message);
-            if (!biPredicate.test(memberByTag) && memberByTag != null) {
+            if (!isOnServer.test(memberByTag) && memberByTag != null) {
                 throw new InstanceNotFoundException(memberByTag.getId());
             }
             return getLastFMData(Optional.ofNullable(memberByTag).map(Member::getUser), message, dao, e);
         }
         List<Member> membersByEffectiveName = e.getGuild().getMembersByEffectiveName(message, true);
         if (!membersByEffectiveName.isEmpty()) {
-            Optional<Member> first = membersByEffectiveName.stream().findFirst();
-            if (!biPredicate.test(first.get())) {
-                throw new InstanceNotFoundException(first.get().getIdLong());
+            Optional<Member> first = membersByEffectiveName.stream().filter(isOnServer).findFirst();
+            if (first.isEmpty()) {
+                throw new InstanceNotFoundException(membersByEffectiveName.get(0).getIdLong());
             }
             return getLastFMData(first.map(Member::getUser), message, dao, e);
 
         }
         List<Member> membersByName = e.getGuild().getMembersByName(message, true);
         if (!membersByName.isEmpty()) {
-            Optional<Member> user = membersByName.stream().findFirst();
-            if (!biPredicate.test(user.get())) {
-                throw new InstanceNotFoundException(user.get().getIdLong());
+            Optional<Member> user = membersByName.stream().filter(isOnServer).findFirst();
+            if (user.isEmpty()) {
+                throw new InstanceNotFoundException(membersByName.get(0).getIdLong());
             }
             return getLastFMData(Optional.of(user.get().getUser()), message, dao, e);
         }
@@ -275,34 +275,34 @@ public class ParserAux {
     Optional<User> userString(String message, MessageReceivedEvent e, ChuuService dao) throws InstanceNotFoundException {
 
         List<UsersWrapper> all = dao.getAll(e.getGuild().getIdLong());
-        Predicate<Member> biPredicate = member -> all.stream().anyMatch(x -> member != null && x.getDiscordID() == member.getIdLong());
+        Predicate<Member> isOnServer = member -> all.stream().anyMatch(x -> member != null && x.getDiscordID() == member.getIdLong());
         if (discordId.matcher(message).matches()) {
             Member memberById = e.getGuild().getMemberById(message);
-            if (!biPredicate.test(memberById) && memberById != null) {
+            if (!isOnServer.test(memberById) && memberById != null) {
                 throw new InstanceNotFoundException(memberById.getId());
             }
             return Optional.ofNullable(memberById).map(Member::getUser);
         }
         if (user.matcher(message).matches()) {
             Member memberByTag = e.getGuild().getMemberByTag(message);
-            if (!biPredicate.test(memberByTag) && memberByTag != null) {
+            if (!isOnServer.test(memberByTag) && memberByTag != null) {
                 throw new InstanceNotFoundException(memberByTag.getId());
             }
             return Optional.ofNullable(memberByTag).map(Member::getUser);
         }
         List<Member> membersByEffectiveName = e.getGuild().getMembersByEffectiveName(message, true);
         if (!membersByEffectiveName.isEmpty()) {
-            Optional<Member> first = membersByEffectiveName.stream().findFirst();
-            if (!biPredicate.test(first.get())) {
-                throw new InstanceNotFoundException(first.get().getIdLong());
+            Optional<Member> first = membersByEffectiveName.stream().filter(isOnServer).findFirst();
+            if (first.isEmpty()) {
+                throw new InstanceNotFoundException(membersByEffectiveName.get(0).getIdLong());
             }
             return first.map(Member::getUser);
         }
         List<Member> membersByName = e.getGuild().getMembersByName(message, true);
         if (!membersByName.isEmpty()) {
-            Optional<Member> user = membersByName.stream().findFirst();
-            if (!biPredicate.test(user.get())) {
-                throw new InstanceNotFoundException(user.get().getIdLong());
+            Optional<Member> user = membersByName.stream().filter(isOnServer).findFirst();
+            if (user.isEmpty()) {
+                throw new InstanceNotFoundException(membersByName.get(0).getIdLong());
             }
             return user.map(Member::getUser);
         }

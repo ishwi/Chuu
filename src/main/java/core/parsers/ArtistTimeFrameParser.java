@@ -15,10 +15,16 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> {
     private final static TimeFrameEnum defaultTFE = TimeFrameEnum.ALL;
     private final ConcurrentLastFM lastFM;
+    private final boolean forComparison;
 
     public ArtistTimeFrameParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... otps) {
+        this(dao, lastFM, false, otps);
+    }
+
+    public ArtistTimeFrameParser(ChuuService dao, ConcurrentLastFM lastFM, boolean forComparison, OptionalEntity... otps) {
         super(dao, otps);
         this.lastFM = lastFM;
+        this.forComparison = forComparison;
     }
 
     @Override
@@ -40,7 +46,16 @@ public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> 
         LastFMData lastFMData = findLastfmFromID(sample, e);
 
         if (words.length == 0) {
-            NowPlayingArtist np = new NPService(lastFM, lastFMData).getNowPlaying();
+
+
+            NowPlayingArtist np;
+            if (forComparison && e.getAuthor().getIdLong() != sample.getIdLong()) {
+                LastFMData lastfmFromID = findLastfmFromID(e.getAuthor(), e);
+                np = new NPService(lastFM, lastfmFromID).getNowPlaying();
+            } else {
+                np = new NPService(lastFM, lastFMData).getNowPlaying();
+            }
+
             return new ArtistTimeFrameParameters(e, np.getArtistName(), lastFMData, timeFrame);
         } else {
             return new ArtistTimeFrameParameters(e, String.join(" ", words), lastFMData, timeFrame);

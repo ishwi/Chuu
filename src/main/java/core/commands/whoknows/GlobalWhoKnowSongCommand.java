@@ -27,7 +27,7 @@ public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlb
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        return new ArtistSongParser(db, lastFM);
+        return new ArtistSongParser(db, lastFM, false);
     }
 
     @Override

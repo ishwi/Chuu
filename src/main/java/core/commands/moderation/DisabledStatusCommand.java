@@ -1,6 +1,7 @@
 package core.commands.moderation;
 
 import core.Chuu;
+import core.apis.lyrics.TextSplitter;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandCategory;
@@ -85,10 +86,11 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
         String globalDisabled = disabledServerCommands.stream().map(x -> x.getAliases().get(0)).collect(Collectors.joining(", "));
         if (!globalDisabled.isBlank()) {
             if (globalDisabled.length() > 1024) {
-                String substring = globalDisabled.substring(0, 1024);
-                int i = substring.lastIndexOf(",");
-                embedBuilder.addField("**Commands disabled in the whole server**", substring.substring(0, i), false)
-                        .addField(EmbedBuilder.ZERO_WIDTH_SPACE, globalDisabled.substring(i), false);
+                List<String> split = TextSplitter.split(globalDisabled, 1020, ", ");
+                embedBuilder.addField("**Commands disabled in the whole server**", split.get(0), false);
+                for (int i = 1; i < split.size(); i++) {
+                    embedBuilder.addField(EmbedBuilder.ZERO_WIDTH_SPACE, split.get(i), false);
+                }
             } else {
                 embedBuilder.addField("**...**", globalDisabled, false);
             }
@@ -119,10 +121,11 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
         fieldBuilder.forEach((x, y) -> {
             String value = y.toString();
             if (value.length() > 1024) {
-                String substring = value.substring(0, 1024);
-                int i = substring.lastIndexOf(",");
-                embedBuilder.addField("**Channel " + x.getName() + "**", value.substring(0, i), false)
-                        .addField(EmbedBuilder.ZERO_WIDTH_SPACE, value.substring(i), false);
+                List<String> split = TextSplitter.split(value, 1020, ", ");
+                embedBuilder.addField("**Channel " + x.getName() + "**", split.get(0), false);
+                for (int i = 1; i < split.size(); i++) {
+                    embedBuilder.addField(EmbedBuilder.ZERO_WIDTH_SPACE, split.get(i), false);
+                }
             } else {
                 embedBuilder.addField("**Channel " + x.getName() + "**", value, false);
             }

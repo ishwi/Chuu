@@ -2932,7 +2932,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public UniqueWrapper<AlbumPlays> getUserTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId) {
+    public UniqueWrapper<TrackPlays> getUserTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId) {
         long discordId = -1L;
         @Language("MariaDB") String queryString = "SELECT d.name, a2.track_name, b.discord_id , playnumber AS orden" +
                 " FROM  scrobbled_track a" +
@@ -2958,7 +2958,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 " GROUP BY track_id)" +
                 " ORDER BY orden DESC";
 
-        List<AlbumPlays> returnList = new ArrayList<>();
+        List<TrackPlays> returnList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, lastfmId);
@@ -2972,11 +2972,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 discordId = resultSet.getLong("b.discord_id");
 
                 String artist = resultSet.getString("d.name");
-                String album = resultSet.getString("a2.track_name");
+                String track = resultSet.getString("a2.track_name");
 
 
                 int plays = resultSet.getInt("orden");
-                returnList.add(new AlbumPlays(artist, plays, album));
+                returnList.add(new TrackPlays(artist, plays, track));
             }
         } catch (SQLException e) {
             logger.warn(e.getMessage(), e);
@@ -3757,13 +3757,13 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public Map<Year, Integer> getUserYears(Connection connection, String lastfmId) {
+    public Map<Year, Integer> getUserYears(Connection connection, String lastfmId, boolean isDecade) {
         Map<Year, Integer> years = new HashMap<>();
-
-        String mySql = "Select count(*),release_year from scrobbled_album a join album b on a.album_id = b.id where a.lastfm_id = ?  and release_year is not null group by release_year order by release_year asc ";
+        String field = isDecade ? "floor(release_year/10)*10" : "release_year";
+        String mySql = "Select count(*),%s from scrobbled_album a join album b on a.album_id = b.id where a.lastfm_id = ?  and release_year is not null group by %s order by release_year asc ";
 
         try
-                (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
+                (PreparedStatement preparedStatement = connection.prepareStatement(mySql.formatted(field, field))) {
             preparedStatement.setString(1, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -3776,6 +3776,46 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             throw new ChuuServiceException(e);
         }
         return years;
+    }
+
+    @Override
+    public Map<Year, Integer> getCollectiveYears(Connection connection, @Nullable Long guildId, boolean isDecade) {
+        Map<Year, Integer> years = new HashMap<>();
+        String field = isDecade ? "floor(release_year/10)*10" : "release_year";
+        String mySql = """
+                Select count(*),%s
+                from scrobbled_album a join album b on a.album_id = b.id
+                """;
+        if (guildId != null) {
+            mySql += """  
+                    join user c on a.lastfm_id = c.lastfm_id 
+                    join user_guild d on c.discord_id = d.discord_id
+                    where guild_id = ? 
+                    """;
+        } else {
+            mySql += " where 1 =1 ";
+        }
+
+        mySql += "and release_year is not null group by %s  order by release_year asc";
+
+
+        try
+                (PreparedStatement preparedStatement = connection.prepareStatement(mySql.formatted(field, field))) {
+            if (guildId != null) {
+                preparedStatement.setLong(1, guildId);
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int count = resultSet.getInt(1);
+                int year = resultSet.getInt(2);
+                years.put(Year.of(year), count);
+            }
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return years;
+
     }
 
     public enum Order {

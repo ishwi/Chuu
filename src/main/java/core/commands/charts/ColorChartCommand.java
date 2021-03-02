@@ -1,6 +1,5 @@
 package core.commands.charts;
 
-import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.entities.chartentities.*;
@@ -17,7 +16,6 @@ import dao.entities.CountWrapper;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import org.beryx.awt.color.ColorFactory;
 
@@ -88,21 +86,6 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
 
     }
 
-    @Override
-    protected void handleCommand(MessageReceivedEvent e) {
-        if (maxConcurrency.decrementAndGet() == 0) {
-            sendMessageQueue(e, "There are a lot of people executing this command right now, try again later :(");
-            maxConcurrency.incrementAndGet();
-        } else {
-            try {
-                super.handleCommand(e);
-            } catch (Throwable ex) {
-                Chuu.getLogger().warn(ex.getMessage(), ex);
-            } finally {
-                maxConcurrency.incrementAndGet();
-            }
-        }
-    }
 
     @Override
     public ChartableParser<ColorChartParams> initParser() {
