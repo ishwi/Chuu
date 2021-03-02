@@ -80,7 +80,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
             for (int i = j; i < 5 + j && i < streaks.size(); i++) {
                 size += streaks.get(i).length();
             }
-            if (size >= 2400) {
+            if (size >= 2048) {
                 for (int i = j; i < 5 + j && i < streaks.size(); i++) {
                     streaks.set(i, streaks.get(i).replaceAll("\\[(.*)]\\(.*\\)", "$1"));
                 }
@@ -93,7 +93,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
         AtomicInteger maxSize = new AtomicInteger(0);
         for (int i = 0; i < 5 && i < streaks.size(); i++) {
             String str = streaks.get(i);
-            if (a.length() + str.length() > 2400) {
+            if (a.length() + str.length() > 2048) {
                 break;
             }
             a.append(i + 1).append(str);

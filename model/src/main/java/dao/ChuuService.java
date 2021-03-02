@@ -3403,7 +3403,7 @@ public class ChuuService {
     public Map<Year, Integer> getUserDecades(String lastfmId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getUserYears(connection, lastfmId, false);
+            return queriesDao.getUserYears(connection, lastfmId, true);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

@@ -285,6 +285,9 @@ public class CommandUtil {
     }
 
     public static int getDecade(int year) {
+        if (year < 1900) {
+            return (year / 10 * 10);
+        }
         return year < 2000 ? (year / 10 * 10 - 1900) : (year / 10 * 10);
     }
 
