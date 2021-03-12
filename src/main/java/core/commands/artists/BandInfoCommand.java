@@ -1,6 +1,7 @@
 package core.commands.artists;
 
 
+import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
@@ -89,6 +90,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         MessageReceivedEvent e = ap.getE();
 
         ArtistAlbums ai = new ArtistAlbums(who.getArtist(), userTopArtistAlbums);
+        userTopArtistAlbums.forEach(t -> t.setAlbumUrl(Chuu.getCoverService().getCover(t.getArtist(), t.getAlbum(), t.getAlbumUrl(), e)));
 
         if (b || !e.isFromGuild()) {
             doList(ap, ai);
@@ -117,7 +119,6 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
 
     void doList(ArtistParameters ap, ArtistAlbums ai) {
         MessageReceivedEvent e = ap.getE();
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ap.getLastFMData().getDiscordId());
         StringBuilder str = new StringBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
         List<String> collect = ai.getAlbumList().stream().map(x -> (String.format(". **[%s](%s)** - %d plays%n", x.getAlbum(), LinkUtils.getLastFmArtistAlbumUrl(ai.getArtist(), x.getAlbum()), x.getPlays()))).collect(Collectors.toList());
@@ -125,12 +126,19 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
             String s = collect.get(i);
             str.append(i + 1).append(s);
         }
-        embedBuilder.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.cleanMarkdownCharacter(ai.getArtist()) + " albums").
+        configEmbedBuilder(embedBuilder, ap, ai);
+        embedBuilder.
                 setThumbnail(CommandUtil.noImageUrl(ap.getScrobbledArtist().getUrl())).setDescription(str)
                 .setColor(ColorService.computeColor(e));
         e.getChannel().sendMessage(embedBuilder.build())
                 .queue(message ->
                         new Reactionary<>(collect, message, 10, embedBuilder));
+    }
+
+    void configEmbedBuilder(EmbedBuilder embedBuilder, ArtistParameters ap, ArtistAlbums ai) {
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(ap.getE(), ap.getLastFMData().getDiscordId());
+        embedBuilder.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.cleanMarkdownCharacter(ai.getArtist()) + " albums");
+
     }
 
     void doPie(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, BufferedImage logo) {

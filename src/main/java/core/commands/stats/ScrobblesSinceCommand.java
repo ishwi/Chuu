@@ -40,12 +40,12 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("since");
+        return List.of("since", "scrobbles", "s");
     }
 
     @Override
     public String getName() {
-        return "Since";
+        return "Scrobble count";
     }
 
     @Override
@@ -56,9 +56,11 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
         int i = lastFM.scrobblesSince(lastFMData, date.toOffsetDateTime());
         String username = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getUser().getIdLong()).getUsername();
         String mmmmD = date.format(DateTimeFormatter.ofPattern("MMMM d"));
-        sendMessageQueue(e, String.format("%s has a total of %d scrobbles since %s%s %d %s", username, i, mmmmD, CommandUtil.getDayNumberSuffix(date.getDayOfMonth()),
+
+        String ending = params.isAllTime() ? "" : String.format("since %s%s %d %s", mmmmD, CommandUtil.getDayNumberSuffix(date.getDayOfMonth()),
                 date.getYear(), date.getMinute() == 0 && date.getHour() == 0 && date.getSecond() == 0
-                        ? "" : date.format(DateTimeFormatter.ofPattern("HH:mm x"))));
+                        ? "" : date.format(DateTimeFormatter.ofPattern("HH:mm x")));
+        sendMessageQueue(e, String.format("%s has a total of %d scrobbles %s", username, i, ending));
     }
 
 }

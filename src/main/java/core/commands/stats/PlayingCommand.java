@@ -122,7 +122,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         ).collect(Collectors.toList());
         Collections.shuffle(result, CommandUtil.rand);
         if (result.isEmpty()) {
-            sendMessageQueue(e, "None is listening to music at the moment UwU");
+            sendMessageQueue(e, "No one is listening to music at the moment UwU");
             return;
         }
         StringBuilder a = new StringBuilder();

@@ -79,11 +79,11 @@ public class AlbumTracksServerDistributionCommand extends AlbumPlaysCommand {
     protected void doSomethingWithAlbumArtist(ScrobbledArtist scrobbledArtist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
 
         String artist = scrobbledArtist.getArtist();
-        ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, scrobbledArtist.getArtistId(), album, lastFM);
+        ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, scrobbledArtist.getArtistId(), artist, album, lastFM);
         scrobbledAlbum.setArtist(scrobbledArtist.getArtist());
         TracklistService tracklistService = new ServerTracklistService(db, e.getGuild().getIdLong());
 
-        Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData(), scrobbledArtist.getUrl());
+        Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData(), scrobbledArtist.getUrl(), e);
         if (trackList.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));

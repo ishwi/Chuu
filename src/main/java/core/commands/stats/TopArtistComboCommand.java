@@ -118,22 +118,21 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
             PrivacyUtils.PrivateString publicString = PrivacyUtils.getPublicString(x.getPrivacyMode(), x.getDiscordId(), x.getLastfmId(), atomicInteger, e, showableUsers);
             int andIncrement = positionCounter.getAndIncrement();
             String dayNumberSuffix = CommandUtil.getDayNumberSuffix(andIncrement);
-            x.setCalculatedDisplayName("%s **%s**".formatted(dayNumberSuffix, publicString.discordName()));
+            String formatted = "%s **%s**%n".formatted(dayNumberSuffix, publicString.discordName());
 
 
             String aString = LinkUtils.cleanMarkdownCharacter(x.getCurrentArtist());
-            StringBuilder description = new StringBuilder("" + publicString.discordName() + "\n");
+            StringBuilder description = new StringBuilder(formatted);
             return GlobalStreakEntities.getComboString(aString, description, x.getaCounter(), x.getCurrentArtist(), x.getAlbCounter(), x.getCurrentAlbum(), x.gettCounter(), x.getCurrentSong());
         };
-
-
-        List<Memoized<GlobalStreakEntities, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).collect(Collectors.toList());
-
 
         if (topStreaks.isEmpty()) {
             sendMessageQueue(e, title + " doesn't have any stored streaks.");
             return;
         }
+
+        List<Memoized<GlobalStreakEntities, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).collect(Collectors.toList());
+
 
         StringBuilder a = new StringBuilder();
         for (int i = 0; i < 5 && i < z.size(); i++) {

@@ -18,8 +18,8 @@ import java.util.Map;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
-public class TotalArtistNumberCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
-    public TotalArtistNumberCommand(ChuuService dao) {
+public class TotalAlbumNumberCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
+    public TotalAlbumNumberCommand(ChuuService dao) {
         super(dao);
     }
 
@@ -34,7 +34,7 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<NumberParameters
 
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
-        String s = "You can also introduce the playcount to only show artists above that number of plays";
+        String s = "You can also introduce the playcount to only show albums above that number of plays";
         return new NumberParser<>(new OnlyUsernameParser(db),
                 -0L,
                 Integer.MAX_VALUE,
@@ -44,12 +44,12 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<NumberParameters
 
     @Override
     public String getDescription() {
-        return ("Number of artists listened by an user");
+        return ("Number of albums listened by an user");
     }
 
     @Override
     public List<String> getAliases() {
-        return List.of("artists", "art");
+        return List.of("albums", "albs");
     }
 
     @Override
@@ -61,17 +61,17 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<NumberParameters
         String username = getUserString(e, discordID, lastFmName);
         int threshold = params.getExtraParam().intValue();
 
-        int plays = db.getUserArtistCount(lastFmName, threshold == 0 ? -1 : threshold);
+        int plays = db.getUserAlbumCount(lastFmName, threshold == 0 ? -1 : threshold);
         String filler = "";
         if (threshold != 0) {
             filler += " with more than " + threshold + " plays";
         }
-        sendMessageQueue(e, String.format("**%s** has scrobbled **%d** different %s%s", username, plays, CommandUtil.singlePlural(plays, "artist", "artists"), filler));
+        sendMessageQueue(e, String.format("**%s** has scrobbled **%d** different %s%s", username, plays, CommandUtil.singlePlural(plays, "album", "albums"), filler));
 
     }
 
     @Override
     public String getName() {
-        return "Artist count ";
+        return "Album count ";
     }
 }

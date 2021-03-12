@@ -1,7 +1,9 @@
 package core.commands.billboard;
 
+import core.Chuu;
 import dao.ChuuService;
 import dao.entities.BillboardEntity;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
@@ -32,7 +34,9 @@ public class GlobalAlbumBillboardCommand extends GlobalBillboardCommand {
     }
 
     @Override
-    public List<BillboardEntity> getEntities(int weekId, boolean doListeners) {
-        return db.getGlobalAlbumBillboard(weekId, doListeners);
+    public List<BillboardEntity> getEntities(int weekId, boolean doListeners, MessageReceivedEvent e) {
+        List<BillboardEntity> globalAlbumBillboard = db.getGlobalAlbumBillboard(weekId, doListeners);
+        globalAlbumBillboard.forEach(t -> t.setUrl(Chuu.getCoverService().getCover(t.getArtist(), t.getName(), t.getUrl(), e)));
+        return globalAlbumBillboard;
     }
 }

@@ -57,7 +57,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
         }
         boolean doListeners = !params.hasOptional("scrobbles");
 
-        List<BillboardEntity> entities = getEntities(week.getId() - 1, doListeners);
+        List<BillboardEntity> entities = getEntities(week.getId() - 1, doListeners, e);
         if (entities.isEmpty()) {
             try {
                 if (settingUp.compareAndSet(false, true)) {
@@ -72,7 +72,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
                 settingUp.set(false);
             }
         }
-        entities = getEntities(week.getId() - 1, doListeners);
+        entities = getEntities(week.getId() - 1, doListeners, e);
         String name = e.getJDA().getSelfUser().getName();
         LocalDateTime weekStart = week.getWeekStart().toLocalDate().atStartOfDay();
         LocalDateTime weekBeggining = weekStart.minus(1, ChronoUnit.WEEKS);
@@ -87,7 +87,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
 
     // You have to call the insert_weeks procedure first that is declared in MariadBnew. on the mysql client it would be something like `call inert_weeks()`
 
-    public List<BillboardEntity> getEntities(int weekId, boolean doListeners) {
+    public List<BillboardEntity> getEntities(int weekId, boolean doListeners, MessageReceivedEvent e) {
         return db.getGlobalBillboard(weekId, doListeners);
 
     }

@@ -104,6 +104,6 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
                 .setFooter(String.format("Lyrics found for %s - %s", correctedArtist, song))
                 .setThumbnail(lyrics.getImageUrl() == null ? url : lyrics.getImageUrl());
         e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                new Reactionary<>(pages, message1, 1, embedBuilder, false, true));
+                new Reactionary<>(pages, message1, 1, embedBuilder, false, true, 120));
     }
 }

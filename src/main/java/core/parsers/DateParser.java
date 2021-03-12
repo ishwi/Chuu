@@ -154,7 +154,7 @@ public class DateParser extends DaoParser<DateParameters> {
         ParserAux parserAux = new ParserAux(words);
         User sample = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
-
+        boolean isAllTime = false;
         ChartParserAux chartParserAux = new ChartParserAux(words);
         NaturalTimeFrameEnum naturalTimeFrameEnum = chartParserAux.parseNaturalTimeFrame();
         words = chartParserAux.getMessage();
@@ -172,7 +172,8 @@ public class DateParser extends DaoParser<DateParameters> {
             localDate = naturalTimeFrameEnum.toLocalDate(count).atOffset(OffsetDateTime.now().getOffset());
         } else {
             if (words.length == 0) {
-                localDate = LocalDate.now().with(MonthDay.of(1, 1)).atStartOfDay().atOffset(OffsetDateTime.now().getOffset());
+                localDate = LocalDate.now().withYear(1990).with(MonthDay.of(1, 1)).atStartOfDay().atOffset(OffsetDateTime.now().getOffset());
+                isAllTime = true;
             } else {
                 String remaining = String.join(" ", words);
                 remaining = remaining.replaceAll("[ ][ -/]+", " ");
@@ -189,7 +190,7 @@ public class DateParser extends DaoParser<DateParameters> {
                 sendError(getErrorMessage(6), e);
                 return null;
             }
-            return new DateParameters(e, sample, localDate);
+            return new DateParameters(e, sample, localDate, isAllTime);
         }
 
     }

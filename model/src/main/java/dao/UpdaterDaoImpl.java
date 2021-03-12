@@ -248,7 +248,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public UpdaterStatus getUpdaterStatus(Connection connection, String artist) throws InstanceNotFoundException {
-        String queryString = "SELECT a.id,url,correction_status FROM artist a " +
+        String queryString = "SELECT a.id,url,correction_status,name FROM artist a " +
                 " WHERE a.name = ? ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -259,8 +259,9 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                 String url = resultSet.getString("url");
                 boolean status = resultSet.getBoolean("correction_status");
                 long artistId = resultSet.getLong("a.id");
+                String artistName = resultSet.getString("a.name");
 
-                return new UpdaterStatus(url, status, artistId);
+                return new UpdaterStatus(url, status, artistId, artistName);
             }
             throw new InstanceNotFoundException(artist);
         } catch (SQLException e) {
@@ -1036,7 +1037,8 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                 SELECT a.id,a.url,a.artist_id,a.discord_id,a.added_date, c.name,
                 (SELECT count(*) FROM alt_url d WHERE d.discord_id = a.discord_id) as submitted,
                 (SELECT count(*) FROM rejected WHERE rejected.discord_id = a.discord_id) as reportedCount,
-                (SELECT count(*) FROM strike WHERE strike.discord_id = a.discord_id) as reportedCount
+                (SELECT count(*) FROM strike WHERE strike.discord_id = a.discord_id) as reportedCount,
+                guild_id
                 FROM queued_url a JOIN
                 artist c ON a.artist_id = c.id
                 WHERE a.id <= ?\s""";
@@ -1061,8 +1063,9 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                 int count = resultSet.getInt(7);
                 int userReportCount = resultSet.getInt(8);
                 int strikes = resultSet.getInt(9);
+                long guildId = resultSet.getLong(10);
                 return new ImageQueue(queuedId, url, artistId, uploader,
-                        artistName, addedDate.toLocalDateTime(), userReportCount, count, strikes);
+                        artistName, addedDate.toLocalDateTime(), userReportCount, count, strikes, guildId == 0 ? null : guildId);
             }
             return null;
         } catch (SQLException e) {
@@ -1071,12 +1074,18 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
-    public void upsertQueueUrl(Connection connection, String url, long artistId, long discordId) {
-        String queryString = "INSERT INTO queued_url(url,artist_id,discord_id) values (?,?,?)";
+    public void upsertQueueUrl(Connection connection, String url, long artistId, long discordId, Long guildId) {
+        String queryString = "INSERT INTO queued_url(url,artist_id,discord_id,guild_id) values (?,?,?,?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, url);
             preparedStatement.setLong(2, artistId);
             preparedStatement.setLong(3, discordId);
+            if (guildId == null) {
+                preparedStatement.setNull(4, Types.BIGINT);
+            } else {
+                preparedStatement.setLong(4, guildId);
+
+            }
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {

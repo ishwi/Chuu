@@ -1074,6 +1074,12 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
+    public Set<Long> getGuildsWithCoversOn(Connection connection) {
+        String queryString = "Select guild_id from guild WHERE allow_covers = true";
+        return getIdList(connection, queryString);
+    }
+
+    @Override
     public Set<Long> getGuildsDontRespondOnErrros(Connection connection) {
         String queryString = "Select guild_id from guild WHERE disabled_warning = true";
         return getIdList(connection, queryString);
@@ -1359,6 +1365,51 @@ public class UserGuildDaoImpl implements UserGuildDao {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+    }
+
+    @Override
+    public void insertBannedCover(Connection connection, long albumId, String cover) {
+        @Language("MariaDB") String queryString = "insert into banned_cover(album_id,replacement_cover) values (?,?)";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            preparedStatement.setLong(1, albumId);
+            preparedStatement.setString(2, cover);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void removeBannedCover(Connection connection, long albumId, String cover) {
+        @Language("MariaDB") String queryString = "delete from  banned_cover where album_id = ? and replacement_cover =? ";
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            preparedStatement.setLong(1, albumId);
+            preparedStatement.setString(2, cover);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void insertServerCustomUrl(Connection connection, long altId, long guildId, long artistId) {
+        @Language("MariaDB") String queryString = "insert into artist_custom_images(alt_id,guild_id,artist_id) values (?,?,?) on duplicate key update alt_id = values(alt_id)";
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, altId);
+            preparedStatement.setLong(2, guildId);
+            preparedStatement.setLong(3, artistId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
     }
 
     @NotNull

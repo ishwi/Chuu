@@ -2,6 +2,7 @@ package core.commands.billboard;
 
 import dao.ChuuService;
 import dao.entities.BillboardEntity;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class GlobalArtistBillboardCommand extends GlobalBillboardCommand {
     }
 
     @Override
-    public List<BillboardEntity> getEntities(int weekId, boolean doListeners) {
+    public List<BillboardEntity> getEntities(int weekId, boolean doListeners, MessageReceivedEvent e) {
         return db.getGlobalArtistBillboard(weekId, doListeners);
     }
 }

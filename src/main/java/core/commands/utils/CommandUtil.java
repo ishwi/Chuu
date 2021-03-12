@@ -5,7 +5,6 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.spotify.Spotify;
 import core.exceptions.DiscogsServiceException;
-import core.exceptions.LastFMServiceException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
@@ -125,6 +124,7 @@ public class CommandUtil {
         try {
             status = dao.getUpdaterStatusByName(scrobbledArtist.getArtist());
             scrobbledArtist.setArtistId(status.getArtistId());
+            scrobbledArtist.setArtist(status.getArtistName());
             existed = true;
         } catch (InstanceNotFoundException e) {
             //Artist doesnt exists
@@ -137,6 +137,7 @@ public class CommandUtil {
             try {
                 status = dao.getUpdaterStatusByName(correction);
                 scrobbledArtist.setArtistId(status.getArtistId());
+                scrobbledArtist.setArtist(status.getArtistName());
                 existed = true;
             } catch (InstanceNotFoundException ex) {
                 scrobbledArtist.setArtist(correction);
@@ -155,6 +156,7 @@ public class CommandUtil {
                 scrobbledArtist.setUrl(CommandUtil.updateUrl(discogsApi, scrobbledArtist, dao, spotify));
             else {
                 scrobbledArtist.setUrl(status.getArtistUrl());
+//                dao.getServerSetUrlArtist()
                 dao.findArtistUrlAbove(scrobbledArtist.getArtistId(), 10).ifPresent(scrobbledArtist::setUrl);
             }
             if (scrobbledArtist.getUrl() == null || scrobbledArtist.getUrl().isBlank()) {
@@ -167,15 +169,11 @@ public class CommandUtil {
         try {
             return dao.findAlbumIdByName(scrobbledArtist.getArtistId(), album);
         } catch (InstanceNotFoundException exception) {
-            try {
-                FullAlbumEntityExtended chuu = lastFM.getAlbumSummary(LastFMData.ofDefault(), scrobbledArtist.getArtist(), album);
-                ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), chuu.getAlbumUrl(), chuu.getMbid());
-                scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
-                dao.insertAlbum(scrobbledAlbum);
-                return scrobbledAlbum.getAlbumId();
-            } catch (LastFmEntityNotFoundException e) {
-                return -1L;
-            }
+            FullAlbumEntityExtended chuu = lastFM.getAlbumSummary(LastFMData.ofDefault(), scrobbledArtist.getArtist(), album);
+            ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(chuu.getAlbum(), chuu.getArtist(), chuu.getAlbumUrl(), chuu.getMbid());
+            scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
+            dao.insertAlbum(scrobbledAlbum);
+            return scrobbledAlbum.getAlbumId();
         }
     }
 
@@ -183,15 +181,11 @@ public class CommandUtil {
         try {
             return dao.findTrackIdByName(scrobbledArtist.getArtistId(), track);
         } catch (InstanceNotFoundException exception) {
-            try {
-                Track trackInfo = lastFM.getTrackInfo(LastFMData.ofDefault(), scrobbledArtist.getArtist(), track);
-                ScrobbledTrack scrobbledTrack = new ScrobbledTrack(scrobbledArtist.getArtist(), track, 0, false, trackInfo.getDuration(), trackInfo.getImageUrl(), null, trackInfo.getMbid());
-                scrobbledTrack.setArtistId(scrobbledArtist.getArtistId());
-                dao.insertTrack(scrobbledTrack);
-                return scrobbledTrack.getTrackId();
-            } catch (LastFmEntityNotFoundException e) {
-                return -1L;
-            }
+            Track trackInfo = lastFM.getTrackInfo(LastFMData.ofDefault(), scrobbledArtist.getArtist(), track);
+            ScrobbledTrack scrobbledTrack = new ScrobbledTrack(scrobbledArtist.getArtist(), track, 0, false, trackInfo.getDuration(), trackInfo.getImageUrl(), null, trackInfo.getMbid());
+            scrobbledTrack.setArtistId(scrobbledArtist.getArtistId());
+            dao.insertTrack(scrobbledTrack);
+            return scrobbledTrack.getTrackId();
         }
     }
 
@@ -229,8 +223,8 @@ public class CommandUtil {
         return scrobbledAlbum;
     }
 
-    public static ScrobbledAlbum validateAlbum(ChuuService dao, long artistId, String album, ConcurrentLastFM lastFM) throws LastFmException {
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist("", 0, null);
+    public static ScrobbledAlbum validateAlbum(ChuuService dao, long artistId, String artist, String album, ConcurrentLastFM lastFM) throws LastFmException {
+        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         scrobbledArtist.setArtistId(artistId);
         long albumvalidate = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, album);
         ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), null, null);
@@ -243,9 +237,7 @@ public class CommandUtil {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, "");
         CommandUtil.validate(dao, scrobbledArtist, lastFM, null, null, false, true);
         long albumvalidate = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, album);
-        if (albumvalidate == -1L) {
-            throw new LastFMServiceException("");
-        }
+
         ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), null, null);
         scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
         scrobbledAlbum.setAlbumId(albumvalidate);

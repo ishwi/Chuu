@@ -117,6 +117,8 @@ interface UserGuildDao {
 
     Set<Long> getGuildsWithDeletableMessages(Connection connection);
 
+    Set<Long> getGuildsWithCoversOn(Connection connection);
+
     Set<Long> getGuildsDontRespondOnErrros(Connection connection);
 
 
@@ -148,4 +150,9 @@ interface UserGuildDao {
 
     void flagBotted(long discordId, Connection connection);
 
+    void insertBannedCover(Connection connection, long albumId, String cover);
+
+    void removeBannedCover(Connection connection, long albumId, String cover);
+
+    void insertServerCustomUrl(Connection connection, long altId, long guildId, long artistId);
 }

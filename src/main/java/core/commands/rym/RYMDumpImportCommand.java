@@ -123,6 +123,10 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
                     return;
                 }
                 String next = s.nextLine();
+                for (int i = 0; i < next.length(); i++) {
+                    boolean equals = headerLine.charAt(i) == next.charAt(i);
+                    assert equals;
+                }
                 if (!next.equals(headerLine)) {
                     sendMessageQueue(e, "File did not match rym export format :thinking:");
                     return;

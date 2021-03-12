@@ -85,7 +85,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
 
     // You have to call the insert_weeks procedure first that is declared in MariadBnew. on the mysql client it would be something like `call inert_weeks()`
 
-    public List<BillboardEntity> getEntities(int weekId, long guildId, boolean doListeners) {
+    public List<BillboardEntity> getEntities(int weekId, long guildId, boolean doListeners, MessageReceivedEvent event) {
         return db.getBillboard(weekId, guildId, doListeners);
 
     }
@@ -131,7 +131,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
         }
         int weekId = week.getId();
         boolean doListeners = !params.hasOptional("scrobbles");
-        List<BillboardEntity> entities = getEntities(weekId, guildId, doListeners);
+        List<BillboardEntity> entities = getEntities(weekId, guildId, doListeners, e);
         LocalDateTime weekBeggining = weekStart.toLocalDate().minus(1, ChronoUnit.WEEKS).atStartOfDay();
 
         if (entities.isEmpty() && weekId == 1 && this instanceof BillboardAlbumCommand && !db.getBillboard(weekId, guildId, doListeners).isEmpty()) {
@@ -153,7 +153,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             } finally {
                 inProcessSets.remove(guildId);
             }
-            entities = getEntities(weekId, guildId, doListeners);
+            entities = getEntities(weekId, guildId, doListeners, e);
             if (entities.isEmpty()) {
                 sendMessageQueue(e, "Didn't find any scrobbles in this server users");
                 return;

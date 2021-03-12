@@ -105,8 +105,13 @@ public class CustomInterfacedEventManager implements IEventManager {
             }
             Character correspondingPrefix = Chuu.getCorrespondingPrefix(mes);
             String contentRaw = mes.getMessage().getContentRaw();
-            if (contentRaw.length() <= 1 || contentRaw.charAt(0) != correspondingPrefix)
+            if (contentRaw.length() <= 1 || contentRaw.charAt(0) != correspondingPrefix) {
+                if (mes.getMessage().getMentionedUsers().contains(mes
+                        .getJDA().getSelfUser())) {
+                    mes.getChannel().sendMessage("My prefix is: `" + Chuu.getCorrespondingPrefix(mes) + "`").queue();
+                }
                 return;
+            }
             Map<Long, RateLimiter> ratelimited = Chuu.getRatelimited();
             RateLimiter rateLimiter = ratelimited.get(mes.getAuthor().getIdLong());
             if (rateLimiter != null) {
@@ -129,6 +134,7 @@ public class CustomInterfacedEventManager implements IEventManager {
                     JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
                 }
             }
+
         } else if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {
             administrativeCommand.onEvent(event);
         } else if (event instanceof MessageReactionAddEvent || event instanceof ReadyEvent) {

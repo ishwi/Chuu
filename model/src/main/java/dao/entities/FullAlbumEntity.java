@@ -7,7 +7,7 @@ public class FullAlbumEntity {
     private final String artist;
     private final String album;
     private final int totalPlayNumber;
-    private final String albumUrl;
+    private String albumUrl;
     private final String username;
     private List<Track> trackList = new ArrayList<>();
     private String artistUrl;
@@ -81,5 +81,9 @@ public class FullAlbumEntity {
 
     public void setMbid(String mbid) {
         this.mbid = mbid;
+    }
+
+    public void setAlbumUrl(String albumUrl) {
+        this.albumUrl = albumUrl;
     }
 }

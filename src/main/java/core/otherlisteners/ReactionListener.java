@@ -43,8 +43,8 @@ public abstract class ReactionListener implements EventListener {
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
-        if (event instanceof MessageReactionAddEvent) {
-            onMessageReactionAdd(((MessageReactionAddEvent) event));
+        if (event instanceof MessageReactionAddEvent e) {
+            onMessageReactionAdd(e);
         }
     }
 
@@ -59,11 +59,11 @@ public abstract class ReactionListener implements EventListener {
 
     public void refresh(JDA jda) {
         IEventManager eventManager = jda.getEventManager();
-        if (!(eventManager instanceof CustomInterfacedEventManager)) {
+        if (!(eventManager instanceof CustomInterfacedEventManager manager)) {
             Chuu.getLogger().error("Wrong type on Interface, You must have forgot about this thing");
             return;
         }
-        ((CustomInterfacedEventManager) eventManager).refreshReactionay(this, getActiveSeconds());
+        manager.refreshReactionay(this, getActiveSeconds());
     }
 
     public abstract void init();

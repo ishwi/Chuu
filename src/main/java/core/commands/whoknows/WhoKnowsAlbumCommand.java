@@ -110,7 +110,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
         doExtraThings(list2, id, artist.getArtistId(), correctedAlbum);
 
-        return new WrapperReturnNowPlaying(list2, userCounts.size(), urlContainter.getAlbumUrl(),
+        return new WrapperReturnNowPlaying(list2, userCounts.size(), Chuu.getCoverService().getCover(artist.getArtistId(), urlContainter.getAlbumUrl(), ap.getE()),
                 correctedArtist + " - " + correctedAlbum);
     }
 

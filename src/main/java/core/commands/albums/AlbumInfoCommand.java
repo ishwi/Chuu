@@ -1,5 +1,6 @@
 package core.commands.albums;
 
+import core.Chuu;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -92,7 +93,8 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                             (String.format("%02d:%02d minutes", albumSummary.getTotalDuration() / 60, albumSummary.getTotalDuration() % 60))
                             , true);
         }
-        embedBuilder.setImage(albumSummary.getAlbumUrl())
+        embedBuilder.setImage(
+                Chuu.getCoverService().getCover(albumSummary.getArtist(), albumSummary.getAlbum(), albumSummary.getAlbumUrl(), e))
                 .setColor(ColorService.computeColor(e))
                 .setThumbnail(artist.getUrl());
         e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();

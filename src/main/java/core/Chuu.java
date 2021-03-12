@@ -22,6 +22,7 @@ import core.scheduledtasks.ImageUpdaterThread;
 import core.scheduledtasks.SpotifyUpdaterThread;
 import core.scheduledtasks.UpdaterThread;
 import core.services.ColorService;
+import core.services.CoverService;
 import core.services.MessageDeletionService;
 import core.services.MessageDisablingService;
 import dao.ChuuService;
@@ -67,12 +68,14 @@ public class Chuu {
     public static final String DEFAULT_LASTFM_ID = "chuubot";
     private static final LongAdder lastFMMetric = new LongAdder();
     private static final Set<String> privateLastFms = new HashSet<>();
+
     private static ShardManager shardManager;
     private static Logger logger;
     private static ScheduledExecutorService scheduledExecutorService;
     private static Map<Long, RateLimiter> ratelimited;
     private static Map<Long, Character> prefixMap;
     private static ChuuService dao;
+    private static CoverService coverService;
     private static MessageDeletionService messageDeletionService;
     private static MessageDisablingService messageDisablingService = new MessageDisablingService();
     public static PlayerRegistry playerRegistry;
@@ -200,6 +203,7 @@ public class Chuu {
         dao = new ChuuService();
         prefixMap = initPrefixMap(dao);
         ColorService.init(dao);
+        coverService = new CoverService(dao);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
         playerManager = new ExtendedAudioPlayerManager();
@@ -256,6 +260,7 @@ public class Chuu {
                     if (!isTest) {
                         commandAdministrator.onStartup(shardManager);
                     }
+
                     evalCommand.setOwnerId(shard);
                     shardManager.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
                     updatePresence("Chuu");
@@ -367,6 +372,10 @@ public class Chuu {
     public static String getRandomSong(String name) {
 
         return null;
+    }
+
+    public static CoverService getCoverService() {
+        return coverService;
     }
 
     public static boolean isLoaded() {

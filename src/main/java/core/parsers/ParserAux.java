@@ -9,13 +9,11 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ParserAux {
     private static final Pattern user = Pattern.compile("(.{2,32})#(\\d{4})");
@@ -233,23 +231,23 @@ public class ParserAux {
         }
     }
 
-    LastFMData handleRawMessage(String message, MessageReceivedEvent e, ChuuService dao) throws InstanceNotFoundException {
+    LastFMData handleRawMessage(String message, MessageReceivedEvent e, ChuuService db) throws InstanceNotFoundException {
 
-        List<UsersWrapper> all = dao.getAll(e.getGuild().getIdLong());
-        Predicate<Member> isOnServer = member -> all.stream().anyMatch(x -> member != null && x.getDiscordID() == member.getIdLong());
+        Set<Long> all = db.getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
+        Predicate<Member> isOnServer = member -> member != null && all.stream().anyMatch(x -> x == member.getIdLong());
         if (discordId.matcher(message).matches()) {
             Member memberById = e.getGuild().getMemberById(message);
             if (!isOnServer.test(memberById) && memberById != null) {
                 throw new InstanceNotFoundException(memberById.getId());
             }
-            return getLastFMData(Optional.ofNullable(memberById).map(Member::getUser), message, dao, e);
+            return getLastFMData(Optional.ofNullable(memberById).map(Member::getUser), message, db, e);
         }
         if (user.matcher(message).matches()) {
             Member memberByTag = e.getGuild().getMemberByTag(message);
             if (!isOnServer.test(memberByTag) && memberByTag != null) {
                 throw new InstanceNotFoundException(memberByTag.getId());
             }
-            return getLastFMData(Optional.ofNullable(memberByTag).map(Member::getUser), message, dao, e);
+            return getLastFMData(Optional.ofNullable(memberByTag).map(Member::getUser), message, db, e);
         }
         List<Member> membersByEffectiveName = e.getGuild().getMembersByEffectiveName(message, true);
         if (!membersByEffectiveName.isEmpty()) {
@@ -257,7 +255,7 @@ public class ParserAux {
             if (first.isEmpty()) {
                 throw new InstanceNotFoundException(membersByEffectiveName.get(0).getIdLong());
             }
-            return getLastFMData(first.map(Member::getUser), message, dao, e);
+            return getLastFMData(first.map(Member::getUser), message, db, e);
 
         }
         List<Member> membersByName = e.getGuild().getMembersByName(message, true);
@@ -266,16 +264,17 @@ public class ParserAux {
             if (user.isEmpty()) {
                 throw new InstanceNotFoundException(membersByName.get(0).getIdLong());
             }
-            return getLastFMData(Optional.of(user.get().getUser()), message, dao, e);
+            return getLastFMData(Optional.of(user.get().getUser()), message, db, e);
         }
-        long discordIdFromLastfm = dao.getDiscordIdFromLastfm(message, e.getGuild().getIdLong());
-        return getLastFMData(Optional.ofNullable(e.getGuild().getJDA().getUserById(discordIdFromLastfm)), message, dao, e);
+        long discordIdFromLastfm = db.getDiscordIdFromLastfm(message, e.getGuild().getIdLong());
+        return getLastFMData(Optional.ofNullable(e.getGuild().getJDA().getUserById(discordIdFromLastfm)), message, db, e);
     }
 
-    Optional<User> userString(String message, MessageReceivedEvent e, ChuuService dao) throws InstanceNotFoundException {
+    Optional<User> userString(String message, MessageReceivedEvent e, ChuuService db) throws InstanceNotFoundException {
 
-        List<UsersWrapper> all = dao.getAll(e.getGuild().getIdLong());
-        Predicate<Member> isOnServer = member -> all.stream().anyMatch(x -> member != null && x.getDiscordID() == member.getIdLong());
+        Set<Long> all = db.getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
+        Predicate<Member> isOnServer = member -> member != null && all.stream().anyMatch(x -> x == member.getIdLong());
+
         if (discordId.matcher(message).matches()) {
             Member memberById = e.getGuild().getMemberById(message);
             if (!isOnServer.test(memberById) && memberById != null) {
@@ -283,6 +282,7 @@ public class ParserAux {
             }
             return Optional.ofNullable(memberById).map(Member::getUser);
         }
+
         if (user.matcher(message).matches()) {
             Member memberByTag = e.getGuild().getMemberByTag(message);
             if (!isOnServer.test(memberByTag) && memberByTag != null) {
@@ -290,6 +290,7 @@ public class ParserAux {
             }
             return Optional.ofNullable(memberByTag).map(Member::getUser);
         }
+
         List<Member> membersByEffectiveName = e.getGuild().getMembersByEffectiveName(message, true);
         if (!membersByEffectiveName.isEmpty()) {
             Optional<Member> first = membersByEffectiveName.stream().filter(isOnServer).findFirst();
@@ -298,6 +299,7 @@ public class ParserAux {
             }
             return first.map(Member::getUser);
         }
+
         List<Member> membersByName = e.getGuild().getMembersByName(message, true);
         if (!membersByName.isEmpty()) {
             Optional<Member> user = membersByName.stream().filter(isOnServer).findFirst();

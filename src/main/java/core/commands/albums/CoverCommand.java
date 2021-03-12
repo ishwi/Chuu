@@ -50,13 +50,22 @@ public class CoverCommand extends AlbumPlaysCommand {
                             , album, URLEncoder.encode(artist.getArtist(), StandardCharsets.UTF_8), URLEncoder.encode(album, StandardCharsets.UTF_8)));
             return;
         }
+        String big = albumUrl.replaceAll("i/u/[\\d\\w]+/", "i/u/4096x4096/");
         try {
-            albumUrl = albumUrl.replaceAll("i/u/[\\d\\w]+/", "i/u/4096x4096/");
-            InputStream file = new URL(albumUrl).openStream();
-            e.getChannel().sendFile(file, "cat.png").append(String.format("**%s** - **%s**", artist.getArtist(), album)).queue();
-        } catch (IOException ioException) {
-            sendMessageQueue(e, "An error occurred while sending the album cover for " + artist.getArtist() + " - " + album);
+            sendCover(artist, album, e, big);
+        } catch (IOException exception) {
+            try {
+                sendCover(artist, album, e, albumUrl);
+            } catch (IOException e2) {
+                sendMessageQueue(e, "An error occurred while sending the album cover for " + artist.getArtist() + " - " + album);
+            }
+
         }
 
+    }
+
+    private void sendCover(ScrobbledArtist artist, String album, MessageReceivedEvent e, String albumUrl) throws IOException {
+        InputStream file = new URL(albumUrl).openStream();
+        e.getChannel().sendFile(file, "cat.png").append(String.format("**%s** - **%s**", artist.getArtist(), album)).queue();
     }
 }

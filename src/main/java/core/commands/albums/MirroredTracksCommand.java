@@ -66,17 +66,17 @@ public class MirroredTracksCommand extends AlbumPlaysCommand {
         String artist = scrobbledArtist.getArtist();
         LastFMData ogData = db.findLastFMData(author.getIdLong());
 
-        ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, scrobbledArtist.getArtistId(), album, lastFM);
+        ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, scrobbledArtist.getArtistId(), artist, album, lastFM);
         scrobbledAlbum.setArtist(scrobbledArtist.getArtist());
 
-        Optional<FullAlbumEntity> trackList1 = new UserTrackListService(db, ogData.getName()).getTrackList(scrobbledAlbum, ogData, scrobbledArtist.getUrl());
+        Optional<FullAlbumEntity> trackList1 = new UserTrackListService(db, ogData.getName()).getTrackList(scrobbledAlbum, ogData, scrobbledArtist.getUrl(), e);
         if (trackList1.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));
             return;
 
         }
-        Optional<FullAlbumEntity> trackList2 = new UserTrackListService(db, secondUser.getName()).getTrackList(scrobbledAlbum, secondUser, scrobbledArtist.getUrl());
+        Optional<FullAlbumEntity> trackList2 = new UserTrackListService(db, secondUser.getName()).getTrackList(scrobbledAlbum, secondUser, scrobbledArtist.getUrl(), e);
         if (trackList2.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));

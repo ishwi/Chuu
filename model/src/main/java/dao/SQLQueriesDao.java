@@ -1,6 +1,7 @@
 package dao;
 
 import dao.entities.*;
+import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -228,4 +229,13 @@ interface SQLQueriesDao {
     Map<Year, Integer> getCollectiveYears(Connection connection, @Nullable Long guildId, boolean isDecade);
 
 
+    int userAlbumCount(Connection connection, String lastfmId, int threshold);
+
+    int userTrackCount(Connection connection, String lastfmId, int threshold);
+
+    List<LbEntry> albumLeaderboard(Connection connection, long guildId, int threshold);
+
+    List<LbEntry> trackLeaderboard(Connection connection, long guildId, int threshold);
+
+    ListValuedMap<CoverItem, String> getBannedCovers(Connection connection);
 }

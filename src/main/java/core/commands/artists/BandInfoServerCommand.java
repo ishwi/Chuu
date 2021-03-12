@@ -1,5 +1,6 @@
 package core.commands.artists;
 
+import core.Chuu;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.BandRendered;
@@ -9,6 +10,7 @@ import dao.entities.AlbumUserPlays;
 import dao.entities.ArtistAlbums;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WrapperReturnNowPlaying;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
@@ -50,6 +52,7 @@ public class BandInfoServerCommand extends BandInfoCommand {
         ScrobbledArtist who = ap.getScrobbledArtist();
         List<AlbumUserPlays> userTopArtistAlbums = db.getServerTopArtistAlbums(limit, who.getArtistId(), ap.getE().getGuild().getIdLong());
         MessageReceivedEvent e = ap.getE();
+        userTopArtistAlbums.forEach(t -> t.setAlbumUrl(Chuu.getCoverService().getCover(t.getArtist(), t.getAlbum(), t.getAlbumUrl(), e)));
 
         ArtistAlbums ai = new ArtistAlbums(who.getArtist(), userTopArtistAlbums);
 
@@ -74,5 +77,11 @@ public class BandInfoServerCommand extends BandInfoCommand {
         BufferedImage returnedImage = BandRendered
                 .makeBandImage(np, ai, plays, logo, ap.getE().getGuild().getName());
         sendImage(returnedImage, ap.getE());
+    }
+
+    @Override
+    void configEmbedBuilder(EmbedBuilder embedBuilder, ArtistParameters ap, ArtistAlbums ai) {
+        embedBuilder.setTitle(ap.getE().getGuild().getName() + "'s top " + CommandUtil.cleanMarkdownCharacter(ai.getArtist()) + " albums");
+
     }
 }

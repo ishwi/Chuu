@@ -69,7 +69,6 @@ public class Validator<T> extends ReactionListener {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private void initEmotes() {
         List<RestAction<Void>> reacts = this.actionMap.keySet().stream().map(x -> message.addReaction(x)).collect(Collectors.toList());
         RestAction.allOf(reacts).queue();
@@ -126,10 +125,10 @@ public class Validator<T> extends ReactionListener {
         BiFunction<T, MessageReactionAddEvent, Boolean> action = this.actionMap.get(event.getReaction().getReactionEmote().getAsCodepoints());
         if (action == null)
             return;
-        Boolean apply = action.apply(currentElement, event);
+        boolean apply = action.apply(currentElement, event);
         MessageAction messageAction = this.doTheThing(apply);
         if (messageAction != null) {
-            if (Boolean.TRUE.equals(apply)) {
+            if (apply) {
                 messageAction.queue(this::accept);
             } else if (event.getUser() != null) {
                 clearOneReact(event);

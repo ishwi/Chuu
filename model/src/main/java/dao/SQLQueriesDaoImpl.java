@@ -2,6 +2,8 @@ package dao;
 
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
+import org.apache.commons.collections4.ListValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
@@ -787,7 +789,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         @Language("MariaDB") String queryString =
                 "SELECT c.name  , a.playnumber,b.playnumber ," +
-                        "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
+                        "((a.playnumber * b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
                         " (((a.playnumber + b.playnumber)) * 2.5) * " +
                         " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
                         "media ," +
@@ -3815,6 +3817,111 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             throw new ChuuServiceException(e);
         }
         return years;
+
+    }
+
+    @Override
+    public int userAlbumCount(Connection connection, String lastfmId, int threshold) {
+        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_album WHERE scrobbled_artist.lastfm_id= ? and playNumber >= ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i++, lastfmId);
+            preparedStatement.setInt(i, threshold);
+
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (!resultSet.next())
+                return 0;
+            return resultSet.getInt("numb");
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public int userTrackCount(Connection connection, String lastfmId, int threshold) {
+        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_track WHERE scrobbled_artist.lastfm_id= ? and playNumber >= ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i++, lastfmId);
+            preparedStatement.setInt(i, threshold);
+
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (!resultSet.next())
+                return 0;
+            return resultSet.getInt("numb");
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public List<LbEntry> albumLeaderboard(Connection connection, long guildId, int threshold) {
+        @Language("MariaDB") String queryString = "(SELECT  " +
+                "        a.lastfm_id , count(*) AS ord, c.discord_id" +
+                "    FROM " +
+                "        scrobbled_album a " +
+                "    JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                "    JOIN user_guild c ON b.discord_id = c.discord_id " +
+                "    WHERE " +
+                "        c.guild_id = ? and " +
+                "       c.guild_id = ? and " +
+                "       a.playnumber >= ?" +
+                " GROUP BY a.lastfm_id,c.discord_id " +
+                "    ORDER BY ord DESC    )";
+
+        return getLbEntries(connection, guildId, queryString, AlbumLbEntry::new, true, threshold);
+    }
+
+    @Override
+    public List<LbEntry> trackLeaderboard(Connection connection, long guildId, int threshold) {
+        @Language("MariaDB") String queryString = "(SELECT  " +
+                "        a.lastfm_id , count(*) AS ord, c.discord_id" +
+                "    FROM " +
+                "        scrobbled_track a " +
+                "    JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                "    JOIN user_guild c ON b.discord_id = c.discord_id " +
+                "    WHERE " +
+                "        c.guild_id = ? and " +
+                "       c.guild_id = ? and " +
+                "       a.playnumber >= ?" +
+                " GROUP BY a.lastfm_id,c.discord_id " +
+                "    ORDER BY ord DESC    )";
+
+        return getLbEntries(connection, guildId, queryString, TrackLbEntry::new, true, threshold);
+    }
+
+    @Override
+    public ListValuedMap<CoverItem, String> getBannedCovers(Connection connection) {
+        ListValuedMap<CoverItem, String> resultMap = new ArrayListValuedHashMap<>();
+        @Language("MariaDB") String queryString = "SELECT album_id,replacement_cover,b.album_name,c.name  FROM banned_cover a join album b on a.album_id = b.id join artist c on b.artist_id = c.id ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                long aLong = resultSet.getLong(1);
+                String string = resultSet.getString(2);
+                String album = resultSet.getString(3);
+                String artist = resultSet.getString(4);
+                resultMap.put(new CoverItem(album, artist, aLong), string);
+
+            }
+            return resultMap;
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
 
     }
 

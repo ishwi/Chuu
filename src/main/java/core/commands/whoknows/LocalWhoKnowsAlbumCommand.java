@@ -1,5 +1,6 @@
 package core.commands.whoknows;
 
+import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
@@ -90,7 +91,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
             AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(ap.getLastFMData(), ap.getArtist(), ap.getAlbum());
             if (playsAlbumArtist.getAlbumUrl() != null && !playsAlbumArtist.getAlbumUrl().isBlank()) {
                 db.updateAlbumImage(albumId, playsAlbumArtist.getAlbumUrl());
-                wrapperReturnNowPlaying.setUrl(playsAlbumArtist.getAlbumUrl());
+                wrapperReturnNowPlaying.setUrl(Chuu.getCoverService().getCover(albumId, playsAlbumArtist.getAlbumUrl(), ap.getE()));
             }
             if (playsAlbumArtist.getPlays() > 0) {
                 Optional<ReturnNowPlaying> any = wrapperReturnNowPlaying.getReturnNowPlayings().stream().filter(x -> x.getDiscordId() == ap.getLastFMData().getDiscordId()).findAny();

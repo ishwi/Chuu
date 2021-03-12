@@ -116,7 +116,7 @@ interface UpdaterDao {
 
     ImageQueue getUrlQueue(Connection connection, long maxIdAllowed, Set<Long> skippedIds);
 
-    void upsertQueueUrl(Connection connection, String url, long artistId, long discordId);
+    void upsertQueueUrl(Connection connection, String url, long artistId, long discordId, Long guildId);
 
     OptionalLong checkQueuedUrlExists(Connection connection, long artistId, String urlParsed);
 

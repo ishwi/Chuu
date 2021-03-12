@@ -1,5 +1,6 @@
 package core.commands.whoknows;
 
+import core.Chuu;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistAlbumParser;
@@ -71,6 +72,7 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
             sendMessageQueue(params.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist() + " - " + params.getAlbum()));
             return null;
         }
+        wrapperReturnNowPlaying.setUrl(Chuu.getCoverService().getCover(albumId, wrapperReturnNowPlaying.getUrl(), e));
         return wrapperReturnNowPlaying;
     }
 

@@ -58,6 +58,9 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
             embedBuilder
                     .addField("# Strikes:", String.valueOf(q.strikes()), true);
         }
+        if (q.guildId() != null) {
+            embedBuilder.addField("For guild*", "", true);
+        }
         return embedBuilder;
     }
 
@@ -126,16 +129,22 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 return false;
             });
             actionMap.put(ACCEPT, (a, r) -> {
-                db.acceptImageQueue(a.queuedId(), a.url(), a.artistId(), a.uploader());
-                try {
-                    LastFMData lastFMData1 = db.findLastFMData(a.uploader());
-                    if (lastFMData1.isImageNotify()) {
-                        r.getJDA().retrieveUserById(a.uploader(), false).flatMap(User::openPrivateChannel).queue(x ->
-                                x.sendMessage("Your image for " + a.artistName() + " has been approved:\n" +
-                                        "You can disable this automated message with the config command.\n" + a.url()).queue());
+                long id = db.acceptImageQueue(a.queuedId(), a.url(), a.artistId(), a.uploader());
+                if (a.guildId() != null) {
+                    db.insertServerCustomUrl(id, a.guildId(), a.artistId());
+                    r.getJDA().retrieveUserById(a.uploader(), false).flatMap(User::openPrivateChannel).queue(x ->
+                            x.sendMessage("Your image for " + a.artistName() + " has been approved and has been set as the default image on your server.").queue());
+                } else {
+                    try {
+                        LastFMData lastFMData1 = db.findLastFMData(a.uploader());
+                        if (lastFMData1.isImageNotify()) {
+                            r.getJDA().retrieveUserById(a.uploader(), false).flatMap(User::openPrivateChannel).queue(x ->
+                                    x.sendMessage("Your image for " + a.artistName() + " has been approved:\n" +
+                                            "You can disable this automated message with the config command.\n" + a.url()).queue());
+                        }
+                    } catch (InstanceNotFoundException ignored) {
+                        // Do nothing
                     }
-                } catch (InstanceNotFoundException ignored) {
-                    // Do nothing
                 }
                 statAccepeted.getAndIncrement();
                 navigationCounter.incrementAndGet();

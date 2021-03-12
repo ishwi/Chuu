@@ -1,6 +1,7 @@
 package core.services.tracklist;
 
 import com.google.common.collect.Multimaps;
+import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
 import core.apis.spotify.Spotify;
@@ -14,6 +15,7 @@ import dao.entities.ScrobbledAlbum;
 import dao.entities.Track;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -32,7 +34,7 @@ public abstract class TracklistService {
         this.mb = MusicBrainzServiceSingleton.getInstance();
     }
 
-    public Optional<FullAlbumEntity> getTrackList(ScrobbledAlbum scrobbledAlbum, LastFMData lastfmId, @Nullable String artistUrl) throws LastFmException {
+    public Optional<FullAlbumEntity> getTrackList(ScrobbledAlbum scrobbledAlbum, LastFMData lastfmId, @Nullable String artistUrl, MessageReceivedEvent event) throws LastFmException {
         Optional<FullAlbumEntity> opt = obtainTrackList(scrobbledAlbum.getAlbumId());
         FullAlbumEntity fullAlbumEntity;
         String artist = scrobbledAlbum.getArtist();
@@ -99,6 +101,7 @@ public abstract class TracklistService {
         } else {
             fullAlbumEntity = opt.get();
         }
+        fullAlbumEntity.setAlbumUrl(Chuu.getCoverService().getCover(albumId, fullAlbumEntity.getAlbumUrl(), event));
         fullAlbumEntity.setArtistUrl(artistUrl);
         fullAlbumEntity.getTrackList().sort(Comparator.comparingInt(Track::getPosition));
         return Optional.of(fullAlbumEntity);

@@ -151,7 +151,6 @@ public class NPModeBuilder {
             }
         });
 
-
         AtomicBoolean whoKnowsLock = new AtomicBoolean(false);
         AtomicBoolean whoKnowsAlbumLock = new AtomicBoolean(false);
         AtomicBoolean globalWhoKnowsLock = new AtomicBoolean(false);

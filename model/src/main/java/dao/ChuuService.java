@@ -5,6 +5,7 @@ import dao.exceptions.ChuuServiceException;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.AffinityDao;
+import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -477,7 +478,17 @@ public class ChuuService {
 
     public void userInsertQueueUrl(String url, long artistId, long discordId) {
         try (Connection connection = dataSource.getConnection()) {
-            updaterDao.upsertQueueUrl(connection, url, artistId, discordId);
+            updaterDao.upsertQueueUrl(connection, url, artistId, discordId, null);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+
+        }
+
+    }
+
+    public void userInsertQueueUrlForServer(String url, long artistId, long discordId, long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.upsertQueueUrl(connection, url, artistId, discordId, guildId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
 
@@ -728,10 +739,48 @@ public class ChuuService {
         }
     }
 
+    public int getUserAlbumCount(String lastfmId, int threshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.userAlbumCount(connection, lastfmId, threshold);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public int getUserTrackCount(String lastfmId, int threshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.userTrackCount(connection, lastfmId, threshold);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public List<LbEntry> getArtistLeaderboard(long guildId, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.artistLeaderboard(connection, guildId, threshold);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+
+        }
+    }
+
+    public List<LbEntry> getAlbumLeaderboard(long guildId, int threshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.albumLeaderboard(connection, guildId, threshold);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+
+        }
+    }
+
+    public List<LbEntry> getTrackLeaderboard(long guildId, int threshold) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.trackLeaderboard(connection, guildId, threshold);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
 
@@ -1520,11 +1569,12 @@ public class ChuuService {
 
     }
 
-    public void acceptImageQueue(long queuedId, String url, long artistId, long discordId) {
+    public long acceptImageQueue(long queuedId, String url, long artistId, long discordId) {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.removeQueuedImage(connection, queuedId);
             long urlId = updaterDao.upsertUrl(connection, url, artistId, discordId);
             updaterDao.castVote(connection, urlId, discordId, true);
+            return urlId;
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3491,6 +3541,49 @@ public class ChuuService {
     public void flagAsBotted(long discordId) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.flagBotted(discordId, connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public ListValuedMap<CoverItem, String> getBannedCovers() {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getBannedCovers(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public void insertBannedCover(long albumId, String cover) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.insertBannedCover(connection, albumId, cover);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void removeBannedCover(long albumId, String cover) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.removeBannedCover(connection, albumId, cover);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public Set<Long> getGuildsAcceptingCovers() {
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.getGuildsWithCoversOn(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
+
+    public void insertServerCustomUrl(long altId, long guildId, long artistId) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.insertServerCustomUrl(connection, altId, guildId, artistId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
