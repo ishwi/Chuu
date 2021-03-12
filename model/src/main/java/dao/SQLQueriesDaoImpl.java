@@ -3036,7 +3036,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         @Language("MariaDB") String queryString =
                 "SELECT c.album_name  , a.playnumber,b.playnumber ," +
-                        "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
+                        "((a.playnumber * b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
                         " (((a.playnumber + b.playnumber)) * 2.5) * " +
                         " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
                         "media ," +
@@ -3095,7 +3095,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         @Language("MariaDB") String queryString =
                 "SELECT c.track_name  , a.playnumber,b.playnumber ," +
-                        "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
+                        "((a.playnumber * b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
                         " (((a.playnumber + b.playnumber)) * 2.5) * " +
                         " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
                         "media ," +
@@ -3155,7 +3155,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         @Language("MariaDB") String queryString =
                 "SELECT c.track_name  , a.playnumber,b.playnumber ," +
-                        "((a.playnumber + b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
+                        "((a.playnumber * b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
                         " (((a.playnumber + b.playnumber)) * 2.5) * " +
                         " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
                         "media ," +
