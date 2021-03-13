@@ -1731,6 +1731,14 @@ public class ChuuService {
         }
     }
 
+    public void setServerAllowCovers(long guildId, boolean allowCovers) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildProperty(connection, guildId, "allow_covers", allowCovers);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void setServerAllowReactions(long guildId, boolean allowReactions) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setGuildProperty(connection, guildId, "allow_reactions", allowReactions);

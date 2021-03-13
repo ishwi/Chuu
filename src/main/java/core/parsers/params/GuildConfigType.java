@@ -19,7 +19,10 @@ public enum GuildConfigType {
     OVERRIDE_NP_REACTIONS("override-reactions"),
     DELETE_MESSAGE("delete-message"), NP("np"), REMAINING_MODE("rest"), SHOW_DISABLED_WARNING("disabled-warning"),
     COLOR("color"),
-    WHOKNOWS_MODE("whoknows");
+    WHOKNOWS_MODE("whoknows"),
+
+    CENSOR_CONVERS("censor-covers");
+
     static final Pattern npMode = Pattern.compile("((" + "CLEAR|" +
             EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
             ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
@@ -103,6 +106,7 @@ public enum GuildConfigType {
                             }
                             yield String.format("**%s** -> %s", key, strModes);
                         }
+                        case CENSOR_CONVERS -> String.format("**%s** -> %s", key, !guildProperties.censorCovers());
                     };
                 }).collect(Collectors.joining("\n"));
 
@@ -118,7 +122,7 @@ public enum GuildConfigType {
             case CHART_MODE -> UserConfigType.chartMode.asMatchPredicate();
             case COLOR -> colorMode.asMatchPredicate();
             case REMAINING_MODE, WHOKNOWS_MODE -> UserConfigType.whoknowsMode.asMatchPredicate();
-            case ALLOW_NP_REACTIONS, DELETE_MESSAGE, SHOW_DISABLED_WARNING -> UserConfigType.bool.asMatchPredicate();
+            case CENSOR_CONVERS, ALLOW_NP_REACTIONS, DELETE_MESSAGE, SHOW_DISABLED_WARNING -> UserConfigType.bool.asMatchPredicate();
             case OVERRIDE_NP_REACTIONS -> overrideMode.asMatchPredicate();
             case NP -> GuildConfigType.npMode.asMatchPredicate();
         };
@@ -159,6 +163,8 @@ public enum GuildConfigType {
                 return "Whether you want the bot to show a warning when you try to run a disabled command.";
             case NP:
                 return "Setting this will alter the appearance of this server np commands. You can select up to 10 different from the following list and mix them up:\n" + "CLEAR | " + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+            case CENSOR_CONVERS:
+                return "Whether you want the bot to censor potentially nsfw album covers.";
             default:
                 return "";
         }

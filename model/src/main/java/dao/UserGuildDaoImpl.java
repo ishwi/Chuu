@@ -792,7 +792,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public GuildProperties getGuild(Connection connection, long discordId) throws InstanceNotFoundException {
         @Language("MariaDB") String queryString = "select " +
-                "guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning,override_reactions,allow_reactions,color from guild where guild_id = ? ";
+                "guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning,override_reactions,allow_reactions,color,allow_covers from guild where guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -811,6 +811,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             String remaining_mode = resultSet.getString("remaining_mode");
             boolean deleteMessages = resultSet.getBoolean("delete_message");
             boolean disabledWarning = resultSet.getBoolean("disabled_warning");
+            boolean allow_covers = resultSet.getBoolean("allow_covers");
             OverrideMode override_reactions = OverrideMode.valueOf(resultSet.getString("override_reactions"));
             boolean allowReactions = resultSet.getBoolean("allow_reactions");
             String color = resultSet.getString("color");
@@ -818,7 +819,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
             RemainingImagesMode remainingImagesMode = remaining_mode == null ? null : RemainingImagesMode.valueOf(remaining_mode);
 
-            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, override_reactions, allowReactions, remainingImagesMode, deleteMessages, disabledWarning, embedColor);
+            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, override_reactions, allowReactions, remainingImagesMode, deleteMessages, disabledWarning, embedColor, allow_covers);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -837,7 +838,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 "a.notify_rating, " +
                 " private_lastfm," +
                 "timezone, " +
-                "show_botted, token, sess,scrobbling,ifnull(c.color,a.color) " +
+                "show_botted, token, sess,scrobbling,ifnull(c.color,a.color),allow_covers " +
                 "FROM user a join guild c" +
 
                 " WHERE a.discord_id = ? AND  c.guild_id = ? ";
@@ -880,6 +881,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             boolean scrobbling = (resultSet.getBoolean(i++));
             String color = resultSet.getString(i);
             EmbedColor embedColor = EmbedColor.fromString(color);
+
 
             return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor);
 

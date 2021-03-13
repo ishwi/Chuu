@@ -4,6 +4,6 @@ public record GuildProperties(long guildId, Character prefix, int crown_threshol
                               ChartMode chartMode, WhoKnowsMode whoKnowsMode,
                               OverrideMode overrideReactions, boolean allowReactions,
                               RemainingImagesMode remainingImagesMode, boolean deleteMessages,
-                              boolean showWarnings, EmbedColor embedColor) {
+                              boolean showWarnings, EmbedColor embedColor, boolean censorCovers) {
 
 }

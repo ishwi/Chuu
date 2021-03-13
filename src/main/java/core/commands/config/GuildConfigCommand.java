@@ -189,6 +189,20 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                     }
                 }
                 break;
+            case CENSOR_CONVERS:
+                boolean allowCovers = !Boolean.parseBoolean(value);
+                db.setServerAllowCovers(guildId, allowCovers);
+
+                if (allowCovers) {
+                    Chuu.getCoverService().addServer(e.getGuild().getIdLong());
+
+                    sendMessageQueue(e, "NSFW covers won't be censored");
+                } else {
+                    Chuu.getCoverService().removeServer(e.getGuild().getIdLong());
+
+                    sendMessageQueue(e, "NSFW covers will be censored");
+                }
+                break;
             default:
                 throw new IllegalStateException("Unexpected value: " + config);
         }

@@ -93,7 +93,14 @@ public class CoverService {
 
     private boolean dontCensor(MessageReceivedEvent e) {
         return e.isFromGuild() && guildsAcceptingAll.contains(e.getGuild().getIdLong());
+    }
 
+    public void removeServer(long guildId) {
+        this.guildsAcceptingAll.remove(guildId);
+    }
+
+    public void addServer(long guildId) {
+        this.guildsAcceptingAll.add(guildId);
     }
 
 
