@@ -388,6 +388,24 @@ public class ChuuService {
         }
     }
 
+    public UniqueWrapper<AlbumPlays> getUniquAlbums(Long guildID, String lastFmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getUniqueAlbum(connection, guildID, lastFmId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public UniqueWrapper<TrackPlays> getUniqueTracks(Long guildID, String lastFmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getUniqueTracks(connection, guildID, lastFmId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public List<Long> getGuildList(long userId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
@@ -730,6 +748,26 @@ public class ChuuService {
         }
     }
 
+    public List<LbEntry> getUniqueAlbumLeaderboard(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.uniqueAlbumLeaderboard(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+
+        }
+    }
+
+    public List<LbEntry> getUniqueSongLeaderboard(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.uniqueSongLeaderboard(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+
+        }
+    }
+
     public int getUserArtistCount(String lastfmId, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
@@ -981,6 +1019,24 @@ public class ChuuService {
     public UniqueWrapper<ArtistPlays> getGlobalUniques(String lastfmid) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getGlobalUniques(connection, lastfmid);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public UniqueWrapper<AlbumPlays> getGlobalAlbumUniques(String lastfmid) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getGlobalAlbumUniques(connection, lastfmid);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public UniqueWrapper<TrackPlays> getGlobalTrackUniques(String lastfmid) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getGlobalTrackUniques(connection, lastfmid);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3588,4 +3644,6 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+
+
 }

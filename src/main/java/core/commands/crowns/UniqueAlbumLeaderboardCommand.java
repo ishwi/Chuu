@@ -8,11 +8,10 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
 
-import java.util.Collections;
 import java.util.List;
 
-public class UniqueLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
-    public UniqueLeaderboardCommand(ChuuService dao) {
+public class UniqueAlbumLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
+    public UniqueAlbumLeaderboardCommand(ChuuService dao) {
         super(dao);
     }
 
@@ -29,27 +28,27 @@ public class UniqueLeaderboardCommand extends LeaderboardCommand<CommandParamete
 
     @Override
     public String getEntryName(CommandParameters params) {
-        return "unique artists";
+        return "unique albums";
     }
 
     @Override
     public String getDescription() {
-        return ("Unique artist leaderboard in guild");
+        return ("Unique album leaderboard in guild");
     }
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("uniquelb");
+        return List.of("uniquealbumlb", "uniquealblb");
     }
 
     @Override
     public List<LbEntry> getList(CommandParameters parameters) {
-        return db.getUniqueLeaderboard(parameters.getE().getGuild().getIdLong());
+        return db.getUniqueAlbumLeaderboard(parameters.getE().getGuild().getIdLong());
     }
 
     @Override
     public String getName() {
-        return "Unique Leaderboard";
+        return "Unique albums leaderboard";
     }
 
 }

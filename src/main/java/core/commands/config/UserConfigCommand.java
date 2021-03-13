@@ -4,6 +4,7 @@ import core.Chuu;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.parsers.ChartParserAux;
 import core.parsers.Parser;
@@ -21,7 +22,9 @@ import org.apache.commons.text.WordUtils;
 import javax.validation.constraints.NotNull;
 import java.awt.*;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
     public UserConfigCommand(ChuuService dao) {
@@ -169,7 +172,10 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 if (cleansing) {
                     sendMessageQueue(e, "Your privacy setting has changed to the default");
                 } else {
-                    sendMessageQueue(e, "Your privacy setting was set to: **" + WordUtils.capitalizeFully(privacyMode.toString()) + "**");
+                    String name = db.findLastFMData(e.getAuthor().getIdLong()).getName();
+                    String publicStr = PrivacyUtils.getPublicString(privacyMode, e.getAuthor().getIdLong(), name, new AtomicInteger(1), e, new HashSet<>()).discordName();
+
+                    sendMessageQueue(e, "Your privacy setting was set to: **%s**%nNow you will appear as **%s** for users in other servers".formatted(WordUtils.capitalizeFully(privacyMode.toString()), publicStr));
                 }
             case NOTIFY_RATING:
                 b = Boolean.parseBoolean(value);

@@ -781,6 +781,90 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         }
     }
 
+    @Override
+    public UniqueWrapper<AlbumPlays> getUniqueAlbum(Connection connection, Long guildID, String lastfmId) {
+        @Language("MariaDB") String queryString = "SELECT * " +
+                "FROM(  " +
+                "       SELECT a2.name,a3.album_name, playnumber, a.lastfm_id ,b.discord_id" +
+                "       FROM scrobbled_album a JOIN user b " +
+                "       ON a.lastfm_id = b.lastfm_id " +
+                "       JOIN user_guild c ON b.discord_id = c.discord_id " +
+                " JOIN album a3 ON a.album_id = a3.id " +
+                " JOIN artist a2 ON a3.artist_id = a2.id " +
+                "       WHERE c.guild_id = ? AND a.playnumber > 2 " +
+                "       GROUP BY a.artist_id " +
+                "       HAVING count( *) = 1) temp " +
+                "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
+                " ORDER BY temp.playnumber DESC ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i++, guildID);
+            preparedStatement.setString(i, lastfmId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            List<AlbumPlays> returnList = new ArrayList<>();
+            long discordId = 0;
+            while (resultSet.next()) {
+                discordId = resultSet.getLong("temp.discord_id");
+                String name = resultSet.getString("temp.name");
+                String album = resultSet.getString("temp.album_name");
+                int countA = resultSet.getInt("temp.playNumber");
+
+                returnList.add(new AlbumPlays(name, countA, album));
+
+            }
+            return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
+
+
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public UniqueWrapper<TrackPlays> getUniqueTracks(Connection connection, Long guildID, String lastfmId) {
+        @Language("MariaDB") String queryString = "SELECT * " +
+                "FROM(  " +
+                "       SELECT a2.name,a3.track_name, playnumber, a.lastfm_id ,b.discord_id" +
+                "       FROM scrobbled_track a JOIN user b " +
+                "       ON a.lastfm_id = b.lastfm_id " +
+                "       JOIN user_guild c ON b.discord_id = c.discord_id " +
+                " JOIN track a3 ON a.track_id = a3.id " +
+                " JOIN artist a2 ON a3.artist_id = a2.id " +
+                "       WHERE c.guild_id = ? AND a.playnumber > 2 " +
+                "       GROUP BY a.artist_id " +
+                "       HAVING count( *) = 1) temp " +
+                "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
+                " ORDER BY temp.playnumber DESC ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i++, guildID);
+            preparedStatement.setString(i, lastfmId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            List<TrackPlays> returnList = new ArrayList<>();
+            long discordId = 0;
+            while (resultSet.next()) {
+                discordId = resultSet.getLong("temp.discord_id");
+                String name = resultSet.getString("temp.name");
+                String track = resultSet.getString("temp.track_name");
+                int countA = resultSet.getInt("temp.playNumber");
+
+                returnList.add(new TrackPlays(name, countA, track));
+
+            }
+            return new UniqueWrapper<>(returnList.size(), discordId, lastfmId, returnList);
+
+
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
     @Override
     public ResultWrapper<UserArtistComparison> similar(Connection connection, List<String> lastfMNames, int limit) {
@@ -1089,6 +1173,50 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 "ORDER BY ord DESC";
 
         return getLbEntries(connection, guildId, queryString, UniqueLbEntry::new, false, 0);
+    }
+
+    @Override
+    public List<LbEntry> uniqueAlbumLeaderboard(Connection connection, long guildId) {
+        @Language("MariaDB") String queryString = "SELECT  " +
+                "    count(temp.lastfm_id) AS ord,temp.lastfm_id,temp.discord_id " +
+                "FROM " +
+                "    (SELECT  " +
+                "         a.lastfm_id, b.discord_id " +
+                "    FROM " +
+                "        scrobbled_album a " +
+                "    JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                "    JOIN user_guild c ON b.discord_id = c.discord_id " +
+                "    WHERE " +
+                "        c.guild_id = ? " +
+                "            AND a.playnumber > 2 " +
+                "    GROUP BY a.album_id " +
+                "    HAVING COUNT(*) = 1) temp " +
+                "GROUP BY lastfm_id " +
+                "ORDER BY ord DESC";
+
+        return getLbEntries(connection, guildId, queryString, UniqueAlbumLbEntry::new, false, 0);
+    }
+
+    @Override
+    public List<LbEntry> uniqueSongLeaderboard(Connection connection, long guildId) {
+        @Language("MariaDB") String queryString = "SELECT  " +
+                "    count(temp.lastfm_id) AS ord,temp.lastfm_id,temp.discord_id " +
+                "FROM " +
+                "    (SELECT  " +
+                "         a.lastfm_id, b.discord_id " +
+                "    FROM " +
+                "        scrobbled_track a " +
+                "    JOIN user b ON a.lastfm_id = b.lastfm_id " +
+                "    JOIN user_guild c ON b.discord_id = c.discord_id " +
+                "    WHERE " +
+                "        c.guild_id = ? " +
+                "            AND a.playnumber > 2 " +
+                "    GROUP BY a.track_id " +
+                "    HAVING COUNT(*) = 1) temp " +
+                "GROUP BY lastfm_id " +
+                "ORDER BY ord DESC";
+
+        return getLbEntries(connection, guildId, queryString, UniqueSongLbEntry::new, false, 0);
     }
 
 
@@ -3920,6 +4048,89 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
 
         } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public UniqueWrapper<AlbumPlays> getGlobalAlbumUniques(Connection connection, String lastfmid) {
+        @Language("MariaDB") String queryString = "SELECT a.name,a2.album_name, temp.playnumber, temp.lastfm_id, temp.discord_id " +
+                "FROM(  " +
+                "       SELECT album_id, playnumber, a.lastfm_id ,b.discord_id" +
+                "       FROM scrobbled_album a JOIN user b " +
+                "       ON a.lastfm_id = b.lastfm_id " +
+                "       WHERE  a.playnumber > 2 " +
+                "       GROUP BY a.artist_id " +
+                "       HAVING count( *) = 1) temp " +
+                " JOIN album a2 ON temp.album_id = a2.id " +
+                " JOIN artist a ON a2.artist_id = a.id " +
+                "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
+                " ORDER BY temp.playnumber DESC ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i, lastfmid);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+
+            List<AlbumPlays> returnList = new ArrayList<>();
+            long discordId = 0;
+            while (resultSet.next()) {
+                discordId = resultSet.getLong("temp.discord_id");
+                String name = resultSet.getString("a.name");
+                String albumname = resultSet.getString("a2.album_name");
+                int countA = resultSet.getInt("temp.playNumber");
+
+                returnList.add(new AlbumPlays(name, countA, albumname));
+
+            }
+            return new UniqueWrapper<>(returnList.size(), discordId, lastfmid, returnList);
+
+
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public UniqueWrapper<TrackPlays> getGlobalTrackUniques(Connection connection, String lastfmid) {
+        @Language("MariaDB") String queryString = "SELECT a.name,a2.track_name, temp.playnumber, temp.lastfm_id, temp.discord_id " +
+                "FROM(  " +
+                "       SELECT track_id, playnumber, a.lastfm_id ,b.discord_id" +
+                "       FROM scrobbled_track a JOIN user b " +
+                "       ON a.lastfm_id = b.lastfm_id " +
+                "       WHERE  a.playnumber > 2 " +
+                "       GROUP BY a.artist_id " +
+                "       HAVING count( *) = 1) temp " +
+                " JOIN track a2 ON temp.track_id = a2.id " +
+                " JOIN artist a ON a2.artist_id = a.id " +
+                "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
+                " ORDER BY temp.playnumber DESC ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setString(i, lastfmid);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+
+            List<TrackPlays> returnList = new ArrayList<>();
+            long discordId = 0;
+            while (resultSet.next()) {
+                discordId = resultSet.getLong("temp.discord_id");
+                String name = resultSet.getString("a.name");
+                String trackName = resultSet.getString("a2.track_name");
+                int countA = resultSet.getInt("temp.playNumber");
+
+                returnList.add(new TrackPlays(name, countA, trackName));
+
+            }
+            return new UniqueWrapper<>(returnList.size(), discordId, lastfmid, returnList);
+
+
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }
 

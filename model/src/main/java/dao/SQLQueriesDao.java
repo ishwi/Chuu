@@ -21,6 +21,10 @@ interface SQLQueriesDao {
     UniqueWrapper<ArtistPlays> getUniqueArtist(Connection connection, Long guildID, String lastFMID);
 
 
+    UniqueWrapper<AlbumPlays> getUniqueAlbum(Connection connection, Long guildID, String lastfmId);
+
+    UniqueWrapper<TrackPlays> getUniqueTracks(Connection connection, Long guildID, String lastfmId);
+
     ResultWrapper<UserArtistComparison> similar(Connection connection, List<String> lastfMNames, int limit);
 
     WrapperReturnNowPlaying knows(Connection connection, long artistId, long guildId, int limit);
@@ -238,4 +242,12 @@ interface SQLQueriesDao {
     List<LbEntry> trackLeaderboard(Connection connection, long guildId, int threshold);
 
     ListValuedMap<CoverItem, String> getBannedCovers(Connection connection);
+
+    UniqueWrapper<AlbumPlays> getGlobalAlbumUniques(Connection connection, String lastfmid);
+
+    UniqueWrapper<TrackPlays> getGlobalTrackUniques(Connection connection, String lastfmid);
+
+    List<LbEntry> uniqueAlbumLeaderboard(Connection connection, long guildId);
+
+    List<LbEntry> uniqueSongLeaderboard(Connection connection, long guildId);
 }

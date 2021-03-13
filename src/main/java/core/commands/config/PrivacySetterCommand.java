@@ -2,6 +2,7 @@ package core.commands.config;
 
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
+import core.commands.utils.PrivacyUtils;
 import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
@@ -12,7 +13,9 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PrivacySetterCommand extends ConcurrentCommand<EnumParameters<PrivacyMode>> {
     public PrivacySetterCommand(ChuuService dao) {
@@ -50,13 +53,16 @@ public class PrivacySetterCommand extends ConcurrentCommand<EnumParameters<Priva
 
         PrivacyMode element = params.getElement();
         LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
+        String publicStr = PrivacyUtils.getPublicString(element, lastFMData.getDiscordId(), lastFMData.getName(), new AtomicInteger(1), e, new HashSet<>()).discordName();
+
         if (lastFMData.getPrivacyMode().equals(element)) {
-            sendMessageQueue(e, "You already had " + element + " as your privacy config");
+            sendMessageQueue(e, "You already had %s as your privacy config.%nYou are appearing as **%s** for users in other servers".formatted(element, publicStr));
             return;
 
         }
         db.setPrivacyMode(e.getAuthor().getIdLong(), element);
-        sendMessageQueue(e, "Changed your privacy setting from " + lastFMData.getPrivacyMode() + " to " + element);
+        sendMessageQueue(e, "Changed your privacy setting from %s to %s.%nNow you will appear as **%s** for users in other servers".formatted(lastFMData.getPrivacyMode(), element, publicStr));
+
 
     }
 
