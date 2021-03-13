@@ -11,6 +11,8 @@ import core.services.AlbumValidator;
 import core.services.CoverService;
 import dao.ChuuService;
 import dao.entities.CoverItem;
+import dao.entities.LastFMData;
+import dao.entities.Role;
 import dao.entities.ScrobbledAlbum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -56,6 +58,11 @@ public class BanCoverCommand extends ConcurrentCommand<ArtistAlbumUrlParameters>
 
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull ArtistAlbumUrlParameters params) throws LastFmException, InstanceNotFoundException {
+        LastFMData lastFMData = params.getLastFMData();
+        if (lastFMData.getRole() != Role.ADMIN) {
+            sendMessageQueue(e, "Not enough chuu perms to do this");
+            return;
+        }
         CoverService coverService = Chuu.getCoverService();
         ScrobbledAlbum scrobbledAlbum = new AlbumValidator(db, lastFM).validate(params.getArtist(), params.getAlbum());
         List<String> covers = coverService.getCovers(scrobbledAlbum.getAlbumId());

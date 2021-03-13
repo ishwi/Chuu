@@ -3950,7 +3950,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public int userAlbumCount(Connection connection, String lastfmId, int threshold) {
-        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_album WHERE scrobbled_artist.lastfm_id= ? and playNumber >= ?";
+        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_album WHERE scrobbled_album.lastfm_id= ? and playNumber >= ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, lastfmId);
@@ -3972,7 +3972,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public int userTrackCount(Connection connection, String lastfmId, int threshold) {
-        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_track WHERE scrobbled_artist.lastfm_id= ? and playNumber >= ?";
+        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_track WHERE scrobbled_track.lastfm_id= ? and playNumber >= ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, lastfmId);
