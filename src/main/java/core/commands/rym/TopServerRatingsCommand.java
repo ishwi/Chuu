@@ -41,7 +41,7 @@ public class TopServerRatingsCommand extends ListCommand<ScoredAlbumRatings, Com
 
     @Override
     public List<String> getAliases() {
-        return List.of("rymserver", "ryms");
+        return List.of("rymserver", "rymg");
     }
 
     @Override

@@ -8,6 +8,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.entities.chartentities.TopEntity;
+import core.apis.rym.RYMSearch;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.utils.CommandUtil;
@@ -19,6 +20,7 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -116,6 +118,7 @@ public class NPModeBuilder {
     private final CompletableFuture<List<TrackWithArtistId>> comboData;
     private final ExecutorService executor;
     private final DiscogsApi discogsApi;
+    private final RYMSearch rymSearch;
 
     public NPModeBuilder(NowPlayingArtist np, MessageReceivedEvent e, String[] footerSpaces, long discordId, String userName, EnumSet<NPMode> npModes, LastFMData lastFMName, EmbedBuilder embedBuilder, ScrobbledArtist scrobbledArtist, ChuuService service, ConcurrentLastFM lastFM, String serverName, MusicBrainzService mb, List<String> outputList, CompletableFuture<List<TrackWithArtistId>> data) {
         this.np = np;
@@ -136,6 +139,7 @@ public class NPModeBuilder {
         this.spotifyApi = SpotifySingleton.getInstance();
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         executor = ExecutorsSingleton.getInstance();
+        this.rymSearch = new RYMSearch();
     }
 
     public static int getSize() {
@@ -240,19 +244,32 @@ public class NPModeBuilder {
                     break;
                 case PREVIOUS:
                 case SPOTIFY_LINK:
+                case RYM_LINK:
                     if (!embedLock.compareAndSet(false, true)) {
                         break;
                     }
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
                         if (npModes.contains(NPMode.PREVIOUS)) {
                             try {
+                                NowPlayingArtist recent = lastFM.getRecent(lastFMName, 2).get(1);
+                                String album;
+                                String artist = CommandUtil.cleanMarkdownCharacter(recent.getArtistName());
+                                String song = CommandUtil.cleanMarkdownCharacter(recent.getSongName());
+                                if (npModes.contains(NPMode.SPOTIFY_LINK)) {
+                                    String uri = spotifyApi.searchItems(np.getSongName(), np.getArtistName(), np.getAlbumName());
+                                    if (!uri.isBlank())
+                                        song = "[\t<:spochuu:776799107737976863> " + EmbedBuilder.ZERO_WIDTH_SPACE + " " + song + "](" + uri + ")";
+                                }
+                                if (npModes.contains(NPMode.RYM_LINK)) {
+                                    String url = rymSearch.searchUrl(recent.getArtistName(), recent.getAlbumName());
+                                    album = "[\t<:rym:820111349690531850> " + EmbedBuilder.ZERO_WIDTH_SPACE + " " + CommandUtil.cleanMarkdownCharacter(recent.getAlbumName()) + "](" + url + ")";
+                                } else {
+                                    album = CommandUtil.cleanMarkdownCharacter(np.getAlbumName());
+                                }
 
-                                StringBuilder t = new StringBuilder();
-                                NowPlayingArtist np = lastFM.getRecent(lastFMName, 2).get(1);
-                                t.append("**").append(CommandUtil.cleanMarkdownCharacter(np.getArtistName()))
-                                        .append("** | ").append(CommandUtil.cleanMarkdownCharacter(np.getAlbumName())).append("\n");
-
-                                embedBuilder.getDescriptionBuilder().append("\n**Previous:** ***").append(np.getSongName()).append("***\n").append(t.toString());
+                                String t = "**" + artist +
+                                        "** | " + album + "\n";
+                                embedBuilder.getDescriptionBuilder().append("\n**Previous:** ***").append(song).append("***\n").append(t);
 
                             } catch (LastFmException ignored) {
                             }
@@ -261,6 +278,16 @@ public class NPModeBuilder {
                             String uri = spotifyApi.searchItems(np.getSongName(), np.getArtistName(), np.getAlbumName());
                             if (!uri.isBlank())
                                 embedBuilder.setTitle("\t<:spochuu:776799107737976863> " + embedBuilder.build().getTitle(), uri);
+                        }
+                        if (npModes.contains(NPMode.RYM_LINK) && !StringUtils.isEmpty(np.getAlbumName())) {
+                            String url = rymSearch.searchUrl(np.getArtistName(), np.getAlbumName());
+
+                            String a = "**" + CommandUtil.cleanMarkdownCharacter(np.getArtistName()) +
+                                    "** | " + CommandUtil.cleanMarkdownCharacter(np.getAlbumName());
+
+                            String b = "**" + CommandUtil.cleanMarkdownCharacter(np.getArtistName()) +
+                                    "** | [\t<:rym:820111349690531850> " + EmbedBuilder.ZERO_WIDTH_SPACE + " " + CommandUtil.cleanMarkdownCharacter(np.getAlbumName()) + "](" + url + ")";
+                            embedBuilder.setDescription(StringUtils.replaceOnceIgnoreCase(embedBuilder.build().getDescription(), a, b));
                         }
 
                     })));

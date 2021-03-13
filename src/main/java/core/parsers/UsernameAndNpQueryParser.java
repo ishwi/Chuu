@@ -12,13 +12,21 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.function.Function;
+
 public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordParameter, User>> {
 
     private final ConcurrentLastFM lastFM;
+    private final Function<NowPlayingArtist, String> mapper;
 
     public UsernameAndNpQueryParser(ChuuService dao, ConcurrentLastFM lastFM) {
+        this(dao, lastFM, (np) -> np.getArtistName() + " " + np.getSongName());
+    }
+
+    public UsernameAndNpQueryParser(ChuuService dao, ConcurrentLastFM lastFM, Function<NowPlayingArtist, String> mapper) {
         super(dao);
         this.lastFM = lastFM;
+        this.mapper = mapper;
     }
 
     @Override
@@ -31,7 +39,7 @@ public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordPara
             NowPlayingArtist np;
             LastFMData lastFMData = dao.findLastFMData(oneUser.getIdLong());
             np = new NPService(lastFM, lastFMData).getNowPlaying();
-            return new ExtraParameters<>(e, new WordParameter(e, np.getArtistName() + " " + np.getSongName()), oneUser);
+            return new ExtraParameters<>(e, new WordParameter(e, mapper.apply(np)), oneUser);
         } else {
             return new ExtraParameters<>(e, new WordParameter(e, String.join(" ", words)), oneUser);
         }
