@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
 import java.util.List;
 
 public class UniqueSongCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -43,7 +42,7 @@ public class UniqueSongCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("unique");
+        return List.of("uniquesong", "uniquesongs");
     }
 
     @Override

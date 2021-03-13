@@ -1,9 +1,6 @@
 package dao;
 
-import dao.entities.CommandStats;
-import dao.entities.GuildProperties;
-import dao.entities.LastFMData;
-import dao.entities.UsersWrapper;
+import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
@@ -119,6 +116,8 @@ interface UserGuildDao {
 
     Set<Long> getGuildsWithCoversOn(Connection connection);
 
+    Set<Long> getGuildsWithEmptyColorOverride(Connection connection);
+
     Set<Long> getGuildsDontRespondOnErrros(Connection connection);
 
 
@@ -144,9 +143,9 @@ interface UserGuildDao {
 
     Map<Long, Color[]> getUsersWithPalette(Connection connection);
 
-    Set<Long> getUserWithColorRole(Connection connection);
+    Map<Long, EmbedColor.EmbedColorType> getUserColorTypes(Connection connection);
 
-    Set<Long> getGuildWithColorRole(Connection connection);
+    Map<Long, EmbedColor.EmbedColorType> getServerColorTypes(Connection connection);
 
     void flagBotted(long discordId, Connection connection);
 

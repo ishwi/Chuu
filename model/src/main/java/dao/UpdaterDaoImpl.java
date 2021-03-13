@@ -1796,6 +1796,22 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     }
 
+    @Override
+    public void deleteRandomUrl(Connection connection, String url) {
+
+        @Language("MariaDB") String queryString = "delete from randomlinks where url = ? ; ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, url);
+
+            preparedStatement.executeUpdate();
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
 
 }
 

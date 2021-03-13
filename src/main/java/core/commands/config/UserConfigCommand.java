@@ -74,18 +74,24 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 }
                 break;
             case COLOR:
-                EmbedColor embedColor = EmbedColor.fromString(value);
-                if (embedColor.type() == EmbedColor.EmbedColorType.COLOURS && embedColor.colorList().isEmpty()) {
-                    sendMessageQueue(e, "Couldn't read any colour :(\nTry with different values.");
-                    return;
-                }
-                if (!embedColor.isValid()) {
-                    parser.sendError("Too many colours were introduced. Pls reduce your input a bit", e);
-                    return;
+                EmbedColor embedColor;
+                if (cleansing) {
+                    embedColor = null;
+                } else {
+                    embedColor = EmbedColor.fromString(value);
+                    if (embedColor == null || embedColor.type() == EmbedColor.EmbedColorType.COLOURS && embedColor.colorList().isEmpty()) {
+                        sendMessageQueue(e, "Couldn't read any colour :(\nTry with different values.");
+                        return;
+                    }
+                    if (!embedColor.isValid()) {
+                        parser.sendError("Too many colours were introduced. Pls reduce your input a bit", e);
+                        return;
+                    }
                 }
                 db.setEmbedColor(e.getAuthor().getIdLong(), embedColor);
                 ColorService.handleUserChange(e.getAuthor().getIdLong(), embedColor);
-                sendMessageQueue(e, "User color mode set to: **" + WordUtils.capitalizeFully(embedColor.toDisplayString()) + "**");
+                String str = embedColor == null ? "Default" : embedColor.toDisplayString();
+                sendMessageQueue(e, "User color mode set to: **" + WordUtils.capitalizeFully(str) + "**");
                 break;
             case NOTIFY_IMAGE:
                 b = Boolean.parseBoolean(value);

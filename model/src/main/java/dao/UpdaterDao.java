@@ -188,4 +188,6 @@ interface UpdaterDao {
     void addStrike(Connection connection, long uploader, long rejectedId);
 
     long userStrikes(Connection connection, long uploader);
+
+    void deleteRandomUrl(Connection connection, String url);
 }

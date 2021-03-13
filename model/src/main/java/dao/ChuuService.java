@@ -1017,6 +1017,15 @@ public class ChuuService {
         }
     }
 
+    public void deleteRandomUrl(String url) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.deleteRandomUrl(connection, url);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
     public List<GlobalCrown> getGlobalArtistRanking(Long artistId, boolean includeBottedUsers, long ownerId) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getGlobalKnows(connection, artistId, includeBottedUsers, ownerId);
@@ -1553,9 +1562,9 @@ public class ChuuService {
         }
     }
 
-    public void setEmbedColor(long discordId, EmbedColor embedColor) {
+    public void setEmbedColor(long discordId, @Nullable EmbedColor embedColor) {
         try (Connection connection = dataSource.getConnection()) {
-            userGuildDao.setUserProperty(connection, discordId, "color", embedColor.toString());
+            userGuildDao.setUserProperty(connection, discordId, "color", embedColor == null ? null : embedColor.toString());
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1699,9 +1708,9 @@ public class ChuuService {
         }
     }
 
-    public void setServerColorMode(long guildId, @NotNull EmbedColor color) {
+    public void setServerColorMode(long guildId, @Nullable EmbedColor color) {
         try (Connection connection = dataSource.getConnection()) {
-            userGuildDao.setGuildProperty(connection, guildId, "color", color.toString());
+            userGuildDao.setGuildProperty(connection, guildId, "color", color == null ? null : color.toString());
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1750,6 +1759,14 @@ public class ChuuService {
     public void setServerOverrideReactions(long guildId, OverrideMode overrideReactions) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setGuildProperty(connection, guildId, "override_reactions", overrideReactions);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setServerColorOverride(long guildId, OverrideColorMode overrideReactions) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildProperty(connection, guildId, "override_color", overrideReactions);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3493,20 +3510,20 @@ public class ChuuService {
 
     }
 
-    public Set<Long> getUserWithColorRole() {
+    public Map<Long, EmbedColor.EmbedColorType> getUserColorTypes() {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return userGuildDao.getUserWithColorRole(connection);
+            return userGuildDao.getUserColorTypes(connection);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
 
     }
 
-    public Set<Long> getServerWithColorRole() {
+    public Map<Long, EmbedColor.EmbedColorType> getServerColorTypes() {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return userGuildDao.getGuildWithColorRole(connection);
+            return userGuildDao.getServerColorTypes(connection);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3663,4 +3680,13 @@ public class ChuuService {
     }
 
 
+    public Set<Long> getGuildsWithEmptyColorOverride() {
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.getGuildsWithEmptyColorOverride(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
 }

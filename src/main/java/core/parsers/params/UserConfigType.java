@@ -146,7 +146,7 @@ public enum UserConfigType {
                             boolean scroobling = lastFMData != null && lastFMData.isScrobbling();
                             return String.format("**%s** -> %s", key, scroobling);
                         case COLOR:
-                            return String.format("**%s** -> %s", key, lastFMData == null ? EmbedColor.defaultColor() : lastFMData.getEmbedColor().toDisplayString());
+                            return String.format("**%s** -> %s", key, lastFMData == null || lastFMData.getEmbedColor() == null ? EmbedColor.defaultColor() : lastFMData.getEmbedColor().toDisplayString());
                         case TIMEZONE:
                             return "";
                     }

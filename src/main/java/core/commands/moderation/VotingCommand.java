@@ -68,7 +68,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("vote", "voting", "images", "image");
+        return List.of("vote", "voting", "images", "image", "v");
     }
 
     @Override

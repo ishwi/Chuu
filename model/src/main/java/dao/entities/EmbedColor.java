@@ -2,6 +2,7 @@ package dao.entities;
 
 import org.beryx.awt.color.ColorFactory;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
@@ -15,8 +16,12 @@ public record EmbedColor(dao.entities.EmbedColor.EmbedColorType type, List<Strin
         return new EmbedColor(EmbedColorType.RANDOM, Collections.emptyList());
     }
 
-    public static EmbedColor fromString(String string) {
-        if (string == null || string.equalsIgnoreCase("random")) {
+    public static @Nullable
+    EmbedColor fromString(String string) {
+        if (string == null) {
+            return null;
+        }
+        if (string.equalsIgnoreCase("random")) {
             return new EmbedColor(EmbedColorType.RANDOM, Collections.emptyList());
         }
         if (string.equalsIgnoreCase("role")) {

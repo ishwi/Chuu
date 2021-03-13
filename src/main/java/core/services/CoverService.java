@@ -92,7 +92,7 @@ public class CoverService {
     }
 
     private boolean dontCensor(MessageReceivedEvent e) {
-        return e.isFromGuild() && guildsAcceptingAll.contains(e.getGuild().getIdLong());
+        return e.isFromGuild() && (guildsAcceptingAll.contains(e.getGuild().getIdLong()) || (e.getTextChannel() != null && e.getTextChannel().isNSFW()));
     }
 
     public void removeServer(long guildId) {

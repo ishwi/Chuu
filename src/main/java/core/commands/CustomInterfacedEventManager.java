@@ -6,6 +6,7 @@ import core.commands.abstracts.MyCommand;
 import core.commands.moderation.AdministrativeCommand;
 import core.music.listeners.VoiceListener;
 import core.otherlisteners.ReactionListener;
+import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -107,7 +108,7 @@ public class CustomInterfacedEventManager implements IEventManager {
             String contentRaw = mes.getMessage().getContentRaw();
             if (contentRaw.length() <= 1 || contentRaw.charAt(0) != correspondingPrefix) {
                 if (mes.getMessage().getMentionedUsers().contains(mes
-                        .getJDA().getSelfUser())) {
+                        .getJDA().getSelfUser()) && mes.getMessage().getType() != MessageType.INLINE_REPLY) {
                     mes.getChannel().sendMessage("My prefix is: `" + Chuu.getCorrespondingPrefix(mes) + "`").queue();
                 }
                 return;

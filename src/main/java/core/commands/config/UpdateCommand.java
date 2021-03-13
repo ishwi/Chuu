@@ -2,6 +2,7 @@ package core.commands.config;
 
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
@@ -17,8 +18,8 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
+import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,7 +49,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("update");
+        return List.of("update", "u");
     }
 
     @Override
@@ -96,6 +97,8 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                     db.albumUpdate(albumData, artistData, lastFmName);
                     List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                     db.trackUpdate(trackData, artistData, lastFmName);
+                    sendMessageQueue(e, "Successfully force updated %s info!".formatted(userString));
+
                 } finally {
                     synchronized (this) {
                         maxConcurrency.incrementAndGet();
@@ -105,19 +108,24 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                 UpdaterUserWrapper userUpdateStatus = db.getUserUpdateStatus(lastFMData.getDiscordId());
                 try {
                     UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, db, lastFM);
-                    updaterHoarder.updateUser();
+                    int i = updaterHoarder.updateUser();
+                    sendMessageQueue(e, "Successfully updated %s info with %d new %s".formatted(userString, i, CommandUtil.singlePlural(i, "scrobble", "scrobbles")));
 
                     //db.incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
                 } catch (LastFMNoPlaysException ex) {
                     db.updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
                             (int) (Instant.now().getEpochSecond() + 4000));
-                    sendMessageQueue(e, "You were already up to date!");
-                    return;
+                    int timestamp = userUpdateStatus.getTimestampControl();
+                    Instant instant = Instant.ofEpochSecond(timestamp);
+                    long epochSecond = Instant.now().getEpochSecond();
+                    String s = Duration.ofSeconds(epochSecond - timestamp).toString()
+                            .substring(2)
+                            .replaceAll("(\\d[HMS])(?!$)", "$1 ")
+                            .replaceAll("\\.\\d+", "")
+                            .toLowerCase();
+                    sendMessageQueue(e, "You were already up to date! Last scrobble was " + s + " ago");
                 }
             }
-            sendMessageQueue(e, "Successfully updated " + userString + " info!");
-
-
         } finally {
             if (removeFlag) {
                 UpdaterService.remove(lastFmName);

@@ -17,6 +17,7 @@ public record TokenExceptionHandler(UnknownLastFmException exception, ChuuServic
                     dao.storeSess(null, exception.getUser().getName());
                     yield "The bot has been deauthorized. Try to do `login` again if you want to authorize it again";
                 }
+                case 17 -> "You have your recent scrobbles set as private on last.fm. You can either unprivate them or set via `login` on the bot.";
 
                 default -> "Unknown last.fm exception found:\n" + exception.getSentMessage();
             };

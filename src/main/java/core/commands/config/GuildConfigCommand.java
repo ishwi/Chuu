@@ -82,18 +82,26 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 }
                 break;
             case COLOR:
-                EmbedColor embedColor = EmbedColor.fromString(value);
-                if (embedColor.type() == EmbedColor.EmbedColorType.COLOURS && embedColor.colorList().isEmpty()) {
-                    sendMessageQueue(e, "Couldn't read any colour :(\nTry with different values.");
-                    return;
+                EmbedColor embedColor;
+                if (cleansing) {
+                    embedColor = null;
+                } else {
+                    embedColor = EmbedColor.fromString(value);
+                    if (embedColor == null || (embedColor.type() == EmbedColor.EmbedColorType.COLOURS && embedColor.colorList().isEmpty())) {
+                        sendMessageQueue(e, "Couldn't read any colour :(\nTry with different values.");
+                        return;
+                    }
+                    if (!embedColor.isValid()) {
+                        parser.sendError("Too many colours were introduced. Pls reduce your input a bit", e);
+                        return;
+                    }
                 }
-                if (!embedColor.isValid()) {
-                    parser.sendError("Too many colours were introduced. Pls reduce your input a bit", e);
-                    return;
-                }
+
+
                 db.setServerColorMode(guildId, embedColor);
                 ColorService.handleServerChange(guildId, embedColor);
-                sendMessageQueue(e, "Guild color mode set to: **" + WordUtils.capitalizeFully(embedColor.toDisplayString()) + "**");
+                String str = embedColor == null ? "Default" : embedColor.toDisplayString();
+                sendMessageQueue(e, "Guild color mode set to: **" + WordUtils.capitalizeFully(str) + "**");
 
                 break;
             case WHOKNOWS_MODE:
@@ -137,6 +145,11 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 OverrideMode overrideMode = OverrideMode.valueOf(value.trim().replaceAll("\s+|-", "_").toUpperCase());
                 db.setServerOverrideReactions(guildId, overrideMode);
                 sendMessageQueue(e, "Set the override mode to: " + WordUtils.capitalizeFully(overrideMode.toString().replaceAll("_", " ")));
+                break;
+            case OVERRIDE_COLOR:
+                OverrideColorMode overrideColorMode = OverrideColorMode.valueOf(value.trim().replaceAll("\s+|-", "_").toUpperCase());
+                db.setServerColorOverride(guildId, overrideColorMode);
+                sendMessageQueue(e, "Set the override colour mode to: " + WordUtils.capitalizeFully(overrideColorMode.toString().replaceAll("_", " ")));
                 break;
             case DELETE_MESSAGE:
                 b = Boolean.parseBoolean(value);

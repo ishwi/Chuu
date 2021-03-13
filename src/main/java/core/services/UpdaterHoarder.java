@@ -33,7 +33,7 @@ public class UpdaterHoarder {
         this.service = service;
     }
 
-    public void updateUser() throws LastFmException {
+    public int updateUser() throws LastFmException {
         List<TrackWithArtistId> trackWithArtistIds;
 
         String lastFMName = user.getLastFMName();
@@ -41,6 +41,7 @@ public class UpdaterHoarder {
                 user.getTimestamp()
                 , Integer.MAX_VALUE);
         updateList(trackWithArtistIds);
+        return trackWithArtistIds.size();
     }
 
     public void updateList(List<TrackWithArtistId> trackWithArtistIds) {

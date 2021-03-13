@@ -5,62 +5,120 @@ import dao.ChuuService;
 import dao.entities.EmbedColor;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 public class ColorService {
-    private static Set<Long> serversByRole;
-    private static Set<Long> usersByRole;
+
+    private static Map<Long, EmbedColor.EmbedColorType> guildColorTypes;
+    private static Map<Long, EmbedColor.EmbedColorType> userColorTypes;
     private static Map<Long, Color[]> usersByColor;
-    private static Map<Long, Color[]> serversByColor;
+    private static Map<Long, Color[]> guildByColors;
+    private static Set<Long> hasEmptyGuild;
 
     public static void init(ChuuService chuuService) {
-        serversByColor = chuuService.getServerWithPalette();
+        guildByColors = chuuService.getServerWithPalette();
         usersByColor = chuuService.getUsersWithPalette();
-        serversByRole = chuuService.getServerWithColorRole();
-        usersByRole = chuuService.getUserWithColorRole();
+        guildColorTypes = chuuService.getServerColorTypes();
+        userColorTypes = chuuService.getUserColorTypes();
+        hasEmptyGuild = chuuService.getGuildsWithEmptyColorOverride();
     }
 
-    public static Color computeColor(MessageReceivedEvent event) {
+    public static @NotNull Color computeColor(MessageReceivedEvent event) {
         long idLong;
         if (event.isFromGuild()) {
-            idLong = event.getGuild().getIdLong();
-            if (serversByRole.contains(idLong) || (usersByRole.contains(event.getAuthor().getIdLong()) && !serversByColor.containsKey(event.getGuild().getIdLong()))) {
-                return Optional.ofNullable(event.getMember())
-                        .flatMap(t -> t.getRoles().stream().filter(z -> z.getColor() != null).findFirst())
-                        .map(Role::getColor)
-                        .orElseGet(CommandUtil::pastelColor);
+            EmbedColor.EmbedColorType colorType = guildColorTypes.get(event.getGuild().getIdLong());
+            if (colorType == null) {
+                Color userMode = getUserMode(event);
+                if (userMode == null) {
+                    return CommandUtil.pastelColor();
+                }
+            } else {
+                if (!hasEmptyGuild.contains(event.getGuild().getIdLong())) {
+                    return getServerMode(event, colorType);
+                }
+                Color userMode = getUserMode(event);
+                if (userMode == null) {
+                    return getServerMode(event, colorType);
+                } else {
+                    return userMode;
+                }
             }
-
-        } else {
-            idLong = -1;
         }
-        Color[] pallete = serversByColor.getOrDefault(idLong, usersByColor.getOrDefault(event.getAuthor().getIdLong(), new Color[]{CommandUtil.pastelColor()}));
-        return pallete[CommandUtil.rand.nextInt(pallete.length)];
+        Color userMode = getUserMode(event);
+        if (userMode == null) {
+            return CommandUtil.pastelColor();
+        }
+        return userMode;
     }
 
-    public static void handleServerChange(long guildId, EmbedColor newEmbedColor) {
-        handleLists(guildId, newEmbedColor, serversByRole, serversByColor);
+    private static Color getServerMode(MessageReceivedEvent event, EmbedColor.EmbedColorType colorType) {
+        Color color = getColor(event, colorType, guildByColors);
+        return color == null ? CommandUtil.pastelColor() : color;
     }
 
-    public static void handleUserChange(long userId, EmbedColor newEmbedColor) {
-        handleLists(userId, newEmbedColor, usersByRole, usersByColor);
+    private static @Nullable Color getUserMode(MessageReceivedEvent e) {
+        var colorType = userColorTypes.get(e.getAuthor().getIdLong());
+        if (colorType == null) {
+            return null;
+        }
+        return getColor(e, colorType, usersByColor);
     }
 
-    private static void handleLists(long userId, EmbedColor newEmbedColor, Set<Long> usersByRole, Map<Long, Color[]> usersByColor) {
+    @Nullable
+    private static Color getColor(MessageReceivedEvent e, EmbedColor.EmbedColorType colorType, Map<Long, Color[]> map) {
+        return switch (colorType) {
+            case RANDOM -> CommandUtil.pastelColor();
+
+            case ROLE -> getmemberColour(e);
+
+            case COLOURS -> {
+                Color[] byColor = map.get(e.getAuthor().getIdLong());
+                yield byColor[CommandUtil.rand.nextInt(byColor.length)];
+            }
+        };
+    }
+
+    private static Color getmemberColour(MessageReceivedEvent e) {
+        return Optional.ofNullable(e.getMember())
+                .flatMap(t -> t.getRoles().stream().filter(z -> z.getColor() != null).findFirst())
+                .map(Role::getColor)
+                .orElse(null);
+    }
+
+
+    public static void handleServerChange(long guildId, @Nullable EmbedColor newEmbedColor) {
+        handleLists(guildId, newEmbedColor, guildColorTypes, guildByColors);
+    }
+
+    public static void handleUserChange(long userId, @Nullable EmbedColor newEmbedColor) {
+        handleLists(userId, newEmbedColor, userColorTypes, usersByColor);
+    }
+
+    private static void handleLists(long id, @Nullable EmbedColor newEmbedColor, Map<Long, EmbedColor.EmbedColorType> typeMap, Map<Long, Color[]> colorMap) {
+        if (newEmbedColor == null) {
+            typeMap.remove(id);
+            colorMap.remove(id);
+            return;
+        }
         EmbedColor.EmbedColorType type = newEmbedColor.type();
         switch (type) {
-            case RANDOM -> usersByRole.remove(userId);
+            case RANDOM -> {
+                colorMap.remove(id);
+                typeMap.replace(id, EmbedColor.EmbedColorType.RANDOM);
+            }
             case ROLE -> {
-                usersByColor.remove(userId);
-                usersByRole.add(userId);
+                typeMap.replace(id, EmbedColor.EmbedColorType.ROLE);
+                colorMap.remove(id);
             }
             case COLOURS -> {
-                usersByRole.remove(userId);
-                usersByColor.put(userId, newEmbedColor.mapList());
+                typeMap.replace(id, EmbedColor.EmbedColorType.COLOURS);
+                colorMap.put(id, newEmbedColor.mapList());
             }
         }
     }

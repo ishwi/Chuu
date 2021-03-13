@@ -792,7 +792,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public GuildProperties getGuild(Connection connection, long discordId) throws InstanceNotFoundException {
         @Language("MariaDB") String queryString = "select " +
-                "guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning,override_reactions,allow_reactions,color,allow_covers from guild where guild_id = ? ";
+                "guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning,override_reactions,allow_reactions,color,allow_covers,override_color from guild where guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -816,10 +816,12 @@ public class UserGuildDaoImpl implements UserGuildDao {
             boolean allowReactions = resultSet.getBoolean("allow_reactions");
             String color = resultSet.getString("color");
             EmbedColor embedColor = EmbedColor.fromString(color);
+            OverrideColorMode override_color = OverrideColorMode.valueOf(resultSet.getString("override_color"));
+
 
             RemainingImagesMode remainingImagesMode = remaining_mode == null ? null : RemainingImagesMode.valueOf(remaining_mode);
 
-            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, override_reactions, allowReactions, remainingImagesMode, deleteMessages, disabledWarning, embedColor, allow_covers);
+            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, override_reactions, allowReactions, remainingImagesMode, deleteMessages, disabledWarning, embedColor, allow_covers, override_color);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1082,6 +1084,12 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
+    public Set<Long> getGuildsWithEmptyColorOverride(Connection connection) {
+        String queryString = "Select guild_id from guild WHERE override_color = 'empty'";
+        return getIdList(connection, queryString);
+    }
+
+    @Override
     public Set<Long> getGuildsDontRespondOnErrros(Connection connection) {
         String queryString = "Select guild_id from guild WHERE disabled_warning = true";
         return getIdList(connection, queryString);
@@ -1296,7 +1304,9 @@ public class UserGuildDaoImpl implements UserGuildDao {
             while (resultSet.next()) {
                 long color = resultSet.getLong(1);
                 String string = resultSet.getString(2);
-                map.put(color, EmbedColor.fromString(string).mapList());
+                EmbedColor embedColor = EmbedColor.fromString(string);
+                assert embedColor != null : "Cannot be null due to filter on where";
+                map.put(color, embedColor.mapList());
             }
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1312,9 +1322,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
             int i = 1;
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                long color = resultSet.getLong(1);
+                long discordId = resultSet.getLong(1);
                 String string = resultSet.getString(2);
-                map.put(color, EmbedColor.fromString(string).mapList());
+                EmbedColor color = EmbedColor.fromString(string);
+                assert color != null : "Cannot be null due to filter on where";
+                map.put(discordId, color.mapList());
             }
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1323,15 +1335,22 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
-    public Set<Long> getUserWithColorRole(Connection connection) {
-        Set<Long> map = new HashSet<>();
-        String queryString = "select discord_id  from user where  color = 'ROLE'";
+    public Map<Long, EmbedColor.EmbedColorType> getUserColorTypes(Connection connection) {
+        Map<Long, EmbedColor.EmbedColorType> map = new HashMap<>();
+        String queryString = "select discord_id,color   from user where color is not null";
+        return parseColorType(connection, map, queryString);
+    }
+
+    private Map<Long, EmbedColor.EmbedColorType> parseColorType(Connection connection, Map<Long, EmbedColor.EmbedColorType> map, String queryString) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                long color = resultSet.getLong(1);
-                map.add(color);
+                long discordId = resultSet.getLong(1);
+                String embedColor = resultSet.getString(2);
+                EmbedColor color = EmbedColor.fromString(embedColor);
+                assert color != null : "Cannot be null due to filter on where";
+                map.put(discordId, color.type());
             }
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1340,20 +1359,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
-    public Set<Long> getGuildWithColorRole(Connection connection) {
-        Set<Long> map = new HashSet<>();
-        String queryString = "select guild_id  from guild where  color = 'ROLE'";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            int i = 1;
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                long color = resultSet.getLong(1);
-                map.add(color);
-            }
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
-        return map;
+    public Map<Long, EmbedColor.EmbedColorType> getServerColorTypes(Connection connection) {
+        Map<Long, EmbedColor.EmbedColorType> map = new HashMap<>();
+        String queryString = "select guild_id,color  from guild where color is not null";
+        return parseColorType(connection, map, queryString);
     }
 
     @Override
