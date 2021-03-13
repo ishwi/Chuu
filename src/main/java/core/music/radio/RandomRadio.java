@@ -58,11 +58,11 @@ public class RandomRadio implements RadioSource {
             } else {
                 randomUrl = Chuu.getDao().getRandomUrl();
             }
-        } while (randomUrl.getUrl().startsWith("https://www.youtube.com") && youtubeSkipAttemps <= 5);
+        } while (randomUrl.url().startsWith("https://www.youtube.com") && youtubeSkipAttemps <= 5);
 
         var future = new CompletableFuture<AudioTrack>();
 
-        Chuu.playerManager.loadItemOrdered(this, randomUrl.getUrl(), new AudioLoadResultHandler() {
+        Chuu.playerManager.loadItemOrdered(this, randomUrl.url(), new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
                 track.setUserData(context);

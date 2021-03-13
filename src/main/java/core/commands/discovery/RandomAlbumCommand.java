@@ -60,9 +60,9 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
                 return;
             }
             String ownerRec = null;// getUserString(e, randomUrl.getDiscordId());
-            if (randomUrl.getDiscordId() != null && randomUrl.getDiscordId() != e.getJDA().getSelfUser().getIdLong()) {
+            if (randomUrl.discordId() != null && randomUrl.discordId() != e.getJDA().getSelfUser().getIdLong()) {
                 try {
-                    LastFMData lastFMData = db.findLastFMData(randomUrl.getDiscordId());
+                    LastFMData lastFMData = db.findLastFMData(randomUrl.discordId());
                     PrivacyMode privacyMode = lastFMData.getPrivacyMode();
                     ownerRec = switch (privacyMode) {
                         case STRICT -> "Private User";
@@ -77,7 +77,7 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
             if (ownerRec == null) {
                 ownerRec = e.getJDA().getSelfUser().getName();
             }
-            String sb = String.format("%s, here's your random recommendation%n**Posted by:** %s%n**Link:** %s", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()), ownerRec, randomUrl.getUrl());
+            String sb = String.format("%s, here's your random recommendation%n**Posted by:** %s%n**Link:** %s", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()), ownerRec, randomUrl.url());
             e.getChannel().sendMessage(sb).queue();
             return;
         }

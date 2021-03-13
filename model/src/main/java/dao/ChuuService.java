@@ -861,6 +861,15 @@ public class ChuuService {
         }
     }
 
+    public @Nullable
+    RandomUrlDetails findRandomUrlDetails(String url) {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.randomUrlDetails(connection, url);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public boolean randomUrlExists(String url) {
         try (Connection connection = dataSource.getConnection()) {
             return (updaterDao.findRandomUrlById(connection, url) != null);
@@ -872,9 +881,9 @@ public class ChuuService {
     public boolean addToRandomPool(RandomUrlEntity randomUrlEntity) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-            if (updaterDao.findRandomUrlById(connection, randomUrlEntity.getUrl()) == null) {
-                updaterDao.insertRandomUrl(connection, randomUrlEntity.getUrl(), randomUrlEntity
-                        .getDiscordId(), randomUrlEntity.getGuildId());
+            if (updaterDao.findRandomUrlById(connection, randomUrlEntity.url()) == null) {
+                updaterDao.insertRandomUrl(connection, randomUrlEntity.url(), randomUrlEntity
+                        .discordId(), randomUrlEntity.guildId());
                 return true;
             }
             return false;

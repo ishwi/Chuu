@@ -51,6 +51,8 @@ interface UpdaterDao {
 
     RandomUrlEntity findRandomUrlById(Connection con, String url);
 
+    RandomUrlDetails randomUrlDetails(Connection con, String urlQ);
+
     void insertAlbumCrown(Connection connection, long artistId, String album, long discordID, long guildId, int plays);
 
     Map<Long, Character> getGuildPrefixes(Connection connection, char defaultPrefix);

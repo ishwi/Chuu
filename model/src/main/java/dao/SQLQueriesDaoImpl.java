@@ -2327,11 +2327,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public List<ScoredAlbumRatings> getUserTopRatedUrlsByEveryoneElse(Connection connection, long discordId) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
 
-        String s = "select *  from (select  count(*) as  coun,  avg(rating) as ave, a.url " +
+        String s = "select *  from (select  count(a.discord_id) as  coun,  avg(rating) as ave, b.url " +
                 "from random_links_ratings a " +
-                "join randomlinks b on a.url = b.url  " +
+                "right join randomlinks b on a.url = b.url  " +
                 " where b.discord_id = ? " +
-                "group by a.url) main " +
+                "group by b.url) main " +
                 "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, discordId);

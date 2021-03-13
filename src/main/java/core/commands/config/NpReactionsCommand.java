@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -31,6 +33,7 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
     public Parser<EmotiParameters> initParser() {
         EmojeParser emojeParser = new EmojeParser();
         emojeParser.addOptional(new OptionalEntity("check", "check the current reactions"));
+        emojeParser.addOptional(new OptionalEntity("append", "add emotes to the currently existing list"));
         return emojeParser;
     }
 
@@ -51,6 +54,8 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
 
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull EmotiParameters params) {
+        boolean append = params.hasOptional("append");
+
         if (params.hasOptional("check")) {
             List<String> serverReactions = db.getUserReacts(e.getAuthor().getIdLong());
             if (serverReactions.isEmpty()) {
@@ -80,14 +85,38 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
             if (content.isEmpty()) {
                 sendMessageQueue(e, "Didn't add any reaction.");
             } else {
-                db.insertUserReactions(e.getAuthor().getIdLong(), content);
-                sendMessageQueue(e, "Will set the following reactions: " + content.stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" ")));
+                List<String> toAdd;
+                if (append) {
+                    toAdd = db.getUserReacts(e.getAuthor().getIdLong());
+
+                    toAdd.addAll(content);
+                    toAdd = new ArrayList<>(new LinkedHashSet<>(toAdd));
+                } else {
+                    toAdd = content;
+                }
+                db.insertUserReactions(e.getAuthor().getIdLong(), toAdd);
+                sendMessageQueue(e, "Will %s the following reactions: %s".formatted(
+                        (append ? "add" : "set"),
+                        content.stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" "))));
             }
         } else {
             if (params.hasEmojis()) {
+
+                List<String> toAdd;
+                if (append) {
+                    toAdd = db.getUserReacts(e.getAuthor().getIdLong());
+                    toAdd.addAll(params.getEmojis());
+                    toAdd = new ArrayList<>(new LinkedHashSet<>(toAdd));
+
+                } else {
+                    toAdd = params.getEmojis();
+                }
+
+                db.insertUserReactions(e.getAuthor().getIdLong(), toAdd);
                 String collect = params.getEmojis().stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" "));
-                sendMessageQueue(e, "Will set the following reactions: " + String.join(" ", collect));
-                db.insertUserReactions(e.getAuthor().getIdLong(), params.getEmojis());
+                sendMessageQueue(e, "Will %s the following reactions: %s".formatted(
+                        (append ? "add" : "set")
+                        , String.join(" ", collect)));
             }
         }
     }

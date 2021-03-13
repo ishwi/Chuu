@@ -457,6 +457,47 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
+    public @Nullable
+    RandomUrlDetails randomUrlDetails(Connection con, String urlQ) {
+        @Language("MariaDB") String queryString = "SELECT (select avg(rating) from random_links_ratings where url = main.url), (select count(*) from random_links_ratings where url = main.url), main.discord_id,b.discord_id," +
+                "b.rating,coalesce(privacy_mode,'NORMAL'),lastfm_id " +
+                "FROM randomlinks main left join random_links_ratings b on main.url = b.url left join user c on b.discord_id = c.discord_id " +
+                "WHERE main.url = ?";
+        RandomUrlDetails randomUrlDetails = null;
+        List<RandomRating> a = new ArrayList<>();
+        double average = 0;
+        long count = 0;
+        long discordID = 0;
+        boolean init = false;
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+            /* Fill "preparedStatement". */
+            preparedStatement.setString(1, urlQ);
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                init = true;
+
+                average = resultSet.getDouble(1);
+                count = resultSet.getLong(2);
+                discordID = resultSet.getLong(3);
+                long rater = resultSet.getLong(4);
+                byte rating = resultSet.getByte(5);
+                PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(6));
+                String lastfm_id = resultSet.getString(7);
+                if (lastfm_id != null) {
+                    a.add(new RandomRating(rater, rating, privacyMode, lastfm_id));
+                }
+            }
+            if (init) {
+                return new RandomUrlDetails(urlQ, discordID, average, count, a);
+            }
+            return null;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public void insertAlbumCrown(Connection connection, long artistId, String album, long discordID,
                                  long guildId,
                                  int plays) {

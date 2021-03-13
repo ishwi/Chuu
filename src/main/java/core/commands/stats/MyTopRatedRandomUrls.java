@@ -25,12 +25,22 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
     }
 
     static void RandomUrlDisplay(MessageReceivedEvent e, List<ScoredAlbumRatings> ratings, String title, String url) {
-        List<String> list = ratings.stream().map(x ->
-                ". ***[" + x.getUrl()
-                        +
-                        "](" + x.getUrl() +
-                        ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", ScoredAlbumRatings.formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
-                        "\n").collect(Collectors.toList());
+        List<String> list = ratings.stream().map(x -> {
+            String average;
+            String count;
+            if (x.getNumberOfRatings() == 0) {
+                average = "-";
+                count = "-";
+            } else {
+                average = ScoredAlbumRatings.formatter.format(x.getAverage() / 2f);
+                count = String.valueOf(x.getNumberOfRatings());
+            }
+            return ". ***[" + x.getUrl()
+                    +
+                    "](" + x.getUrl() +
+                    ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%s**", average, count) +
+                    "\n";
+        }).collect(Collectors.toList());
         StringBuilder a = new StringBuilder();
         for (
                 int i = 0;
@@ -79,6 +89,11 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
 
         long idLong = e.getAuthor().getIdLong();
         List<ScoredAlbumRatings> ratings = db.getUserTopRatedUrlsByEveryoneElse(idLong);
+        if (ratings.isEmpty()) {
+            sendMessageQueue(e, "Your random urls are yet to be rated :pensive:");
+            return;
+
+        }
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), idLong);
         String title = userInfoConsideringGuildOrNot.getUsername();
         String url = userInfoConsideringGuildOrNot.getUrlImage();

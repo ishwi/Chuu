@@ -249,7 +249,7 @@ public class CommandUtil {
         return "https://www.last.fm/user/" + encodeUrl(Chuu.getLastFmId(username));
     }
 
-    public static String singlePlural(int count, String singular, String plural) {
+    public static String singlePlural(long count, String singular, String plural) {
         return count == 1 ? singular : plural;
     }
 

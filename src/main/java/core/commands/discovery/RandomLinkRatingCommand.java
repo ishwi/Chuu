@@ -75,12 +75,12 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
             sendMessageQueue(e, "The given url was not in the pool therefore it cannot be rated. You might also consider adding it using the " + messagePrefix + "random .");
             return;
         }
-        if (randomUrl.getDiscordId().equals(e.getAuthor().getIdLong())) {
+        if (randomUrl.discordId().equals(e.getAuthor().getIdLong())) {
             sendMessageQueue(e, "You submitted this url so you are not allowed to rate it");
             return;
         }
         db.addUrlRating(e.getAuthor().getIdLong(), Math.toIntExact(rating), url);
-        Long discordId = randomUrl.getDiscordId();
+        Long discordId = randomUrl.discordId();
         try {
             LastFMData lastFMData = db.findLastFMData(discordId);
             if (lastFMData.isImageNotify()) {
