@@ -1,7 +1,7 @@
 package core.imagerenderer.util.fitter;
 
-import core.Chuu;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
 import java.awt.font.TextAttribute;
@@ -36,6 +36,9 @@ public class StringFitter {
     }
 
     public FontMetadata getFontMetadata(Graphics2D g, String test, int containerOverride) {
+        if (StringUtils.isBlank(test)) {
+            return new FontMetadata(new AttributedString(test), new Rectangle(0, 0), baseFont);
+        }
         AttributedString result = new AttributedString(test);
         int length = test.length();
         int i = baseFont.canDisplayUpTo(test);
@@ -124,12 +127,7 @@ public class StringFitter {
         maxFont = maxFont.deriveFont(fontStyle, sizeFont);
         g.getFontMetrics(maxFont).getStringBounds(test, g);
         for (StringAtrributes t : temp) {
-            try {
-                result.addAttribute(TextAttribute.FONT, t.font.deriveFont(fontStyle, sizeFont), t.begginging, t.end);
-            } catch (IllegalArgumentException e) {
-                Chuu.getLogger().warn("TIRANDO EXCEPTION FITTER con String: -> {} | fuente -> {} | int -> {} | end -> {}", test, t.font, t.begginging, t.end);
-                throw e;
-            }
+            result.addAttribute(TextAttribute.FONT, t.font.deriveFont(fontStyle, sizeFont), t.begginging, t.end);
         }
         Rectangle2D bounds = g.getFontMetrics(maxFont).getStringBounds(test, g);
         if (i == 0) {
