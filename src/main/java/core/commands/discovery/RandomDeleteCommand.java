@@ -68,7 +68,7 @@ public class RandomDeleteCommand extends ConcurrentCommand<UrlParameters> {
                 return;
             }
         }
-        db.truncateRandomPool();
+        db.deleteRandomUrl(url);
         sendMessageQueue(e, "Deleted the url <%s>".formatted(randomUrl.url()));
 
     }
