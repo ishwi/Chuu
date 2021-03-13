@@ -115,7 +115,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                 } catch (LastFMNoPlaysException ex) {
                     db.updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
                             (int) (Instant.now().getEpochSecond() + 4000));
-                    int timestamp = userUpdateStatus.getTimestampControl();
+                    int timestamp = userUpdateStatus.getTimestamp();
                     Instant instant = Instant.ofEpochSecond(timestamp);
                     long epochSecond = Instant.now().getEpochSecond();
                     String s = Duration.ofSeconds(epochSecond - timestamp).toString()
