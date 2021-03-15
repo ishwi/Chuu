@@ -115,7 +115,10 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         }
 
         List<PreComputedChartEntity> collect = temp.parallelStream().map(x -> {
-            BufferedImage image = GraphicUtils.getImage(x.getUrl());
+
+            String cover = Chuu.getCoverService().getCover(x.getArtistName(), x.getAlbumName(), x.getUrl(), param.getE());
+            x.setUrl(cover);
+            BufferedImage image = GraphicUtils.getImage(cover);
             if (param.isColor()) {
                 return new PreComputedByColor(x, image, inverted);
             } else {

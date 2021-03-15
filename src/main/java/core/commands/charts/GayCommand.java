@@ -1,5 +1,6 @@
 package core.commands.charts;
 
+import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.entities.chartentities.*;
@@ -128,7 +129,9 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
         Function<UrlCapsule, PreComputedChartEntity> factoryFunction =
                 (capsule) ->
                 {
-                    BufferedImage image = GraphicUtils.getImage(capsule.getUrl());
+                    String cover = Chuu.getCoverService().getCover(capsule.getArtistName(), capsule.getAlbumName(), capsule.getUrl(), params.getE());
+                    capsule.setUrl(cover);
+                    BufferedImage image = GraphicUtils.getImage(cover);
                     PreComputedChartEntity.ImageComparison comparison = PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT_PALETTE;
                     return new PreComputedByGayness(capsule, image, true, comparison);
                 };
