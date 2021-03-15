@@ -252,19 +252,17 @@ public class NPModeBuilder {
                         if (npModes.contains(NPMode.PREVIOUS)) {
                             try {
                                 NowPlayingArtist recent = lastFM.getRecent(lastFMName, 2).get(1);
-                                String album;
+                                String album = CommandUtil.cleanMarkdownCharacter(recent.getAlbumName());
                                 String artist = CommandUtil.cleanMarkdownCharacter(recent.getArtistName());
                                 String song = CommandUtil.cleanMarkdownCharacter(recent.getSongName());
                                 if (npModes.contains(NPMode.SPOTIFY_LINK)) {
-                                    String uri = spotifyApi.searchItems(np.getSongName(), np.getArtistName(), np.getAlbumName());
+                                    String uri = spotifyApi.searchItems(recent.getSongName(), recent.getArtistName(), recent.getAlbumName());
                                     if (!uri.isBlank())
-                                        song = "[\t<:spochuu:776799107737976863> " + EmbedBuilder.ZERO_WIDTH_SPACE + " " + song + "](" + uri + ")";
+                                        song = "<:spochuu:776799107737976863>\t %s [%s](%s)".formatted(EmbedBuilder.ZERO_WIDTH_SPACE, song, uri);
                                 }
                                 if (npModes.contains(NPMode.RYM_LINK)) {
                                     String url = rymSearch.searchUrl(recent.getArtistName(), recent.getAlbumName());
-                                    album = "[\t<:rym:820111349690531850> " + EmbedBuilder.ZERO_WIDTH_SPACE + " " + CommandUtil.cleanMarkdownCharacter(recent.getAlbumName()) + "](" + url + ")";
-                                } else {
-                                    album = CommandUtil.cleanMarkdownCharacter(np.getAlbumName());
+                                    album = "\t<:rym:820111349690531850> %s [%s](%s)".formatted(EmbedBuilder.ZERO_WIDTH_SPACE, album, url);
                                 }
 
                                 String t = "**" + artist +
@@ -285,8 +283,7 @@ public class NPModeBuilder {
                             String a = "**" + CommandUtil.cleanMarkdownCharacter(np.getArtistName()) +
                                     "** | " + CommandUtil.cleanMarkdownCharacter(np.getAlbumName());
 
-                            String b = "**" + CommandUtil.cleanMarkdownCharacter(np.getArtistName()) +
-                                    "** | [\t<:rym:820111349690531850> " + EmbedBuilder.ZERO_WIDTH_SPACE + " " + CommandUtil.cleanMarkdownCharacter(np.getAlbumName()) + "](" + url + ")";
+                            String b = "**%s** | \t<:rym:820111349690531850> %s [%s](%s)".formatted(CommandUtil.cleanMarkdownCharacter(np.getArtistName()), EmbedBuilder.ZERO_WIDTH_SPACE, CommandUtil.cleanMarkdownCharacter(np.getAlbumName()), url);
                             embedBuilder.setDescription(StringUtils.replaceOnceIgnoreCase(embedBuilder.build().getDescription(), a, b));
                         }
 
