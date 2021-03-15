@@ -73,7 +73,7 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
     protected void setUpErrorMessages() {
         super.setUpErrorMessages();
         errorMessages.put(5, "You Introduced too many words");
-        errorMessages.put(6, "Chart size must be above 1 and below 225(15x15)!");
+        errorMessages.put(6, "Chart size must be above 1 and below 400(20x20)!");
     }
 
 }
