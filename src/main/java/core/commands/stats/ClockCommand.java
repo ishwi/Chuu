@@ -14,6 +14,7 @@ import dao.entities.UpdaterUserWrapper;
 import dao.entities.Week;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
@@ -79,7 +80,9 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
             parser.sendError("Unknown error happened while creating the clock", e);
             return;
         }
-        if (bytes.length < e.getGuild().getMaxFileSize()) {
+        long maxSize = e.isFromGuild() ? e.getGuild().getMaxFileSize() : Message.MAX_FILE_SIZE;
+
+        if (bytes.length < maxSize) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setImage("attachment://cat.gif").setDescription("");
             e.getChannel().sendFile(bytes, "cat.gif").embed(embed.build()).queue();

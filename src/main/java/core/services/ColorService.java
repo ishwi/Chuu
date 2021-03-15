@@ -1,5 +1,6 @@
 package core.services;
 
+import core.Chuu;
 import core.commands.utils.CommandUtil;
 import dao.ChuuService;
 import dao.entities.EmbedColor;
@@ -79,6 +80,10 @@ public class ColorService {
 
             case COLOURS -> {
                 Color[] byColor = map.get(e.getAuthor().getIdLong());
+                if (byColor == null) {
+                    Chuu.getLogger().warn("Null colours on {} by {} on {}", map, e.getAuthor(), e.getChannel());
+                    yield null;
+                }
                 yield byColor[CommandUtil.rand.nextInt(byColor.length)];
             }
         };
@@ -110,14 +115,14 @@ public class ColorService {
         switch (type) {
             case RANDOM -> {
                 colorMap.remove(id);
-                typeMap.replace(id, EmbedColor.EmbedColorType.RANDOM);
+                typeMap.put(id, EmbedColor.EmbedColorType.RANDOM);
             }
             case ROLE -> {
-                typeMap.replace(id, EmbedColor.EmbedColorType.ROLE);
+                typeMap.put(id, EmbedColor.EmbedColorType.ROLE);
                 colorMap.remove(id);
             }
             case COLOURS -> {
-                typeMap.replace(id, EmbedColor.EmbedColorType.COLOURS);
+                typeMap.put(id, EmbedColor.EmbedColorType.COLOURS);
                 colorMap.put(id, newEmbedColor.mapList());
             }
         }

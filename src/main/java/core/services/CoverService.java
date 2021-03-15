@@ -13,7 +13,6 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -68,7 +67,9 @@ public class CoverService {
         if (altCover.isEmpty()) {
             return replacement;
         }
-        return Optional.ofNullable(altCover.get(CommandUtil.rand.nextInt(altCover.size()))).orElse(replacement);
+        String value = altCover.get(CommandUtil.rand.nextInt(altCover.size()));
+        if (value != null) return value;
+        return replacement;
     }
 
     public String getCover(String artist, String album, String replacement, MessageReceivedEvent e) {
