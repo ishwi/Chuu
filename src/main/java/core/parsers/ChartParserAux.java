@@ -23,13 +23,13 @@ import static core.parsers.Parser.filterMessage;
 
 public class ChartParserAux {
     public static final Pattern chartSizePattern = Pattern.compile("\\d+[xX]\\d+");
-    private static final Pattern pattern = Pattern.compile("(:?[yqsmwad]|(:?(:?day|daily)?)|(:?year(:?ly)?|month(:?ly)?|quarter(:?ly)?|semester(:?ly)?|week(:?ly)?|alltime|all))");
+    private static final Pattern pattern = Pattern.compile("(:?[yqsmwad]|(:?(:?day|daily)?)|(:?year(:?ly)?|month(:?ly)?|quarter(:?ly)?|semester(:?ly)?|week(:?ly)?|alltime|all))", Pattern.CASE_INSENSITIVE);
     private static final Pattern naturalPattern = Pattern.compile("(:?[yqsmwadh']|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(:?ly)?(:?lies)?|day(:?s)?|" +
-            "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))");
+            "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern naturalPatternWithCount = Pattern.compile("(:?(?<![\\w\\d])[yqsmwadh'](?![\\w\\d]+)|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(:?ly)?(:?lies)?|day(:?s)?|" +
-            "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))");
-    private static final Pattern nonPermissivePattern = Pattern.compile("[yqsmwd]");
+            "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))", Pattern.CASE_INSENSITIVE);
+    private static final Pattern nonPermissivePattern = Pattern.compile("[yqsmwd]", Pattern.CASE_INSENSITIVE);
     private final boolean permissive;
     private String[] message;
 

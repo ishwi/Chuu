@@ -79,21 +79,21 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         boolean showFresh = !params.hasOptional("recent");
 
         List<UsersWrapper> list = db.getAll(e.getGuild().getIdLong());
-        LocalDateTime cooldown = serverControlAccess.getIfPresent(e.getGuild().getIdLong());
-        if (cooldown != null) {
-            format(e, cooldown, "This command has a 3 min cooldown ");
+        LocalDateTime cooldown;
+        if (list.size() > 66) {
+            LocalDateTime ifPresent = controlAccess.getIfPresent(e.getGuild().getIdLong());
+            if (ifPresent != null) {
+                format(e, ifPresent, "This server has too many users, so the playing command can only be executed twice per day ");
+                return;
+            }
+            controlAccess.refresh(e.getGuild().getIdLong());
+        } else if ((cooldown = serverControlAccess.getIfPresent(e.getGuild().getIdLong())) != null) {
+            format(e, cooldown, "This command has a 3 min cooldown between uses. ");
             return;
         } else {
             serverControlAccess.refresh(e.getGuild().getIdLong());
         }
-        if (list.size() > 50) {
-            LocalDateTime ifPresent = controlAccess.getIfPresent(e.getGuild().getIdLong());
-            if (ifPresent != null) {
-                format(e, ifPresent, "This server has too many users, so the playing command can only be executed twice per day ");
-            } else {
-                controlAccess.refresh(e.getGuild().getIdLong());
-            }
-        }
+
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setTitle(

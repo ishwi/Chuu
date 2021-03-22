@@ -129,7 +129,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         if (!doAlbums) {
             List<ArtistInfo> artistInfos;
             if (timeframe == TimeFrameEnum.ALL && !mb) {
-                artistInfos = db.getAllUserArtist(user.getDiscordId()).stream().map(t -> new ArtistInfo(t.getUrl(), t.getArtist(), t.getUrl())).toList();
+                artistInfos = db.getAllUserArtist(user.getDiscordId()).stream().map(t -> new ArtistInfo(t.getUrl(), t.getArtist(), t.getArtistMbid())).toList();
             } else {
                 artistInfos = lastFM.getTopArtists(user, CustomTimeFrame.ofTimeFrameEnum(timeframe), 3000);
             }

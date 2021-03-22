@@ -208,9 +208,9 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 b = Boolean.parseBoolean(value);
                 db.setShowBotted(e.getAuthor().getIdLong(), b);
                 if (b) {
-                    sendMessageQueue(e, "Will show botted acounts on the global leadearboard");
+                    sendMessageQueue(e, "Will show botted accounts on the global leaderboard");
                 } else {
-                    sendMessageQueue(e, "Won't show botted acounts on the global leadearboard");
+                    sendMessageQueue(e, "Won't show botted accounts on the global leaderboard");
                 }
                 break;
             case NP:

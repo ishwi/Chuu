@@ -273,7 +273,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public List<ScrobbledArtist> getAllUsersArtist(Connection connection, long discordId) {
         List<ScrobbledArtist> scrobbledArtists = new ArrayList<>();
         String queryString = " Select * from scrobbled_artist a join artist b on a.artist_id = b.id join user" +
-                " c on a.lastfm_id = c.lastfm_id where c.lastfmid = ? order by a.plays desc";
+                " c on a.lastfm_id = c.lastfm_id where c.discord_id = ? order by a.playnumber desc";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, discordId);
@@ -282,9 +282,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
             while (resultSet.next()) {
                 String artistName = resultSet.getString("b.name");
+                String mbid = resultSet.getString("b.mbid");
                 String artistUrl = resultSet.getString("b.url");
-                int plays = resultSet.getInt("a.playNumber");
+                int plays = resultSet.getInt("a.playnumber");
                 ScrobbledArtist e = new ScrobbledArtist(null, artistName, plays);
+                e.setArtistMbid(mbid);
                 e.setUrl(artistUrl);
                 scrobbledArtists.add(e);
             }

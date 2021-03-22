@@ -41,7 +41,10 @@ abstract class TagService<T extends EntityInfo, Y extends ScrobbledArtist> imple
         Map<Genre, List<Y>> validatedEntities = this.genres.entrySet().stream()
                 .filter(x -> !bannedTags.contains(x.getKey().getGenreName().toLowerCase()))
                 .filter(x -> x.getValue().stream().noneMatch(a -> artistBannedTags.contains(Pair.of(a.getArtist().toLowerCase(), x.getKey().getGenreName().toLowerCase()))))
-                .collect(Collectors.toMap(Map.Entry::getKey, k -> k.getValue().stream().map(validate::get).collect(Collectors.toList())));
+                .collect(Collectors.toMap(Map.Entry::getKey, k -> k.getValue().stream().map(validate::get).collect(Collectors.toList()), (f, s) -> {
+                    f.addAll(s);
+                    return f;
+                }));
         insertGenres(validatedEntities);
     }
 
