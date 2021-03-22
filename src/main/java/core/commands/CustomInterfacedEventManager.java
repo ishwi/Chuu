@@ -38,7 +38,7 @@ public class CustomInterfacedEventManager implements IEventManager {
 
     private final Set<EventListener> otherListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, MyCommand<?>> commandListeners = new HashMap<>();
-    private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new HashMap<>();
+    private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new ConcurrentHashMap<>();
     private AdministrativeCommand administrativeCommand;
     private VoiceListener voiceListener;
 

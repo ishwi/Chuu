@@ -94,7 +94,7 @@ public abstract class TracklistService {
                         Optional<Track> max = value.stream().max(Comparator.comparingInt(Track::getPlays));
                         return max.orElse(null);
                     }).filter(Objects::nonNull).sorted(Comparator.comparingInt(Track::getPosition))
-                    .toList();
+                    .collect(Collectors.toList());
             if (trackList.stream().mapToInt(Track::getPlays).sum() <= collect.stream().mapToInt(Track::getPlays).sum()) {
                 fullAlbumEntity.setTrackList(collect);
             }

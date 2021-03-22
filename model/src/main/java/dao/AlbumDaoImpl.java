@@ -271,7 +271,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
         String s = "select b.album_name,c.name,b.url,b.mbid,a.playnumber  from scrobbled_album a join album b on a.album_id = b.id join artist c on a.artist_id = c.id  where a.lastfm_id = ? and b.release_year is null order by a.playnumber desc limit ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setString(1, username);
-            preparedStatement.setInt(1, limit);
+            preparedStatement.setInt(2, limit);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 String album = resultSet.getString(1);
