@@ -310,12 +310,11 @@ public class MMCQ {
 
             // do the cut
             VBox[] vboxes = medianCutApply(histo, vbox);
-            VBox vbox1 = vboxes[0];
-            VBox vbox2 = vboxes[1];
-
-            if (vbox1 == null) {
+            VBox vbox1;
+            if (vboxes == null || (vbox1 = vboxes[0]) == null) {
                 throw new RuntimeException("vbox1 not defined; shouldn't happen!");
             }
+            VBox vbox2 = vboxes[1];
 
             lh.add(vbox1);
             if (vbox2 != null) {

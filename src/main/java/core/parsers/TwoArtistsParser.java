@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TwoArtistsParser extends Parser<TwoArtistParams> {
-    private static final Pattern twoArtists = Pattern.compile("(.+) (?:to:)(.+)");
+    private static final Pattern twoArtists = Pattern.compile("(.+) to:(.+)");
 
     @Override
     protected void setUpErrorMessages() {

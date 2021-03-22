@@ -47,13 +47,17 @@ public class GraphicUtils {
     public static final Font[] palletes = new Font[]{JAPANESE_FIRST, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT, THAI_FONT};
 
     static {
-        try (InputStream in = GraphicUtils.class.getResourceAsStream("/" + "all.properties")) {
+        try (InputStream in = GraphicUtils.class.getResourceAsStream("/" + "all.properties");
+             InputStream in2 = WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png")) {
+            if (in == null || in2 == null) {
+                throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
+            }
             Properties properties = new Properties();
             properties.load(in);
             String cache_folder = properties.getProperty("CACHE_FOLDER");
             CacheDirectory = new File(cache_folder);
             assert CacheDirectory.isDirectory();
-            noArtistImage = ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png"));
+            noArtistImage = ImageIO.read(in2);
         } catch (IOException e) {
             throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
         }

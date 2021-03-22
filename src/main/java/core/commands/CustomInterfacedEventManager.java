@@ -5,6 +5,7 @@ import core.Chuu;
 import core.commands.abstracts.MyCommand;
 import core.commands.moderation.AdministrativeCommand;
 import core.music.listeners.VoiceListener;
+import core.otherlisteners.AwaitReady;
 import core.otherlisteners.ReactionListener;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -22,15 +23,20 @@ import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.internal.JDAImpl;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("UnstableApiUsage")
 public class CustomInterfacedEventManager implements IEventManager {
 
-    private final Set<EventListener> listeners = ConcurrentHashMap.newKeySet();
+    private final Set<EventListener> otherListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, MyCommand<?>> commandListeners = new HashMap<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new HashMap<>();
     private AdministrativeCommand administrativeCommand;
@@ -64,12 +70,13 @@ public class CustomInterfacedEventManager implements IEventManager {
             long activeSeconds = reactionListener.getActiveSeconds();
             ScheduledFuture<?> schedule = Chuu.getScheduledExecutorService().schedule((() -> {
                 reactionaries.remove(reactionListener);
-                listeners.remove(listener);
                 reactionListener.dispose();
             }), activeSeconds, TimeUnit.SECONDS);
             reactionaries.put(reactionListener, schedule);
         }
-        listeners.add(((EventListener) listener));
+        if (listener instanceof AwaitReady) {
+            otherListeners.add((EventListener) listener);
+        }
     }
 
     @Override
@@ -79,15 +86,15 @@ public class CustomInterfacedEventManager implements IEventManager {
             for (String alias : aliases) {
                 commandListeners.remove(alias);
             }
-        }
-        if (listener instanceof ReactionListener reactionListener) {
+        } else if (listener instanceof ReactionListener reactionListener) {
             ScheduledFuture<?> scheduledFuture = this.reactionaries.remove(reactionListener);
             if (scheduledFuture != null) {
                 scheduledFuture.cancel(true);
                 reactionListener.dispose();
             }
+        } else if (listener instanceof AwaitReady) {
+            otherListeners.remove(listener);
         }
-        listeners.remove(listener);
     }
 
     /**
@@ -138,10 +145,10 @@ public class CustomInterfacedEventManager implements IEventManager {
 
         } else if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {
             administrativeCommand.onEvent(event);
-        } else if (event instanceof MessageReactionAddEvent || event instanceof ReadyEvent) {
-            for (EventListener listener : listeners) {
+        } else if (event instanceof MessageReactionAddEvent e3) {
+            for (ReactionListener listener : reactionaries.keySet()) {
                 try {
-                    listener.onEvent(event);
+                    listener.onMessageReactionAdd(e3);
                 } catch (Throwable throwable) {
                     JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
                 }
@@ -152,13 +159,21 @@ public class CustomInterfacedEventManager implements IEventManager {
             } catch (Throwable throwable) {
                 JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
             }
+        } else if (event instanceof ReadyEvent) {
+            for (EventListener listener : otherListeners) {
+                try {
+                    listener.onEvent(event);
+                } catch (Throwable throwable) {
+                    JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
+                }
+            }
         }
     }
 
     @Nonnull
     @Override
     public List<Object> getRegisteredListeners() {
-        return Collections.unmodifiableList(new LinkedList<>(listeners));
+        return Stream.concat(commandListeners.values().stream().distinct().map(t -> (EventListener) t), Stream.concat(reactionaries.keySet().stream(), otherListeners.stream())).collect(Collectors.toList());
     }
 
     public void refreshReactionay(ReactionListener reactionListener, long seconds) {
@@ -166,7 +181,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         if (scheduledFuture != null && scheduledFuture.cancel(false)) {
             this.reactionaries.put(reactionListener, Chuu.getScheduledExecutorService().schedule((() -> {
                 reactionaries.remove(reactionListener);
-                listeners.remove(reactionListener);
+                otherListeners.remove(reactionListener);
                 reactionListener.dispose();
             }), seconds, TimeUnit.SECONDS));
         }

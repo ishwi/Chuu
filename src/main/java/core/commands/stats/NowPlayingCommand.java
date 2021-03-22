@@ -89,7 +89,7 @@ public class NowPlayingCommand extends NpCommand {
         List<String> outputList = new ArrayList<>();
         Arrays.fill(footerSpaces, null);
         if (npModes.contains(NPMode.RANDOM)) {
-            List<NPMode> allModes = EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).filter(x -> !x.equals(NPMode.RANDOM)).collect(Collectors.toList());
+            List<NPMode> allModes = EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).filter(x -> !x.equals(NPMode.RANDOM)).toList();
 
             npModes = EnumSet.copyOf(IntStream.range(0, CommandUtil.rand.nextInt(4) + 1).mapToObj(x -> allModes.get(CommandUtil.rand.nextInt(allModes.size()))).collect(Collectors.toSet()));
         }
@@ -181,7 +181,7 @@ public class NowPlayingCommand extends NpCommand {
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("np", "fm");
+        return Arrays.asList("np", "fm", "fmv");
     }
 
     @Override

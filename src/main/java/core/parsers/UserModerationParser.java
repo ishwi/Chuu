@@ -1,6 +1,5 @@
 package core.parsers;
 
-import core.exceptions.LastFmException;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -13,7 +12,7 @@ public class UserModerationParser extends DaoParser<ChuuDataParams> {
     }
 
     @Override
-    protected ChuuDataParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected ChuuDataParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
         if (words.length != 1) {
             sendError("Need a Discord Id or a lastfm name", e);
             return null;

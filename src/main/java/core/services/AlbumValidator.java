@@ -11,16 +11,9 @@ import dao.ChuuService;
 import dao.entities.ScrobbledAlbum;
 import dao.entities.ScrobbledArtist;
 
-public class AlbumValidator {
+public record AlbumValidator(ChuuService db, ConcurrentLastFM lastFM) {
     private static final DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
     private static final Spotify spotifyApi = SpotifySingleton.getInstance();
-    private final ChuuService db;
-    private final ConcurrentLastFM lastFM;
-
-    public AlbumValidator(ChuuService db, ConcurrentLastFM lastFM) {
-        this.db = db;
-        this.lastFM = lastFM;
-    }
 
     public ScrobbledAlbum validate(String artist, String album) throws LastFmException {
         ScrobbledArtist sa = new ScrobbledArtist(artist, 0, "");

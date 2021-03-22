@@ -5,8 +5,8 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.TrackDistributor;
-import core.imagerenderer.util.IPieableList;
-import core.imagerenderer.util.PieableListTrack;
+import core.imagerenderer.util.pie.IPieableList;
+import core.imagerenderer.util.pie.PieableListTrack;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.OptionalEntity;
@@ -31,7 +31,6 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
     private final IPieableList<Track, ArtistAlbumParameters> pie;
@@ -111,7 +110,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                     List<String> collect1 = fullAlbumEntity.getTrackList().stream().map(t -> ". " + "[" +
                             CommandUtil.cleanMarkdownCharacter(t.getName()) +
                             "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
-                            ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").collect(Collectors.toList());
+                            ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").toList();
                     for (int i = 0; i < fullAlbumEntity.getTrackList().size() && i <= 20; i++) {
                         String s = collect1.get(i);
                         a.append(i + 1).append(s);

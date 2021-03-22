@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.EnumSet;
 
 public class WhoKnowsMaker {
@@ -53,7 +54,6 @@ public class WhoKnowsMaker {
         yCounter += Y_MARGIN;
         BufferedImage backgroundImage;
         BufferedImage lastFmLogo = null;
-        BufferedImage guildLogo = null;
 
         Graphics2D g = canvas.createGraphics();
         GraphicUtils.setQuality(g);
@@ -62,14 +62,15 @@ public class WhoKnowsMaker {
             backgroundImage = GraphicUtils.noArtistImage;
         }
 
-        try {
 
-            lastFmLogo = ImageIO.read(WhoKnowsMaker.class
-                    .getResourceAsStream("/images/logo2.png"));
-            guildLogo = logo;
-
+        try (InputStream resourceAsStream = WhoKnowsMaker.class
+                .getResourceAsStream("/images/logo2.png")) {
+            if (resourceAsStream != null) {
+                lastFmLogo = ImageIO.read(resourceAsStream);
+            }
         } catch (IOException ignored) {
         }
+
 
         g.drawImage(backgroundImage, 0, 0, X_MAX, Y_MAX, 0, 0, backgroundImage.getWidth(), backgroundImage
                 .getHeight(), null);
@@ -111,8 +112,8 @@ public class WhoKnowsMaker {
         int xImageStarter = X_MARGIN + (320 - backgroundImage.getWidth()) / 2;
         int yImageStarter = yCounter + (320 - backgroundImage.getHeight()) / 2;
         g.drawImage(backgroundImage, xImageStarter, yImageStarter, null);
-        if (guildLogo != null)
-            g.drawImage(guildLogo, X_MARGIN + 320 + rectWidth - guildLogo.getWidth(), yCounter - 16 - guildLogo
+        if (logo != null)
+            g.drawImage(logo, X_MARGIN + 320 + rectWidth - logo.getWidth(), yCounter - 16 - logo
                     .getHeight(), null);
 
 //        if (modes.contains(WKMode.RANK)) {

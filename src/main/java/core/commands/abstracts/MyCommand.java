@@ -19,9 +19,10 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
@@ -35,7 +36,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
-public abstract class MyCommand<T extends CommandParameters> extends ListenerAdapter {
+public abstract class MyCommand<T extends CommandParameters> implements EventListener {
     public final ConcurrentLastFM lastFM;
     protected final ChuuService db;
     private final CommandCategory category;
@@ -73,10 +74,14 @@ public abstract class MyCommand<T extends CommandParameters> extends ListenerAda
 
     public abstract List<String> getAliases();
 
+    @Override
+    public void onEvent(@org.jetbrains.annotations.NotNull GenericEvent event) {
+        onMessageReceived((MessageReceivedEvent) event);
+    }
+
     /**
      * @param e Because we are using the {@link core.commands.CustomInterfacedEventManager CustomInterfacedEventManager} we know that this is the only OnMessageReceived event handled so we can skip the cheks
      */
-    @Override
     public void onMessageReceived(MessageReceivedEvent e) {
 
         e.getChannel().sendTyping().queue(unused -> {

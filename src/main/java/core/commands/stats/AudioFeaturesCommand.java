@@ -69,7 +69,7 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
         List<AudioFeatures> audioFeatures = spotify.getAudioFeatures(tracksWithId.stream().map(ScrobbledTrack::getSpotifyId).collect(Collectors.toSet()));
         CompletableFuture.runAsync(() -> {
             var audioFeaturesStream = audioFeatures.stream().map(t ->
-                    new dao.entities.AudioFeatures(t.getAcousticness(), t.getAnalysisUrl(), t.getDanceability(), t.getDurationMs(), t.getEnergy(), t.getId(), t.getInstrumentalness(), t.getKey(), t.getLiveness(), t.getLoudness(), t.getSpeechiness(), t.getTempo(), t.getTimeSignature(), t.getTrackHref(), t.getUri(), t.getValence())).collect(Collectors.toList());
+                    new dao.entities.AudioFeatures(t.getAcousticness(), t.getAnalysisUrl(), t.getDanceability(), t.getDurationMs(), t.getEnergy(), t.getId(), t.getInstrumentalness(), t.getKey(), t.getLiveness(), t.getLoudness(), t.getSpeechiness(), t.getTempo(), t.getTimeSignature(), t.getTrackHref(), t.getUri(), t.getValence())).toList();
             db.insertAudioFeatures(audioFeaturesStream);
         });
         Optional<AudioFeatures> reduce = audioFeatures.stream().reduce((a, b) -> {

@@ -1,6 +1,5 @@
 package core.parsers;
 
-import core.exceptions.LastFmException;
 import core.parsers.params.UserStringParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -22,7 +21,7 @@ public class UserStringParser extends DaoParser<UserStringParameters> {
     }
 
     @Override
-    protected UserStringParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected UserStringParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(words);
         User oneUser = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();

@@ -25,7 +25,6 @@ import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
@@ -49,7 +48,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
             return ". [" + CommandUtil.getUserInfoConsideringGuildOrNot(e, userListened.discordId()).getUsername() + "](" + PrivacyUtils.getLastFmUser(userListened.lastfmId()) + "): " + whem + "\n";
         };
 
-        List<Memoized<UserListened, String>> strings = firsts.stream().map(t -> new Memoized<>(t, toMemoize)).collect(Collectors.toList());
+        List<Memoized<UserListened, String>> strings = firsts.stream().map(t -> new Memoized<>(t, toMemoize)).toList();
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         StringBuilder builder = new StringBuilder();

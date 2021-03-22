@@ -7,7 +7,6 @@ import dao.ChuuService;
 import dao.entities.AlbumInfo;
 import dao.entities.Genre;
 import dao.entities.ScrobbledAlbum;
-import dao.entities.ScrobbledArtist;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -18,24 +17,18 @@ public class TagAlbumService extends TagService<AlbumInfo, ScrobbledAlbum> {
         super(dao, lastFM, genres);
     }
 
-    public TagAlbumService(ChuuService dao, ConcurrentLastFM lastFM, List<String> tags, AlbumInfo albumInfo) {
-        super(dao, lastFM, tags.stream()
-                .collect(Collectors.toMap((t) -> new Genre(t, null), t -> Collections.singletonList(albumInfo))));
-    }
 
     public TagAlbumService(ChuuService dao, ConcurrentLastFM lastFM, List<AlbumInfo> collect, String genre) {
         super(dao, lastFM, collect, genre);
     }
 
+    public TagAlbumService(ChuuService dao, ConcurrentLastFM lastFM, List<String> tags, AlbumInfo albumInfo) {
+        super(dao, lastFM, tags, albumInfo);
+    }
+
     @Override
     protected void insertGenres(Map<Genre, List<ScrobbledAlbum>> genres) {
         dao.insertAlbumTags(genres);
-        Map<Genre, List<ScrobbledArtist>> artist = genres.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().stream().map(t -> {
-            ScrobbledArtist scrobbledArtist = new ScrobbledArtist(t.getArtist(), 0, null);
-            scrobbledArtist.setArtistId(t.getArtistId());
-            return scrobbledArtist;
-        }).distinct().collect(Collectors.toList())));
-        dao.insertArtistTags(artist);
     }
 
     @Override

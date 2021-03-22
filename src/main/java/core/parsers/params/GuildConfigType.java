@@ -15,10 +15,10 @@ import java.util.stream.Stream;
 
 public enum GuildConfigType {
     CHART_MODE("chart"), CROWNS_THRESHOLD("crowns"),
-    ALLOW_NP_REACTIONS("np-reactions"),
+    ALLOW_NP_REACTIONS("nowPlayingInfo-reactions"),
     OVERRIDE_NP_REACTIONS("override-reactions"),
     OVERRIDE_COLOR("override-color"),
-    DELETE_MESSAGE("delete-message"), NP("np"), REMAINING_MODE("rest"), SHOW_DISABLED_WARNING("disabled-warning"),
+    DELETE_MESSAGE("delete-message"), NP("nowPlayingInfo"), REMAINING_MODE("rest"), SHOW_DISABLED_WARNING("disabled-warning"),
     COLOR("color"),
     WHOKNOWS_MODE("whoknows"),
 
@@ -174,13 +174,13 @@ public enum GuildConfigType {
             case OVERRIDE_NP_REACTIONS:
                 explanation = EnumSet.allOf(OverrideMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString().replaceAll("_", "-"), '-', ' ') + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 return "Whether you want the server reactions to override the users reactions, add to the user added or only use them when the user doesnt have any.\n"
-                        + "\t\tThe possible values for the override np mode are the following:" + explanation;
+                        + "\t\tThe possible values for the override nowPlayingInfo mode are the following:" + explanation;
             case DELETE_MESSAGE:
                 return "Whether you want the bot to delete the original message the user wrote.";
             case SHOW_DISABLED_WARNING:
                 return "Whether you want the bot to show a warning when you try to run a disabled command.";
             case NP:
-                return "Setting this will alter the appearance of this server np commands. You can select up to 10 different from the following list and mix them up:\n" + "CLEAR | " + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+                return "Setting this will alter the appearance of this server nowPlayingInfo commands. You can select up to 10 different from the following list and mix them up:\n" + "CLEAR | " + NPMode.getListedName(EnumSet.allOf(NPMode.class));
             case CENSOR_CONVERS:
                 return "Whether you want the bot to censor potentially nsfw album covers.";
             default:

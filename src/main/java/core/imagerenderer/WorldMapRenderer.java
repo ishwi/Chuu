@@ -114,6 +114,7 @@ public class WorldMapRenderer {
 
         initColours(palette, sb);
         initLegendText(range, doc, countryFrequency.size());
+        ArrayUtils.reverse(palette);
         countryFrequency.forEach(
                 (country, integer) -> {
                     String colorr = index(integer, range, palette);
@@ -166,11 +167,12 @@ public class WorldMapRenderer {
     }
 
     private static String index(int plays, Integer[] range, String[] pallete) {
-        int i = range.length - 1;
-        while (plays > range[i] && i > 0) {
-            i--;
+        int i = 0;
+
+        while (i < range.length && plays < range[i]) {
+            i++;
         }
-        return pallete[range.length - 1 - i];
+        return pallete[i];
 
     }
 
@@ -178,7 +180,7 @@ public class WorldMapRenderer {
         //Bottom to top
         Element elementById = doc.getElementById(textDescArray[0]);
         elementById.getFirstChild()
-                .setNodeValue("> " + range[0] + CommandUtil.singlePlural(range[0], " Artist", " Artists"));
+                .setNodeValue("> " + range[0] + CommandUtil.singlePlural(range[0], " artist", " artists"));
 
         for (int i = 1; i < textDescArray.length - 1; i++) {
             int previous = range[i - 1];
@@ -186,13 +188,13 @@ public class WorldMapRenderer {
 
             if (previous - 1 == range[i])
                 elementById.getFirstChild()
-                        .setNodeValue(range[i] + CommandUtil.singlePlural(range[i], " Artist", " Artists"));
+                        .setNodeValue(range[i] + CommandUtil.singlePlural(range[i], " artist", " artists"));
             else
                 elementById.getFirstChild().setNodeValue((range[i]) + "-" + (previous - 1) + CommandUtil
-                        .singlePlural(range[i], " Artist", " Artists"));
+                        .singlePlural(range[i], " artist", " artists"));
         }
         elementById = doc.getElementById(textDescArray[6]);
-        elementById.getFirstChild().setNodeValue("# Countries: " + totalCountries);
+        elementById.getFirstChild().setNodeValue("# countries: " + totalCountries);
 
     }
 

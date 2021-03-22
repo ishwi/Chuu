@@ -30,7 +30,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -180,7 +179,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
                             doListeners ? "Listeners" : "Scrobbles",
                             x.getListeners()
 
-                    )).collect(Collectors.toList());
+                    )).toList();
             StringBuilder a = new StringBuilder();
             for (int i = 0; i < 10 && i < artistAliases.size(); i++) {
                 a.append(i + 1).append(artistAliases.get(i));

@@ -160,9 +160,13 @@ interface SQLQueriesDao {
 
     Set<String> getBannedTags(Connection connection);
 
+    List<ScrobbledAlbum> getUserAlbumsWithTag(Connection connection, long discordId, String tag);
+
     List<AlbumInfo> getAlbumsWithTag(Connection connection, List<AlbumInfo> albums, long discordId, String tag);
 
     List<ScrobbledArtist> getUserArtists(Connection connection, String lastfmId);
+
+    List<ScrobbledArtist> getUserArtistWithTag(Connection connection, long discordId, String genre);
 
     List<ArtistInfo> getArtistWithTag(Connection connection, List<ArtistInfo> artists, long discordId, String genre);
 
@@ -250,4 +254,9 @@ interface SQLQueriesDao {
     List<LbEntry> uniqueAlbumLeaderboard(Connection connection, long guildId);
 
     List<LbEntry> uniqueSongLeaderboard(Connection connection, long guildId);
+
+    List<ScrobbledTrack> getUserTracksWithTag(Connection connection, long discordId, String genre);
+
+    List<TrackInfo> getTracksWithTag(Connection connection, List<TrackInfo> tracks, long discordId, String tag);
+
 }

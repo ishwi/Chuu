@@ -15,11 +15,13 @@ import java.util.function.BiFunction;
 public class ArtistChart extends UrlCapsule {
     final boolean drawTitles;
     final boolean drawPlays;
+    final boolean isAside;
 
-    public ArtistChart(String url, int pos, String artistName, String mbid, int plays, boolean drawTitles, boolean drawPlays) {
+    public ArtistChart(String url, int pos, String artistName, String mbid, int plays, boolean drawTitles, boolean drawPlays, boolean isAside) {
         super(url, pos, null, artistName, mbid, plays);
         this.drawTitles = drawTitles;
         this.drawPlays = drawPlays;
+        this.isAside = isAside;
     }
 
     public static BiFunction<JSONObject, Integer, UrlCapsule> getArtistParser(ChartParameters chartParameters) {
@@ -27,7 +29,7 @@ public class ArtistChart extends UrlCapsule {
             String artistName = artistObj.getString("name");
             int plays = artistObj.getInt("playcount");
             String mbid = artistObj.getString("mbid");
-            return new ArtistChart(null, size, artistName, mbid, plays, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
+            return new ArtistChart(null, size, artistName, mbid, plays, chartParameters.isWriteTitles(), chartParameters.isWritePlays(), chartParameters.isAside());
         };
     }
 
@@ -37,7 +39,7 @@ public class ArtistChart extends UrlCapsule {
             NowPlayingArtist x = AlbumChart.fromRecentTrack(jsonObject, TopEntity.ARTIST);
             return new ArtistChart(x.getUrl(), 0, x.getArtistName(), x.getArtistMbid(), 1,
                     chartParameters.isWriteTitles()
-                    , chartParameters.isWritePlays());
+                    , chartParameters.isWritePlays(), chartParameters.isAside());
         };
     }
 

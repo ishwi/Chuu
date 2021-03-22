@@ -131,7 +131,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
             return;
         }
 
-        List<Memoized<GlobalStreakEntities, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).collect(Collectors.toList());
+        List<Memoized<GlobalStreakEntities, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).toList();
 
 
         StringBuilder a = new StringBuilder();

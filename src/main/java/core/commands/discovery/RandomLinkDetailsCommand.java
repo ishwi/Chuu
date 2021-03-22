@@ -105,7 +105,7 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<UrlParameters> {
                     "\n";
         };
 
-        List<Memoized<RandomRating, String>> z = randomUrl.ratings().stream().map(x -> new Memoized<>(x, mapper)).collect(Collectors.toList());
+        List<Memoized<RandomRating, String>> z = randomUrl.ratings().stream().map(x -> new Memoized<>(x, mapper)).toList();
 
 
         StringBuilder a = new StringBuilder();

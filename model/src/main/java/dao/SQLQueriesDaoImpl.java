@@ -1219,6 +1219,86 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         return getLbEntries(connection, guildId, queryString, UniqueSongLbEntry::new, false, 0);
     }
 
+    @Override
+    public List<ScrobbledTrack> getUserTracksWithTag(Connection connection, long discordId, String genre) {
+        String queryString = "SELECT a.id as track_id, c.id,track_name,c.name,a.mbid as artist_mbid,c.mbid,a.url,d.playnumber " +
+                "FROM track a " +
+                "join artist c on a.artist_id = c.id " +
+                "join scrobbled_track d on a.id = d.album_id " +
+                "join user e on d.lastfm_id = e.lastfm_id  " +
+                "join  track_tags b on a.id = b.track_id " +
+                "WHERE tag = ? and e.discord_id = ? ";
+        List<ScrobbledTrack> returnInfoes = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+
+            preparedStatement.setString(1, genre);
+            preparedStatement.setLong(2, discordId);
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                int plays = resultSet.getInt("playnumber");
+                String url = resultSet.getString("url");
+                String name = resultSet.getString("name");
+                String albumName = resultSet.getString("track_name");
+                String albumMbid = resultSet.getString("mbid");
+                String artistMbid = resultSet.getString("artist_mbid");
+                ScrobbledTrack st = new ScrobbledTrack(name, albumName, plays, false, 0, url, artistMbid, albumMbid);
+                st.setArtistId(resultSet.getLong("id"));
+                st.setAlbumId(resultSet.getLong("album_id"));
+                st.setCount(resultSet.getInt("playnumber"));
+
+                returnInfoes.add(st);
+
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnInfoes;
+    }
+
+    @Override
+    public List<TrackInfo> getTracksWithTag(Connection connection, List<TrackInfo> tracks, long discordId, String tag) {
+        String queryString = "SELECT a.id as track_id, c.id,track_name,c.name,a.mbid as artist_mbid,c.mbid,a.url,d.playnumber " +
+                "FROM track a " +
+                "join artist c on a.artist_id = c.id " +
+                "join scrobbled_track d on a.id = d.album_id " +
+                "join user e on d.lastfm_id = e.lastfm_id  " +
+                "join  track_tags b on a.id = b.track_id " +
+                "WHERE (c.name,track_name)  IN (%s) and tag = ? and e.discord_id = ? ";
+        String sql = String.format(queryString, tracks.isEmpty() ? null : prepareINQuery(tracks.size()));
+        List<TrackInfo> returnInfoes = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+
+            for (int i = 0; i < tracks.size(); i++) {
+                preparedStatement.setString(2 * i + 1, tracks.get(i).getArtist());
+                preparedStatement.setString(2 * i + 2, tracks.get(i).getTrack());
+            }
+            preparedStatement.setString(tracks.size() * 2 + 1, tag);
+            preparedStatement.setLong(tracks.size() * 2 + 2, discordId);
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                String albumName = resultSet.getString("track_name");
+                String albumMbid = resultSet.getString("mbid");
+                String artistMbid = resultSet.getString("artist_mbid");
+                TrackInfo e = new TrackInfo(name, null, albumName, albumMbid);
+                returnInfoes.add(e);
+
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnInfoes;
+
+    }
+
 
     @Override
     public int userArtistCount(Connection con, String whom, int threshold) {
@@ -2399,7 +2479,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         String countQuery = "Select count(*) as orden ";
 
 
-        String queryBody = "FROM  scrobbled_album a use index (scrobbled_album_fk_user)" +
+        String queryBody = "FROM  scrobbled_album a " +
                 " JOIN user b" +
                 " ON a.lastfm_id = b.lastfm_id" +
                 " JOIN artist d " +
@@ -2465,7 +2545,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         String countQuery = "Select count(*) as orden ";
 
 
-        String queryBody = "FROM  scrobbled_album a use index (scrobbled_album_fk_user)" +
+        String queryBody = "FROM  scrobbled_album a " +
                 " JOIN user b" +
                 " ON a.lastfm_id = b.lastfm_id" +
                 " JOIN artist d " +
@@ -2638,6 +2718,45 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         return String.join(",", Collections.nCopies(size, "(?,?)"));
     }
 
+    @Override
+    public List<ScrobbledAlbum> getUserAlbumsWithTag(Connection connection, long discordId, String tag) {
+        String queryString = "SELECT a.id as album_id, c.id,album_name,c.name,a.mbid,c.mbid as artist_mbid,a.url,d.playnumber  " +
+                "FROM album a " +
+                "join artist c on a.artist_id = c.id " +
+                "join scrobbled_album d on a.id = d.album_id " +
+                "join user e on d.lastfm_id = e.lastfm_id  " +
+                "join  album_tags b on a.id = b.album_id " +
+                "WHERE tag = ? and e.discord_id = ? ";
+        List<ScrobbledAlbum> returnInfoes = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+
+            preparedStatement.setString(1, tag);
+            preparedStatement.setLong(2, discordId);
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                int plays = resultSet.getInt("playnumber");
+                String url = resultSet.getString("url");
+                String name = resultSet.getString("name");
+                String albumName = resultSet.getString("album_name");
+                String albumMbid = resultSet.getString("mbid");
+                String artistMbid = resultSet.getString("artist_mbid");
+                ScrobbledAlbum sb = new ScrobbledAlbum(albumName, name, url, albumMbid);
+                sb.setArtistId(resultSet.getLong("id"));
+                sb.setAlbumId(resultSet.getLong("album_id"));
+                sb.setCount(resultSet.getInt("playnumber"));
+
+                returnInfoes.add(sb);
+
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnInfoes;
+    }
 
     @Override
     public List<AlbumInfo> getAlbumsWithTag(Connection connection, List<AlbumInfo> albums, long discordId, String tag) {
@@ -2705,6 +2824,39 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
+    public List<ScrobbledArtist> getUserArtistWithTag(Connection connection, long discordId, String genre) {
+        String queryString = "SELECT c.name,c.url,c.id,d.playnumber " +
+                "FROM artist c " +
+                "join scrobbled_artist d on c.id = d.artist_id " +
+                "join user e on d.lastfm_id = e.lastfm_id  " +
+                "join  artist_tags b on c.id = b.artist_id " +
+                "WHERE  tag = ? and e.discord_id = ? ";
+        List<ScrobbledArtist> returnInfoes = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+
+            preparedStatement.setString(1, genre);
+            preparedStatement.setLong(2, discordId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                long id = resultSet.getLong("id");
+                int plays = resultSet.getInt("playnumber");
+                String url = resultSet.getString("url");
+                ScrobbledArtist scrobbledArtist = new ScrobbledArtist(name, plays, url);
+                scrobbledArtist.setArtistId(id);
+                returnInfoes.add(scrobbledArtist);
+
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnInfoes;
+    }
+
+    @Override
     public List<ArtistInfo> getArtistWithTag(Connection connection, List<ArtistInfo> artists, long discordId, String genre) {
         String queryString = "SELECT c.name,c.url,c.mbid as artist_mbid " +
                 "FROM artist c " +
@@ -2739,7 +2891,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             throw new ChuuServiceException(e);
         }
         return returnInfoes;
-
     }
 
     @Override
@@ -3648,8 +3799,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         @Language("MariaDB") String queryString = """
                 SELECT count(*)
-                 FROM user_billboard_data_scrobbles a where `timestamp` > (select  max(`timestamp`) from user_billboard_data_scrobbles where artist_id != ?  && lastfm_id = ?  )  and lastfm_id = ?     
-                """;
+                 FROM user_billboard_data_scrobbles a where `timestamp` > (select  max(`timestamp`) from user_billboard_data_scrobbles where artist_id != ?  && lastfm_id = ?  )  and lastfm_id = ?
+                 """;
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -3818,7 +3969,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         String countQuery = "Select count(*) as orden ";
 
 
-        String queryBody = "FROM  scrobbled_album a use index (scrobbled_album_fk_user)" +
+        String queryBody = "FROM  scrobbled_album a " +
                 " JOIN user b" +
                 " ON a.lastfm_id = b.lastfm_id" +
                 " JOIN artist d " +
@@ -3918,9 +4069,9 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 """;
         if (guildId != null) {
             mySql += """  
-                    join user c on a.lastfm_id = c.lastfm_id 
+                    join user c on a.lastfm_id = c.lastfm_id
                     join user_guild d on c.discord_id = d.discord_id
-                    where guild_id = ? 
+                    where guild_id = ?
                     """;
         } else {
             mySql += " where 1 =1 ";
@@ -4146,6 +4297,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 case DESC -> ASC;
             };
         }
+
     }
 
 

@@ -24,7 +24,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
@@ -81,7 +80,7 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
 
         StringBuilder a = new StringBuilder();
         List<String> s = songs.stream().map(g -> ". **[" + CommandUtil.cleanMarkdownCharacter(g.getAlbum()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getAlbum()) + ")** - " + g.getPlays() + " plays" +
-                "\n").collect(Collectors.toList());
+                "\n").toList();
         for (int i = 0; i < s.size() && i < 10; i++) {
             String sb = s.get(i);
             a.append(i + 1).append(sb);

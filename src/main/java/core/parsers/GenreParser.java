@@ -2,15 +2,11 @@ package core.parsers;
 
 import core.apis.ExecutorsSingleton;
 import core.apis.last.ConcurrentLastFM;
-import core.apis.last.entities.chartentities.TopEntity;
 import core.exceptions.LastFmException;
 import core.parsers.params.GenreParameters;
 import core.services.NPService;
-import core.services.TagAlbumService;
-import core.services.TagArtistService;
+import core.services.tracklist.TagStorer;
 import dao.ChuuService;
-import dao.entities.AlbumInfo;
-import dao.entities.ArtistInfo;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
@@ -44,25 +40,12 @@ public class GenreParser extends DaoParser<GenreParameters> {
         if (words.length == 0) {
             lastFMData = findLastfmFromID(user, e);
             nowPlayingInfo = new NPService(lastFM, lastFMData).getNowPlaying();
-            List<String> tags = lastFM.getTrackTags(1, TopEntity.TRACK, nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName());
-            if (tags.isEmpty()) {
-                tags = lastFM.getTrackTags(1, TopEntity.ALBUM, nowPlayingInfo.getArtistName(), nowPlayingInfo.getAlbumName());
-            } else {
-                executor.submit(new TagArtistService(dao, lastFM, tags, new ArtistInfo(nowPlayingInfo.getUrl(), nowPlayingInfo.getArtistName(), nowPlayingInfo.getArtistMbid())));
-            }
-            if (tags.isEmpty()) {
-                tags = lastFM.getTrackTags(1, TopEntity.ARTIST, nowPlayingInfo.getArtistName(), null);
-            } else {
-                if (nowPlayingInfo.getAlbumName() != null && !nowPlayingInfo.getAlbumName().isBlank())
-                    executor.submit(new TagAlbumService(dao, lastFM, tags, new AlbumInfo(nowPlayingInfo.getAlbumMbid(), nowPlayingInfo.getAlbumName(), nowPlayingInfo.getArtistName())));
-            }
+            List<String> tags = new TagStorer(dao, lastFM, executor, nowPlayingInfo).findTags();
             if (tags.isEmpty()) {
                 sendError("Was not able to find any tags on your now playing song/album/artist: "
                                 + String.format("%s - %s | %s", nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName(), nowPlayingInfo.getAlbumName())
                         , e);
                 return null;
-            } else {
-                executor.submit(new TagArtistService(dao, lastFM, tags, new ArtistInfo(nowPlayingInfo.getUrl(), nowPlayingInfo.getArtistName(), nowPlayingInfo.getArtistMbid())));
             }
             autoDetected = true;
             genre = tags.get(0);

@@ -124,6 +124,10 @@ public class ChartParameters extends CommandParameters {
         return hasOptional("pie");
     }
 
+    public boolean isBubble() {
+        return hasOptional("bubble");
+    }
+
     public ChartMode chartMode() {
         return chartMode;
     }

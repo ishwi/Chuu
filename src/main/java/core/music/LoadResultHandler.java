@@ -29,8 +29,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
 
-import java.util.stream.Collectors;
-
 public class LoadResultHandler implements AudioLoadResultHandler {
 
 
@@ -89,7 +87,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         }
 
         var queueLimit = queueLimit();
-        var pendingEnqueue = playlist.getTracks().stream().filter(it -> checkTrack(it, true)).collect(Collectors.toList());
+        var pendingEnqueue = playlist.getTracks().stream().filter(it -> checkTrack(it, true)).toList();
         var added = 0;
         for (AudioTrack track : pendingEnqueue) {
 

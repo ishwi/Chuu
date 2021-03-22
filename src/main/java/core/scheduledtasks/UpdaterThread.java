@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 /**
  * Thread that is the core of the application
@@ -50,13 +49,13 @@ public class UpdaterThread implements Runnable {
             ScrobbledArtist key = x.getKey();
             key.setCount(x.getValue());
             return key;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     @Override
     public void run() {
         try {
-            System.out.println("THREAD WORKING ) + " + LocalDateTime.now().toString());
+            System.out.println("THREAD WORKING ) + " + LocalDateTime.now());
             UpdaterUserWrapper userWork;
 
             float chance = r.nextFloat();

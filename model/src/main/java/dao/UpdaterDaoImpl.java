@@ -1812,6 +1812,29 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     }
 
+    @Override
+    public void insertTrackTags(Connection connection, Map<Genre, List<ScrobbledTrack>> genres, Map<String, String> correctedTags) {
+        List<Pair<Genre, ScrobbledTrack>> list = genres.entrySet().stream().flatMap(x -> x.getValue().stream().map(t -> Pair.of(x.getKey(), t))).collect(Collectors.toList());
+
+        String mySql = "INSERT ignore INTO  track_tags" +
+                "                  (artist_id,track_id,tag) VALUES (?, ?, ?) " + ", (?,?,?)".repeat(Math.max(0, list.size() - 1));
+        try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
+            for (int i = 0; i < list.size(); i++) {
+                preparedStatement.setLong(3 * i + 1, list.get(i).getRight().getArtistId());
+                preparedStatement.setLong(3 * i + 2, list.get(i).getRight().getTrackId());
+                String genreName = list.get(i).getLeft().getGenreName();
+                String s = correctedTags.get(genreName);
+                if (s != null) {
+                    genreName = s;
+                }
+                preparedStatement.setString(3 * i + 3, genreName);
+            }
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
 }
 

@@ -40,7 +40,7 @@ public class TrackQueue extends ArtistQueue {
                 e.printStackTrace();
                 return null;
             }
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        }).filter(Objects::nonNull).toList();
         wrapper.clear();
 
         AtomicInteger ranker = new AtomicInteger(0);

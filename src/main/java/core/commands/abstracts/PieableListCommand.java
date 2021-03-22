@@ -1,8 +1,7 @@
 package core.commands.abstracts;
 
-import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
-import core.imagerenderer.util.IPieableList;
+import core.imagerenderer.util.pie.IPieableList;
 import core.parsers.params.CommandParameters;
 import core.services.ColorService;
 import dao.ChuuService;
@@ -26,12 +25,13 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
 
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull Y params) throws LastFmException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull Y params) {
 
         if (params.hasOptional("pie")) {
             doPie(getList(params), params);
             return;
         }
+
         printList(getList(params), params);
     }
 

@@ -45,7 +45,7 @@ public class AffinityParser extends DaoParser<AffinityParameters> {
             doServer = true;
         } else {
             if (datas[0].getDiscordId().equals(datas[1].getDiscordId())) {
-                e.getChannel().sendMessage("Dont't use the same person twice\n").queue();
+                e.getChannel().sendMessage("Don't use the same person twice\n").queue();
                 return null;
             }
         }

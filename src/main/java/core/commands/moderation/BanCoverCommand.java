@@ -14,7 +14,6 @@ import dao.entities.CoverItem;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledAlbum;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
@@ -57,7 +56,7 @@ public class BanCoverCommand extends ConcurrentCommand<ArtistAlbumUrlParameters>
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistAlbumUrlParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistAlbumUrlParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Not enough chuu perms to do this");

@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public abstract class GroupingQueue extends ArtistQueue {
     public final int requested;
@@ -53,7 +52,7 @@ public abstract class GroupingQueue extends ArtistQueue {
                     int i = counter.getAndIncrement();
                     urlCapsule.setPos(i);
                     return i < requested;
-                }).collect(Collectors.toList());
+                }).toList();
         collected.forEach(t -> wrapper.offer(CompletableFuture.supplyAsync(() ->
         {
             getUrl(t);

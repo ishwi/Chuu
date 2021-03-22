@@ -19,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class InvidousSearch implements YoutubeSearch {
     public static final List<String> domains = List.of("invidious.snopyta.org", "invidious.zapashcanon.fr", "invidiou.site", "yewtu.be", "tube.connect.cafe", "vid.mint.lgbt");
@@ -36,8 +35,8 @@ public class InvidousSearch implements YoutubeSearch {
         if (retries == 0) {
             return "";
         }
-        List<String> domains = InvidousSearch.domains.stream().filter(x -> !retried.contains(x)).collect(Collectors.toList());
-        List<String> regions = InvidousSearch.regions.stream().filter(x -> !regionsRetried.contains(x)).collect(Collectors.toList());
+        List<String> domains = InvidousSearch.domains.stream().filter(x -> !retried.contains(x)).toList();
+        List<String> regions = InvidousSearch.regions.stream().filter(x -> !regionsRetried.contains(x)).toList();
         String domain = domains.get(CommandUtil.rand.nextInt(domains.size()));
         String region = regions.get(CommandUtil.rand.nextInt(regions.size()));
         retried.add(domain);

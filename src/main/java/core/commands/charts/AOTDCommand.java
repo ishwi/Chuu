@@ -67,7 +67,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
             nonEmptyMbid = userAlbumByMbid.stream().peek(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays(), param.isAside())))
                     .map(x -> new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist()))
                     .filter(albumInfo -> !(albumInfo.getMbid() == null || albumInfo.getMbid().isEmpty()))
-                    .collect(Collectors.toList());
+                    .toList();
             emptyMbid = Collections.emptyList();
         } else {
             BiFunction<JSONObject, Integer, UrlCapsule> parser;
@@ -173,7 +173,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
         emptyMbid.removeAll(mbFoundBYName.stream().map(CountWrapper::getResult).collect(Collectors.toList()));
 
 
-        albumsMbizMatchingYear = accum.stream().map(CountWrapper::getResult).collect(Collectors.toList());
+        albumsMbizMatchingYear = accum.stream().map(CountWrapper::getResult).toList();
         accum.addAll(mbFoundBYName);
         albumsMbizMatchingYear.addAll(mbFoundBYName.stream().map(CountWrapper::getResult).collect(Collectors.toList()));
 

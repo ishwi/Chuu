@@ -17,7 +17,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 public class Validator<T> extends ReactionListener {
 
@@ -70,7 +69,7 @@ public class Validator<T> extends ReactionListener {
     }
 
     private void initEmotes() {
-        List<RestAction<Void>> reacts = this.actionMap.keySet().stream().map(x -> message.addReaction(x)).collect(Collectors.toList());
+        List<RestAction<Void>> reacts = this.actionMap.keySet().stream().map(x -> message.addReaction(x)).toList();
         RestAction.allOf(reacts).queue();
     }
 

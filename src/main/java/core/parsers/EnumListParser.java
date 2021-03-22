@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class EnumListParser<T extends Enum<T>> extends Parser<EnumListParameters<T>> {
     protected final Class<T> clazz;
@@ -63,7 +62,7 @@ public class EnumListParser<T extends Enum<T>> extends Parser<EnumListParameters
     @Override
     public String getUsageLogic(String commandName) {
         EnumSet<T> set = EnumSet.complementOf(excluded);
-        List<String> collect = set.stream().map(x -> WordUtils.capitalizeFully(x.name().replaceAll("_", "-"), '-')).collect(Collectors.toList());
+        List<String> collect = set.stream().map(x -> WordUtils.capitalizeFully(x.name().replaceAll("_", "-"), '-')).toList();
         String join = String.join("** | **", collect);
         return "**" + commandName + "** **[help|help all|list|]** **" + name + "**\n" +
                 "\t Writing **__help__** will give you a brief description of all the " + name + " that you include in the command or alternatively all the options with **__help__**\n" +

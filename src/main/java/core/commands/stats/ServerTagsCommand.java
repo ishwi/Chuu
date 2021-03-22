@@ -2,7 +2,7 @@ package core.commands.stats;
 
 import core.commands.abstracts.PieableListCommand;
 import core.commands.utils.CommandCategory;
-import core.imagerenderer.util.PieableListResultWrapper;
+import core.imagerenderer.util.pie.PieableListResultWrapper;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.OptionalEntity;
@@ -17,7 +17,6 @@ import org.knowm.xchart.PieChart;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, CommandParameters> {
     public final PieableListResultWrapper<TagPlays, CommandParameters> pie;
@@ -79,7 +78,7 @@ public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, Comman
         List<String> collect = list.stream().map(x ->
                 String.format(". [%s](%s) - %d %s\n", LinkUtils.cleanMarkdownCharacter(x.getTag()),
                         LinkUtils.getLastFmArtistUrl(x.getTag()), x.getCount(), buzzz))
-                .collect(Collectors.toList());
+                .toList();
         EmbedBuilder embedBuilder = initList(collect, e)
                 .setTitle("Server Tags")
                 .setThumbnail(e.getGuild().getIconUrl());

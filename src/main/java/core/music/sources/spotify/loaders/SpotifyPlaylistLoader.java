@@ -39,7 +39,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 
 public class SpotifyPlaylistLoader extends Loader {
@@ -113,7 +112,7 @@ public class SpotifyPlaylistLoader extends Loader {
             } catch (InterruptedException | ExecutionException e) {
                 return null;
             }
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        }).filter(Objects::nonNull).toList();
     }
 
 }

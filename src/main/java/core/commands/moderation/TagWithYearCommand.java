@@ -64,7 +64,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
         String message = String.join(" ", subMessage);
         Matcher matcher = a.matcher(message);
         if (!matcher.matches()) {
-            parser.sendError(String.format("Invalid format. You must provide the artist name and then the year with the following format: artist - album year:%s", Year.now().toString()), e);
+            parser.sendError(String.format("Invalid format. You must provide the artist name and then the year with the following format: artist - album year:%s", Year.now()), e);
             return;
         }
         LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
@@ -78,7 +78,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
             }
         } catch (
                 java.time.format.DateTimeParseException exception) {
-            parser.sendError(String.format("Invalid format. You must provide the artist name and then the year with the following format: artist - album year:%s", Year.now().toString()), e);
+            parser.sendError(String.format("Invalid format. You must provide the artist name and then the year with the following format: artist - album year:%s", Year.now()), e);
             return;
         }
         message = message.replaceFirst("(y|year):" + year, "");
@@ -86,7 +86,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
         String[] content = message.split(regex);
 
         if (content.length != 2) {
-            parser.sendError(String.format("Invalid format. You must provide the artist name and then the year with the following format: artist - album year:%s", Year.now().toString()), e);
+            parser.sendError(String.format("Invalid format. You must provide the artist name and then the year with the following format: artist - album year:%s", Year.now()), e);
             return;
         }
         String artist = content[0].trim().replaceAll("\\\\-", "-");

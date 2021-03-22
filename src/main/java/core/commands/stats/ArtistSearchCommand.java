@@ -19,7 +19,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ArtistSearchCommand extends ListCommand<ScrobbledArtist, UserStringParameters> {
     public ArtistSearchCommand(ChuuService dao) {
@@ -73,7 +72,7 @@ public class ArtistSearchCommand extends ListCommand<ScrobbledArtist, UserString
         List<String> strs = list.stream().map(t ->
                 String.format(". **[%s](%s)** - %d %s%n",
                         LinkUtils.cleanMarkdownCharacter(t.getArtist()), PrivacyUtils.getLastFmArtistUserUrl(t.getArtist(), params.getLastFMData().getName()),
-                        t.getCount(), CommandUtil.singlePlural(t.getCount(), "play", "plays"))).collect(Collectors.toList());
+                        t.getCount(), CommandUtil.singlePlural(t.getCount(), "play", "plays"))).toList();
         StringBuilder a = new StringBuilder();
 
         for (int i = 0; i < 10 && i < strs.size(); i++) {

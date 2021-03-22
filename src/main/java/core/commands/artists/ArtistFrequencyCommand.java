@@ -3,7 +3,7 @@ package core.commands.artists;
 import core.commands.abstracts.ResultWrappedCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.imagerenderer.util.PieableListResultWrapper;
+import core.imagerenderer.util.pie.PieableListResultWrapper;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -19,7 +19,6 @@ import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
 
@@ -69,7 +68,7 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
                 CommandUtil.cleanMarkdownCharacter(x.getArtistName()) +
                 "](" + LinkUtils.getLastFmArtistUrl(x.getArtistName()) +
                 ") - " + x.getCount() +
-                " listeners \n").collect(Collectors.toList());
+                " listeners \n").toList();
         EmbedBuilder embedBuilder = initList(collect, e)
                 .setTitle("Artist's frequencies")
                 .setFooter(String.format("%s has %d different artists!%n", e.getGuild().getName(), wrapper.getRows()), null)

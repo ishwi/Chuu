@@ -12,7 +12,6 @@ import core.parsers.params.ArtistAlbumParameters;
 import core.services.AlbumValidator;
 import dao.ChuuService;
 import dao.entities.ScrobbledAlbum;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -62,7 +61,7 @@ public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistAlbumParameters params) throws LastFmException {
         ScrobbledAlbum album = new AlbumValidator(db, lastFM).validate(params.getArtist(), params.getAlbum());
         List<String> covers = Chuu.getCoverService().getCovers(album.getAlbumId());
         if (covers.isEmpty()) {

@@ -5,6 +5,7 @@ import core.imagerenderer.CircleRenderer;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.stealing.jiff.GifSequenceWriter;
 import dao.entities.PreBillboardUserDataTimestamped;
+import dao.exceptions.ChuuServiceException;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
@@ -55,18 +56,21 @@ public class ClockService {
                                 .collect(Collectors.groupingBy(x -> dateTimeFunction.apply(x).getHour(),
                                         HashMap::new, Collectors.counting()));
                         byte[] bytes = CircleRenderer.generateImage(clockMode, collect1, key, timeZone);
-                        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-                        try {
+                        if (bytes == null) {
+                            throw new ChuuServiceException(new NullPointerException(" bytes null clock service"));
+                        }
+                        try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
                             BufferedImage read = ImageIO.read(bais);
                             Graphics2D g = read.createGraphics();
                             GraphicUtils.setQuality(g);
                             g.dispose();
                             return read;
+
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
                     }
-            ).collect(Collectors.toList());
+            ).toList();
             GifSequenceWriter.saveGif(output, images, 0, 300);
 
 

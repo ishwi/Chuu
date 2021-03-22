@@ -39,7 +39,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameters> {
 
@@ -98,7 +97,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
 
                     }
                 })
-                .collect(Collectors.toList());
+                .toList();
         int rows = (int) Math.floor(Math.sqrt(urlEntities.size()));
         rows = Math.min(rows, 5);
         int cols = rows;
@@ -123,7 +122,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
             ScrobbledArtist scrobbledArtist = new ScrobbledArtist(x.getArtistName(), x.getPlays(), null);
             scrobbledArtist.setArtistMbid(x.getMbid());
             return scrobbledArtist;
-        }).collect(Collectors.toList());
+        }).toList();
         List<ArtistUserPlays> list = this.mb.getArtistFromCountry(country, artistInfos, discordId);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         String userName = userInformation.getUsername();

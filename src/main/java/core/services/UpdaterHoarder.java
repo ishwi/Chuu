@@ -79,9 +79,9 @@ public class UpdaterHoarder {
             Long aLong1 = dbIdMap.get(x.getArtist());
             if (aLong1 != null)
                 x.setArtistId(aLong1);
-        }).filter(x -> x.getArtistId() == -1L || x.getArtistId() == 0L).collect(Collectors.toList());
+        }).filter(x -> x.getArtistId() == -1L || x.getArtistId() == 0L).toList();
         Set<String> tobeRemoved = new HashSet<>();
-        List<ScrobbledArtist> artists = newToValidate.stream().map(Track::getArtist).distinct().map(x -> new ScrobbledArtist(x, 0, null)).collect(Collectors.toList());
+        List<ScrobbledArtist> artists = newToValidate.stream().map(Track::getArtist).distinct().map(x -> new ScrobbledArtist(x, 0, null)).toList();
         service.filldArtistIds(artists);
         Map<Boolean, List<ScrobbledArtist>> mappedByExistingId = artists.stream().collect(Collectors.partitioningBy(x -> x.getArtistId() != -1L && x.getArtistId() != 0));
         List<ScrobbledArtist> foundArtists = mappedByExistingId.get(true);

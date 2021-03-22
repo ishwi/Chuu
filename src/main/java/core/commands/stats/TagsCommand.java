@@ -23,7 +23,6 @@ import org.apache.commons.text.WordUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
 
@@ -77,7 +76,7 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
 
                 .stream().map(x -> String.format(". **[%s](%s)**%n",
                         WordUtils.capitalizeFully(x)
-                        , LinkUtils.getLastFmTagUrl(x))).collect(Collectors.toList());
+                        , LinkUtils.getLastFmTagUrl(x))).toList();
         if (artistTags.isEmpty()) {
             sendMessageQueue(e, correctedArtist + " doesn't have any tags.");
             return;

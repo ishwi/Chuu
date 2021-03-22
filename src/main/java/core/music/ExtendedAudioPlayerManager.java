@@ -54,7 +54,6 @@ import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
     private final String config = null;
@@ -130,7 +129,7 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
     }
 
     public BasicAudioPlaylist decodePlaylist(List<String> encodedTracks, String name) {
-        List<AudioTrack> decoded = encodedTracks.stream().map(this::decodeMaybeNullAudioTrack).collect(Collectors.toList());
+        List<AudioTrack> decoded = encodedTracks.stream().map(this::decodeMaybeNullAudioTrack).toList();
         return new BasicAudioPlaylist(name, decoded, decoded.get(0), false);
     }
 
@@ -173,7 +172,7 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
     }
 
     public List<String> encodePlaylist(BasicAudioPlaylist playlist) {
-        return playlist.getTracks().stream().map(this::encodeAudioTrack).collect(Collectors.toList());
+        return playlist.getTracks().stream().map(this::encodeAudioTrack).toList();
     }
 
     public String encodeAudioTrack(AudioTrack track) {

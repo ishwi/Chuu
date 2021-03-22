@@ -3,7 +3,7 @@ package core.commands.charts;
 import core.apis.last.entities.chartentities.AlbumChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.utils.CommandUtil;
-import core.imagerenderer.util.PieSetUp;
+import core.imagerenderer.util.pie.PieSetUp;
 import core.parsers.ChartYearParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearParameters;
@@ -96,7 +96,7 @@ public class GlobalAOTY extends ChartableCommand<ChartYearParameters> {
         Year year = params.getYear();
         String time = params.getTimeFrameEnum().getDisplayString();
         pieChart.setTitle(String.format("%ss top albums from %s%s", initTitle, year.toString(), time));
-        return String.format("%s has %d albums from %s (showing top %d)", initTitle, count, year.toString(), params.getX() * params.getY());
+        return String.format("%s has %d albums from %s (showing top %d)", initTitle, count, year, params.getX() * params.getY());
     }
 
     @Override

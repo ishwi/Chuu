@@ -125,8 +125,8 @@ public class ChuuService {
             id, List<ScrobbledAlbum> albumData, List<TrackWithArtistId> trackWithArtistIds) {
         try (Connection connection = dataSource.getConnection()) {
             try {
-                List<ScrobbledArtist> artistData = wrapper.getWrapped().stream().peek(x -> x.setDiscordID(id)).collect(Collectors.toList());
-                albumData = albumData.stream().filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
+                List<ScrobbledArtist> artistData = wrapper.getWrapped().stream().peek(x -> x.setDiscordID(id)).toList();
+                albumData = albumData.stream().filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank()).toList();
                 connection.setAutoCommit(true);
                 if (!artistData.isEmpty())
                     updaterDao.upsertArtist(connection, artistData);
@@ -2752,6 +2752,17 @@ public class ChuuService {
         }
     }
 
+    public void insertTrackTags(Map<Genre, List<ScrobbledTrack>> genres) {
+        try (Connection connection = dataSource.getConnection()) {
+            Map<String, String> correctedTags = updaterDao.validateTags(connection, new ArrayList<>(genres.keySet()));
+            if (genres.values().stream().mapToLong(List::size).sum() != 0) {
+                updaterDao.insertTrackTags(connection, genres, correctedTags);
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void insertArtistTags(Map<Genre, List<ScrobbledArtist>> genres) {
         try (Connection connection = dataSource.getConnection()) {
             Map<String, String> correctedTags = updaterDao.validateTags(connection, new ArrayList<>(genres.keySet()));
@@ -2859,9 +2870,44 @@ public class ChuuService {
         }
     }
 
+    public List<TrackInfo> getTrackWithTags(List<TrackInfo> tracks, long discordId, String tag) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getTracksWithTag(connection, tracks, discordId, tag);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public List<ScrobbledArtist> getUserArtistByMbid(String lastfmId) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getUserArtists(connection, lastfmId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public List<ScrobbledArtist> getUserArtistWithTag(long discordId, String genre) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getUserArtistWithTag(connection, discordId, genre);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public List<ScrobbledAlbum> getUserAlbumWithTag(long discordId, String genre) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getUserAlbumsWithTag(connection, discordId, genre);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public List<ScrobbledTrack> getUserTracksWithTag(long discordId, String genre) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getUserTracksWithTag(connection, discordId, genre);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3242,10 +3288,10 @@ public class ChuuService {
         }
     }
 
-    public List<ScrobbledAlbum> getUserAlbumsWithNoYear(String username) {
+    public List<ScrobbledAlbum> getUserAlbumsWithNoYear(String username, int limit) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return albumDao.getUserAlbumsWithNoYear(connection, username);
+            return albumDao.getUserAlbumsWithNoYear(connection, username, limit);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

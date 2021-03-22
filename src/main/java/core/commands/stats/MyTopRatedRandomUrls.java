@@ -17,7 +17,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
     public MyTopRatedRandomUrls(ChuuService dao) {
@@ -40,7 +39,7 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
                     "](" + x.getUrl() +
                     ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%s**", average, count) +
                     "\n";
-        }).collect(Collectors.toList());
+        }).toList();
         StringBuilder a = new StringBuilder();
         for (
                 int i = 0;

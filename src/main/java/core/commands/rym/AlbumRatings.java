@@ -27,7 +27,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
     private final DiscogsApi discogsApi;
@@ -45,7 +44,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
             float number = score / 2f;
             String starts = "★".repeat((int) number);
             if (number % 1 != 0)
-                starts += "✮";
+                starts += "☆";
             return starts;
         };
     }
@@ -96,7 +95,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
                 getUserString(e, x.getDiscordId()) +
                 "](" + lastFmArtistAlbumUrl +
                 ")** - " + starFormatter.apply(x.getRating()) +
-                "\n").collect(Collectors.toList());
+                "\n").toList();
         if (stringList.isEmpty()) {
             sendMessageQueue(e, String.format("**%s** by **%s** was not rated by anyone.", album, artist));
             return;
@@ -108,7 +107,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
         }
 
         String chuu = albumSummary.getAlbumUrl();
-        List<Rating> servcerList = userRatings.stream().filter(Rating::isSameGuild).collect(Collectors.toList());
+        List<Rating> servcerList = userRatings.stream().filter(Rating::isSameGuild).toList();
         String serverName = e.getGuild().getName();
         String botName = e.getJDA().getSelfUser().getName();
         String name = String.format("%s Average: **%s** | Ratings: **%d**", serverName, average.format(servcerList.stream().mapToDouble(rating -> rating.getRating() / 2f).average().orElse(0)), servcerList.size());
@@ -122,7 +121,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
                         CommandUtil.singlePlural(userRatings.size(), "person", "people")))
                 .setThumbnail(chuu)
                 .setColor(ColorService.computeColor(e))
-                .setDescription(a.toString() + "\n" + name + "\n" + global);
+                .setDescription(a + "\n" + name + "\n" + global);
 
         e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 new Reactionary<>(stringList, message1, embedBuilder));

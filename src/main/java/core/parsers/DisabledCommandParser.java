@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class DisabledCommandParser extends Parser<DisabledCommandParameters> {
 
@@ -48,7 +47,7 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> {
         }
         String finalWord = word;
         List<? extends MyCommand<?>> collect = e.getJDA().getRegisteredListeners()
-                .stream().filter(x -> x instanceof MyCommand).map(x -> ((MyCommand<?>) x)).collect(Collectors.toList());
+                .stream().filter(x -> x instanceof MyCommand).map(x -> ((MyCommand<?>) x)).toList();
 
         Optional<? extends MyCommand<?>> first = collect.stream().filter(x ->
                 x.getAliases().stream().anyMatch(y -> y.equalsIgnoreCase(finalWord))).findFirst();

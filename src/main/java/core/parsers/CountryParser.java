@@ -16,7 +16,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 
 public class CountryParser extends DaoParser<CountryParameters> {
 
@@ -80,7 +79,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
                 } else {
                     try {
                         List<CountryCode> byName = CountryCode.findByName(Pattern.compile(".*" + countryCode + ".*", Pattern.CASE_INSENSITIVE | Pattern.DOTALL)).stream()
-                                .filter(x -> !x.getName().equalsIgnoreCase("Undefined")).collect(Collectors.toList());
+                                .filter(x -> !x.getName().equalsIgnoreCase("Undefined")).toList();
 
                         if (byName.isEmpty()) {
                             country = null;

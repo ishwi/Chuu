@@ -108,7 +108,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
         List<ScrobbledArtist> recs = db.getRecommendation(secondDiscordID, firstDiscordID, params.isShowRepeated(), Integer.MAX_VALUE);
 
         List<AlbumInfo> albumInfos = lastFM.getTopAlbums(firstLastFMId, new CustomTimeFrame(TimeFrameEnum.ALL), 500).stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
-                .collect(Collectors.toList());
+                .toList();
 
         Map<Genre, Integer> map = mb.genreCount(albumInfos).entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size()))
                 .entrySet().stream()
@@ -117,7 +117,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
 
         List<AlbumGenre> albumRecs = mb.getAlbumRecommendationsByGenre(map, recs);
         Map<String, Long> m = recs.stream().collect(Collectors.groupingBy(ScrobbledArtist::getArtist, Collectors.summingLong(ScrobbledArtist::getCount)));
-        albumRecs = albumRecs.stream().sorted(Comparator.comparingLong((AlbumGenre x) -> map.get(new Genre(x.getGenre(), null)) * m.get(x.getArtist())).reversed()).collect(Collectors.toList());
+        albumRecs = albumRecs.stream().sorted(Comparator.comparingLong((AlbumGenre x) -> map.get(new Genre(x.getGenre(), null)) * m.get(x.getArtist())).reversed()).toList();
 
         String receiver = "you";
         if (firstDiscordID != e.getAuthor().getIdLong()) {
@@ -147,7 +147,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
             link = Objects.requireNonNullElseGet(albumLink, () -> LinkUtils.getLastFmArtistAlbumUrl(t.getArtist(), t.getAlbum()));
             return String.format(". **[%s - %s](%s)**\n", CommandUtil.cleanMarkdownCharacter(t.getArtist()), t.getAlbum(), link);
         }).limit(params.getRecCount())
-                .collect(Collectors.toList());
+                .toList();
 
         StringBuilder a = new StringBuilder();
         for (int i = 0; i < 10 && i < stringedList.size(); i++) {

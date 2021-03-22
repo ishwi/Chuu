@@ -14,6 +14,7 @@ import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -52,20 +53,31 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
+    public void onEvent(@org.jetbrains.annotations.NotNull GenericEvent event) {
+        if (event instanceof GuildJoinEvent e) {
+            onGuildJoin(e);
+        } else if (event instanceof GuildMemberJoinEvent e2) {
+            onGuildMemberJoin(e2);
+        } else if (event instanceof GuildMemberRemoveEvent e3) {
+            onGuildMemberRemove(e3);
+        } else {
+            super.onEvent(event);
+        }
+    }
+
     public void onGuildJoin(@Nonnull GuildJoinEvent event) {
         ExecutorsSingleton.getInstance().submit(() -> {
             db.createGuild(event.getGuild().getIdLong());
             event.getGuild().loadMembers().onSuccess(members -> {
                 Set<Long> allBot = db.getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
                 Set<Long> thisServer = db.getAll(event.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
-                List<Long> toInsert = members.stream().filter(x -> !x.getUser().isBot()).map(x -> x.getUser().getIdLong()).filter(x -> allBot.contains(x) && !thisServer.contains(x)).collect(Collectors.toList());
+                List<Long> toInsert = members.stream().filter(x -> !x.getUser().isBot()).map(x -> x.getUser().getIdLong()).filter(x -> allBot.contains(x) && !thisServer.contains(x)).toList();
                 toInsert.forEach(x -> db.addGuildUser(x, event.getGuild().getIdLong()));
-                Chuu.getLogger().info("Succesfully added {} {} to server: {}", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members"), event.getGuild().getName());
+                Chuu.getLogger().info("Successfully added {} {} to server: {}", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members"), event.getGuild().getName());
             });
         });
     }
 
-    @Override
     public void onGuildMemberJoin(@Nonnull GuildMemberJoinEvent event) {
         if (event.getUser().isBot()) {
             return;
@@ -73,13 +85,12 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
         try {
             LastFMData lastFMData = db.findLastFMData(event.getUser().getIdLong());
             db.addGuildUser(lastFMData.getDiscordId(), event.getGuild().getIdLong());
-            Chuu.getLogger().info("Succesfully added {} to server: {} ", lastFMData.getDiscordId(), event.getGuild().getName());
+            Chuu.getLogger().info("Successfully added {} to server: {} ", lastFMData.getDiscordId(), event.getGuild().getName());
         } catch (InstanceNotFoundException e) {
             //Ignored
         }
     }
 
-    @Override
     public void onGuildMemberRemove(@Nonnull GuildMemberRemoveEvent event) {
 
         long idLong = event.getUser().getIdLong();
@@ -122,22 +133,22 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
 //                    List<Member> memberList = guild.getMembers();
 //                    //Gets all ids
 //                    List<Long> guildList = memberList.stream().map(x -> x.getUser().getIdLong())
-//                            .collect(Collectors.toList());
+//                            .toList();
 //
 //                    //if user in app but not in guild -> mark to delete
 //                    usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser))
-//                            .collect(Collectors.toList());
+//                            .toList();
 //                    usersToDelete.forEach(u -> db.removeUserFromOneGuildConsequent(u, key));
 //                    Chuu.getLogger().info("Deleted Users: {}", usersToDelete.size());
 //                });
                 List<Member> memberList = guild.getMembers();
                 //Gets all ids
                 List<Long> guildList = memberList.stream().map(x -> x.getUser().getIdLong())
-                        .collect(Collectors.toList());
+                        .toList();
 
                 //if user in app but not in guild -> mark to delete
                 usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser))
-                        .collect(Collectors.toList());
+                        .toList();
                 usersToDelete.forEach(u -> db.removeUserFromOneGuildConsequent(u, key));
                 if (!usersToDelete.isEmpty())
                     Chuu.getLogger().info("Deleted Users in {}: {}", guild.getName(), usersToDelete.size());

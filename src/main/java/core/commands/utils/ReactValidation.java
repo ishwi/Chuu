@@ -48,7 +48,7 @@ public class ReactValidation {
                 return !rejected.contains(emote.entity());
             }
             return true;
-        }).map(EmotiParameters.Emotable::getContent).collect(Collectors.toList());
+        }).map(EmotiParameters.Emotable::getContent).toList();
     }
 
 }

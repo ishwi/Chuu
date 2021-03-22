@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class LeaderboardCommand<T extends CommandParameters> extends ListCommand<LbEntry, T> {
 
@@ -36,7 +35,7 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
             return;
         }
 
-        List<String> strings = list.stream().map(PrivacyUtils::toString).collect(Collectors.toUnmodifiableList());
+        List<String> strings = list.stream().map(PrivacyUtils::toString).toList();
         for (int i = 0; i < 10 && i < strings.size(); i++) {
             a.append(i + 1).append(strings.get(i));
         }

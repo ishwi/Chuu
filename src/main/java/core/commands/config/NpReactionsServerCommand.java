@@ -58,7 +58,7 @@ public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters>
                 sendMessageQueue(e, "Don't have any reaction set");
                 return;
             }
-            List<String> displaying = serverReactions.stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.toList());
+            List<String> displaying = serverReactions.stream().map(EmotiParameters.Emotable::toDisplay).toList();
 
             sendMessageQueue(e, "Have these reactions: " + String.join(" ", displaying));
             return;

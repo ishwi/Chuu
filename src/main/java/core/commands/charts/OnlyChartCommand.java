@@ -2,7 +2,7 @@ package core.commands.charts;
 
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.exceptions.LastFmException;
-import core.imagerenderer.util.IPieableList;
+import core.imagerenderer.util.pie.IPieableList;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.CountWrapper;

@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class NowPlayinCommandTest extends CommandTest {
 	@Override
 	public String giveCommandName() {
-		return "!np";
+		return "!nowPlayingInfo";
 	}
 
 	@Test

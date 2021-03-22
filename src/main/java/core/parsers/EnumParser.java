@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     protected final Class<T> clazz;
@@ -23,7 +22,7 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     @Override
     protected EnumParameters<T> parseLogic(MessageReceivedEvent e, String[] words) {
         EnumSet<T> ts = EnumSet.allOf(clazz);
-        List<String> collect = ts.stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).collect(Collectors.toList());
+        List<String> collect = ts.stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
         if (words.length != 1) {
             sendError("Pls introduce only one of the following: **" + String.join("**, **", collect) + "**", e);
             return null;
@@ -41,7 +40,7 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
 
     @Override
     public String getUsageLogic(String commandName) {
-        List<String> collect = EnumSet.allOf(clazz).stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).collect(Collectors.toList());
+        List<String> collect = EnumSet.allOf(clazz).stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
 
         return "**" + commandName + " *config_value*** \n" +
                 "\tConfig value being one of: **" + String.join("**, **", collect) + "**";

@@ -3,7 +3,7 @@ package core.commands.artists;
 import core.commands.abstracts.ResultWrappedCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.imagerenderer.util.PieableListResultWrapper;
+import core.imagerenderer.util.pie.PieableListResultWrapper;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -19,7 +19,6 @@ import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
     public GlobalArtistFrequenciesCommand(ChuuService dao) {
@@ -65,7 +64,7 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
 
         List<String> collect = resultList.stream().map(x -> String.format(". [%s](%s) - %d total listeners%n", CommandUtil.cleanMarkdownCharacter(x.getArtistName()),
                 LinkUtils.getLastFmArtistUrl(x.getArtistName()),
-                x.getCount())).collect(Collectors.toList());
+                x.getCount())).toList();
         for (int i = 0, size = collect.size(); i < 10 && i < size; i++) {
             String text = collect.get(i);
             a.append(i + 1).append(text);

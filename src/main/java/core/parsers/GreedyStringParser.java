@@ -1,8 +1,6 @@
 package core.parsers;
 
-import core.exceptions.LastFmException;
 import core.parsers.params.StringParameters;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class GreedyStringParser extends Parser<StringParameters> {
@@ -12,7 +10,7 @@ public class GreedyStringParser extends Parser<StringParameters> {
     }
 
     @Override
-    protected StringParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected StringParameters parseLogic(MessageReceivedEvent e, String[] words) {
         return new StringParameters(e, String.join(" ", words));
     }
 

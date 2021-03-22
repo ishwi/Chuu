@@ -21,7 +21,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -88,7 +87,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
                         x.getTotalListeners(),
                         x.getPlayNumber(),
                         x.getRank() != 1 ? "(need " + (x.getMaxPlaynumber() - x.getPlayNumber() + 1) + " more plays for first)" : "")
-        ).collect(Collectors.toList());
+        ).toList();
         for (int i = 0; i < 10 && i < collect.size(); i++) {
             a.append(i + 1).append(collect.get(i));
         }

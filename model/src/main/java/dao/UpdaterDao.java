@@ -190,4 +190,8 @@ interface UpdaterDao {
     long userStrikes(Connection connection, long uploader);
 
     void deleteRandomUrl(Connection connection, String url);
+
+    void insertTrackTags(Connection connection, Map<Genre, List<ScrobbledTrack>> genres, Map<String, String> correctedTags);
+
+
 }

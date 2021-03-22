@@ -13,7 +13,6 @@ public abstract class UrlCapsule {
     private String url;
     private int plays;
     private String mbid;
-    private boolean neverendingMode = false;
 
     public UrlCapsule(String url, int pos, String albumName, String artistName, String mbid, int plays) {
         this.url = url;
@@ -107,11 +106,4 @@ public abstract class UrlCapsule {
         return Objects.hash(getArtistName(), getAlbumName());
     }
 
-    public boolean isNeverendingMode() {
-        return neverendingMode;
-    }
-
-    public void setNeverendingMode(boolean neverendingMode) {
-        this.neverendingMode = neverendingMode;
-    }
 }

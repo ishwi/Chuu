@@ -8,8 +8,8 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
-import core.imagerenderer.util.IPieableLanguage;
-import core.imagerenderer.util.IPieableMap;
+import core.imagerenderer.util.pie.IPieableLanguage;
+import core.imagerenderer.util.pie.IPieableMap;
 import core.otherlisteners.Reactionary;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.ToLongFunction;
-import java.util.stream.Collectors;
 
 public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
     private final MusicBrainzService mb;
@@ -86,12 +85,12 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         List<AlbumInfo> albumInfos;
         if (params.getTime().equals(TimeFrameEnum.ALL)) {
             albumInfos = db.getUserAlbumByMbid(name).stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
-                    new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
+                    new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).toList();
 
         } else {
             lastFM.getChart(user, CustomTimeFrame.ofTimeFrameEnum(params.getTime()), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(CustomTimeFrame.ofTimeFrameEnum(params.getTime()), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, user), queue);
 
-            albumInfos = queue.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid(), null, null)).collect(Collectors.toList());
+            albumInfos = queue.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid(), null, null)).toList();
         }
         Map<Language, Long> languageCountByMbid = this.mb.getLanguageCountByMbid(albumInfos);
 
@@ -111,7 +110,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
 
         List<String> stringedList = languageCountByMbid.entrySet().stream().sorted(Comparator.comparingLong((ToLongFunction<Map.Entry<Language, Long>>) Map.Entry::getValue).reversed()).map((t) ->
                 String.format(". **%s** - %s %s\n", CommandUtil.cleanMarkdownCharacter(t.getKey().getName()), t.getValue().toString(), CommandUtil.singlePlural(Math.toIntExact(t.getValue()), "album", "albums")))
-                .collect(Collectors.toList());
+                .toList();
 
         for (int i = 0; i < 15 && i < stringedList.size(); i++) {
             a.append(i + 1).append(stringedList.get(i));

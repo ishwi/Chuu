@@ -190,13 +190,13 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
 
     @NotNull
     @Override
-    public Object[] toArray() {
+    public Object @NotNull [] toArray() {
         return innerQueue.toArray();
     }
 
     @NotNull
     @Override
-    public <Z> Z[] toArray(@NotNull Z[] a) {
+    public <Z> Z @NotNull [] toArray(@NotNull Z @NotNull [] a) {
         return innerQueue.toArray(a);
     }
 

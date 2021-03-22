@@ -75,11 +75,17 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             db.createGuild(guildID);
         }
 
-        List<UsersWrapper> list = db.getAllALL();
-        Optional<UsersWrapper> globalName = (list.stream().filter(user -> user.getLastFMName().equals(lastFmID)).findFirst());
-        String repeatedMessage = "That username is already registered. If you own the account pls use + **" + Chuu.getCorrespondingPrefix(e) + "login**\n" +
+        String repeatedMessage = "That username is already registered. If you own the account pls use: **" + Chuu.getCorrespondingPrefix(e) + "login**\n" +
                 "Any doubt you might have please contact the bot developers on the support server";
-        if (globalName.isPresent() && (globalName.get().getDiscordID() != userId)) {
+        boolean repeated;
+        try {
+            LastFMData byLastfmName = db.findByLastfmName(lastFmID);
+            repeated = byLastfmName.getDiscordId() != userId;
+        } catch (InstanceNotFoundException ex) {
+            repeated = false;
+        }
+
+        if (repeated) {
             sendMessageQueue(e, repeatedMessage);
             return;
         }

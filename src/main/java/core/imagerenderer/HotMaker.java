@@ -37,14 +37,21 @@ public class HotMaker {
     private static BufferedImage downvote;
 
     static {
-        try (InputStream in = BandRendered.class.getResourceAsStream("/images/downvote.png")) {
-            downvote = Scalr.resize(ImageIO.read(in), Scalr.Method.QUALITY, 15, Scalr.OP_ANTIALIAS);
+        try (InputStream down = BandRendered.class.getResourceAsStream("/images/downvote.png");
+             InputStream upvote = BandRendered.class.getResourceAsStream("/images/upvote.png")) {
+            if (down == null) {
+                downvote = null;
+            } else {
+                downvote = Scalr.resize(ImageIO.read(down), Scalr.Method.QUALITY, 15, Scalr.OP_ANTIALIAS);
+
+            }
+            if (upvote == null) {
+                upboats = null;
+            } else {
+                upboats = Scalr.resize(ImageIO.read(upvote), Scalr.Method.QUALITY, 15, Scalr.OP_ANTIALIAS);
+            }
         } catch (IOException e) {
             downvote = null;
-        }
-        try (InputStream in = BandRendered.class.getResourceAsStream("/images/upvote.png")) {
-            upboats = Scalr.resize(ImageIO.read(in), Scalr.Method.QUALITY, 15, Scalr.OP_ANTIALIAS);
-        } catch (IOException e) {
             upboats = null;
         }
     }

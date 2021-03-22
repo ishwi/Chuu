@@ -104,7 +104,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
                     " artists\n";
         };
 
-        List<Memoized<ArtistLbGlobalEntry, String>> strings = list.stream().map(x -> new Memoized<>(x, mapper)).collect(Collectors.toList());
+        List<Memoized<ArtistLbGlobalEntry, String>> strings = list.stream().map(x -> new Memoized<>(x, mapper)).toList();
         if (list.isEmpty()) {
             sendMessageQueue(e, "No one has any matching artist with you :(");
             return;

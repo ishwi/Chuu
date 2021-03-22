@@ -7,13 +7,13 @@ import core.apis.ExecutorsSingleton;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.ConcurrentLastFM;
-import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.rym.RYMSearch;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
+import core.services.tracklist.TagStorer;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -299,22 +299,16 @@ public class NPModeBuilder {
                             boolean extended = npModes.contains(NPMode.EXTENDED_TAGS);
                             Set<String> bannedTags = service.getBannedTags();
                             int limit = extended ? 12 : 5;
-                            Set<String> tags = new HashSet<>(limit);
-                            tags.addAll(lastFM.getTrackTags(limit, TopEntity.TRACK, np.getArtistName(), np.getSongName()));
+                            Set<String> tags = new HashSet<>(new TagStorer(service, lastFM, executor, np).findTags());
                             tags.removeIf(bannedTags::contains);
-                            if (tags.size() < limit) {
-                                tags.addAll(lastFM.getTrackTags(limit, TopEntity.ARTIST, np.getArtistName(), null));
-                                tags.removeIf(bannedTags::contains);
+                            if (tags.isEmpty()) {
+                                return;
+                            } else if (tags.size() > limit) {
+                                tags = tags.stream().limit(limit).collect(Collectors.toSet());
                             }
-                            if (!tags.isEmpty()) {
-                                executor.submit(new TagArtistService(service, lastFM, new ArrayList<>(tags), new ArtistInfo(null, np.getArtistName())));
-                                if (tags.size() > limit) {
-                                    tags = tags.stream().limit(limit).collect(Collectors.toSet());
-                                }
-                                String tagsField = EmbedBuilder.ZERO_WIDTH_SPACE + " • " + String.join(" - ", tags);
-                                tagsField += '\n';
-                                footerSpaces[index] = tagsField;
-                            }
+                            String tagsField = EmbedBuilder.ZERO_WIDTH_SPACE + " • " + String.join(" - ", tags);
+                            tagsField += '\n';
+                            footerSpaces[index] = tagsField;
                         } catch (LastFmException ignored) {
                         }
                     })));
@@ -481,7 +475,7 @@ public class NPModeBuilder {
                                 AlbumRatings albumRatings = service.getRatingsByName(e.isFromGuild() ? guildId : -1L, np.getAlbumName(), scrobbledArtist.getArtistId());
                                 List<Rating> userRatings = albumRatings.getUserRatings();
                                 if (npModes.contains(NPMode.SERVER_ALBUM_RYM)) {
-                                    List<Rating> serverList = userRatings.stream().filter(Rating::isSameGuild).collect(Collectors.toList());
+                                    List<Rating> serverList = userRatings.stream().filter(Rating::isSameGuild).toList();
                                     if (!serverList.isEmpty()) {
                                         footerSpaces[footerIndexes.get(NPMode.SERVER_ALBUM_RYM)] =
                                                 (String.format("%s Average: %s | Ratings: %d", serverName, average.format(serverList.stream().mapToDouble(rating -> rating.getRating() / 2f).average().orElse(0)), serverList.size()));
@@ -735,7 +729,7 @@ public class NPModeBuilder {
 
                 {
                     previousNewLinesToAdd.forEach(this::addNewLineToPrevious);
-                    List<String> collect = Arrays.stream(footerSpaces).filter(Objects::nonNull).collect(Collectors.toList());
+                    List<String> collect = Arrays.stream(footerSpaces).filter(Objects::nonNull).toList();
 
                     for (int i = 0; i < collect.size(); i++) {
                         if (npModes.contains(NPMode.TAGS) || npModes.contains(NPMode.EXTENDED_TAGS) && (i == 0)) {

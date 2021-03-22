@@ -196,7 +196,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
     private void doSend(String[] args, MessageChannel channel, Character prefix) {
         String command = args[1]
                 .charAt(0) == prefix ? args[1] : "" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
-        List<MyCommand<?>> values = categoryMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        List<MyCommand<?>> values = categoryMap.values().stream().flatMap(Collection::stream).toList();
         for (MyCommand<?> c : values) {
             if (c.getAliases().contains(command.toLowerCase())) {
                 String name = c.getName();

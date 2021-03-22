@@ -21,7 +21,6 @@ import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -87,7 +86,7 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
             return;
         }
 
-        List<String> strings = list.stream().map(PrivacyUtils::toString).collect(Collectors.toUnmodifiableList());
+        List<String> strings = list.stream().map(PrivacyUtils::toString).toList();
         for (int i = 0; i < 10 && i < strings.size(); i++) {
             a.append(i + 1).append(strings.get(i));
         }

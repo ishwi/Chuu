@@ -25,7 +25,6 @@ import org.knowm.xchart.PieChart;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -63,16 +62,16 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
 
         LastFMData name = params.getUser();
         List<ArtistInfo> artists;
-        BlockingQueue<UrlCapsule> queue;
+        String genre = params.getGenreParameters().getGenre();
+        BlockingQueue<UrlCapsule> outerQueue;
+        AtomicInteger ranker = new AtomicInteger(0);
+
         if (params.getTimeFrameEnum().isAllTime()) {
-
-            List<ScrobbledArtist> userAlbumByMbid = db.getUserArtistByMbid(name.getName());
-            artists = userAlbumByMbid.stream().filter(u -> u.getArtistMbid() != null && !u.getArtistMbid().isEmpty()).map(x ->
-                    new ArtistInfo(x.getUrl(), x.getArtist(), x.getArtistMbid())).collect(Collectors.toList());
-            queue = userAlbumByMbid.stream().map(x -> new ArtistChart(x.getUrl(), 0, x.getArtist(), x.getArtistMbid(), x.getCount(), params.isWriteTitles(), params.isWritePlays())).collect(Collectors.toCollection(LinkedBlockingDeque::new));
-
-
+            outerQueue = db.getUserArtistWithTag(name.getDiscordId(), genre).stream().map(t -> new ArtistChart(t.getUrl(), ranker.get(), t.getArtist(), t.getArtistMbid(), t.getCount(),
+                    params.isWriteTitles(), params.isWritePlays(),
+                    params.isAside())).collect(Collectors.toCollection(LinkedBlockingQueue::new));
         } else {
+            BlockingQueue<UrlCapsule> queue;
             queue = new ArrayBlockingQueue<>(4000);
 
             lastFM.getChart(name, params.getTimeFrameEnum(), 4000, 1,
@@ -85,33 +84,34 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
                         artistInfo.setMbid(x.getMbid());
                         return artistInfo;
                     }).collect(Collectors.toList());
+
+            List<ArtistInfo> albumsWithTags = db.getArtistWithTag(queue.stream().map(x -> new ArtistInfo(x.getUrl(), x.getArtistName())).collect(Collectors.toList()), params.getDiscordId(), genre);
+            Map<ArtistInfo, ArtistInfo> identityMap = albumsWithTags.stream().collect(Collectors.toMap(x -> x, x -> x, (x, y) -> x));
+            artists.removeIf(identityMap::containsKey);
+            Set<String> strings = this.mb.artistGenres(artists, genre);
+
+            LinkedBlockingQueue<UrlCapsule> collect1 = queue.stream()
+                    .filter(x -> {
+                        ArtistInfo o = new ArtistInfo(x.getUrl(), x.getArtistName());
+                        o.setMbid(x.getMbid());
+
+                        boolean contains = identityMap.containsKey(o);
+                        if (contains) {
+                            x.setUrl(identityMap.get(o).getArtistUrl());
+                        }
+                        return x.getMbid() != null && !x.getMbid().isBlank() && strings.contains(x.getMbid()) || contains;
+                    })
+                    .sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
+                    .peek(x -> x.setPos(ranker.getAndIncrement()))
+                    .limit((long) params.getX() * params.getY())
+                    .collect(Collectors.toCollection(LinkedBlockingQueue::new));
+            outerQueue = new ArtistQueue(db, DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstance());
+            outerQueue.addAll(collect1);
+            executor.submit(
+                    new TagArtistService(db, lastFM, collect1.stream().map(x -> new ArtistInfo(null, x.getArtistName(), x.getMbid())).collect(Collectors.toList()), genre));
+
         }
-        List<ArtistInfo> albumsWithTags = db.getArtistWithTag(queue.stream().map(x -> new ArtistInfo(x.getUrl(), x.getArtistName())).collect(Collectors.toList()), params.getDiscordId(), params.getGenreParameters().getGenre());
-        Map<ArtistInfo, ArtistInfo> identityMap = albumsWithTags.stream().collect(Collectors.toMap(x -> x, x -> x, (x, y) -> x));
-        artists.removeIf(identityMap::containsKey);
-        Set<String> strings = this.mb.artistGenres(artists, params.getGenreParameters().getGenre());
-
-        AtomicInteger ranker = new AtomicInteger(0);
-        LinkedBlockingQueue<UrlCapsule> collect1 = queue.stream()
-                .filter(x -> {
-                    ArtistInfo o = new ArtistInfo(x.getUrl(), x.getArtistName());
-                    o.setMbid(x.getMbid());
-
-                    boolean contains = identityMap.containsKey(o);
-                    if (contains) {
-                        x.setUrl(identityMap.get(o).getArtistUrl());
-                    }
-                    return x.getMbid() != null && !x.getMbid().isBlank() && strings.contains(x.getMbid()) || contains;
-                })
-                .sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
-                .peek(x -> x.setPos(ranker.getAndIncrement()))
-                .limit((long) params.getX() * params.getY())
-                .collect(Collectors.toCollection(LinkedBlockingQueue::new));
-        ArtistQueue artistQueue = new ArtistQueue(db, DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstance());
-        artistQueue.addAll(collect1);
-        executor.submit(
-                new TagArtistService(db, lastFM, collect1.stream().map(x -> new ArtistInfo(null, x.getArtistName(), x.getMbid())).collect(Collectors.toList()), params.getGenreParameters().getGenre()));
-        return new CountWrapper<>(ranker.get(), artistQueue);
+        return new CountWrapper<>(ranker.get(), outerQueue);
     }
 
     @Override

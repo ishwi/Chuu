@@ -15,7 +15,7 @@ public class PrefixParser extends Parser<CharacterParser> {
         errorMessages.put(0, "Pls only introduce the prefix you want the bot to use");
         StringBuilder s = new StringBuilder();
         acceptecChars.forEach(s::append);
-        errorMessages.put(1, "The prefix must be one of the following: " + s.toString());
+        errorMessages.put(1, "The prefix must be one of the following: " + s);
         errorMessages.put(2, "Insufficient Permissions, only a mod can");
 
     }

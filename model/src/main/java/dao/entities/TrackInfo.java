@@ -40,9 +40,8 @@ public class TrackInfo extends EntityInfo {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TrackInfo)) return false;
+        if (!(o instanceof TrackInfo trackInfo)) return false;
         if (!super.equals(o)) return false;
-        TrackInfo trackInfo = (TrackInfo) o;
         if (getMbid() != null && !getMbid().isBlank() && trackInfo.getMbid() != null && !trackInfo.getMbid().isBlank()) {
             return super.equals(o);
         }

@@ -409,7 +409,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                     int i = integer.getAndIncrement();
                     t.setPos(i);
                     return (i < x * y);
-                }).collect(Collectors.toList());
+                }).toList();
         queue.addAll(finalList);
         return collect.entrySet().size();
 
@@ -443,16 +443,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         while (size < requestedSize && size < limit) {
 
             String urlPage = url + "&page=" + page;
-            if (page == 3) {
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    Chuu.getLogger().warn(e.getMessage(), e);
-                }
-            }
-
             ++page;
-            System.out.println(page + " :page             size: " + size);
 
             // Execute the method.
             JSONObject obj = doMethod(urlPage, new ExceptionEntity(user.getName()), user);
@@ -1312,9 +1303,9 @@ public class ConcurrentLastFM {//implements LastFMService {
         JSONArray artistArray = globalJson.getJSONObject("similar").getJSONArray("artist");
         JSONArray tagsArray = globalJson.getJSONObject("tags").getJSONArray("tag");
         List<String> similars = StreamSupport.stream(artistArray.spliterator(), false).map(JSONObject.class::cast)
-                .map(x -> x.getString("name")).collect(Collectors.toList());
+                .map(x -> x.getString("name")).toList();
         List<String> tags = StreamSupport.stream(tagsArray.spliterator(), false).map(JSONObject.class::cast)
-                .map(x -> x.getString("name")).collect(Collectors.toList());
+                .map(x -> x.getString("name")).toList();
 
         String summary = globalJson.getJSONObject("bio").getString("summary");
         int i = summary.indexOf("<a");
@@ -1557,7 +1548,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
         JSONArray tagsArray = obj.getJSONObject("tags").getJSONArray("tag");
         List<String> tags = StreamSupport.stream(tagsArray.spliterator(), false).map(JSONObject.class::cast)
-                .map(x -> x.getString("name")).collect(Collectors.toList());
+                .map(x -> x.getString("name")).toList();
 //TODO MBIZ
         FullAlbumEntityExtended fae = new FullAlbumEntityExtended(correctedArtist, correctedAlbum, playCount, image_url, user.getName(), listeners, totalPlayCount);
         fae.setMbid(mbid);
@@ -1607,7 +1598,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         JSONArray tagsArray = obj.getJSONObject("toptags").getJSONArray("tag");
 
         List<String> tags = StreamSupport.stream(tagsArray.spliterator(), false).map(JSONObject.class::cast)
-                .map(x -> x.getString("name")).collect(Collectors.toList());
+                .map(x -> x.getString("name")).toList();
         String albumName = null;
         if ((obj).has("album")) {
             albumName = obj.getJSONObject("album").getString("title");

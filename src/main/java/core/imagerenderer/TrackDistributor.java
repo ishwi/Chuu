@@ -47,7 +47,11 @@ public class TrackDistributor {
         noalbumImage = GraphicUtils.noArtistImage;
 
         try (InputStream in = BandRendered.class.getResourceAsStream("/images/template.png")) {
-            template = ImageIO.read(in);
+            if (in != null) {
+                template = ImageIO.read(in);
+            } else {
+                throw new ChuuServiceException();
+            }
         } catch (IOException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException();

@@ -78,7 +78,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
         userList = userList.stream()
                 .filter(x ->
                         usersThatKnow.contains(x.getDiscordID()) || x.getDiscordID() == ap.getLastFMData().getDiscordId() || x.getDiscordID() == e.getAuthor().getIdLong())
-                .collect(Collectors.toList());
+                .toList();
         if (userList.isEmpty()) {
             Chuu.getLogger().error("Something went real wrong");
             sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.cleanMarkdownCharacter(ap.getArtist()), CommandUtil.cleanMarkdownCharacter(ap.getAlbum())));
@@ -101,7 +101,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
             ReturnNowPlaying np = new ReturnNowPlayingAlbum(id2, t.getKey().getLastFMName(), correctedArtist, t.getValue(), correctedAlbum);
             np.setDiscordName(CommandUtil.getUserInfoNotStripped(e, id2).getUsername());
             return np;
-        }).filter(x -> x.getPlayNumber() > 0).collect(Collectors.toList());
+        }).filter(x -> x.getPlayNumber() > 0).toList();
         if (list2.isEmpty()) {
             sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.cleanMarkdownCharacter(correctedArtist), CommandUtil.cleanMarkdownCharacter(correctedAlbum)));
             return null;

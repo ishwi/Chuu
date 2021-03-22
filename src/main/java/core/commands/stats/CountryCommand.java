@@ -1,33 +1,32 @@
 package core.commands.stats;
 
+import com.neovisionaries.i18n.CountryCode;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.imagerenderer.WorldMapRenderer;
+import core.otherlisteners.Reactionary;
 import core.parsers.NumberParser;
+import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
+import core.services.ColorService;
 import dao.ChuuService;
-import dao.entities.ArtistInfo;
-import dao.entities.Country;
-import dao.entities.LastFMData;
-import dao.entities.TimeFrameEnum;
+import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -52,10 +51,12 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and 5");
         String s = "A number which represent the palette to use.\n" +
                 "If it is not indicated it defaults to a random palette";
-        return new NumberParser<>(new TimerFrameParser(db, TimeFrameEnum.ALL),
+        NumberParser<TimeFrameParameters, TimerFrameParser> parser = new NumberParser<>(new TimerFrameParser(db, TimeFrameEnum.ALL),
                 null,
                 5,
                 map, s, false, true, false);
+        parser.addOptional(new OptionalEntity("list", "display in list format"));
+        return parser;
 
     }
 
@@ -96,7 +97,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
 
         List<ArtistInfo> topAlbums = lastFM.getTopArtists(user, new CustomTimeFrame(time), 10000).stream()
                 .filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
-                .collect(Collectors.toList());
+                .toList();
         if (topAlbums.isEmpty()) {
             sendMessageQueue(e, "Was not able to find any country on " + getUserString(e, discordId, username) + " 's artists");
             return;
@@ -109,24 +110,46 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
             sendMessageQueue(e, "Was not able to find any country on " + getUserString(e, discordId, username) + " 's artists");
             return;
         }
-        Integer indexPalette;
-        if (pallete != null)
-            indexPalette = Math.toIntExact(pallete - 1);
-        else
-            indexPalette = null;
-        byte[] b = WorldMapRenderer.generateImage(map, CommandUtil.getUserInfoNotStripped(e, discordId).getUsername(), indexPalette);
-        CommandUtil.handleConditionalMessage(future);
-        if (b == null) {
-            parser.sendError("Unknown error happened while creating the map", e);
-            return;
+
+
+        if (params.hasOptional("list")) {
+            List<String> collect = map.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
+                    ". **%s**: %d %s%n".formatted(CountryCode.getByCode(t.getKey().getCountryCode(), false).getName(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "artist", "artist"))
+            ).toList();
+
+            StringBuilder a = new StringBuilder();
+            for (int i = 0; i < collect.size() && i < 10; i++) {
+                String s = collect.get(i);
+                a.append(i + 1).append(s);
+            }
+            DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(params.getE(), discordId);
+
+            var embedBuilder = new EmbedBuilder()
+                    .setDescription(a)
+                    .setAuthor(String.format("%s's countries", uInfo.getUsername()), PrivacyUtils.getLastFmUser(user.getName()), uInfo.getUrlImage())
+                    .setColor(ColorService.computeColor(e))
+                    .setFooter("%s has artist from %d different %s".formatted(uInfo.getUsername(), collect.size(), CommandUtil.singlePlural(collect.size(), "country", "countries")), null);
+
+            e.getChannel().sendMessage(embedBuilder.build()).queue(m ->
+                    new Reactionary<>(collect, m, 10, embedBuilder));
+        } else {
+            Integer indexPalette;
+            if (pallete != null)
+                indexPalette = Math.toIntExact(pallete - 1);
+            else
+                indexPalette = null;
+            byte[] b = WorldMapRenderer.generateImage(map, CommandUtil.getUserInfoNotStripped(e, discordId).getUsername(), indexPalette);
+            CommandUtil.handleConditionalMessage(future);
+            if (b == null) {
+                parser.sendError("Unknown error happened while creating the map", e);
+                return;
+            }
+
+            if (b.length < 8388608)
+                e.getChannel().sendFile(b, "cat.png").queue();
+            else
+                e.getChannel().sendMessage("Boot too big").queue();
         }
-
-        if (b.length < 8388608)
-            e.getChannel().sendFile(b, "cat.png").queue();
-        else
-            e.getChannel().sendMessage("Boot too big").queue();
-
     }
-
 
 }

@@ -30,7 +30,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
@@ -76,7 +75,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
         CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
         String artist = scrobbledArtist.getArtist();
         List<AlbumRatings> rating = db.getArtistRatings(scrobbledArtist.getArtistId(), e.getGuild().getIdLong()).stream()
-                .sorted(Comparator.comparingDouble((AlbumRatings y) -> y.getUserRatings().stream().filter(Rating::isSameGuild).mapToLong(Rating::getRating).average().orElse(0) * y.getUserRatings().size()).reversed()).collect(Collectors.toList());
+                .sorted(Comparator.comparingDouble((AlbumRatings y) -> y.getUserRatings().stream().filter(Rating::isSameGuild).mapToLong(Rating::getRating).average().orElse(0) * y.getUserRatings().size()).reversed()).toList();
         EmbedBuilder embedBuilder = new EmbedBuilder();
 
 
@@ -89,7 +88,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
         AtomicInteger counter = new AtomicInteger(0);
         List<String> mappedString = rating.stream().map(ratings -> {
             long userScore = ratings.getUserRatings().stream().filter(x -> x.getDiscordId() == params.getLastFMData().getDiscordId()).mapToLong(Rating::getRating).sum();
-            List<Rating> serverList = ratings.getUserRatings().stream().filter(Rating::isSameGuild).collect(Collectors.toList());
+            List<Rating> serverList = ratings.getUserRatings().stream().filter(Rating::isSameGuild).toList();
             List<Rating> globalList = ratings.getUserRatings();
             OptionalDouble serverAverage = serverList.stream().mapToDouble(x -> x.getRating() / 2f).average();
             OptionalDouble globalAverage = globalList.stream().mapToDouble(x -> x.getRating() / 2f).average();
@@ -103,7 +102,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
                     "](" + LinkUtils.getLastFmArtistAlbumUrl(artist, ratings.getAlbumName()) +
                     ")** - " + format +
                     "\n\n";
-        }).collect(Collectors.toList());
+        }).toList();
         StringBuilder a = new StringBuilder();
         for (int i = 0; i < 5 && i < mappedString.size(); i++) {
             a.append(i + 1).append(mappedString.get(i));

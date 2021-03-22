@@ -27,7 +27,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 // Credits to http://thechurchofkoen.com/ for the idea and allowing me to do this command
 public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
@@ -102,7 +101,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         List<UrlCapsule> temp = new ArrayList<>();
         queue.drainTo(temp);
         AtomicInteger coutner = new AtomicInteger(0);
-        temp = temp.stream().filter(x -> !x.getUrl().isBlank()).takeWhile(x -> coutner.incrementAndGet() <= param.getX() * param.getY()).collect(Collectors.toList());
+        temp = temp.stream().filter(x -> !x.getUrl().isBlank()).takeWhile(x -> coutner.incrementAndGet() <= param.getX() * param.getY()).toList();
         int rows = param.getX();
         int cols = param.getY();
         if (temp.size() < rows * cols) {
@@ -113,7 +112,6 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
 
 
         }
-
         List<PreComputedChartEntity> collect = temp.parallelStream().map(x -> {
 
             String cover = Chuu.getCoverService().getCover(x.getArtistName(), x.getAlbumName(), x.getUrl(), param.getE());
@@ -124,7 +122,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
             } else {
                 return new PreComputedByBrightness(x, image, inverted);
             }
-        }).sorted().limit((long) rows * cols).collect(Collectors.toList());
+        }).sorted().limit((long) rows * cols).toList();
         if (isColumn) {
             int counter = 0;
             for (int i = 0; i < rows; i++) {
@@ -145,7 +143,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         stringBuilder.append(params.isColor() ? "by color" : "by brightness")
                 .append(params.isInverse() ? " inversed" : "")
                 .append(" ordered by ").append(params.isColumn() ? "column" : params.isLinear() ? "rows" : "diagonal");
-        return params.initEmbed("'s " + stringBuilder.toString(), embedBuilder, " has listened to " + count + (params.isArtist() ? " artists" : " albums"), params.getUser().getName());
+        return params.initEmbed("'s " + stringBuilder, embedBuilder, " has listened to " + count + (params.isArtist() ? " artists" : " albums"), params.getUser().getName());
 
     }
 

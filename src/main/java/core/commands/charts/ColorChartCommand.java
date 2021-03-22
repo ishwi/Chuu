@@ -148,7 +148,7 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
         }
         int rows = params.getX();
         int cols = params.getY();
-        List<PreComputedChartEntity> sorting = holding.stream().map(x -> (PreComputedChartEntity) x).sorted().limit((long) rows * cols).collect(Collectors.toList());
+        List<PreComputedChartEntity> sorting = holding.stream().map(x -> (PreComputedChartEntity) x).sorted().limit((long) rows * cols).toList();
 
         if (params.isSorted()) {
             int counter = 0;

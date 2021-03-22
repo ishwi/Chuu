@@ -19,7 +19,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TrackSearchCommand extends ListCommand<ScrobbledTrack, UserStringParameters> {
     public TrackSearchCommand(ChuuService dao) {
@@ -73,7 +72,7 @@ public class TrackSearchCommand extends ListCommand<ScrobbledTrack, UserStringPa
                 String.format(". **[%s - %s](%s)** - %d %s%n",
                         LinkUtils.cleanMarkdownCharacter(t.getName()),
                         LinkUtils.cleanMarkdownCharacter(t.getArtist()), PrivacyUtils.getLastFmArtistTrackUserUrl(t.getArtist(), t.getName(), params.getLastFMData().getName()),
-                        t.getCount(), CommandUtil.singlePlural(t.getCount(), "play", "plays"))).collect(Collectors.toList());
+                        t.getCount(), CommandUtil.singlePlural(t.getCount(), "play", "plays"))).toList();
         StringBuilder a = new StringBuilder();
 
         for (int i = 0; i < 10 && i < strs.size(); i++) {

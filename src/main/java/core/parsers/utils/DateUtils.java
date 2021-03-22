@@ -15,7 +15,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class DateUtils {
 
@@ -46,7 +45,7 @@ public class DateUtils {
         for (int i = 0, formatsLength = formats.length; i < formatsLength - 1; i++) {
             String[] dominant = formats[i];
             for (String s : dominant) {
-                List<String[]> firstPairs = Arrays.stream(formats).filter(x -> !Arrays.equals(x, dominant) && !Arrays.equals(x, formats[2])).collect(Collectors.toList());
+                List<String[]> firstPairs = Arrays.stream(formats).filter(x -> !Arrays.equals(x, dominant) && !Arrays.equals(x, formats[2])).toList();
                 assert firstPairs.size() == 1;
                 for (String[] secondItem : firstPairs) {
                     for (String string : secondItem) {
@@ -59,7 +58,7 @@ public class DateUtils {
         for (int i = 0, formatsLength = formats.length; i < formatsLength - 1; i++) {
             String[] dominant = formats[i];
             for (String s : dominant) {
-                List<String[]> firstPairs = Arrays.stream(formats).filter(x -> Arrays.equals(x, formats[2])).collect(Collectors.toList());
+                List<String[]> firstPairs = Arrays.stream(formats).filter(x -> Arrays.equals(x, formats[2])).toList();
                 assert firstPairs.size() == 1;
                 for (String[] secondItem : firstPairs) {
                     for (String string : secondItem) {
@@ -72,14 +71,14 @@ public class DateUtils {
 
         for (String[] dominant : formats) {
             for (String s : dominant) {
-                List<String[]> firstPairs = Arrays.stream(formats).filter(x -> !Arrays.equals(x, dominant)).collect(Collectors.toList());
+                List<String[]> firstPairs = Arrays.stream(formats).filter(x -> !Arrays.equals(x, dominant)).toList();
                 assert firstPairs.size() == 2;
                 for (int j = 0; j < firstPairs.size(); j++) {
                     String[] secondItem = firstPairs.get(j);
                     for (String string : secondItem) {
                         List<String> apply = function.apply(flattenFormats, s, string);
                         for (int k = 0; k < apply.size(); k++) {
-                            List<String[]> remainingPair = firstPairs.stream().filter(x -> !Arrays.equals(x, secondItem)).collect(Collectors.toList());
+                            List<String[]> remainingPair = firstPairs.stream().filter(x -> !Arrays.equals(x, secondItem)).toList();
                             assert remainingPair.size() == 1;
                             String[] thirdPairs = remainingPair.get(0);
                             for (String thirdPair : apply) {

@@ -22,7 +22,6 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class BaseTasteCommand<T extends CommandParameters> extends ConcurrentCommand<T> {
     boolean thumbnailPerRow = false;
@@ -91,7 +90,7 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         List<String> strings = resultWrapper.getResultList().stream().map(x -> String.format(". [%s](%s) - %d vs %d plays%n",
                 x.getArtistID(),
                 LinkUtils.getLastFmArtistUrl(x.getArtistID()),
-                x.getCountA(), x.getCountB())).collect(Collectors.toList());
+                x.getCountA(), x.getCountB())).toList();
         for (int i = 0, size = strings.size(); i < 10 && i < size; i++) {
             String text = strings.get(i);
             stringBuilder.append(i + 1).append(text);

@@ -121,7 +121,7 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
                             List<UrlCapsule> collect = albumMap.values().stream()
                                     .filter(y -> y.getArtistName().equals(x.getArtistName()) && x.getPlays() <= y.getPlays())
                                     .sorted((o1, o2) -> Integer.compare(o2.getPlays(), o1.getPlays()))
-                                    .collect(Collectors.toList());
+                                    .toList();
                             int size = collect.size();
                             if (size == 1) {
                                 handler.put(new AlbumInfo(collect.get(0).getAlbumName(), x.getArtistName()), x.getPlays());
@@ -161,7 +161,7 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
                     int i = counter.getAndIncrement();
                     urlCapsule.setPos(i);
                     return i < requested;
-                }).collect(Collectors.toList());
+                }).toList();
         collect.forEach(t -> wrapper.offer(CompletableFuture.supplyAsync(() ->
         {
             if (t.getUrl() == null || t.getUrl().equals(defaultTrackImage)) {
@@ -175,7 +175,7 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
     }
 
     private List<TrackInfo> wrapper(List<UrlCapsule> wrapped) {
-        List<AlbumInfo> mappedAlbums = wrapped.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).collect(Collectors.toList());
+        List<AlbumInfo> mappedAlbums = wrapped.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).toList();
         return mbiz.getAlbumInfoByNames(mappedAlbums);
     }
 

@@ -114,7 +114,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
             return GlobalStreakEntities.getComboString(aString, description, x.getaCounter(), x.getCurrentArtist(), x.getAlbCounter(), x.getCurrentAlbum(), x.gettCounter(), x.getCurrentSong());
         };
 
-        List<Memoized<GlobalStreakEntities, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).collect(Collectors.toList());
+        List<Memoized<GlobalStreakEntities, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).toList();
 
 
         if (z.isEmpty()) {

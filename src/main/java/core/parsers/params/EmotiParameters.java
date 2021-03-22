@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.SortedSet;
-import java.util.stream.Collectors;
 
 public class EmotiParameters extends CommandParameters {
 
@@ -25,11 +24,11 @@ public class EmotiParameters extends CommandParameters {
     }
 
     public List<String> getEmojis() {
-        return getEmojis.stream().filter(t -> t instanceof CustomEmoji).map(t -> ((CustomEmoji) t).entity()).collect(Collectors.toList());
+        return getEmojis.stream().filter(t -> t instanceof CustomEmoji).map(t -> ((CustomEmoji) t).entity()).toList();
     }
 
     public List<Emote> getEmotes() {
-        return getEmojis.stream().filter(t -> t instanceof CustomEmote).map(t -> ((CustomEmote) t).entity()).collect(Collectors.toList());
+        return getEmojis.stream().filter(t -> t instanceof CustomEmote).map(t -> ((CustomEmote) t).entity()).toList();
     }
 
     public boolean hasEmojis() {

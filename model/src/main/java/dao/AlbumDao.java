@@ -39,7 +39,8 @@ public interface AlbumDao {
 
     List<ScrobbledAlbum> getUserAlbumsOfYear(Connection connection, String username, Year year);
 
-    List<ScrobbledAlbum> getUserAlbumsWithNoYear(Connection connection, String username);
+
+    List<ScrobbledAlbum> getUserAlbumsWithNoYear(Connection connection, String username, int limit);
 
     void insertAlbumsOfYear(Connection connection, List<AlbumInfo> foundByYear, Year year);
 

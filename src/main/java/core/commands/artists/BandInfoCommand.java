@@ -12,7 +12,7 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.BandRendered;
 import core.imagerenderer.GraphicUtils;
-import core.imagerenderer.util.PieableListBand;
+import core.imagerenderer.util.pie.PieableListBand;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
@@ -121,7 +120,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         MessageReceivedEvent e = ap.getE();
         StringBuilder str = new StringBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        List<String> collect = ai.getAlbumList().stream().map(x -> (String.format(". **[%s](%s)** - %d plays%n", x.getAlbum(), LinkUtils.getLastFmArtistAlbumUrl(ai.getArtist(), x.getAlbum()), x.getPlays()))).collect(Collectors.toList());
+        List<String> collect = ai.getAlbumList().stream().map(x -> (String.format(". **[%s](%s)** - %d plays%n", x.getAlbum(), LinkUtils.getLastFmArtistAlbumUrl(ai.getArtist(), x.getAlbum()), x.getPlays()))).toList();
         for (int i = 0; i < collect.size() && i < 10; i++) {
             String s = collect.get(i);
             str.append(i + 1).append(s);
@@ -154,12 +153,13 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         int rgb = bufferedImage.getRGB(15, 15);
         Color color = new Color(rgb);
         int rows = Math.min(5, np.getRows());
-        BufferedImage lastFmLogo;
+        BufferedImage lastFmLogo = null;
         try (InputStream in = BandRendered.class.getResourceAsStream("/images/logo2.png")) {
-            lastFmLogo = ImageIO.read(in);
-            lastFmLogo = Scalr.resize(lastFmLogo, 15);
-        } catch (IOException e) {
-            lastFmLogo = null;
+            if (in != null) {
+                lastFmLogo = ImageIO.read(in);
+                lastFmLogo = Scalr.resize(lastFmLogo, 15);
+            }
+        } catch (IOException ignored) {
         }
         GraphicUtils.doChart(g, 10, 740 - rows * 25, 300, 25, rows, np, color, GraphicUtils.
                         makeMoreTransparent(Color.BLACK, 0.05f),

@@ -36,7 +36,7 @@ public class RYMChartEntity extends UrlCapsule {
                 float number = getPlays() / 2f;
                 String starts = "★".repeat((int) number);
                 if (number % 1 != 0)
-                    starts += "✮";
+                    starts += "☆";
                 list.add(new ChartLine(starts));
             } else
                 list.add(new ChartLine(ScoredAlbumRatings.formatter.format(average / 2f) + " in " + numberOfRatings + " " + CommandUtil.singlePlural(Math.toIntExact(numberOfRatings), "rating", "ratings")));

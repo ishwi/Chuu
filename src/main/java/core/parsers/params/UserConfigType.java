@@ -25,7 +25,7 @@ public enum UserConfigType {
     NOTIFY_RATING("rating-notify"),
     PRIVATE_LASTFM("private-lastfm"),
     SHOW_BOTTED("show-botted"),
-    NP("np"),
+    NP("nowPlayingInfo"),
     SCROBBLING("scrobbling"),
     COLOR("color"),
     TIMEZONE("timezone");
@@ -209,7 +209,7 @@ public enum UserConfigType {
             case SHOW_BOTTED:
                 return "Setting this to false will mean that you wont have to include --nobotted in the global commands to exclude accounts flagged as bots)";
             case NP:
-                return "Setting this will alter the appearance of your np commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+                return "Setting this will alter the appearance of your nowPlayingInfo commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
             case SCROBBLING:
                 return "Setting this to false will mean that whatever you play with the bot on a voice channel won't scrooble";
             case COLOR:

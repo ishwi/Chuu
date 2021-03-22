@@ -60,7 +60,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
         MessageDisablingService messageDisablingService = Chuu.getMessageDisablingService();
 
 
-        List<MyCommand<?>> commandsToAllow;
+        List<? extends MyCommand<?>> commandsToAllow;
         if (params.hasOptional("all")) {
             commandsToAllow = e.getJDA().getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?> && !(x instanceof DisabledCommand)).map(x -> (MyCommand<?>) x).collect(Collectors.toList());
         } else if (params.hasOptional("category")) {

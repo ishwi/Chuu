@@ -49,7 +49,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
 
     @Override
     public String getDescription() {
-        return "Customize your np/fm commands with several extra fields";
+        return "Customize your nowPlayingInfo/fm commands with several extra fields";
     }
 
     @Override

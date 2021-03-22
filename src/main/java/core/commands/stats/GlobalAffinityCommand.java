@@ -24,7 +24,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -75,16 +74,16 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
         LastFMData ogData = db.findLastFMData(e.getAuthor().getIdLong());
         int threshold = Math.toIntExact(params.getExtraParam());
         List<dao.entities.GlobalAffinity> serverAffinity = db.getGlobalAffinity(ogData.getName(), threshold);
-        List<dao.entities.GlobalAffinity> collect = serverAffinity.stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).collect(Collectors.toList());
+        List<dao.entities.GlobalAffinity> collect = serverAffinity.stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).toList();
 
         StringBuilder stringBuilder = new StringBuilder();
         List<String> string = collect.stream().map(x -> {
-            String name = PrivacyUtils.getPublicStr(x.getPrivacyMode(), x.getDiscordId(), x.getReceivingLastFmId(), e);
+                    String name = PrivacyUtils.getPublicStr(x.getPrivacyMode(), x.getDiscordId(), x.getReceivingLastFmId(), e);
                     return String.format(". [%s](%s) - %.2f%%%s matching%n", name,
                             CommandUtil.getLastFmUser(x.getReceivingLastFmId()),
                             (x.getAffinity() > 1 ? 1 : x.getAffinity()) * 100, x.getAffinity() > 1 ? "+" : "");
                 }
-        ).collect(Collectors.toList());
+        ).toList();
         for (
                 int i = 0, size = collect.size();
                 i < 10 && i < size; i++) {

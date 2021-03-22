@@ -1,6 +1,5 @@
 package core.commands.abstracts;
 
-import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
@@ -20,7 +19,7 @@ public abstract class ListCommand<T, Y extends CommandParameters> extends Concur
     public abstract Parser<Y> initParser();
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull Y params) throws LastFmException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull Y params) {
 
 
         List<T> list = getList(params);

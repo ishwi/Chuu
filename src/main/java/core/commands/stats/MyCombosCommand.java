@@ -17,7 +17,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 
 public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -67,7 +66,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
                             StringBuilder description = new StringBuilder(CommandUtil.getDayNumberSuffix(andIncrement) + "\n");
                             return GlobalStreakEntities.getComboString(aString, description, combo.getaCounter(), combo.getCurrentArtist(), combo.getAlbCounter(), combo.getCurrentAlbum(), combo.gettCounter(), combo.getCurrentSong());
                         }
-                ).collect(Collectors.toList());
+                ).toList();
         if (streaks.isEmpty()) {
             sendMessageQueue(e, userName + " doesn't have any stored streak in the bot.");
             return;

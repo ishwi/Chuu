@@ -36,7 +36,7 @@ public class TagArtistService extends TagService<ArtistInfo, ScrobbledArtist> {
     protected Map<ArtistInfo, ScrobbledArtist> validate(List<ArtistInfo> toValidate) {
         Map<ArtistInfo, ScrobbledArtist> scrobbledArtistMap = new HashMap<>();
 //        Map<String, AlbumInfo> mbidIndex = toValidate.stream().collect(Collectors.toMap(EntityInfo::getMbid, x -> x));
-        List<ScrobbledArtist> scrobbledArtists = toValidate.stream().map(x -> new ScrobbledArtist(x.getArtist(), 0, null)).collect(Collectors.toList());
+        List<ScrobbledArtist> scrobbledArtists = toValidate.stream().map(x -> new ScrobbledArtist(x.getArtist(), 0, null)).toList();
         dao.filldArtistIds(scrobbledArtists);
 
         Map<String, ScrobbledArtist> foudnAlbumIndexMap = scrobbledArtists.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, x -> x, (x, y) -> x));

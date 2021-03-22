@@ -30,7 +30,6 @@ import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -121,7 +120,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
                 LinkUtils.cleanMarkdownCharacter(x.getTrack()) +
                 "](" + LinkUtils.getLastFMArtistTrack(scrobbledArtist.getArtist(), x.getTrack()) +
                 ")** - " + x.getCount() +
-                " plays\n").collect(Collectors.toList());
+                " plays\n").toList();
         for (int i = 0; i < 10 && i < rows; i++) {
             a.append(i + 1).append(strings.get(i));
         }

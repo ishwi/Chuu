@@ -23,7 +23,6 @@ import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Credits: to lfmwhoknows bot owner for the idea
@@ -85,22 +84,22 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
         MessageReceivedEvent e = ap.getE();
         LastFMData ogData = db.findLastFMData(e.getAuthor().getIdLong());
         List<Affinity> serverAffinity = db.getServerAffinity(ogData.getName(), e.getGuild().getIdLong(), ap.getThreshold());
-        List<Affinity> collect = serverAffinity.stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).collect(Collectors.toList());
+        List<Affinity> collect = serverAffinity.stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).toList();
 
         StringBuilder stringBuilder = new StringBuilder();
         List<String> string = collect.stream().map(x -> String.format(". [%s](%s) - %.2f%%%s matching%n", getUserString(e, x.getDiscordId()),
                 CommandUtil.getLastFmUser(x.getReceivingLastFmId()),
-                (x.getAffinity() > 1 ? 1 : x.getAffinity()) * 100, x.getAffinity() > 1 ? "+" : "")).collect(Collectors.toList());
+                (x.getAffinity() > 1 ? 1 : x.getAffinity()) * 100, x.getAffinity() > 1 ? "+" : "")).toList();
         for (int i = 0, size = collect.size(); i < 10 && i < size; i++) {
             String text = string.get(i);
             stringBuilder.append(i + 1).append(text);
         }
-        DiscordUserDisplay uinfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, e.getAuthor().getIdLong());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, e.getAuthor().getIdLong());
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(stringBuilder)
-                .setTitle(uinfo.getUsername() + "'s soulmates in " + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()))
+                .setTitle(uInfo.getUsername() + "'s soulmates in " + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()))
                 .setColor(ColorService.computeColor(e))
-                .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uinfo.getUsername()), ap.getThreshold()), null)
+                .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uInfo.getUsername()), ap.getThreshold()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(string, message1, embedBuilder));

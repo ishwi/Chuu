@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
 
     private final LoadingCache<Long, LocalDateTime> controlAccess;
+    private final LoadingCache<Long, LocalDateTime> serverControlAccess;
 
     public PlayingCommand(ChuuService dao) {
         super(dao);
@@ -40,6 +41,12 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                 new CacheLoader<>() {
                     public LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
                         return LocalDateTime.now().plus(12, ChronoUnit.HOURS);
+                    }
+                });
+        serverControlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(3, TimeUnit.MINUTES).build(
+                new CacheLoader<>() {
+                    public LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
+                        return LocalDateTime.now().plus(3, ChronoUnit.MINUTES);
                     }
                 });
     }
@@ -72,16 +79,17 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         boolean showFresh = !params.hasOptional("recent");
 
         List<UsersWrapper> list = db.getAll(e.getGuild().getIdLong());
+        LocalDateTime cooldown = serverControlAccess.getIfPresent(e.getGuild().getIdLong());
+        if (cooldown != null) {
+            format(e, cooldown, "This command has a 3 min cooldown ");
+            return;
+        } else {
+            serverControlAccess.refresh(e.getGuild().getIdLong());
+        }
         if (list.size() > 50) {
             LocalDateTime ifPresent = controlAccess.getIfPresent(e.getGuild().getIdLong());
             if (ifPresent != null) {
-                LocalDateTime now = LocalDateTime.now();
-                long hours = now.until(ifPresent, ChronoUnit.HOURS);
-                now = now.plus(hours, ChronoUnit.HOURS);
-                long minutes = now.until(ifPresent, ChronoUnit.MINUTES);
-
-                sendMessageQueue(e, "This server has too many users, so the playing command can only be executed twice per day (usable in " + hours + " hours and " + minutes + " minutes)");
-                return;
+                format(e, ifPresent, "This server has too many users, so the playing command can only be executed twice per day ");
             } else {
                 controlAccess.refresh(e.getGuild().getIdLong());
             }
@@ -143,6 +151,15 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(result, message1, pageSize, embedBuilder, false, true));
 
+    }
+
+    private void format(MessageReceivedEvent e, LocalDateTime cooldown, String s) {
+        LocalDateTime now = LocalDateTime.now();
+        long hours = now.until(cooldown, ChronoUnit.HOURS);
+        now = now.plus(hours, ChronoUnit.HOURS);
+        long minutes = now.until(cooldown, ChronoUnit.MINUTES);
+        String hstr = hours <= 0 ? "" : "%d %s and ".formatted(hours, CommandUtil.singlePlural(hours, "hour", "hours"));
+        sendMessageQueue(e, "%s (usable in %s%d %s)".formatted(s, hstr, minutes, CommandUtil.singlePlural(minutes, "minute", "minutes")));
     }
 
     @Override

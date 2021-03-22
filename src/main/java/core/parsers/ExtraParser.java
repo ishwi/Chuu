@@ -104,7 +104,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
     @Override
     protected Z parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
         Map<Boolean, List<String>> collect = Arrays.stream(words).collect(Collectors.partitioningBy((predicate)));
-        List<J> first = collect.get(true).stream().map(fromString).collect(Collectors.toList());
+        List<J> first = collect.get(true).stream().map(fromString).toList();
         List<String> returning = collect.get(false);
         J item;
         if (first.isEmpty()) {

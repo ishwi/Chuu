@@ -25,6 +25,7 @@ import org.json.JSONTokener;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -51,19 +52,25 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     public static void refreshLOONAS() {
-        try (InputStreamReader in = new InputStreamReader(WhoKnowsLoonasCommand.class.getResourceAsStream("/loonas.json"), StandardCharsets.UTF_8)) {
-            MultiValuedMap<LOONA, String> temp = new HashSetValuedHashMap<>();
-            JSONArray jsonArray = new JSONArray(new JSONTokener(in));
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                String name = jsonObject.getString("name");
-                StreamSupport.stream(jsonObject.getJSONArray("group").spliterator(), false).
-                        map(JSONObject.class::cast).map(x -> x.getString("type")).map(LOONA::get).forEach(l -> temp.put(l, name));
+
+        try (InputStream resourceAsStream = WhoKnowsLoonasCommand.class.getResourceAsStream("/loonas.json")) {
+            if (resourceAsStream == null) {
+                throw new IllegalStateException("Could not init class.");
             }
-            loonas = temp;
-            Map<String, LOONA> temp2 = new HashMap<>();
-            temp.asMap().forEach((key, value) -> value.forEach(y -> temp2.put(y, key)));
-            reverseLookUp = temp2;
+            try (InputStreamReader in = new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8)) {
+                MultiValuedMap<LOONA, String> temp = new HashSetValuedHashMap<>();
+                JSONArray jsonArray = new JSONArray(new JSONTokener(in));
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    String name = jsonObject.getString("name");
+                    StreamSupport.stream(jsonObject.getJSONArray("group").spliterator(), false).
+                            map(JSONObject.class::cast).map(x -> x.getString("type")).map(LOONA::get).forEach(l -> temp.put(l, name));
+                }
+                loonas = temp;
+                Map<String, LOONA> temp2 = new HashMap<>();
+                temp.asMap().forEach((key, value) -> value.forEach(y -> temp2.put(y, key)));
+                reverseLookUp = temp2;
+            }
         } catch (Exception exception) {
             throw new IllegalStateException("Could not init class.", exception);
         }
@@ -143,7 +150,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                                     String artistUrl = db.getArtistUrl(representative);
                                     return new WrapperReturnNowPlaying(x.getValue(), x.getValue().size(), artistUrl, representative);
                                 })
-                                .collect(Collectors.toList());
+                                .toList();
                         switch (params.getTargetedType()) {
                             case GROUP, MISC -> {
                                 xSize = 1;
@@ -171,7 +178,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                                     String artistUrl = db.getArtistUrl(representative);
                                     return new WrapperReturnNowPlaying(x.getValue(), x.getValue().size(), artistUrl, representative);
                                 })
-                                .collect(Collectors.toList());
+                                .toList();
                         xSize = 2;
                         y = 2;
                     } else {
@@ -260,7 +267,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                     String artistUrl = db.getArtistUrl(representative);
                     consumer.accept(representative, x);
                     return new WrapperReturnNowPlaying(x.getValue(), x.getValue().size(), artistUrl, representative);
-                }).collect(Collectors.toList());
+                }).toList();
     }
 
     private WrapperReturnNowPlaying handleRepresentatives(LOONAParameters

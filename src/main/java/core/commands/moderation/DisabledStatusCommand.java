@@ -66,7 +66,7 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
         Map<Long, GuildChannel> channelMap = e.getGuild().getChannels().stream().collect(Collectors.toMap(ISnowflake::getIdLong, x ->
                 x));
         List<? extends MyCommand<?>>
-                disabledServerCommands = disabledServersMap.entries().stream().filter(x -> x.getKey().equals(e.getGuild().getIdLong())).map(Map.Entry::getValue).collect(Collectors.toList());
+                disabledServerCommands = disabledServersMap.entries().stream().filter(x -> x.getKey().equals(e.getGuild().getIdLong())).map(Map.Entry::getValue).toList();
         Map<GuildChannel, List<MyCommand<?>>> channelSpecificDisables = disabledChannelsMap.entries().stream()
                 .filter(x -> x.getKey().getLeft().equals(e.getGuild().getIdLong()))
                 .filter(x -> !disabledServerCommands.contains(x.getValue()))

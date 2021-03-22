@@ -21,7 +21,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
 
@@ -70,7 +69,7 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
 
         String correctedArtist = CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist());
         List<String> artistAliases = db.getArtistAliases(scrobbledArtist.getArtistId())
-                .stream().map(x -> ". **" + CommandUtil.cleanMarkdownCharacter(x) + "**\n").collect(Collectors.toList());
+                .stream().map(x -> ". **" + CommandUtil.cleanMarkdownCharacter(x) + "**\n").toList();
         if (artistAliases.isEmpty()) {
             sendMessageQueue(e, correctedArtist + " doesn't have any correction:");
             return;

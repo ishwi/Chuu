@@ -174,7 +174,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
                 x -> {
                     List<Integer> matchingIndices = IntStream.range(0, palettes.size())
                             .filter(t -> x.getDecidedCOlor().equals(palettes.get(t))).boxed()// Only keep those indices
-                            .collect(Collectors.toList());
+                            .toList();
                     boolean matched = false;
                     for (Integer i : matchingIndices) {
                         assert i != -1;

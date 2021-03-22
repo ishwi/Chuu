@@ -5,7 +5,8 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
-import core.imagerenderer.util.IPieableMap;
+import core.imagerenderer.util.bubble.StringFrequency;
+import core.imagerenderer.util.pie.IPieableMap;
 import core.otherlisteners.Reactionary;
 import core.parsers.NumberParser;
 import core.parsers.OptionalEntity;
@@ -46,15 +47,22 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
     public GenreCommand(ChuuService dao) {
         super(dao);
         this.musicBrainz = MusicBrainzServiceSingleton.getInstance();
-        pieable = (chart, params, data) -> {
-            data.entrySet().stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).sequential().limit(params.getExtraParam())
-                    .forEach(entry -> {
-                        Genre genre = entry.getKey();
-                        int plays = entry.getValue();
-                        chart.addSeries(genre.getGenreName() + "\u200B", plays);
-                    });
-            return chart;
+        pieable = new IPieableMap<>() {
+            @Override
+            public List<StringFrequency> obtainFrequencies(Map<Genre, Integer> data, NumberParameters<TimeFrameParameters> params) {
+                return data.entrySet().stream().map(t -> new StringFrequency(t.getKey().getGenreName(), t.getValue())).toList();
+            }
 
+            @Override
+            public PieChart fillPie(PieChart chart, NumberParameters<TimeFrameParameters> params, Map<Genre, Integer> data) {
+                data.entrySet().stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).sequential().limit(params.getExtraParam())
+                        .forEach(entry -> {
+                            Genre genre = entry.getKey();
+                            int plays = entry.getValue();
+                            chart.addSeries(genre.getGenreName() + "\u200B", plays);
+                        });
+                return chart;
+            }
         };
     }
 
@@ -71,9 +79,9 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                 "defaults to 10";
 
         TimerFrameParser timerFrameParser = new TimerFrameParser(db, TimeFrameEnum.ALL);
-        timerFrameParser.addOptional(new OptionalEntity("artist", "use artists instead of albums for the genres"));
+        timerFrameParser.addOptional(new OptionalEntity("albums", "use albums instead of artist for the genres"));
         timerFrameParser.addOptional(new OptionalEntity("lastfm", "use lastfm tags instead of musicbrainz"));
-        timerFrameParser.addOptional(new OptionalEntity("mix", "use both lastfm and musicbrainz tags"));
+        timerFrameParser.addOptional(new OptionalEntity("mb", "use only musicbrainz tags"));
 
 
         timerFrameParser.addOptional(new OptionalEntity("list", "display in list format"));
@@ -113,24 +121,29 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
         String usableString = userInfo.getUsername();
         String urlImage = userInfo.getUrlImage();
-        boolean mix = params.hasOptional("mix");
+        boolean mb = params.hasOptional("mb");
         boolean lastfm = params.hasOptional("lastfm");
-        String service = mix ? "Musicbrainz and Last.fm" : lastfm ? "Last.fm" : "Musicbrainz";
+        String service = mb ? "Musicbrainz" : lastfm ? "Last.fm" : "Last.fm and Musicbrainz";
         Map<Genre, Integer> map = new HashMap<>();
         boolean doArtists = params.hasOptional("artist");
         if (doArtists) {
+            List<ArtistInfo> artistInfos;
+            if (timeframe == TimeFrameEnum.ALL && !mb) {
+                artistInfos = db.getAllUserArtist(user.getDiscordId()).stream().map(t -> new ArtistInfo(t.getUrl(), t.getArtist(), t.getUrl())).toList();
+            } else {
+                artistInfos = lastFM.getTopArtists(user, CustomTimeFrame.ofTimeFrameEnum(timeframe), 3000);
+            }
 
-            List<ArtistInfo> artistInfos = lastFM.getTopArtists(user, CustomTimeFrame.ofTimeFrameEnum(timeframe), 3000);
-            List<ArtistInfo> mbidArtists = artistInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
-                    .collect(Collectors.toList());
             if (artistInfos.isEmpty()) {
                 sendMessageQueue(e, "Was not able to find any genre in " + usableString + "'s top 3000 artists" + innerParams.getTime().getDisplayString() + " on " + service);
                 return;
             }
-            if (mix || lastfm) {
+            if (lastfm || !mb) {
                 map.putAll(db.genreCountsByArtist(artistInfos));
             }
-            if (mix || !lastfm) {
+            if (mb || !lastfm) {
+                List<ArtistInfo> mbidArtists = artistInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
+                        .toList();
                 Map<Genre, List<ArtistInfo>> genreListMap = musicBrainz.genreCountByartist(mbidArtists);
                 executor.submit(new TagArtistService(db, lastFM, genreListMap));
                 map.putAll(genreListMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size())));
@@ -142,20 +155,20 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
 
             if (timeframe == TimeFrameEnum.ALL) {
                 albumInfos = db.getUserAlbumByMbid(username).stream().map(x ->
-                        new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList());
-                albumMbids = albumInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty()).collect(Collectors.toList());
+                        new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).toList();
+                albumMbids = albumInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty()).toList();
             } else {
                 albumInfos = lastFM.getTopAlbums(user, CustomTimeFrame.ofTimeFrameEnum(timeframe), 3000);
-                albumMbids = albumInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty()).collect(Collectors.toList());
+                albumMbids = albumInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty()).toList();
             }
             if (albumInfos.isEmpty()) {
                 sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 albums%s on %s", usableString, innerParams.getTime().getDisplayString(), service));
                 return;
             }
-            if (mix || lastfm) {
+            if (lastfm || !mb) {
                 map.putAll(db.genreCountsByAlbum(albumInfos));
             }
-            if (mix || !lastfm) {
+            if (mb || !lastfm) {
                 Map<Genre, List<AlbumInfo>> genreListMap = musicBrainz.genreCount(albumMbids);
                 executor.submit(new TagAlbumService(db, lastFM, genreListMap));
                 map = genreListMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size()));
@@ -169,7 +182,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
 
         if (params.hasOptional("list")) {
             List<String> collect = map.entrySet()
-                    .stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).map(x -> ". **" + WordUtils.capitalizeFully(CommandUtil.cleanMarkdownCharacter(x.getKey().getGenreName())) + "** - " + x.getValue() + "\n").collect(Collectors.toList());
+                    .stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).map(x -> ". **" + WordUtils.capitalizeFully(CommandUtil.cleanMarkdownCharacter(x.getKey().getGenreName())) + "** - " + x.getValue() + "\n").toList();
             if (collect.isEmpty()) {
                 sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 %s%s on%s", usableString, doArtists ? "artists" : "albums", innerParams.getTime().getDisplayString(), service));
                 return;

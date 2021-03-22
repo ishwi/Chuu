@@ -70,8 +70,8 @@ public class ScrobblerEventListener implements AudioEventListener {
                 if (voiceState == null || !voiceState.inVoiceChannel() || voiceState.getChannel() == null)
                     return;
                 VoiceChannel channel = voiceState.getChannel();
-                List<Long> collect = channel.getMembers().stream().mapToLong(ISnowflake::getIdLong).boxed().collect(Collectors.toList());
-                Set<LastFMData> scrobbleableUsers = db.findScrobbleableUsers(channel.getGuild().getIdLong()).stream().filter(x -> collect.contains(x.getDiscordId())).collect(Collectors.toSet());
+                List<Long> voiceMembers = channel.getMembers().stream().mapToLong(ISnowflake::getIdLong).boxed().toList();
+                Set<LastFMData> scrobbleableUsers = db.findScrobbleableUsers(channel.getGuild().getIdLong()).stream().filter(x -> voiceMembers.contains(x.getDiscordId())).collect(Collectors.toSet());
 
 
                 Scrobble scrobble = obtainScrobble(playingTrack, false);
@@ -110,7 +110,7 @@ public class ScrobblerEventListener implements AudioEventListener {
             GuildVoiceState voiceState = musicManager.getGuild().getSelfMember().getVoiceState();
             assert voiceState != null && voiceState.inVoiceChannel() && voiceState.getChannel() != null;
             VoiceChannel channel = voiceState.getChannel();
-            List<Long> collect = channel.getMembers().stream().mapToLong(ISnowflake::getIdLong).boxed().collect(Collectors.toList());
+            List<Long> collect = channel.getMembers().stream().mapToLong(ISnowflake::getIdLong).boxed().toList();
             Set<LastFMData> scrobbleableUsers = db.findScrobbleableUsers(channel.getGuild().getIdLong()).stream().filter(x -> collect.contains(x.getDiscordId())).collect(Collectors.toSet());
 
             Scrobble scrobble = obtainScrobble(playingTrack, true);

@@ -66,7 +66,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
         AtomicInteger counter = new AtomicInteger(0);
         BlockingQueue<UrlCapsule> collect = guildTop.getResultList().stream().sorted(Comparator.comparingInt(ScrobbledArtist::getCount).reversed()).
                 map(x ->
-                        new ArtistChart(x.getUrl(), counter.getAndIncrement(), x.getArtist(), null, x.getCount(), gp.isWriteTitles(), gp.isWritePlays())
+                        new ArtistChart(x.getUrl(), counter.getAndIncrement(), x.getArtist(), null, x.getCount(), gp.isWriteTitles(), gp.isWritePlays(), gp.isAside())
                 ).collect(Collectors.toCollection(LinkedBlockingDeque::new));
         return new CountWrapper<>(guildTop.getRows(), collect);
     }

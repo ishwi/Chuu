@@ -1,7 +1,6 @@
 package core.commands.abstracts;
 
-import core.exceptions.LastFmException;
-import core.imagerenderer.util.PieableListResultWrapper;
+import core.imagerenderer.util.pie.PieableListResultWrapper;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.ResultWrapper;
@@ -19,7 +18,7 @@ public abstract class ResultWrappedCommand<T, Y extends CommandParameters> exten
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull Y params) throws LastFmException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull Y params) {
 
         if (params.hasOptional("pie")) {
             doPie(getList(params), params);

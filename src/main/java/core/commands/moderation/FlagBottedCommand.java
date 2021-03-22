@@ -2,7 +2,6 @@ package core.commands.moderation;
 
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.UserModerationParser;
 import core.parsers.params.ChuuDataParams;
@@ -46,7 +45,7 @@ public class FlagBottedCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws InstanceNotFoundException {
         LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Only bot admins can flag people as bots!");

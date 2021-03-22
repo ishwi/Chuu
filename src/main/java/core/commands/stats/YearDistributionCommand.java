@@ -19,7 +19,6 @@ import dao.entities.AlbumInfo;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -30,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Collectors;
 
 public class YearDistributionCommand extends ConcurrentCommand<TimeFrameParameters> {
 
@@ -66,7 +64,7 @@ public class YearDistributionCommand extends ConcurrentCommand<TimeFrameParamete
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException {
         LastFMData user = params.getLastFMData();
         Map<Year, Integer> counts;
         if (params.getTime() == TimeFrameEnum.ALL) {
@@ -76,13 +74,13 @@ public class YearDistributionCommand extends ConcurrentCommand<TimeFrameParamete
             BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
             lastFM.getChart(user, ctF,
                     3000, 1, TopEntity.ALBUM, ChartUtil.getParser(ctF, TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, user), queue);
-            List<AlbumInfo> albums = queue.stream().map(t -> new AlbumInfo(t.getAlbumName(), t.getArtistName())).collect(Collectors.toList());
+            List<AlbumInfo> albums = queue.stream().map(t -> new AlbumInfo(t.getAlbumName(), t.getArtistName())).toList();
             counts = db.getUserYearsFromList(user.getName(), albums);
         }
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, user.getDiscordId());
         List<String> collect = counts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                 ". **%d**: %d %s%n".formatted(t.getKey().getValue(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))
-        ).collect(Collectors.toList());
+        ).toList();
 
         StringBuilder a = new StringBuilder();
         for (int i = 0; i < collect.size() && i < 20; i++) {

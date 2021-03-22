@@ -3,7 +3,6 @@ package core.apis.lyrics;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TextSplitter {
     public static List<String> split(String content) {
@@ -16,7 +15,7 @@ public class TextSplitter {
 
     public static List<String> split(String content, int limit, String separator) {
         List<String> pages = new ArrayList<>();
-        List<String> lines = Arrays.stream(content.trim().split(separator)).dropWhile(String::isBlank).collect(Collectors.toList());
+        List<String> lines = Arrays.stream(content.trim().split(separator)).dropWhile(String::isBlank).toList();
         StringBuilder chunk = new StringBuilder();
         for (String line : lines) {
             if (chunk.length() != 0 && chunk.length() + line.length() > limit) {

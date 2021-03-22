@@ -4,6 +4,7 @@ import core.apis.last.entities.chartentities.RYMChartEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.charts.ChartableCommand;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.PrivacyUtils;
 import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
 import core.parsers.OptionalEntity;
@@ -110,9 +111,8 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
             title = userInfoConsideringGuildOrNot.getUsername();
             url = userInfoConsideringGuildOrNot.getUrlImage();
         }
-        String tile = "Top Rated albums in " + title;
-        return embedBuilder.setAuthor(tile, url)
-                .setThumbnail(url)
+        String tile = "Top rated albums in " + title;
+        return embedBuilder.setAuthor(tile, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), url)
                 .setFooter("Top " + params.getX() * params.getY() + " rated albums in " + tile)
                 .setColor(CommandUtil.randomColor(params.getE()));
 

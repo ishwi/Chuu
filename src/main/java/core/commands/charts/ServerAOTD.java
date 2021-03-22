@@ -3,7 +3,7 @@ package core.commands.charts;
 import core.apis.last.entities.chartentities.AlbumChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.utils.CommandUtil;
-import core.imagerenderer.util.PieSetUp;
+import core.imagerenderer.util.pie.PieSetUp;
 import core.parsers.ChartDecadeParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearRangeParameters;

@@ -38,7 +38,7 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
         LastFMData discordName;
         Year baseYear = Year.now().minus(Year.now().getValue() % 10, ChronoUnit.YEARS);
         int numberOfYears = 9;
-        Pattern compile = Pattern.compile("(?:.*)(\\s*(\\d{4})\\s*-\\s*(\\d{4})\\s*)(?:.*)");
+        Pattern compile = Pattern.compile(".*(\\s*(\\d{4})\\s*-\\s*(\\d{4})\\s*).*");
         boolean matched = false;
 
         String join = String.join(" ", subMessage);

@@ -45,7 +45,7 @@ public class CustomTimeFrameParser implements TimeFrameParserObtainer {
                 String artistName = artistObj.getString("name");
                 int plays = artistObj.getInt("playcount");
                 String mbid = artistObj.getString("mbid");
-                return new ArtistChart(null, size, artistName, mbid, plays, chartParameters.isWriteTitles(), chartParameters.isWritePlays());
+                return new ArtistChart(null, size, artistName, mbid, plays, chartParameters.isWriteTitles(), chartParameters.isWritePlays(), chartParameters.isAside());
             };
             case TRACK -> (trackObj, size) -> {
                 String name = trackObj.getString("name");

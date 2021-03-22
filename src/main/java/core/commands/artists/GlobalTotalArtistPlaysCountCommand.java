@@ -3,7 +3,7 @@ package core.commands.artists;
 import core.commands.abstracts.ResultWrappedCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.imagerenderer.util.PieableListResultWrapper;
+import core.imagerenderer.util.pie.PieableListResultWrapper;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -18,7 +18,6 @@ import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
     public GlobalTotalArtistPlaysCountCommand(ChuuService dao) {
@@ -62,7 +61,7 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
         List<ArtistPlays> resultList = list.getResultList();
 
         List<String> strList = resultList.stream().map(x -> String.format(". [%s](%s) - %d plays%n",
-                CommandUtil.cleanMarkdownCharacter(x.getArtistName()), LinkUtils.getLastFmArtistUrl(x.getArtistName()), x.getCount())).collect(Collectors.toList());
+                CommandUtil.cleanMarkdownCharacter(x.getArtistName()), LinkUtils.getLastFmArtistUrl(x.getArtistName()), x.getCount())).toList();
         EmbedBuilder embedBuilder = initList(strList, e)
                 .setTitle("Most Played Artists")
                 .setFooter(String.format("%s has stored %d plays!%n", e.getJDA().getSelfUser().getName(), list.getRows()), null)

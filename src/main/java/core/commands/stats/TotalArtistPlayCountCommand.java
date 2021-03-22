@@ -3,7 +3,7 @@ package core.commands.stats;
 import core.commands.abstracts.ResultWrappedCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.imagerenderer.util.PieableListResultWrapper;
+import core.imagerenderer.util.pie.PieableListResultWrapper;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -17,7 +17,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
 
@@ -62,7 +61,7 @@ public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlay
 
         List<String> collect = list.stream().map(x -> String.format(". [%s](%s) - %d plays %n",
                 CommandUtil.cleanMarkdownCharacter(x.getArtistName()), LinkUtils.getLastFmArtistUrl(x.getArtistName()), x.getCount()))
-                .collect(Collectors.toList());
+                .toList();
         EmbedBuilder embedBuilder = initList(collect, e)
                 .setTitle("Total artist plays")
                 .setFooter(String.format("%s has %d total plays!%n", e.getGuild().getName(), wrapper.getRows()), null)

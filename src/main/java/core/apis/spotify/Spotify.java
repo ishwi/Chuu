@@ -96,7 +96,7 @@ public class Spotify {
                 e.printStackTrace();
                 return null;
             }
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        }).filter(Objects::nonNull).toList();
     }
 
     public String getAlbumLink(String artist, String album) {
@@ -162,7 +162,7 @@ public class Spotify {
                 dao.entities.Track track = new dao.entities.Track(artist, x.getName(), 0, false, x.getDurationMs());
                 track.setPosition(x.getTrackNumber() - 1);
                 return track;
-            }).collect(Collectors.toList());
+            }).toList();
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             return tracks;
         }
@@ -190,14 +190,17 @@ public class Spotify {
     }
 
     public String getArtistUrlImage(String artist) {
-        Artist[] artists = searchArtist(artist);
         if (artist == null) {
             return "";
         }
-        for (Artist item : artists) {
-            Image[] images = item.getImages();
-            if (images.length != 0)
-                return images[0].getUrl();
+        Artist[] artists = searchArtist(artist);
+
+        if (artists != null) {
+            for (Artist item : artists) {
+                Image[] images = item.getImages();
+                if (images.length != 0)
+                    return images[0].getUrl();
+            }
         }
         return "";
     }

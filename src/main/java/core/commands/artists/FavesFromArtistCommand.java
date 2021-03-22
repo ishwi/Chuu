@@ -26,7 +26,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFrameParameters> {
 
@@ -79,7 +78,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         if (timeframew.equals(TimeFrameEnum.ALL)) {
             ai = db.getTopArtistTracks(lastFmName, who.getArtistId(), Integer.MAX_VALUE);
             if (ai.isEmpty()) {
-                sendMessageQueue(e, ("Couldn't find your fav tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString() + ", try updating first!"));
+                sendMessageQueue(e, ("Couldn't find your fav tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString()));
                 return;
             }
         } else {
@@ -94,7 +93,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
 
         StringBuilder a = new StringBuilder();
         List<String> s = ai.stream().map(g -> ". **[" + CommandUtil.cleanMarkdownCharacter(g.getName()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getName()) + ")** - " + g.getPlays() + " plays" +
-                "\n").collect(Collectors.toList());
+                "\n").toList();
         for (int i = 0; i < ai.size() && i < 10; i++) {
             String sb = s.get(i);
             a.append(i + 1).append(sb);
