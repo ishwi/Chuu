@@ -15,7 +15,7 @@ CREATE TABLE if not exists `track_tags`
     PRIMARY KEY (`id`),
     UNIQUE KEY `track_id` (`artist_id`, `track_id`, `tag`),
     KEY `album_tags_fk_album_id` (`track_id`),
-    CONSTRAINT `track_tags_fk_album_id` FOREIGN KEY (`album_id`) REFERENCES `album` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `track_tags_fk_album_id` FOREIGN KEY (`track_id`) REFERENCES `track` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `track_tags_fk_artist_id` FOREIGN KEY (`artist_id`) REFERENCES `artist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;

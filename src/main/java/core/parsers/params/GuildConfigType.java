@@ -15,10 +15,10 @@ import java.util.stream.Stream;
 
 public enum GuildConfigType {
     CHART_MODE("chart"), CROWNS_THRESHOLD("crowns"),
-    ALLOW_NP_REACTIONS("nowPlayingInfo-reactions"),
+    ALLOW_NP_REACTIONS("np-reactions"),
     OVERRIDE_NP_REACTIONS("override-reactions"),
     OVERRIDE_COLOR("override-color"),
-    DELETE_MESSAGE("delete-message"), NP("nowPlayingInfo"), REMAINING_MODE("rest"), SHOW_DISABLED_WARNING("disabled-warning"),
+    DELETE_MESSAGE("delete-message"), NP("np"), REMAINING_MODE("rest"), SHOW_DISABLED_WARNING("disabled-warning"),
     COLOR("color"),
     WHOKNOWS_MODE("whoknows"),
 

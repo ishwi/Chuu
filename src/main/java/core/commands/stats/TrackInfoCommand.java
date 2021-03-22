@@ -9,9 +9,11 @@ import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.ColorService;
+import core.services.TrackTagService;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
+import dao.entities.TrackInfo;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -89,6 +91,8 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
         e.getChannel().sendMessage(embedBuilder.build()).
 
                 queue();
-
+        if (!trackInfo.getTags().isEmpty()) {
+            executor.submit(new TrackTagService(db, lastFM, trackInfo.getTags(), new TrackInfo(trackInfo.getArtist(), null, trackInfo.getName(), null)));
+        }
     }
 }

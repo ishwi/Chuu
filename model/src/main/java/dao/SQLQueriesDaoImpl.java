@@ -1264,7 +1264,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         String queryString = "SELECT a.id as track_id, c.id,track_name,c.name,a.mbid as artist_mbid,c.mbid,a.url,d.playnumber " +
                 "FROM track a " +
                 "join artist c on a.artist_id = c.id " +
-                "join scrobbled_track d on a.id = d.album_id " +
+                "join scrobbled_track d on a.id = d.track_id " +
                 "join user e on d.lastfm_id = e.lastfm_id  " +
                 "join  track_tags b on a.id = b.track_id " +
                 "WHERE (c.name,track_name)  IN (%s) and tag = ? and e.discord_id = ? ";

@@ -125,8 +125,8 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         boolean lastfm = params.hasOptional("lastfm");
         String service = mb ? "Musicbrainz" : lastfm ? "Last.fm" : "Last.fm and Musicbrainz";
         Map<Genre, Integer> map = new HashMap<>();
-        boolean doArtists = params.hasOptional("artist");
-        if (doArtists) {
+        boolean doAlbums = params.hasOptional("albums");
+        if (!doAlbums) {
             List<ArtistInfo> artistInfos;
             if (timeframe == TimeFrameEnum.ALL && !mb) {
                 artistInfos = db.getAllUserArtist(user.getDiscordId()).stream().map(t -> new ArtistInfo(t.getUrl(), t.getArtist(), t.getUrl())).toList();
@@ -176,7 +176,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
 
         }
         if (map.isEmpty()) {
-            sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 %s%s on %s", usableString, doArtists ? "artists" : "albums", innerParams.getTime().getDisplayString(), service));
+            sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 %s%s on %s", usableString, doAlbums ? "artists" : "albums", innerParams.getTime().getDisplayString(), service));
             return;
         }
 
@@ -184,7 +184,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
             List<String> collect = map.entrySet()
                     .stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).map(x -> ". **" + WordUtils.capitalizeFully(CommandUtil.cleanMarkdownCharacter(x.getKey().getGenreName())) + "** - " + x.getValue() + "\n").toList();
             if (collect.isEmpty()) {
-                sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 %s%s on%s", usableString, doArtists ? "artists" : "albums", innerParams.getTime().getDisplayString(), service));
+                sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 %s%s on%s", usableString, doAlbums ? "artists" : "albums", innerParams.getTime().getDisplayString(), service));
                 return;
             }
 

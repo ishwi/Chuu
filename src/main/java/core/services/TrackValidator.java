@@ -19,13 +19,19 @@ public record TrackValidator(ChuuService db, ConcurrentLastFM lastFM) {
         ScrobbledArtist sa = new ScrobbledArtist(artist, 0, "");
         CommandUtil.validate(db, sa, lastFM, discogsApi, spotifyApi);
         long l = CommandUtil.trackValidate(db, sa, lastFM, track);
-        return new ScrobbledTrack(artist, track, 0, false, -1, null, null, null);
+        ScrobbledTrack scrobbledTrack = new ScrobbledTrack(artist, track, 0, false, -1, null, null, null);
+        scrobbledTrack.setArtistId(sa.getArtistId());
+        scrobbledTrack.setTrackId(l);
+        return scrobbledTrack;
     }
 
     public ScrobbledTrack validate(long artistId, String artist, String track) throws LastFmException {
         ScrobbledArtist sa = new ScrobbledArtist(artist, 0, "");
         sa.setArtistId(artistId);
         long l = CommandUtil.trackValidate(db, sa, lastFM, track);
-        return new ScrobbledTrack(artist, track, 0, false, -1, null, null, null);
+        ScrobbledTrack scrobbledTrack = new ScrobbledTrack(artist, track, 0, false, -1, null, null, null);
+        scrobbledTrack.setArtistId(sa.getArtistId());
+        scrobbledTrack.setTrackId(l);
+        return scrobbledTrack;
     }
 }

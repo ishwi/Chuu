@@ -299,12 +299,10 @@ public class NPModeBuilder {
                             boolean extended = npModes.contains(NPMode.EXTENDED_TAGS);
                             Set<String> bannedTags = service.getBannedTags();
                             int limit = extended ? 12 : 5;
-                            Set<String> tags = new HashSet<>(new TagStorer(service, lastFM, executor, np).findTags());
+                            Set<String> tags = new HashSet<>(new TagStorer(service, lastFM, executor, np).findTags(limit));
                             tags.removeIf(bannedTags::contains);
                             if (tags.isEmpty()) {
                                 return;
-                            } else if (tags.size() > limit) {
-                                tags = tags.stream().limit(limit).collect(Collectors.toSet());
                             }
                             String tagsField = EmbedBuilder.ZERO_WIDTH_SPACE + " • " + String.join(" - ", tags);
                             tagsField += '\n';
@@ -729,7 +727,7 @@ public class NPModeBuilder {
 
                 {
                     previousNewLinesToAdd.forEach(this::addNewLineToPrevious);
-                    List<String> collect = Arrays.stream(footerSpaces).filter(Objects::nonNull).toList();
+                    List<String> collect = Arrays.stream(footerSpaces).filter(Objects::nonNull).collect(Collectors.toList());
 
                     for (int i = 0; i < collect.size(); i++) {
                         if (npModes.contains(NPMode.TAGS) || npModes.contains(NPMode.EXTENDED_TAGS) && (i == 0)) {

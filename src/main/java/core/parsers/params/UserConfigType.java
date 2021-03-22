@@ -25,7 +25,7 @@ public enum UserConfigType {
     NOTIFY_RATING("rating-notify"),
     PRIVATE_LASTFM("private-lastfm"),
     SHOW_BOTTED("show-botted"),
-    NP("nowPlayingInfo"),
+    NP("np"),
     SCROBBLING("scrobbling"),
     COLOR("color"),
     TIMEZONE("timezone");
