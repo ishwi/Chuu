@@ -67,9 +67,10 @@ public class GenreTracksCommands extends ChartableCommand<ChartableGenreParamete
         BlockingQueue<UrlCapsule> outerQueue;
         AtomicInteger ranker = new AtomicInteger(0);
         if (timeFrameEnum.equals(TimeFrameEnum.ALL)) {
-            outerQueue = db.getUserTracksWithTag(user.getDiscordId(), genre).stream().map(t -> new TrackChart(t.getUrl(), ranker.get(), t.getName(), t.getArtist(), t.getArtistMbid(), t.getCount(),
-                    params.isWriteTitles(), params.isWritePlays(), params.isAside()
-            )).collect(Collectors.toCollection(LinkedBlockingQueue::new));
+            outerQueue = db.getUserTracksWithTag(user.getDiscordId(), genre, params.getX() * params.getY())
+                    .stream().map(t -> new TrackChart(t.getUrl(), ranker.getAndIncrement(), t.getName(), t.getArtist(), t.getArtistMbid(), t.getCount(),
+                            params.isWriteTitles(), params.isWritePlays(), params.isAside()
+                    )).collect(Collectors.toCollection(LinkedBlockingQueue::new));
 
         } else {
             queue = new ArrayBlockingQueue<>(4000);

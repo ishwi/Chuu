@@ -2887,27 +2887,27 @@ public class ChuuService {
 
     }
 
-    public List<ScrobbledArtist> getUserArtistWithTag(long discordId, String genre) {
+    public List<ScrobbledArtist> getUserArtistWithTag(long discordId, String genre, int limit) {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.getUserArtistWithTag(connection, discordId, genre);
+            return queriesDao.getUserArtistWithTag(connection, discordId, genre, limit);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
 
     }
 
-    public List<ScrobbledAlbum> getUserAlbumWithTag(long discordId, String genre) {
+    public List<ScrobbledAlbum> getUserAlbumWithTag(long discordId, String genre, int limit) {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.getUserAlbumsWithTag(connection, discordId, genre);
+            return queriesDao.getUserAlbumsWithTag(connection, discordId, genre, limit);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
 
     }
 
-    public List<ScrobbledTrack> getUserTracksWithTag(long discordId, String genre) {
+    public List<ScrobbledTrack> getUserTracksWithTag(long discordId, String genre, int limit) {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.getUserTracksWithTag(connection, discordId, genre);
+            return queriesDao.getUserTracksWithTag(connection, discordId, genre, limit);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

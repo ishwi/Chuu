@@ -4,34 +4,25 @@ import java.util.regex.Pattern;
 
 public class Genre {
     private static final Pattern regex = Pattern.compile(" and |[ _&/-]", Pattern.CASE_INSENSITIVE);
-    private String genreName;
-    private String representativeArtist;
+    private String name;
 
-    public Genre(String genreName, String representativeArtist) {
-        this.genreName = genreName;
-        this.representativeArtist = representativeArtist;
+    public Genre(String name) {
+        this.name = name;
     }
 
-    public String getGenreName() {
-        return genreName;
+    public String getName() {
+        return name;
     }
 
-    public void setGenreName(String genreName) {
-        this.genreName = genreName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getRepresentativeArtist() {
-        return representativeArtist;
-    }
-
-    public void setRepresentativeArtist(String representativeArtist) {
-        this.representativeArtist = representativeArtist;
-    }
 
     @Override
     public int hashCode() {
         //result = 31 * result + representativeArtist.hashCode();
-        return mapString(genreName).hashCode();
+        return mapString(name).hashCode();
     }
 
     @Override
@@ -41,7 +32,7 @@ public class Genre {
 
         Genre genre = (Genre) o;
 
-        return mapString(genreName).equalsIgnoreCase(mapString(genre.genreName));
+        return mapString(name).equalsIgnoreCase(mapString(genre.name));
     }
 
     public String mapString(String string) {

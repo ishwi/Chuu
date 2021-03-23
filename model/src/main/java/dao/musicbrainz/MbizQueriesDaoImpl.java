@@ -24,20 +24,20 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     public List<CountWrapper<AlbumInfo>> getYearAverage(Connection con, List<AlbumInfo> albumInfos, Year year) {
         List<CountWrapper<AlbumInfo>> returnList = new ArrayList<>();
 
-        StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "a.name as albumname,a.gid as mbid,b.name artistName,(sum(e.length) / count(*)) as av \n" +
-                "FROM\n" +
-                "    musicbrainz.release a\n" +
-                "     join musicbrainz.artist_credit b ON a.artist_credit = b.id\n" +
-                "       JOIN\n" +
-                "    musicbrainz.release_group c ON a.release_group = c.id\n" +
-                "        join musicbrainz.medium f on f.release = a.id \n" +
-                "\t\tjoin musicbrainz.track e on f.id = e.medium\n" +
-                "\t\tJOIN\n" +
-                "    musicbrainz.release_group_meta d ON c.id = d.id\n" +
-                "\t\n" +
-                " Where d.first_release_date_year = ? and " +
-                "    a.gid in (");
+        StringBuilder queryString = new StringBuilder("""
+                SELECT\s
+                a.name as albumname,a.gid as mbid,b.name artistName,(sum(e.length) / count(*)) as av\s
+                FROM
+                    musicbrainz.release a
+                     join musicbrainz.artist_credit b ON a.artist_credit = b.id
+                       JOIN
+                    musicbrainz.release_group c ON a.release_group = c.id
+                        join musicbrainz.medium f on f.release = a.id\s
+                \t\tjoin musicbrainz.track e on f.id = e.medium
+                \t\tJOIN
+                    musicbrainz.release_group_meta d ON c.id = d.id
+                \t
+                 Where d.first_release_date_year = ? and     a.gid in (""");
         for (AlbumInfo ignored : albumInfos) {
             queryString.append(" ? ,");
         }
@@ -74,17 +74,16 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     public List<AlbumInfo> getYearAlbums(Connection con, List<AlbumInfo> albumInfos, Year year) {
         List<AlbumInfo> returnList = new ArrayList<>();
 
-        StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "a.name as albumname,a.gid as mbid,b.name artistName\n" +
-                "FROM\n" +
-                "    musicbrainz.release a\n" +
-                "     join musicbrainz.artist_credit b ON a.artist_credit = b.id\n" +
-                "       JOIN\n" +
-                "    musicbrainz.release_group c ON a.release_group = c.id\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group_meta d ON c.id = d.id" +
-                " Where d.first_release_date_year = ? and " +
-                "    a.gid in (");
+        StringBuilder queryString = new StringBuilder("""
+                SELECT\s
+                a.name as albumname,a.gid as mbid,b.name artistName
+                FROM
+                    musicbrainz.release a
+                     join musicbrainz.artist_credit b ON a.artist_credit = b.id
+                       JOIN
+                    musicbrainz.release_group c ON a.release_group = c.id
+                        JOIN
+                    musicbrainz.release_group_meta d ON c.id = d.id Where d.first_release_date_year = ? and     a.gid in (""");
         for (AlbumInfo ignored : albumInfos) {
             queryString.append(" ? ,");
         }
@@ -116,16 +115,17 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
 
     @Override
     public List<AlbumInfo> getYearAlbumsByReleaseName(Connection con, List<AlbumInfo> releaseInfo, Year year) {
-        String queryString = "SELECT DISTINCT\n" +
-                "    (a.name) as artistname, b.name as albumname,  d.first_release_date_year as year \n" +
-                "FROM\n" +
-                "    musicbrainz.artist_credit a\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release b ON a.id = b.artist_credit\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group c ON b.release_group = c.id\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group_meta d ON c.id = d.id ";
+        String queryString = """
+                SELECT DISTINCT
+                    (a.name) as artistname, b.name as albumname,  d.first_release_date_year as year\s
+                FROM
+                    musicbrainz.artist_credit a
+                        JOIN
+                    musicbrainz.release b ON a.id = b.artist_credit
+                        JOIN
+                    musicbrainz.release_group c ON b.release_group = c.id
+                        JOIN
+                    musicbrainz.release_group_meta d ON c.id = d.id\s""";
         String whereSentence;
         StringBuilder artistWhere = new StringBuilder("where a.name in (");
         StringBuilder albumWhere = new StringBuilder("and b.name in (");
@@ -158,16 +158,17 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
 
     @Override
     public List<AlbumInfo> getDecadeAlbumsByReleaseName(Connection con, List<AlbumInfo> releaseInfo, int decade, int numberOfYears) {
-        String queryString = "SELECT DISTINCT\n" +
-                "    (a.name) as artistname, b.name as albumname,  d.first_release_date_year as year \n" +
-                "FROM\n" +
-                "    musicbrainz.artist_credit a\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release b ON a.id = b.artist_credit\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group c ON b.release_group = c.id\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group_meta d ON c.id = d.id ";
+        String queryString = """
+                SELECT DISTINCT
+                    (a.name) as artistname, b.name as albumname,  d.first_release_date_year as year\s
+                FROM
+                    musicbrainz.artist_credit a
+                        JOIN
+                    musicbrainz.release b ON a.id = b.artist_credit
+                        JOIN
+                    musicbrainz.release_group c ON b.release_group = c.id
+                        JOIN
+                    musicbrainz.release_group_meta d ON c.id = d.id\s""";
         String whereSentence;
         StringBuilder artistWhere = new StringBuilder("where a.name in (");
         StringBuilder albumWhere = new StringBuilder("and b.name in (");
@@ -203,18 +204,18 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     public MultiValuedMap<Genre, String> genreCount(Connection con, List<AlbumInfo> releaseInfo) {
         MultiValuedMap<Genre, String> returnMap = new HashSetValuedHashMap<>();
         List<Genre> list = new ArrayList<>();
-        StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "       c.name as neim, d.gid as mbid\n \n" +
-                " FROM\n" +
-                " musicbrainz.release d join \n" +
-                " musicbrainz.release_group a " +
-                " on d.release_group = a.id " +
-                "        JOIN\n" +
-                "    musicbrainz.release_group_tag b ON a.id = b.release_group\n" +
-                "        JOIN\n" +
-                "    musicbrainz.tag c ON b.tag = c.id\n" +
-                "WHERE\n" +
-                "    d.gid in (");
+        StringBuilder queryString = new StringBuilder("""
+                SELECT\s
+                       c.name as neim, d.gid as mbid
+                \s
+                 FROM
+                 musicbrainz.release d join\s
+                 musicbrainz.release_group a  on d.release_group = a.id         JOIN
+                    musicbrainz.release_group_tag b ON a.id = b.release_group
+                        JOIN
+                    musicbrainz.tag c ON b.tag = c.id
+                WHERE
+                    d.gid in (""");
 
         for (AlbumInfo ignored : releaseInfo) {
             queryString.append(" ? ,");
@@ -234,7 +235,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
 
                 String genreName = resultSet.getString("neim");
                 String mbid = resultSet.getString("mbid");
-                Genre genre = new Genre(genreName, "");
+                Genre genre = new Genre(genreName);
                 returnMap.put(genre, mbid);
             }
         } catch (SQLException e) {
@@ -247,19 +248,16 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     @Override
     public Map<Country, Integer> countryCount(Connection connection, List<ArtistInfo> releaseInfo) {
         Map<Country, Integer> returnMap = new HashMap<>();
-        StringBuilder queryString = new StringBuilder("select main.code,count(*) as count from (\n" +
-                "SELECT \n" +
-                "      (case \n" +
-                "\t  when b.type = 1 then c.code\n" +
-                "\t  else coalesce(calculate_country(b.id),'NOTVALID') end)" +
-                " as code \n" +
-                " \n" +
-                " FROM\n" +
-                " musicbrainz.artist a join \n" +
-                " musicbrainz.area b on a.area = b.id   " +
-                " left join musicbrainz.iso_3166_1 c  on b.id=c.area and b.type = 1 " +
-                "  WHERE " +
-                "    a.gid in (");
+        StringBuilder queryString = new StringBuilder("""
+                select main.code,count(*) as count from (
+                SELECT\s
+                      (case\s
+                \t  when b.type = 1 then c.code
+                \t  else coalesce(calculate_country(b.id),'NOTVALID') end) as code\s
+                \s
+                 FROM
+                 musicbrainz.artist a join\s
+                 musicbrainz.area b on a.area = b.id    left join musicbrainz.iso_3166_1 c  on b.id=c.area and b.type = 1   WHERE     a.gid in (""");
 
         for (ArtistInfo ignored : releaseInfo) {
             queryString.append(" ? ,");
@@ -297,18 +295,19 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     public List<Track> getAlbumTrackList(Connection connection, String artist, String album) {
         List<Track> returnList = new ArrayList<>();
 
-        String queryString = "SELECT distinct e.name , e.position\n" +
-                "FROM \n" +
-                "musicbrainz.artist_credit a\n" +
-                "JOIN\n" +
-                "musicbrainz.release b ON a.id = b.artist_credit\n" +
-                "JOIN\n" +
-                "musicbrainz.release_group c ON b.release_group = c.id\n" +
-                "join \n" +
-                "musicbrainz.medium d on b.id = d.release\n" +
-                "join musicbrainz.track e on e.medium = d.id\n" +
-                "where a.name = ? and b.name = ?\n" +
-                "order by e.position;";
+        String queryString = """
+                SELECT distinct e.name , e.position
+                FROM\s
+                musicbrainz.artist_credit a
+                JOIN
+                musicbrainz.release b ON a.id = b.artist_credit
+                JOIN
+                musicbrainz.release_group c ON b.release_group = c.id
+                join\s
+                musicbrainz.medium d on b.id = d.release
+                join musicbrainz.track e on e.medium = d.id
+                where a.name = ? and b.name = ?
+                order by e.position;""";
 
         return processTracks(connection, artist, album, returnList, queryString);
     }
@@ -320,18 +319,19 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     public List<Track> getAlbumTrackListLower(Connection connection, String artist, String album) {
         List<Track> returnList = new ArrayList<>();
 
-        String queryString = "SELECT distinct lower(e.name) , e.name as name  , e.position\n" +
-                "FROM \n" +
-                "musicbrainz.artist_credit a\n" +
-                "JOIN\n" +
-                "musicbrainz.release b ON a.id = b.artist_credit\n" +
-                "JOIN\n" +
-                "musicbrainz.release_group c ON b.release_group = c.id\n" +
-                "join \n" +
-                "musicbrainz.medium d on b.id = d.release\n" +
-                "join musicbrainz.track e on e.medium = d.id\n" +
-                "where lower(a.name) = lower(?) and lower(b.name) = lower(?)\n" +
-                "order by e.position;";
+        String queryString = """
+                SELECT distinct lower(e.name) , e.name as name  , e.position
+                FROM\s
+                musicbrainz.artist_credit a
+                JOIN
+                musicbrainz.release b ON a.id = b.artist_credit
+                JOIN
+                musicbrainz.release_group c ON b.release_group = c.id
+                join\s
+                musicbrainz.medium d on b.id = d.release
+                join musicbrainz.track e on e.medium = d.id
+                where lower(a.name) = lower(?) and lower(b.name) = lower(?)
+                order by e.position;""";
 
         return processTracks(connection, artist, album, returnList, queryString);
     }
@@ -339,16 +339,17 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
 
     @Override
     public List<AlbumInfo> getYearAlbumsByReleaseNameLowerCase(Connection con, List<AlbumInfo> releaseInfo, Year year) {
-        String queryString = "SELECT DISTINCT\n" +
-                "    (a.name) as artistname, b.name as albumname,  d.first_release_date_year as year \n" +
-                "FROM\n" +
-                "    musicbrainz.artist_credit a\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release b ON a.id = b.artist_credit\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group c ON b.release_group = c.id\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group_meta d ON c.id = d.id ";
+        String queryString = """
+                SELECT DISTINCT
+                    (a.name) as artistname, b.name as albumname,  d.first_release_date_year as year\s
+                FROM
+                    musicbrainz.artist_credit a
+                        JOIN
+                    musicbrainz.release b ON a.id = b.artist_credit
+                        JOIN
+                    musicbrainz.release_group c ON b.release_group = c.id
+                        JOIN
+                    musicbrainz.release_group_meta d ON c.id = d.id\s""";
         String whereSentence;
 
         StringBuilder artistWhere = new StringBuilder("where lower(a.name) in (");
@@ -383,16 +384,12 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     @Override
     public List<String> getArtistFromCountry(Connection connection, CountryCode country, List<ArtistInfo> allUserArtist) {
         List<String> mbidList = new ArrayList<>();
-        StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "        a.gid as mbiz  \n" +
-                " FROM\n" +
-                " musicbrainz.artist a join \n" +
-                " musicbrainz.area b " +
-                " on a.area = b.id" +
-                " left join musicbrainz.iso_3166_1 c  on b.id=c.area  and b.type = 1" +
-                "  left join country_lookup d on b.id = d.id and b.type != 1     " +
-                "   where  (c.code = ? or d.country =?) " +
-                "   and a.gid in (");
+        StringBuilder queryString = new StringBuilder("""
+                SELECT\s
+                        a.gid as mbiz \s
+                 FROM
+                 musicbrainz.artist a join\s
+                 musicbrainz.area b  on a.area = b.id left join musicbrainz.iso_3166_1 c  on b.id=c.area  and b.type = 1  left join country_lookup d on b.id = d.id and b.type != 1        where  (c.code = ? or d.country =?)    and a.gid in (""");
 
         for (ArtistInfo ignored : allUserArtist) {
             queryString.append(" ? ,");
@@ -427,18 +424,20 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
 
     @Override
     public List<AlbumInfo> getAlbumsOfGenreByName(Connection con, List<AlbumInfo> releaseInfo, String genre) {
-        String queryString = "SELECT DISTINCT\n" +
-                "    (a.name) as artistname, b.name as albumname \n" +
-                "FROM\n" +
-                "    musicbrainz.artist_credit a\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release b ON a.id = b.artist_credit\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group c ON b.release_group = c.id\n" +
-                "       JOIN\n" +
-                "    musicbrainz.release_group_tag d ON c.id = b.release_group\n" +
-                "        JOIN\n" +
-                "    musicbrainz.tag e ON d.tag = e.id\n";
+        String queryString = """
+                SELECT DISTINCT
+                    (a.name) as artistname, b.name as albumname\s
+                FROM
+                    musicbrainz.artist_credit a
+                        JOIN
+                    musicbrainz.release b ON a.id = b.artist_credit
+                        JOIN
+                    musicbrainz.release_group c ON b.release_group = c.id
+                       JOIN
+                    musicbrainz.release_group_tag d ON c.id = b.release_group
+                        JOIN
+                    musicbrainz.tag e ON d.tag = e.id
+                """;
         String whereSentence;
         StringBuilder artistWhere = new StringBuilder("where a.name in (");
         StringBuilder albumWhere = new StringBuilder("and b.name in (");
@@ -484,18 +483,16 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     @Override
     public Set<String> getAlbumsOfGenre(Connection connection, String genre, List<AlbumInfo> releaseInfo) {
         Set<String> uuids = new HashSet<>();
-        StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "       d.gid" +
-                " FROM\n" +
-                " musicbrainz.release d join \n" +
-                " musicbrainz.release_group a " +
-                " on d.release_group = a.id " +
-                "        JOIN\n" +
-                "    musicbrainz.release_group_tag b ON a.id = b.release_group\n" +
-                "        JOIN\n" +
-                "    musicbrainz.tag c ON b.tag = c.id\n" +
-                "WHERE\n" +
-                "    d.gid in (");
+        StringBuilder queryString = new StringBuilder("""
+                SELECT\s
+                       d.gid FROM
+                 musicbrainz.release d join\s
+                 musicbrainz.release_group a  on d.release_group = a.id         JOIN
+                    musicbrainz.release_group_tag b ON a.id = b.release_group
+                        JOIN
+                    musicbrainz.tag c ON b.tag = c.id
+                WHERE
+                    d.gid in (""");
 
         for (AlbumInfo ignored : releaseInfo) {
             queryString.append(" ? ,");
@@ -527,15 +524,15 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     @Override
     public Set<String> getArtistOfGenre(Connection connection, String genre, List<ArtistInfo> releaseInfo) {
         Set<String> uuids = new HashSet<>();
-        StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "       d.gid" +
-                " FROM\n" +
-                " musicbrainz.artist d join \n" +
-                "musicbrainz.artist_tag b ON d.id = b.artist\n" +
-                "        JOIN\n" +
-                "    musicbrainz.tag c ON b.tag = c.id\n" +
-                "WHERE\n" +
-                "    d.gid in (");
+        StringBuilder queryString = new StringBuilder("""
+                SELECT\s
+                       d.gid FROM
+                 musicbrainz.artist d join\s
+                musicbrainz.artist_tag b ON d.id = b.artist
+                        JOIN
+                    musicbrainz.tag c ON b.tag = c.id
+                WHERE
+                    d.gid in (""");
 
         for (ArtistInfo ignored : releaseInfo) {
             queryString.append(" ? ,");
@@ -568,18 +565,19 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     @Override
     public List<Track> getAlbumTrackListMbid(Connection connection, String mbid) {
         List<Track> returnList = new ArrayList<>();
-        String queryString = "SELECT   e.name as name ,a.name as artist  , e.position\n" +
-                "FROM \n" +
-                "musicbrainz.artist_credit a\n" +
-                "JOIN\n" +
-                "musicbrainz.release b ON a.id = b.artist_credit\n" +
-                "JOIN\n" +
-                "musicbrainz.release_group c ON b.release_group = c.id\n" +
-                "join \n" +
-                "musicbrainz.medium d on b.id = d.release\n" +
-                "join musicbrainz.track e on e.medium = d.id\n" +
-                "where b.gid = ? \n" +
-                "order by e.position;";
+        String queryString = """
+                SELECT   e.name as name ,a.name as artist  , e.position
+                FROM\s
+                musicbrainz.artist_credit a
+                JOIN
+                musicbrainz.release b ON a.id = b.artist_credit
+                JOIN
+                musicbrainz.release_group c ON b.release_group = c.id
+                join\s
+                musicbrainz.medium d on b.id = d.release
+                join musicbrainz.track e on e.medium = d.id
+                where b.gid = ?\s
+                order by e.position;""";
         return processTracks(connection, mbid, returnList, queryString);
     }
 
@@ -759,18 +757,14 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     public ArtistMusicBrainzDetails getArtistInfo(Connection connection, ArtistInfo artistInfo) {
 
         boolean mbidFlag = artistInfo.getMbid() != null && !artistInfo.getMbid().isBlank();
-        String query = "SELECT  b.name," +
-                "" +
-                "" +
-                "(case \n" +
-                "\t  when c.type = 1 then d.code\n" +
-                "\t  else coalesce(calculate_country(c.id),'NOTVALID') end)" +
-                " as country FROM artist a \n" +
-                "LEFT JOIN gender b ON a.gender = b.id\n" +
-                " join \n" +
-                " musicbrainz.area c on a.area = c.id   " +
-                " left join musicbrainz.iso_3166_1 d  on c.id=d.area and c.type = 1 " +
-                "WHERE \n";
+        String query = """
+                SELECT  b.name,(case\s
+                \t  when c.type = 1 then d.code
+                \t  else coalesce(calculate_country(c.id),'NOTVALID') end) as country FROM artist a\s
+                LEFT JOIN gender b ON a.gender = b.id
+                 join\s
+                 musicbrainz.area c on a.area = c.id    left join musicbrainz.iso_3166_1 d  on c.id=d.area and c.type = 1 WHERE\s
+                """;
         if (mbidFlag) {
             query += "a.gid = ?  \n";
         } else {
@@ -858,18 +852,19 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     @Override
     public List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameAverage(Connection
                                                                                    connection, List<AlbumInfo> releaseInfo, Year year) {
-        String queryString = "SELECT DISTINCT\n" +
-                "    (a.name) as artistname, b.name as albumname, (sum(e.length) / count(*)) as av  \n" +
-                "FROM\n" +
-                "    musicbrainz.artist_credit a\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release b ON a.id = b.artist_credit\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group c ON b.release_group = c.id\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group_meta d ON c.id = d.id " +
-                "        join musicbrainz.medium f on f.release = a.id \n" +
-                "\t\tjoin musicbrainz.track e on f.id = e.medium\n";
+        String queryString = """
+                SELECT DISTINCT
+                    (a.name) as artistname, b.name as albumname, (sum(e.length) / count(*)) as av \s
+                FROM
+                    musicbrainz.artist_credit a
+                        JOIN
+                    musicbrainz.release b ON a.id = b.artist_credit
+                        JOIN
+                    musicbrainz.release_group c ON b.release_group = c.id
+                        JOIN
+                    musicbrainz.release_group_meta d ON c.id = d.id         join musicbrainz.medium f on f.release = a.id\s
+                \t\tjoin musicbrainz.track e on f.id = e.medium
+                """;
 
         String whereSentence;
         StringBuilder artistWhere = new StringBuilder("where a.name in (");
@@ -910,17 +905,16 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
                                            int numberOfYears) {
         List<AlbumInfo> returnList = new ArrayList<>();
 
-        StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "a.name as albumname,a.gid as mbid,b.name artistName\n" +
-                "FROM\n" +
-                "    musicbrainz.release a\n" +
-                "     join musicbrainz.artist_credit b ON a.artist_credit = b.id\n" +
-                "       JOIN\n" +
-                "    musicbrainz.release_group c ON a.release_group = c.id\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group_meta d ON c.id = d.id" +
-                " Where (d.first_release_date_year between  ? and ?) and" +
-                "    a.gid in (");
+        StringBuilder queryString = new StringBuilder("""
+                SELECT\s
+                a.name as albumname,a.gid as mbid,b.name artistName
+                FROM
+                    musicbrainz.release a
+                     join musicbrainz.artist_credit b ON a.artist_credit = b.id
+                       JOIN
+                    musicbrainz.release_group c ON a.release_group = c.id
+                        JOIN
+                    musicbrainz.release_group_meta d ON c.id = d.id Where (d.first_release_date_year between  ? and ?) and    a.gid in (""");
         for (AlbumInfo ignored : mbiz) {
             queryString.append(" ? ,");
         }
@@ -958,20 +952,20 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
                                                           int decade, int numberOfYears) {
         List<CountWrapper<AlbumInfo>> returnList = new ArrayList<>();
 
-        StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "a.name as albumname,a.gid as mbid,b.name artistName,(sum(e.length) / count(*)) as av \n" +
-                "FROM\n" +
-                "    musicbrainz.release a\n" +
-                "     join musicbrainz.artist_credit b ON a.artist_credit = b.id\n" +
-                "       JOIN\n" +
-                "    musicbrainz.release_group c ON a.release_group = c.id\n" +
-                "        join musicbrainz.medium f on f.release = a.id \n" +
-                "\t\tjoin musicbrainz.track e on f.id = e.medium\n" +
-                "\t\tJOIN\n" +
-                "    musicbrainz.release_group_meta d ON c.id = d.id\n" +
-                "\t\n" +
-                " Where (d.first_release_date_year between ?  and ?) and " +
-                "    a.gid in (");
+        StringBuilder queryString = new StringBuilder("""
+                SELECT\s
+                a.name as albumname,a.gid as mbid,b.name artistName,(sum(e.length) / count(*)) as av\s
+                FROM
+                    musicbrainz.release a
+                     join musicbrainz.artist_credit b ON a.artist_credit = b.id
+                       JOIN
+                    musicbrainz.release_group c ON a.release_group = c.id
+                        join musicbrainz.medium f on f.release = a.id\s
+                \t\tjoin musicbrainz.track e on f.id = e.medium
+                \t\tJOIN
+                    musicbrainz.release_group_meta d ON c.id = d.id
+                \t
+                 Where (d.first_release_date_year between ?  and ?) and     a.gid in (""");
         for (AlbumInfo ignored : mbiz) {
             queryString.append(" ? ,");
         }
@@ -1008,18 +1002,19 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     @Override
     public List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameAverageDecade(Connection
                                                                                          connection, List<AlbumInfo> emptyMbid, int decade, int numberOfYears) {
-        String queryString = "SELECT DISTINCT\n" +
-                "    (a.name) as artistname, b.name as albumname, (sum(e.length) / count(*)) as av  \n" +
-                "FROM\n" +
-                "    musicbrainz.artist_credit a\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release b ON a.id = b.artist_credit\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group c ON b.release_group = c.id\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group_meta d ON c.id = d.id " +
-                "        join musicbrainz.medium f on f.release = a.id \n" +
-                "\t\tjoin musicbrainz.track e on f.id = e.medium\n";
+        String queryString = """
+                SELECT DISTINCT
+                    (a.name) as artistname, b.name as albumname, (sum(e.length) / count(*)) as av \s
+                FROM
+                    musicbrainz.artist_credit a
+                        JOIN
+                    musicbrainz.release b ON a.id = b.artist_credit
+                        JOIN
+                    musicbrainz.release_group c ON b.release_group = c.id
+                        JOIN
+                    musicbrainz.release_group_meta d ON c.id = d.id         join musicbrainz.medium f on f.release = a.id\s
+                \t\tjoin musicbrainz.track e on f.id = e.medium
+                """;
 
         String whereSentence;
         StringBuilder artistWhere = new StringBuilder("where a.name in (");
@@ -1057,13 +1052,13 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     public Map<Language, Long> getScriptLanguages(Connection connection, List<AlbumInfo> mbiz) {
         Map<Language, Long> returnMap = new HashMap<>();
 
-        StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "b.name as language_name,iso_code_3 as code,count(*) as frequency\n" +
-                "FROM\n" +
-                "    musicbrainz.release a\n" +
-                "     join musicbrainz.language b ON a.language = b.id\n" +
-                " where " +
-                "    a.gid in (");
+        StringBuilder queryString = new StringBuilder("""
+                SELECT\s
+                b.name as language_name,iso_code_3 as code,count(*) as frequency
+                FROM
+                    musicbrainz.release a
+                     join musicbrainz.language b ON a.language = b.id
+                 where     a.gid in (""");
         for (AlbumInfo ignored : mbiz) {
             queryString.append(" ? ,");
         }
@@ -1096,17 +1091,15 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
 
     @Override
     public List<AlbumGenre> getAlbumRecommendationsByGenre(Connection connection, Map<Genre, Integer> map, List<ScrobbledArtist> recs) {
-        String queryString = "SELECT DISTINCT on (a.name) \n" +
-                "    (a.name) as artistname, b.name as albumname,e.name  as genreName \n" +
-                "FROM\n" +
-                "    musicbrainz.artist_credit a\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release b ON a.id = b.artist_credit\n" +
-                "        JOIN" +
-                "     musicbrainz.release_group c on b.release_group = c.id\n" +
-                "  join " +
-                "   musicbrainz.release_group_tag d on c.id = d.release_group " +
-                " join tag e on d.tag = e.id ";
+        String queryString = """
+                SELECT DISTINCT on (a.name)\s
+                    (a.name) as artistname, b.name as albumname,e.name  as genreName\s
+                FROM
+                    musicbrainz.artist_credit a
+                        JOIN
+                    musicbrainz.release b ON a.id = b.artist_credit
+                        JOIN     musicbrainz.release_group c on b.release_group = c.id
+                  join    musicbrainz.release_group_tag d on c.id = d.release_group  join tag e on d.tag = e.id\s""";
 
         String whereSentence = "";
         StringBuilder artistWhere = new StringBuilder("where a.name in (");
@@ -1130,7 +1123,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
                 preparedStatement.setString(i++, albumInfo.getArtist());
             }
             for (Map.Entry<Genre, Integer> genreIntegerEntry : map.entrySet()) {
-                preparedStatement.setString(i++, genreIntegerEntry.getKey().getGenreName());
+                preparedStatement.setString(i++, genreIntegerEntry.getKey().getName());
             }
 
 
@@ -1157,15 +1150,17 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     @Override
     public MultiValuedMap<Genre, String> genreCountByArtist(Connection connection, List<ArtistInfo> releaseInfo) {
         MultiValuedMap<Genre, String> returnMap = new HashSetValuedHashMap<>();
-        StringBuilder queryString = new StringBuilder("SELECT \n" +
-                "       c.name as neim,d.gid as mbid\n \n" +
-                " FROM\n" +
-                " musicbrainz.artist d join \n" +
-                "musicbrainz.artist_tag b ON d.id = b.artist\n" +
-                "        JOIN\n" +
-                "    musicbrainz.tag c ON b.tag = c.id\n" +
-                "WHERE\n" +
-                "    d.gid in (");
+        StringBuilder queryString = new StringBuilder("""
+                SELECT\s
+                       c.name as neim,d.gid as mbid
+                \s
+                 FROM
+                 musicbrainz.artist d join\s
+                musicbrainz.artist_tag b ON d.id = b.artist
+                        JOIN
+                    musicbrainz.tag c ON b.tag = c.id
+                WHERE
+                    d.gid in (""");
 
         for (ArtistInfo ignored : releaseInfo) {
             queryString.append(" ? ,");
@@ -1185,7 +1180,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
 
                 String genreName = resultSet.getString("neim");
                 String mbid = resultSet.getString("mbid");
-                Genre genre = new Genre(genreName, "");
+                Genre genre = new Genre(genreName);
                 returnMap.put(genre, mbid);
             }
         } catch (SQLException e) {
@@ -1199,19 +1194,16 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     public MusicbrainzFullAlbumEntity retrieveAlbumInfo(Connection connection, FullAlbumEntityExtended albumInfo) {
         List<String> tags = new ArrayList<>();
         Year year = null;
-        String queryString = "SELECT " +
-                "    d.first_release_date_year as year,f.name \n" +
-                "FROM\n" +
-                "    musicbrainz.release b " +
-                "        JOIN\n" +
-                "    musicbrainz.release_group c ON b.release_group = c.id\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group_meta d ON c.id = d.id " +
-
-                "   left join  musicbrainz.release_group_tag e ON c.id = e.release_group\n" +
-                "        left JOIN\n" +
-                "    musicbrainz.tag f ON e.tag = f.id\n" +
-                " where b.gid = ? ";
+        String queryString = """
+                SELECT     d.first_release_date_year as year,f.name\s
+                FROM
+                    musicbrainz.release b         JOIN
+                    musicbrainz.release_group c ON b.release_group = c.id
+                        JOIN
+                    musicbrainz.release_group_meta d ON c.id = d.id    left join  musicbrainz.release_group_tag e ON c.id = e.release_group
+                        left JOIN
+                    musicbrainz.tag f ON e.tag = f.id
+                 where b.gid = ?\s""";
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {

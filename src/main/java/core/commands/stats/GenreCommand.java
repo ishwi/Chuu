@@ -50,7 +50,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         pieable = new IPieableMap<>() {
             @Override
             public List<StringFrequency> obtainFrequencies(Map<Genre, Integer> data, NumberParameters<TimeFrameParameters> params) {
-                return data.entrySet().stream().map(t -> new StringFrequency(t.getKey().getGenreName(), t.getValue())).toList();
+                return data.entrySet().stream().map(t -> new StringFrequency(t.getKey().getName(), t.getValue())).toList();
             }
 
             @Override
@@ -59,7 +59,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                         .forEach(entry -> {
                             Genre genre = entry.getKey();
                             int plays = entry.getValue();
-                            chart.addSeries(genre.getGenreName() + "\u200B", plays);
+                            chart.addSeries(genre.getName() + "\u200B", plays);
                         });
                 return chart;
             }
@@ -182,7 +182,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
 
         if (params.hasOptional("list")) {
             List<String> collect = map.entrySet()
-                    .stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).map(x -> ". **" + WordUtils.capitalizeFully(CommandUtil.cleanMarkdownCharacter(x.getKey().getGenreName())) + "** - " + x.getValue() + "\n").toList();
+                    .stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).map(x -> ". **" + WordUtils.capitalizeFully(CommandUtil.cleanMarkdownCharacter(x.getKey().getName())) + "** - " + x.getValue() + "\n").toList();
             if (collect.isEmpty()) {
                 sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 %s%s on%s", usableString, doAlbums ? "artists" : "albums", innerParams.getTime().getDisplayString(), service));
                 return;

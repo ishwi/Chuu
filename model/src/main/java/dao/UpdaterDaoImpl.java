@@ -1421,7 +1421,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             for (int i = 0; i < list.size(); i++) {
                 preparedStatement.setLong(3 * i + 1, list.get(i).getRight().getArtistId());
                 preparedStatement.setLong(3 * i + 2, list.get(i).getRight().getAlbumId());
-                String genreName = list.get(i).getLeft().getGenreName();
+                String genreName = list.get(i).getLeft().getName();
                 String s = correctedTags.get(genreName);
                 if (s != null) {
                     genreName = s;
@@ -1445,7 +1445,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             for (int i = 0; i < list.size(); i++) {
                 preparedStatement.setLong(2 * i + 1, list.get(i).getRight().getArtistId());
-                String genreName = list.get(i).getLeft().getGenreName();
+                String genreName = list.get(i).getLeft().getName();
                 String s = correctedTags.get(genreName);
                 if (s != null) {
                     genreName = s;
@@ -1469,7 +1469,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             for (int i = 0; i < genreList.size(); i++) {
-                preparedStatement.setString(i + 1, genreList.get(i).getGenreName());
+                preparedStatement.setString(i + 1, genreList.get(i).getName());
             }
             /* Fill "preparedStatement". */
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -1822,7 +1822,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             for (int i = 0; i < list.size(); i++) {
                 preparedStatement.setLong(3 * i + 1, list.get(i).getRight().getArtistId());
                 preparedStatement.setLong(3 * i + 2, list.get(i).getRight().getTrackId());
-                String genreName = list.get(i).getLeft().getGenreName();
+                String genreName = list.get(i).getLeft().getName();
                 String s = correctedTags.get(genreName);
                 if (s != null) {
                     genreName = s;

@@ -63,11 +63,11 @@ public class MbTest {
         map.entrySet().stream().sorted(((o1, o2) -> -o1.getValue().compareTo(o2.getValue()))).forEachOrdered(entry -> {
             Genre genre = entry.getKey();
             int plays = entry.getValue();
-            sb.append("Genre: ").append(genre.getGenreName()).append(" \n")
+            sb.append("Genre: ").append(genre.getName()).append(" \n")
                     .append("Frequency: ").append(plays).append("\n").append("Representative ")
                     .append(genre.getRepresentativeArtist()).append("\n");
         });
-        System.out.println(sb.toString());
+        System.out.println(sb);
 //		List<String> c = a.listOfYearReleases(mbizList, Year.of(2017));
 
     }

@@ -67,7 +67,9 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
         BlockingQueue<UrlCapsule> outerQueue;
         AtomicInteger ranker = new AtomicInteger(0);
         if (timeFrameEnum.equals(TimeFrameEnum.ALL)) {
-            outerQueue = db.getUserAlbumWithTag(user.getDiscordId(), genre).stream().map(t -> new AlbumChart(t.getUrl(), ranker.get(), t.getAlbum(), t.getArtist(), t.getArtistMbid(), t.getCount(),
+            outerQueue = db.getUserAlbumWithTag(user.getDiscordId(), genre,
+                    params.getX() * params.getY()
+            ).stream().map(t -> new AlbumChart(t.getUrl(), ranker.getAndIncrement(), t.getAlbum(), t.getArtist(), t.getArtistMbid(), t.getCount(),
                     params.isWriteTitles(), params.isWritePlays(), params.isAside()
             )).collect(Collectors.toCollection(LinkedBlockingQueue::new));
 

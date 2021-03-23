@@ -117,7 +117,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
 
         List<AlbumGenre> albumRecs = mb.getAlbumRecommendationsByGenre(map, recs);
         Map<String, Long> m = recs.stream().collect(Collectors.groupingBy(ScrobbledArtist::getArtist, Collectors.summingLong(ScrobbledArtist::getCount)));
-        albumRecs = albumRecs.stream().sorted(Comparator.comparingLong((AlbumGenre x) -> map.get(new Genre(x.getGenre(), null)) * m.get(x.getArtist())).reversed()).toList();
+        albumRecs = albumRecs.stream().sorted(Comparator.comparingLong((AlbumGenre x) -> map.get(new Genre(x.getGenre())) * m.get(x.getArtist())).reversed()).toList();
 
         String receiver = "you";
         if (firstDiscordID != e.getAuthor().getIdLong()) {

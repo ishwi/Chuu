@@ -37,20 +37,20 @@ public final class TagStorer {
 
     public List<String> findTags(int limit) throws LastFmException {
         List<String> tags;
-        if (CommandUtil.rand.nextFloat() > 0.2) {
-            tags = getTrackTags(limit);
-            if (tags.isEmpty()) {
-                tags = getAlbumTags(limit);
-                if (tags.isEmpty()) {
-                    tags = getArtistTags(limit);
-                }
-            }
-        } else {
+        if ((CommandUtil.rand.nextFloat() < 0.8)) {
             tags = getArtistTags(limit);
             if (tags.isEmpty()) {
                 tags = getTrackTags(limit);
                 if (tags.isEmpty()) {
                     tags = getAlbumTags(limit);
+                }
+            }
+        } else {
+            tags = getTrackTags(limit);
+            if (tags.isEmpty()) {
+                tags = getAlbumTags(limit);
+                if (tags.isEmpty()) {
+                    tags = getArtistTags(limit);
                 }
             }
         }

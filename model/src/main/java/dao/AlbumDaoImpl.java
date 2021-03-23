@@ -476,7 +476,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
                 String tag = resultSet.getString("tag");
                 int count = resultSet.getInt("coun");
 
-                returnList.put(new Genre(tag, null), count);
+                returnList.put(new Genre(tag), count);
 
             }
             return returnList;

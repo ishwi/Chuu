@@ -1222,20 +1222,21 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<ScrobbledTrack> getUserTracksWithTag(Connection connection, long discordId, String genre) {
+    public List<ScrobbledTrack> getUserTracksWithTag(Connection connection, long discordId, String genre, int limit) {
         String queryString = "SELECT a.id as track_id, c.id,track_name,c.name,a.mbid as artist_mbid,c.mbid,a.url,d.playnumber " +
                 "FROM track a " +
                 "join artist c on a.artist_id = c.id " +
                 "join scrobbled_track d on a.id = d.album_id " +
                 "join user e on d.lastfm_id = e.lastfm_id  " +
                 "join  track_tags b on a.id = b.track_id " +
-                "WHERE tag = ? and e.discord_id = ? ";
+                "WHERE tag = ? and e.discord_id = ? order by playnumber desc limit ?";
         List<ScrobbledTrack> returnInfoes = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
 
             preparedStatement.setString(1, genre);
             preparedStatement.setLong(2, discordId);
+            preparedStatement.setInt(3, limit);
 
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -2721,20 +2722,21 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<ScrobbledAlbum> getUserAlbumsWithTag(Connection connection, long discordId, String tag) {
+    public List<ScrobbledAlbum> getUserAlbumsWithTag(Connection connection, long discordId, String tag, int limit) {
         String queryString = "SELECT a.id as album_id, c.id,album_name,c.name,a.mbid,c.mbid as artist_mbid,a.url,d.playnumber  " +
                 "FROM album a " +
                 "join artist c on a.artist_id = c.id " +
                 "join scrobbled_album d on a.id = d.album_id " +
                 "join user e on d.lastfm_id = e.lastfm_id  " +
                 "join  album_tags b on a.id = b.album_id " +
-                "WHERE tag = ? and e.discord_id = ? ";
+                "WHERE tag = ? and e.discord_id = ? order by playnumber desc limit ? ";
         List<ScrobbledAlbum> returnInfoes = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
 
             preparedStatement.setString(1, tag);
             preparedStatement.setLong(2, discordId);
+            preparedStatement.setInt(3, limit);
 
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -2826,19 +2828,20 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<ScrobbledArtist> getUserArtistWithTag(Connection connection, long discordId, String genre) {
+    public List<ScrobbledArtist> getUserArtistWithTag(Connection connection, long discordId, String genre, int limit) {
         String queryString = "SELECT c.name,c.url,c.id,d.playnumber " +
                 "FROM artist c " +
                 "join scrobbled_artist d on c.id = d.artist_id " +
                 "join user e on d.lastfm_id = e.lastfm_id  " +
                 "join  artist_tags b on c.id = b.artist_id " +
-                "WHERE  tag = ? and e.discord_id = ? ";
+                "WHERE  tag = ? and e.discord_id = ? order by playnumber desc limit ? ";
         List<ScrobbledArtist> returnInfoes = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
 
             preparedStatement.setString(1, genre);
             preparedStatement.setLong(2, discordId);
+            preparedStatement.setInt(3, limit);
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -2916,7 +2919,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 String tag = resultSet.getString("tag");
                 int count = resultSet.getInt("coun");
 
-                returnList.put(new Genre(tag, null), count);
+                returnList.put(new Genre(tag), count);
 
             }
             return returnList;
