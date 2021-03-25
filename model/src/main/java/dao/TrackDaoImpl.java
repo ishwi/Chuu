@@ -3,7 +3,6 @@ package dao;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
-import org.intellij.lang.annotations.Language;
 
 import javax.annotation.Nullable;
 import java.sql.*;
@@ -200,7 +199,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         List<Track> tracks = new ArrayList<>();
         FullAlbumEntity fullAlbumEntity = null;
 
-        @Language("MariaDB")
+
         String mySql =
                 """
                         SELECT d.NAME,\s
@@ -259,7 +258,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         List<Track> tracks = new ArrayList<>();
         FullAlbumEntity fullAlbumEntity = null;
 
-        @Language("MariaDB")
+
         String mySql =
                 """
                         SELECT d.NAME,\s
@@ -317,7 +316,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     public ResultWrapper<ScrobbledTrack> getGuildTopTracks(Connection connection, Long guildID, int limit, boolean doCount) {
 
 
-        @Language("MariaDB") String normalQUery = "SELECT d.name,f.track_name,coalesce(f.url,e.url,d.url) as url,sum(playnumber) AS orden ,e.mbid  ";
+        String normalQUery = "SELECT d.name,f.track_name,coalesce(f.url,e.url,d.url) as url,sum(playnumber) AS orden ,e.mbid  ";
 
         String countQuery = "Select count(*) as orden ";
 
@@ -469,7 +468,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
     @Override
     public void deleteAllUserTracks(Connection con, String lastfmId) {
-        @Language("MariaDB") String queryString = "DELETE   FROM scrobbled_track  WHERE lastfm_id = ? ";
+        String queryString = "DELETE   FROM scrobbled_track  WHERE lastfm_id = ? ";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -579,7 +578,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
     @Override
     public long getTrackIdByName(Connection connection, String track, long artistId) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT id FROM  track WHERE track_name = ? and artist_id = ?  ";
+        String queryString = "SELECT id FROM  track WHERE track_name = ? and artist_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(2, artistId);
             preparedStatement.setString(1, track);
@@ -595,7 +594,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
     @Override
     public ScrobbledTrack getTrackByName(Connection connection, String track, long artistId) {
-//        @Language("MariaDB") String queryString = "SELECT id,artist_id,album_name,url,duration,mbid,spotify_id FROM  album WHERE album_name = ? and artist_id = ?  ";
+//         String queryString = "SELECT id,artist_id,album_name,url,duration,mbid,spotify_id FROM  album WHERE album_name = ? and artist_id = ?  ";
 //        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 //            preparedStatement.setLong(2, artistId);
 //            preparedStatement.setString(1, track);
@@ -738,7 +737,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
     @Override
     public Map<Genre, Integer> genreCountsByTracks(Connection connection, List<AlbumInfo> albumInfos) {
-//        @Language("MariaDB") String queryString = "SELECT tag,count(*) as coun FROM album a join artist b on a.artist_id =b.id join album_tags c  on a.id = c.album_id WHERE (name) in (%s) and (album_name)  IN (%s) group by tag";
+//         String queryString = "SELECT tag,count(*) as coun FROM album a join artist b on a.artist_id =b.id join album_tags c  on a.id = c.album_id WHERE (name) in (%s) and (album_name)  IN (%s) group by tag";
 //        String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()));
 //
 //
@@ -772,7 +771,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
     @Override
     public String getTrackUrlByName(Connection connection, String name, long artistId) {
-//        @Language("MariaDB") String queryString = "SELECT url FROM  album WHERE album_name = ? and artist_id = ?  ";
+//         String queryString = "SELECT url FROM  album WHERE album_name = ? and artist_id = ?  ";
 //        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 //            preparedStatement.setLong(2, artistId);
 //            preparedStatement.setString(1, name);

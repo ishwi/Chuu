@@ -5,7 +5,6 @@ import dao.entities.ArtistInfo;
 import dao.entities.ScrobbledAlbum;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.ChuuServiceException;
-import org.intellij.lang.annotations.Language;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,20 +16,20 @@ public class DiscoveralDaoImpl implements DiscoveralDao {
     @Override
     public void setDiscoveredAlbumTempTable(Connection connection, Collection<ScrobbledAlbum> scrobbledAlbums, String lastfmId) {
 
-        @Language("MariaDB") String queryBody =
-                "                                CREATE TEMPORARY TABLE discovered_temp(\n" +
-                        "           id         BIGINT(20)                       primary key     AUTO_INCREMENT, " +
-                        "                                        artist_name varchar(400) COLLATE  utf8mb4_unicode_ci ,\n" +
-                        "                                        album_name varchar(400) COLLATE  utf8mb4_unicode_ci ,\n" +
-                        "                                        play_count int\n" +
-                        "                        ) DEFAULT CHARSET=utf8mb4" +
-                        " COLLATE =  utf8mb4_general_ci;";
+        String queryBody =
+                """
+                        CREATE TEMPORARY TABLE discovered_temp(
+                        id BIGINT(20) primary key AUTO_INCREMENT,
+                        artist_name varchar(400) COLLATE  utf8mb4_unicode_ci ,
+                        album_name varchar(400) COLLATE  utf8mb4_unicode_ci ,
+                        play_count int
+                        ) DEFAULT CHARSET=utf8mb4 COLLATE =  utf8mb4_general_ci;""".indent(11);
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
 
             queryBody =
-                    "                                insert into discovered_temp(artist_name,album_name,play_count)  values %s";
+                    "insert into discovered_temp(artist_name,album_name,play_count)  values %s";
             String sql = String.format(queryBody, scrobbledAlbums.isEmpty() ? (null) : String.join(",", Collections.nCopies(scrobbledAlbums.size(), "(?,?,?)")));
             try (PreparedStatement preparedStatement2 = connection.prepareStatement(sql)) {
 
@@ -55,13 +54,14 @@ public class DiscoveralDaoImpl implements DiscoveralDao {
     @Override
     public void setDiscoveredArtistTempTable(Connection connection, Collection<ScrobbledArtist> scrobbledAlbums, String lastfmId) {
 
-        @Language("MariaDB") String queryBody =
-                "                                CREATE TEMPORARY TABLE discovered_artist_temp(\n" +
-                        "           id         BIGINT(20)                       primary key     AUTO_INCREMENT, " +
-                        "                                        artist_name varchar(400) COLLATE  utf8mb4_unicode_ci ,\n" +
-                        "                                        play_count int\n" +
-                        "                        ) DEFAULT CHARSET=utf8mb4" +
-                        " COLLATE =  utf8mb4_general_ci;";
+        String queryBody =
+                """
+                        CREATE TEMPORARY TABLE discovered_artist_temp(
+                        id BIGINT(20) primary key AUTO_INCREMENT,
+                        artist_name varchar(400) COLLATE  utf8mb4_unicode_ci,
+                        play_count int
+                        ) DEFAULT CHARSET=utf8mb4 COLLATE =  utf8mb4_general_ci;"""
+                        .indent(11);
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
@@ -91,10 +91,12 @@ public class DiscoveralDaoImpl implements DiscoveralDao {
     @Override
     public List<AlbumInfo> calculateDiscoveryFromAlbumTemp(Connection connection, String lastfmId) {
         List<AlbumInfo> returnedMap = new ArrayList<>();
-        String s = "Select b.album_name,c.name,a.play_count from discovered_temp a left join album b \n" +
-                "on a.album_name = b.album_name   \n" +
-                "  left join artist c on a.artist_name = c.name and b.artist_id = c.id left join scrobbled_album d on b.id = d.album_id \n" +
-                " where a.play_count >= coalesce(d.playnumber,0) and d.lastfm_id = ?\n";
+        String s = """
+                Select b.album_name,c.name,a.play_count from discovered_temp a left join album b\s
+                on a.album_name = b.album_name  \s
+                left join artist c on a.artist_name = c.name and b.artist_id = c.id left join scrobbled_album d on b.id = d.album_id\s
+                where a.play_count >= coalesce(d.playnumber,0) and d.lastfm_id = ?
+                """;
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setString(1, lastfmId);
@@ -116,8 +118,13 @@ public class DiscoveralDaoImpl implements DiscoveralDao {
     @Override
     public Set<ArtistInfo> calculateDiscoveryFromArtistTemp(Connection connection, String lastfmId) {
         Set<ArtistInfo> returnedMap = new HashSet<>();
-        String s = "Select c.name,c.url from discovered_artist_temp a left join artist c on a.artist_name = c.name left join scrobbled_artist d on c.id = d.artist_id \n" +
-                " where a.play_count >= coalesce(d.playnumber,0) and d.lastfm_id = ?\n";
+        String s = """
+                Select c.name,c.url
+                from discovered_artist_temp a 
+                left join artist c on a.artist_name = c.name
+                left join scrobbled_artist d on c.id = d.artist_id\s
+                where a.play_count >= coalesce(d.playnumber,0) and d.lastfm_id = ?
+                """;
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setString(1, lastfmId);
@@ -139,7 +146,7 @@ public class DiscoveralDaoImpl implements DiscoveralDao {
 
     @Override
     public void deleteDiscoveryAlbumTempTable(Connection connection) {
-        @Language("MariaDB") String queryBody = "drop table if EXISTS  discovered_temp";
+        String queryBody = "drop table if EXISTS  discovered_temp";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
         } catch (SQLException e) {
@@ -151,7 +158,7 @@ public class DiscoveralDaoImpl implements DiscoveralDao {
 
     @Override
     public void deleteDiscoveryArtistTable(Connection connection) {
-        @Language("MariaDB") String queryBody = "drop table if EXISTS  discovered_artist_temp";
+        String queryBody = "drop table if EXISTS  discovered_artist_temp";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
         } catch (SQLException e) {

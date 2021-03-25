@@ -8,6 +8,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
+import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import org.junit.Test;
 import test.commands.parsers.NullReturnParsersTest;
@@ -49,7 +50,7 @@ public class FavesCommandTest extends CommandTest {
 		ConcurrentLastFM newInstance = LastFMFactory.getNewInstance();
 		DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
 		Spotify spotify = SpotifySingleton.getInstance();
-		NowPlayingArtist np = newInstance.getNowPlayingInfo("pablopita");
+		NowPlayingArtist np = newInstance.getNowPlayingInfo(LastFMData.ofUser("pablopita"));
 		String artistUrl = CommandUtil
 				.getArtistImageUrl(TestResources.dao, np.getArtistName(), newInstance, discogsApi, spotify);
 		EmbedUtils
@@ -57,7 +58,7 @@ public class FavesCommandTest extends CommandTest {
 						false, false, artistUrl, Pattern
 								.compile("Coudnt't find your fav tracks of " + np.getArtistName() + " in the last week!"));
 
-		np = newInstance.getNowPlayingInfo("guilleecs");
+		np = newInstance.getNowPlayingInfo(LastFMData.ofUser("guilleecs"));
 		artistUrl = CommandUtil
 				.getArtistImageUrl(TestResources.dao, np.getArtistName(), newInstance, discogsApi, spotify);
 		EmbedUtils

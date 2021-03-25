@@ -3,7 +3,6 @@ package dao;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import dao.musicbrainz.AffinityDao;
-import org.intellij.lang.annotations.Language;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,7 +14,7 @@ import java.util.List;
 public class AffinityDaoImpl implements AffinityDao {
     @Override
     public void initTempTable(Connection connection, String ownerLastfmID, String receiverLastFMId, int threshold) {
-        @Language("MariaDB") String queryBody =
+        String queryBody =
                 """
                         CREATE TEMPORARY TABLE affinity
                         SELECT *
@@ -52,7 +51,7 @@ public class AffinityDaoImpl implements AffinityDao {
 
     @Override
     public Affinity getPercentageStats(Connection connection, String ownerLastfmID, String receiverLastFMId, int threshold) {
-        @Language("MariaDB") String queryBody = """
+        String queryBody = """
                 SELECT Count(*) AS matchingcount,
                        ((SELECT Count(*)
                               FROM   scrobbled_artist
@@ -93,7 +92,7 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public String[] doRecommendations(Connection connection, String ogLastFmId, String receiverLastFMId) {
         String[] artistRecs = new String[]{null, null};
-        @Language("MariaDB") String queryBody = """
+        String queryBody = """
                 SELECT (SELECT\s
                 b.name\s
                 FROM scrobbled_artist a\s
@@ -131,7 +130,7 @@ public class AffinityDaoImpl implements AffinityDao {
 
     @Override
     public void setServerTempTable(Connection connection, long guildId, String ogLastfmID, int threshold) {
-        @Language("MariaDB") String queryBody =
+        String queryBody =
                 """
                         CREATE TEMPORARY TABLE server_affinity\s
                         SELECT *\s
@@ -168,7 +167,7 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public void setGlobalTable(Connection connection, String ogLastfmID, int threshold) {
 
-        @Language("MariaDB") String queryBody
+        String queryBody
                 = """
                 CREATE TEMPORARY TABLE global_server_affinity\s
                 SELECT *\s
@@ -193,7 +192,7 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public List<ArtistLbGlobalEntry> getGlobalMatchingCount(Connection connection) {
         List<ArtistLbGlobalEntry> affinityList = new ArrayList<>();
-        @Language("MariaDB") String queryBody = """
+        String queryBody = """
                 SELECT u.discord_id ,l1 AS lastfmid,Count(*) AS matchingcount,u.privacy_mode \s
                    FROM global_server_affinity main       JOIN user u ON main.l1 = u.lastfm_id
                    GROUP BY main.l1,u.lastfm_id order by matchingcount desc  limit 50""";
@@ -221,7 +220,7 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public List<LbEntry> getMatchingCount(Connection connection) {
         List<LbEntry> affinityList = new ArrayList<>();
-        @Language("MariaDB") String queryBody = """
+        String queryBody = """
                 SELECT u.discord_id ,l1 AS lastfmid,Count(*) AS matchingcount \s
                    FROM server_affinity main       JOIN user u ON main.l1 = u.lastfm_id
                    GROUP BY main.l1,u.lastfm_id""";
@@ -246,7 +245,7 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public List<GlobalAffinity> doGlobalAffinity(Connection connection, String ogLastfmId, int threshold) {
         List<GlobalAffinity> affinityList = new ArrayList<>();
-        @Language("MariaDB") String queryBody = """
+        String queryBody = """
                 SELECT u.discord_id ,u.privacy_mode,l1 AS lastfmid,Count(*) AS matchingcount,\s
                        ((SELECT Count(*)\s
                               FROM   scrobbled_artist\s
@@ -302,7 +301,7 @@ public class AffinityDaoImpl implements AffinityDao {
     @Override
     public List<Affinity> doServerAffinity(Connection connection, String ogLastfmId, int threshold) {
         List<Affinity> affinityList = new ArrayList<>();
-        @Language("MariaDB") String queryBody = """
+        String queryBody = """
                 SELECT u.discord_id ,l1 AS lastfmid,Count(*) AS matchingcount,\s
                        ((SELECT Count(*)\s
                               FROM   scrobbled_artist\s
@@ -354,7 +353,7 @@ public class AffinityDaoImpl implements AffinityDao {
 
     @Override
     public void cleanUp(Connection connection, boolean isServer) {
-        @Language("MariaDB") String queryBody = "drop table if EXISTS " + (isServer ? "server_affinity" : "affinity");
+        String queryBody = "drop table if EXISTS " + (isServer ? "server_affinity" : "affinity");
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
         } catch (SQLException e) {
@@ -365,7 +364,7 @@ public class AffinityDaoImpl implements AffinityDao {
 
     @Override
     public void cleanUpGlobal(Connection connection, boolean isServer) {
-        @Language("MariaDB") String queryBody = "drop table if EXISTS global_server_affinity";
+        String queryBody = "drop table if EXISTS global_server_affinity";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
         } catch (SQLException e) {

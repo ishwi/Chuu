@@ -82,7 +82,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
                 return;
             }
         } else {
-            ai = lastFM.getTopArtistTracks(params.getLastFMData(), who.getArtist(), timeframew.toApiFormat(), artist);
+            ai = lastFM.getTopArtistTracks(params.getLastFMData(), who.getArtist(), timeframew, artist);
             if (ai.isEmpty()) {
                 sendMessageQueue(e, ("Couldn't find your fav tracks in your top 5k songs (or you don't have any track with more than 3 plays) of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString() + "!"));
                 return;

@@ -2,7 +2,6 @@ package dao;
 
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
-import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -19,7 +18,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     @Override
     public void setServerTempTable(Connection connection, List<RYMImportRating> ratings) {
 
-        @Language("MariaDB") String queryBody =
+        String queryBody =
                 """
                                 CREATE TEMPORARY TABLE temp_rating(
                                         rym_id bigint(20) PRIMARY KEY,
@@ -214,7 +213,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
 
     @Override
     public void cleanUp(Connection connection) {
-        @Language("MariaDB") String queryBody = "drop table if EXISTS  temp_rating";
+        String queryBody = "drop table if EXISTS  temp_rating";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
         } catch (SQLException e) {

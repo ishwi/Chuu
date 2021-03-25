@@ -3,6 +3,7 @@ package test.commands;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
 import core.exceptions.LastFmException;
+import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import org.junit.Test;
 import test.commands.parsers.NullReturnParsersTest;
@@ -31,7 +32,7 @@ public class NowPlayinCommandTest extends CommandTest {
 		Pattern compile = Pattern.compile("\\*\\*(.*?)\\*\\* - (.*?) \\| (.*)");
 		ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
 		try {
-			NowPlayingArtist pablopita = lastFM.getNowPlayingInfo("pablopita");
+			NowPlayingArtist pablopita = lastFM.getNowPlayingInfo(LastFMData.ofUser("pablopita"));
 			String header = pablopita.isNowPlaying() ? "Current:" : "Last:";
 			List<FieldRowMatcher> fieldRowMatchers = new ArrayList<>();
 			fieldRowMatchers.add(new FieldRowMatcher(header, compile));

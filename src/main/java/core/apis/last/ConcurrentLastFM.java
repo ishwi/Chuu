@@ -1204,7 +1204,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     }
 
-    public List<Track> getTopArtistTracks(LastFMData user, String artist, String weekly, String correction) throws LastFmException {
+    public List<Track> getTopArtistTracks(LastFMData user, String artist, TimeFrameEnum timeFrame, String correction) throws LastFmException {
         final int SIZE_LIMIT = 10;
 
         List<Track> trackList = new ArrayList<>();
@@ -1222,9 +1222,9 @@ public class ConcurrentLastFM {//implements LastFMService {
         int limit = 2;
 
         url = BASE + GET_TOP_TRACKS + user.getName() +
-                apiKey + "&limit=" + 1000 + ENDING + "&period=" + weekly;
-        TimeFrameEnum timeFrameEnum = TimeFrameEnum.fromCompletePeriod(weekly);
-        if (List.of(TimeFrameEnum.DAY, TimeFrameEnum.WEEK, TimeFrameEnum.MONTH).contains(timeFrameEnum)) {
+                apiKey + "&limit=" + 1000 + ENDING + "&period=" + timeFrame.toApiFormat();
+
+        if (List.of(TimeFrameEnum.DAY, TimeFrameEnum.WEEK, TimeFrameEnum.MONTH).contains(timeFrame)) {
             dontdoAll = false;
         }
 

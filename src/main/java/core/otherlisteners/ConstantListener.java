@@ -18,21 +18,22 @@ public record ConstantListener(long channelId, ChuuService service) implements E
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
         if (event instanceof MessageReactionAddEvent e) {
-            long idLong = e.getChannel().getIdLong();
-            if (idLong == channelId && e.getUser() != null && !e.getUser().isBot()) {
-                onMessageReactionAdd(e);
-            }
+            onMessageReactionAdd(e);
         }
     }
 
-    private void onMessageReactionAdd(MessageReactionAddEvent event) {
-        if (event.getReaction().getReactionEmote().getAsCodepoints().equals(REJECT)) {
+    public void onMessageReactionAdd(MessageReactionAddEvent e) {
+        long idLong = e.getChannel().getIdLong();
+        if (idLong != channelId || e.getUser() == null || e.getUser().isBot()) {
             return;
         }
-        event.getChannel().retrieveMessageById(event.getMessageId()).queue(x -> {
-            if (event.getReaction().getReactionEmote().getAsCodepoints().equals(REJECT)) {
+        if (e.getReaction().getReactionEmote().getAsCodepoints().equals(REJECT)) {
+            return;
+        }
+        e.getChannel().retrieveMessageById(e.getMessageId()).queue(x -> {
+            if (e.getReaction().getReactionEmote().getAsCodepoints().equals(REJECT)) {
                 x.delete().queue();
-            } else if (event.getReaction().getReactionEmote().getAsCodepoints().equals(ACCEPT)) {
+            } else if (e.getReaction().getReactionEmote().getAsCodepoints().equals(ACCEPT)) {
                 String description = x.getEmbeds().get(0).getDescription();
                 if (description != null) {
                     String[] split = description.split("\n");

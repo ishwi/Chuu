@@ -7,7 +7,6 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
-import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -144,7 +143,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public List<Long> guildsFromUser(Connection connection, long userId) {
-        @Language("MariaDB") String queryString = "SELECT discord_id,guild_id  FROM user_guild  WHERE discord_id = ?";
+         String queryString = "SELECT discord_id,guild_id  FROM user_guild  WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -171,7 +170,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public MultiValuedMap<Long, Long> getWholeUserGuild(Connection connection) {
-        @Language("MariaDB") String queryString = "SELECT discord_id,guild_id  FROM user_guild ";
+        String queryString = "SELECT discord_id,guild_id  FROM user_guild ";
 
         MultiValuedMap<Long, Long> map = new ArrayListValuedHashMap<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -221,7 +220,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void removeUser(Connection con, Long discordId) {
         /* Create "queryString". */
-        @Language("MariaDB") String queryString = "DELETE FROM  user WHERE discord_id = ?";
+        String queryString = "DELETE FROM  user WHERE discord_id = ?";
 
         deleteIdLong(con, discordId, queryString);
 
@@ -249,7 +248,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void removeUserGuild(Connection con, long discordId, long guildId) {
         /* Create "queryString". */
-        @Language("MariaDB") String queryString = "DELETE FROM  user_guild  WHERE discord_id = ? AND guild_id = ?";
+        String queryString = "DELETE FROM  user_guild  WHERE discord_id = ? AND guild_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -368,7 +367,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void addLogo(Connection con, long guildID, BufferedImage image) {
-        @Language("MariaDB") String queryString = "UPDATE  guild SET  logo = ? WHERE guild_id = ? ";
+        String queryString = "UPDATE  guild SET  logo = ? WHERE guild_id = ? ";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -391,7 +390,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void removeLogo(Connection connection, long guildId) {
         /* Create "queryString". */
-        @Language("MariaDB") String queryString = "UPDATE  guild SET logo = NULL WHERE guild_id = ?";
+        String queryString = "UPDATE  guild SET logo = NULL WHERE guild_id = ?";
 
         deleteIdLong(connection, guildId, queryString);
     }
@@ -426,7 +425,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public long getDiscordIdFromLastFm(Connection connection, String lastFmName) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT a.discord_id " +
+        String queryString = "SELECT a.discord_id " +
                 "FROM   user a" +
                 " WHERE  a.lastfm_id = ?  ";
 
@@ -455,7 +454,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public long getDiscordIdFromLastFm(Connection connection, String lastFmName, long guildId) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT a.discord_id " +
+        String queryString = "SELECT a.discord_id " +
                 "FROM   user a" +
                 " JOIN  user_guild  b " +
                 "ON a.discord_id = b.discord_id " +
@@ -487,7 +486,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image," +
+        String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image," +
                 "a.chart_mode,a.whoknows_mode,a.remaining_mode,a.default_x,a.default_y,a.privacy_mode,a.notify_rating,a.private_lastfm," +
                 "timezone,show_botted,token,sess,scrobbling,color " +
                 "FROM   user a" +
@@ -707,7 +706,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void setUserProperty(Connection connection, long discordId, String property, boolean chartEmbed) {
-        @Language("MariaDB") String queryString = "UPDATE  user SET  " + property + " = ? WHERE discord_id = ? ";
+        String queryString = "UPDATE  user SET  " + property + " = ? WHERE discord_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -724,7 +723,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void setUserProperty(Connection connection, long discordId, String property, String value) {
-        @Language("MariaDB") String queryString = "UPDATE  user SET  " + property + " = ? WHERE discord_id = ? ";
+        String queryString = "UPDATE  user SET  " + property + " = ? WHERE discord_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -740,7 +739,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void setGuildProperty(Connection connection, long guildId, String property, boolean value) {
-        @Language("MariaDB") String queryString = "UPDATE  guild SET  " + property + " = ? WHERE guild_id = ? ";
+        String queryString = "UPDATE  guild SET  " + property + " = ? WHERE guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -757,7 +756,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void setGuildProperty(Connection connection, long guildId, String property, String value) {
-        @Language("MariaDB") String queryString = "UPDATE  guild SET  " + property + " = ? WHERE guild_id = ? ";
+        String queryString = "UPDATE  guild SET  " + property + " = ? WHERE guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -775,7 +774,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public <T extends Enum<T>> void setUserProperty(Connection connection, long discordId, String propertyName, T value) {
-        @Language("MariaDB") String queryString = "UPDATE  user SET  " + propertyName + " = ? WHERE discord_id = ? ";
+        String queryString = "UPDATE  user SET  " + propertyName + " = ? WHERE discord_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -791,7 +790,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public GuildProperties getGuild(Connection connection, long discordId) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "select " +
+        String queryString = "select " +
                 "guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning,override_reactions,allow_reactions,color,allow_covers,override_color from guild where guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -830,7 +829,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public LastFMData findLastFmData(Connection con, long discordId, long guildId) throws InstanceNotFoundException {
-        @Language("MariaDB")
+
         String queryString = "SELECT   a.discord_id, lastfm_id,role,private_update,notify_image," +
                 "IFNULL(c.chart_mode,a.chart_mode), " +
                 "IFNULL(c.whoknows_mode,a.whoknows_mode), " +
@@ -894,7 +893,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public <T extends Enum<T>> void setGuildProperty(Connection connection, long discordId, String propertyName, @Nullable T value) {
-        @Language("MariaDB") String queryString = "UPDATE  guild SET " + propertyName + " = ? WHERE guild_id = ? ";
+        String queryString = "UPDATE  guild SET " + propertyName + " = ? WHERE guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -915,7 +914,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void setChartDefaults(Connection connection, long discordId, int x, int y) {
-        @Language("MariaDB") String queryString = "UPDATE  user SET  default_x =?, default_y = ?  WHERE discord_id = ? ";
+        String queryString = "UPDATE  user SET  default_x =?, default_y = ?  WHERE discord_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -932,13 +931,13 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void serverBlock(Connection connection, long discordId, long guildId) {
-        @Language("MariaDB") String queryString = "insert into server_blocked(discord_id,guild_id)  values (?,?) ";
+        String queryString = "insert into server_blocked(discord_id,guild_id)  values (?,?) ";
         updateUserGuild(connection, discordId, guildId, queryString);
     }
 
     @Override
     public boolean isUserServerBanned(Connection connection, long userId, long guildID) {
-        @Language("MariaDB") String queryString = "select exists( select guild_id,discord_id from server_blocked where guild_id = ? and discord_id = ?)";
+        String queryString = "select exists( select guild_id,discord_id from server_blocked where guild_id = ? and discord_id = ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -959,13 +958,13 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void serverUnblock(Connection connection, long discordId, long guildId) {
-        @Language("MariaDB") String queryString = "delete  from server_blocked where discord_id = ? and guild_id = ?";
+        String queryString = "delete  from server_blocked where discord_id = ? and guild_id = ?";
         updateUserGuild(connection, discordId, guildId, queryString);
     }
 
     @Override
     public long getNPRaw(Connection connection, long discordId) {
-        @Language("MariaDB") String queryString = "select  np_mode from user where discord_id = ? ";
+        String queryString = "select  np_mode from user where discord_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -993,7 +992,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public long getServerNPRaw(Connection connection, long guildId) {
-        @Language("MariaDB") String queryString = "select  np_mode from guild where guild_id = ? ";
+        String queryString = "select  np_mode from guild where guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -1367,7 +1366,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void flagBotted(long discordId, Connection connection) {
-        @Language("MariaDB") String queryString = "update user set botted_account  = true WHERE discord_id = ?";
+        String queryString = "update user set botted_account  = true WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -1380,7 +1379,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void insertBannedCover(Connection connection, long albumId, String cover) {
-        @Language("MariaDB") String queryString = "insert into banned_cover(album_id,replacement_cover) values (?,?)";
+        String queryString = "insert into banned_cover(album_id,replacement_cover) values (?,?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -1394,7 +1393,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void removeBannedCover(Connection connection, long albumId, String cover) {
-        @Language("MariaDB") String queryString = "delete from  banned_cover where album_id = ? and replacement_cover =? ";
+        String queryString = "delete from  banned_cover where album_id = ? and replacement_cover =? ";
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -1409,7 +1408,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void insertServerCustomUrl(Connection connection, long altId, long guildId, long artistId) {
-        @Language("MariaDB") String queryString = "insert into artist_custom_images(alt_id,guild_id,artist_id) values (?,?,?) on duplicate key update alt_id = values(alt_id)";
+        String queryString = "insert into artist_custom_images(alt_id,guild_id,artist_id) values (?,?,?) on duplicate key update alt_id = values(alt_id)";
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {

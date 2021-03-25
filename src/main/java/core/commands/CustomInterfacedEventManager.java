@@ -6,6 +6,7 @@ import core.commands.abstracts.MyCommand;
 import core.commands.moderation.AdministrativeCommand;
 import core.music.listeners.VoiceListener;
 import core.otherlisteners.AwaitReady;
+import core.otherlisteners.ConstantListener;
 import core.otherlisteners.ReactionListener;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -37,6 +38,7 @@ public class CustomInterfacedEventManager implements IEventManager {
 
     private final Set<EventListener> otherListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, MyCommand<?>> commandListeners = new HashMap<>();
+    private final Map<Long, ConstantListener> constantListeners = new HashMap<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new ConcurrentHashMap<>();
     private AdministrativeCommand administrativeCommand;
     private VoiceListener voiceListener;
@@ -66,16 +68,18 @@ public class CustomInterfacedEventManager implements IEventManager {
             }
         }
         if (listener instanceof ReactionListener reactionListener) {
-            long activeSeconds = reactionListener.getActiveSeconds();
             ScheduledFuture<?> schedule = Chuu.getScheduledExecutorService().schedule((() -> {
                 reactionaries.remove(reactionListener);
                 reactionListener.dispose();
-            }), activeSeconds, TimeUnit.SECONDS);
+            }), reactionListener.getActiveSeconds(), TimeUnit.SECONDS);
             reactionaries.put(reactionListener, schedule);
+        } else if (listener instanceof ConstantListener cl) {
+            constantListeners.put(cl.channelId(), cl);
         }
         if (listener instanceof AwaitReady) {
             otherListeners.add((EventListener) listener);
         }
+
     }
 
     @Override
@@ -93,6 +97,9 @@ public class CustomInterfacedEventManager implements IEventManager {
             }
         } else if (listener instanceof AwaitReady) {
             otherListeners.remove(listener);
+        } else if (listener instanceof ConstantListener cl) {
+            constantListeners.remove(cl.channelId(), cl);
+
         }
     }
 
@@ -142,31 +149,31 @@ public class CustomInterfacedEventManager implements IEventManager {
                 }
             }
 
-        } else if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {
-            administrativeCommand.onEvent(event);
-        } else if (event instanceof MessageReactionAddEvent e3) {
-            for (ReactionListener listener : reactionaries.keySet()) {
-                try {
-                    listener.onMessageReactionAdd(e3);
-                } catch (Throwable throwable) {
-                    JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
-                }
-            }
-        } else if (event instanceof GuildVoiceJoinEvent || event instanceof GuildVoiceLeaveEvent || event instanceof GuildVoiceMoveEvent) {
+        } else
             try {
-                this.voiceListener.onEvent(event);
+                if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {
+                    administrativeCommand.onEvent(event);
+                } else if (event instanceof MessageReactionAddEvent e3) {
+                    ConstantListener c = constantListeners.get(e3.getChannel().getIdLong());
+                    if (c != null) {
+                        c.onMessageReactionAdd(e3);
+                        return;
+                    }
+                    for (ReactionListener listener : reactionaries.keySet()) {
+                        listener.onMessageReactionAdd(e3);
+                    }
+                } else if (event instanceof GuildVoiceJoinEvent || event instanceof GuildVoiceLeaveEvent || event instanceof GuildVoiceMoveEvent) {
+
+                    this.voiceListener.onEvent(event);
+
+                } else if (event instanceof ReadyEvent) {
+                    for (EventListener listener : otherListeners) {
+                        listener.onEvent(event);
+                    }
+                }
             } catch (Throwable throwable) {
                 JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
             }
-        } else if (event instanceof ReadyEvent) {
-            for (EventListener listener : otherListeners) {
-                try {
-                    listener.onEvent(event);
-                } catch (Throwable throwable) {
-                    JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
-                }
-            }
-        }
     }
 
     @Nonnull

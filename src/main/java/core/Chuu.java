@@ -262,6 +262,7 @@ public class Chuu {
                     }
 
                     evalCommand.setOwnerId(shard);
+                    shardManager.addEventListener(evalCommand);
                     shardManager.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
                     updatePresence("Chuu");
                 }));

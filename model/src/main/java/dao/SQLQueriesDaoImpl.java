@@ -5,7 +5,6 @@ import dao.exceptions.ChuuServiceException;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
-import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -30,7 +29,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ArtistPlays> returnList = new ArrayList<>();
         long discordId = 0;
 
-        @Language("MariaDB") String queryString = "SELECT c.name , b.discord_id , playnumber AS orden" +
+        String queryString = "SELECT c.name , b.discord_id , playnumber AS orden" +
                 " FROM  scrobbled_artist  a" +
                 " JOIN user b ON a.lastfm_id = b.lastfm_id" +
                 " JOIN artist c ON " +
@@ -81,7 +80,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public UniqueWrapper<ArtistPlays> getGlobalUniques(Connection connection, String lastfmId) {
 
-        @Language("MariaDB") String queryString = "SELECT a.name, temp.playnumber, temp.lastfm_id, temp.discord_id " +
+        String queryString = "SELECT a.name, temp.playnumber, temp.lastfm_id, temp.discord_id " +
                 "FROM(  " +
                 "       SELECT artist_id, playnumber, a.lastfm_id ,b.discord_id" +
                 "       FROM scrobbled_artist a JOIN user b " +
@@ -120,7 +119,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public ResultWrapper<ArtistPlays> getArtistPlayCount(Connection connection, Long guildId) {
-        @Language("MariaDB") String queryBody =
+        String queryBody =
                 "FROM  (SELECT artist_id,playnumber " +
                         "FROM scrobbled_artist a" +
                         " JOIN user b  " +
@@ -158,7 +157,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public ResultWrapper<ArtistPlays> getArtistsFrequencies(Connection connection, Long guildId) {
-        @Language("MariaDB") String queryBody =
+        String queryBody =
                 "FROM  (SELECT artist_id " +
                         "FROM scrobbled_artist a" +
                         " JOIN user b  " +
@@ -176,7 +175,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<TagPlays> getServerTags(Connection connection, Long guildId, boolean doCount) {
-        @Language("MariaDB") String query =
+        String query =
                 "SELECT tag, " + (doCount ? "count(*)" : "sum(a.playnumber)") + " AS orden " +
                         "FROM scrobbled_artist a" +
                         " JOIN user b  " +
@@ -221,7 +220,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public ResultWrapper<ArtistPlays> getGlobalArtistPlayCount(Connection connection) {
-        @Language("MariaDB") String queryString =
+        String queryString =
                 "FROM  scrobbled_artist a" +
                         " JOIN artist b " +
                         " ON a.artist_id = b.id ";
@@ -257,7 +256,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public ResultWrapper<ArtistPlays> getGlobalArtistFrequencies(Connection connection) {
-        @Language("MariaDB") String queryString =
+        String queryString =
                 "FROM  scrobbled_artist a" +
                         " JOIN artist b " +
                         " ON a.artist_id = b.id ";
@@ -391,7 +390,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<String> getArtistAliases(Connection connection, long artistId) {
-        @Language("MariaDB") String queryString = "SELECT alias FROM corrections WHERE artist_id = ? ";
+        String queryString = "SELECT alias FROM corrections WHERE artist_id = ? ";
         List<String> returnList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -414,7 +413,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public long getArtistPlays(Connection connection, Long guildID, long artistId) {
-        @Language("MariaDB") String queryString = "SELECT sum(playnumber) FROM scrobbled_artist a " +
+        String queryString = "SELECT sum(playnumber) FROM scrobbled_artist a " +
                 "JOIN user b " +
                 "ON a.lastfm_id = b.lastfm_id ";
         if (guildID != null) {
@@ -443,7 +442,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public long getArtistFrequencies(Connection connection, Long guildID, long artistId) {
 
-        @Language("MariaDB") String queryBody =
+        String queryBody =
                 "Select count(*) from  scrobbled_artist where artist_id = ? \n";
 
         if (guildID != null) queryBody += """
@@ -472,7 +471,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public int getGuildCrownThreshold(Connection connection, long guildID) {
-        @Language("MariaDB") String queryBody = "SELECT crown_threshold FROM guild WHERE guild_id = ? ";
+        String queryBody = "SELECT crown_threshold FROM guild WHERE guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.setLong(1, guildID);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -487,7 +486,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public boolean getGuildConfigEmbed(Connection connection, long guildID) {
-        @Language("MariaDB") String queryBody = "SELECT additional_embed FROM guild WHERE guild_id = ? ";
+        String queryBody = "SELECT additional_embed FROM guild WHERE guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.setLong(1, guildID);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -502,7 +501,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<LbEntry> getScrobblesLeaderboard(Connection connection, long guildId) {
-        @Language("MariaDB") String queryBody = "SELECT b.lastfm_id,b.discord_id, sum(a.playnumber) AS ord " +
+        String queryBody = "SELECT b.lastfm_id,b.discord_id, sum(a.playnumber) AS ord " +
                 "FROM scrobbled_artist a JOIN user b ON a.lastfm_id = b.lastfm_id " +
                 "JOIN user_guild ug ON b.discord_id = ug.discord_id " +
                 "WHERE ug.guild_id = ? " +
@@ -623,7 +622,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public Map<Long, Float> getRateLimited(Connection connection) {
-        @Language("MariaDB") String queryString = "SELECT discord_id,queries_second  FROM rate_limited ";
+        String queryString = "SELECT discord_id,queries_second  FROM rate_limited ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -649,7 +648,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public WrapperReturnNowPlaying getGlobalWhoKnows(Connection con, long artistId, int limit, boolean includeBottedUsers, long ownerId) {
 
-        @Language("MariaDB")
+
         String queryString =
                 "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id,c.privacy_mode " +
                         "FROM  scrobbled_artist a use index (artist_id)" +
@@ -705,7 +704,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<ScrobbledArtist> getRecommendations(Connection connection, long giverDiscordId,
                                                     long receiverDiscordId, boolean doPast, int limit) {
-        @Language("MariaDB") String queryBody = """
+        String queryBody = """
                 SELECT\s
                 b.name,b.url,b.id,a.playnumber\s
                 FROM scrobbled_artist a\s
@@ -745,7 +744,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public UniqueWrapper<ArtistPlays> getUniqueArtist(Connection connection, Long guildID, String lastfmId) {
-        @Language("MariaDB") String queryString = "SELECT * " +
+        String queryString = "SELECT * " +
                 "FROM(  " +
                 "       SELECT a2.name, playnumber, a.lastfm_id ,b.discord_id" +
                 "       FROM scrobbled_artist a JOIN user b " +
@@ -785,7 +784,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public UniqueWrapper<AlbumPlays> getUniqueAlbum(Connection connection, Long guildID, String lastfmId) {
-        @Language("MariaDB") String queryString = "SELECT * " +
+        String queryString = "SELECT * " +
                 "FROM(  " +
                 "       SELECT a2.name,a3.album_name, playnumber, a.lastfm_id ,b.discord_id" +
                 "       FROM scrobbled_album a JOIN user b " +
@@ -827,7 +826,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public UniqueWrapper<TrackPlays> getUniqueTracks(Connection connection, Long guildID, String lastfmId) {
-        @Language("MariaDB") String queryString = "SELECT * " +
+        String queryString = "SELECT * " +
                 "FROM(  " +
                 "       SELECT a2.name,a3.track_name, playnumber, a.lastfm_id ,b.discord_id" +
                 "       FROM scrobbled_track a JOIN user b " +
@@ -873,7 +872,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         String userA = lastfMNames.get(0);
         String userB = lastfMNames.get(1);
 
-        @Language("MariaDB") String queryString =
+        String queryString =
                 "SELECT c.name  , a.playnumber,b.playnumber ," +
                         "((a.playnumber * b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
                         " (((a.playnumber + b.playnumber)) * 2.5) * " +
@@ -929,7 +928,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public WrapperReturnNowPlaying knows(Connection con, long artistId, long guildId, int limit) {
 
-        @Language("MariaDB")
+
         String queryString =
                 "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id " +
                         "FROM  scrobbled_artist a  use index (artist_id)" +
@@ -983,7 +982,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ArtistPlays> returnList = new ArrayList<>();
         long discordId = 0;
 
-        @Language("MariaDB") String queryString = "SELECT a2.name, b.discord_id , playnumber AS orden" +
+        String queryString = "SELECT a2.name, b.discord_id , playnumber AS orden" +
                 " FROM  scrobbled_artist  a" +
                 " JOIN user b ON a.lastfm_id = b.lastfm_id " +
                 " JOIN artist a2 ON a.artist_id = a2.id " +
@@ -1031,7 +1030,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public ResultWrapper<ScrobbledArtist> getGuildTop(Connection connection, Long guildID, int limit,
                                                       boolean doCount) {
-        @Language("MariaDB") String normalQUery = "SELECT d.name, sum(playnumber) AS orden ,url  ";
+        String normalQUery = "SELECT d.name, sum(playnumber) AS orden ,url  ";
 
         String countQuery = "Select count(*) as orden ";
 
@@ -1089,7 +1088,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public int userPlays(Connection con, long artistId, String whom) {
-        @Language("MariaDB") String queryString = "SELECT a.playnumber " +
+        String queryString = "SELECT a.playnumber " +
                 "FROM scrobbled_artist a JOIN user b ON a.lastfm_id=b.lastfm_id " +
                 "JOIN artist c ON a.artist_id = c.id " +
                 "WHERE a.lastfm_id = ? AND c.id = ?";
@@ -1115,7 +1114,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<LbEntry> crownsLeaderboard(Connection connection, long guildID, int threshold) {
-        @Language("MariaDB") String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
+        String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
                 "FROM " +
                 "( " +
                 "SELECT " +
@@ -1157,7 +1156,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<LbEntry> uniqueLeaderboard(Connection connection, long guildId) {
-        @Language("MariaDB") String queryString = "SELECT  " +
+        String queryString = "SELECT  " +
                 "    count(temp.lastfm_id) AS ord,temp.lastfm_id,temp.discord_id " +
                 "FROM " +
                 "    (SELECT  " +
@@ -1179,7 +1178,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<LbEntry> uniqueAlbumLeaderboard(Connection connection, long guildId) {
-        @Language("MariaDB") String queryString = "SELECT  " +
+        String queryString = "SELECT  " +
                 "    count(temp.lastfm_id) AS ord,temp.lastfm_id,temp.discord_id " +
                 "FROM " +
                 "    (SELECT  " +
@@ -1201,7 +1200,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<LbEntry> uniqueSongLeaderboard(Connection connection, long guildId) {
-        @Language("MariaDB") String queryString = "SELECT  " +
+        String queryString = "SELECT  " +
                 "    count(temp.lastfm_id) AS ord,temp.lastfm_id,temp.discord_id " +
                 "FROM " +
                 "    (SELECT  " +
@@ -1305,7 +1304,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public int userArtistCount(Connection con, String whom, int threshold) {
-        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_artist WHERE scrobbled_artist.lastfm_id= ? and playNumber >= ?";
+        String queryString = "SELECT count(*) AS numb FROM scrobbled_artist WHERE scrobbled_artist.lastfm_id= ? and playNumber >= ?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, whom);
@@ -1326,7 +1325,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<LbEntry> artistLeaderboard(Connection con, long guildID, int threshold) {
-        @Language("MariaDB") String queryString = "(SELECT  " +
+        String queryString = "(SELECT  " +
                 "        a.lastfm_id , count(*) AS ord, c.discord_id" +
                 "    FROM " +
                 "        scrobbled_artist a " +
@@ -1347,7 +1346,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         //OBtains total plays, and other users plays on your artist
         // Obtains uniques, percentage of uniques, and plays on uniques
         //"\t#full artist table, we will filter later because is somehow faster :D\n" +
-        @Language("MariaDB") String queryString = """
+        String queryString = """
 
                 SELECT finalmain.lastfm_id,  POW(((mytotalplays / (other_plays_on_my_artists)) * (as_unique_coefficient + 1)),
                             0.4) AS ord , c.discord_id
@@ -1405,7 +1404,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public PresenceInfo getRandomArtistWithUrl(Connection connection) {
 
-        @Language("MariaDB") String queryString =
+        String queryString =
                 """
                         SELECT\s
                             b.name,
@@ -1461,7 +1460,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<StolenCrown> returnList = new ArrayList<>();
         long discordid = 0;
         long discordid2 = 0;
-        @Language("MariaDB") String queryString = """
+        String queryString = """
                 SELECT\s
                     inn.name AS artist ,inn.orden AS ogplays , inn.discord_id AS ogid , inn2.discord_id queriedid,  inn2.orden AS queriedplays
                 FROM
@@ -1523,7 +1522,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<StolenCrown> returnList = new ArrayList<>();
         long discordid = 0;
         long discordid2 = 0;
-        @Language("MariaDB") String queryString = """
+        String queryString = """
                 SELECT\s
                     inn.name AS artist ,inn.orden AS ogplays , inn.discord_id AS ogid , inn2.discord_id queriedid,  inn2.orden AS queriedplays
                 FROM
@@ -1610,7 +1609,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public UniqueWrapper<AlbumPlays> getUserAlbumCrowns(Connection connection, String lastfmId, int crownThreshold, long guildID) {
         long discordId = -1L;
-        @Language("MariaDB") String queryString = "SELECT d.name, a2.album_name, b.discord_id , playnumber AS orden" +
+        String queryString = "SELECT d.name, a2.album_name, b.discord_id , playnumber AS orden" +
                 " FROM  scrobbled_album  a" +
                 " JOIN user b ON a.lastfm_id = b.lastfm_id " +
                 " JOIN album a2 ON a.album_id = a2.id " +
@@ -1664,7 +1663,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<LbEntry> albumCrownsLeaderboard(Connection con, long guildID, int threshold) {
-        @Language("MariaDB") String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
+        String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
                 "FROM " +
                 "( " +
                 "SELECT " +
@@ -1705,7 +1704,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public ObscuritySummary getUserObscuritPoints(Connection connection, String lastfmId) {
-        @Language("MariaDB") String queryString = """
+        String queryString = """
                 \tSELECT  b, other_plays_on_my_artists, unique_coefficient,
                 \tPOW(((b/ (other_plays_on_my_artists)) * (unique_coefficient + 1)),0.4) AS total
                 \t\tFROM (
@@ -1765,7 +1764,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public int getRandomCount(Connection connection, Long userId) {
-        @Language("MariaDB") String queryString = """
+        String queryString = """
                 SELECT\s
                   count(*) as counted FROM
                     randomlinks\s
@@ -1794,7 +1793,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<GlobalCrown> getGlobalKnows(Connection connection, long artistID, boolean includeBottedUsers, long ownerId) {
         List<GlobalCrown> returnedList = new ArrayList<>();
-        @Language("MariaDB") String queryString = """
+        String queryString = """
                 SELECT  playnumber AS ord, discord_id, l.lastfm_id, l.botted_account
                  FROM  scrobbled_artist ar
                   	 	 JOIN user l ON ar.lastfm_id = l.lastfm_id         WHERE  ar.artist_id = ?    and   (? or not l.botted_account or l.discord_id = ? )            ORDER BY  playnumber DESC""";
@@ -1859,7 +1858,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public WrapperReturnNowPlaying whoKnowsAlbum(Connection con, long albumId, long guildId, int limit) {
 
-        @Language("MariaDB")
+
         String queryString =
                 "SELECT a2.album_name,a3.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id " +
                         "FROM  scrobbled_album a" +
@@ -1914,7 +1913,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public WrapperReturnNowPlaying whoKnowsTrack(Connection con, long trackId, long guildId, int limit) {
 
-        @Language("MariaDB")
+
         String queryString =
                 "SELECT a2.track_name,a3.name, a.lastfm_id, a.playNumber, coalesce(a2.url,a3.url) as turl, c.discord_id " +
                         "FROM  scrobbled_track a" +
@@ -1966,7 +1965,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public WrapperReturnNowPlaying globalWhoKnowsAlbum(Connection con, long albumId, int limit, long ownerId, boolean includeBottedUsers) {
 
-        @Language("MariaDB")
+
         String queryString =
                 "SELECT a2.album_name,a3.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id,c.privacy_mode " +
                         "FROM  scrobbled_album a" +
@@ -2025,7 +2024,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public UniqueWrapper<AlbumPlays> albumUniques(Connection connection, long guildID, String lastfmId) {
-        @Language("MariaDB") String queryString = "SELECT * " +
+        String queryString = "SELECT * " +
                 "FROM(  " +
                 "       SELECT a2.album_name,a3.name, playnumber, a.lastfm_id ,b.discord_id" +
                 "       FROM scrobbled_album a JOIN user b " +
@@ -2068,7 +2067,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public BotStats getBotStats(Connection connection) {
-        @Language("MariaDB") String queryString = "Select (Select count(*) from user) as user_count," +
+        String queryString = "Select (Select count(*) from user) as user_count," +
                 " (Select count(*) from guild) guild_count," +
                 " (select table_rows from  information_schema.TABLES WHERE TABLES.TABLE_SCHEMA = 'lastfm' and TABLE_NAME = 'artist') artist_count," +
                 "(select table_rows from  information_schema.TABLES WHERE TABLES.TABLE_SCHEMA = 'lastfm' and TABLE_NAME = 'album') album_count," +
@@ -2115,7 +2114,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public long getUserAlbumCount(Connection con, long discordId) {
-        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_album a join user b on a.lastfm_id = b.lastfm_id WHERE b.discord_id= ? ";
+        String queryString = "SELECT count(*) AS numb FROM scrobbled_album a join user b on a.lastfm_id = b.lastfm_id WHERE b.discord_id= ? ";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(i, discordId);
@@ -2136,7 +2135,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<StreakEntity> getUserStreaks(long discordId, Connection connection) {
         List<StreakEntity> returnList = new ArrayList<>();
-        @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name " +
+        String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name " +
                 "FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id where " +
                 "discord_id = ? order by  artist_combo desc,album_combo desc, track_combo desc ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -2169,7 +2168,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<GlobalStreakEntities> getTopStreaks(Connection connection, @Nullable Long comboFilter, @Nullable Long guildId) {
         List<GlobalStreakEntities> returnList = new ArrayList<>();
-        @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id " +
+        String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id " +
                 "FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
 
         if (guildId != null) {
@@ -2219,7 +2218,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public String getReverseCorrection(Connection connection, String correction) {
 
-        @Language("MariaDB") String queryString = "select alias,min(a.id)  as ird " +
+        String queryString = "select alias,min(a.id)  as ird " +
                 "from corrections a join artist b on a.artist_id = b.id  join scrobbled_artist c on b.id = c.artist_id" +
                 " where b.name = ? " +
                 "order by ird desc " +
@@ -2245,7 +2244,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<GlobalStreakEntities> getArtistTopStreaks(Connection connection, Long comboFilter, Long guildId, long artistId, Integer limit) {
         List<GlobalStreakEntities> returnList = new ArrayList<>();
-        @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id" +
+        String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id" +
                 " FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
 
         if (guildId != null) {
@@ -2301,7 +2300,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<StreakEntity> getUserArtistTopStreaks(Connection connection, long artistId, Integer limit, long discordId) {
         List<StreakEntity> returnList = new ArrayList<>();
-        @Language("MariaDB") String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name" +
+        String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name" +
                 " FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id     ";
 
 
@@ -2477,7 +2476,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public ResultWrapper<ScrobbledAlbum> getGuildTopAlbum(Connection connection, Long guildID, int limit, boolean doCount) {
 
-        @Language("MariaDB") String normalQUery = "SELECT d.name,e.album_name, sum(playnumber) AS orden ,e.url,e.mbid  ";
+        String normalQUery = "SELECT d.name,e.album_name, sum(playnumber) AS orden ,e.url,e.mbid  ";
 
         String countQuery = "Select count(*) as orden ";
 
@@ -2543,7 +2542,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public ResultWrapper<ScrobbledAlbum> getCollectiveAOTY(Connection connection, Year year, Long guildID, int limit, boolean doCount) {
 
-        @Language("MariaDB") String normalQUery = "SELECT d.name,e.album_name, sum(playnumber) AS orden ,e.url,e.mbid  ";
+        String normalQUery = "SELECT d.name,e.album_name, sum(playnumber) AS orden ,e.url,e.mbid  ";
 
         String countQuery = "Select count(*) as orden ";
 
@@ -2662,7 +2661,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public WrapperReturnNowPlaying whoKnowsTag(Connection connection, String genre, long guildId, int limit) {
 
-        @Language("MariaDB")
+
         String queryString =
                 "SELECT b.lastfm_id, sum(b.playnumber) plays, c.discord_id " +
                         "FROM  artist_tags a " +
@@ -2901,7 +2900,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public Map<Genre, Integer> genreCountsByArtist(Connection connection, List<ArtistInfo> artistInfos) {
 
-        @Language("MariaDB") String queryString = "SELECT tag,count(*) as coun FROM artist a join artist_tags b  on a.id = b.artist_id WHERE name IN (%s) group by b.tag";
+        String queryString = "SELECT tag,count(*) as coun FROM artist a join artist_tags b  on a.id = b.artist_id WHERE name IN (%s) group by b.tag";
         String sql = String.format(queryString, artistInfos.isEmpty() ? null : preparePlaceHolders(artistInfos.size()));
 
 
@@ -2932,7 +2931,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public List<WrapperReturnNowPlaying> whoknowsSet(Connection connection, Set<String> artists, long guildId, int limit, @Nullable String user) {
         Map<String, String> urlMap = new HashMap<>();
 
-        @Language("MariaDB")
+
         String queryString =
                 "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id " +
                         "FROM  scrobbled_artist a  use index (artist_id)" +
@@ -3009,7 +3008,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public WrapperReturnNowPlaying whoknowsTagsSet(Connection connection, Set<String> tags, long guildId, int limit, String user, SearchMode searchMode) {
 
-        @Language("MariaDB")
+
         String queryString =
                 """
                         SELECT b.lastfm_id, sum(b.playnumber) plays, c.discord_id\s
@@ -3146,7 +3145,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<String> getArtistTag(Connection connection, long artistId) {
-        @Language("MariaDB") String queryString = "SELECT tag FROM artist_tags WHERE artist_id = ? ";
+        String queryString = "SELECT tag FROM artist_tags WHERE artist_id = ? ";
         List<String> returnList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -3169,7 +3168,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public WrapperReturnNowPlaying globalWhoKnowsTrack(Connection connection, long trackId, int limit, long ownerId, boolean includeBotted) {
 
-        @Language("MariaDB")
+
         String queryString =
                 "SELECT a2.track_name,a3.name, a.lastfm_id, a.playNumber, coalesce(a2.url,a4.url,a3.url) as url, c.discord_id,c.privacy_mode " +
                         "FROM  scrobbled_track a" +
@@ -3220,7 +3219,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public UniqueWrapper<TrackPlays> getUserTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId) {
         long discordId = -1L;
-        @Language("MariaDB") String queryString = "SELECT d.name, a2.track_name, b.discord_id , playnumber AS orden" +
+        String queryString = "SELECT d.name, a2.track_name, b.discord_id , playnumber AS orden" +
                 " FROM  scrobbled_track a" +
                 " JOIN user b ON a.lastfm_id = b.lastfm_id " +
                 " JOIN track a2 ON a.track_id = a2.id " +
@@ -3273,7 +3272,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<LbEntry> trackCrownsLeaderboard(Connection connection, long guildId, int threshold) {
-        @Language("MariaDB") String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
+        String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
                 "FROM " +
                 "( " +
                 "SELECT " +
@@ -3318,7 +3317,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         String userA = lastFmNames.get(0);
         String userB = lastFmNames.get(1);
 
-        @Language("MariaDB") String queryString =
+        String queryString =
                 "SELECT c.album_name  , a.playnumber,b.playnumber ," +
                         "((a.playnumber * b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
                         " (((a.playnumber + b.playnumber)) * 2.5) * " +
@@ -3377,7 +3376,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         String userA = lastFmNames.get(0);
         String userB = lastFmNames.get(1);
 
-        @Language("MariaDB") String queryString =
+        String queryString =
                 "SELECT c.track_name  , a.playnumber,b.playnumber ," +
                         "((a.playnumber * b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
                         " (((a.playnumber + b.playnumber)) * 2.5) * " +
@@ -3437,7 +3436,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         String userA = lastFmNames.get(0);
         String userB = lastFmNames.get(1);
 
-        @Language("MariaDB") String queryString =
+        String queryString =
                 "SELECT c.track_name  , a.playnumber,b.playnumber ," +
                         "((a.playnumber * b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
                         " (((a.playnumber + b.playnumber)) * 2.5) * " +
@@ -3497,7 +3496,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ArtistPlays> returnList = new ArrayList<>();
         long discordId = 0;
 
-        @Language("MariaDB") String queryString = "SELECT d.name,c.album_name , b.discord_id , playnumber AS orden" +
+        String queryString = "SELECT d.name,c.album_name , b.discord_id , playnumber AS orden" +
                 " FROM  scrobbled_album  a" +
                 " JOIN user b ON a.lastfm_id = b.lastfm_id" +
                 " JOIN album c ON " +
@@ -3551,7 +3550,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ArtistPlays> returnList = new ArrayList<>();
         long discordId = 0;
 
-        @Language("MariaDB") String queryString = "SELECT d.name,c.track_name , b.discord_id , playnumber AS orden" +
+        String queryString = "SELECT d.name,c.track_name , b.discord_id , playnumber AS orden" +
                 " FROM  scrobbled_track  a" +
                 " JOIN user b ON a.lastfm_id = b.lastfm_id" +
                 " JOIN track c ON " +
@@ -3607,7 +3606,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<TrackPlays> returnList = new ArrayList<>();
         long discordId = 0;
 
-        @Language("MariaDB") String queryString = "SELECT d.name,c.track_name , b.discord_id , playnumber AS orden" +
+        String queryString = "SELECT d.name,c.track_name , b.discord_id , playnumber AS orden" +
                 " FROM  scrobbled_track  a" +
                 " JOIN user b ON a.lastfm_id = b.lastfm_id" +
                 " JOIN track c ON " +
@@ -3666,7 +3665,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public UniqueWrapper<TrackPlays> getUserArtistTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId, long artistId) {
         long discordId = -1L;
-        @Language("MariaDB") String queryString = "SELECT  a2.track_name, b.discord_id , playnumber AS orden" +
+        String queryString = "SELECT  a2.track_name, b.discord_id , playnumber AS orden" +
                 " FROM  scrobbled_track a" +
                 " JOIN user b ON a.lastfm_id = b.lastfm_id " +
                 " JOIN track a2 ON a.track_id = a2.id " +
@@ -3802,7 +3801,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public int getCurrentCombo(Connection connection, String lastfm_id, long artistId) {
 
-        @Language("MariaDB") String queryString = """
+        String queryString = """
                 SELECT count(*)
                  FROM user_billboard_data_scrobbles a where `timestamp` > (select  max(`timestamp`) from user_billboard_data_scrobbles where artist_id != ?  && lastfm_id = ?  )  and lastfm_id = ?
                  """;
@@ -3969,7 +3968,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public ResultWrapper<ScrobbledAlbum> getCollectiveAOTD(Connection connection, Year year, int range, Long guildID, int limit, boolean doCount) {
-        @Language("MariaDB") String normalQUery = "SELECT d.name,e.album_name, sum(playnumber) AS orden ,e.url,e.mbid  ";
+        String normalQUery = "SELECT d.name,e.album_name, sum(playnumber) AS orden ,e.url,e.mbid  ";
 
         String countQuery = "Select count(*) as orden ";
 
@@ -4106,7 +4105,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public int userAlbumCount(Connection connection, String lastfmId, int threshold) {
-        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_album WHERE scrobbled_album.lastfm_id= ? and playNumber >= ?";
+        String queryString = "SELECT count(*) AS numb FROM scrobbled_album WHERE scrobbled_album.lastfm_id= ? and playNumber >= ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, lastfmId);
@@ -4128,7 +4127,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public int userTrackCount(Connection connection, String lastfmId, int threshold) {
-        @Language("MariaDB") String queryString = "SELECT count(*) AS numb FROM scrobbled_track WHERE scrobbled_track.lastfm_id= ? and playNumber >= ?";
+        String queryString = "SELECT count(*) AS numb FROM scrobbled_track WHERE scrobbled_track.lastfm_id= ? and playNumber >= ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, lastfmId);
@@ -4150,7 +4149,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<LbEntry> albumLeaderboard(Connection connection, long guildId, int threshold) {
-        @Language("MariaDB") String queryString = "(SELECT  " +
+        String queryString = "(SELECT  " +
                 "        a.lastfm_id , count(*) AS ord, c.discord_id" +
                 "    FROM " +
                 "        scrobbled_album a " +
@@ -4168,7 +4167,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<LbEntry> trackLeaderboard(Connection connection, long guildId, int threshold) {
-        @Language("MariaDB") String queryString = "(SELECT  " +
+        String queryString = "(SELECT  " +
                 "        a.lastfm_id , count(*) AS ord, c.discord_id" +
                 "    FROM " +
                 "        scrobbled_track a " +
@@ -4187,7 +4186,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public ListValuedMap<CoverItem, String> getBannedCovers(Connection connection) {
         ListValuedMap<CoverItem, String> resultMap = new ArrayListValuedHashMap<>();
-        @Language("MariaDB") String queryString = "SELECT album_id,replacement_cover,b.album_name,c.name  FROM banned_cover a join album b on a.album_id = b.id join artist c on b.artist_id = c.id ";
+        String queryString = "SELECT album_id,replacement_cover,b.album_name,c.name  FROM banned_cover a join album b on a.album_id = b.id join artist c on b.artist_id = c.id ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             /* Execute query. */
@@ -4211,7 +4210,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public UniqueWrapper<AlbumPlays> getGlobalAlbumUniques(Connection connection, String lastfmid) {
-        @Language("MariaDB") String queryString = "SELECT a.name,a2.album_name, temp.playnumber, temp.lastfm_id, temp.discord_id " +
+        String queryString = "SELECT a.name,a2.album_name, temp.playnumber, temp.lastfm_id, temp.discord_id " +
                 "FROM(  " +
                 "       SELECT album_id, playnumber, a.lastfm_id ,b.discord_id" +
                 "       FROM scrobbled_album a JOIN user b " +
@@ -4252,7 +4251,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public UniqueWrapper<TrackPlays> getGlobalTrackUniques(Connection connection, String lastfmid) {
-        @Language("MariaDB") String queryString = "SELECT a.name,a2.track_name, temp.playnumber, temp.lastfm_id, temp.discord_id " +
+        String queryString = "SELECT a.name,a2.track_name, temp.playnumber, temp.lastfm_id, temp.discord_id " +
                 "FROM(  " +
                 "       SELECT track_id, playnumber, a.lastfm_id ,b.discord_id" +
                 "       FROM scrobbled_track a JOIN user b " +

@@ -9,10 +9,7 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
-import dao.entities.PreBillboardUserDataTimestamped;
-import dao.entities.ScrobbledArtist;
-import dao.entities.Track;
-import dao.entities.TrackWithArtistId;
+import dao.entities.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -160,12 +157,12 @@ public class ImageTester {
 
         try {
             String lastFMName = "ishwaracoello";
-            List<TrackWithArtistId> tracksAndTimestamps = lastFM.getWeeklyBillboard(lastFMName,
+            List<TrackWithArtistId> tracksAndTimestamps = lastFM.getWeeklyBillboard(LastFMData.ofUser(lastFMName),
                     (int) weekBeginning.toEpochSecond(OffsetDateTime.now().getOffset())
                     , (int) LocalDateTime.now().toEpochSecond(OffsetDateTime.now().getOffset()));
 
             doArtistValidation(tracksAndTimestamps);
-            service.insertUserData(2, lastFMName, tracksAndTimestamps);
+//            service(2, lastFMName, tracksAndTimestamps);
 
         } catch (LastFmException ignored) {
         }
@@ -526,7 +523,7 @@ public class ImageTester {
             str.append(trim).append("\n");
 
         }
-        System.out.println(str.toString());
+        System.out.println(str);
     }
 
 }

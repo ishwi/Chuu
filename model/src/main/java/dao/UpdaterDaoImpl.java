@@ -5,7 +5,6 @@ import dao.exceptions.ChuuServiceException;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.lang3.tuple.Pair;
-import org.intellij.lang.annotations.Language;
 
 import javax.annotation.Nullable;
 import java.sql.*;
@@ -50,7 +49,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public UpdaterUserWrapper getLessUpdated(Connection connection) {
-        @Language("MariaDB") String queryString =
+        String queryString =
                 "SELECT a.discord_id,a.role, a.lastfm_id,(if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) controling,timezone " +
                         "FROM user a   " +
                         " WHERE NOT private_update " +
@@ -272,7 +271,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void insertCorrection(Connection connection, long artistId, String correction) {
-        @Language("MariaDB") String queryString = "INSERT INTO corrections"
+        String queryString = "INSERT INTO corrections"
                 + " (alias,artist_id) VALUES (?, ?) ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -291,7 +290,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void updateStatusBit(Connection connection, long artistId, boolean statusBit, String url) {
-        @Language("MariaDB") String queryString = "UPDATE artist SET correction_status = ?, url = ? WHERE id = ?";
+        String queryString = "UPDATE artist SET correction_status = ?, url = ? WHERE id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -310,7 +309,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public String findCorrection(Connection connection, String artist) {
-        @Language("MariaDB") String queryString = "SELECT  name  FROM corrections JOIN artist a ON corrections.artist_id = a.id" +
+        String queryString = "SELECT  name  FROM corrections JOIN artist a ON corrections.artist_id = a.id" +
                 " WHERE alias = ? ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -330,7 +329,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void updateMetric(Connection connection, int metricId, long value) {
-        @Language("MariaDB") String queryString = "UPDATE   metrics SET value = value + ?  WHERE id = ?";
+        String queryString = "UPDATE   metrics SET value = value + ?  WHERE id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -347,7 +346,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void deleteAllArtists(Connection con, String id) {
-        @Language("MariaDB") String queryString = "DELETE   FROM scrobbled_artist  WHERE lastfm_id = ? ";
+        String queryString = "DELETE   FROM scrobbled_artist  WHERE lastfm_id = ? ";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -435,7 +434,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public RandomUrlEntity findRandomUrlById(Connection con, String urlQ) {
-        @Language("MariaDB") String queryString = "SELECT * " +
+        String queryString = "SELECT * " +
                 "FROM randomlinks  " +
                 "WHERE url = ?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
@@ -459,7 +458,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public @Nullable
     RandomUrlDetails randomUrlDetails(Connection con, String urlQ) {
-        @Language("MariaDB") String queryString = "SELECT (select avg(rating) from random_links_ratings where url = main.url), (select count(*) from random_links_ratings where url = main.url), main.discord_id,b.discord_id," +
+        String queryString = "SELECT (select avg(rating) from random_links_ratings where url = main.url), (select count(*) from random_links_ratings where url = main.url), main.discord_id,b.discord_id," +
                 "b.rating,coalesce(privacy_mode,'NORMAL'),lastfm_id " +
                 "FROM randomlinks main left join random_links_ratings b on main.url = b.url left join user c on b.discord_id = c.discord_id " +
                 "WHERE main.url = ?";
@@ -589,7 +588,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public void deleteAlbumCrown(Connection connection, String artist, String album, long discordID,
                                  long guildId) {
-        @Language("MariaDB") String queryString = "DELETE   FROM album_crowns WHERE  artist_id = ? AND discordid = ? AND album = ?  AND guildid = ? ";
+        String queryString = "DELETE   FROM album_crowns WHERE  artist_id = ? AND discordid = ? AND album = ?  AND guildid = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -609,7 +608,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void truncateRandomPool(Connection connection) {
-        @Language("MariaDB") String queryString = "TRUNCATE randomlinks; ";
+        String queryString = "TRUNCATE randomlinks; ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -724,7 +723,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public long getArtistId(Connection connection, String artistName) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT id, name FROM  artist WHERE name = ? ";
+        String queryString = "SELECT id, name FROM  artist WHERE name = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, artistName);
 
@@ -740,7 +739,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public long getAlbumIdByRYMId(Connection connection, Long rymId) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT artist_id FROM  album WHERE rym_id = ? ";
+        String queryString = "SELECT artist_id FROM  album WHERE rym_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, rymId);
 
@@ -756,7 +755,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public long getAlbumByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT id FROM  album WHERE album_name = ? and artist_id = ?  ";
+        String queryString = "SELECT id FROM  album WHERE album_name = ? and artist_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(2, artist_id);
             preparedStatement.setString(1, album);
@@ -776,7 +775,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public UpdaterUserWrapper getUserUpdateStatus(Connection connection, long discordId) throws
             InstanceNotFoundException {
-        @Language("MariaDB") String queryString =
+        String queryString =
                 "SELECT a.discord_id, a.role, a.lastfm_id, (if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating ,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) control, timezone " +
                         "FROM user a   " +
                         " WHERE a.discord_id = ?  ";
@@ -1169,7 +1168,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void deleteAllRatings(Connection con, long userId) {
-        @Language("MariaDB") String queryString = "DELETE   FROM album_rating  WHERE discord_id = ? ";
+        String queryString = "DELETE   FROM album_rating  WHERE discord_id = ? ";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -1305,7 +1304,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public UsersWrapper getRandomUser(Connection connection) {
-        @Language("MariaDB") String queryString =
+        String queryString =
                 "SELECT a.discord_id,a.role, a.lastfm_id,(if(last_update = '0000-00-00 00:00:00', '1971-01-01 00:00:01', last_update)) updating,(if(control_timestamp = '0000-00-00 00:00:00', '1971-01-01 00:00:01', control_timestamp)) controling,timezone " +
                         "FROM user a   " +
                         "ORDER BY  rand() LIMIT 1";
@@ -1355,7 +1354,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void updateAlbumImage(Connection connection, long albumId, String albumUrl) {
-        @Language("MariaDB") String queryString = "UPDATE album SET url = ? WHERE id = ?";
+        String queryString = "UPDATE album SET url = ? WHERE id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -1626,7 +1625,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void updateTrackImage(Connection connection, long trackId, String imageUrl) {
-        @Language("MariaDB") String queryString = "UPDATE track SET url = ? WHERE id = ?";
+        String queryString = "UPDATE track SET url = ? WHERE id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, imageUrl);
@@ -1639,7 +1638,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void updateSpotifyInfo(Connection connection, long trackId, String spotifyId, int duration, String url, int popularity) {
-        @Language("MariaDB") String queryString = "UPDATE track SET spotify_id = ?, duration = ?,popularity = ?  WHERE id = ?";
+        String queryString = "UPDATE track SET spotify_id = ?, duration = ?,popularity = ?  WHERE id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, spotifyId);
@@ -1722,7 +1721,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void storeToken(Connection connection, String authToken, String lastfm) {
-        @Language("MariaDB") String queryString = "UPDATE user SET token =  ? , sess = null WHERE lastfm_id = ?";
+        String queryString = "UPDATE user SET token =  ? , sess = null WHERE lastfm_id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, authToken);
@@ -1735,7 +1734,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void storeSession(Connection connection, String session, String lastfm) {
-        @Language("MariaDB") String queryString = "UPDATE user SET token = null, sess = ?  WHERE lastfm_id = ?";
+        String queryString = "UPDATE user SET token = null, sess = ?  WHERE lastfm_id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, session);
@@ -1748,7 +1747,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void clearSess(Connection connection, String lastfm) {
-        @Language("MariaDB") String queryString = "UPDATE user SET token = null, sess = null  WHERE lastfm_id = ?";
+        String queryString = "UPDATE user SET token = null, sess = null  WHERE lastfm_id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i, lastfm);
@@ -1760,7 +1759,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public long storeRejected(Connection connection, ImageQueue reportEntity) {
-        @Language("MariaDB") String queryString = "insert into rejected(url,artist_id,discord_id) values (?,?,?) returning id  ";
+        String queryString = "insert into rejected(url,artist_id,discord_id) values (?,?,?) returning id  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, reportEntity.url());
@@ -1779,7 +1778,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void banUserImage(Connection connection, long uploader) {
-        @Language("MariaDB") String queryString = "update user set role = 'IMAGE_BLOCKED' where discord_id = ? ";
+        String queryString = "update user set role = 'IMAGE_BLOCKED' where discord_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(i, uploader);
@@ -1791,7 +1790,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void addStrike(Connection connection, long uploader, long rejectedId) {
-        @Language("MariaDB") String queryString = "insert into strike(discord_id,rejected_id) values (?,?)  ";
+        String queryString = "insert into strike(discord_id,rejected_id) values (?,?)  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(i++, uploader);
@@ -1805,7 +1804,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public long userStrikes(Connection connection, long uploader) {
-        @Language("MariaDB") String queryString = "select count(*) from strike where discord_id = ?  ";
+        String queryString = "select count(*) from strike where discord_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(i, uploader);
@@ -1823,7 +1822,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public void deleteRandomUrl(Connection connection, String url) {
 
-        @Language("MariaDB") String queryString = "delete from randomlinks where url = ? ; ";
+        String queryString = "delete from randomlinks where url = ? ; ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, url);
 

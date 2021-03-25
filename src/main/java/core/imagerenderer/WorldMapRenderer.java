@@ -114,7 +114,6 @@ public class WorldMapRenderer {
 
         initColours(palette, sb);
         initLegendText(range, doc, countryFrequency.size());
-        ArrayUtils.reverse(palette);
         countryFrequency.forEach(
                 (country, integer) -> {
                     String colorr = index(integer, range, palette);
@@ -172,7 +171,7 @@ public class WorldMapRenderer {
         while (i < range.length && plays < range[i]) {
             i++;
         }
-        return pallete[i];
+        return pallete[pallete.length - i - 1];
 
     }
 

@@ -50,7 +50,7 @@ public class HelpCommandTest extends CommandTest {
         //send the message directly to the test channel
         String nonExistingCommand = "NonExistentCommand19219";
         helpCommand.sendPrivate(TestResources.ogJDA
-                .getTextChannelById(TestResources.channelWorker.getId()), new String[]{"help", nonExistingCommand}, '!');
+                .getTextChannelById(TestResources.channelWorker.getId()), null);
 
         await().atMost(45, TimeUnit.SECONDS).until(() ->
         {
@@ -72,7 +72,7 @@ public class HelpCommandTest extends CommandTest {
         //Usually the help message is sent to a private channel but i didnt find a way to get a private message from a marker so i opted to
         //send the message directly to the test channel
 
-        helpCommand.sendPrivate(TestResources.ogJDA.getTextChannelById(TestResources.channelWorker.getId()), new String[]{}, '!');
+        helpCommand.sendPrivate(TestResources.ogJDA.getTextChannelById(TestResources.channelWorker.getId()), null);
 
         await().atMost(45, TimeUnit.SECONDS).until(() ->
         {
@@ -110,11 +110,10 @@ public class HelpCommandTest extends CommandTest {
     public void smallHelpMessage() {
         long id = TestResources.channelWorker.sendMessage("marker").complete().getIdLong();
         for (Object registeredListener : TestResources.ogJDA.getRegisteredListeners()) {
-            if (registeredListener instanceof MyCommand) {
-                MyCommand<?> command = (MyCommand<?>) registeredListener;
+            if (registeredListener instanceof MyCommand<?> command) {
                 //String alias = command.getAliases().get(0);
                 helpCommand
-                        .sendPrivate(TestResources.ogJDA.getTextChannelById(TestResources.channelWorker.getId()), new String[]{"help", String.valueOf(command.getAliases().get(0))}, '!');
+                        .sendPrivate(TestResources.ogJDA.getTextChannelById(TestResources.channelWorker.getId()), null);
                 long finalId = id;
                 await().atMost(45, TimeUnit.SECONDS).until(() ->
                 {

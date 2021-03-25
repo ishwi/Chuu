@@ -1,6 +1,6 @@
 package core.imagerenderer;
 
-import core.imagerenderer.stealing.blur.GaussianFilter;
+import core.imagerenderer.stealing.blur.BoxBlurFilter;
 import core.imagerenderer.util.fitter.StringFitter;
 import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.WKMode;
@@ -74,7 +74,7 @@ public class WhoKnowsMaker {
 
         g.drawImage(backgroundImage, 0, 0, X_MAX, Y_MAX, 0, 0, backgroundImage.getWidth(), backgroundImage
                 .getHeight(), null);
-        new GaussianFilter(90).filter(canvas, canvas);
+        new BoxBlurFilter().filter(canvas, canvas);
 
         Color colorB1 = GraphicUtils.getReadableColorBackgroundForFont(GraphicUtils.getFontColorBackground(canvas));
         Color colorB = GraphicUtils.getSurfaceColor(GraphicUtils.getFontColorBackground(canvas));

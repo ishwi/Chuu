@@ -7,10 +7,14 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.requests.restaction.pagination.ReactionPaginationAction;
+import net.dv8tion.jda.api.utils.AttachmentOption;
 import org.apache.commons.collections4.Bag;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.EnumSet;
 import java.util.Formatter;
@@ -20,6 +24,12 @@ public class MessageGenerator {
 
     public MessageReceivedEvent generateMessage(String content) {
         Message message = new Message() {
+            @org.jetbrains.annotations.Nullable
+            @Override
+            public Message getReferencedMessage() {
+                return null;
+            }
+
             @Override
             public @Nonnull List<User> getMentionedUsers() {
                 return null;
@@ -131,6 +141,11 @@ public class MessageGenerator {
             }
 
             @Override
+            public boolean isFromGuild() {
+                return Message.super.isFromGuild();
+            }
+
+            @Override
             public @Nonnull ChannelType getChannelType() {
                 return null;
             }
@@ -218,6 +233,54 @@ public class MessageGenerator {
             @Override
             public @Nonnull MessageAction editMessage(@Nonnull Message newContent) {
                 return null;
+            }
+
+            @NotNull
+            @Override
+            public MessageAction reply(@NotNull CharSequence content) {
+                return Message.super.reply(content);
+            }
+
+            @NotNull
+            @Override
+            public MessageAction reply(@NotNull MessageEmbed content) {
+                return Message.super.reply(content);
+            }
+
+            @NotNull
+            @Override
+            public MessageAction reply(@NotNull Message content) {
+                return Message.super.reply(content);
+            }
+
+            @NotNull
+            @Override
+            public MessageAction replyFormat(@NotNull String format, @NotNull Object... args) {
+                return Message.super.replyFormat(format, args);
+            }
+
+            @NotNull
+            @Override
+            public MessageAction reply(@NotNull File file, @NotNull AttachmentOption... options) {
+                return Message.super.reply(file, options);
+            }
+
+            @NotNull
+            @Override
+            public MessageAction reply(@NotNull File data, @NotNull String name, @NotNull AttachmentOption... options) {
+                return Message.super.reply(data, name, options);
+            }
+
+            @NotNull
+            @Override
+            public MessageAction reply(@NotNull InputStream data, @NotNull String name, @NotNull AttachmentOption... options) {
+                return Message.super.reply(data, name, options);
+            }
+
+            @NotNull
+            @Override
+            public MessageAction reply(@NotNull byte[] data, @NotNull String name, @NotNull AttachmentOption... options) {
+                return Message.super.reply(data, name, options);
             }
 
             @Override
@@ -345,9 +408,21 @@ public class MessageGenerator {
 
             }
 
+            @NotNull
+            @Override
+            public String getId() {
+                return Message.super.getId();
+            }
+
             @Override
             public long getIdLong() {
                 return 0;
+            }
+
+            @NotNull
+            @Override
+            public OffsetDateTime getTimeCreated() {
+                return Message.super.getTimeCreated();
             }
         };
         return new MessageReceivedEvent(null, 0, message) {

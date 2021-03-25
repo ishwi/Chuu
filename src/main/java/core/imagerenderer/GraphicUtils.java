@@ -228,7 +228,7 @@ public class GraphicUtils {
 
     }
 
-    static Graphics2D initArtistBackground(BufferedImage canvas, BufferedImage artistImage) {
+    public static Graphics2D initArtistBackground(BufferedImage canvas, BufferedImage artistImage) {
 
         Graphics2D g = canvas.createGraphics();
         GraphicUtils.setQuality(g);

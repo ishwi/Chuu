@@ -1,5 +1,6 @@
 package core.commands.moderation;
 
+import com.github.natanbc.javaeval.CompilationException;
 import com.github.natanbc.javaeval.CompilationResult;
 import com.github.natanbc.javaeval.JavaEvaluator;
 import core.commands.abstracts.ConcurrentCommand;
@@ -12,6 +13,7 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -23,7 +25,8 @@ import java.util.stream.Collectors;
 public class EvalCommand extends ConcurrentCommand<CommandParameters> {
     private static final String JAVA_EVAL_IMPORTS = """
             package core.commands;
-             import dao.ChuuService;
+                        
+            import dao.ChuuService;
             import core.commands.utils.EvalContext;
             import core.apis.last.ConcurrentLastFM;
             import dao.entities.*;
@@ -31,7 +34,8 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
             import net.dv8tion.jda.api.JDA;
             import net.dv8tion.jda.api.entities.Guild;
             import net.dv8tion.jda.api.entities.User;
-            import core.Chuu.*;import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+            import core.Chuu.*;
+            import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
             """;
     private static final Pattern emmbed = Pattern.compile("```(:?java)?[\\s\\S]*```");
     private static Long ownerId = null;
@@ -90,7 +94,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
         try {
             JavaEvaluator javaEvaluator = new JavaEvaluator();
             CompilationResult r = javaEvaluator.compile()
-                    .addCompilerOptions("-Xlint:unchecked")
+                    .addCompilerOptions("-Xlint:unchecked", "--target=16", "--enable-preview", "--source=16")
                     .source("Eval", JAVA_EVAL_IMPORTS + "\n\n" +
                             "public class Eval {\n" +
                             "   public static Object run(EvalContext ctx) throws Throwable {\n" +
@@ -107,9 +111,10 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
             r.getClasses().forEach((name, bytes) -> ecl.define(bytes));
 
             ecl.loadClass("core.commands.Eval").getMethod("run", EvalContext.class).invoke(null, evalContext);
-        } catch (Exception noSuchMethodException) {
-            sendMessageQueue(e, "```\n" + noSuchMethodException.getCause() + "```");
-            noSuchMethodException.printStackTrace();
+        } catch (CompilationException noSuchMethodException) {
+            sendMessageQueue(e, "```\n" + noSuchMethodException.getDiagnostics().stream().map(t -> t.getMessage(null)).collect(Collectors.joining("\n")) + "```");
+        } catch (Exception ex2) {
+            sendMessageQueue(e, "```\n" + ExceptionUtils.getMessage(ex2) + "```");
         }
 
     }

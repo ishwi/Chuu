@@ -3,7 +3,6 @@ package dao;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
-import org.intellij.lang.annotations.Language;
 
 import java.sql.*;
 import java.text.Normalizer;
@@ -72,7 +71,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public void deleteAllUserAlbums(Connection con, String lastfmId) {
-        @Language("MariaDB") String queryString = "DELETE   FROM scrobbled_album  WHERE lastfm_id = ? ";
+         String queryString = "DELETE   FROM scrobbled_album  WHERE lastfm_id = ? ";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -170,7 +169,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public long getAlbumIdByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT id FROM  album WHERE album_name = ? and artist_id = ?  ";
+        String queryString = "SELECT id FROM  album WHERE album_name = ? and artist_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(2, artist_id);
             preparedStatement.setString(1, album);
@@ -188,7 +187,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public String getAlbumUrlByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT url FROM  album WHERE album_name = ? and artist_id = ?  ";
+        String queryString = "SELECT url FROM  album WHERE album_name = ? and artist_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(2, artist_id);
             preparedStatement.setString(1, album);
@@ -208,7 +207,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     public List<AlbumInfo> get(Connection connection, List<AlbumInfo> albumInfos, Year year) {
         Map<AlbumInfo, AlbumInfo> identiyMap = albumInfos.stream().collect(Collectors.toMap(x -> new AlbumInfo(x.getName(), x.getArtist()), x -> x, (x, y) -> x));
         List<AlbumInfo> found = new ArrayList<>();
-        @Language("MariaDB") String queryString = "SELECT album_name,name  FROM album a join artist b on a.artist_id = b.id  WHERE (album_name,name) in (%s) and release_year = ? ";
+        String queryString = "SELECT album_name,name  FROM album a join artist b on a.artist_id = b.id  WHERE (album_name,name) in (%s) and release_year = ? ";
         String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQueryTuple(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQueryTuple(albumInfos.size()));
 
 
@@ -293,7 +292,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public void insertAlbumsOfYear(Connection connection, List<AlbumInfo> albumInfos, Year year) {
-        @Language("MariaDB") String queryString = "update album join artist  on album.artist_id = artist.id set album.release_year = ?  WHERE (album.album_name,artist.name) in (%s)  ";
+        String queryString = "update album join artist  on album.artist_id = artist.id set album.release_year = ?  WHERE (album.album_name,artist.name) in (%s)  ";
         String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQueryTuple(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQueryTuple(albumInfos.size()));
 
 
@@ -316,7 +315,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public Album getAlbumByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException {
-        @Language("MariaDB") String queryString = "SELECT id,artist_id,album_name,url,rym_id,mbid,spotify_id FROM  album WHERE album_name = ? and artist_id = ?  ";
+        String queryString = "SELECT id,artist_id,album_name,url,rym_id,mbid,spotify_id FROM  album WHERE album_name = ? and artist_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(2, artist_id);
             preparedStatement.setString(1, album);
@@ -454,7 +453,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     @Override
     public Map<Genre, Integer> genreCountsByAlbum(Connection connection, List<AlbumInfo> albumInfos) {
 
-        @Language("MariaDB") String queryString = "SELECT tag,count(*) as coun FROM album a join artist b on a.artist_id =b.id join album_tags c  on a.id = c.album_id WHERE (name) in (%s) and (album_name)  IN (%s) group by tag";
+        String queryString = "SELECT tag,count(*) as coun FROM album a join artist b on a.artist_id =b.id join album_tags c  on a.id = c.album_id WHERE (name) in (%s) and (album_name)  IN (%s) group by tag";
         String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()));
 
 
@@ -489,7 +488,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     @Override
     public Map<Year, Integer> countByYears(Connection connection, String lastfmId, List<AlbumInfo> albumInfos) {
 
-        @Language("MariaDB") String queryString = "SELECT" +
+        String queryString = "SELECT" +
                 " release_year,count(*) as coun FROM scrobbled_album c join  album a on c.album_id = a.id  join artist b on a.artist_id =b.id  WHERE (name) in (%s) and (album_name)  IN (%s) and release_year is not null  and lastfm_id = ? group by release_year";
 
         String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()));
@@ -522,7 +521,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     @Override
     public Map<Year, Integer> countByDecades(Connection connection, String lastfmId, List<AlbumInfo> albumInfos) {
 
-        @Language("MariaDB") String queryString = "SELECT" +
+        String queryString = "SELECT" +
                 " floor(release_year/10) * 10,count(*) as coun FROM scrobbled_album c join  album a on c.album_id = a.id  join artist b on a.artist_id =b.id  WHERE (name) in (%s) and (album_name)  IN (%s) and release_year is not null  and lastfm_id = ? group by floor(release_year/10)*10 ";
 
         String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()));
