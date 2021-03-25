@@ -12,6 +12,9 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
     private int vRadius;
     private int iterations = 5;
 
+    public BoxBlurFilter() {
+    }
+
     public static void blur(int[] in, int[] out, int width, int height, int radius) {
         int widthMinus1 = width - 1;
         int tableSize = 2 * radius + 1;
