@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
     private final DiscogsApi discogsApi;
@@ -87,8 +86,12 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
             sendMessageQueue(ap.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(who.getArtist() + " - " + ap.getAlbum()));
             return null;
         }
-        wrapperReturnNowPlaying.setReturnNowPlayings(wrapperReturnNowPlaying.getReturnNowPlayings().stream()
-                .map(x -> new ReturnNowPlayingAlbum(x, ap.getAlbum())).peek(x -> x.setArtist(who.getArtist())).peek(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername())).collect(Collectors.toList()));
+        wrapperReturnNowPlaying.setReturnNowPlayings(
+                wrapperReturnNowPlaying.getReturnNowPlayings()
+                        .stream().<ReturnNowPlaying>map(x -> new ReturnNowPlayingAlbum(x, ap.getAlbum()))
+                        .peek(x -> x.setArtist(who.getArtist()))
+                        .peek(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername()))
+                        .toList());
 
 
         wrapperReturnNowPlaying.setArtist(who.getArtist() + " - " + ap.getAlbum());

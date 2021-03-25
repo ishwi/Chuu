@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
     private static final String RIGHT_ARROW = "U+27a1";
@@ -100,7 +99,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
         AtomicInteger counter = new AtomicInteger(0);
         HashMap<String, BiFunction<VotingEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
         List<Long> guildList = e.isFromGuild()
-                ? db.getAll(e.getGuild().getIdLong()).stream().filter(u -> !u.getRole().equals(Role.IMAGE_BLOCKED)).map(UsersWrapper::getDiscordID).collect(Collectors.toList())
+                ? db.getAll(e.getGuild().getIdLong()).stream().filter(u -> !u.getRole().equals(Role.IMAGE_BLOCKED)).map(UsersWrapper::getDiscordID).toList()
                 : List.of(e.getAuthor().getIdLong());
 
         actionMap.put(REPORT, (a, r) -> {

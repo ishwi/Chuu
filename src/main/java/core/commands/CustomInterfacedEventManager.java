@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -173,7 +172,12 @@ public class CustomInterfacedEventManager implements IEventManager {
     @Nonnull
     @Override
     public List<Object> getRegisteredListeners() {
-        return Stream.concat(commandListeners.values().stream().distinct().map(t -> (EventListener) t), Stream.concat(reactionaries.keySet().stream(), otherListeners.stream())).collect(Collectors.toList());
+        return Stream.<Object>concat(
+                commandListeners.values().stream().distinct(),
+                Stream.concat(
+                        reactionaries.keySet().stream(),
+                        otherListeners.stream()
+                )).toList();
     }
 
     public void refreshReactionay(ReactionListener reactionListener, long seconds) {

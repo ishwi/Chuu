@@ -289,7 +289,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
             }
             default -> throw new IllegalStateException("Unexpected value: " + parse.getSubCommand());
         }
-        return new WrapperReturnNowPlaying(collect1.values().stream().sorted(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed()).collect(Collectors.toList()), 0, represenentativeUrl, representativeArtist);
+        return new WrapperReturnNowPlaying(collect1.values().stream().sorted(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed()).toList(), 0, represenentativeUrl, representativeArtist);
     }
 
     @Override

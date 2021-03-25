@@ -27,6 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
     private final DiscogsApi discogsApi;
@@ -78,7 +79,7 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
         Year year = param.getYear();
         if (!isByTime && param.getTimeFrameEnum().isAllTime()) {
             List<ScrobbledAlbum> userAlbumByMbid = db.getUserAlbumsOfYear(param.getUser().getName(), year);
-            albumsMbizMatchingYear.addAll(userAlbumByMbid.stream().map(x -> new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).collect(Collectors.toList()));
+            albumsMbizMatchingYear.addAll(userAlbumByMbid.stream().map(x -> new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).toList());
 
             AtomicInteger atomicInteger = new AtomicInteger(0);
             List<ScrobbledAlbum> userAlbumsWithNoYear = db.getUserAlbumsWithNoYear(param.getUser().getName(), 2000);
@@ -237,23 +238,23 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
     }
 
     private CountWrapper<BlockingQueue<UrlCapsule>> handleTimedChart(ChartYearParameters parameters, List<AlbumInfo> nonEmptyMbid, List<AlbumInfo> emptyMbid, BlockingQueue<UrlCapsule> queue) {
-        List<AlbumInfo> albumsMbizMatchingYear;
         Year year = parameters.getYear();
 
-        List<CountWrapper<AlbumInfo>> accum = mb.listOfYearReleasesWithAverage(nonEmptyMbid, year);
+        List<AlbumInfo> albumsMbizMatchingYear;
+
+        List<CountWrapper<AlbumInfo>> mbFoundByMbid = mb.listOfYearReleasesWithAverage(nonEmptyMbid, year);
         List<CountWrapper<AlbumInfo>> mbFoundBYName = mb.findArtistByReleaseWithAverage(emptyMbid, year);
+
+        albumsMbizMatchingYear = Stream.concat(mbFoundByMbid.stream(), mbFoundBYName.stream()).map(CountWrapper::getResult).toList();
+
         emptyMbid.removeAll(mbFoundBYName.stream().map(CountWrapper::getResult).toList());
-
-
-        albumsMbizMatchingYear = accum.stream().map(CountWrapper::getResult).collect(Collectors.toList());
-        accum.addAll(mbFoundBYName);
-        albumsMbizMatchingYear.addAll(mbFoundBYName.stream().map(CountWrapper::getResult).toList());
+        mbFoundByMbid.addAll(mbFoundBYName);
 
         List<UrlCapsule> b = new ArrayList<>();
         queue.drainTo(b);
 
         b.removeIf(urlCapsule -> {
-            for (CountWrapper<AlbumInfo> t : accum) {
+            for (CountWrapper<AlbumInfo> t : mbFoundByMbid) {
                 AlbumInfo albumInfo = t.getResult();
 
                 if ((!albumInfo.getMbid().isEmpty() && albumInfo.getMbid().equals(urlCapsule.getMbid())) || urlCapsule.getAlbumName().equalsIgnoreCase(albumInfo.getName()) && urlCapsule.getArtistName()
@@ -265,11 +266,11 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
             }
             return true;
         });
-        AtomicInteger asdasdasd = new AtomicInteger(0);
+        AtomicInteger ranker = new AtomicInteger(0);
 
         LinkedBlockingDeque<UrlCapsule> collect = b.stream().sorted(Comparator.comparing(x -> (
                 ((TrackDurationAlbumArtistChart) x).getSeconds()
-        )).reversed()).peek(x -> x.setPos(asdasdasd.getAndIncrement()))
+        )).reversed()).peek(x -> x.setPos(ranker.getAndIncrement()))
                 .collect(Collectors.toCollection(LinkedBlockingDeque::new));
         return new CountWrapper<>(albumsMbizMatchingYear.size(), collect);
     }

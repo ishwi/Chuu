@@ -727,7 +727,7 @@ public class NPModeBuilder {
 
                 {
                     previousNewLinesToAdd.forEach(this::addNewLineToPrevious);
-                    List<String> collect = Arrays.stream(footerSpaces).filter(Objects::nonNull).collect(Collectors.toList());
+                    List<String> collect = Arrays.stream(footerSpaces).filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
 
                     for (int i = 0; i < collect.size(); i++) {
                         if (npModes.contains(NPMode.TAGS) || npModes.contains(NPMode.EXTENDED_TAGS) && (i == 0)) {

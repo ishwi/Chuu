@@ -2998,7 +2998,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                                     ((WrapperReturnNowPlaying t) ->
                                                             t.getReturnNowPlayings().stream().mapToInt(ReturnNowPlaying::getPlayNumber).sum()).reversed())
                                             .limit(limit)
-                                            .collect(Collectors.toList())));
+                                            .toList()));
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

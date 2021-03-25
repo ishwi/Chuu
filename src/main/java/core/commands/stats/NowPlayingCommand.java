@@ -168,7 +168,7 @@ public class NowPlayingCommand extends NpCommand {
                 serverReactions = db.getUserReacts(e.getAuthor().getIdLong());
             }
             if (!serverReactions.isEmpty()) {
-                RestAction.allOf(serverReactions.stream().map(unicode -> message.addReaction(unicode).mapToResult()).collect(Collectors.toList())).queue();
+                RestAction.allOf(serverReactions.stream().map(unicode -> message.addReaction(unicode).mapToResult()).toList()).queue();
             }
         });
     }

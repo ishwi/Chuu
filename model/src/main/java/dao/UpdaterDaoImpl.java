@@ -1413,7 +1413,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public void insertAlbumTags(Connection connection, Map<Genre, List<ScrobbledAlbum>> genres, Map<String, String> correctedTags) {
 
-        List<Pair<Genre, ScrobbledAlbum>> list = genres.entrySet().stream().flatMap(x -> x.getValue().stream().map(t -> Pair.of(x.getKey(), t))).collect(Collectors.toList());
+        List<Pair<Genre, ScrobbledAlbum>> list = genres.entrySet().stream().flatMap(x -> x.getValue().stream().map(t -> Pair.of(x.getKey(), t))).toList();
 
         String mySql = "INSERT ignore INTO  album_tags" +
                 "                  (artist_id,album_id,tag) VALUES (?, ?, ?) " + ", (?,?,?)".repeat(Math.max(0, list.size() - 1));
@@ -1438,7 +1438,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public void insertArtistTags(Connection connection, Map<Genre, List<ScrobbledArtist>> genres, Map<String, String> correctedTags) {
 
-        List<Pair<Genre, ScrobbledArtist>> list = genres.entrySet().stream().flatMap(x -> x.getValue().stream().map(t -> Pair.of(x.getKey(), t))).collect(Collectors.toList());
+        List<Pair<Genre, ScrobbledArtist>> list = genres.entrySet().stream().flatMap(x -> x.getValue().stream().map(t -> Pair.of(x.getKey(), t))).toList();
 
         String mySql = "INSERT ignore INTO  artist_tags" +
                 "                  (artist_id,tag) VALUES (?, ?) " + ", (?,?)".repeat(Math.max(0, list.size() - 1));
@@ -1538,6 +1538,17 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
+    public void removeTagWholeTrack(Connection connection, String tag) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("delete from track_tags  where tag = ? ")) {
+            preparedStatement.setString(1, tag);
+            preparedStatement.executeUpdate();
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public void addArtistBannedTag(Connection connection, String tag, long artistId) {
 
 
@@ -1569,6 +1580,19 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public void removeTagAlbum(Connection connection, String tag, long artistId) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("delete from album_tags  where tag = ? and artist_id = ?  ")) {
+            preparedStatement.setString(1, tag);
+            preparedStatement.setLong(2, artistId);
+            preparedStatement.executeUpdate();
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public void removeTagTrack(Connection connection, String tag, long artistId) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("delete from track_tags  where tag = ? and artist_id = ?  ")) {
             preparedStatement.setString(1, tag);
             preparedStatement.setLong(2, artistId);
             preparedStatement.executeUpdate();
@@ -1814,7 +1838,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void insertTrackTags(Connection connection, Map<Genre, List<ScrobbledTrack>> genres, Map<String, String> correctedTags) {
-        List<Pair<Genre, ScrobbledTrack>> list = genres.entrySet().stream().flatMap(x -> x.getValue().stream().map(t -> Pair.of(x.getKey(), t))).collect(Collectors.toList());
+        List<Pair<Genre, ScrobbledTrack>> list = genres.entrySet().stream().flatMap(x -> x.getValue().stream().map(t -> Pair.of(x.getKey(), t))).toList();
 
         String mySql = "INSERT ignore INTO  track_tags" +
                 "                  (artist_id,track_id,tag) VALUES (?, ?, ?) " + ", (?,?,?)".repeat(Math.max(0, list.size() - 1));

@@ -1879,7 +1879,7 @@ public class ChuuService {
                     knownAlbums = knownAlbums.stream()
                             .collect(Collectors.groupingBy(RYMImportRating::getId, Collectors.toList())).values().stream()
                             .map(rymImportRatings -> rymImportRatings.stream().max(Comparator.comparingInt(RYMImportRating::getRating)).orElse(null))
-                            .filter(Objects::nonNull).collect(Collectors.toList());
+                            .filter(Objects::nonNull).toList();
                 }
 
                 updaterDao.deleteAllRatings(connection, userId);
@@ -2018,7 +2018,7 @@ public class ChuuService {
                         x.setArtistId(artistId);
                     });
                     connection.setAutoCommit(false);
-                    list = list.stream().filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank()).collect(Collectors.toList());
+                    list = list.stream().filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank()).toList();
 
                     insertAlbums(list, id, connection);
                 }
@@ -2081,7 +2081,7 @@ public class ChuuService {
 
 //        trackDao.fillIdsMbids(connection, list.stream().filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).collect(Collectors.toList()));
 
-        trackDao.fillIds(connection, list.stream().filter(x -> x.getTrackId() == -1L).collect(Collectors.toList()));
+        trackDao.fillIds(connection, list.stream().filter(x -> x.getTrackId() == -1L).toList());
 
         Map<Boolean, List<ScrobbledTrack>> map = list.stream().peek(x -> x.setDiscordID(id)).collect(Collectors.partitioningBy(scrobbledArtist -> scrobbledArtist.getTrackId() == -1));
         List<ScrobbledTrack> nonExistingId = map.get(true);
@@ -2341,7 +2341,7 @@ public class ChuuService {
                 ScrobbledTrack key = t.getKey();
                 key.setCount(t.getValue());
                 return key;
-            }))).collect(Collectors.toList());
+            }))).toList();
             insertTracks(groupedTracks, lastfmId, connection, false);
 
         } catch (SQLException throwables) {
@@ -2628,7 +2628,7 @@ public class ChuuService {
             }));
             List<AlbumInfo> discoveredAlbums = discoveralDao.calculateDiscoveryFromAlbumTemp(connection, lastfmId);
             discoveralDao.deleteDiscoveryAlbumTempTable(connection);
-            return scrobbledAlbumLookup.entrySet().stream().filter(x -> discoveredAlbums.contains(x.getKey())).map(Map.Entry::getValue).collect(Collectors.toList());
+            return scrobbledAlbumLookup.entrySet().stream().filter(x -> discoveredAlbums.contains(x.getKey())).map(Map.Entry::getValue).toList();
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -2656,7 +2656,7 @@ public class ChuuService {
                     x.getValue().setUrl(urlLookup.get(x.getKey()).getArtistUrl());
                 }
                 return contains;
-            }).map(Map.Entry::getValue).collect(Collectors.toList());
+            }).map(Map.Entry::getValue).toList();
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -2833,6 +2833,7 @@ public class ChuuService {
             updaterDao.addBannedTag(connection, tag);
             updaterDao.removeTagWholeArtist(connection, tag);
             updaterDao.removeTagWholeAlbum(connection, tag);
+            updaterDao.removeTagWholeTrack(connection, tag);
             updaterDao.logBannedTag(connection, tag, discordId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -2845,7 +2846,8 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.addArtistBannedTag(connection, tag, artistId);
             updaterDao.removeTagArtist(connection, tag, artistId);
-            updaterDao.removeTagWholeAlbum(connection, tag);
+            updaterDao.removeTagAlbum(connection, tag, artistId);
+            updaterDao.removeTagTrack(connection, tag, artistId);
             updaterDao.logBannedTag(connection, tag + ": " + discordId, discordId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3018,7 +3020,7 @@ public class ChuuService {
                         artistId = handleNonExistingArtistFromAlbum(connection, x, artistId);
                         x.setArtistId(artistId);
                     });
-                    trackData = trackData.stream().filter(x -> x.getName() != null && !x.getName().isBlank()).collect(Collectors.toList());
+                    trackData = trackData.stream().filter(x -> x.getName() != null && !x.getName().isBlank()).toList();
 
                     insertTracks(trackData, id, connection);
                 }
@@ -3142,15 +3144,15 @@ public class ChuuService {
 
     public void storeTrackList(long albumId, long artistId, Set<Track> trackList) {
         try (Connection connection = dataSource.getConnection()) {
-            List<ScrobbledTrack> collect = trackList.stream().map(x -> {
+            List<ScrobbledTrack> tracks = trackList.stream().map(x -> {
                 ScrobbledTrack scrobbledTrack = new ScrobbledTrack(x.getArtist(), x.getName(), 0, false, x.getDuration(), x.getImageUrl(), null, x.getMbid());
                 scrobbledTrack.setAlbumId(albumId);
                 scrobbledTrack.setArtistId(artistId);
                 scrobbledTrack.setPosition(x.getPosition());
                 return scrobbledTrack;
-            }).collect(Collectors.toList());
-            trackDao.insertTracks(connection, collect);
-            trackDao.storeTrackList(connection, albumId, collect);
+            }).toList();
+            trackDao.insertTracks(connection, tracks);
+            trackDao.storeTrackList(connection, albumId, tracks);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

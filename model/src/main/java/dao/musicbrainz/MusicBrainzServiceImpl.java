@@ -27,7 +27,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             if (mbiz.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
             return mbizQueriesDao.getYearAlbums(connection, mbiz, year);
         } catch (SQLException e) {
@@ -40,7 +40,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             if (mbiz.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
             return mbizQueriesDao.getDecadeAlbums(connection, mbiz, baseYear, numberOfYears);
         } catch (SQLException e) {
@@ -53,7 +53,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             if (mbiz.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
             return mbizQueriesDao.getYearAverage(connection, mbiz, year);
         } catch (SQLException e) {
@@ -66,7 +66,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             if (mbiz.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
             return mbizQueriesDao.getDecadeAverage(connection, mbiz, baseYear, numberOfYears);
         } catch (SQLException e) {
@@ -84,7 +84,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             if (releaseInfo.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
 
             return mbizQueriesDao.getYearAlbumsByReleaseName(connection, releaseInfo, year);
@@ -98,7 +98,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             if (releaseInfo.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
 
             return mbizQueriesDao.getDecadeAlbumsByReleaseName(connection, releaseInfo, baseYear, numberOfYears);
@@ -141,7 +141,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
                     return missing.get(key);
                 }
                 return ai;
-            }).collect(Collectors.toList())));
+            }).toList()));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -164,7 +164,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
                     return missing.get(key);
                 }
                 return artistInfo;
-            }).collect(Collectors.toList())));
+            }).toList()));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -194,7 +194,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             if (releaseInfo.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
             return mbizQueriesDao.getAlbumsOfGenreByName(connection, releaseInfo, genre);
 
@@ -222,15 +222,15 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             List<ArtistInfo> artistInfos = queue.stream()
                     .map(capsule -> new ArtistInfo(capsule.getUrl(), capsule.getArtist(), capsule.getArtistMbid()))
                     .filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
-                    .collect(Collectors.toList());
+                    .toList();
             if (artistInfos.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
 
             List<String> artistFromCountry = mbizQueriesDao.getArtistFromCountry(connection, country, artistInfos);
 
             return queue.stream().filter(u -> u.getArtistMbid() != null && !u.getArtistMbid().isEmpty() && artistFromCountry.contains(u.getArtistMbid()))
-                    .map(x -> new ArtistUserPlays(x.getArtist(), x.getCount(), discordId)).collect(Collectors.toList());
+                    .map(x -> new ArtistUserPlays(x.getArtist(), x.getCount(), discordId)).toList();
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -331,7 +331,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             if (releaseInfo.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
 
             return mbizQueriesDao.getYearAlbumsByReleaseNameAverage(connection, releaseInfo, year);
@@ -345,7 +345,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             if (emptyMbid.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
 
             return mbizQueriesDao.getYearAlbumsByReleaseNameAverageDecade(connection, emptyMbid, baseYear, numberOfYears);
@@ -373,7 +373,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             if (map.isEmpty() || recs.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
 
             return mbizQueriesDao.getAlbumRecommendationsByGenre(connection, map, recs);

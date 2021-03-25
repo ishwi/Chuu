@@ -170,12 +170,12 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
 
         List<CountWrapper<AlbumInfo>> accum = mb.listOfRangeYearReleasesWithAverage(nonEmptyMbid, baseYear, parameters.getNumberOfYears());
         List<CountWrapper<AlbumInfo>> mbFoundBYName = mb.findArtistByReleaseWithAverageRangeYears(emptyMbid, baseYear, parameters.getNumberOfYears());
-        emptyMbid.removeAll(mbFoundBYName.stream().map(CountWrapper::getResult).collect(Collectors.toList()));
+        emptyMbid.removeAll(mbFoundBYName.stream().map(CountWrapper::getResult).toList());
 
 
         albumsMbizMatchingYear = accum.stream().map(CountWrapper::getResult).toList();
         accum.addAll(mbFoundBYName);
-        albumsMbizMatchingYear.addAll(mbFoundBYName.stream().map(CountWrapper::getResult).collect(Collectors.toList()));
+        albumsMbizMatchingYear.addAll(mbFoundBYName.stream().map(CountWrapper::getResult).toList());
 
         List<UrlCapsule> b = new ArrayList<>();
         queue.drainTo(b);

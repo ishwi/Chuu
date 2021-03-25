@@ -41,7 +41,12 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
         WrapperReturnNowPlaying first = whoKnowsArtistSet.get(0);
 
         Map<String, ReturnNowPlaying> stringReturnNowPlayingMap = WhoKnowsLoonasCommand.groupByUser(whoKnowsArtistSet);
-        WrapperReturnNowPlaying wrapperReturnNowPlaying = new WrapperReturnNowPlaying(stringReturnNowPlayingMap.values().stream().sorted(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed()).collect(Collectors.toList()), 0, first.getUrl(), "");
+        WrapperReturnNowPlaying wrapperReturnNowPlaying = new WrapperReturnNowPlaying(
+                stringReturnNowPlayingMap.
+                        values().stream().sorted(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed())
+                        .toList(),
+                0, first.getUrl(), ""
+        );
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(params.getE(), x.getDiscordId()).getUsername()));
         wrapperReturnNowPlaying.setUrl((first.getUrl()));

@@ -44,7 +44,8 @@ abstract class TagService<T extends EntityInfo, Y extends ScrobbledArtist> imple
                 .filter(x -> !yearFilter.matcher(x.getKey().getName()).find())
                 .filter(x -> !bannedTags.contains(x.getKey().getName().toLowerCase()))
                 .filter(x -> x.getValue().stream().noneMatch(a -> artistBannedTags.contains(Pair.of(a.getArtist().toLowerCase(), x.getKey().getName().toLowerCase()))))
-                .collect(Collectors.toMap(Map.Entry::getKey, k -> k.getValue().stream().map(validate::get).collect(Collectors.toList()), (f, s) -> {
+                .collect(Collectors.toMap(Map.Entry::getKey, k -> k.getValue().stream().map(validate::get)
+                        .collect(Collectors.toCollection(ArrayList::new)), (f, s) -> {
                     f.addAll(s);
                     return f;
                 }));

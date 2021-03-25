@@ -79,12 +79,18 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
             lastFM.getChart(user, custom, 4000, 1,
                     TopEntity.ALBUM,
                     ChartUtil.getParser(custom, TopEntity.ALBUM, params, lastFM, user), queue);
+
+            Set<AlbumInfo> albumInfos = new HashSet<>(db.getAlbumsWithTags(queue.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).toList(), params.getDiscordId(), genre));
+
+
             ArrayList<UrlCapsule> c = new ArrayList<>(queue);
             albums = c.stream()
-                    .filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> new AlbumInfo(x.getMbid())).collect(Collectors.toList());
-            List<AlbumInfo> albumsWithTags = db.getAlbumsWithTags(queue.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).collect(Collectors.toList()), params.getDiscordId(), genre);
-            Set<AlbumInfo> albumInfos = new HashSet<>(albumsWithTags);
-            albums.removeIf(albumInfos::contains);
+                    .filter(x -> x.getMbid() != null
+                            && !x.getMbid().isBlank()
+                    )
+                    .map(x -> new AlbumInfo(x.getMbid()))
+                    .filter(o -> !albumInfos.contains(o))
+                    .toList();
             Set<String> strings = this.mb.albumsGenre(albums, genre);
 
             outerQueue = queue.stream()
@@ -95,7 +101,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
                     .collect(Collectors.toCollection(LinkedBlockingQueue::new));
 
             executor.submit(
-                    new TagAlbumService(db, lastFM, outerQueue.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).collect(Collectors.toList()), genre));
+                    new TagAlbumService(db, lastFM, outerQueue.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).toList(), genre));
         }
         return new CountWrapper<>(ranker.get(), outerQueue);
     }

@@ -156,11 +156,15 @@ interface UpdaterDao {
 
     void removeTagWholeAlbum(Connection connection, String tag);
 
+    void removeTagWholeTrack(Connection connection, String tag);
+
     void addArtistBannedTag(Connection connection, String tag, long artistId);
 
     void removeTagArtist(Connection connection, String tag, long artistId);
 
     void removeTagAlbum(Connection connection, String tag, long artistId);
+
+    void removeTagTrack(Connection connection, String tag, long artistId);
 
     void logCommand(Connection connection, long discordId, Long guildId, String commandName, long nanos, Instant utc);
 

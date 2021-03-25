@@ -19,7 +19,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toCollection;
 
 public abstract class TracklistService {
     final ChuuService service;
@@ -84,7 +85,7 @@ public abstract class TracklistService {
                 }
 
             }
-            fullAlbumEntity.setTrackList(trackList.stream().sorted(Comparator.comparingInt(Track::getPosition)).collect(Collectors.toList()));
+            fullAlbumEntity.setTrackList(trackList.stream().sorted(Comparator.comparingInt(Track::getPosition)).collect(toCollection(ArrayList::new)));
             List<Track> handler = new ArrayList<>(trackList);
 
 
@@ -94,7 +95,7 @@ public abstract class TracklistService {
                         Optional<Track> max = value.stream().max(Comparator.comparingInt(Track::getPlays));
                         return max.orElse(null);
                     }).filter(Objects::nonNull).sorted(Comparator.comparingInt(Track::getPosition))
-                    .collect(Collectors.toList());
+                    .collect(toCollection(ArrayList::new));
             if (trackList.stream().mapToInt(Track::getPlays).sum() <= collect.stream().mapToInt(Track::getPlays).sum()) {
                 fullAlbumEntity.setTrackList(collect);
             }

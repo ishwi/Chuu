@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class TrackQueue extends ArtistQueue {
 
@@ -53,7 +52,7 @@ public class TrackQueue extends ArtistQueue {
                 }).takeWhile(y ->
                         y.getPos() < limit
                 ).map(z -> CompletableFuture.supplyAsync(() -> z)
-                ).collect(Collectors.toList()));
+                ).toList());
         return secondsCounter.get();
     }
 }

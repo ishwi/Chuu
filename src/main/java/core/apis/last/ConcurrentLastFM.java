@@ -57,6 +57,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 
@@ -307,7 +308,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         getDailyChart(username, objects, ChartUtil.getParser(new CustomTimeFrame(TimeFrameEnum.DAY), topEntity, ChartParameters.toListParams(), this, username), sqrt, sqrt);
         ArrayList<UrlCapsule> urlCapsules = new ArrayList<>();
         int i = objects.drainTo(urlCapsules);
-        return urlCapsules.stream().sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed()).map(mapper).limit(requestedSize).collect(Collectors.toList());
+        return urlCapsules.stream().sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed()).map(mapper).limit(requestedSize).toList();
     }
 
     private <X> List<X> getCustomT(TopEntity topEntity, LastFMData username, Function<UrlCapsule, X> mapper, int requestedSize, CustomTimeFrame timeFrame) throws LastFmException {
@@ -317,7 +318,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         getRangeChartChart(username, fromTo.getLeft(), fromTo.getRight(), requestedSize, 1, topEntity, parser, objects, timeFrame);
         ArrayList<UrlCapsule> urlCapsules = new ArrayList<>();
         int i = objects.drainTo(urlCapsules);
-        return urlCapsules.stream().sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed()).map(mapper).limit(requestedSize).collect(Collectors.toList());
+        return urlCapsules.stream().sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed()).map(mapper).limit(requestedSize).toList();
     }
 
     public List<AlbumInfo> getTopAlbums(LastFMData userName, CustomTimeFrame timeFrame, int requestedSize) throws LastFmException {
@@ -1770,40 +1771,45 @@ public class ConcurrentLastFM {//implements LastFMService {
     private String getSignature(String url) {
         try {
             List<NameValuePair> parse = URLEncodedUtils.parse(new URI(url), StandardCharsets.UTF_8);
-
-            String preHash = parse.stream().filter(x -> !x.getName().startsWith("format")).sorted((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(a.getName(), b.getName())).map(x -> x.getName() + x.getValue()).collect(Collectors.joining()) + secret;
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
-            md5.update(StandardCharsets.UTF_8.encode(preHash));
-            return url + String.format("&api_sig=%032x", new BigInteger(1, md5.digest())) + ENDING;
-        } catch (URISyntaxException | NoSuchAlgorithmException e) {
+            NameValuePair pair = generateHash(parse);
+            return url + String.format("&%s=%s", pair.getName(), pair.getValue()) + ENDING;
+        } catch (URISyntaxException e) {
             throw new ChuuServiceException(e);
         }
     }
 
     private String getSignature(ScrobblePost scrobblePost) {
-        try {
-            List<BasicNameValuePair> items = Arrays.stream(scrobblePost.getClass().getFields()).filter(x -> Modifier.isFinal(x.getModifiers())).map(x -> {
-                try {
-                    Object o = x.get(scrobblePost);
-                    if (o == null) {
-                        return null;
-                    }
-                    return new BasicNameValuePair(x.getName(), o.toString());
-                } catch (IllegalAccessException e) {
+        List<? extends NameValuePair> items = Arrays.stream(scrobblePost.getClass().getFields()).filter(x -> Modifier.isFinal(x.getModifiers())).map(x -> {
+            try {
+                Object o = x.get(scrobblePost);
+                if (o == null) {
                     return null;
                 }
-            }).filter(Objects::nonNull).collect(Collectors.toList());
-            String preHash = items.stream().filter(x -> !x.getName().startsWith("format")).sorted((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(a.getName(), b.getName())).map(x -> x.getName() + x.getValue()).collect(Collectors.joining()) + secret;
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
-            md5.update(StandardCharsets.UTF_8.encode(preHash));
-            String hash = String.format("%032x", new BigInteger(1, md5.digest()));
-            items.add(new BasicNameValuePair("api_sig", hash));
-            return items.stream().map(key -> key.getName() + "=" + URLEncoder.encode(key.getValue(), StandardCharsets.UTF_8))
-                    .collect(Collectors.joining("&"));
+                return new BasicNameValuePair(x.getName(), o.toString());
+            } catch (IllegalAccessException e) {
+                return null;
+            }
+        }).filter(Objects::nonNull).toList();
 
+        NameValuePair apiSig = generateHash(items);
+        return Stream.concat(items.stream(), Stream.of(apiSig)).map(key -> key.getName() + "=" + URLEncoder.encode(key.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
+
+    }
+
+    private NameValuePair generateHash(List<? extends NameValuePair> items) {
+        String preHash = items.stream().filter(x -> !x.getName().startsWith("format")).sorted((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(a.getName(), b.getName())).map(x -> x.getName() + x.getValue()).collect(Collectors.joining()) + secret;
+
+        MessageDigest md5;
+        try {
+            md5 = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
             throw new ChuuServiceException(e);
         }
+        md5.update(StandardCharsets.UTF_8.encode(preHash));
+        String hash = String.format("%032x", new BigInteger(1, md5.digest()));
+        return new BasicNameValuePair("api_sig", hash);
+
     }
 
     public String generateAuthoredCall(String url, String session) {

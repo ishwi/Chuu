@@ -65,13 +65,14 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
         String genre = params.getGenreParameters().getGenre();
         BlockingQueue<UrlCapsule> outerQueue;
         AtomicInteger ranker = new AtomicInteger(0);
-
+        int totalLenght = 0;
         if (params.getTimeFrameEnum().isAllTime()) {
             outerQueue = db.getUserArtistWithTag(name.getDiscordId(), genre, params.getX() * params.getY()).stream().map(t -> new ArtistChart(t.getUrl(), ranker.getAndIncrement(), t.getArtist(), t.getArtistMbid(), t.getCount(),
                     params.isWriteTitles(), params.isWritePlays(),
                     params.isAside()))
                     .limit((long) params.getX() * params.getY())
                     .collect(Collectors.toCollection(LinkedBlockingQueue::new));
+            totalLenght = outerQueue.size();
         } else {
             BlockingQueue<UrlCapsule> queue;
             queue = new ArrayBlockingQueue<>(4000);
@@ -79,20 +80,26 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
             lastFM.getChart(name, params.getTimeFrameEnum(), 4000, 1,
                     TopEntity.ARTIST,
                     ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, name), queue);
+
+
+            Map<ArtistInfo, ArtistInfo> identityMap =
+                    db.getArtistWithTag(queue.stream().map(x -> new ArtistInfo(x.getUrl(), x.getArtistName())).toList(), params.getDiscordId(), genre)
+                            .stream().collect(Collectors.toMap(x -> x, x -> x, (x, y) -> x));
+
             ArrayList<UrlCapsule> c = new ArrayList<>(queue);
             artists = c.stream()
-                    .filter(x -> x.getMbid() != null && !x.getMbid().isBlank()).map(x -> {
+                    .filter(x -> x.getMbid() != null && !x.getMbid().isBlank())
+                    .map(x -> {
                         ArtistInfo artistInfo = new ArtistInfo(null, x.getArtistName());
                         artistInfo.setMbid(x.getMbid());
                         return artistInfo;
-                    }).collect(Collectors.toList());
+                    })
+                    .filter(t -> !identityMap.containsKey(t))
+                    .toList();
 
-            List<ArtistInfo> albumsWithTags = db.getArtistWithTag(queue.stream().map(x -> new ArtistInfo(x.getUrl(), x.getArtistName())).collect(Collectors.toList()), params.getDiscordId(), genre);
-            Map<ArtistInfo, ArtistInfo> identityMap = albumsWithTags.stream().collect(Collectors.toMap(x -> x, x -> x, (x, y) -> x));
-            artists.removeIf(identityMap::containsKey);
             Set<String> strings = this.mb.artistGenres(artists, genre);
 
-            LinkedBlockingQueue<UrlCapsule> collect1 = queue.stream()
+            Queue<UrlCapsule> tempQueue = queue.stream()
                     .filter(x -> {
                         ArtistInfo o = new ArtistInfo(x.getUrl(), x.getArtistName());
                         o.setMbid(x.getMbid());
@@ -108,12 +115,13 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
                     .limit((long) params.getX() * params.getY())
                     .collect(Collectors.toCollection(LinkedBlockingQueue::new));
             outerQueue = new ArtistQueue(db, DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstance());
-            outerQueue.addAll(collect1);
+            outerQueue.addAll(tempQueue);
             executor.submit(
-                    new TagArtistService(db, lastFM, collect1.stream().map(x -> new ArtistInfo(null, x.getArtistName(), x.getMbid())).collect(Collectors.toList()), genre));
+                    new TagArtistService(db, lastFM, tempQueue.stream().map(x -> new ArtistInfo(null, x.getArtistName(), x.getMbid())).collect(Collectors.toList()), genre));
+            totalLenght = queue.size();
 
         }
-        return new CountWrapper<>(ranker.get(), outerQueue);
+        return new CountWrapper<>(totalLenght, outerQueue);
     }
 
     @Override

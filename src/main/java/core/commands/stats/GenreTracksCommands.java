@@ -77,11 +77,13 @@ public class GenreTracksCommands extends ChartableCommand<ChartableGenreParamete
             lastFM.getChart(user, custom, 4000, 1,
                     TopEntity.TRACK,
                     ChartUtil.getParser(custom, TopEntity.TRACK, params, lastFM, user), queue);
+
             ArrayList<UrlCapsule> c = new ArrayList<>(queue);
             tracks = c.stream()
-                    .map(x -> new TrackInfo(x.getArtistName(), null, x.getAlbumName(), null)).collect(Collectors.toList());
-            List<TrackInfo> trackWithTags = db.getTrackWithTags(tracks, params.getDiscordId(), genre);
-            Set<TrackInfo> trackInfoes = new HashSet<>(trackWithTags);
+                    .map(x -> new TrackInfo(x.getArtistName(), null, x.getAlbumName(), null))
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+            Set<TrackInfo> trackInfoes = new HashSet<>(db.getTrackWithTags(tracks, params.getDiscordId(), genre));
             tracks.removeIf(trackInfoes::contains);
 
             outerQueue = queue.stream()

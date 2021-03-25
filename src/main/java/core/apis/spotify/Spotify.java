@@ -19,7 +19,6 @@ import org.apache.hc.core5.http.ParseException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Spotify {
 
@@ -128,7 +127,7 @@ public class Spotify {
             GetAudioFeaturesForSeveralTracksRequest build = spotifyApi.getAudioFeaturesForSeveralTracks(strings).build();
             try {
                 AudioFeatures[] execute = build.execute();
-                audioFeatures.addAll(Arrays.stream(execute).filter(Objects::nonNull).collect(Collectors.toList()));
+                audioFeatures.addAll(Arrays.stream(execute).filter(Objects::nonNull).toList());
             } catch (IOException | SpotifyWebApiException | ParseException e) {
                 Chuu.getLogger().warn(e.getMessage(), e);
             }

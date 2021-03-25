@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -146,7 +147,8 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                         .toList();
                 Map<Genre, List<ArtistInfo>> genreListMap = musicBrainz.genreCountByartist(mbidArtists);
                 executor.submit(new TagArtistService(db, lastFM, genreListMap));
-                map.putAll(genreListMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size())));
+                map = Stream.concat(map.entrySet().stream(), genreListMap.entrySet().stream().map(t -> Map.entry(t.getKey(), t.getValue().size())))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum));
             }
 
         } else {

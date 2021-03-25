@@ -21,10 +21,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -127,7 +124,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                                     " - " + value.getArtistName() +
                                     " | " + value.getAlbumName() + "\n");
                 }
-        ).collect(Collectors.toList());
+        ).collect(Collectors.toCollection(ArrayList::new));
         Collections.shuffle(result, CommandUtil.rand);
         if (result.isEmpty()) {
             sendMessageQueue(e, "No one is listening to music at the moment UwU");
