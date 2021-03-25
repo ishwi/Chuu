@@ -727,25 +727,25 @@ public class NPModeBuilder {
 
                 {
                     previousNewLinesToAdd.forEach(this::addNewLineToPrevious);
-                    List<String> collect = Arrays.stream(footerSpaces).filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
+                    List<String> footerLines = Arrays.stream(footerSpaces).filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
 
-                    for (int i = 0; i < collect.size(); i++) {
+                    for (int i = 0; i < footerLines.size(); i++) {
                         if (npModes.contains(NPMode.TAGS) || npModes.contains(NPMode.EXTENDED_TAGS) && (i == 0)) {
                             continue;
                         }
                         Predicate<Integer> tester = (npModes.contains(NPMode.TAGS) ? (j) -> j % 2 != 0 : (j) -> j % 2 == 0);
-                        String current = collect.get(i);
+                        String current = footerLines.get(i);
                         if (tester.test(i)) {
                             if (current.endsWith("\n")) {
-                                collect.set(i, current.substring(0, current.length() - 1));
+                                footerLines.set(i, current.substring(0, current.length() - 1));
                             }
                         } else {
                             if (!current.endsWith("\n")) {
-                                collect.set(i, current + "\n");
+                                footerLines.set(i, current + "\n");
                             }
                         }
                     }
-                    outputList.addAll(collect);
+                    outputList.addAll(footerLines);
                     EnumSet<NPMode> checker = EnumSet.copyOf(this.npModes);
                     checker.remove(NPMode.TAGS);
                     checker.remove(NPMode.EXTENDED_TAGS);

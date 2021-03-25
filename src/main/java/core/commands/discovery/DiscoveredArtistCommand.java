@@ -75,14 +75,14 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
         queue.drainTo(capsules);
         AtomicInteger marker = new AtomicInteger(0);
 
-        Map<ScrobbledArtist, UrlCapsule> collect = capsules.stream().collect(Collectors.toMap(x -> new ScrobbledArtist(x.getArtistName(), x.getPlays(), null),
+        Map<ScrobbledArtist, UrlCapsule> artistToItem = capsules.stream().collect(Collectors.toMap(x -> new ScrobbledArtist(x.getArtistName(), x.getPlays(), null),
                 x -> x, (x, y) -> {
                     x.setPlays(x.getPlays() + y.getPlays());
                     return x;
                 }));
-        List<ScrobbledArtist> discoveredArtists = db.getDiscoveredArtists(collect.keySet(), param.getUser().getName());
+        List<ScrobbledArtist> discoveredArtists = db.getDiscoveredArtists(artistToItem.keySet(), param.getUser().getName());
         marker.set(0);
-        queue = collect.entrySet().stream().filter(x -> {
+        queue = artistToItem.entrySet().stream().filter(x -> {
             boolean contains = discoveredArtists.contains(x.getKey());
             if (contains) {
                 x.getValue().setUrl(x.getKey().getUrl());

@@ -71,8 +71,8 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
                 sendMessageQueue(e, getUsageInstructions());
                 return;
             }
-            String collect = modes.stream().map(x -> "**%s** -> %s".formatted(NPMode.getListedName(List.of(x)), x.getHelpMessage())).collect(Collectors.joining("\n"));
-            List<String> split = TextSplitter.split(collect, 2000);
+            String lines = modes.stream().map(x -> "**%s** -> %s".formatted(NPMode.getListedName(List.of(x)), x.getHelpMessage())).collect(Collectors.joining("\n"));
+            List<String> split = TextSplitter.split(lines, 2000);
             for (String s : split) {
                 sendMessageQueue(e, s);
             }

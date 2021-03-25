@@ -112,7 +112,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
 
 
         }
-        List<PreComputedChartEntity> collect = temp.parallelStream().map(x -> {
+        List<PreComputedChartEntity> preComputedItems = temp.parallelStream().map(x -> {
 
             String cover = Chuu.getCoverService().getCover(x.getArtistName(), x.getAlbumName(), x.getUrl(), param.getE());
             x.setUrl(cover);
@@ -127,13 +127,13 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
             int counter = 0;
             for (int i = 0; i < rows; i++) {
                 for (int j = 0; j < cols; j++) {
-                    PreComputedChartEntity preComputed = collect.get(counter++);
+                    PreComputedChartEntity preComputed = preComputedItems.get(counter++);
                     preComputed.setPos(j * rows + i);
                 }
             }
-        } else ColorChartCommand.diagonalSort(rows, cols, collect, isLinear);
+        } else ColorChartCommand.diagonalSort(rows, cols, preComputedItems, isLinear);
         queue = new LinkedBlockingQueue<>(Math.max(1, cols * rows));
-        queue.addAll(collect);
+        queue.addAll(preComputedItems);
         return new CountWrapper<>(count, queue);
     }
 

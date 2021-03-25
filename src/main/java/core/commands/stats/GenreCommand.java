@@ -183,25 +183,25 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         }
 
         if (params.hasOptional("list")) {
-            List<String> collect = map.entrySet()
+            List<String> lines = map.entrySet()
                     .stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).map(x -> ". **" + WordUtils.capitalizeFully(CommandUtil.cleanMarkdownCharacter(x.getKey().getName())) + "** - " + x.getValue() + "\n").toList();
-            if (collect.isEmpty()) {
+            if (lines.isEmpty()) {
                 sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 %s%s on%s", usableString, doAlbums ? "artists" : "albums", innerParams.getTime().getDisplayString(), service));
                 return;
             }
 
             StringBuilder a = new StringBuilder();
-            for (int i = 0; i < 10 && i < collect.size(); i++) {
-                a.append(i + 1).append(collect.get(i));
+            for (int i = 0; i < 10 && i < lines.size(); i++) {
+                a.append(i + 1).append(lines.get(i));
             }
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setDescription(a)
                     .setColor(ColorService.computeColor(e))
                     .setTitle(usableString + "'s genres")
-                    .setFooter(usableString + " has " + collect.size() + " found genres" + timeframe.getDisplayString(), null)
+                    .setFooter(usableString + " has " + lines.size() + " found genres" + timeframe.getDisplayString(), null)
                     .setThumbnail(urlImage);
             e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
-                    new Reactionary<>(collect, message1, embedBuilder));
+                    new Reactionary<>(lines, message1, embedBuilder));
 
 
         } else {

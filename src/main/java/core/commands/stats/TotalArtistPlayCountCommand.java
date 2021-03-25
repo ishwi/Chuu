@@ -52,22 +52,22 @@ public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlay
 
     @Override
     public void printList(ResultWrapper<ArtistPlays> wrapper, CommandParameters params) {
-        List<ArtistPlays> list = wrapper.getResultList();
+        List<ArtistPlays> artistPlays = wrapper.getResultList();
         MessageReceivedEvent e = params.getE();
-        if (list.isEmpty()) {
+        if (artistPlays.isEmpty()) {
             sendMessageQueue(e, "No one has played any artist yet!");
             return;
         }
 
-        List<String> collect = list.stream().map(x -> String.format(". [%s](%s) - %d plays %n",
+        List<String> lines = artistPlays.stream().map(x -> String.format(". [%s](%s) - %d plays %n",
                 CommandUtil.cleanMarkdownCharacter(x.getArtistName()), LinkUtils.getLastFmArtistUrl(x.getArtistName()), x.getCount()))
                 .toList();
-        EmbedBuilder embedBuilder = initList(collect, e)
+        EmbedBuilder embedBuilder = initList(lines, e)
                 .setTitle("Total artist plays")
                 .setFooter(String.format("%s has %d total plays!%n", e.getGuild().getName(), wrapper.getRows()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(collect, message1, embedBuilder));
+                new Reactionary<>(lines, message1, embedBuilder));
     }
 
 

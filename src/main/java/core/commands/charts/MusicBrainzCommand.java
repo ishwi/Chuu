@@ -112,11 +112,12 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
 
             lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
             //List of obtained elements
-            List<AlbumInfo> collect = queue.stream()
-                    .map(capsule ->
-                            new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName())).toList();
 
-            List<AlbumInfo> albumInfos = db.albumsOfYear(collect, param.getYear());
+
+            List<AlbumInfo> albumInfos = db.albumsOfYear(queue.stream()
+                            .map(capsule ->
+                                    new AlbumInfo(capsule.getMbid(), capsule.getAlbumName(), capsule.getArtistName())).toList()
+                    , param.getYear());
             albumsMbizMatchingYear.addAll(albumInfos);
 
 
@@ -268,11 +269,11 @@ public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
         });
         AtomicInteger ranker = new AtomicInteger(0);
 
-        LinkedBlockingDeque<UrlCapsule> collect = b.stream().sorted(Comparator.comparing(x -> (
+        BlockingQueue<UrlCapsule> sortedQ = b.stream().sorted(Comparator.comparing(x -> (
                 ((TrackDurationAlbumArtistChart) x).getSeconds()
         )).reversed()).peek(x -> x.setPos(ranker.getAndIncrement()))
                 .collect(Collectors.toCollection(LinkedBlockingDeque::new));
-        return new CountWrapper<>(albumsMbizMatchingYear.size(), collect);
+        return new CountWrapper<>(albumsMbizMatchingYear.size(), sortedQ);
     }
 
 

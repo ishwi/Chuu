@@ -113,10 +113,10 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
                 }
 
                 db.insertUserReactions(e.getAuthor().getIdLong(), toAdd);
-                String collect = params.getEmojis().stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" "));
+                String emojiLine = params.getEmojis().stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" "));
                 sendMessageQueue(e, "Will %s the following reactions: %s".formatted(
                         (append ? "add" : "set")
-                        , String.join(" ", collect)));
+                        , String.join(" ", emojiLine)));
             }
         }
     }

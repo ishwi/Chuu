@@ -55,11 +55,11 @@ public class GuildTopAlbumsCommand extends GuildTopCommand {
                 gp.getX() * gp.getY(),
                 !(effectiveMode.equals(ChartMode.IMAGE) && gp.chartMode().equals(ChartMode.IMAGE) || gp.chartMode().equals(ChartMode.IMAGE_ASIDE)));
         AtomicInteger counter = new AtomicInteger(0);
-        BlockingQueue<UrlCapsule> collect = guildTop.getResultList().stream().sorted(Comparator.comparingInt(ScrobbledAlbum::getCount).reversed()).
+        BlockingQueue<UrlCapsule> guildTopQ = guildTop.getResultList().stream().sorted(Comparator.comparingInt(ScrobbledAlbum::getCount).reversed()).
                 map(x ->
                         new AlbumChart(x.getUrl(), counter.getAndIncrement(), x.getAlbum(), x.getArtist(), null, x.getCount(), gp.isWriteTitles(), gp.isWritePlays(), gp.isAside())
                 ).collect(Collectors.toCollection(LinkedBlockingDeque::new));
-        return new CountWrapper<>(guildTop.getRows(), collect);
+        return new CountWrapper<>(guildTop.getRows(), guildTopQ);
     }
 
     @Override

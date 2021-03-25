@@ -635,7 +635,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             }
             /* Fill "preparedStatement". */
             ResultSet resultSet = preparedStatement.executeQuery();
-            Map<String, ScrobbledArtist> collect = list.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
+            Map<String, ScrobbledArtist> artistToScrobbled = list.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
                 scrobbledArtist.setCount(scrobbledArtist.getCount() + scrobbledArtist2.getCount());
                 return scrobbledArtist;
             }));
@@ -644,7 +644,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             while (resultSet.next()) {
                 long id = resultSet.getLong("id");
                 String name = resultSet.getString("name");
-                ScrobbledArtist scrobbledArtist = collect.get(name);
+                ScrobbledArtist scrobbledArtist = artistToScrobbled.get(name);
                 if (scrobbledArtist != null) {
                     scrobbledArtist.setArtistId(id);
                 } else {
@@ -652,7 +652,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                     String normalizeArtistName = compile.matcher(
                             Normalizer.normalize(name, Normalizer.Form.NFKD)
                     ).replaceAll("");
-                    ScrobbledArtist normalizedArtist = collect.get(normalizeArtistName);
+                    ScrobbledArtist normalizedArtist = artistToScrobbled.get(normalizeArtistName);
                     if (normalizedArtist != null) {
                         normalizedArtist.setArtistId(id);
                     }
@@ -1198,14 +1198,14 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             /* Fill "preparedStatement". */
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            Map<Long, RYMImportRating> collect = list.stream().collect(Collectors.toMap(RYMImportRating::getRYMid, Function.identity()));
+            Map<Long, RYMImportRating> rymIdToRating = list.stream().collect(Collectors.toMap(RYMImportRating::getRYMid, Function.identity()));
 
             while (resultSet.next()) {
                 long id = resultSet.getLong("id");
                 String name = resultSet.getString("album_name");
                 long artist_id = resultSet.getLong("artist_id");
                 long rym_id = resultSet.getLong("rym_id");
-                RYMImportRating RYMImportRating = collect.get(rym_id);
+                RYMImportRating RYMImportRating = rymIdToRating.get(rym_id);
                 RYMImportRating.setArtist_id(artist_id);
                 RYMImportRating.setId(id);
                 RYMImportRating.setRealAlbumName(name);
@@ -1375,26 +1375,26 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
-    public List<ScrobbledAlbum> fillAlbumsByMBID(Connection connection, List<AlbumInfo> list) {
+    public List<ScrobbledAlbum> fillAlbumsByMBID(Connection connection, List<AlbumInfo> albums) {
         String queryString = "SELECT id,artist_id,mbid,url FROM  album WHERE mbid IN (%s)  ";
-        String sql = String.format(queryString, list.isEmpty() ? null : preparePlaceHolders(list.size()));
+        String sql = String.format(queryString, albums.isEmpty() ? null : preparePlaceHolders(albums.size()));
         List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
 
-            for (int i = 0; i < list.size(); i++) {
-                preparedStatement.setString(i + 1, list.get(i).getMbid());
+            for (int i = 0; i < albums.size(); i++) {
+                preparedStatement.setString(i + 1, albums.get(i).getMbid());
             }
             /* Fill "preparedStatement". */
             ResultSet resultSet = preparedStatement.executeQuery();
-            Map<String, ScrobbledAlbum> collect = list.stream().collect(Collectors.toMap(EntityInfo::getMbid, x -> new ScrobbledAlbum(x.getArtist(), 0, null, -1, x.getName(), null), (x, y) -> x));
+            Map<String, ScrobbledAlbum> mbidToAlbum = albums.stream().collect(Collectors.toMap(EntityInfo::getMbid, x -> new ScrobbledAlbum(x.getArtist(), 0, null, -1, x.getName(), null), (x, y) -> x));
 
             while (resultSet.next()) {
                 long id = resultSet.getLong("id");
                 long artistId = resultSet.getLong("artist_id");
                 String mbid = resultSet.getString("mbid");
                 String url = resultSet.getString("url");
-                ScrobbledAlbum scrobbledAlbum = collect.get(mbid);
+                ScrobbledAlbum scrobbledAlbum = mbidToAlbum.get(mbid);
                 if (scrobbledAlbum == null) {
                     continue;
                 }

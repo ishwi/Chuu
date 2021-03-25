@@ -55,13 +55,13 @@ public class GlobalDecadeDistributionCommand extends ConcurrentCommand<CommandPa
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         var counts = db.getGlobalDecades();
-        List<String> collect = counts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
+        List<String> lines = counts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                 ". **%ds**: %d %s%n".formatted(CommandUtil.getDecade(t.getKey().getValue()), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))
         ).toList();
 
         StringBuilder a = new StringBuilder();
-        for (int i = 0; i < collect.size() && i < 10; i++) {
-            String s = collect.get(i);
+        for (int i = 0; i < lines.size() && i < 10; i++) {
+            String s = lines.get(i);
             a.append(i + 1).append(s);
         }
 
@@ -73,7 +73,7 @@ public class GlobalDecadeDistributionCommand extends ConcurrentCommand<CommandPa
                 .setFooter("%s has albums from %d different %s".formatted(CommandUtil.markdownLessString(name), counts.size(), CommandUtil.singlePlural(counts.size(), "decade", "decades")), null);
 
         e.getChannel().sendMessage(embedBuilder.build()).queue(m ->
-                new Reactionary<>(collect, m, 10, embedBuilder));
+                new Reactionary<>(lines, m, 10, embedBuilder));
     }
 
 

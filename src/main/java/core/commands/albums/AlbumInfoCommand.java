@@ -77,11 +77,11 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                 .addField("Scrobbles:", String.valueOf(albumSummary.getTotalscrobbles()), true)
                 .addField("Tags:", tagsField, false);
         if (!albumInfo.getTags().isEmpty()) {
-            String collect = albumInfo.getTags().stream().limit(5)
+            String tagLine = albumInfo.getTags().stream().limit(5)
                     .filter(x -> x != null && x.length() > 0)
                     .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + LinkUtils.getMusicbrainzTagUrl(tag) + ")")
                     .collect(Collectors.joining(" - "));
-            embedBuilder.addField("MusicBrainz Tags: ", collect, false);
+            embedBuilder.addField("MusicBrainz Tags: ", tagLine, false);
         }
         if (albumInfo.getYear() != null) {
             embedBuilder.addField("Year:", String.valueOf(albumInfo.getYear()), false);

@@ -2300,7 +2300,7 @@ public class ChuuService {
     private void doInsertUserData(Connection connection, String lastfmId, List<TrackWithArtistId> list) throws SQLException {
         Week currentWeekId = billboardDao.getCurrentWeekId(connection);
         Date weekStart = currentWeekId.getWeekStart();
-        Map<Integer, List<TrackWithArtistId>> collect = list.stream().collect(Collectors.groupingBy(x -> {
+        Map<Integer, List<TrackWithArtistId>> dayToData = list.stream().collect(Collectors.groupingBy(x -> {
             LocalDate from = LocalDate.ofInstant(Instant.ofEpochSecond(x.getUtc()), ZoneOffset.UTC);
             int week = from.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
             int weekYear = from.get(IsoFields.WEEK_BASED_YEAR);
@@ -2318,7 +2318,7 @@ public class ChuuService {
             i = weekYear * 100 + week + 1;
         }
         connection.setAutoCommit(true);
-        collect.entrySet().stream().sorted(Map.Entry.<Integer, List<TrackWithArtistId>>comparingByKey().reversed()).forEach(x -> {
+        dayToData.entrySet().stream().sorted(Map.Entry.<Integer, List<TrackWithArtistId>>comparingByKey().reversed()).forEach(x -> {
             int currentIndex = i;
             int numberOfDecreses = -1;
             while (x.getKey() < currentIndex) {
@@ -2732,10 +2732,10 @@ public class ChuuService {
     }
 
 
-    public List<ScrobbledAlbum> fillAlbumIdsByMBID(List<AlbumInfo> collect) {
+    public List<ScrobbledAlbum> fillAlbumIdsByMBID(List<AlbumInfo> albums) {
 
         try (Connection connection = dataSource.getConnection()) {
-            return updaterDao.fillAlbumsByMBID(connection, collect);
+            return updaterDao.fillAlbumsByMBID(connection, albums);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

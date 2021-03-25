@@ -90,8 +90,8 @@ public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters>
             }
         } else {
             if (params.hasEmojis()) {
-                String collect = params.getEmojis().stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" "));
-                sendMessageQueue(e, "Will set the following reactions: " + collect);
+                String emojiLine = params.getEmojis().stream().map(EmotiParameters.Emotable::toDisplay).collect(Collectors.joining(" "));
+                sendMessageQueue(e, "Will set the following reactions: " + emojiLine);
                 db.insertServerReactions(e.getGuild().getIdLong(), params.getEmojis());
             }
         }

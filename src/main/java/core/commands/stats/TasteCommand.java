@@ -86,7 +86,7 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
                 record Holder(UrlCapsule first, UrlCapsule second, double total) {
 
                 }
-                ResultWrapper<UserArtistComparison> collect = set.stream().map(o -> {
+                ResultWrapper<UserArtistComparison> userComparisons = set.stream().map(o -> {
                     UrlCapsule urlCapsule = map.get(o);
                     if (urlCapsule != null) {
                         record Two(UrlCapsule first, UrlCapsule second) {
@@ -111,10 +111,10 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
                             return new UserArtistComparison(left.getPlays(), right.getPlays(), left.getArtistName(), og.getName(), second.getName(), null);
                         })
                         .collect(Collectors.collectingAndThen(Collectors.toList(), t -> new ResultWrapper<>(t.size(), t)));
-                if (collect.getRows() != 0 && CommandUtil.getEffectiveMode(og.getRemainingImagesMode(), params) == RemainingImagesMode.IMAGE) {
+                if (userComparisons.getRows() != 0 && CommandUtil.getEffectiveMode(og.getRemainingImagesMode(), params) == RemainingImagesMode.IMAGE) {
                     this.timeFrameMap.put(params.getE().getMessageId(), Pair.of(ogSize, secondSize));
                 }
-                return collect;
+                return userComparisons;
 
             } catch (LastFmException e) {
 

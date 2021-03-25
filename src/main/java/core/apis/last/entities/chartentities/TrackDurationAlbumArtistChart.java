@@ -23,8 +23,8 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
 
     @NotNull
     public static List<UrlCapsule> getGrouped(List<UrlCapsule> urlCapsules) {
-        Map<AlbumInfo, List<UrlCapsule>> collect1 = urlCapsules.stream().collect(Collectors.groupingBy(x -> new AlbumInfo(x.getAlbumName(), x.getArtistName())));
-        return collect1.entrySet().stream().map(x -> {
+        Map<AlbumInfo, List<UrlCapsule>> groupedAlbums = urlCapsules.stream().collect(Collectors.groupingBy(x -> new AlbumInfo(x.getAlbumName(), x.getArtistName())));
+        return groupedAlbums.entrySet().stream().map(x -> {
             AlbumInfo key = x.getKey();
             List<UrlCapsule> value = x.getValue();
             Optional<UrlCapsule> reduce = value.stream().reduce((urlCapsule, urlCapsule2) -> {

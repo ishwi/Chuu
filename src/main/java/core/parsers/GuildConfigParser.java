@@ -26,13 +26,13 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
             return null;
         }
         if (words.length == 1) {
-            String collect = Arrays.stream(GuildConfigType.values()).filter(x -> x.getCommandName().equalsIgnoreCase(words[0])).map(x ->
+            String line = Arrays.stream(GuildConfigType.values()).filter(x -> x.getCommandName().equalsIgnoreCase(words[0])).map(x ->
                     String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
-            if (collect.isBlank()) {
-                collect = Arrays.stream(GuildConfigType.values()).map(GuildConfigType::getCommandName).collect(Collectors.joining(", "));
-                sendError(words[0] + " is not a valid configuration, use one of the following:\n\t" + collect, e);
+            if (line.isBlank()) {
+                line = Arrays.stream(GuildConfigType.values()).map(GuildConfigType::getCommandName).collect(Collectors.joining(", "));
+                sendError(words[0] + " is not a valid configuration, use one of the following:\n\t" + line, e);
             } else {
-                e.getChannel().sendMessage(collect).queue();
+                e.getChannel().sendMessage(line).queue();
             }
             return null;
         }
@@ -51,8 +51,8 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
 
         GuildConfigType guildConfigType = GuildConfigType.get(command);
         if (guildConfigType == null) {
-            String collect = Arrays.stream(GuildConfigType.values()).map(GuildConfigType::getCommandName).collect(Collectors.joining(", "));
-            sendError(command + " is not a valid configuration, use one of the following:\n\t" + collect, e);
+            String line = Arrays.stream(GuildConfigType.values()).map(GuildConfigType::getCommandName).collect(Collectors.joining(", "));
+            sendError(command + " is not a valid configuration, use one of the following:\n\t" + line, e);
             return null;
         }
         if (!guildConfigType.getParser().test(args)) {
@@ -66,9 +66,9 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
 
     @Override
     public String getUsageLogic(String commandName) {
-        String collect = Arrays.stream(GuildConfigType.values()).map(x -> String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
+        String line = Arrays.stream(GuildConfigType.values()).map(x -> String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
         return "**" + commandName + " *command* *argument* ** \n" +
-                "Possible Values:\n" + collect;
+                "Possible Values:\n" + line;
     }
 
     @Override

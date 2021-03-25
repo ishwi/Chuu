@@ -42,20 +42,20 @@ public class ClockService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ImageOutputStream output = ImageIO.createImageOutputStream(baos)) {
 
-            HashMap<Integer, List<PreBillboardUserDataTimestamped>> collect = data.stream().
+            Map<Integer, List<PreBillboardUserDataTimestamped>> dayToData = data.stream().
                     collect(Collectors.groupingBy(x -> switch (clockMode) {
                         case BY_WEEK -> byWeek(x);
                         case BY_DAY -> byDay(x);
                     }, HashMap::new, Collectors.toList()));
-            List<BufferedImage> images = collect.entrySet().parallelStream().sorted(Map.Entry.comparingByKey()).map(
+            List<BufferedImage> images = dayToData.entrySet().parallelStream().sorted(Map.Entry.comparingByKey()).map(
                     t -> {
                         Integer key = t.getKey();
                         List<PreBillboardUserDataTimestamped> value = t.getValue();
 
-                        HashMap<Integer, Long> collect1 = value.stream()
+                        Map<Integer, Long> dayToCounts = value.stream()
                                 .collect(Collectors.groupingBy(x -> dateTimeFunction.apply(x).getHour(),
                                         HashMap::new, Collectors.counting()));
-                        byte[] bytes = CircleRenderer.generateImage(clockMode, collect1, key, timeZone);
+                        byte[] bytes = CircleRenderer.generateImage(clockMode, dayToCounts, key, timeZone);
                         if (bytes == null) {
                             throw new ChuuServiceException(new NullPointerException(" bytes null clock service"));
                         }

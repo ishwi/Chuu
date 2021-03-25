@@ -17,8 +17,8 @@ abstract class TagService<T extends EntityInfo, Y extends ScrobbledArtist> imple
     final Map<Genre, List<T>> genres;
     private static final Pattern yearFilter = Pattern.compile("\\d{2,4}'?s?", Pattern.CASE_INSENSITIVE);
 
-    public TagService(ChuuService dao, ConcurrentLastFM lastFM, List<T> collect, String genre) {
-        this(dao, lastFM, Map.of(new Genre(genre), collect));
+    public TagService(ChuuService dao, ConcurrentLastFM lastFM, List<T> items, String genre) {
+        this(dao, lastFM, Map.of(new Genre(genre), items));
     }
 
     public TagService(ChuuService dao, ConcurrentLastFM lastFM, List<String> tags, T albumInfo) {
@@ -54,5 +54,5 @@ abstract class TagService<T extends EntityInfo, Y extends ScrobbledArtist> imple
 
     protected abstract void insertGenres(Map<Genre, List<Y>> genres);
 
-    protected abstract Map<T, Y> validate(List<T> collect);
+    protected abstract Map<T, Y> validate(List<T> toValidate);
 }

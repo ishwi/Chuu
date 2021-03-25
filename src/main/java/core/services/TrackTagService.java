@@ -17,8 +17,8 @@ public class TrackTagService extends TagService<TrackInfo, ScrobbledTrack> {
         super(dao, lastFM, genres);
     }
 
-    public TrackTagService(ChuuService dao, ConcurrentLastFM lastFM, List<TrackInfo> collect, String genre) {
-        super(dao, lastFM, collect, genre);
+    public TrackTagService(ChuuService dao, ConcurrentLastFM lastFM, List<TrackInfo> tracks, String genre) {
+        super(dao, lastFM, tracks, genre);
     }
 
     public TrackTagService(ChuuService dao, ConcurrentLastFM lastFM, List<String> tags, TrackInfo albumInfo) {

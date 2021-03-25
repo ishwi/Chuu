@@ -195,10 +195,10 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
         });
         AtomicInteger asdasdasd = new AtomicInteger(0);
 
-        LinkedBlockingDeque<UrlCapsule> collect = b.stream().sorted(Comparator.comparing(x -> (
+        BlockingQueue<UrlCapsule> sortedQ = b.stream().sorted(Comparator.comparing(x -> (
                 ((TrackDurationAlbumArtistChart) x).getSeconds()
         )).reversed()).peek(x -> x.setPos(asdasdasd.getAndIncrement()))
                 .collect(Collectors.toCollection(LinkedBlockingDeque::new));
-        return new CountWrapper<>(albumsMbizMatchingYear.size(), collect);
+        return new CountWrapper<>(albumsMbizMatchingYear.size(), sortedQ);
     }
 }

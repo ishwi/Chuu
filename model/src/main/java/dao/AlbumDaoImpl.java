@@ -206,7 +206,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public List<AlbumInfo> get(Connection connection, List<AlbumInfo> albumInfos, Year year) {
-        Map<AlbumInfo, AlbumInfo> collect = albumInfos.stream().collect(Collectors.toMap(x -> new AlbumInfo(x.getName(), x.getArtist()), x -> x, (x, y) -> x));
+        Map<AlbumInfo, AlbumInfo> identiyMap = albumInfos.stream().collect(Collectors.toMap(x -> new AlbumInfo(x.getName(), x.getArtist()), x -> x, (x, y) -> x));
         List<AlbumInfo> found = new ArrayList<>();
         @Language("MariaDB") String queryString = "SELECT album_name,name  FROM album a join artist b on a.artist_id = b.id  WHERE (album_name,name) in (%s) and release_year = ? ";
         String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQueryTuple(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQueryTuple(albumInfos.size()));
@@ -227,7 +227,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
                 String tag = resultSet.getString("album_name");
                 String artistName = resultSet.getString("name");
                 AlbumInfo albumInfo = new AlbumInfo(tag, artistName);
-                AlbumInfo t = collect.get(albumInfo);
+                AlbumInfo t = identiyMap.get(albumInfo);
                 if (t != null) {
                     found.add(t);
                 }

@@ -83,15 +83,16 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     void doGuild(AffinityParameters ap) throws InstanceNotFoundException {
         MessageReceivedEvent e = ap.getE();
         LastFMData ogData = db.findLastFMData(e.getAuthor().getIdLong());
-        List<Affinity> serverAffinity = db.getServerAffinity(ogData.getName(), e.getGuild().getIdLong(), ap.getThreshold());
-        List<Affinity> collect = serverAffinity.stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).toList();
+        List<Affinity> serverAff = db.getServerAffinity(ogData.getName(), e.getGuild().getIdLong(), ap.getThreshold()).stream()
+                .sorted(Comparator.comparing(Affinity::getAffinity).reversed()).toList();
+
 
         StringBuilder stringBuilder = new StringBuilder();
-        List<String> string = collect.stream().map(x -> String.format(". [%s](%s) - %.2f%%%s matching%n", getUserString(e, x.getDiscordId()),
+        List<String> lines = serverAff.stream().map(x -> String.format(". [%s](%s) - %.2f%%%s matching%n", getUserString(e, x.getDiscordId()),
                 CommandUtil.getLastFmUser(x.getReceivingLastFmId()),
                 (x.getAffinity() > 1 ? 1 : x.getAffinity()) * 100, x.getAffinity() > 1 ? "+" : "")).toList();
-        for (int i = 0, size = collect.size(); i < 10 && i < size; i++) {
-            String text = string.get(i);
+        for (int i = 0, size = lines.size(); i < 10 && i < size; i++) {
+            String text = lines.get(i);
             stringBuilder.append(i + 1).append(text);
         }
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, e.getAuthor().getIdLong());
@@ -102,7 +103,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
                 .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uInfo.getUsername()), ap.getThreshold()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(string, message1, embedBuilder));
+                new Reactionary<>(lines, message1, embedBuilder));
     }
 
 }

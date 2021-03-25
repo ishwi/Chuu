@@ -22,8 +22,8 @@ public class TagArtistService extends TagService<ArtistInfo, ScrobbledArtist> {
                 .collect(Collectors.toMap((t) -> t, t -> Collections.singletonList(artistInfo))));
     }
 
-    public TagArtistService(ChuuService dao, ConcurrentLastFM lastFM, List<ArtistInfo> collect, String genre) {
-        super(dao, lastFM, collect, genre);
+    public TagArtistService(ChuuService dao, ConcurrentLastFM lastFM, List<ArtistInfo> artists, String genre) {
+        super(dao, lastFM, artists, genre);
     }
 
     @Override
@@ -35,16 +35,16 @@ public class TagArtistService extends TagService<ArtistInfo, ScrobbledArtist> {
     @Override
     protected Map<ArtistInfo, ScrobbledArtist> validate(List<ArtistInfo> toValidate) {
         Map<ArtistInfo, ScrobbledArtist> scrobbledArtistMap = new HashMap<>();
-//        Map<String, AlbumInfo> mbidIndex = toValidate.stream().collect(Collectors.toMap(EntityInfo::getMbid, x -> x));
+//        Map<String, AlbumInfo> mbidIndex = toValidate.stream().hasMbidToArtists(Collectors.toMap(EntityInfo::getMbid, x -> x));
         List<ScrobbledArtist> scrobbledArtists = toValidate.stream().map(x -> new ScrobbledArtist(x.getArtist(), 0, null)).toList();
         dao.filldArtistIds(scrobbledArtists);
 
         Map<String, ScrobbledArtist> foudnAlbumIndexMap = scrobbledArtists.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, x -> x, (x, y) -> x));
         Set<String> foundMbids = foudnAlbumIndexMap.keySet();
-        Map<Boolean, List<ArtistInfo>> collect = toValidate.stream().collect(Collectors.partitioningBy(x -> foundMbids.contains(x.getArtist())));
-        List<ArtistInfo> foundAlbums = collect.get(true);
+        Map<Boolean, List<ArtistInfo>> hasMbidToArtists = toValidate.stream().collect(Collectors.partitioningBy(x -> foundMbids.contains(x.getArtist())));
+        List<ArtistInfo> foundAlbums = hasMbidToArtists.get(true);
         foundAlbums.forEach(x -> scrobbledArtistMap.put(x, foudnAlbumIndexMap.get(x.getArtist())));
-        List<ArtistInfo> notFoundAlbums = collect.get(false);
+        List<ArtistInfo> notFoundAlbums = hasMbidToArtists.get(false);
         notFoundAlbums.stream().map(x -> {
             try {
                 return Pair.of(x, CommandUtil.onlyCorrection(dao, x.getArtist(), lastFM, true));

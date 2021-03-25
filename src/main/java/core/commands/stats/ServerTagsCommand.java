@@ -67,23 +67,23 @@ public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, Comman
 
 
     @Override
-    public void printList(List<TagPlays> list, CommandParameters params) {
+    public void printList(List<TagPlays> tags, CommandParameters params) {
         String buzzz = params.hasOptional("play") ? "tags" : "plays";
         MessageReceivedEvent e = params.getE();
-        if (list.isEmpty()) {
+        if (tags.isEmpty()) {
             sendMessageQueue(e, "No one has played any artist yet!");
             return;
         }
 
-        List<String> collect = list.stream().map(x ->
+        List<String> lines = tags.stream().map(x ->
                 String.format(". [%s](%s) - %d %s\n", LinkUtils.cleanMarkdownCharacter(x.getTag()),
                         LinkUtils.getLastFmArtistUrl(x.getTag()), x.getCount(), buzzz))
                 .toList();
-        EmbedBuilder embedBuilder = initList(collect, e)
+        EmbedBuilder embedBuilder = initList(lines, e)
                 .setTitle("Server Tags")
                 .setThumbnail(e.getGuild().getIconUrl());
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(collect, message1, embedBuilder));
+                new Reactionary<>(lines, message1, embedBuilder));
     }
 
     @Override

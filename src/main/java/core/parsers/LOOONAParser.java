@@ -33,7 +33,7 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
     @Override
     protected LOONAParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
         EnumSet<LOONA> loonas = EnumSet.allOf(LOONA.class);
-        Map<Predicate<String>, LOONA> collect = loonas.stream().collect(Collectors.toMap(LOONA::getParser, x -> x));
+        Map<Predicate<String>, LOONA> predicateToLOONA = loonas.stream().collect(Collectors.toMap(LOONA::getParser, x -> x));
         LOONAParameters.Display display = LOONAParameters.Display.COLLAGE;
         LOONAParameters.SubCommand subCommand = null;
         LOONAParameters.Subject subject = LOONAParameters.Subject.SERVER;
@@ -42,8 +42,8 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
         LOONAParameters.Mode mode = LOONAParameters.Mode.UNGROUPED;
 
 
-        for (Predicate<String> stringPredicate : collect.keySet()) {
-            Pair<String[], LOONA> stringPair = filterMessage(words, stringPredicate, x -> collect.get(stringPredicate), null);
+        for (Predicate<String> stringPredicate : predicateToLOONA.keySet()) {
+            Pair<String[], LOONA> stringPair = filterMessage(words, stringPredicate, x -> predicateToLOONA.get(stringPredicate), null);
             if (stringPair.second != null) {
                 subCommand = LOONAParameters.SubCommand.SPECIFIC;
                 targetedLOONA = stringPair.second;

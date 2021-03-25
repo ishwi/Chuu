@@ -21,13 +21,13 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> {
     protected UserConfigParameters parseLogic(MessageReceivedEvent e, String[] words) {
         String prefix = e.getMessage().getContentRaw().substring(0, 1);
         if (words.length == 1) {
-            String collect = Arrays.stream(UserConfigType.values()).filter(x -> x.getCommandName().equalsIgnoreCase(words[0])).map(x ->
+            String line = Arrays.stream(UserConfigType.values()).filter(x -> x.getCommandName().equalsIgnoreCase(words[0])).map(x ->
                     String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
-            if (collect.isBlank()) {
-                collect = Arrays.stream(UserConfigType.values()).map(UserConfigType::getCommandName).collect(Collectors.joining(", "));
-                sendError(words[0] + " is not a valid configuration, use one of the following:\n\t" + collect, e);
+            if (line.isBlank()) {
+                line = Arrays.stream(UserConfigType.values()).map(UserConfigType::getCommandName).collect(Collectors.joining(", "));
+                sendError(words[0] + " is not a valid configuration, use one of the following:\n\t" + line, e);
             } else {
-                e.getChannel().sendMessage(collect).queue();
+                e.getChannel().sendMessage(line).queue();
             }
             return null;
         }
@@ -45,8 +45,8 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> {
 
         UserConfigType userConfigType = UserConfigType.get(command);
         if (userConfigType == null) {
-            String collect = Arrays.stream(UserConfigType.values()).map(UserConfigType::getCommandName).collect(Collectors.joining(", "));
-            sendError(command + " is not a valid configuration, use one of the following:\n\t" + collect, e);
+            String line = Arrays.stream(UserConfigType.values()).map(UserConfigType::getCommandName).collect(Collectors.joining(", "));
+            sendError(command + " is not a valid configuration, use one of the following:\n\t" + line, e);
             return null;
         }
         if (!userConfigType.getParser().test(args)) {
@@ -60,9 +60,9 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> {
 
     @Override
     public String getUsageLogic(String commandName) {
-        String collect = Arrays.stream(UserConfigType.values()).map(x -> String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
+        String line = Arrays.stream(UserConfigType.values()).map(x -> String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
         return "**" + commandName + " *command* *argument* ** \n" +
-                "Possible Values:\n" + collect;
+                "Possible Values:\n" + line;
     }
 
     @Override

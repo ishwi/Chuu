@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
@@ -205,11 +206,9 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                     }
                 }
 
-                LinkedBlockingQueue<Pair<BufferedImage, Integer>> collect = whoKnowsArtistSet.stream().
-
-
+                BlockingQueue<Pair<BufferedImage, Integer>> imageIndex = whoKnowsArtistSet.stream().
                         map(x -> Pair.of(doImage(params, x), atomicInteger.getAndIncrement())).collect(Collectors.toCollection(LinkedBlockingQueue::new));
-                BufferedImage bufferedImage = CollageGenerator.generateCollageThreaded(xSize, y, collect, ChartQuality.PNG_BIG);
+                BufferedImage bufferedImage = CollageGenerator.generateCollageThreaded(xSize, y, imageIndex, ChartQuality.PNG_BIG);
                 sendImage(bufferedImage, e, ChartQuality.PNG_BIG);
 
                 break;
@@ -223,8 +222,8 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                     whoKnowsArtistSet = group(groupedByType, getConsumer2(), LOONA::getRepresentative);
 
                 }
-                Map<String, ReturnNowPlaying> collect1 = groupByUser(whoKnowsArtistSet);
-                WrapperReturnNowPlaying wrapperReturnNowPlaying = handleRepresentatives(params, collect1);
+                Map<String, ReturnNowPlaying> userToPlays = groupByUser(whoKnowsArtistSet);
+                WrapperReturnNowPlaying wrapperReturnNowPlaying = handleRepresentatives(params, userToPlays);
 
                 super.doImage(params, wrapperReturnNowPlaying);
                 break;
@@ -239,7 +238,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                 }
 
 
-                collect1 = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).peek(x -> x.setPlayNumber(1)).collect(
+                userToPlays = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).peek(x -> x.setPlayNumber(1)).collect(
                         Collectors.groupingBy(ReturnNowPlaying::getArtist,
                                 Collectors.collectingAndThen(Collectors.toList(),
                                         (List<ReturnNowPlaying> t) ->
@@ -247,7 +246,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                                                     z.setPlayNumber(z.getPlayNumber() + x.getPlayNumber());
                                                     return z;
                                                 }).orElse(null))));
-                wrapperReturnNowPlaying = handleRepresentatives(params, collect1);
+                wrapperReturnNowPlaying = handleRepresentatives(params, userToPlays);
                 doList(params, wrapperReturnNowPlaying);
                 break;
         }
@@ -255,8 +254,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     private WrapperReturnNowPlaying handleRepresentatives(LOONAParameters parse, List<WrapperReturnNowPlaying> whoKnowsArtistSet) {
-        Map<String, ReturnNowPlaying> collect = groupByUser(whoKnowsArtistSet);
-        return handleRepresentatives(parse, collect);
+        return handleRepresentatives(parse, groupByUser(whoKnowsArtistSet));
     }
 
     public <T> List<WrapperReturnNowPlaying> group(Map<T, List<ReturnNowPlaying>> whoKnowsArtistSet, BiConsumer<String, Map.Entry<T, List<ReturnNowPlaying>>> consumer, Function<T, String> mapper) {
@@ -271,7 +269,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     private WrapperReturnNowPlaying handleRepresentatives(LOONAParameters
-                                                                  parse, Map<String, ReturnNowPlaying> collect1) {
+                                                                  parse, Map<String, ReturnNowPlaying> userToPlays) {
         String representativeArtist;
         String represenentativeUrl;
         switch (parse.getSubCommand()) {
@@ -289,7 +287,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
             }
             default -> throw new IllegalStateException("Unexpected value: " + parse.getSubCommand());
         }
-        return new WrapperReturnNowPlaying(collect1.values().stream().sorted(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed()).toList(), 0, represenentativeUrl, representativeArtist);
+        return new WrapperReturnNowPlaying(userToPlays.values().stream().sorted(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed()).toList(), 0, represenentativeUrl, representativeArtist);
     }
 
     @Override

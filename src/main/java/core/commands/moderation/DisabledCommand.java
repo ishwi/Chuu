@@ -84,8 +84,8 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
         };
 
 
-        Map<Boolean, List<MyCommand<?>>> collect = commandsToAllow.stream().collect(Collectors.partitioningBy(x -> transformation.test(messageDisablingService.isMessageAllowed(x, e))));
-        List<MyCommand<?>> previouslyAllowedCommands = collect.get(true);
+        Map<Boolean, List<MyCommand<?>>> allowedCommands = commandsToAllow.stream().collect(Collectors.partitioningBy(x -> transformation.test(messageDisablingService.isMessageAllowed(x, e))));
+        List<MyCommand<?>> previouslyAllowedCommands = allowedCommands.get(true);
         for (MyCommand<?> command : commandsToAllow) {
             boolean messageAllowed = previouslyAllowedCommands.contains(command);
             if (params.isExceptThis()) {
@@ -98,7 +98,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
             }
         }
         Character prefix = Chuu.getCorrespondingPrefix(e);
-        String collect1 = collect.entrySet().stream()
+        String allowedStr = allowedCommands.entrySet().stream()
                 .map(x -> {
                     String commands = x.getValue().stream()
                             .map(y -> prefix + y.getAliases().get(0))
@@ -108,7 +108,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
                         return commands + (x.getValue().size() > 1 ? " are now " : " is now ")
                                 + (x.getKey() ? "enabled." : "disabled.") + "\n";
                 }).collect(Collectors.joining(""));
-        List<String> pages = TextSplitter.split(collect1, 2000, ", ");
+        List<String> pages = TextSplitter.split(allowedStr, 2000, ", ");
 
         String desc = pages.get(0);
         if (pages.size() != 1) {

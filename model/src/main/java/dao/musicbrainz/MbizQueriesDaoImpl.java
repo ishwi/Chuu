@@ -595,12 +595,13 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
                 preparedStatement1.setString(2 * i + 2, urlCapsules.get(i).getName());
             }
             preparedStatement1.execute();
-            String queryString = "SELECT a.gid AS mbid,c.gid AS ambid, c.name AS albumname, e.artist AS artistaname,e.track AS trackname  \n" +
-                    "FROM musicbrainz.track a \n" +
-                    "JOIN musicbrainz.medium b ON a.medium = b.id \n" +
-                    "JOIN musicbrainz.release c ON b.release = c.id \n" +
-                    "JOIN musicbrainz.artist_credit d ON a.artist_credit = d.id \n" +
-                    "JOIN findalbumbytrackname e ON a.name = e.track AND d.name =  e.artist";
+            String queryString = """
+                    SELECT a.gid AS mbid,c.gid AS ambid, c.name AS albumname, e.artist AS artistaname,e.track AS trackname \s
+                    FROM musicbrainz.track a\s
+                    JOIN musicbrainz.medium b ON a.medium = b.id\s
+                    JOIN musicbrainz.release c ON b.release = c.id\s
+                    JOIN musicbrainz.artist_credit d ON a.artist_credit = d.id\s
+                    JOIN findalbumbytrackname e ON a.name = e.track AND d.name =  e.artist""";
             ResultSet resultSet = connection.prepareStatement(queryString).executeQuery();
             while (resultSet.next()) {
                 String mbid = resultSet.getString("mbid");
@@ -625,7 +626,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
 
     @Override
     public void getAlbumInfoByMbid(Connection connection, List<ScrobbledAlbum> urlCapsules) {
-        Map<String, ScrobbledAlbum> collect = urlCapsules.stream().collect(Collectors.toMap(ScrobbledAlbum::getAlbumMbid, t -> t,
+        Map<String, ScrobbledAlbum> mbidToAlbum = urlCapsules.stream().collect(Collectors.toMap(ScrobbledAlbum::getAlbumMbid, t -> t,
                 (t, t2) -> {
                     t.setAlbum(t.getAlbum().length() > t2.getAlbum().length() ? t2.getAlbum() : t.getAlbum());
                     t.setArtist(t.getArtist().length() > t2.getArtist().length() ? t2.getArtist() : t.getArtist());
@@ -653,7 +654,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
                 String mbid = resultSet.getString("mbid");
                 String string = resultSet.getString("albumName");
                 String almbid = resultSet.getString("ambid");
-                ScrobbledAlbum scrobbledAlbum = collect.get(mbid);
+                ScrobbledAlbum scrobbledAlbum = mbidToAlbum.get(mbid);
                 scrobbledAlbum.setAlbum(string);
                 scrobbledAlbum.setAlbumMbid(almbid);
             }
@@ -803,19 +804,19 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     @Override
     public List<CountWrapper<AlbumInfo>> getYearAlbumsByReleaseNameLowerCaseAverage(Connection
                                                                                             con, List<AlbumInfo> releaseInfo, Year year) {
-        String queryString = "SELECT DISTINCT\n" +
-                "    (a.name) as artistname, b.name as albumname, (sum(e.length) / count(*)) as av \n" +
-                "FROM\n" +
-                "    musicbrainz.artist_credit a\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release b ON a.id = b.artist_credit\n" +
-                "        JOIN\n" +
-                "    musicbrainz.release_group c ON b.release_group = c.id\n" +
-                "        JOIN\n" +
-
-                "    musicbrainz.release_group_meta d ON c.id = d.id " +
-                "        join musicbrainz.medium f on f.release = a.id \n" +
-                "\t\tjoin musicbrainz.track e on f.id = e.medium\n";
+        String queryString = """
+                SELECT DISTINCT
+                    (a.name) as artistname, b.name as albumname, (sum(e.length) / count(*)) as av\s
+                FROM
+                    musicbrainz.artist_credit a
+                        JOIN
+                    musicbrainz.release b ON a.id = b.artist_credit
+                        JOIN
+                    musicbrainz.release_group c ON b.release_group = c.id
+                        JOIN
+                    musicbrainz.release_group_meta d ON c.id = d.id         join musicbrainz.medium f on f.release = a.id\s
+                \t\tjoin musicbrainz.track e on f.id = e.medium
+                """;
         String whereSentence;
 
         StringBuilder artistWhere = new StringBuilder("where lower(a.name) in (");

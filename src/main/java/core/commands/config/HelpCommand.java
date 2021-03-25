@@ -185,8 +185,8 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
             CommandCategory key = a.getKey();
             Collection<MyCommand<?>> commandList = a.getValue();
             s.append("\n__**").append(key.toString().replaceAll("_", " ")).append(":**__ _").append(key.getDescription()).append("_\n");
-            String collect = commandList.stream().map(x -> "*" + correspondingPrefix + x.getAliases().get(0) + "*").collect(Collectors.joining(", "));
-            embedBuilder.addField(new MessageEmbed.Field(s.toString(), collect, false));
+            String line = commandList.stream().map(x -> "*" + correspondingPrefix + x.getAliases().get(0) + "*").collect(Collectors.joining(", "));
+            embedBuilder.addField(new MessageEmbed.Field(s.toString(), line, false));
         }
         embedBuilder.setFooter(correspondingPrefix + "help \"command\" for the explanation of one command.\n" + correspondingPrefix + "help --all for the whole help message")
                 .setTitle("Commands");

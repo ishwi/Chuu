@@ -49,7 +49,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
         //Only taking into account those that are below the threshold
         //Cleaning it a bit
         //Sorting needed if we dont repeat images per gay colour
-        Optional<Pair<Map.Entry<Color, Integer>, Pair<Color, Double>>> collect = map.entrySet().stream()
+        var idek = map.entrySet().stream()
                 // We only consider colours that havent been filled yet
                 .filter(x -> x.getValue() < perRow.getX())
                 .map(rainbowColor -> {
@@ -78,16 +78,16 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
                 ).filter(x -> x.getRight().isPresent())
                 //Only taking into account those that are below the threshold
                 .map(x -> {
-                    Pair<Color, Double> colorDoublePair = x.getRight().get();
+                    var colorDoublePair = x.getRight().get();
                     return Pair.of(x.getLeft(), colorDoublePair);
                 }).min(Comparator.comparingDouble(x -> x.getRight().getRight()));
-        if (collect.isPresent()) {
-            Pair<Map.Entry<Color, Integer>, Pair<Color, Double>> result = collect.get();
+        if (idek.isPresent()) {
+            var result = idek.get();
             map.merge(result.getKey().getKey(), 1, Integer::sum);
             assert preComputedChartEntity instanceof PreComputedByGayness;
             ((PreComputedByGayness) preComputedChartEntity).setDecidedCOlor(result.getKey().getKey());
         }
-        return collect.isEmpty();
+        return idek.isEmpty();
 
     };
 

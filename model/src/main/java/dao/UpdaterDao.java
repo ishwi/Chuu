@@ -140,7 +140,7 @@ interface UpdaterDao {
 
     void updateAlbumImage(Connection connection, long albumId, String albumUrl);
 
-    List<ScrobbledAlbum> fillAlbumsByMBID(Connection connection, List<AlbumInfo> collect);
+    List<ScrobbledAlbum> fillAlbumsByMBID(Connection connection, List<AlbumInfo> albums);
 
     void insertAlbumTags(Connection connection, Map<Genre, List<ScrobbledAlbum>> genres, Map<String, String> correctedTags);
 

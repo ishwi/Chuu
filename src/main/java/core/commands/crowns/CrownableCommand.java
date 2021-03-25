@@ -79,7 +79,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(isServer ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl());
         StringBuilder a = new StringBuilder();
-        List<String> collect = list.stream().map(x ->
+        List<String> lines = list.stream().map(x ->
                 String.format(". [%s](%s) - **%d**/**%d** with **%d plays** %s%n",
                         CommandUtil.cleanMarkdownCharacter(x.getArtistName()),
                         LinkUtils.getLastFmArtistUrl(x.getArtistName()),
@@ -88,8 +88,8 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
                         x.getPlayNumber(),
                         x.getRank() != 1 ? "(need " + (x.getMaxPlaynumber() - x.getPlayNumber() + 1) + " more plays for first)" : "")
         ).toList();
-        for (int i = 0; i < 10 && i < collect.size(); i++) {
-            a.append(i + 1).append(collect.get(i));
+        for (int i = 0; i < 10 && i < lines.size(); i++) {
+            a.append(i + 1).append(lines.get(i));
         }
         String s;
         if (isServer) {
@@ -116,7 +116,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
                 .setThumbnail(thumbnail)
                 .setFooter(footer);
         e.getChannel().sendMessage(embedBuilder.build()).queue(message ->
-                new Reactionary<>(collect, message, embedBuilder));
+                new Reactionary<>(lines, message, embedBuilder));
     }
 
     @Override

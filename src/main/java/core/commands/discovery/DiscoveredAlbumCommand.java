@@ -74,14 +74,14 @@ public class DiscoveredAlbumCommand extends ChartableCommand<ChartParameters> {
         queue.drainTo(capsules);
         AtomicInteger marker = new AtomicInteger(0);
 
-        Map<ScrobbledAlbum, UrlCapsule> collect = capsules.stream().collect(Collectors.toMap(x -> new ScrobbledAlbum(x.getArtistName(), x.getPlays(), null, -1L, x.getAlbumName(), null),
+        Map<ScrobbledAlbum, UrlCapsule> albumToItem = capsules.stream().collect(Collectors.toMap(x -> new ScrobbledAlbum(x.getArtistName(), x.getPlays(), null, -1L, x.getAlbumName(), null),
                 x -> x, (x, y) -> {
                     x.setPlays(x.getPlays() + y.getPlays());
                     return x;
                 }));
-        List<ScrobbledAlbum> discoveredAlbums = db.getDiscoveredAlbums(collect.keySet(), param.getUser().getName());
+        List<ScrobbledAlbum> discoveredAlbums = db.getDiscoveredAlbums(albumToItem.keySet(), param.getUser().getName());
         marker.set(0);
-        queue = collect.entrySet().stream().filter(x -> discoveredAlbums.contains(x.getKey()))
+        queue = albumToItem.entrySet().stream().filter(x -> discoveredAlbums.contains(x.getKey()))
                 .map(Map.Entry::getValue).sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
                 .peek(x -> x.setPos(marker.getAndIncrement())).limit((long) param.getX() * param.getY())
                 .collect(Collectors.toCollection(LinkedBlockingQueue::new));

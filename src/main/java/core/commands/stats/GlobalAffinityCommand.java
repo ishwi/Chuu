@@ -73,11 +73,10 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
 
         LastFMData ogData = db.findLastFMData(e.getAuthor().getIdLong());
         int threshold = Math.toIntExact(params.getExtraParam());
-        List<dao.entities.GlobalAffinity> serverAffinity = db.getGlobalAffinity(ogData.getName(), threshold);
-        List<dao.entities.GlobalAffinity> collect = serverAffinity.stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).toList();
+        List<dao.entities.GlobalAffinity> globalAff = db.getGlobalAffinity(ogData.getName(), threshold).stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).toList();
 
         StringBuilder stringBuilder = new StringBuilder();
-        List<String> string = collect.stream().map(x -> {
+        List<String> lines = globalAff.stream().map(x -> {
                     String name = PrivacyUtils.getPublicStr(x.getPrivacyMode(), x.getDiscordId(), x.getReceivingLastFmId(), e);
                     return String.format(". [%s](%s) - %.2f%%%s matching%n", name,
                             CommandUtil.getLastFmUser(x.getReceivingLastFmId()),
@@ -85,9 +84,9 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
                 }
         ).toList();
         for (
-                int i = 0, size = collect.size();
+                int i = 0, size = globalAff.size();
                 i < 10 && i < size; i++) {
-            String text = string.get(i);
+            String text = lines.get(i);
             stringBuilder.append(i + 1).append(text);
         }
 
@@ -100,7 +99,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
                 .setFooter(String.format("%s's global affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uinfo.getUsername()), threshold), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
         e.getChannel().sendMessage(embedBuilder.build())
-                .queue(message1 -> new Reactionary<>(string, message1, embedBuilder));
+                .queue(message1 -> new Reactionary<>(lines, message1, embedBuilder));
     }
 
 }

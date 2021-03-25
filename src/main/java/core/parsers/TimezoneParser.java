@@ -82,12 +82,12 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
                 }
             }
             String finalTzCityName = tzCityName;
-            Optional<ZoneId> collect = zids.stream()
+            Optional<ZoneId> zone = zids.stream()
                     .filter(zid -> zid.toLowerCase().endsWith("/" + finalTzCityName.toLowerCase()))
                     .map(ZoneId::of)
                     .findFirst();
-            if (collect.isPresent()) {
-                id = collect.get().getId();
+            if (zone.isPresent()) {
+                id = zone.get().getId();
             } else {
 
                 try {

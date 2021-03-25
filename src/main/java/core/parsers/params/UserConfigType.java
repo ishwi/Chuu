@@ -152,7 +152,6 @@ public enum UserConfigType {
                     }
                     return null;
                 }).
-
                 collect(Collectors.joining("\n"));
 
     }
@@ -181,23 +180,23 @@ public enum UserConfigType {
             case NOTIFY_IMAGE:
                 return "Whether you will get notified or not when a submitted image gets accepted (true = notify, false = don't)";
             case CHART_MODE:
-                String collect = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
-                collect += "\n\t\t\t**Clear**: Sets the default mode";
+                String line = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                line += "\n\t\t\t**Clear**: Sets the default mode";
                 return "Set the mode for all charts. " +
                         "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                        "\t\tThe possible values for the chart mode are the following:" + collect;
+                        "\t\tThe possible values for the chart mode are the following:" + line;
             case WHOKNOWS_MODE:
-                collect = EnumSet.allOf(WhoKnowsMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
-                collect += "\n\t\t\t**Clear**: Sets the default mode";
+                line = EnumSet.allOf(WhoKnowsMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                line += "\n\t\t\t**Clear**: Sets the default mode";
                 return "Set the mode for all charts. " +
                         "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                        "\t\tThe possible values for the who knows mode are the following:" + collect;
+                        "\t\tThe possible values for the who knows mode are the following:" + line;
             case REMAINING_MODE:
-                collect = EnumSet.allOf(RemainingImagesMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
-                collect += "\n\t\t\t**Clear**:| Sets the default mode";
+                line = EnumSet.allOf(RemainingImagesMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                line += "\n\t\t\t**Clear**:| Sets the default mode";
                 return "Set the mode for the rest of the commands. " +
                         "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                        "\t\tThe possible values for the rest of the commands are the following:" + collect;
+                        "\t\tThe possible values for the rest of the commands are the following:" + line;
             case CHART_SIZE:
                 return "Change the default chart size for chart command when you dont specify directly the size";
             case PRIVACY_MODE:
@@ -213,9 +212,9 @@ public enum UserConfigType {
             case SCROBBLING:
                 return "Setting this to false will mean that whatever you play with the bot on a voice channel won't scrooble";
             case COLOR:
-                collect = EnumSet.allOf(EmbedColor.EmbedColorType.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+                line = EnumSet.allOf(EmbedColor.EmbedColorType.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 return "Set the color for your embeds.\n" +
-                        "\t\tThe possible values for the embed colour are the following:" + collect;
+                        "\t\tThe possible values for the embed colour are the following:" + line;
             case TIMEZONE:
                 return "TIMEZONE ";
             default:

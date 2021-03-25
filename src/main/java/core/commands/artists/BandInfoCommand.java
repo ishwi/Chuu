@@ -120,9 +120,9 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         MessageReceivedEvent e = ap.getE();
         StringBuilder str = new StringBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        List<String> collect = ai.getAlbumList().stream().map(x -> (String.format(". **[%s](%s)** - %d plays%n", x.getAlbum(), LinkUtils.getLastFmArtistAlbumUrl(ai.getArtist(), x.getAlbum()), x.getPlays()))).toList();
-        for (int i = 0; i < collect.size() && i < 10; i++) {
-            String s = collect.get(i);
+        List<String> lines = ai.getAlbumList().stream().map(x -> (String.format(". **[%s](%s)** - %d plays%n", x.getAlbum(), LinkUtils.getLastFmArtistAlbumUrl(ai.getArtist(), x.getAlbum()), x.getPlays()))).toList();
+        for (int i = 0; i < lines.size() && i < 10; i++) {
+            String s = lines.get(i);
             str.append(i + 1).append(s);
         }
         configEmbedBuilder(embedBuilder, ap, ai);
@@ -131,7 +131,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
                 .setColor(ColorService.computeColor(e));
         e.getChannel().sendMessage(embedBuilder.build())
                 .queue(message ->
-                        new Reactionary<>(collect, message, 10, embedBuilder));
+                        new Reactionary<>(lines, message, 10, embedBuilder));
     }
 
     void configEmbedBuilder(EmbedBuilder embedBuilder, ArtistParameters ap, ArtistAlbums ai) {

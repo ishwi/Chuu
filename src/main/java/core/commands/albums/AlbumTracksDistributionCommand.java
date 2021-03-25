@@ -107,12 +107,12 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                 }
                 case LIST -> {
                     StringBuilder a = new StringBuilder();
-                    List<String> collect1 = fullAlbumEntity.getTrackList().stream().map(t -> ". " + "[" +
+                    List<String> lines = fullAlbumEntity.getTrackList().stream().map(t -> ". " + "[" +
                             CommandUtil.cleanMarkdownCharacter(t.getName()) +
                             "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
                             ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").toList();
                     for (int i = 0; i < fullAlbumEntity.getTrackList().size() && i <= 20; i++) {
-                        String s = collect1.get(i);
+                        String s = lines.get(i);
                         a.append(i + 1).append(s);
                     }
                     EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -122,7 +122,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                             .setFooter(String.format("%s has %d total plays on the album!!%n", CommandUtil.markdownLessUserString(getUserString(e, params.getLastFMData().getDiscordId()), params.getLastFMData().getDiscordId(), e), fullAlbumEntity.getTotalPlayNumber()), null)
                             .setThumbnail(fullAlbumEntity.getAlbumUrl());
                     e.getChannel().sendMessage(embedBuilder.build()).queue(message ->
-                            new Reactionary<>(fullAlbumEntity.getTrackList(), message, 20, embedBuilder));
+                            new Reactionary<>(lines, message, 20, embedBuilder));
                 }
             }
         }

@@ -18,8 +18,8 @@ public class TagAlbumService extends TagService<AlbumInfo, ScrobbledAlbum> {
     }
 
 
-    public TagAlbumService(ChuuService dao, ConcurrentLastFM lastFM, List<AlbumInfo> collect, String genre) {
-        super(dao, lastFM, collect, genre);
+    public TagAlbumService(ChuuService dao, ConcurrentLastFM lastFM, List<AlbumInfo> albums, String genre) {
+        super(dao, lastFM, albums, genre);
     }
 
     public TagAlbumService(ChuuService dao, ConcurrentLastFM lastFM, List<String> tags, AlbumInfo albumInfo) {
@@ -39,10 +39,10 @@ public class TagAlbumService extends TagService<AlbumInfo, ScrobbledAlbum> {
         // TODO duplicates
         Map<String, ScrobbledAlbum> foudnAlbumIndexMap = a.stream().collect(Collectors.toMap(ScrobbledAlbum::getAlbumMbid, x -> x, (x, y) -> x));
         Set<String> foundMbids = foudnAlbumIndexMap.keySet();
-        Map<Boolean, List<AlbumInfo>> collect = toValidate.stream().collect(Collectors.partitioningBy(x -> foundMbids.contains(x.getMbid())));
-        List<AlbumInfo> foundAlbums = collect.get(true);
+        Map<Boolean, List<AlbumInfo>> hasMbidToAlbums = toValidate.stream().collect(Collectors.partitioningBy(x -> foundMbids.contains(x.getMbid())));
+        List<AlbumInfo> foundAlbums = hasMbidToAlbums.get(true);
         foundAlbums.forEach(x -> scrobbledAlbumMap.put(x, foudnAlbumIndexMap.get(x.getMbid())));
-        List<AlbumInfo> notFoundAlbums = collect.get(false);
+        List<AlbumInfo> notFoundAlbums = hasMbidToAlbums.get(false);
         notFoundAlbums.stream().map(x -> {
             try {
                 return Pair.of(x, CommandUtil.lightAlbumValidate(dao, x.getArtist(), x.getName(), lastFM));

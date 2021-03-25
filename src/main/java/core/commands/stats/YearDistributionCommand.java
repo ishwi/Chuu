@@ -78,13 +78,13 @@ public class YearDistributionCommand extends ConcurrentCommand<TimeFrameParamete
             counts = db.getUserYearsFromList(user.getName(), albums);
         }
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, user.getDiscordId());
-        List<String> collect = counts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
+        List<String> lines = counts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                 ". **%d**: %d %s%n".formatted(t.getKey().getValue(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))
         ).toList();
 
         StringBuilder a = new StringBuilder();
-        for (int i = 0; i < collect.size() && i < 20; i++) {
-            String s = collect.get(i);
+        for (int i = 0; i < lines.size() && i < 20; i++) {
+            String s = lines.get(i);
             a.append(i + 1).append(s);
         }
 
@@ -95,7 +95,7 @@ public class YearDistributionCommand extends ConcurrentCommand<TimeFrameParamete
                 .setFooter("%s has albums from %d different %s".formatted(CommandUtil.markdownLessString(uInfo.getUsername()), counts.size(), CommandUtil.singlePlural(counts.size(), "year", "years")), null);
 
         e.getChannel().sendMessage(embedBuilder.build()).queue(m ->
-                new Reactionary<>(collect, m, 20, embedBuilder));
+                new Reactionary<>(lines, m, 20, embedBuilder));
     }
 
 

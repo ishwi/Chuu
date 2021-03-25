@@ -378,7 +378,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         int page = 0;
         int total = 1;
         int count = 0;
-        List<UrlCapsule> list = new ArrayList<>();
+        List<UrlCapsule> items = new ArrayList<>();
         while (count < total) {
             String urlPage = url + "&page=" + ++page;
             JSONObject obj = initGetRecentTracks(user, urlPage, new CustomTimeFrame(TimeFrameEnum.DAY));
@@ -392,12 +392,12 @@ public class ConcurrentLastFM {//implements LastFMService {
                 if (trackObj.has("@attr"))
                     continue;
                 UrlCapsule apply = parser.apply(trackObj, 0);
-                list.add(apply);
+                items.add(apply);
                 count++;
             }
         }
-        Map<UrlCapsule, Long> collect = list.stream().collect(Collectors.groupingBy(z -> z, Collectors.counting()));
-        for (Map.Entry<UrlCapsule, Long> urlCapsuleLongEntry : collect.entrySet()) {
+        Map<UrlCapsule, Long> itemCount = items.stream().collect(Collectors.groupingBy(z -> z, Collectors.counting()));
+        for (Map.Entry<UrlCapsule, Long> urlCapsuleLongEntry : itemCount.entrySet()) {
             UrlCapsule key = urlCapsuleLongEntry.getKey();
             if (key instanceof TrackDurationChart trackDuratio) {
                 trackDuratio.setSeconds(Math.toIntExact(trackDuratio.getSeconds() * urlCapsuleLongEntry.getValue()));
@@ -405,14 +405,14 @@ public class ConcurrentLastFM {//implements LastFMService {
             key.setPlays(Math.toIntExact(urlCapsuleLongEntry.getValue()));
         }
         AtomicInteger integer = new AtomicInteger(0);
-        List<UrlCapsule> finalList = new ArrayList<>(collect.keySet()).stream().sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
+        List<UrlCapsule> finalList = new ArrayList<>(itemCount.keySet()).stream().sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
                 .takeWhile(t -> {
                     int i = integer.getAndIncrement();
                     t.setPos(i);
                     return (i < x * y);
                 }).toList();
         queue.addAll(finalList);
-        return collect.entrySet().size();
+        return itemCount.entrySet().size();
 
 
     }

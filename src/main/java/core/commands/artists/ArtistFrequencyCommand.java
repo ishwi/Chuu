@@ -64,17 +64,17 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
             sendMessageQueue(e, "No one has played any artist yet!");
         }
 
-        List<String> collect = list.stream().map(x -> ". [" +
+        List<String> lines = list.stream().map(x -> ". [" +
                 CommandUtil.cleanMarkdownCharacter(x.getArtistName()) +
                 "](" + LinkUtils.getLastFmArtistUrl(x.getArtistName()) +
                 ") - " + x.getCount() +
                 " listeners \n").toList();
-        EmbedBuilder embedBuilder = initList(collect, e)
+        EmbedBuilder embedBuilder = initList(lines, e)
                 .setTitle("Artist's frequencies")
                 .setFooter(String.format("%s has %d different artists!%n", e.getGuild().getName(), wrapper.getRows()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
         e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
-                new Reactionary<>(collect, message1, embedBuilder));
+                new Reactionary<>(lines, message1, embedBuilder));
     }
 
     @Override

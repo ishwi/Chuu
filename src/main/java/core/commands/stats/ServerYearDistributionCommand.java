@@ -55,14 +55,14 @@ public class ServerYearDistributionCommand extends ConcurrentCommand<CommandPara
 
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
-        var counts = db.getGuildYears(e.getGuild().getIdLong());
-        List<String> collect = counts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
+        var yearCounts = db.getGuildYears(e.getGuild().getIdLong());
+        List<String> lines = yearCounts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                 ". **%d**: %d %s%n".formatted(t.getKey().getValue(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))
         ).toList();
 
         StringBuilder a = new StringBuilder();
-        for (int i = 0; i < collect.size() && i < 10; i++) {
-            String s = collect.get(i);
+        for (int i = 0; i < lines.size() && i < 10; i++) {
+            String s = lines.get(i);
             a.append(i + 1).append(s);
         }
 
@@ -70,10 +70,10 @@ public class ServerYearDistributionCommand extends ConcurrentCommand<CommandPara
                 .setDescription(a)
                 .setAuthor(String.format("%s's years", e.getGuild().getName()), null, e.getGuild().getIconUrl())
                 .setColor(ColorService.computeColor(e))
-                .setFooter("%s has albums from %d different %s".formatted(CommandUtil.markdownLessString(e.getGuild().getName()), counts.size(), CommandUtil.singlePlural(counts.size(), "year", "years")), null);
+                .setFooter("%s has albums from %d different %s".formatted(CommandUtil.markdownLessString(e.getGuild().getName()), yearCounts.size(), CommandUtil.singlePlural(yearCounts.size(), "year", "years")), null);
 
         e.getChannel().sendMessage(embedBuilder.build()).queue(m ->
-                new Reactionary<>(collect, m, 10, embedBuilder));
+                new Reactionary<>(lines, m, 10, embedBuilder));
     }
 
 

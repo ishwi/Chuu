@@ -62,11 +62,11 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
         StringBuilder a = new StringBuilder();
         List<ArtistPlays> resultList = list.getResultList();
 
-        List<String> collect = resultList.stream().map(x -> String.format(". [%s](%s) - %d total listeners%n", CommandUtil.cleanMarkdownCharacter(x.getArtistName()),
+        List<String> lines = resultList.stream().map(x -> String.format(". [%s](%s) - %d total listeners%n", CommandUtil.cleanMarkdownCharacter(x.getArtistName()),
                 LinkUtils.getLastFmArtistUrl(x.getArtistName()),
                 x.getCount())).toList();
-        for (int i = 0, size = collect.size(); i < 10 && i < size; i++) {
-            String text = collect.get(i);
+        for (int i = 0, size = lines.size(); i < 10 && i < size; i++) {
+            String text = lines.get(i);
             a.append(i + 1).append(text);
         }
 
@@ -77,7 +77,7 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
                 .setFooter(String.format("%s has %d different artists!%n", e.getJDA().getSelfUser().getName(), list.getRows()), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(collect, message1, embedBuilder));
+                new Reactionary<>(lines, message1, embedBuilder));
     }
 
     @Override

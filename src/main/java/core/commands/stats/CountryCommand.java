@@ -113,13 +113,13 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
 
 
         if (params.hasOptional("list")) {
-            List<String> collect = map.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
+            List<String> lines = map.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                     ". **%s**: %d %s%n".formatted(CountryCode.getByCode(t.getKey().getCountryCode(), false).getName(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "artist", "artist"))
             ).toList();
 
             StringBuilder a = new StringBuilder();
-            for (int i = 0; i < collect.size() && i < 10; i++) {
-                String s = collect.get(i);
+            for (int i = 0; i < lines.size() && i < 10; i++) {
+                String s = lines.get(i);
                 a.append(i + 1).append(s);
             }
             DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(params.getE(), discordId);
@@ -128,10 +128,10 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
                     .setDescription(a)
                     .setAuthor(String.format("%s's countries", uInfo.getUsername()), PrivacyUtils.getLastFmUser(user.getName()), uInfo.getUrlImage())
                     .setColor(ColorService.computeColor(e))
-                    .setFooter("%s has artist from %d different %s".formatted(uInfo.getUsername(), collect.size(), CommandUtil.singlePlural(collect.size(), "country", "countries")), null);
+                    .setFooter("%s has artist from %d different %s".formatted(uInfo.getUsername(), lines.size(), CommandUtil.singlePlural(lines.size(), "country", "countries")), null);
 
             e.getChannel().sendMessage(embedBuilder.build()).queue(m ->
-                    new Reactionary<>(collect, m, 10, embedBuilder));
+                    new Reactionary<>(lines, m, 10, embedBuilder));
         } else {
             Integer indexPalette;
             if (pallete != null)

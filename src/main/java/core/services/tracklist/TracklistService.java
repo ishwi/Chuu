@@ -89,15 +89,15 @@ public abstract class TracklistService {
             List<Track> handler = new ArrayList<>(trackList);
 
 
-            List<Track> collect = Multimaps.index(handler, Track::getPosition)
+            List<Track> tracks = Multimaps.index(handler, Track::getPosition)
                     .asMap().values().stream()
                     .map(value -> {
                         Optional<Track> max = value.stream().max(Comparator.comparingInt(Track::getPlays));
                         return max.orElse(null);
                     }).filter(Objects::nonNull).sorted(Comparator.comparingInt(Track::getPosition))
                     .collect(toCollection(ArrayList::new));
-            if (trackList.stream().mapToInt(Track::getPlays).sum() <= collect.stream().mapToInt(Track::getPlays).sum()) {
-                fullAlbumEntity.setTrackList(collect);
+            if (trackList.stream().mapToInt(Track::getPlays).sum() <= tracks.stream().mapToInt(Track::getPlays).sum()) {
+                fullAlbumEntity.setTrackList(tracks);
             }
         } else {
             fullAlbumEntity = opt.get();

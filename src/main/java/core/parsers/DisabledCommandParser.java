@@ -46,10 +46,10 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> {
             word = word.substring(1);
         }
         String finalWord = word;
-        List<? extends MyCommand<?>> collect = e.getJDA().getRegisteredListeners()
+        List<? extends MyCommand<?>> commands = e.getJDA().getRegisteredListeners()
                 .stream().filter(x -> x instanceof MyCommand).map(x -> ((MyCommand<?>) x)).toList();
 
-        Optional<? extends MyCommand<?>> first = collect.stream().filter(x ->
+        Optional<? extends MyCommand<?>> first = commands.stream().filter(x ->
                 x.getAliases().stream().anyMatch(y -> y.equalsIgnoreCase(finalWord))).findFirst();
         if (first.isEmpty()) {
             sendError("Couldn't find any command called " + word, e);
