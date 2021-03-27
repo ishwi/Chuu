@@ -22,7 +22,7 @@ public class Genre {
     @Override
     public int hashCode() {
         //result = 31 * result + representativeArtist.hashCode();
-        return mapString(name).hashCode();
+        return mapString(name).toLowerCase().hashCode();
     }
 
     @Override

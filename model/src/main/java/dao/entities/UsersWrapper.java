@@ -21,6 +21,13 @@ public class UsersWrapper {
         this.timeZone = timeZone;
     }
 
+    public UsersWrapper(LastFMData lastFMData) {
+        this.discordID = lastFMData.getDiscordId();
+        this.lastFMName = lastFMData.getName();
+        this.role = lastFMData.getRole();
+        this.timeZone = lastFMData.getTimeZone();
+    }
+
     UsersWrapper(long discordID, String lastFMName, int timestamp, Role role, TimeZone timeZone) {
         this.discordID = discordID;
         this.lastFMName = lastFMName;

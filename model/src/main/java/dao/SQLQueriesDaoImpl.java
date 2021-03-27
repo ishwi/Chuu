@@ -2800,11 +2800,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         return returnInfoes;
     }
 
-    @Override
-    public List<ScrobbledArtist> getUserArtists(Connection connection, String lastfmId) {
 
+    @Override
+    public List<ScrobbledArtist> getUserArtistsWithMBID(Connection connection, String lastfmId) {
         List<ScrobbledArtist> scrobbledAlbums = new ArrayList<>();
-        String s = "select name,b.url,b.mbid,a.playnumber  from scrobbled_artist a join artist b on a.artist_id = b.id   where a.lastfm_id = ? order by a.playnumber desc";
+        String s = "select name,b.url,b.mbid,a.playnumber  from scrobbled_artist a join artist b on a.artist_id = b.id where a.lastfm_id = ? and b.mbid is not null and mbid <> '' order by a.playnumber desc";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setString(1, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();

@@ -117,7 +117,7 @@ public class WorldMapRenderer {
         countryFrequency.forEach(
                 (country, integer) -> {
                     String colorr = index(integer, range, palette);
-                    sb.append("\n .").append(country.getCountryCode().toLowerCase()).append("{fill: ")
+                    sb.append("\n .").append(country.countryCode().toLowerCase()).append("{fill: ")
                             .append(colorr)
                             .append(";}\n");
                 }

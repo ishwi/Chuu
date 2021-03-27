@@ -21,17 +21,28 @@ public class ArtistMbidUpdater implements Runnable {
         lastFM = LastFMFactory.getNewInstance();
     }
 
+    public ArtistMbidUpdater(ChuuService dao, ConcurrentLastFM api) {
+        this.dao = dao;
+        lastFM = api;
+    }
+
     @Override
     public void run() {
         UsersWrapper randomUser = dao.getRandomUser();
-        String lastFMName = randomUser.getLastFMName();
-        System.out.println("SEARCHING FOR MBIDS");
+        Chuu.getLogger().info("Searching for MBIDS :)");
+        updateAndGet(LastFMData.ofUserWrapper(randomUser));
+    }
+
+    public List<ScrobbledArtist> updateAndGet(LastFMData user) {
 
         try {
-            List<ScrobbledArtist> artistData = lastFM.getAllArtists(LastFMData.ofUserWrapper(randomUser), new CustomTimeFrame(TimeFrameEnum.ALL));
+            List<ScrobbledArtist> artistData = lastFM.getAllArtists(user, new CustomTimeFrame(TimeFrameEnum.ALL)).stream().
+                    filter(t -> t.getArtistMbid() != null && !t.getArtistMbid().isBlank()).toList();
             dao.updateMbids(artistData);
+            return artistData;
         } catch (Exception exception) {
             Chuu.getLogger().warn(exception.getMessage(), exception);
         }
+        return null;
     }
 }

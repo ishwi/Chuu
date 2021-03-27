@@ -3,6 +3,7 @@ package core.commands.artists;
 import com.neovisionaries.i18n.CountryCode;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
+import core.apis.last.entities.chartentities.ArtistChart;
 import core.apis.last.entities.chartentities.ChartUtil;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
@@ -39,6 +40,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameters> {
 
@@ -112,18 +114,23 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     protected void onCommand(MessageReceivedEvent e, @NotNull CountryParameters params) throws LastFmException {
 
         CountryCode country = params.getCode();
-        BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(2000);
         LastFMData user = params.getLastFMData();
         String name = user.getName();
-        lastFM.getChart(user, params.getTimeFrame(), 2000, 1, TopEntity.ARTIST, ChartUtil.getParser(params.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, user), queue);
-
         Long discordId = user.getDiscordId();
-        List<ScrobbledArtist> artistInfos = queue.stream().map(x -> {
-            ScrobbledArtist scrobbledArtist = new ScrobbledArtist(x.getArtistName(), x.getPlays(), null);
-            scrobbledArtist.setArtistMbid(x.getMbid());
-            return scrobbledArtist;
-        }).toList();
-        List<ArtistUserPlays> list = this.mb.getArtistFromCountry(country, artistInfos, discordId);
+        List<ScrobbledArtist> userArtists;
+        BlockingQueue<UrlCapsule> queue = null;
+        if (params.getTimeFrame().isAllTime()) {
+            userArtists = this.db.getUserArtistByMbid(user.getName());
+        } else {
+            queue = new ArrayBlockingQueue<>(2000);
+            lastFM.getChart(user, params.getTimeFrame(), 2000, 1, TopEntity.ARTIST, ChartUtil.getParser(params.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, user), queue);
+            userArtists = queue.stream().map(x -> {
+                ScrobbledArtist scrobbledArtist = new ScrobbledArtist(x.getArtistName(), x.getPlays(), null);
+                scrobbledArtist.setArtistMbid(x.getMbid());
+                return scrobbledArtist;
+            }).toList();
+        }
+        List<ArtistUserPlays> list = this.mb.getArtistFromCountry(country, userArtists, discordId);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
@@ -139,6 +146,10 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
             return;
         }
         if (params.hasOptional("image")) {
+            if (queue == null) {
+                AtomicInteger ranker = new AtomicInteger(0);
+                queue = userArtists.stream().map(t -> new ArtistChart(t.getUrl(), ranker.getAndIncrement(), t.getArtist(), t.getArtistMbid(), t.getCount(), true, true, false)).collect(Collectors.toCollection(LinkedBlockingDeque::new));
+            }
             doImage(list, queue, params);
             return;
         }

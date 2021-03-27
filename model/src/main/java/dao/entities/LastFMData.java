@@ -90,8 +90,6 @@ public class LastFMData {
         return embedColor;
     }
 
-    public static void ofUserWrapper() {
-    }
 
     public Role getRole() {
         return role;

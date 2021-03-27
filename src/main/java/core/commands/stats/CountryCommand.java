@@ -15,6 +15,7 @@ import core.parsers.TimerFrameParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
+import core.scheduledtasks.ArtistMbidUpdater;
 import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -27,6 +28,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -92,29 +94,45 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
         CompletableFuture<Message> future = null;
         TimeFrameEnum time = innerParams.getTime();
         if (time.equals(TimeFrameEnum.SEMESTER) || time.equals(TimeFrameEnum.ALL)) {
-            future = sendMessage(e, "Going to take a while ").submit();
+            future = sendMessage(e, "Might take a while.").submit();
         }
+        List<ArtistInfo> topArtists;
+        if (time.equals(TimeFrameEnum.ALL)) {
+            Supplier<List<ArtistInfo>> fromDb = () -> db.getUserArtistByMbid(username).stream().map(t -> new ArtistInfo(t.getUrl(), t.getArtist(), t.getArtistMbid())).toList();
+            if (CommandUtil.rand.nextFloat() < 0.2f) {
+                topArtists = new ArtistMbidUpdater(db, lastFM).updateAndGet(user).stream()
+                        .filter(u -> u.getArtistMbid() != null && !u.getArtistMbid().isEmpty())
+                        .map(t -> new ArtistInfo(t.getUrl(), t.getArtist(), t.getArtistMbid()))
+                        .toList();
+                if (topArtists == null) {
+                    topArtists = fromDb.get();
+                }
+            } else {
+                topArtists = fromDb.get();
+            }
 
-        List<ArtistInfo> topAlbums = lastFM.getTopArtists(user, new CustomTimeFrame(time), 10000).stream()
-                .filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
-                .toList();
-        if (topAlbums.isEmpty()) {
-            sendMessageQueue(e, "Was not able to find any country on " + getUserString(e, discordId, username) + " 's artists");
+        } else {
+            topArtists = lastFM.getTopArtists(user, new CustomTimeFrame(time), 10000).stream()
+                    .filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
+                    .toList();
+        }
+        if (topArtists.isEmpty()) {
+            sendMessageQueue(e, "Was not able to find any country on %s 's artists".formatted(getUserString(e, discordId, username)));
             return;
 
         }
-        Map<Country, Integer> map = musicBrainz.countryCount(topAlbums);
+        Map<Country, Integer> map = musicBrainz.countryCount(topArtists);
 
         if (map.isEmpty()) {
             CommandUtil.handleConditionalMessage(future);
-            sendMessageQueue(e, "Was not able to find any country on " + getUserString(e, discordId, username) + " 's artists");
+            sendMessageQueue(e, "Was not able to find any country on %s 's artists".formatted(getUserString(e, discordId, username)));
             return;
         }
 
 
         if (params.hasOptional("list")) {
             List<String> lines = map.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
-                    ". **%s**: %d %s%n".formatted(CountryCode.getByCode(t.getKey().getCountryCode(), false).getName(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "artist", "artist"))
+                    ". **%s**: %d %s%n".formatted(CountryCode.getByCode(t.getKey().countryCode(), false).getName(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "artist", "artist"))
             ).toList();
 
             StringBuilder a = new StringBuilder();

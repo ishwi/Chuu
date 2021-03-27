@@ -2882,7 +2882,7 @@ public class ChuuService {
 
     public List<ScrobbledArtist> getUserArtistByMbid(String lastfmId) {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.getUserArtists(connection, lastfmId);
+            return queriesDao.getUserArtistsWithMBID(connection, lastfmId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
