@@ -73,7 +73,6 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
 
         String correctedArtist = CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist());
         List<String> artistTags = db.getArtistTag(scrobbledArtist.getArtistId())
-
                 .stream().map(x -> String.format(". **[%s](%s)**%n",
                         WordUtils.capitalizeFully(x)
                         , LinkUtils.getLastFmTagUrl(x))).toList();

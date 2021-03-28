@@ -71,7 +71,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public void deleteAllUserAlbums(Connection con, String lastfmId) {
-         String queryString = "DELETE   FROM scrobbled_album  WHERE lastfm_id = ? ";
+        String queryString = "DELETE   FROM scrobbled_album  WHERE lastfm_id = ? ";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -550,5 +550,28 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
             throw new ChuuServiceException(e);
         }
     }
+
+    @Override
+    public Set<String> getAlbumTags(Connection connection, long albumId) {
+        String queryString = "SELECT tag FROM album_tags WHERE album_id = ? ";
+        Set<String> returnList = new HashSet<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i, albumId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String name = resultSet.getString("tag");
+                returnList.add(name);
+            }
+            return returnList;
+
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
 
 }

@@ -12,9 +12,9 @@ import dao.entities.AlbumInfo;
 import dao.entities.ArtistInfo;
 import dao.entities.NowPlayingArtist;
 import dao.entities.TrackInfo;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 public final class TagStorer {
@@ -36,22 +36,23 @@ public final class TagStorer {
     }
 
     public List<String> findTags(int limit) throws LastFmException {
-        List<String> tags;
+        Set<String> tags;
         if ((CommandUtil.rand.nextFloat() < 0.8)) {
-            tags = getArtistTags(limit);
-            if (tags.isEmpty()) {
-                tags = getTrackTags(limit);
-                if (tags.isEmpty()) {
-                    tags = getAlbumTags(limit);
-                }
-            }
+            tags = getStrings(limit, getArtistTags(limit), getTrackTags(limit));
         } else {
-            tags = getTrackTags(limit);
-            if (tags.isEmpty()) {
-                tags = getAlbumTags(limit);
-                if (tags.isEmpty()) {
-                    tags = getArtistTags(limit);
-                }
+            tags = getStrings(limit, getTrackTags(limit), getArtistTags(limit));
+        }
+        return new ArrayList<>(tags);
+    }
+
+    @NotNull
+    private Set<String> getStrings(int limit, List<String> first, List<String> fallback) throws LastFmException {
+        Set<String> tags;
+        tags = new HashSet<>(first);
+        if (tags.isEmpty() || tags.size() < limit) {
+            tags.addAll(fallback);
+            if (tags.isEmpty() || tags.size() < limit) {
+                tags.addAll(getAlbumTags(limit));
             }
         }
         return tags;

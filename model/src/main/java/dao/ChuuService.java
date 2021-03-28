@@ -2988,8 +2988,9 @@ public class ChuuService {
 
     }
 
-    public List<String> getArtistTag(long artistId) {
+    public Set<String> getArtistTag(long artistId) {
         try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
             return queriesDao.getArtistTag(connection, artistId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3730,11 +3731,33 @@ public class ChuuService {
 
     public Set<Long> getGuildsWithEmptyColorOverride() {
         try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
             return userGuildDao.getGuildsWithEmptyColorOverride(connection);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
 
+
+    }
+
+    public Set<String> getAlbumTags(long albumId) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return albumDao.getAlbumTags(connection, albumId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public Collection<String> getTrackTags(Long trackId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return trackDao.getTrackTags(connection, trackId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
 
     }
 }

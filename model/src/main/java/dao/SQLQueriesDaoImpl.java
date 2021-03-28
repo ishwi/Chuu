@@ -507,7 +507,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 "WHERE ug.guild_id = ? " +
                 "GROUP BY b.discord_id,b.lastfm_id " +
                 "ORDER BY ord DESC ";
-        return getLbEntries(connection, guildId, queryBody, ScrobbleLbEntry::new, false, -1);
+        return getLbEntries(connection, guildId, queryBody, (user, discordId, entryCount) -> new ScrobbleLbEntry(user, discordId, entryCount), false, -1);
     }
 
     @Override
@@ -3152,9 +3152,9 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<String> getArtistTag(Connection connection, long artistId) {
+    public Set<String> getArtistTag(Connection connection, long artistId) {
         String queryString = "SELECT tag FROM artist_tags WHERE artist_id = ? ";
-        List<String> returnList = new ArrayList<>();
+        Set<String> returnList = new HashSet<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(i, artistId);

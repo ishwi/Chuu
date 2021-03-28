@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface TrackDao {
     List<ScrobbledTrack> getUserTopTracksNoSpotifyId(Connection connection, String lastfmid, int limit);
@@ -52,4 +53,8 @@ public interface TrackDao {
     Optional<FullAlbumEntity> getGlobalAlbumTrackList(Connection connection, long albumId);
 
     ResultWrapper<ScrobbledTrack> getGuildTopTracks(Connection connection, Long guildID, int limit, boolean doCount);
+
+    Set<String> getTrackTags(Connection connection, Long trackId);
+
+
 }

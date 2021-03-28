@@ -381,6 +381,28 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     }
 
     @Override
+    public Set<String> getTrackTags(Connection connection, Long trackId) {
+        String queryString = "SELECT tag FROM track_tags WHERE track_id = ?";
+        Set<String> returnList = new HashSet<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i, trackId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String name = resultSet.getString("tag");
+                returnList.add(name);
+            }
+            return returnList;
+
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
     public List<ScrobbledTrack> getUserTopTracksNoSpotifyId(Connection connection, String lastfmid, int limit) {
         List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
 

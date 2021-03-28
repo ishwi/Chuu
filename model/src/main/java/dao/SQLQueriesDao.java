@@ -182,7 +182,7 @@ interface SQLQueriesDao {
 
     Set<Pair<String, String>> getArtistBannedTags(Connection connection);
 
-    List<String> getArtistTag(Connection connection, long artistId);
+    Set<String> getArtistTag(Connection connection, long artistId);
 
     WrapperReturnNowPlaying globalWhoKnowsTrack(Connection connection, long trackId, int limit, long ownerId, boolean includeBotted);
 

@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.time.Year;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface AlbumDao {
 
@@ -48,4 +49,7 @@ public interface AlbumDao {
     Map<Year, Integer> countByYears(Connection connection, String lastfmId, List<AlbumInfo> albumInfos);
 
     Map<Year, Integer> countByDecades(Connection connection, String lastfmId, List<AlbumInfo> albumInfos);
+
+    Set<String> getAlbumTags(Connection connection, long artistId);
+
 }
