@@ -2135,7 +2135,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<StreakEntity> getUserStreaks(long discordId, Connection connection) {
         List<StreakEntity> returnList = new ArrayList<>();
-        String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name " +
+        String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,streak_start " +
                 "FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id where " +
                 "discord_id = ? order by  artist_combo desc,album_combo desc, track_combo desc ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -2152,9 +2152,10 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 String trackName = resultSet.getString("track_name");
 
                 String albumName = resultSet.getString("album_name");
+                Instant timestamp = resultSet.getObject("streak_start", Timestamp.class).toInstant();
 
 
-                StreakEntity streakEntity = new StreakEntity(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, null, null);
+                StreakEntity streakEntity = new StreakEntity(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, timestamp, null);
                 returnList.add(streakEntity);
             }
 
@@ -2168,7 +2169,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<GlobalStreakEntities> getTopStreaks(Connection connection, @Nullable Long comboFilter, @Nullable Long guildId) {
         List<GlobalStreakEntities> returnList = new ArrayList<>();
-        String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id " +
+        String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id,streak_start " +
                 "FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
 
         if (guildId != null) {
@@ -2202,9 +2203,10 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString("privacy_mode"));
                 long discordId = resultSet.getLong("discord_id");
                 String lastfm_id = resultSet.getString("lastfm_id");
+                Instant timestamp = resultSet.getObject("streak_start", Timestamp.class).toInstant();
 
 
-                GlobalStreakEntities streakEntity = new GlobalStreakEntities(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, null, privacyMode, discordId, lastfm_id);
+                GlobalStreakEntities streakEntity = new GlobalStreakEntities(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, timestamp, privacyMode, discordId, lastfm_id);
                 returnList.add(streakEntity);
             }
 
@@ -2244,7 +2246,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<GlobalStreakEntities> getArtistTopStreaks(Connection connection, Long comboFilter, Long guildId, long artistId, Integer limit) {
         List<GlobalStreakEntities> returnList = new ArrayList<>();
-        String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id" +
+        String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,privacy_mode,a.discord_id,d.lastfm_id,streak_start" +
                 " FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id join user d on a.discord_id = d.discord_id    ";
 
         if (guildId != null) {
@@ -2267,7 +2269,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             if (guildId != null)
                 preparedStatement.setLong(i++, guildId);
             if (comboFilter != null)
-                preparedStatement.setLong(i, comboFilter);
+                preparedStatement.setLong(i++, comboFilter);
             preparedStatement.setLong(i, artistId);
 
             /* Execute query. */
@@ -2283,9 +2285,10 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString("privacy_mode"));
                 long discordId = resultSet.getLong("discord_id");
                 String lastfm_id = resultSet.getString("lastfm_id");
+                Instant timestamp = resultSet.getObject("streak_start", Timestamp.class).toInstant();
 
 
-                GlobalStreakEntities streakEntity = new GlobalStreakEntities(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, null, privacyMode, discordId, lastfm_id);
+                GlobalStreakEntities streakEntity = new GlobalStreakEntities(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, timestamp, privacyMode, discordId, lastfm_id);
                 returnList.add(streakEntity);
             }
 
@@ -2300,15 +2303,14 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<StreakEntity> getUserArtistTopStreaks(Connection connection, long artistId, Integer limit, long discordId) {
         List<StreakEntity> returnList = new ArrayList<>();
-        String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name" +
-                " FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id     ";
-
-
-        queryString += " where 1=1";
-
-        queryString += " and a.artist_id = ? and a.discord_id = ? ";
-
-        queryString += " order by  artist_combo desc,album_combo desc, track_combo desc ";
+        String queryString = """
+                SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,streak_start
+                FROM top_combos a join artist b on a.artist_id = b.id
+                left join album c on a.album_id = c.id
+                where 1=1
+                and a.artist_id = ? and a.discord_id = ?
+                order by  artist_combo desc,album_combo desc, track_combo desc
+                """;
         if (limit != null) {
             queryString += " limit " + limit;
         }
@@ -2327,9 +2329,10 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 String trackName = resultSet.getString("track_name");
 
                 String albumName = resultSet.getString("album_name");
+                Instant timestamp = resultSet.getObject("streak_start", Timestamp.class).toInstant();
 
 
-                StreakEntity streakEntity = new StreakEntity(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, null, null);
+                StreakEntity streakEntity = new StreakEntity(artistName, artistCombo, albumName, albumCombo, trackName, trackCombo, timestamp, null);
                 returnList.add(streakEntity);
             }
 
@@ -2345,12 +2348,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
 
-        String s = "select *  from (select  count(*) as  coun,  avg(rating) as ave, a.url " +
-                "from random_links_ratings a " +
-                "join user_guild d on a.discord_id = d.discord_id " +
-                " where guild_id = ? " +
-                "group by a.url) main " +
-                "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
+        String s = """
+                select *  from (select  count(*) as  coun,  avg(rating) as ave, a.url
+                from random_links_ratings a
+                join user_guild d on a.discord_id = d.discord_id
+                where guild_id = ? group by a.url) main order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5)))) desc limit 200""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, guildId);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -2368,11 +2370,14 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
 
-        String s = "select *  from (select  count(*) as  coun,  avg(rating) as ave, a.url " +
-                "from random_links_ratings a " +
-                " where discord_id  = ? " +
-                "group by a.url) main " +
-                "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
+        String s = """
+                select * from
+                (select  count(*) as  coun,  avg(rating) as ave, a.url
+                from random_links_ratings a\s
+                where discord_id  = ?\s
+                group by a.url) main
+                order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))
+                desc limit 200""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, discordId);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -2390,10 +2395,13 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
 
-        String s = "select *  from (select  count(*) as  coun,  avg(rating) as ave, a.url " +
-                "from random_links_ratings a " +
-                "group by a.url) main " +
-                "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
+        String s = """
+                select *  from
+                (select  count(*) as  coun,  avg(rating) as ave, a.url
+                from random_links_ratings a
+                group by a.url) main
+                order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))
+                desc limit 200""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             getScoredAlbums(returnList, resultSet);

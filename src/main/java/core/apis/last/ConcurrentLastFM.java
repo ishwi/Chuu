@@ -630,7 +630,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         String currentArtist = null;
         String currentAlbum = null;
         String currentSong = null;
-        String albumUrl = "";
+        String image = null;
         int aCounter = 0;
         int albCounter = 0;
         int tCounter = 0;
@@ -654,7 +654,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                 comboUrl = url + "&limit=1000";
             }
             String urlPage = comboUrl + "&page=" + ++page;
-            if (page == 7 || page > totalPages) {
+            if (page == 10 || page > totalPages) {
                 break;
             }
             JSONObject obj = initGetRecentTracks(lastFMData, urlPage, new CustomTimeFrame(TimeFrameEnum.ALL));
@@ -678,9 +678,6 @@ public class ConcurrentLastFM {//implements LastFMService {
                 String artistName = artistObj.getString("name");
                 String albumString = null;
                 JSONObject album = trackObj.getJSONObject("album");
-                if (aCounter != 0) {
-                    previousUts = trackObj.getJSONObject("date").getLong("uts");
-                }
 
 
                 if (album.has("#text")) {
@@ -690,11 +687,15 @@ public class ConcurrentLastFM {//implements LastFMService {
                 }
                 if (inited) {
                     if (!stopArtistCounter && currentArtist.equals(artistName)) {
+                        previousUts = trackObj.getJSONObject("date").getLong("uts");
                         aCounter++;
                     } else {
                         stopArtistCounter = true;
                     }
                     if (!stopAlbCounter && currentAlbum.equals(albumString)) {
+                        if (stopArtistCounter) {
+                            previousUts = trackObj.getJSONObject("date").getLong("uts");
+                        }
                         albCounter++;
                     } else {
                         stopAlbCounter = true;
@@ -706,8 +707,8 @@ public class ConcurrentLastFM {//implements LastFMService {
                     }
                     if (!stopTCounter && currentSong.equals(trackName)) {
                         tCounter++;
-                        if (albumUrl.isBlank())
-                            albumUrl = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
+                        if ((image == null || image.isBlank()))
+                            image = trackObj.getJSONArray("image").getJSONObject(3).getString("#text");
                     } else
                         stopTCounter = true;
                 } else {
@@ -718,6 +719,8 @@ public class ConcurrentLastFM {//implements LastFMService {
                     currentArtist = artistName;
                     currentSong = trackName;
                     aCounter++;
+                    if (!trackObj.has("@attr"))
+                        previousUts = trackObj.getJSONObject("date").getLong("uts");
                     tCounter++;
                     inited = true;
                 }
@@ -731,7 +734,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             streakStart = Instant.EPOCH;
         return new
 
-                StreakEntity(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter, streakStart, albumUrl);
+                StreakEntity(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter, streakStart, image);
 
     }
 

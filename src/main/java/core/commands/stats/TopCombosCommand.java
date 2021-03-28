@@ -53,6 +53,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
                 Integer.MAX_VALUE,
                 map, s, false, true, true);
         parser.addOptional(new OptionalEntity("server", "only include people in this server"));
+        parser.addOptional(new OptionalEntity("start", "show the moment the streak started"));
         return parser;
     }
 
@@ -111,7 +112,9 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
 
             String aString = LinkUtils.cleanMarkdownCharacter(x.getCurrentArtist());
             StringBuilder description = new StringBuilder("" + publicString.discordName() + "\n");
-            return GlobalStreakEntities.getComboString(aString, description, x.getaCounter(), x.getCurrentArtist(), x.getAlbCounter(), x.getCurrentAlbum(), x.gettCounter(), x.getCurrentSong());
+            GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(x.getStreakStart(), x.getLastfmId()) : null;
+
+            return GlobalStreakEntities.getComboString(aString, description, x.getaCounter(), x.getCurrentArtist(), x.getAlbCounter(), x.getCurrentAlbum(), x.gettCounter(), x.getCurrentSong(), holder);
         };
 
         List<Memoized<GlobalStreakEntities, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).toList();

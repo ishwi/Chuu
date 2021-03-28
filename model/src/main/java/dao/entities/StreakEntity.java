@@ -3,7 +3,7 @@ package dao.entities;
 import java.time.Instant;
 
 public class StreakEntity {
-    public static final short MAX_STREAK = 6001;
+    public static final short MAX_STREAK = 9000;
     private final String currentArtist;
     private final int aCounter;
     private final String currentAlbum;

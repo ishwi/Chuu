@@ -5,6 +5,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
+import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
@@ -31,7 +32,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(db);
+        return new OnlyUsernameParser(db, new OptionalEntity("start", "show the moment the streak started"));
     }
 
     @Override
@@ -64,7 +65,9 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
                             String aString = CommandUtil.cleanMarkdownCharacter(combo.getCurrentArtist());
                             int andIncrement = atomicInteger.getAndIncrement();
                             StringBuilder description = new StringBuilder(CommandUtil.getDayNumberSuffix(andIncrement) + "\n");
-                            return GlobalStreakEntities.getComboString(aString, description, combo.getaCounter(), combo.getCurrentArtist(), combo.getAlbCounter(), combo.getCurrentAlbum(), combo.gettCounter(), combo.getCurrentSong());
+                            GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(combo.getStreakStart(), params.getLastFMData().getName()) : null;
+
+                            return GlobalStreakEntities.getComboString(aString, description, combo.getaCounter(), combo.getCurrentArtist(), combo.getAlbCounter(), combo.getCurrentAlbum(), combo.gettCounter(), combo.getCurrentSong(), holder);
                         }
                 ).toList();
         if (streaks.isEmpty()) {

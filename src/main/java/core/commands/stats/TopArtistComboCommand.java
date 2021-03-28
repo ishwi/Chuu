@@ -17,10 +17,7 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
-import dao.entities.GlobalStreakEntities;
-import dao.entities.Memoized;
-import dao.entities.ScrobbledArtist;
-import dao.entities.UsersWrapper;
+import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -60,12 +57,15 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to only get streak with more than that number of plays. ";
-        NumberParser<ArtistParameters, ArtistParser> artistParametersArtistParserNumberParser = new NumberParser<>(new ArtistParser(db, lastFM),
+        NumberParser<ArtistParameters, ArtistParser> parser = new NumberParser<>(new ArtistParser(db, lastFM),
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);
-        artistParametersArtistParserNumberParser.addOptional(new OptionalEntity("server", "only include people in this server"));
-        return artistParametersArtistParserNumberParser;
+        parser.addOptional(new OptionalEntity("server", "only include people in this server"));
+        parser.addOptional(new OptionalEntity("me", "only include author of the command"));
+        parser.addOptional(new OptionalEntity("myself", "same as `me`"));
+        parser.addOptional(new OptionalEntity("start", "show the moment the streak started"));
+        return parser;
     }
 
     @Override
@@ -90,7 +90,12 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
 
         Long guildId = null;
         String title;
-        if (e.isFromGuild() && params.hasOptional("server")) {
+        Integer limit = params.getExtraParam() == null ? null : Math.toIntExact(params.getExtraParam());
+        boolean myself = params.hasOptional("me") || params.hasOptional("myself");
+        if (myself) {
+            DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, params.getInnerParams().getLastFMData().getDiscordId());
+            title = uInfo.getUsername();
+        } else if (e.isFromGuild() && params.hasOptional("server")) {
             Guild guild = e.getGuild();
             guildId = guild.getIdLong();
             title = guild.getName();
@@ -101,8 +106,12 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         ArtistParameters innerParams = params.getInnerParams();
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(innerParams.getArtist(), 0, "");
         CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !innerParams.isNoredirect());
-        List<GlobalStreakEntities> topStreaks = db.getArtistTopStreaks(params.getExtraParam(), guildId, scrobbledArtist.getArtistId(), null);
-
+        List<? extends StreakEntity> topStreaks;
+        if (myself) {
+            topStreaks = db.getUserArtistTopStreaks(params.getInnerParams().getLastFMData().getDiscordId(), scrobbledArtist.getArtistId(), limit);
+        } else {
+            topStreaks = db.getArtistTopStreaks(params.getExtraParam(), guildId, scrobbledArtist.getArtistId(), limit);
+        }
         Set<Long> showableUsers;
         if (params.getE().isFromGuild()) {
             showableUsers = db.getAll(params.getE().getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
@@ -114,16 +123,27 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         AtomicInteger positionCounter = new AtomicInteger(1);
 
 
-        Function<GlobalStreakEntities, String> mapper = (x) -> {
-            PrivacyUtils.PrivateString publicString = PrivacyUtils.getPublicString(x.getPrivacyMode(), x.getDiscordId(), x.getLastfmId(), atomicInteger, e, showableUsers);
+        Function<StreakEntity, String> mapper = (x) -> {
+            String s;
+            String lastfmId;
+            if (x instanceof GlobalStreakEntities t) {
+                PrivacyUtils.PrivateString publicString = PrivacyUtils.getPublicString(t.getPrivacyMode(), t.getDiscordId(), t.getLastfmId(), atomicInteger, e, showableUsers);
+                s = publicString.discordName();
+                lastfmId = t.getLastfmId();
+            } else {
+                s = title;
+                lastfmId = params.getInnerParams().getLastFMData().getName();
+            }
             int andIncrement = positionCounter.getAndIncrement();
             String dayNumberSuffix = CommandUtil.getDayNumberSuffix(andIncrement);
-            String formatted = "%s **%s**%n".formatted(dayNumberSuffix, publicString.discordName());
-
+            String formatted = "%s **%s**%n".formatted(dayNumberSuffix, s);
 
             String aString = LinkUtils.cleanMarkdownCharacter(x.getCurrentArtist());
             StringBuilder description = new StringBuilder(formatted);
-            return GlobalStreakEntities.getComboString(aString, description, x.getaCounter(), x.getCurrentArtist(), x.getAlbCounter(), x.getCurrentAlbum(), x.gettCounter(), x.getCurrentSong());
+
+            GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(x.getStreakStart(), lastfmId) : null;
+
+            return GlobalStreakEntities.getComboString(aString, description, x.getaCounter(), x.getCurrentArtist(), x.getAlbCounter(), x.getCurrentAlbum(), x.gettCounter(), x.getCurrentSong(), holder);
         };
 
         if (topStreaks.isEmpty()) {
@@ -131,7 +151,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
             return;
         }
 
-        List<Memoized<GlobalStreakEntities, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).toList();
+        List<Memoized<StreakEntity, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).toList();
 
 
         StringBuilder a = new StringBuilder();

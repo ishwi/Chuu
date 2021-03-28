@@ -31,7 +31,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
@@ -426,4 +428,12 @@ public class CommandUtil {
         }
     }
 
+    public static GlobalStreakEntities.DateHolder toDateHolder(Instant streakStart, String lastfmId) {
+        OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(streakStart, ZoneId.of("UTC"));
+        String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
+        String date = CommandUtil.getAmericanizedDate(offsetDateTime);
+        String link = String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(lastfmId), day);
+        return new GlobalStreakEntities.DateHolder(streakStart, date, link);
+
+    }
 }

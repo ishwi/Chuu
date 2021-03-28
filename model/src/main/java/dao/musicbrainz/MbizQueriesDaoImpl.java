@@ -248,16 +248,18 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     @Override
     public Map<Country, Integer> countryCount(Connection connection, List<ArtistInfo> releaseInfo) {
         Map<Country, Integer> returnMap = new HashMap<>();
+
+
         StringBuilder queryString = new StringBuilder("""
                 select main.code,count(*) as count from (
                 SELECT\s
                       (case\s
-                \t  when b.type = 1 then c.code
-                \t  else coalesce(calculate_country(b.id),'NOTVALID') end) as code\s
+                \t  when b.type = 1 then coalesce(c.code,d.country,'NOTVALID')
+                \t  else coalesce(d.country,calculate_country(b.id),'NOTVALID') end) as code\s
                 \s
                  FROM
-                 musicbrainz.artist a join\s
-                 musicbrainz.area b on a.area = b.id    left join musicbrainz.iso_3166_1 c  on b.id=c.area and b.type = 1   WHERE     a.gid in (""");
+                 musicbrainz.artist a left join\s
+                 musicbrainz.area b on a.area = b.id    left join musicbrainz.iso_3166_1 c  on b.id=c.area and b.type = 1 left join country_lookup d on b.id = d.id and b.type != 1   WHERE     a.gid in (""");
 
         for (ArtistInfo ignored : releaseInfo) {
             queryString.append(" ? ,");
@@ -385,11 +387,12 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     public List<String> getArtistFromCountry(Connection connection, CountryCode country, List<ArtistInfo> allUserArtist) {
         List<String> mbidList = new ArrayList<>();
         StringBuilder queryString = new StringBuilder("""
-                SELECT\s
-                        a.gid as mbiz \s
-                 FROM
-                 musicbrainz.artist a join\s
-                 musicbrainz.area b  on a.area = b.id left join musicbrainz.iso_3166_1 c  on b.id=c.area  and b.type = 1  left join country_lookup d on b.id = d.id and b.type != 1        where  (c.code = ? or d.country =?)    and a.gid in (""");
+                SELECT a.gid as mbiz
+                FROM musicbrainz.artist a join musicbrainz.area b  on a.area = b.id
+                left join musicbrainz.iso_3166_1 c on b.id=c.area  and b.type = 1
+                left join country_lookup d on b.id = d.id and b.type != 1
+                where  (c.code = ? or d.country =?) and a.gid in (
+                """);
 
         for (ArtistInfo ignored : allUserArtist) {
             queryString.append(" ? ,");

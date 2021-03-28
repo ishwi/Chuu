@@ -8,13 +8,16 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
+import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
+import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.StreakEntity;
 import dao.utils.LinkUtils;
@@ -23,6 +26,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -48,7 +53,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(db);
+        return new OnlyUsernameParser(db, new OptionalEntity("start", "show the moment the streak started"));
     }
 
     @Override
@@ -70,14 +75,15 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
     protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException {
 
 
-        String lastfmId = params.getLastFMData().getName();
-        long discordID = params.getLastFMData().getDiscordId();
+        LastFMData user = params.getLastFMData();
+        String lastfmId = user.getName();
+        long discordID = user.getDiscordId();
 
 
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
-        StreakEntity combo = lastFM.getCombo(params.getLastFMData());
+        StreakEntity combo = lastFM.getCombo(user);
 
         ScrobbledArtist artist = new ScrobbledArtist(combo.getCurrentArtist(), 0, "");
         CommandUtil.validate(db, artist, lastFM, discogsApi, spotifyApi);
@@ -91,8 +97,8 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                 //Only one allowed Max Streak per user
                 combo.setStreakStart(Instant.EPOCH);
             }
-            Long finalAlbumId = albumId;
-            CompletableFuture.runAsync(() -> db.insertCombo(combo, discordID, artist.getArtistId(), finalAlbumId));
+            Long fId = albumId;
+            CompletableFuture.runAsync(() -> db.insertCombo(combo, discordID, artist.getArtistId(), fId));
         }
 
 
@@ -106,13 +112,13 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
         if (combo.getaCounter() > 1) {
             description.append("**Artist**: ")
-                    .append(combo.getaCounter()).append(combo.getaCounter() >= 6000 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ")
+                    .append(combo.getaCounter()).append(combo.getaCounter() >= 9000 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ")
                     .append("**[").append(aString).append("](").append(LinkUtils.getLastFmArtistUrl(combo.getCurrentArtist())).append(")**").append("\n");
         }
         if (combo.getAlbCounter() > 1) {
             if (combo.getUrl() == null || combo.getUrl().isBlank() || combo.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
                 String s = CommandUtil.albumUrl(db, lastFM, combo.getCurrentArtist(), combo.getCurrentAlbum(), discogsApi, spotifyApi);
-                if (s != null) {
+                if (s != null && !s.isBlank()) {
                     embedBuilder.setThumbnail(s);
                 }
             } else {
@@ -120,7 +126,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
             }
             description.append("**Album**: ")
                     .append(combo.getAlbCounter())
-                    .append(combo.getAlbCounter() >= 6000 ? "+" : "")
+                    .append(combo.getAlbCounter() >= 9000 ? "+" : "")
                     .append(combo.getAlbCounter() != 1 ? " consecutive plays - " : " play - ")
                     .append("**[").append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentAlbum())).append("](")
                     .append(LinkUtils.getLastFmArtistAlbumUrl(combo.getCurrentArtist(), combo.getCurrentAlbum())).append(")**")
@@ -130,9 +136,18 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
             if (combo.getUrl() != null && !combo.getUrl().isBlank() && !combo.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
                 embedBuilder.setThumbnail(combo.getUrl());
             }
-            description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 6000 ? "+" : "")
+            description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 9000 ? "+" : "")
                     .append(combo.gettCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
                     .append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentSong())).append("](").append(LinkUtils.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
+        }
+        if (params.hasOptional("start")) {
+            OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(combo.getStreakStart(), user.getTimeZone().toZoneId());
+            String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
+            String date = CommandUtil.getAmericanizedDate(offsetDateTime);
+            String link = String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(user.getName()), day);
+            description.append("**Started**: ").append("**[").append(date).append("](")
+                    .append(link).append(")**")
+                    .append("\n");
         }
 
         embedBuilder.setDescription(description)
