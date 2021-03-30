@@ -360,6 +360,15 @@ public class ChuuService {
         }
     }
 
+    public List<LastFMData> getAllData(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getAllData(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public List<UsersWrapper> getAllNonPrivate(long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);

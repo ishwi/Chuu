@@ -15,7 +15,6 @@ import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
-import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -75,9 +74,9 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
 
         boolean showFresh = !params.hasOptional("recent");
 
-        List<UsersWrapper> list = db.getAll(e.getGuild().getIdLong());
+        List<LastFMData> users = db.getAllData(e.getGuild().getIdLong());
         LocalDateTime cooldown;
-        if (list.size() > 66) {
+        if (users.size() > 66) {
             LocalDateTime ifPresent = controlAccess.getIfPresent(e.getGuild().getIdLong());
             if (ifPresent != null) {
                 format(e, ifPresent, "This server has too many users, so the playing command can only be executed twice per day ");
@@ -97,12 +96,11 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                         (showFresh ? "What is being played now in " : "What was being played in ")
                                 + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()));
 
-        List<String> result = list.parallelStream().map(u ->
+        List<String> result = users.parallelStream().map(u ->
         {
             Optional<NowPlayingArtist> opt;
             try {
-                LastFMData user = LastFMData.ofUserWrapper(u);
-                opt = Optional.of(lastFM.getNowPlayingInfo(user));
+                opt = Optional.of(lastFM.getNowPlayingInfo(u));
             } catch (Exception ex) {
                 opt = Optional.empty();
             }
@@ -111,14 +109,14 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
             Optional<NowPlayingArtist> value = x.getValue();
             return value.isPresent() && !(showFresh && !value.get().isNowPlaying());
         }).map(x -> {
-                    UsersWrapper usersWrapper = x.getKey();
+            LastFMData usersWrapper = x.getKey();
                     assert x.getValue().isPresent();
-                    NowPlayingArtist value = x.getValue().get(); //Checked previous filter
-                    String username = getUserString(e, usersWrapper.getDiscordID(), usersWrapper.getLastFMName());
-                    String started = !showFresh && value.isNowPlaying() ? "#" : "+";
+            NowPlayingArtist value = x.getValue().get(); //Checked previous filter
+            String username = getUserString(e, usersWrapper.getDiscordId(), usersWrapper.getName());
+            String started = !showFresh && value.isNowPlaying() ? "#" : "+";
                     return started + " [" +
                             username + "](" +
-                            CommandUtil.getLastFmUser(usersWrapper.getLastFMName()) +
+                            CommandUtil.getLastFmUser(usersWrapper.getName()) +
                             "): " +
                             CommandUtil.cleanMarkdownCharacter(value.getSongName() +
                                     " - " + value.getArtistName() +

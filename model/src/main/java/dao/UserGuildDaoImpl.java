@@ -143,7 +143,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public List<Long> guildsFromUser(Connection connection, long userId) {
-         String queryString = "SELECT discord_id,guild_id  FROM user_guild  WHERE discord_id = ?";
+        String queryString = "SELECT discord_id,guild_id  FROM user_guild  WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -1147,50 +1147,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
         Set<LastFMData> lastFMData = new HashSet<>();
         String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color FROM user a natural  join user_guild b where b.guild_id = ? and sess is not null ";
 
-        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
-
-            /* Fill "preparedStatement". */
-            int i = 1;
-            preparedStatement.setLong(i, guildId);
-
-
-            /* Execute query. */
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            while (resultSet.next()) {
-
-
-                /* Get results. */
-                i = 1;
-                long resDiscordID = resultSet.getLong(i++);
-                String lastFmID = resultSet.getString(i++);
-                Role role = Role.valueOf(resultSet.getString(i++));
-                boolean privateUpdate = resultSet.getBoolean(i++);
-                boolean notify_image = resultSet.getBoolean(i++);
-                ChartMode chartMode = ChartMode.valueOf(resultSet.getString(i++));
-                WhoKnowsMode whoKnowsMode = WhoKnowsMode.valueOf(resultSet.getString(i++));
-                RemainingImagesMode remainingImagesMode = RemainingImagesMode.valueOf(resultSet.getString(i++));
-                int defaultX = resultSet.getInt(i++);
-                int defaultY = resultSet.getInt(i++);
-                PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(i++));
-                boolean ratingNotify = resultSet.getBoolean(i++);
-                boolean privateLastfmId = resultSet.getBoolean(i++);
-                TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(i++), "GMT"));
-                boolean showBotted = resultSet.getBoolean(i++);
-                String token = (resultSet.getString(i++));
-                String session = (resultSet.getString(i++));
-                boolean scrobbling = (resultSet.getBoolean(i++));
-                String color = resultSet.getString(i);
-                EmbedColor embedColor = EmbedColor.fromString(color);
-
-                LastFMData e = new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor);
-                lastFMData.add(e);
-            }
-
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
-        return lastFMData;
+        return new HashSet<>(getServerData(con, guildId, queryString));
 
     }
 
@@ -1420,6 +1377,63 @@ public class UserGuildDaoImpl implements UserGuildDao {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    @Override
+    public List<LastFMData> getAllData(Connection con, long guildId) {
+        Set<LastFMData> lastFMData = new HashSet<>();
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color FROM user a natural  join user_guild b where b.guild_id = ? ";
+
+        return getServerData(con, guildId, queryString);
+
+    }
+
+    private List<LastFMData> getServerData(Connection con, long guildId, String queryString) {
+        List<LastFMData> lastFMData = new ArrayList<>();
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setLong(i, guildId);
+
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+
+                /* Get results. */
+                i = 1;
+                long resDiscordID = resultSet.getLong(i++);
+                String lastFmID = resultSet.getString(i++);
+                Role role = Role.valueOf(resultSet.getString(i++));
+                boolean privateUpdate = resultSet.getBoolean(i++);
+                boolean notify_image = resultSet.getBoolean(i++);
+                ChartMode chartMode = ChartMode.valueOf(resultSet.getString(i++));
+                WhoKnowsMode whoKnowsMode = WhoKnowsMode.valueOf(resultSet.getString(i++));
+                RemainingImagesMode remainingImagesMode = RemainingImagesMode.valueOf(resultSet.getString(i++));
+                int defaultX = resultSet.getInt(i++);
+                int defaultY = resultSet.getInt(i++);
+                PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(i++));
+                boolean ratingNotify = resultSet.getBoolean(i++);
+                boolean privateLastfmId = resultSet.getBoolean(i++);
+                TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString(i++), "GMT"));
+                boolean showBotted = resultSet.getBoolean(i++);
+                String token = (resultSet.getString(i++));
+                String session = (resultSet.getString(i++));
+                boolean scrobbling = (resultSet.getBoolean(i++));
+                String color = resultSet.getString(i);
+                EmbedColor embedColor = EmbedColor.fromString(color);
+
+                LastFMData e = new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor);
+                lastFMData.add(e);
+            }
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return lastFMData;
     }
 
     @NotNull

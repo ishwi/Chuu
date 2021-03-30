@@ -154,4 +154,6 @@ interface UserGuildDao {
     void removeBannedCover(Connection connection, long albumId, String cover);
 
     void insertServerCustomUrl(Connection connection, long altId, long guildId, long artistId);
+
+    List<LastFMData> getAllData(Connection connection, long guildId);
 }

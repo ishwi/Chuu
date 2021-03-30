@@ -8,6 +8,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.GlobalStreakEntities;
@@ -16,8 +17,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 
 public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -69,7 +72,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
 
                             return GlobalStreakEntities.getComboString(aString, description, combo.getaCounter(), combo.getCurrentArtist(), combo.getAlbCounter(), combo.getCurrentAlbum(), combo.gettCounter(), combo.getCurrentSong(), holder);
                         }
-                ).toList();
+                ).collect(Collectors.toCollection(ArrayList::new));
         if (streaks.isEmpty()) {
             sendMessageQueue(e, userName + " doesn't have any stored streak in the bot.");
             return;
@@ -105,6 +108,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(String.format("%s's streaks", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(params.getLastFMData().getName()), userUrl)
                 .setThumbnail(CommandUtil.noImageUrl(userUrl))
+                .setColor(ColorService.computeColor(e))
                 .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), streaks.size(), CommandUtil.singlePlural(streaks.size(), "streak", "streaks")));
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
