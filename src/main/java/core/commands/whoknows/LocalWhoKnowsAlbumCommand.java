@@ -52,7 +52,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("wkalbum", "wka", "whoknowsalbum");
+        return Arrays.asList("wkalbum", "wka", "whoknowsalbum", "wa");
     }
 
     @Override

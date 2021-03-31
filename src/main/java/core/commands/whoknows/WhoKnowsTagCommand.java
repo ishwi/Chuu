@@ -67,7 +67,7 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("whoknowsgenre", "whoknowstag", "wktag", "wkg");
+        return List.of("whoknowsgenre", "whoknowstag", "wktag", "wkg", "wg");
     }
 
     @Override

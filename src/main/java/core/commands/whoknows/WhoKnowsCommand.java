@@ -50,7 +50,7 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("whoknows", "wk", "whoknowsnp", "wknp");
+        return Arrays.asList("whoknows", "wk", "w");
     }
 
 

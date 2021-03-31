@@ -77,7 +77,7 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
 
     @Override
     public List<String> getAliases() {
-        return List.of("multiwhoknows", "mwk", "multiwk");
+        return List.of("multiwhoknows", "mwk", "multiwk", "mw", "multiw");
     }
 
     @Override

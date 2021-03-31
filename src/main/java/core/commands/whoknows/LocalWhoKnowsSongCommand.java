@@ -111,6 +111,6 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("wktrack", "whoknowstrack", "wkt");
+        return Arrays.asList("wktrack", "whoknowstrack", "wkt", "wks", "wt", "ws");
     }
 }

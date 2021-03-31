@@ -38,7 +38,7 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
 
     @Override
     public List<String> getAliases() {
-        return List.of("globalwhoknows", "gk", "gwk");
+        return List.of("globalwhoknows", "gk", "gwk", "gw");
     }
 
     @Override

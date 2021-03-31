@@ -39,7 +39,7 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("gwkalbum", "gwka", "gwhoknowsalbum");
+        return Arrays.asList("gwkalbum", "gwka", "gwhoknowsalbum", "gwa");
     }
 
 

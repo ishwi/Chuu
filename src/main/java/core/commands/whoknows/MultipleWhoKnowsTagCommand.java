@@ -92,7 +92,7 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
     }
 
     public List<String> getAliases() {
-        return List.of("multiplewhoknowsgenre", "multiwhoknowstag", "multiwktag", "multiwkg", "mwkg", "mwkt");
+        return List.of("multiplewhoknowsgenre", "multiwhoknowstag", "multiwktag", "multiwkg", "mwkg", "mwkt", "mwg");
     }
 
 

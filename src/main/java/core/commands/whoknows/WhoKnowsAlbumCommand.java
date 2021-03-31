@@ -37,7 +37,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("uwkalbum", "uwka", "uwhoknowsalbum");
+        return Arrays.asList("uwkalbum", "uwka", "uwhoknowsalbum", "uwa");
     }
 
     @Override
