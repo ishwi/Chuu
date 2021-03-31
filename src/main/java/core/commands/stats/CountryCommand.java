@@ -52,7 +52,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and 5");
         String s = "A number which represent the palette to use.\n" +
-                "If it is not indicated it defaults to a random palette";
+                   "If it is not indicated it defaults to a random palette";
         NumberParser<TimeFrameParameters, TimerFrameParser> parser = new NumberParser<>(new TimerFrameParser(db, TimeFrameEnum.ALL),
                 null,
                 5,
@@ -86,7 +86,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
     protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException {
 
 
-        Long pallete = (params.getExtraParam());
+        Long palette = params.getExtraParam();
         TimeFrameParameters innerParams = params.getInnerParams();
         LastFMData user = innerParams.getLastFMData();
         String username = user.getName();
@@ -129,8 +129,8 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
             return;
         }
 
-
-        if (params.hasOptional("list")) {
+        RemainingImagesMode mode = CommandUtil.getEffectiveMode(user.getRemainingImagesMode(), params);
+        if (mode == RemainingImagesMode.LIST) {
             List<String> lines = map.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                     ". **%s**: %d %s%n".formatted(CountryCode.getByCode(t.getKey().countryCode(), false).getName(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "artist", "artist"))
             ).toList();
@@ -152,8 +152,8 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
                     new Reactionary<>(lines, m, 10, embedBuilder));
         } else {
             Integer indexPalette;
-            if (pallete != null)
-                indexPalette = Math.toIntExact(pallete - 1);
+            if (palette != null)
+                indexPalette = Math.toIntExact(palette - 1);
             else
                 indexPalette = null;
             byte[] b = WorldMapRenderer.generateImage(map, CommandUtil.getUserInfoNotStripped(e, discordId).getUsername(), indexPalette);

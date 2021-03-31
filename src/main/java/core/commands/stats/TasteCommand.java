@@ -99,8 +99,8 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
                     UrlCapsule b = x.second;
                     double score = ((a.getPlays() * b.getPlays()) / (
                             abs(a.getPlays() - b.getPlays()) + 1d)) *
-                            (((a.getPlays() + b.getPlays())) * 2.5) *
-                            ((a.getPlays() > (10 * b.getPlays()) || b.getPlays() > (10 * a.getPlays()) && (Math.min(a.getPlays(), b.getPlays()) < 400)) ? 0.01 : 2);
+                                   (((a.getPlays() + b.getPlays())) * 2.5) *
+                                   ((a.getPlays() > (10 * b.getPlays()) || b.getPlays() > (10 * a.getPlays()) && (Math.min(a.getPlays(), b.getPlays()) < 400)) ? 0.01 : 2);
 
 
                     return new Holder(a, b, score);

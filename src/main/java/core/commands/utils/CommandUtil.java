@@ -374,9 +374,9 @@ public class CommandUtil {
         };
     }
 
-    public static RemainingImagesMode getEffectiveMode(RemainingImagesMode remainingImagesMode, CommandParameters chartParameters) {
-        boolean pie = chartParameters.hasOptional("pie");
-        boolean list = chartParameters.hasOptional("list");
+    public static RemainingImagesMode getEffectiveMode(RemainingImagesMode remainingImagesMode, CommandParameters params) {
+        boolean pie = params.hasOptional("pie");
+        boolean list = params.hasOptional("list");
         if ((remainingImagesMode.equals(RemainingImagesMode.LIST) && !list && !pie) || (!remainingImagesMode.equals(RemainingImagesMode.LIST) && list)) {
             return RemainingImagesMode.LIST;
         } else if (remainingImagesMode.equals(RemainingImagesMode.PIE) && !pie || !remainingImagesMode.equals(RemainingImagesMode.PIE) && pie) {
