@@ -35,6 +35,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -429,11 +430,17 @@ public class CommandUtil {
     }
 
     public static GlobalStreakEntities.DateHolder toDateHolder(Instant streakStart, String lastfmId) {
-        OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(streakStart, ZoneId.of("UTC"));
-        String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
-        String date = CommandUtil.getAmericanizedDate(offsetDateTime);
-        String link = String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(lastfmId), day);
-        return new GlobalStreakEntities.DateHolder(streakStart, date, link);
 
+        if (streakStart.isBefore(Instant.EPOCH.plus(1, ChronoUnit.YEARS))) {
+            return new GlobalStreakEntities.DateHolder(streakStart, "-", PrivacyUtils.getLastFmUser(lastfmId));
+        } else {
+            OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(streakStart, ZoneId.of("UTC"));
+
+            String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
+            String date = CommandUtil.getAmericanizedDate(offsetDateTime);
+            String link = String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(lastfmId), day);
+            return new GlobalStreakEntities.DateHolder(streakStart, date, link);
+
+        }
     }
 }

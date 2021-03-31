@@ -28,6 +28,7 @@ import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -95,7 +96,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         if (combo.getaCounter() >= 3) {
             if (combo.gettCounter() >= StreakEntity.MAX_STREAK) {
                 //Only one allowed Max Streak per user
-                combo.setStreakStart(Instant.EPOCH);
+                combo.setStreakStart(Instant.EPOCH.plus(1, ChronoUnit.DAYS));
             }
             Long fId = albumId;
             CompletableFuture.runAsync(() -> db.insertCombo(combo, discordID, artist.getArtistId(), fId));
@@ -142,12 +143,16 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         }
         if (params.hasOptional("start")) {
             OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(combo.getStreakStart(), user.getTimeZone().toZoneId());
-            String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
-            String date = CommandUtil.getAmericanizedDate(offsetDateTime);
-            String link = String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(user.getName()), day);
-            description.append("**Started**: ").append("**[").append(date).append("](")
-                    .append(link).append(")**")
-                    .append("\n");
+            if (combo.getStreakStart().isBefore(Instant.EPOCH.plus(1, ChronoUnit.YEARS))) {
+                description.append("**Started**: ").append("**-**").append("\n");
+            } else {
+                String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
+                String date = CommandUtil.getAmericanizedDate(offsetDateTime);
+                String link = String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(user.getName()), day);
+                description.append("**Started**: ").append("**[").append(date).append("](")
+                        .append(link).append(")**")
+                        .append("\n");
+            }
         }
 
         embedBuilder.setDescription(description)

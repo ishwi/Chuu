@@ -27,7 +27,7 @@ public class ArtistCommand extends ArtistAbleCommand<ChartParameters> {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
         String handleCount;
-        if (!params.getTimeFrameEnum().isNormally()) {
+        if (!params.getTimeFrameEnum().isNormal()) {
             handleCount = "'s top " + count + " artists";
         } else {
             handleCount = " has listened to " + count + " artists";
@@ -39,7 +39,7 @@ public class ArtistCommand extends ArtistAbleCommand<ChartParameters> {
     public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
         String time = params.getTimeFrameEnum().getDisplayString();
         pieChart.setTitle(initTitle + "'s top artists" + time);
-        if (!params.getTimeFrameEnum().isNormally()) {
+        if (!params.getTimeFrameEnum().isNormal()) {
             return String.format("%s top %d artists%s", initTitle, count, time);
         } else {
             return String.format("%s has listened to %d artists%s (showing top %d)", initTitle, count, time, params.getX() * params.getY());

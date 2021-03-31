@@ -55,7 +55,7 @@ public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
         String handleCount;
-        if (!params.getTimeFrameEnum().isNormally()) {
+        if (!params.getTimeFrameEnum().isNormal()) {
             handleCount = "'s top " + count + " albums";
         } else {
             handleCount = " has listened to " + count + " albums";
@@ -67,7 +67,7 @@ public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
     public String configPieChart(PieChart pieChart, ChartParameters params, int count, String initTitle) {
         String time = params.getTimeFrameEnum().getDisplayString();
         pieChart.setTitle(initTitle + "'s top albums" + time);
-        if (!params.getTimeFrameEnum().isNormally()) {
+        if (!params.getTimeFrameEnum().isNormal()) {
             return String.format("%s top %d albums%s", initTitle, count, time);
         } else {
             return String.format("%s has listened to %d albums%s (showing top %d)", initTitle, count, time, params.getX() * params.getY());

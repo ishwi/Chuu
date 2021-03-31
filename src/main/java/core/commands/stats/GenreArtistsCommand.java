@@ -65,14 +65,12 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
         String genre = params.getGenreParameters().getGenre();
         BlockingQueue<UrlCapsule> outerQueue;
         AtomicInteger ranker = new AtomicInteger(0);
-        int totalLenght = 0;
         if (params.getTimeFrameEnum().isAllTime()) {
             outerQueue = db.getUserArtistWithTag(name.getDiscordId(), genre, params.getX() * params.getY()).stream().map(t -> new ArtistChart(t.getUrl(), ranker.getAndIncrement(), t.getArtist(), t.getArtistMbid(), t.getCount(),
                     params.isWriteTitles(), params.isWritePlays(),
                     params.isAside()))
                     .limit((long) params.getX() * params.getY())
                     .collect(Collectors.toCollection(LinkedBlockingQueue::new));
-            totalLenght = outerQueue.size();
         } else {
             BlockingQueue<UrlCapsule> queue;
             queue = new ArrayBlockingQueue<>(4000);
@@ -118,10 +116,9 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
             outerQueue.addAll(tempQueue);
             executor.submit(
                     new TagArtistService(db, lastFM, tempQueue.stream().map(x -> new ArtistInfo(null, x.getArtistName(), x.getMbid())).collect(Collectors.toList()), genre));
-            totalLenght = queue.size();
 
         }
-        return new CountWrapper<>(totalLenght, outerQueue);
+        return new CountWrapper<>(outerQueue.size(), outerQueue);
     }
 
     @Override
@@ -134,9 +131,10 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
 
         params.initEmbed("'s top " + params.getGenreParameters().getGenre() + " artists", embedBuilder, ""
                 , params.getUser().getName());
-        String s = " has listened to " + count + " " + params.getGenreParameters().getGenre() + " artists";
         DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoNotStripped(params.getE(), params.getDiscordId());
-        embedBuilder.setFooter(CommandUtil.markdownLessString(discordUserDisplay.getUsername()) + s + params.getTimeFrameEnum().getDisplayString() + footerText);
+        String us = CommandUtil.markdownLessString(discordUserDisplay.getUsername());
+        String s = "Showing %s top %d %s artists".formatted(us, count, params.getGenreParameters().getGenre());
+        embedBuilder.setFooter(us + params.getTimeFrameEnum().getDisplayString() + footerText);
         return embedBuilder;
     }
 
@@ -152,7 +150,7 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
     public void noElementsMessage(ChartableGenreParameters parameters) {
         MessageReceivedEvent e = parameters.getE();
         DiscordUserDisplay display = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
-        sendMessageQueue(e, String.format("Couldn't find any %s album in %s's top %d artists%s!", parameters.getGenreParameters().getGenre(), display.getUsername(), 4000, parameters.getTimeFrameEnum().getDisplayString()));
+        sendMessageQueue(e, String.format("Couldn't find any %s album in %s's artists%s!", parameters.getGenreParameters().getGenre(), display.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
     }
 }
 

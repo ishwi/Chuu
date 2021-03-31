@@ -106,9 +106,10 @@ public class GenreTracksCommands extends ChartableCommand<ChartableGenreParamete
 
         params.initEmbed("'s top " + params.getGenreParameters().getGenre() + " tracks", embedBuilder, ""
                 , params.getUser().getName());
-        String s = " has listened to " + count + " " + params.getGenreParameters().getGenre() + " tracks";
         DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoNotStripped(params.getE(), params.getDiscordId());
-        embedBuilder.setFooter(CommandUtil.markdownLessString(discordUserDisplay.getUsername()) + s + params.getTimeFrameEnum().getDisplayString() + footerText);
+        String us = CommandUtil.markdownLessString(discordUserDisplay.getUsername());
+        String s = "Showing %s top %d %s tracks".formatted(us, count, params.getGenreParameters().getGenre());
+        embedBuilder.setFooter(s + params.getTimeFrameEnum().getDisplayString() + footerText);
         return embedBuilder;
     }
 
@@ -124,6 +125,6 @@ public class GenreTracksCommands extends ChartableCommand<ChartableGenreParamete
     public void noElementsMessage(ChartableGenreParameters parameters) {
         MessageReceivedEvent e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
-        sendMessageQueue(e, String.format("Couldn't find any %s track in %s's top %d track%s!", parameters.getGenreParameters().getGenre(), ingo.getUsername(), 4000, parameters.getTimeFrameEnum().getDisplayString()));
+        sendMessageQueue(e, String.format("Couldn't find any %s track in %s's tracks%s!", parameters.getGenreParameters().getGenre(), ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
     }
 }

@@ -10,6 +10,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.util.bubble.StringFrequency;
+import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
@@ -27,6 +28,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Credits: to flushed_emoji bot owner for the idea. Aka stolen completely
@@ -60,7 +62,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("tagstreak", "tagcombo", "genrecombo", "genretag", "gcombo", "gtag");
+        return List.of("tagstreak", "tagcombo", "genrecombo", "genrestreak", "tcombo", "tstreak");
     }
 
     @Override
@@ -129,19 +131,18 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
 
-        StringBuilder description = new StringBuilder();
 
-
-        tagCombo.stream().map(t -> new StringFrequency(t, tagCombo.getSize(t))).filter(t -> t.freq() > 1)
-                .sorted(Comparator.comparingInt(StringFrequency::freq).reversed()).limit(5).forEach(z -> description.append("**[%s](%s)**: ".formatted(z.key(), LinkUtils.getLastFmTagUrl(z.key()))).
-                append(z.freq()).append(z.freq() >= 2000 ? "+" : "").append(" consecutive plays\n"));
+        List<String> tags = tagCombo.stream().map(t -> new StringFrequency(t, tagCombo.getSize(t))).filter(t -> t.freq() > 1)
+                .sorted(Comparator.comparingInt(StringFrequency::freq).reversed())
+                .map(z -> "**[%s](%s)**: ".formatted(z.key(), LinkUtils.getLastFmTagUrl(z.key())) +
+                          z.freq() + (z.freq() >= 2000 ? "+" : "") + " consecutive plays\n").toList();
 
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(String.format("%s's current tag streak", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
                 .setColor(ColorService.computeColor(e))
-                .setDescription(description);
+                .setDescription(tags.stream().limit(5).collect(Collectors.joining()));
         e.getChannel().sendMessage(embedBuilder.build()).
-                queue();
+                queue(m -> new Reactionary<>(tags, m, 5, embedBuilder));
     }
 }

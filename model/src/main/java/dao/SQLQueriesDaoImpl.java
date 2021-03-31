@@ -507,7 +507,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 "WHERE ug.guild_id = ? " +
                 "GROUP BY b.discord_id,b.lastfm_id " +
                 "ORDER BY ord DESC ";
-        return getLbEntries(connection, guildId, queryBody, (user, discordId, entryCount) -> new ScrobbleLbEntry(user, discordId, entryCount), false, -1);
+        return getLbEntries(connection, guildId, queryBody, ScrobbleLbEntry::new, false, -1);
     }
 
     @Override
@@ -1223,12 +1223,12 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<ScrobbledTrack> getUserTracksWithTag(Connection connection, long discordId, String genre, int limit) {
         String queryString = "SELECT a.id as track_id, c.id,track_name,c.name,a.mbid as artist_mbid,c.mbid,a.url,d.playnumber " +
-                "FROM track a " +
-                "join artist c on a.artist_id = c.id " +
-                "join scrobbled_track d on a.id = d.album_id " +
-                "join user e on d.lastfm_id = e.lastfm_id  " +
-                "join  track_tags b on a.id = b.track_id " +
-                "WHERE tag = ? and e.discord_id = ? order by playnumber desc limit ?";
+                             "FROM track a " +
+                             "join artist c on a.artist_id = c.id " +
+                             "join scrobbled_track d on a.id = d.track_id " +
+                             "join user e on d.lastfm_id = e.lastfm_id  " +
+                             "join  track_tags b on a.id = b.track_id " +
+                             "WHERE tag = ? and e.discord_id = ? order by playnumber desc limit ?";
         List<ScrobbledTrack> returnInfoes = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 

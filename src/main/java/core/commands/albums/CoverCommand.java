@@ -7,7 +7,9 @@ import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
+import javax.annotation.CheckReturnValue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -53,21 +55,58 @@ public class CoverCommand extends AlbumPlaysCommand {
             return;
         }
         String big = albumUrl.replaceAll("i/u/[\\d\\w]+/", "i/u/4096x4096/");
+        InputStream io = null;
         try {
-            sendCover(artist, album, e, big);
+            io = new URL(big).openStream();
+            String finalAlbumUrl = albumUrl;
+            InputStream finalIo = io;
+            sendCover(io, artist, album, e, big).queue(message -> closeIO(finalIo), throwable -> {
+                closeIO(finalIo);
+                InputStream io2 = null;
+                try {
+                    io2 = new URL(finalAlbumUrl).openStream();
+                    InputStream finalIo1 = io2;
+                    sendCover(io2, artist, album, e, finalAlbumUrl).queue(a -> closeIO(finalIo1), b -> {
+                        closeIO(finalIo1);
+                        sendError(e, artist.getArtist(), album);
+                    });
+                } catch (IOException exception) {
+                    closeIO(io2);
+                    sendError(e, artist.getArtist(), album);
+                }
+            });
         } catch (IOException exception) {
+            closeIO(io);
+            InputStream io2 = null;
             try {
-                sendCover(artist, album, e, albumUrl);
+                io2 = new URL(big).openStream();
+                InputStream finalIo = io2;
+                sendCover(io2, artist, album, e, albumUrl).queue(message -> closeIO(finalIo), throwable -> sendError(e, artist.getArtist(), album));
             } catch (IOException e2) {
-                sendMessageQueue(e, "An error occurred while sending the album cover for " + artist.getArtist() + " - " + album);
+                closeIO(io2);
+                sendError(e, artist.getArtist(), album);
             }
-
         }
 
     }
 
-    private void sendCover(ScrobbledArtist artist, String album, MessageReceivedEvent e, String albumUrl) throws IOException {
-        InputStream file = new URL(albumUrl).openStream();
-        e.getChannel().sendFile(file, "cat.png").append(String.format("**%s** - **%s**", artist.getArtist(), album)).queue();
+    private void closeIO(InputStream io) {
+        if (io != null) {
+            try {
+                io.close();
+            } catch (IOException exception) {
+                Chuu.getLogger().warn(exception.getMessage(), exception);
+            }
+        }
+    }
+
+    private void sendError(MessageReceivedEvent e, String artist, String album) {
+        sendMessageQueue(e, "An error occurred while sending the album cover for " + artist + " - " + album);
+
+    }
+
+    @CheckReturnValue
+    private MessageAction sendCover(InputStream inputStream, ScrobbledArtist artist, String album, MessageReceivedEvent e, String albumUrl) throws IOException {
+        return e.getChannel().sendFile(inputStream, "cat.png").append(String.format("**%s** - **%s**", artist.getArtist(), album));
     }
 }
