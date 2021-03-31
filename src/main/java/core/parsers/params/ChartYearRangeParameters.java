@@ -1,7 +1,6 @@
 package core.parsers.params;
 
 import core.parsers.utils.CustomTimeFrame;
-import dao.entities.ChartMode;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -15,14 +14,14 @@ public class ChartYearRangeParameters extends ChartParameters {
     private final int numberOfYears;
 
 
-    public ChartYearRangeParameters(MessageReceivedEvent e, Year baseYear, LastFMData lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, int numberOfYears, ChartMode chartMode, LastFMData lastFMData) {
-        super(e, lastfmID, discordId, chartMode, lastFMData, timeFrameEnum, x, y);
+    public ChartYearRangeParameters(MessageReceivedEvent e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y, Year baseYear, int numberOfYears) {
+        super(e, lastFMData, timeFrameEnum, x, y);
         this.baseYear = baseYear;
         this.numberOfYears = numberOfYears;
     }
 
-    public ChartYearRangeParameters(MessageReceivedEvent e, Year baseYear, LastFMData lastfmID, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat, int numberOfYears, ChartMode chartMode, LastFMData lastFMData) {
-        super(e, lastfmID, discordId, timeFrameEnum, x, y, writeTitles, writePlays, isList, chartMode, lastFMData);
+    public ChartYearRangeParameters(MessageReceivedEvent e, LastFMData user, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, Year baseYear, int numberOfYears) {
+        super(e, user, timeFrameEnum, x, y, writeTitles, writePlays, isList);
         this.baseYear = baseYear;
         this.numberOfYears = numberOfYears;
     }

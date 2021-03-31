@@ -58,7 +58,7 @@ public class GenreChartParser extends ChartableParser<ChartableGenreParameters> 
             if (genreParameters == null) {
                 return null;
             }
-            return new ChartableGenreParameters(e, data, data.getDiscordId(), data.getChartMode(), new CustomTimeFrame(timeFrameEnum), x, y, genreParameters, data);
+            return new ChartableGenreParameters(e, data, new CustomTimeFrame(timeFrameEnum), x, y, data.getChartMode(), genreParameters);
         } catch (LastFmException lastFmException) {
             throw new ChuuServiceException();
         }

@@ -68,7 +68,7 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
             sendError(getErrorMessage(6), e);
             return null;
         }
-        return new ChartYearParameters(e, data, data.getDiscordId(), customTimeFrame, x, y, year, data.getChartMode(), data);
+        return new ChartYearParameters(e, data, customTimeFrame, x, y, year);
 
     }
 

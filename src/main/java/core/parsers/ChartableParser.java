@@ -53,8 +53,8 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
             if (params.getX() == DEFAULT_X && params.getY() == DEFAULT_Y) {
                 String[] subMessage = getSubMessage(e.getMessage());
                 if (Arrays.stream(subMessage).filter(ChartParserAux.chartSizePattern.asMatchPredicate()).findAny().isEmpty()) {
-                    params.setX(params.getLastFMData().getDefaultX());
-                    params.setY(params.getLastFMData().getDefaultY());
+                    params.setX(params.getUser().getDefaultX());
+                    params.setY(params.getUser().getDefaultY());
                 }
             }
         }

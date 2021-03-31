@@ -71,12 +71,12 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
         }
         if (colorList.isEmpty()) {
             sendError("Was not able to obtain any colour.\nYou can get a colour by color name," +
-                    " by hex code (starting with # or 0x) " +
-                    "or any other valid HTML color constructor like rgb(0,0,0)", e);
+                      " by hex code (starting with # or 0x) " +
+                      "or any other valid HTML color constructor like rgb(0,0,0)", e);
             return null;
         }
         LastFMData data = atTheEndOneUser(e, remaining.toArray(String[]::new));
-        return new ColorChartParams(e, data, data.getDiscordId(), CustomTimeFrame.ofTimeFrameEnum(timeFrame), x, y, colorList, data.getChartMode(), data);
+        return new ColorChartParams(e, data, CustomTimeFrame.ofTimeFrameEnum(timeFrame), x, y, colorList);
     }
 
 }

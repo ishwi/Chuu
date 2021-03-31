@@ -19,34 +19,25 @@ import java.util.function.BiFunction;
 
 public class ChartParameters extends CommandParameters {
     private final LastFMData user;
-    private final long discordId;
-    private final ChartMode chartMode;
-    private final LastFMData lastFMData;
     private final CustomTimeFrame timeFrameEnum;
     private int x;
     private int y;
 
 
-    public ChartParameters(MessageReceivedEvent e, LastFMData user, long discordId, ChartMode chartMode, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
+    public ChartParameters(MessageReceivedEvent e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
         super(e);
-        this.user = user;
-        this.discordId = discordId;
-        this.chartMode = chartMode;
-        this.lastFMData = lastFMData;
+        this.user = lastFMData;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
         this.y = y;
     }
 
-    public ChartParameters(MessageReceivedEvent e, LastFMData user, long discordId, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, ChartMode chartMode, LastFMData lastFMData) {
+    public ChartParameters(MessageReceivedEvent e, LastFMData user, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList) {
         super(e);
         this.user = user;
-        this.discordId = discordId;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
         this.y = y;
-        this.chartMode = chartMode;
-        this.lastFMData = lastFMData;
         this.optionals.put(new OptionalEntity("notitles", ""), !writeTitles);
         this.optionals.put(new OptionalEntity("plays", ""), writePlays);
         this.optionals.put(new OptionalEntity("list", ""), isList);
@@ -58,8 +49,8 @@ public class ChartParameters extends CommandParameters {
 
 
     public static ChartParameters toListParams() {
-        return new ChartParameters(null, null, -1L, null, 0, 0, true
-                , true, true, ChartMode.LIST, null);
+        return new ChartParameters(null, null, null, 0, 0, true
+                , true, true);
     }
 
     public int makeCommand(ConcurrentLastFM lastFM, BlockingQueue<UrlCapsule> queue, TopEntity topEntity, BiFunction<JSONObject, Integer, UrlCapsule> parser) throws LastFmException {
@@ -109,14 +100,14 @@ public class ChartParameters extends CommandParameters {
     }
 
     public long getDiscordId() {
-        return discordId;
+        return getUser().getDiscordId();
     }
 
 
     public EmbedBuilder initEmbed(String titleInit, EmbedBuilder embedBuilder, String footerText, String lastfmid) {
-        DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoNotStripped(getE(), discordId);
-        return embedBuilder.setAuthor(discordUserDisplay.getUsername() + titleInit + this.getTimeFrameEnum().getDisplayString(), CommandUtil.getLastFmUser(lastfmid), discordUserDisplay.getUrlImage())
-                .setFooter(CommandUtil.markdownLessString(discordUserDisplay.getUsername()) + footerText + this.getTimeFrameEnum().getDisplayString()).setColor(CommandUtil.randomColor(getE()));
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(getE(), getDiscordId());
+        return embedBuilder.setAuthor(uInfo.getUsername() + titleInit + this.getTimeFrameEnum().getDisplayString(), CommandUtil.getLastFmUser(lastfmid), uInfo.getUrlImage())
+                .setFooter(CommandUtil.markdownLessString(uInfo.getUsername()) + footerText + this.getTimeFrameEnum().getDisplayString()).setColor(CommandUtil.randomColor(getE()));
     }
 
 
@@ -129,10 +120,7 @@ public class ChartParameters extends CommandParameters {
     }
 
     public ChartMode chartMode() {
-        return chartMode;
+        return getUser().getChartMode();
     }
 
-    public LastFMData getLastFMData() {
-        return lastFMData;
-    }
 }

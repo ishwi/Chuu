@@ -44,6 +44,6 @@ public class ChartNormalParser extends ChartableParser<ChartParameters> {
         timeFrame = chartParserAux.parseTimeframe(timeFrame);
         subMessage = chartParserAux.getMessage();
         LastFMData data = atTheEndOneUser(e, subMessage);
-        return new ChartParameters(e, data, data.getDiscordId(), data.getChartMode(), data, CustomTimeFrame.ofTimeFrameEnum(timeFrame), x, y);
+        return new ChartParameters(e, data, CustomTimeFrame.ofTimeFrameEnum(timeFrame), x, y);
     }
 }

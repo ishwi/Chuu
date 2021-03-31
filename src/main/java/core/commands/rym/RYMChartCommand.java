@@ -67,7 +67,7 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
             if (global || (server && !params.getE().isFromGuild())) {
                 selfRatingsScore = db.getGlobalTopRatings();
             } else {
-                selfRatingsScore = db.getSelfRatingsScore(params.getLastFMData().getDiscordId(), null);
+                selfRatingsScore = db.getSelfRatingsScore(params.getUser().getDiscordId(), null);
             }
         }
         AtomicInteger atomicInteger = new AtomicInteger(0);
@@ -106,13 +106,13 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
             title = "bot";
             url = params.getE().getJDA().getSelfUser().getAvatarUrl();
         } else {
-            Long discordId = params.getLastFMData().getDiscordId();
+            Long discordId = params.getUser().getDiscordId();
             DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), discordId);
             title = userInfoConsideringGuildOrNot.getUsername();
             url = userInfoConsideringGuildOrNot.getUrlImage();
         }
         String tile = "Top rated albums in " + title;
-        return embedBuilder.setAuthor(tile, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), url)
+        return embedBuilder.setAuthor(tile, PrivacyUtils.getLastFmUser(params.getUser().getName()), url)
                 .setFooter("Top " + params.getX() * params.getY() + " rated albums in " + tile)
                 .setColor(CommandUtil.randomColor(params.getE()));
 
