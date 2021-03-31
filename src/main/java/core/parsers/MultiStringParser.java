@@ -12,6 +12,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static core.parsers.ParserAux.digitMatcher;
+
 public abstract class MultiStringParser<T extends CommandParameters> extends DaoParser<T> {
     public MultiStringParser(ChuuService dao, OptionalEntity... opts) {
         super(dao, opts);
@@ -23,7 +25,7 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
         User oneUser = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
         LastFMData lastFMData = findLastfmFromID(oneUser, e);
-        Pair<String[], Integer> integerPair = filterMessage(words, NumberParser.compile.asMatchPredicate(), Integer::parseInt, 2);
+        Pair<String[], Integer> integerPair = filterMessage(words, digitMatcher.asMatchPredicate(), Integer::parseInt, 2);
         int x = integerPair.second;
         if (x > 15) {
             sendError("Can't do more than 15", e);

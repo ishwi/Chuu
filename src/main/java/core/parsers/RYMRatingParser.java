@@ -48,7 +48,7 @@ public class RYMRatingParser extends DaoParser<RYMRatingParams> {
                 return null;
             }
         } else {
-            Pair<String[], Integer> intFilter = filterMessage(words, NumberParser.compile.asMatchPredicate(), Integer::valueOf, null);
+            Pair<String[], Integer> intFilter = filterMessage(words, ParserAux.digitMatcher.asMatchPredicate(), Integer::valueOf, null);
             Integer numericRating = intFilter.second;
             if (numericRating != null) {
                 if (numericRating < 0) {

@@ -65,17 +65,17 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
         List<TrackWithArtistId> songs = wrapper.getResult();
         ZoneId zoneId = params.getLastFMData().getTimeZone().toZoneId();
 
-        List<String> lines = songs.stream().map(t -> "**[%s - %s](%s)** - %s".formatted(t.getName(), t.getArtist(), PrivacyUtils.getLastFmArtistTrackUserUrl(t.getArtist(), t.getName(), userName), CommandUtil.getAmericanizedDate(OffsetDateTime.ofInstant(Instant.ofEpochSecond(t.getUtc()), zoneId)))).toList();
+        List<String> lines = songs.stream().map(t -> "**[%s - %s](%s)** - %s\n".formatted(t.getName(), t.getArtist(), PrivacyUtils.getLastFmArtistTrackUserUrl(t.getArtist(), t.getName(), userName), CommandUtil.getAmericanizedDate(OffsetDateTime.ofInstant(Instant.ofEpochSecond(t.getUtc()), zoneId)))).toList();
         StringBuilder a = new StringBuilder();
         for (int i = 0; i < lines.size() && i < 10; i++) {
-            a.append(lines.get(i)).append("\n");
+            a.append(lines.get(i));
         }
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setAuthor("%s's loved songs".formatted(uInfo.getUsername()), PrivacyUtils.getLastFmUser(userName) + "/loved", uInfo.getUrlImage())
                 .setDescription(a)
                 .setFooter("%d total %s loved".formatted(wrapper.getRows(), CommandUtil.singlePlural(wrapper.getRows(), "song", "songs")));
         e.getChannel().sendMessage(embedBuilder.build()).queue(message ->
-                new Reactionary<>(lines, message, embedBuilder));
+                new Reactionary<>(lines, message, embedBuilder, false));
 
 
     }

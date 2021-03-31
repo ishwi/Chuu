@@ -67,7 +67,7 @@ public class GayParser extends ChartableParser<GayParams> {
         ChartParserAux chartParserAux = new ChartParserAux(subMessage);
         timeFrame = chartParserAux.parseTimeframe(timeFrame);
         subMessage = chartParserAux.getMessage();
-        Pair<String[], Integer> integerPair = filterMessage(subMessage, NumberParser.compile.asMatchPredicate(), Integer::parseInt, 5);
+        Pair<String[], Integer> integerPair = filterMessage(subMessage, ParserAux.digitMatcher.asMatchPredicate(), Integer::parseInt, 5);
         subMessage = integerPair.first;
         int x = integerPair.second;
         LastFMData data = atTheEndOneUser(e, subMessage);

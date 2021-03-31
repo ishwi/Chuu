@@ -17,10 +17,9 @@ import java.util.regex.Pattern;
  * @param <T> The parser that returns the type K
  **/
 public class NumberParser<K extends CommandParameters, T extends Parser<K>> extends ExtraParser<NumberParameters<K>, K, T, Long> {
-    public static final Pattern compile = Pattern.compile("[1-9]([0-9]+)?");
-    public static final Pattern allow0 = Pattern.compile("[0-9]+");
-
-    public static final Predicate<String> predicate = compile.asMatchPredicate();
+    private static final Pattern digitMatcher = Pattern.compile("[1-9]([0-9]+)?[kKmM]?");
+    private static final Pattern allow0 = Pattern.compile("[0-9]+[kKmM]?");
+    private static final Predicate<String> predicate = digitMatcher.asMatchPredicate();
 
     //TODO Builder
     public NumberParser(T innerParser,
@@ -70,7 +69,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 defaultItem,
                 predicate,
                 number -> number > max || number < 0,
-                Long::parseLong,
+                NumberParser::parseStr,
                 errorMessages,
                 Collections.singletonList(() -> new ExplanationLine("Number", description)),
                 null,
@@ -94,7 +93,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 defaultItem,
                 predicate,
                 number -> number > max || number < 0,
-                Long::parseLong,
+                NumberParser::parseStr,
                 errorMessages,
                 Collections.singletonList(() -> new ExplanationLine("Number", description)), null,
                 accum,
@@ -116,9 +115,8 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 defaultItem,
                 allow0 ? NumberParser.allow0.asMatchPredicate() : predicate,
                 number -> number > max || number < 0,
-                Long::parseLong,
+                NumberParser::parseStr,
                 errorMessages,
-
                 Collections.singletonList(() -> new ExplanationLine("Number", description)), null,
                 null,
                 panicOnFailure,
@@ -126,4 +124,17 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                         new NumberParameters<>(k.getE(), k, aLong));
     }
 
+    public static Long parseStr(String str) {
+        str = str.toLowerCase();
+        int multiplier = 1;
+        if (str.endsWith("k")) {
+            str = str.substring(0, str.length() - 1);
+            multiplier = 1_000;
+        }
+        if (str.endsWith("m")) {
+            str = str.substring(0, str.length() - 1);
+            multiplier = 1_000_000;
+        }
+        return Long.parseLong(str) * multiplier;
+    }
 }

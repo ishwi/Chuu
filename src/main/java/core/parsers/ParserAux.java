@@ -21,7 +21,7 @@ public class ParserAux {
     private static final Pattern lfm = Pattern.compile("lfm:(\\S+)");
     private static final Pattern userRaw = Pattern.compile("u:(\\S+)");
     private static final Pattern idParser = Pattern.compile("^(?:<(?:@!?|@&|#)(?<sid>[0-9]{17,21})>|(?<id>[0-9]{17,21}))$");
-
+    public static final Pattern digitMatcher = Pattern.compile("[1-9]([0-9]+)?");
     private final boolean doExpensiveSearch;
     private String[] message;
 
