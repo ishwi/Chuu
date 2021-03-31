@@ -59,18 +59,18 @@ public final class TagStorer {
     }
 
     private List<String> getArtistTags(int limit) throws LastFmException {
-        var tags = lastFM.getTrackTags(limit, TopEntity.ARTIST, nowPlayingInfo.getArtistName(), null);
+        var tags = lastFM.getTrackTags(limit, TopEntity.ARTIST, nowPlayingInfo.artistName(), null);
         if (!tags.isEmpty()) {
-            executor.submit(new TagArtistService(db, lastFM, tags, new ArtistInfo(nowPlayingInfo.getUrl(), nowPlayingInfo.getArtistName(), nowPlayingInfo.getArtistMbid())));
+            executor.submit(new TagArtistService(db, lastFM, tags, new ArtistInfo(nowPlayingInfo.url(), nowPlayingInfo.artistName(), nowPlayingInfo.artistMbid())));
         }
         return tags;
     }
 
     private List<String> getAlbumTags(int limit) throws LastFmException {
-        if (nowPlayingInfo.getAlbumName() != null && !nowPlayingInfo.getAlbumName().isBlank()) {
-            var tags = lastFM.getTrackTags(limit, TopEntity.ALBUM, nowPlayingInfo.getArtistName(), nowPlayingInfo.getAlbumName());
+        if (nowPlayingInfo.albumName() != null && !nowPlayingInfo.albumName().isBlank()) {
+            var tags = lastFM.getTrackTags(limit, TopEntity.ALBUM, nowPlayingInfo.artistName(), nowPlayingInfo.albumName());
             if (!tags.isEmpty()) {
-                executor.submit(new TagAlbumService(db, lastFM, tags, new AlbumInfo(nowPlayingInfo.getAlbumMbid(), nowPlayingInfo.getAlbumName(), nowPlayingInfo.getArtistName())));
+                executor.submit(new TagAlbumService(db, lastFM, tags, new AlbumInfo(null, nowPlayingInfo.albumName(), nowPlayingInfo.artistName())));
             }
             return tags;
         } else {
@@ -79,9 +79,9 @@ public final class TagStorer {
     }
 
     private List<String> getTrackTags(int limit) throws LastFmException {
-        var tags = lastFM.getTrackTags(limit, TopEntity.TRACK, nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName());
+        var tags = lastFM.getTrackTags(limit, TopEntity.TRACK, nowPlayingInfo.artistName(), nowPlayingInfo.songName());
         if (!tags.isEmpty()) {
-            executor.submit(new TrackTagService(db, lastFM, tags, new TrackInfo(nowPlayingInfo.getArtistName(), null, nowPlayingInfo.getSongName(), null)));
+            executor.submit(new TrackTagService(db, lastFM, tags, new TrackInfo(nowPlayingInfo.artistName(), null, nowPlayingInfo.songName(), null)));
         }
         return tags;
     }

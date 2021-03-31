@@ -73,7 +73,7 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
 
 
     ArtistAlbumParameters doSomethingWithNp(NowPlayingArtist np, LastFMData lastFMData, MessageReceivedEvent e) {
-        return new ArtistAlbumParameters(e, np.getArtistName(), np.getAlbumName(), lastFMData);
+        return new ArtistAlbumParameters(e, np.artistName(), np.albumName(), lastFMData);
     }
 
     ArtistAlbumParameters doSomethingWithString(String[] subMessage, LastFMData sample, MessageReceivedEvent e) {

@@ -1,8 +1,10 @@
 package dao.entities;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class TrackWithArtistId extends Track implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1231212331L;
 
     private long artistId;

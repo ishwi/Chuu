@@ -101,7 +101,7 @@ public class GenreTracksCommands extends ChartableCommand<ChartableGenreParamete
         String footerText = "";
         if (params.getGenreParameters().isAutoDetected()) {
             NowPlayingArtist np = params.getGenreParameters().getNp();
-            footerText += "\nThis genre was obtained from " + String.format("%s - %s | %s", np.getArtistName(), np.getSongName(), np.getAlbumName());
+            footerText += "\nThis genre was obtained from " + String.format("%s - %s | %s", np.artistName(), np.songName(), np.albumName());
         }
 
         params.initEmbed("'s top " + params.getGenreParameters().getGenre() + " tracks", embedBuilder, ""

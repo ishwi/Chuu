@@ -25,8 +25,8 @@ public enum GuildConfigType {
     CENSOR_CONVERS("censor-covers");
 
     static final Pattern npMode = Pattern.compile("((" + "CLEAR|" +
-            EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
-            ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
+                                                  EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
+                                                  ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
     static final Pattern overrideMode = Pattern.compile("(override|add|add[-_ ]end|empty)", Pattern.CASE_INSENSITIVE);
     static final Pattern overrideColorMode = Pattern.compile("(override|empty)", Pattern.CASE_INSENSITIVE);
     static final Pattern colorMode = Pattern.compile("(random|clear|role|.+)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
@@ -147,34 +147,34 @@ public enum GuildConfigType {
             case OVERRIDE_COLOR:
                 String explanation = EnumSet.allOf(OverrideColorMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString().replaceAll("_", "-"), '-', ' ') + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 return "Whether you want the server color to override the users colors or only use them when the user doesnt have any.\n"
-                        + "\t\tThe possible values for the color mode are the following:" + explanation;
+                       + "\t\tThe possible values for the color mode are the following:" + explanation;
             case CROWNS_THRESHOLD:
                 return "A positive number that represent the minimum number of scrobbles for a crown to count";
             case CHART_MODE:
                 explanation = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 explanation += "\n\t\t\t**Clear**: Sets the default mode ";
                 return "Set the mode for all charts of all users in this server. While this is set any user configuration will be overridden.\n" +
-                        "\t\tThe possible values for the chart mode are the following:" + explanation;
+                       "\t\tThe possible values for the chart mode are the following:" + explanation;
             case COLOR:
                 explanation = EnumSet.allOf(EmbedColor.EmbedColorType.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 return "Set the color for all embed of all users in this server. While this is set any user configuration will be overridden.\n" +
-                        "\t\tThe possible values for the embed colour are the following:" + explanation;
+                       "\t\tThe possible values for the embed colour are the following:" + explanation;
             case WHOKNOWS_MODE:
                 explanation = EnumSet.allOf(WhoKnowsMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 explanation += "\n\t\t\t**Clear**: Sets the default mode";
                 return "Set the mode for all who knows of all users in this server. While this is set any user configuration will be overridden.\n" +
-                        "\t\tThe possible values for the who knows mode are the following:" + explanation;
+                       "\t\tThe possible values for the who knows mode are the following:" + explanation;
             case REMAINING_MODE:
                 explanation = EnumSet.allOf(RemainingImagesMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 explanation += "\n\t\t\t**Clear**: Sets the default mode";
                 return "Set the mode for all charts of the remaining images of the users in this server. While this is set any user configuration will be overridden \n" +
-                        "\t\tThe possible values for the rest of the commands are the following:" + explanation;
+                       "\t\tThe possible values for the rest of the commands are the following:" + explanation;
             case ALLOW_NP_REACTIONS:
                 return "Whether you want the bot to add reactions to nps in this server.";
             case OVERRIDE_NP_REACTIONS:
                 explanation = EnumSet.allOf(OverrideMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString().replaceAll("_", "-"), '-', ' ') + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 return "Whether you want the server reactions to override the users reactions, add to the user added or only use them when the user doesnt have any.\n"
-                        + "\t\tThe possible values for the override nowPlayingInfo mode are the following:" + explanation;
+                       + "\t\tThe possible values for the override nowPlayingInfo mode are the following:" + explanation;
             case DELETE_MESSAGE:
                 return "Whether you want the bot to delete the original message the user wrote.";
             case SHOW_DISABLED_WARNING:

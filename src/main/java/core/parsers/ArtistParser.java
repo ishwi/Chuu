@@ -60,7 +60,7 @@ public class ArtistParser extends DaoParser<ArtistParameters> {
             } catch (InstanceNotFoundException ex) {
                 np = new NPService(lastFM, data).getNowPlaying();
             }
-            return new ArtistParameters(e, np.getArtistName(), data);
+            return new ArtistParameters(e, np.artistName(), data);
         } else {
             return new ArtistParameters(e, String.join(" ", words), data);
         }

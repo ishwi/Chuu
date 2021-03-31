@@ -35,16 +35,17 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
 
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull NowPlayingParameters params) {
-        doSomethingWithArtist(params.getNowPlayingArtist(), e, params.getLastFMData().getDiscordId(), params.getLastFMData(), params);
+        NowPlayingArtist np = params.getNowPlayingArtist();
+        doSomethingWithArtist(np, e, params.getLastFMData().getDiscordId(), params.getLastFMData(), params);
         CompletableFuture.runAsync(() -> {
-            if (params.getNowPlayingArtist().getUrl() != null && !params.getNowPlayingArtist().getUrl().isBlank()) {
-                try {
-                    ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, params.getNowPlayingArtist().getArtistName(), lastFM, true);
-                    long trackValidate = CommandUtil.trackValidate(db, scrobbledArtist, lastFM, params.getNowPlayingArtist().getSongName());
-                    db.updateTrackImage(trackValidate, params.getNowPlayingArtist().getUrl());
-                } catch (LastFmException instanceNotFoundException) {
-                    Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
-                }
+                    if (np.url() != null && !np.url().isBlank()) {
+                        try {
+                            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, np.artistName(), lastFM, true);
+                            long trackValidate = CommandUtil.trackValidate(db, scrobbledArtist, lastFM, np.songName());
+                            db.updateTrackImage(trackValidate, np.url());
+                        } catch (LastFmException instanceNotFoundException) {
+                            Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
+                        }
                     }
                 }
         );

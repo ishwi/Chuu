@@ -72,14 +72,14 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
         NowPlayingArtist header = list.get(0);
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
-                .setThumbnail(CommandUtil.noImageUrl(header.getUrl()))
+                .setThumbnail(CommandUtil.noImageUrl(header.url()))
                 .setTitle(String.format("%s's last %d tracks", usable, limit),
                         CommandUtil.getLastFmUser(lastFmName));
 
         int counter = 1;
         for (NowPlayingArtist nowPlayingArtist : list) {
-            embedBuilder.addField("Track #" + counter++ + ":", String.format("**%s** - %s | %s%n", CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getSongName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getArtistName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist
-                    .getAlbumName())), false);
+            embedBuilder.addField("Track #" + counter++ + ":", String.format("**%s** - %s | %s%n", CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.songName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.artistName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist
+                    .albumName())), false);
         }
 
         e.getChannel().sendMessage(embedBuilder.build()).queue();

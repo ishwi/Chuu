@@ -53,6 +53,7 @@ public class NPModeBuilder {
         try {
             List<NPMode> tags = List.of(NPMode.TAGS,
                     NPMode.EXTENDED_TAGS,
+                    NPMode.LOVED,
                     NPMode.ARTIST_PLAYS,
                     NPMode.ALBUM_PLAYS,
                     NPMode.SONG_PLAYS,
@@ -173,8 +174,8 @@ public class NPModeBuilder {
         if (npModes.stream().anyMatch(albumModes::contains)) {
             try {
                 CommandUtil.validate(service, scrobbledArtist, lastFM, discogsApi, spotifyApi);
-                if (np.getAlbumName() != null && !np.getAlbumName().isBlank())
-                    preAlbumId = CommandUtil.albumvalidate(service, scrobbledArtist, lastFM, np.getAlbumName());
+                if (np.albumName() != null && !np.albumName().isBlank())
+                    preAlbumId = CommandUtil.albumvalidate(service, scrobbledArtist, lastFM, np.albumName());
             } catch (LastFmException ignored) {
             }
         }
@@ -183,8 +184,8 @@ public class NPModeBuilder {
         Long preTrackId = null;
         if (npModes.stream().anyMatch(trackModes::contains)) {
             try {
-                if (np.getSongName() != null && !np.getSongName().isBlank())
-                    preTrackId = CommandUtil.trackValidate(service, scrobbledArtist, lastFM, np.getSongName());
+                if (np.songName() != null && !np.songName().isBlank())
+                    preTrackId = CommandUtil.trackValidate(service, scrobbledArtist, lastFM, np.songName());
             } catch (LastFmException ignored) {
             }
         }
@@ -196,10 +197,15 @@ public class NPModeBuilder {
             assert index != null;
             long guildId = e.isFromGuild() ? e.getGuild().getIdLong() : -1L;
             switch (npMode) {
+                case LOVED:
+                    if (np.loved()) {
+                        footerSpaces[index] = "❤️";
+                    }
+                    break;
                 case CURRENT_COMBO:
                     completableFutures.add(logger.apply(comboData.whenComplete((u, e) -> {
                         if (e == null) {
-                            String previousArtist = np.getArtistName();
+                            String previousArtist = np.artistName();
                             int comboCounter = 1;
                             boolean couldCheck = false;
                             for (TrackWithArtistId datum : u) {
@@ -214,7 +220,7 @@ public class NPModeBuilder {
                                 comboCounter = service.getCurrentCombo(scrobbledArtist.getArtistId(), lastFMName.getName());
                             }
                             if (comboCounter > 1) {
-                                footerSpaces[footerIndexes.get(NPMode.CURRENT_COMBO)] =
+                                footerSpaces[index] =
                                         String.format("%s's is on a 🔥 of %d %s", userName, comboCounter, CommandUtil.singlePlural(comboCounter, "play", "plays"));
                             }
                         } else {
@@ -233,7 +239,7 @@ public class NPModeBuilder {
                 case SCROBBLE_COUNT:
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
                         int playCount = new UserInfoService(service).getUserInfo(lastFMName).getPlayCount();
-                        footerSpaces[footerIndexes.get(NPMode.ALBUM_CROWN)] =
+                        footerSpaces[index] =
                                 "%d total scrobbles".formatted(playCount);
                     })));
                     break;
@@ -252,38 +258,38 @@ public class NPModeBuilder {
                         if (npModes.contains(NPMode.PREVIOUS)) {
                             try {
                                 NowPlayingArtist recent = lastFM.getRecent(lastFMName, 2).get(1);
-                                String album = CommandUtil.cleanMarkdownCharacter(recent.getAlbumName());
-                                String artist = CommandUtil.cleanMarkdownCharacter(recent.getArtistName());
-                                String song = CommandUtil.cleanMarkdownCharacter(recent.getSongName());
+                                String album = CommandUtil.cleanMarkdownCharacter(recent.albumName());
+                                String artist = CommandUtil.cleanMarkdownCharacter(recent.artistName());
+                                String song = CommandUtil.cleanMarkdownCharacter(recent.songName());
                                 if (npModes.contains(NPMode.SPOTIFY_LINK)) {
-                                    String uri = spotifyApi.searchItems(recent.getSongName(), recent.getArtistName(), recent.getAlbumName());
+                                    String uri = spotifyApi.searchItems(recent.songName(), recent.artistName(), recent.albumName());
                                     if (!uri.isBlank())
                                         song = "<:spochuu:776799107737976863>\t %s [%s](%s)".formatted(EmbedBuilder.ZERO_WIDTH_SPACE, song, uri);
                                 }
                                 if (npModes.contains(NPMode.RYM_LINK)) {
-                                    String url = rymSearch.searchUrl(recent.getArtistName(), recent.getAlbumName());
+                                    String url = rymSearch.searchUrl(recent.artistName(), recent.albumName());
                                     album = "\t<:rym:820111349690531850> %s [%s](%s)".formatted(EmbedBuilder.ZERO_WIDTH_SPACE, album, url);
                                 }
 
                                 String t = "**" + artist +
-                                        "** | " + album + "\n";
+                                           "** | " + album + "\n";
                                 embedBuilder.getDescriptionBuilder().append("\n**Previous:** ***").append(song).append("***\n").append(t);
 
                             } catch (LastFmException ignored) {
                             }
                         }
                         if (npModes.contains(NPMode.SPOTIFY_LINK)) {
-                            String uri = spotifyApi.searchItems(np.getSongName(), np.getArtistName(), np.getAlbumName());
+                            String uri = spotifyApi.searchItems(np.songName(), np.artistName(), np.albumName());
                             if (!uri.isBlank())
                                 embedBuilder.setTitle("\t<:spochuu:776799107737976863> " + embedBuilder.build().getTitle(), uri);
                         }
-                        if (npModes.contains(NPMode.RYM_LINK) && !StringUtils.isEmpty(np.getAlbumName())) {
-                            String url = rymSearch.searchUrl(np.getArtistName(), np.getAlbumName());
+                        if (npModes.contains(NPMode.RYM_LINK) && !StringUtils.isEmpty(np.albumName())) {
+                            String url = rymSearch.searchUrl(np.artistName(), np.albumName());
 
-                            String a = "**" + CommandUtil.cleanMarkdownCharacter(np.getArtistName()) +
-                                    "** | " + CommandUtil.cleanMarkdownCharacter(np.getAlbumName());
+                            String a = "**" + CommandUtil.cleanMarkdownCharacter(np.artistName()) +
+                                       "** | " + CommandUtil.cleanMarkdownCharacter(np.albumName());
 
-                            String b = "**%s** | \t<:rym:820111349690531850> %s [%s](%s)".formatted(CommandUtil.cleanMarkdownCharacter(np.getArtistName()), EmbedBuilder.ZERO_WIDTH_SPACE, CommandUtil.cleanMarkdownCharacter(np.getAlbumName()), url);
+                            String b = "**%s** | \t<:rym:820111349690531850> %s [%s](%s)".formatted(CommandUtil.cleanMarkdownCharacter(np.artistName()), EmbedBuilder.ZERO_WIDTH_SPACE, CommandUtil.cleanMarkdownCharacter(np.albumName()), url);
                             embedBuilder.setDescription(StringUtils.replaceOnceIgnoreCase(embedBuilder.build().getDescription(), a, b));
                         }
 
@@ -470,7 +476,7 @@ public class NPModeBuilder {
 
                             if ((npModes.contains(NPMode.SERVER_ALBUM_RYM) || npModes.contains(NPMode.BOT_ALBUM_RYM) || npModes.contains(NPMode.ALBUM_RYM) && (npModes.contains(NPMode.SERVER_ALBUM_RYM) || npModes.contains(NPMode.BOT_ALBUM_RYM)))) {
 
-                                AlbumRatings albumRatings = service.getRatingsByName(e.isFromGuild() ? guildId : -1L, np.getAlbumName(), scrobbledArtist.getArtistId());
+                                AlbumRatings albumRatings = service.getRatingsByName(e.isFromGuild() ? guildId : -1L, np.albumName(), scrobbledArtist.getArtistId());
                                 List<Rating> userRatings = albumRatings.getUserRatings();
                                 if (npModes.contains(NPMode.SERVER_ALBUM_RYM)) {
                                     List<Rating> serverList = userRatings.stream().filter(Rating::isSameGuild).toList();
@@ -626,7 +632,7 @@ public class NPModeBuilder {
                         break;
                     }
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
-                        ArtistMusicBrainzDetails artistDetails = mb.getArtistDetails(new ArtistInfo(null, np.getArtistName(), np.getArtistMbid()));
+                        ArtistMusicBrainzDetails artistDetails = mb.getArtistDetails(new ArtistInfo(null, np.artistName(), np.artistMbid()));
                         if (npModes.contains(NPMode.GENDER) && artistDetails != null && artistDetails.getGender() != null) {
                             footerSpaces[footerIndexes.get(NPMode.GENDER)] =
                                     artistDetails.getGender();
@@ -644,10 +650,10 @@ public class NPModeBuilder {
 
                         completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
                             try {
-                                AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(lastFMName, scrobbledArtist.getArtist(), np.getAlbumName());
+                                AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(lastFMName, scrobbledArtist.getArtist(), np.albumName());
                                 int plays = playsAlbumArtist.getPlays();
                                 if (plays != 0) {
-                                    footerSpaces[footerIndexes.get(NPMode.ALBUM_PLAYS)] =
+                                    footerSpaces[index] =
                                             (String.format("%d album %s", plays, CommandUtil.singlePlural(plays, "play", "plays")));
                                 }
                             } catch (LastFmException ignored) {
@@ -663,7 +669,7 @@ public class NPModeBuilder {
                     }
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
                         try {
-                            Track trackInfo = lastFM.getTrackInfo(lastFMName, scrobbledArtist.getArtist(), np.getSongName());
+                            Track trackInfo = lastFM.getTrackInfo(lastFMName, scrobbledArtist.getArtist(), np.songName());
                             int plays = trackInfo.getPlays();
                             if (plays != 0) {
                                 if (npModes.contains(NPMode.SONG_PLAYS))
@@ -698,7 +704,7 @@ public class NPModeBuilder {
                                 PrivacyUtils.PrivateString publicString = PrivacyUtils.getPublicString(globalStreakEntities.getPrivacyMode(), globalStreakEntities.getDiscordId(), globalStreakEntities.getLastfmId(), new AtomicInteger(0), e, Set.of(e.getAuthor().getIdLong()));
                                 globalStreakEntities.setDisplayer(consumer);
                                 String name = globalStreakEntities.getName().replace("*", "").substring(2).trim();
-                                footerSpaces[footerIndexes.get(NPMode.HIGHEST_SERVER_STREAK)] =
+                                footerSpaces[index] =
                                         (String.format("%s \uD83D\uDD25 %d %s (%s)", e.getGuild().getName(), globalStreakEntities.getaCounter(), CommandUtil.singlePlural(globalStreakEntities.getaCounter(), "play", "plays"), name));
                             }
                         })));
@@ -712,7 +718,7 @@ public class NPModeBuilder {
                             GlobalStreakEntities globalStreakEntities = artistTopStreaks.get(0);
                             globalStreakEntities.setDisplayer(consumer);
                             String name = globalStreakEntities.getName().replace("*", "").substring(2).trim();
-                            footerSpaces[footerIndexes.get(NPMode.HIGHEST_BOT_STREAK)] =
+                            footerSpaces[index] =
                                     (String.format("Global \uD83D\uDD25 %d %s (%s)", globalStreakEntities.getaCounter(), CommandUtil.singlePlural(globalStreakEntities.getaCounter(), "play", "plays"), name));
                         }
                     })));
@@ -752,12 +758,12 @@ public class NPModeBuilder {
                     if (
 
                             Sets.difference(checker, EnumSet.of(NPMode.HIGHEST_BOT_STREAK, NPMode.HIGHEST_SERVER_STREAK, NPMode.HIGHEST_STREAK)).isEmpty()
-                                    || Sets.difference(checker, EnumSet.of(NPMode.CROWN, NPMode.GLOBAL_CROWN)).isEmpty()
-                                    || Sets.difference(checker, EnumSet.of(NPMode.BOT_LISTENERS, NPMode.BOT_SCROBBLES)).isEmpty()
-                                    || Sets.difference(checker, EnumSet.of(NPMode.SERVER_LISTENERS, NPMode.SERVER_SCROBBLES)).isEmpty()
-                                    || Sets.difference(checker, EnumSet.of(NPMode.LFM_LISTENERS, NPMode.LFM_SCROBBLES)).isEmpty()
-                                    || Sets.difference(checker, EnumSet.of(NPMode.CROWN, NPMode.ALBUM_CROWN, NPMode.GLOBAL_CROWN, NPMode.GLOBAL_ALBUM_CROWN)).isEmpty()
-                                    || Sets.difference(checker, EnumSet.of(NPMode.SONG_DURATION, NPMode.SONG_PLAYS)).isEmpty()
+                            || Sets.difference(checker, EnumSet.of(NPMode.CROWN, NPMode.GLOBAL_CROWN)).isEmpty()
+                            || Sets.difference(checker, EnumSet.of(NPMode.BOT_LISTENERS, NPMode.BOT_SCROBBLES)).isEmpty()
+                            || Sets.difference(checker, EnumSet.of(NPMode.SERVER_LISTENERS, NPMode.SERVER_SCROBBLES)).isEmpty()
+                            || Sets.difference(checker, EnumSet.of(NPMode.LFM_LISTENERS, NPMode.LFM_SCROBBLES)).isEmpty()
+                            || Sets.difference(checker, EnumSet.of(NPMode.CROWN, NPMode.ALBUM_CROWN, NPMode.GLOBAL_CROWN, NPMode.GLOBAL_ALBUM_CROWN)).isEmpty()
+                            || Sets.difference(checker, EnumSet.of(NPMode.SONG_DURATION, NPMode.SONG_PLAYS)).isEmpty()
 
 
                     ) {

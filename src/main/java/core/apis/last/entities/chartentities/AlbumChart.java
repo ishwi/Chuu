@@ -54,14 +54,14 @@ public class AlbumChart extends UrlCapsule {
         JSONObject bigImage = image.getJSONObject(image.length() - 1);
         String albumName = album.getString("#text");
         String songName = trackObj.getString("name");
-        return new NowPlayingArtist(artistName, mbid, false, albumName, songName, bigImage.getString("#text"), null);
+        return new NowPlayingArtist(artistName, mbid, false, albumName, songName, bigImage.getString("#text"), null, false);
     }
 
     public static BiFunction<JSONObject, Integer, UrlCapsule> getDailyAlbumParser(ChartParameters chartParameters) {
         return (jsonObject, ignored) ->
         {
             NowPlayingArtist x = fromRecentTrack(jsonObject, TopEntity.ALBUM);
-            return new AlbumChart(x.getUrl(), 0, x.getAlbumName(), x.getArtistName(), x.getArtistMbid(), 1,
+            return new AlbumChart(x.url(), 0, x.albumName(), x.artistName(), x.artistMbid(), 1,
                     chartParameters.isWriteTitles()
                     , chartParameters.isWritePlays(), chartParameters.isAside());
         };

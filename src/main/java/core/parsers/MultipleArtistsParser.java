@@ -29,7 +29,7 @@ public class MultipleArtistsParser extends MultiStringParser<MultiArtistParamete
         if (isAllowUnaothorizedUsers() && lastFMData.getName() == null) {
             throw new InstanceNotFoundException(lastFMData.getDiscordId());
         }
-        Set<String> artists = lastFM.getRecent(lastFMData, limit == 1 ? 1 : limit == 2 ? 10 : 1000).stream().map(NowPlayingArtist::getArtistName).distinct().limit(limit).collect(Collectors.toSet());
+        Set<String> artists = lastFM.getRecent(lastFMData, limit == 1 ? 1 : limit == 2 ? 10 : 1000).stream().map(NowPlayingArtist::artistName).distinct().limit(limit).collect(Collectors.toSet());
         return new MultiArtistParameters(e, lastFMData, artists);
     }
 

@@ -69,8 +69,8 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
         return (jsonObject, ignored) ->
         {
             NowPlayingArtist x = AlbumChart.fromRecentTrack(jsonObject, TopEntity.ALBUM);
-            Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.getArtistName(), x.getSongName(), 1, false, 0), 200);
-            return new TrackDurationAlbumArtistChart(x.getUrl(), 0, x.getSongName(), x.getArtistName(), x.getArtistMbid(),
+            Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.artistName(), x.songName(), 1, false, 0), 200);
+            return new TrackDurationAlbumArtistChart(x.url(), 0, x.songName(), x.artistMbid(), x.artistMbid(),
                     1
                     , orDefault, params.isWriteTitles(), params.isWritePlays(), params.isShowTime(), params.isAside());
         };
@@ -80,8 +80,8 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
         return (jsonObject, ignored) ->
         {
             NowPlayingArtist x = AlbumChart.fromRecentTrack(jsonObject, TopEntity.ALBUM);
-            Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.getArtistName(), x.getSongName(), 1, false, 0), 200);
-            return new TrackDurationAlbumArtistChart(x.getUrl(), 0, x.getSongName(), x.getArtistName(), x.getArtistMbid(),
+            Integer orDefault = durationsFromPeriod.getOrDefault(new Track(x.artistName(), x.songName(), 1, false, 0), 200);
+            return new TrackDurationAlbumArtistChart(x.url(), 0, x.songName(), x.artistName(), x.artistMbid(),
                     1
                     , orDefault, params.isWriteTitles(), params.isWritePlays(), true, params.isAside());
         };

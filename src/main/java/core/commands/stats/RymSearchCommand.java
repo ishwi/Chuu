@@ -33,7 +33,7 @@ public class RymSearchCommand extends ConcurrentCommand<ExtraParameters<WordPara
 
     @Override
     public Parser<ExtraParameters<WordParameter, User>> initParser() {
-        return new UsernameAndNpQueryParser(db, lastFM, (np) -> "\"" + np.getArtistName() + "\" \"" + np.getAlbumName() + "\n");
+        return new UsernameAndNpQueryParser(db, lastFM, (np) -> "\"" + np.artistName() + "\" \"" + np.albumName() + "\n");
     }
 
     @Override

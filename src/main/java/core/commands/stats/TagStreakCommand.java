@@ -112,7 +112,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
                     accumTags.addAll(db.getAlbumTags(albumId));
                 }
                 if (accumTags.isEmpty()) {
-                    accumTags = new HashSet<>(new TagStorer(db, lastFM, executor, new NowPlayingArtist(artist, null, true, album, track, null, lastfmId)).findTags(15));
+                    accumTags = new HashSet<>(new TagStorer(db, lastFM, executor, new NowPlayingArtist(artist, null, true, album, track, null, lastfmId, false)).findTags(15));
                 }
                 return accumTags;
             } catch (Exception ex) {

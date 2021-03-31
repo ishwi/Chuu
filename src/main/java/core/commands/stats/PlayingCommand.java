@@ -107,20 +107,20 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
             return Map.entry(u, opt);
         }).filter(x -> {
             Optional<NowPlayingArtist> value = x.getValue();
-            return value.isPresent() && !(showFresh && !value.get().isNowPlaying());
+            return value.isPresent() && !(showFresh && !value.get().current());
         }).map(x -> {
             LastFMData usersWrapper = x.getKey();
                     assert x.getValue().isPresent();
             NowPlayingArtist value = x.getValue().get(); //Checked previous filter
             String username = getUserString(e, usersWrapper.getDiscordId(), usersWrapper.getName());
-            String started = !showFresh && value.isNowPlaying() ? "#" : "+";
-                    return started + " [" +
-                            username + "](" +
-                            CommandUtil.getLastFmUser(usersWrapper.getName()) +
-                            "): " +
-                            CommandUtil.cleanMarkdownCharacter(value.getSongName() +
-                                    " - " + value.getArtistName() +
-                                    " | " + value.getAlbumName() + "\n");
+            String started = !showFresh && value.current() ? "#" : "+";
+            return started + " [" +
+                   username + "](" +
+                   CommandUtil.getLastFmUser(usersWrapper.getName()) +
+                   "): " +
+                   CommandUtil.cleanMarkdownCharacter(value.songName() +
+                                                      " - " + value.artistName() +
+                                                      " | " + value.albumName() + "\n");
                 }
         ).collect(Collectors.toCollection(ArrayList::new));
         Collections.shuffle(result, CommandUtil.rand);

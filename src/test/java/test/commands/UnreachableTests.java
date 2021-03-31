@@ -26,7 +26,7 @@ public class UnreachableTests {
                 .filter(x -> x instanceof NPSpotifyCommand).map(x -> (NPSpotifyCommand) x).findAny();
         assert any.isPresent();
         NPSpotifyCommand npSpotifyCommand = any.get();
-        NowPlayingArtist nowPlayingArtist = new NowPlayingArtist("doesnt exist asdasdaad", "", true, "doesnt existasdasdaad", "doesntasdasdaad exists", "", "pepito");
+        NowPlayingArtist nowPlayingArtist = new NowPlayingArtist("doesnt exist asdasdaad", "", true, "doesnt existasdasdaad", "doesntasdasdaad exists", "", "pepito", loved);
 
         //This will crash but it increase coverage :D
         npSpotifyCommand.doSomethingWithArtist(nowPlayingArtist, null, -1L, null, null);

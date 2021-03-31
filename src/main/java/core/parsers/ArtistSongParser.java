@@ -25,7 +25,7 @@ public class ArtistSongParser extends ArtistAlbumParser {
 
     @Override
     ArtistAlbumParameters doSomethingWithNp(NowPlayingArtist np, LastFMData lastFMData, MessageReceivedEvent e) {
-        return new ArtistAlbumParameters(e, np.getArtistName(), np.getSongName(), lastFMData);
+        return new ArtistAlbumParameters(e, np.artistName(), np.songName(), lastFMData);
     }
 
     @Override

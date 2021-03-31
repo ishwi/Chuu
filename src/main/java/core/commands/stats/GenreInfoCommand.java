@@ -61,7 +61,7 @@ public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
 
         if (params.isAutoDetected()) {
             NowPlayingArtist np = params.getNp();
-            embedBuilder.setFooter("This genre was obtained from " + String.format("%s - %s | %s", np.getArtistName(), np.getSongName(), np.getAlbumName()));
+            embedBuilder.setFooter("This genre was obtained from " + String.format("%s - %s | %s", np.artistName(), np.songName(), np.albumName()));
         }
         e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
     }

@@ -24,7 +24,7 @@ public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordPara
     private final Function<NowPlayingArtist, String> mapper;
 
     public UsernameAndNpQueryParser(ChuuService dao, ConcurrentLastFM lastFM) {
-        this(dao, lastFM, (np) -> np.getArtistName() + " " + np.getSongName());
+        this(dao, lastFM, (np) -> np.artistName() + " " + np.songName());
     }
 
     public UsernameAndNpQueryParser(ChuuService dao, ConcurrentLastFM lastFM, Function<NowPlayingArtist, String> mapper) {

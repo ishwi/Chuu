@@ -50,10 +50,10 @@ public class NowPlayingCommand extends NpCommand {
         StringBuilder a = new StringBuilder();
 
         // Author fields cant have escaped markdown characters
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoNotStripped(e, discordId);
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
 
-        String urlHolder = userInformation.getUrlImage();
-        String userName = userInformation.getUsername();
+        String urlHolder = uInfo.getUrlImage();
+        String userName = uInfo.getUsername();
 
         EnumSet<NPMode> npModes = EnumSet.noneOf(NPMode.class);
         if (e.isFromGuild()) {
@@ -64,21 +64,21 @@ public class NowPlayingCommand extends NpCommand {
             npModes = db.getNPModes(discordId);
         }
 
-        String title = String.format("%s's %s song:", userName, nowPlayingArtist.isNowPlaying() ? "current" : "last");
-        String lastFMName = nowPlayingArtist.getUsername();
+        String title = String.format("%s's %s song:", userName, nowPlayingArtist.current() ? "current" : "last");
+        String lastFMName = nowPlayingArtist.username();
 
 
-        a.append("**").append(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getArtistName()))
-                .append("** | ").append(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getAlbumName())).append("\n");
+        a.append("**").append(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.artistName()))
+                .append("** | ").append(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.albumName())).append("\n");
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setAuthor(title, CommandUtil.getLastFmUser(lastFMName), urlHolder)
-                .setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.getUrl()))
-                .setTitle(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getSongName()), LinkUtils.getLastFMArtistTrack(nowPlayingArtist.getArtistName(), nowPlayingArtist.getSongName()))
+                .setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.url()))
+                .setTitle(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.songName()), LinkUtils.getLastFMArtistTrack(nowPlayingArtist.artistName(), nowPlayingArtist.songName()))
                 .setDescription(a);
 
 
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(nowPlayingArtist.getArtistName(), 0, null);
+        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(nowPlayingArtist.artistName(), 0, null);
         try {
             CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
         } catch (LastFmException ignored) {

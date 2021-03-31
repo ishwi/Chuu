@@ -28,12 +28,12 @@ public class NPSpotifyCommand extends NpCommand {
     public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e, long discordId, LastFMData user, NowPlayingParameters parameters) {
         MessageBuilder messageBuilder = new MessageBuilder();
         String uri = spotify
-                .searchItems(nowPlayingArtist.getSongName(), nowPlayingArtist.getArtistName(), nowPlayingArtist
-                        .getAlbumName());
+                .searchItems(nowPlayingArtist.songName(), nowPlayingArtist.artistName(), nowPlayingArtist
+                        .albumName());
 
         if (uri.isBlank()) {
-            sendMessageQueue(e, String.format("Was not able to find %s - %s on spotify", CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.getArtistName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist
-                    .getSongName())));
+            sendMessageQueue(e, String.format("Was not able to find %s - %s on spotify", CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.artistName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist
+                    .songName())));
             return;
         }
         e.getChannel().sendMessage(messageBuilder.setContent(uri).build()).queue();

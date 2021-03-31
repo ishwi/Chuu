@@ -51,21 +51,21 @@ public class FavesCommandTest extends CommandTest {
 		DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
 		Spotify spotify = SpotifySingleton.getInstance();
 		NowPlayingArtist np = newInstance.getNowPlayingInfo(LastFMData.ofUser("pablopita"));
-		String artistUrl = CommandUtil
-				.getArtistImageUrl(TestResources.dao, np.getArtistName(), newInstance, discogsApi, spotify);
-		EmbedUtils
-				.testLeaderboardEmbed(COMMAND_ALIAS + " w", EmbedUtils.descriptionArtistRegexNoMarkDownLink, "${header}'s Top (.*) Tracks in (.*)",
-						false, false, artistUrl, Pattern
-								.compile("Coudnt't find your fav tracks of " + np.getArtistName() + " in the last week!"));
+        String artistUrl = CommandUtil
+                .getArtistImageUrl(TestResources.dao, np.artistName(), newInstance, discogsApi, spotify);
+        EmbedUtils
+                .testLeaderboardEmbed(COMMAND_ALIAS + " w", EmbedUtils.descriptionArtistRegexNoMarkDownLink, "${header}'s Top (.*) Tracks in (.*)",
+                        false, false, artistUrl, Pattern
+                                .compile("Coudnt't find your fav tracks of " + np.artistName() + " in the last week!"));
 
-		np = newInstance.getNowPlayingInfo(LastFMData.ofUser("guilleecs"));
-		artistUrl = CommandUtil
-				.getArtistImageUrl(TestResources.dao, np.getArtistName(), newInstance, discogsApi, spotify);
-		EmbedUtils
-				.testLeaderboardEmbed(COMMAND_ALIAS + " w " + TestResources.ogJDA.getSelfUser()
-								.getAsMention(), EmbedUtils.descriptionArtistRegexNoMarkDownLink, "${header}'s Top (.*) Tracks in (.*)",
-						false, false, artistUrl, Pattern
-								.compile("Coudnt't find your fav tracks of " + np.getArtistName() + " in the last week!"));
+        np = newInstance.getNowPlayingInfo(LastFMData.ofUser("guilleecs"));
+        artistUrl = CommandUtil
+                .getArtistImageUrl(TestResources.dao, np.artistName(), newInstance, discogsApi, spotify);
+        EmbedUtils
+                .testLeaderboardEmbed(COMMAND_ALIAS + " w " + TestResources.ogJDA.getSelfUser()
+                                .getAsMention(), EmbedUtils.descriptionArtistRegexNoMarkDownLink, "${header}'s Top (.*) Tracks in (.*)",
+                        false, false, artistUrl, Pattern
+                                .compile("Coudnt't find your fav tracks of " + np.artistName() + " in the last week!"));
 	}
 }
 

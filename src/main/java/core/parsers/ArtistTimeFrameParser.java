@@ -62,7 +62,7 @@ public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> 
                 np = new NPService(lastFM, lastFMData).getNowPlaying();
             }
 
-            return new ArtistTimeFrameParameters(e, np.getArtistName(), lastFMData, timeFrame);
+            return new ArtistTimeFrameParameters(e, np.artistName(), lastFMData, timeFrame);
         } else {
             return new ArtistTimeFrameParameters(e, String.join(" ", words), lastFMData, timeFrame);
         }

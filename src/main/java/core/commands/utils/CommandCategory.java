@@ -11,12 +11,13 @@ public enum CommandCategory {
     INFO(7, "Information about artists,albums..."),
     DISCOVERY(8, "Discover or help others discover new music"),
     BOT_INFO(9, "Information about the bot"),
-    ARTIST_IMAGES(10, "Personalize the artist images displayed on the bot"),
-    RYM_BETA(11, "Testing command about a RYM integration, possibly broken"),
-    MUSIC(12, "Play and scrobble music"),
-    CONFIGURATION(13, "Personalize your bot usage"),
-    MODERATION(14, "Command for bot admins"),
-    SCROBBLING(15, "Commands for scrobbling");
+    LOVE(10, "Using the love feature of last.fm"),
+    ARTIST_IMAGES(11, "Personalize the artist images displayed on the bot"),
+    RYM_BETA(12, "Testing command about a RYM integration, possibly broken"),
+    MUSIC(13, "Play and scrobble music"),
+    CONFIGURATION(14, "Personalize your bot usage"),
+    MODERATION(15, "Command for bot admins"),
+    SCROBBLING(16, "Commands for scrobbling");
 
     private final int order;
     private final String description;
