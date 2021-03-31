@@ -39,10 +39,10 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                         return LocalDateTime.now().plus(12, ChronoUnit.HOURS);
                     }
                 });
-        serverControlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(3, TimeUnit.MINUTES).build(
+        serverControlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(1, TimeUnit.MINUTES).build(
                 new CacheLoader<>() {
                     public LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
-                        return LocalDateTime.now().plus(3, ChronoUnit.MINUTES);
+                        return LocalDateTime.now().plus(1, ChronoUnit.MINUTES);
                     }
                 });
     }
@@ -75,8 +75,9 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         boolean showFresh = !params.hasOptional("recent");
 
         List<LastFMData> users = db.getAllData(e.getGuild().getIdLong());
+        long unaothorized = users.stream().filter(t -> t.getSession() == null).count();
         LocalDateTime cooldown;
-        if (users.size() > 66) {
+        if (unaothorized > 66 || (users.size() - unaothorized > 150)) {
             LocalDateTime ifPresent = controlAccess.getIfPresent(e.getGuild().getIdLong());
             if (ifPresent != null) {
                 format(e, ifPresent, "This server has too many users, so the playing command can only be executed twice per day ");
@@ -84,7 +85,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
             }
             controlAccess.refresh(e.getGuild().getIdLong());
         } else if ((cooldown = serverControlAccess.getIfPresent(e.getGuild().getIdLong())) != null) {
-            format(e, cooldown, "This command has a 3 min cooldown between uses. ");
+            format(e, cooldown, "This command has a 1 min cooldown between uses.");
             return;
         } else {
             serverControlAccess.refresh(e.getGuild().getIdLong());
@@ -94,7 +95,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setTitle(
                         (showFresh ? "What is being played now in " : "What was being played in ")
-                                + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()));
+                        + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()));
 
         List<String> result = users.parallelStream().map(u ->
         {
@@ -109,18 +110,18 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
             Optional<NowPlayingArtist> value = x.getValue();
             return value.isPresent() && !(showFresh && !value.get().current());
         }).map(x -> {
-            LastFMData usersWrapper = x.getKey();
+                    LastFMData usersWrapper = x.getKey();
                     assert x.getValue().isPresent();
-            NowPlayingArtist value = x.getValue().get(); //Checked previous filter
-            String username = getUserString(e, usersWrapper.getDiscordId(), usersWrapper.getName());
-            String started = !showFresh && value.current() ? "#" : "+";
-            return started + " [" +
-                   username + "](" +
-                   CommandUtil.getLastFmUser(usersWrapper.getName()) +
-                   "): " +
-                   CommandUtil.cleanMarkdownCharacter(value.songName() +
-                                                      " - " + value.artistName() +
-                                                      " | " + value.albumName() + "\n");
+                    NowPlayingArtist value = x.getValue().get(); //Checked previous filter
+                    String username = getUserString(e, usersWrapper.getDiscordId(), usersWrapper.getName());
+                    String started = !showFresh && value.current() ? "#" : "+";
+                    return started + " [" +
+                           username + "](" +
+                           CommandUtil.getLastFmUser(usersWrapper.getName()) +
+                           "): " +
+                           CommandUtil.cleanMarkdownCharacter(value.songName() +
+                                                              " - " + value.artistName() +
+                                                              " | " + value.albumName() + "\n");
                 }
         ).collect(Collectors.toCollection(ArrayList::new));
         Collections.shuffle(result, CommandUtil.rand);
@@ -154,7 +155,14 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         now = now.plus(hours, ChronoUnit.HOURS);
         long minutes = now.until(cooldown, ChronoUnit.MINUTES);
         String hstr = hours <= 0 ? "" : "%d %s and ".formatted(hours, CommandUtil.singlePlural(hours, "hour", "hours"));
-        sendMessageQueue(e, "%s (usable in %s%d %s)".formatted(s, hstr, minutes, CommandUtil.singlePlural(minutes, "minute", "minutes")));
+        String mStr;
+        if (minutes <= 0 && hours <= 0) {
+            long seconds = now.until(cooldown, ChronoUnit.SECONDS);
+            mStr = "%d %s".formatted(seconds, CommandUtil.singlePlural(seconds, "second", "seconds"));
+        } else {
+            mStr = "%d %s".formatted(minutes, CommandUtil.singlePlural(minutes, "minute", "minutes"));
+        }
+        sendMessageQueue(e, "%s (usable in %s%s)".formatted(s, hstr, mStr));
     }
 
     @Override

@@ -120,7 +120,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             nowPlaying = false;
         }
         JSONObject artistObj = trackObj.getJSONObject("artist");
-        String artistName = artistObj.getString("#text");
+        String artistName = artistObj.getString("name");
         String mbid = artistObj.getString("mbid");
 
         String albumName = trackObj.getJSONObject("album").getString("#text");
