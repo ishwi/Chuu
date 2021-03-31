@@ -50,7 +50,7 @@ public class InviteCommand extends ConcurrentCommand<CommandParameters> {
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
         EnumSet<Permission> permissions = Permission.getPermissions(PERMISSIONS);
         // TODO when there is proper support for creating url with JDA
-        String inviteUrl = e.getJDA().getInviteUrl(permissions).replaceAll("&scope=bot", "&scope=bot%20applications.commands");
+        String inviteUrl = e.getJDA().getInviteUrl(permissions).replaceAll("\\?scope=bot", "?scope=bot%20applications.commands");
         sendMessageQueue(e, "Using the following link you can invite me to your server:\n" + inviteUrl);
     }
 }
