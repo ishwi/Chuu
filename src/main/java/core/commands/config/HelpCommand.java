@@ -195,7 +195,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
 
     private void doSend(String[] args, MessageChannel channel, Character prefix) {
         String command = args[1]
-                .charAt(0) == prefix ? args[1] : "" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
+                                 .charAt(0) == prefix ? args[1] : "" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
         List<MyCommand<?>> values = categoryMap.values().stream().flatMap(Collection::stream).toList();
         for (MyCommand<?> c : values) {
             if (c.getAliases().contains(command.toLowerCase())) {
@@ -210,10 +210,10 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
                 boolean resend = false;
                 String realUsageInstructions = usageInstructions;
                 String remainingUsageInstructions = null;
-                if (realUsageInstructions.length() > 1600) {
-                    int i = usageInstructions.substring(0, 1600).lastIndexOf("\n");
+                if (realUsageInstructions.length() > 1900) {
+                    int i = usageInstructions.substring(0, 1900).lastIndexOf("\n");
                     realUsageInstructions = realUsageInstructions.substring(0, i);
-                    remainingUsageInstructions = "-" + usageInstructions.substring(i);
+                    remainingUsageInstructions = EmbedBuilder.ZERO_WIDTH_SPACE + usageInstructions.substring(i + 1);
                     resend = true;
                 }
                 //TODO: Replace with a PrivateMessage

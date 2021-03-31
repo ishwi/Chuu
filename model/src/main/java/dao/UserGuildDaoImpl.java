@@ -1146,7 +1146,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public Set<LastFMData> findScrobbleableUsers(Connection con, long guildId) {
         /* Create "queryString". */
         Set<LastFMData> lastFMData = new HashSet<>();
-        String queryString = "SELECT discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color,own_tags FROM user a natural  join user_guild b where b.guild_id = ? and sess is not null ";
+        String queryString = "SELECT discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color,own_tags FROM user a natural  join user_guild b where b.guild_id = ? and sess is not null and scrobbling = true ";
 
         return new HashSet<>(getServerData(con, guildId, queryString));
 

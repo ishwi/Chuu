@@ -51,7 +51,7 @@ public class LoveCommand extends AlbumPlaysCommand {
             sendMessageQueue(e, "Only users that have linked their account via `%slogin` can love/unlove songs!".formatted(CommandUtil.getMessagePrefix(e)));
             return;
         }
-        lastFM.love(user.getSession(), new Scrobble(artist.getArtist(), null, song, null));
+        lastFM.love(user.getSession(), new Scrobble(artist.getArtist(), null, song, null, null));
 
         sendMessageQueue(e, "Successfully loved **%s** by **%s**.".formatted(song, artist.getArtist()));
     }

@@ -24,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class ScrobblerEventListener implements AudioEventListener {
@@ -62,9 +63,14 @@ public class ScrobblerEventListener implements AudioEventListener {
             return;
         }
         this.startMap.put(event.track, OffsetDateTime.now(ZoneOffset.UTC).toInstant());
-
+        AtomicBoolean done = new AtomicBoolean(false);
         Runnable runnable = () -> {
             try {
+                if (done.get()) {
+                    this.todo.forEach(x -> x.cancel(false));
+                    this.todo.clear();
+                    return;
+                }
                 AudioTrack playingTrack = event.player.getPlayingTrack();
                 GuildVoiceState voiceState = musicManager.getGuild().getSelfMember().getVoiceState();
                 if (voiceState == null || !voiceState.inVoiceChannel() || voiceState.getChannel() == null)
@@ -83,15 +89,18 @@ public class ScrobblerEventListener implements AudioEventListener {
                     lastFM.flagNP(data.getSession(), scrobble);
 
                 }
+                done.set(true);
                 scrooblersCount = scrobbleableUsers.size();
+                this.todo.forEach(x -> x.cancel(false));
+                this.todo.clear();
             } catch (LastFmException exception) {
                 Chuu.getLogger().warn(exception.getMessage(), exception);
                 this.todo.forEach(x -> x.cancel(false));
                 this.todo.clear();
             }
         };
-        CompletableFuture.delayedExecutor(inmediato ? 1 : 5, TimeUnit.SECONDS).execute(() -> {
-            ScheduledFuture<?> scheduledFuture = scheduledThreadPoolExecutor.scheduleAtFixedRate(runnable, 0, 60, TimeUnit.SECONDS);
+        CompletableFuture.delayedExecutor(inmediato ? 1 : 3, TimeUnit.SECONDS).execute(() -> {
+            ScheduledFuture<?> scheduledFuture = scheduledThreadPoolExecutor.scheduleAtFixedRate(runnable, 0, 10, TimeUnit.SECONDS);
             todo.add(scheduledFuture);
             CompletableFuture.delayedExecutor(event.track.getDuration() - 5, TimeUnit.MILLISECONDS).execute(() -> scheduledFuture.cancel(true));
         });
@@ -137,12 +146,16 @@ public class ScrobblerEventListener implements AudioEventListener {
             album = spo.getAlbum();
             image = spo.getImage();
         }
+        Integer duration = null;
+        if (playingTrack.getDuration() != Long.MAX_VALUE) {
+            duration = Math.toIntExact((playingTrack.getDuration() / 1000));
+        }
         AudioTrackInfo info = playingTrack.getInfo();
         String title = metadata != null ? metadata.song() : info.title;
         String author = metadata != null ? metadata.artist() : info.author;
         album = metadata != null ? metadata.album() : album;
         image = metadata != null ? metadata.image() : image;
-        return new Scrobble(author, album, title, image);
+        return new Scrobble(author, album, title, image, duration);
 
     }
 

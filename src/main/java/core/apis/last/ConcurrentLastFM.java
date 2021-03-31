@@ -1777,7 +1777,11 @@ public class ConcurrentLastFM {//implements LastFMService {
     private String getSignature(PostEntity scrobblePost) {
         List<? extends NameValuePair> items = Arrays.stream(scrobblePost.getClass().getRecordComponents()).map(x -> {
             try {
-                return new BasicNameValuePair(x.getName(), x.getAccessor().invoke(scrobblePost).toString());
+                Object invoked = x.getAccessor().invoke(scrobblePost);
+                if (invoked == null) {
+                    return null;
+                }
+                return new BasicNameValuePair(x.getName(), invoked.toString());
             } catch (IllegalAccessException | InvocationTargetException e) {
                 return null;
             }
