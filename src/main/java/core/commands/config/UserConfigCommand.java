@@ -233,6 +233,15 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                     sendMessageQueue(e, "Won't scrobble what you play on a voice channel");
                 }
                 break;
+            case OWN_TAGS:
+                b = Boolean.parseBoolean(value);
+                db.setOwnTags(e.getAuthor().getIdLong(), b);
+                if (b) {
+                    sendMessageQueue(e, "Will prioritize your own tags for artist in the np command");
+                } else {
+                    sendMessageQueue(e, "Wont prioritize your own tags for artist in the np command");
+                }
+                break;
             case TIMEZONE:
                 break;
         }

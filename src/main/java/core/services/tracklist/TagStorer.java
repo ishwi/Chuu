@@ -17,19 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
-public final class TagStorer {
-    private final ChuuService db;
-    private final ConcurrentLastFM lastFM;
-    private final ExecutorService executor;
-    private final NowPlayingArtist nowPlayingInfo;
-
-    public TagStorer(ChuuService db, ConcurrentLastFM lastFM, ExecutorService executor,
-                     NowPlayingArtist nowPlayingInfo) {
-        this.db = db;
-        this.lastFM = lastFM;
-        this.executor = executor;
-        this.nowPlayingInfo = nowPlayingInfo;
-    }
+public record TagStorer(ChuuService db, ConcurrentLastFM lastFM,
+                        ExecutorService executor, NowPlayingArtist nowPlayingInfo) {
 
     public List<String> findTags() throws LastFmException {
         return findTags(5);

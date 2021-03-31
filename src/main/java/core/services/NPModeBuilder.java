@@ -305,7 +305,13 @@ public class NPModeBuilder {
                             boolean extended = npModes.contains(NPMode.EXTENDED_TAGS);
                             Set<String> bannedTags = service.getBannedTags();
                             int limit = extended ? 12 : 5;
-                            Set<String> tags = new HashSet<>(new TagStorer(service, lastFM, executor, np).findTags(limit));
+                            Set<String> tags = new LinkedHashSet<>();
+                            if (lastFMName.getSession() != null && lastFMName.useOwnTags()) {
+                                tags.addAll(lastFM.getUserArtistTags(limit, scrobbledArtist.getArtist(), lastFMName, lastFMName.getSession()));
+                            }
+                            if (tags.size() < limit) {
+                                tags.addAll(new HashSet<>(new TagStorer(service, lastFM, executor, np).findTags(limit)));
+                            }
                             tags.removeIf(bannedTags::contains);
                             if (tags.isEmpty()) {
                                 return;

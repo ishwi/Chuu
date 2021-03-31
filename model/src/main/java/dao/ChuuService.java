@@ -1571,6 +1571,14 @@ public class ChuuService {
         }
     }
 
+    public void setOwnTags(long discordId, boolean ownTags) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setUserProperty(connection, discordId, "own_tags", ownTags);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void setEmbedColor(long discordId, @Nullable EmbedColor embedColor) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setUserProperty(connection, discordId, "color", embedColor == null ? null : embedColor.toString());
@@ -3767,6 +3775,18 @@ public class ChuuService {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+
+    }
+
+    public Set<Long> getServerBlocked(long guildId) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getServerBlocked(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
 
     }
 }

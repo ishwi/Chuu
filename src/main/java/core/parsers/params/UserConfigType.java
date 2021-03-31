@@ -28,6 +28,7 @@ public enum UserConfigType {
     NP("np"),
     SCROBBLING("scrobbling"),
     COLOR("color"),
+    OWN_TAGS("own-tags"),
     TIMEZONE("timezone");
 
     static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
@@ -35,8 +36,8 @@ public enum UserConfigType {
     static final Pattern whoknowsMode = Pattern.compile("(Image|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
     static final Pattern privacyMode = Pattern.compile("(Normal|Tag|Last-name|Discord-Name)", Pattern.CASE_INSENSITIVE);
     static final Pattern npMode = Pattern.compile("((" +
-            EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
-            ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
+                                                  EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
+                                                  ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
     static final Predicate<String> stringPredicate = (x) ->
     {
         try {
@@ -147,6 +148,9 @@ public enum UserConfigType {
                             return String.format("**%s** -> %s", key, scroobling);
                         case COLOR:
                             return String.format("**%s** -> %s", key, lastFMData == null || lastFMData.getEmbedColor() == null ? EmbedColor.defaultColor() : lastFMData.getEmbedColor().toDisplayString());
+                        case OWN_TAGS:
+                            boolean ownTags = lastFMData != null && lastFMData.useOwnTags();
+                            return String.format("**%s** -> %s", key, ownTags);
                         case TIMEZONE:
                             return "";
                     }
@@ -165,7 +169,7 @@ public enum UserConfigType {
             case CHART_MODE -> chartMode.asMatchPredicate();
             case REMAINING_MODE, WHOKNOWS_MODE -> whoknowsMode.asMatchPredicate();
             case PRIVACY_MODE -> privacyMode.asMatchPredicate();
-            case PRIVATE_UPDATE, NOTIFY_IMAGE, NOTIFY_RATING, PRIVATE_LASTFM, SHOW_BOTTED, SCROBBLING -> bool.asMatchPredicate();
+            case PRIVATE_UPDATE, NOTIFY_IMAGE, NOTIFY_RATING, PRIVATE_LASTFM, SHOW_BOTTED, SCROBBLING, OWN_TAGS -> bool.asMatchPredicate();
             case CHART_SIZE -> ChartParserAux.chartSizePattern.asMatchPredicate();
             case NP -> npMode.asMatchPredicate();
             case COLOR -> GuildConfigType.colorMode.asMatchPredicate();
@@ -183,20 +187,20 @@ public enum UserConfigType {
                 String line = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 line += "\n\t\t\t**Clear**: Sets the default mode";
                 return "Set the mode for all charts. " +
-                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                        "\t\tThe possible values for the chart mode are the following:" + line;
+                       "Keep in mind that if a server has a set value that will be prioritized.\n" +
+                       "\t\tThe possible values for the chart mode are the following:" + line;
             case WHOKNOWS_MODE:
                 line = EnumSet.allOf(WhoKnowsMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 line += "\n\t\t\t**Clear**: Sets the default mode";
                 return "Set the mode for all charts. " +
-                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                        "\t\tThe possible values for the who knows mode are the following:" + line;
+                       "Keep in mind that if a server has a set value that will be prioritized.\n" +
+                       "\t\tThe possible values for the who knows mode are the following:" + line;
             case REMAINING_MODE:
                 line = EnumSet.allOf(RemainingImagesMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 line += "\n\t\t\t**Clear**:| Sets the default mode";
                 return "Set the mode for the rest of the commands. " +
-                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                        "\t\tThe possible values for the rest of the commands are the following:" + line;
+                       "Keep in mind that if a server has a set value that will be prioritized.\n" +
+                       "\t\tThe possible values for the rest of the commands are the following:" + line;
             case CHART_SIZE:
                 return "Change the default chart size for chart command when you dont specify directly the size";
             case PRIVACY_MODE:
@@ -214,7 +218,9 @@ public enum UserConfigType {
             case COLOR:
                 line = EnumSet.allOf(EmbedColor.EmbedColorType.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 return "Set the color for your embeds.\n" +
-                        "\t\tThe possible values for the embed colour are the following:" + line;
+                       "\t\tThe possible values for the embed colour are the following:" + line;
+            case OWN_TAGS:
+                return "Setting this to true will mean that for the np command your own tags will be prioritized. (Need also to authorize the bot with `login`)";
             case TIMEZONE:
                 return "TIMEZONE ";
             default:

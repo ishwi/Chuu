@@ -156,4 +156,6 @@ interface UserGuildDao {
     void insertServerCustomUrl(Connection connection, long altId, long guildId, long artistId);
 
     List<LastFMData> getAllData(Connection connection, long guildId);
+
+    Set<Long> getServerBlocked(Connection connection, long guildId);
 }

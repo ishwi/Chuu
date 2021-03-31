@@ -84,6 +84,7 @@ public class ConcurrentLastFM {//implements LastFMService {
     static final String GET_TRACK_TAGS = "?method=track.gettoptags";
     static final String GET_ALBUM_TAGS = "?method=album.gettoptags";
     static final String GET_ARTIST_TAGS = "?method=artist.gettoptags";
+    static final String GET_USER_ARTIST_TAGS = "?method=artist.gettags";
     static final String GET_TAG_INFO = "?method=tag.getinfo&tag=";
     static final String GET_TOKEN = "?method=auth.gettoken";
     static final String GET_SESSION = "?method=auth.getSession&token=";
@@ -1563,6 +1564,28 @@ public class ConcurrentLastFM {//implements LastFMService {
         return attrObj.getInt("total");
     }
 
+    public List<String> getUserArtistTags(int count, String artist, LastFMData user, @NotNull String session) throws
+            LastFmException {
+        String url = BASE + GET_USER_ARTIST_TAGS + "&artist=" +
+                     URLEncoder
+                             .encode(artist, StandardCharsets.UTF_8) +
+                     apiKey + ENDING;
+
+        JSONObject obj = doMethod(url, new ArtistException(artist), user);
+
+        List<String> tags = new ArrayList<>();
+
+        obj = obj.getJSONObject("tags");
+        JSONArray tag = obj.optJSONArray("tag");
+        if (tag != null) {
+            for (
+                    int i = 0; i < tag.length() && i < count; i++) {
+                tags.add(tag.getJSONObject(i).getString("name"));
+            }
+        }
+        return tags;
+    }
+
     public List<String> getTrackTags(int count, TopEntity entity, String artist, @Nullable String track) throws
             LastFmException {
         String url = "";
@@ -1865,6 +1888,8 @@ public class ConcurrentLastFM {//implements LastFMService {
         }
 
     }
+
+
 }
 
 

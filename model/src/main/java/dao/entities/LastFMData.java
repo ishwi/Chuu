@@ -26,8 +26,9 @@ public class LastFMData {
     private String session;
     private final boolean scrobbling;
     private final EmbedColor embedColor;
+    private final boolean ownTags;
 
-    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor) {
+    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor, boolean ownTags) {
         this.discordId = discordId;
         this.name = name;
         this.guildID = guildID;
@@ -47,9 +48,10 @@ public class LastFMData {
         this.session = session;
         this.scrobbling = scrobbling;
         this.embedColor = embedColor;
+        this.ownTags = ownTags;
     }
 
-    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor) {
+    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor, boolean ownTags) {
         this.name = lastFmID;
         this.discordId = resDiscordID;
         this.role = role;
@@ -69,20 +71,21 @@ public class LastFMData {
         this.session = session;
         this.scrobbling = scrobbling;
         this.embedColor = embedColor;
+        this.ownTags = ownTags;
     }
 
     public static LastFMData ofUserWrapper(UsersWrapper usersWrapper) {
-        return new LastFMData(usersWrapper.getLastFMName(), usersWrapper.getDiscordID(), usersWrapper.getRole(), false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, usersWrapper.getTimeZone(), null, null, true, EmbedColor.defaultColor());
+        return new LastFMData(usersWrapper.getLastFMName(), usersWrapper.getDiscordID(), usersWrapper.getRole(), false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, usersWrapper.getTimeZone(), null, null, true, EmbedColor.defaultColor(), false);
 
     }
 
     public static LastFMData ofDefault() {
-        return new LastFMData("chuubot", -1L, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor());
+        return new LastFMData("chuubot", -1L, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false);
 
     }
 
     public static LastFMData ofUser(@NotNull String user) {
-        return new LastFMData(user, -1L, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor());
+        return new LastFMData(user, -1L, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false);
 
     }
 
@@ -194,5 +197,9 @@ public class LastFMData {
 
     public boolean isScrobbling() {
         return scrobbling;
+    }
+
+    public boolean useOwnTags() {
+        return ownTags;
     }
 }
