@@ -1,5 +1,8 @@
 package core.parsers;
 
+import core.parsers.explanation.PermissiveUserExplanation;
+import core.parsers.explanation.RatingExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.RYMRatingParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -7,6 +10,7 @@ import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -71,10 +75,9 @@ public class RYMRatingParser extends DaoParser<RYMRatingParams> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *rating_score* *username* " +
-                "\n\tIf username it's not provided it defaults to authors account, only ping, tag format (user#number),discord id, u:username or lfm:lastfmname\n " +
-                "\n\t The rating can only be interpreted in the scale 0-5 (with .5 decimals), 0-10 and 0-100";
-
+    public List<Explanation> getUsages() {
+        return List.of(new RatingExplanation(), new PermissiveUserExplanation());
     }
+
+
 }

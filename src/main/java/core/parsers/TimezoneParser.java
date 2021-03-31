@@ -1,5 +1,7 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.TimezoneParams;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
@@ -128,10 +130,9 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *timezone***\n" +
-                "\t The timezone can be written either as a abbreviate of the timezone (CET, PT...), the offset of the timezone" +
-                " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)\n";
-
+    public List<Explanation> getUsages() {
+        return List.of(() -> new ExplanationLine("Timezone", "The timezone can be written either as a abbreviate of the timezone (CET, PT...), the offset of the timezone" +
+                                                             " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)"));
     }
+
 }

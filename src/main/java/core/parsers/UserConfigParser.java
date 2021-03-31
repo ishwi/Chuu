@@ -1,11 +1,15 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.UserConfigParameters;
 import core.parsers.params.UserConfigType;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -59,10 +63,10 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
+    public List<Explanation> getUsages() {
         String line = Arrays.stream(UserConfigType.values()).map(x -> String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
-        return "**" + commandName + " *command* *argument* ** \n" +
-                "Possible Values:\n" + line;
+        String usage = "Possible values:\n" + line;
+        return Collections.singletonList(() -> new ExplanationLine("Command with argument", usage));
     }
 
     @Override

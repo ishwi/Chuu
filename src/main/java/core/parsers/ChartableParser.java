@@ -1,6 +1,10 @@
 package core.parsers;
 
 import core.exceptions.LastFmException;
+import core.parsers.explanation.ChartSizeExplanation;
+import core.parsers.explanation.FullTimeframeExplanation;
+import core.parsers.explanation.PermissiveUserExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.TimeFrameEnum;
@@ -8,6 +12,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.List;
 
 public abstract class ChartableParser<T extends ChartParameters> extends DaoParser<T> {
     public static final int DEFAULT_X = 5;
@@ -62,12 +67,10 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *[d,w,m,q,s,y,a]* *sizeXsize*  *Username* ** \n" +
-                "\tIf time is not specified defaults to " + defaultTFE.name().toLowerCase() + "\n" +
-                "\tIf username is not specified defaults to authors account \n" +
-                "\tIf Size not specified it defaults to 5x5\n";
+    public List<Explanation> getUsages() {
+        return List.of(new FullTimeframeExplanation(defaultTFE), new ChartSizeExplanation(), new PermissiveUserExplanation());
     }
+
 
     @Override
     protected void setUpErrorMessages() {

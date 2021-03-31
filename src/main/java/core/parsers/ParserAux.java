@@ -51,7 +51,7 @@ public class ParserAux {
     public record Snowflake(long id) {
     }
 
-    @NotNull User getOneUserPermissive(MessageReceivedEvent e) {
+    @NotNull User getOneUserPermissive(MessageReceivedEvent e, ChuuService dao) throws InstanceNotFoundException {
         User sample;
         String join = String.join(" ", message);
         if (e.isFromGuild()) {
@@ -63,8 +63,22 @@ public class ParserAux {
                 if (join.isBlank()) {
                     return e.getAuthor();
                 }
-
-
+                Matcher matcher = userRaw.matcher(join);
+                Matcher lfmM = lfm.matcher(join);
+                if (matcher.matches()) {
+                    String userName = matcher.group(1);
+                    Optional<User> user = userString(userName, e, dao);
+                    if (user.isPresent()) {
+                        return user.get();
+                    }
+                } else if (e.isFromGuild() && lfmM.matches()) {
+                    String userName = lfmM.group(1);
+                    long discordIdFromLastfm = dao.getDiscordIdFromLastfm(userName, e.getGuild().getIdLong());
+                    Member memberById = e.getGuild().getMemberById(discordIdFromLastfm);
+                    if (memberById != null) {
+                        return memberById.getUser();
+                    }
+                }
                 Member memberByTag = null;
                 if (user.matcher(join).matches()) {
                     memberByTag = e.getGuild().getMemberByTag(join);
@@ -235,6 +249,22 @@ public class ParserAux {
 
         Set<Long> all = db.getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
         Predicate<Member> isOnServer = member -> member != null && all.stream().anyMatch(x -> x == member.getIdLong());
+
+
+        Matcher lfmM = lfm.matcher(message);
+        if (e.isFromGuild() && lfmM.matches()) {
+            String userName = lfmM.group(1);
+            long discordIdFromLastfm = db.getDiscordIdFromLastfm(userName, e.getGuild().getIdLong());
+            Member memberById = e.getGuild().getMemberById(discordIdFromLastfm);
+            if (!isOnServer.test(memberById) && memberById != null) {
+                throw new InstanceNotFoundException(memberById.getId());
+            }
+            return getLastFMData(Optional.ofNullable(memberById).map(Member::getUser), message, db, e);
+        }
+        if (userRaw.matcher(message).matches()) {
+            message = message.trim().substring(2);
+        }
+
         if (discordId.matcher(message).matches()) {
             Member memberById = e.getGuild().getMemberById(message);
             if (!isOnServer.test(memberById) && memberById != null) {

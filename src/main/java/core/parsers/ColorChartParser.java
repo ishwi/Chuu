@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ColorChartParser extends ChartableParser<ColorChartParams> {
@@ -80,18 +79,4 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
         return new ColorChartParams(e, data, data.getDiscordId(), CustomTimeFrame.ofTimeFrameEnum(timeFrame), x, y, colorList, data.getChartMode(), data);
     }
 
-    @Override
-    public String getUsageLogic(String commandName) {
-        Pattern compile = Pattern.compile("\\*\\*" + commandName + "(.*)\\*\\* ");
-        String usageLogic = super.getUsageLogic(commandName);
-        String[] split = usageLogic.split("\n");
-        for (int i = 0; i < split.length; i++) {
-            String input = split[i];
-            Matcher matcher = compile.matcher(input);
-            if (matcher.matches()) {
-                split[i] = "**" + commandName + matcher.group(1) + " *colour***\n\tA colour can be introduced by name, hex code or other html constructs";
-            }
-        }
-        return String.join("\n", split) + "\n";
-    }
 }

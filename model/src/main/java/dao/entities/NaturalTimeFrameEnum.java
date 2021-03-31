@@ -2,6 +2,7 @@ package dao.entities;
 
 
 import dao.utils.Constants;
+import org.apache.commons.text.WordUtils;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -43,6 +44,10 @@ public enum NaturalTimeFrameEnum {
 
     public static NaturalTimeFrameEnum get(String name) {
         return ENUM_MAP.get(name);
+    }
+
+    public String toValueString() {
+        return WordUtils.capitalizeFully(this.name);
     }
 
     // getter method

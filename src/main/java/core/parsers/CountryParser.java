@@ -1,6 +1,9 @@
 package core.parsers;
 
 import com.neovisionaries.i18n.CountryCode;
+import core.parsers.explanation.CountryExplanation;
+import core.parsers.explanation.TimeframeExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.CountryParameters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
@@ -109,11 +112,8 @@ public class CountryParser extends DaoParser<CountryParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *country* *[d,w,m,q,s,y,a]* *username*** \n" +
-                "\tIf the username it's not provided it defaults to authors account, only ping, tag format (user#number),discord id, u:username or lfm:lastfmname" +
-                "\n\tIf the timeframe it's not specified it defaults to All-Time" +
-                "\n\tCountry must come in the full name format or in the ISO 3166-1 alpha-2/alpha-3" +
-                " format\n ";
+    public List<Explanation> getUsages() {
+        return List.of(new CountryExplanation(), new TimeframeExplanation(TimeFrameEnum.ALL));
     }
+
 }

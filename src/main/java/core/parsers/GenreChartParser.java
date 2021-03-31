@@ -3,6 +3,8 @@ package core.parsers;
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
+import core.parsers.explanation.GenreExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ChartableGenreParameters;
 import core.parsers.params.GenreParameters;
 import core.parsers.utils.CustomTimeFrame;
@@ -15,8 +17,8 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class GenreChartParser extends ChartableParser<ChartableGenreParameters> {
     private final GenreParser innerParser;
@@ -64,17 +66,7 @@ public class GenreChartParser extends ChartableParser<ChartableGenreParameters> 
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        Pattern compile = Pattern.compile("\\*\\*" + commandName + "(.*)\\*\\* ");
-        String usageLogic = super.getUsageLogic(commandName);
-        String[] split = usageLogic.split("\n");
-        for (int i = 0; i < split.length; i++) {
-            String input = split[i];
-            Matcher matcher = compile.matcher(input);
-            if (matcher.matches()) {
-                split[i] = "**" + commandName + matcher.group(1) + " *genre***\n\tA genre can be specified or otherwise it defaults to the genre of your current track\\album\\artist according to last.fm";
-            }
-        }
-        return String.join("\n", split) + "\n";
+    public List<Explanation> getUsages() {
+        return Stream.concat(Stream.of(new GenreExplanation()), super.getUsages().stream()).toList();
     }
 }

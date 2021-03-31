@@ -1,5 +1,7 @@
 package core.parsers;
 
+import core.parsers.explanation.PermissiveUserExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -7,6 +9,8 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * returns: []; in 0 -> lastfmid, 1 -> discordId, 2... -> opts
@@ -28,8 +32,7 @@ public class OnlyUsernameParser extends DaoParser<ChuuDataParams> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *username***\n" +
-                "\t If the username is not specified it defaults to author's account\n";
+    public List<Explanation> getUsages() {
+        return Collections.singletonList(new PermissiveUserExplanation());
     }
 }

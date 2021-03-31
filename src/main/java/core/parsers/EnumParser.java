@@ -1,5 +1,7 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.EnumParameters;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -39,11 +41,11 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
+    public List<Explanation> getUsages() {
         List<String> lines = EnumSet.allOf(clazz).stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
 
-        return "**" + commandName + " *config_value*** \n" +
-                "\tConfig value being one of: **" + String.join("**, **", lines) + "**";
+        return List.of(() -> new ExplanationLine("Config Value", "Config value being one of: **" + String.join("**, **", lines) + "**"));
     }
+
 }
 

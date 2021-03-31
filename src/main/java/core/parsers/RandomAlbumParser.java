@@ -1,8 +1,13 @@
 package core.parsers;
 
+import core.parsers.explanation.UrlExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.UrlParameters;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,12 +74,20 @@ public class RandomAlbumParser extends Parser<UrlParameters> {
         return new UrlParameters(e, url);
     }
 
-
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *url***\n" +
-                "\t if no link is provided you get a random link\n" +
-                "\t the accepted links so far are: Spotify's uri and url, youtube's url ,bandcamp's, deezer's url and  soundcloud's url\n";
+    public List<Explanation> getUsages() {
+        return Collections.singletonList(new UrlExplanation() {
+            @Override
+            public ExplanationLine explanation() {
+                return new ExplanationLine(super.explanation().header(),
+                        """
+                                If no link is provided you'll get a random link
+                                The allowed platforms for links are: Spotify,Youtube,Bandcamp,Deezer and Soundcloud
+                                """);
+            }
+        });
     }
+
+
 }
 

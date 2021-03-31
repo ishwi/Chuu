@@ -58,12 +58,4 @@ public class ChartParser extends ChartableParser<ChartParameters> {
         return new ChartParameters(e, data, data.getDiscordId(), data.getChartMode(), data, timeFrame, x, y);
     }
 
-    @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *time-expression* *sizeXsize*  *Username* ** \n" +
-                "\tIf time-expression is not specified defaults to " + defaultTFE.name().toLowerCase() + "\n" +
-                "\t time expression can be the normal timeframes, a time frame with a number (10 months, 10 m...) or a custom date range like (2000/1/1 - 2020) \n" +
-                "\tIf username is not specified defaults to authors account \n" +
-                "\tIf Size not specified it defaults to 5x5\n";
-    }
 }

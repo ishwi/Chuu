@@ -1,8 +1,10 @@
 package core.parsers;
 
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
@@ -25,8 +27,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                         Long defaultItem,
                         long max,
                         Map<Integer, String> errorMessages,
-                        String fieldDescription,
-                        String fieldName,
+                        ExplanationLine explanationLine,
                         BiPredicate<K, Long> innerPredicate
     ) {
         super(innerParser,
@@ -35,28 +36,26 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 number -> number > max || number < 0,
                 Long::parseLong,
                 errorMessages,
-                fieldName,
-                fieldDescription, innerPredicate,
+                innerPredicate,
                 (k, aLong) ->
-                        new NumberParameters<>(k.getE(), k, aLong));
+                        new NumberParameters<>(k.getE(), k, aLong), Collections.singletonList(() -> explanationLine));
 
     }
 
     public NumberParser(T innerParser,
                         Long defaultItem,
                         long max,
-                        Map<Integer, String> errorMessages,
-                        String description) {
+                        Map<Integer, String> errorMessages, String description
+    ) {
         super(innerParser,
                 defaultItem,
                 predicate,
                 number -> number > max || number < 0,
                 Long::parseLong,
                 errorMessages,
-                "number",
-                description,
                 (k, aLong) ->
-                        new NumberParameters<>(k.getE(), k, aLong));
+                        new NumberParameters<>(k.getE(), k, aLong), Collections.singletonList(() -> new ExplanationLine("Number", description))
+        );
     }
 
     public NumberParser(T innerParser,
@@ -73,13 +72,15 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 number -> number > max || number < 0,
                 Long::parseLong,
                 errorMessages,
-                "number",
-                description,
+                Collections.singletonList(() -> new ExplanationLine("Number", description)),
                 null,
                 null,
                 panicOnFailure,
                 catchFirst, (k, aLong) ->
-                        new NumberParameters<>(k.getE(), k, aLong));
+                        new NumberParameters<>(k.getE(), k, aLong)
+
+
+        );
     }
 
     public NumberParser(T innerParser,
@@ -95,9 +96,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 number -> number > max || number < 0,
                 Long::parseLong,
                 errorMessages,
-                "number",
-                description,
-                null,
+                Collections.singletonList(() -> new ExplanationLine("Number", description)), null,
                 accum,
                 panicOnFailure,
                 false, (k, aLong) ->
@@ -119,9 +118,8 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 number -> number > max || number < 0,
                 Long::parseLong,
                 errorMessages,
-                "number",
-                description,
-                null,
+
+                Collections.singletonList(() -> new ExplanationLine("Number", description)), null,
                 null,
                 panicOnFailure,
                 catchFirst, (k, aLong) ->

@@ -1,7 +1,11 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.StringParameters;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.List;
 
 public class GreedyStringParser extends Parser<StringParameters> {
     @Override
@@ -15,7 +19,8 @@ public class GreedyStringParser extends Parser<StringParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *phrase* **\n";
+    public List<Explanation> getUsages() {
+        return List.of(() -> new ExplanationLine("Phrase", null));
     }
+
 }

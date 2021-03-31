@@ -1,7 +1,11 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.CommandParameters;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.Collections;
+import java.util.List;
 
 public class NoOpParser extends Parser<CommandParameters> {
 
@@ -19,7 +23,8 @@ public class NoOpParser extends Parser<CommandParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + "**\n";
+    public List<Explanation> getUsages() {
+        return Collections.emptyList();
     }
+
 }

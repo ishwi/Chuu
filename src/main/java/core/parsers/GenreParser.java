@@ -3,6 +3,9 @@ package core.parsers;
 import core.apis.ExecutorsSingleton;
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
+import core.parsers.explanation.GenreExplanation;
+import core.parsers.explanation.StrictUserExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.GenreParameters;
 import core.services.NPService;
 import core.services.tracklist.TagStorer;
@@ -43,7 +46,7 @@ public class GenreParser extends DaoParser<GenreParameters> {
             List<String> tags = new TagStorer(dao, lastFM, executor, nowPlayingInfo).findTags();
             if (tags.isEmpty()) {
                 sendError("Was not able to find any tags on your now playing song/album/artist: "
-                                + String.format("%s - %s | %s", nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName(), nowPlayingInfo.getAlbumName())
+                          + String.format("%s - %s | %s", nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName(), nowPlayingInfo.getAlbumName())
                         , e);
                 return null;
             }
@@ -59,11 +62,10 @@ public class GenreParser extends DaoParser<GenreParameters> {
 
     }
 
-
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *genre* *username*** \n" +
-                "\tIf username is not specified defaults to authors account \n" +
-                "\tA genre can be specified or otherwise it defaults to the genre of your current track\\album\\artist according to last.fm\n";
+    public List<Explanation> getUsages() {
+        return List.of(new GenreExplanation(), new StrictUserExplanation());
     }
+
+
 }

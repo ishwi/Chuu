@@ -49,7 +49,7 @@ public class OptionalEntity {
     }
 
     public String getDefinition() {
-        return "\tCan use **" + "--" + value + "** to " + definition + "\n";
+        return "\t Can use **" + "--" + value + "** to " + definition + "\n";
     }
 
     @Override

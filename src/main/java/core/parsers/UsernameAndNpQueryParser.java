@@ -2,6 +2,9 @@ package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
+import core.parsers.explanation.QuerySearchExplanation;
+import core.parsers.explanation.StrictUserExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ExtraParameters;
 import core.parsers.params.WordParameter;
 import core.services.NPService;
@@ -12,6 +15,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.List;
 import java.util.function.Function;
 
 public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordParameter, User>> {
@@ -46,9 +50,9 @@ public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordPara
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " [whatever you want to search for] **\n" +
-                "\tIf you don't introduce a query it takes your now playing song\n" +
-                "\tYou can add an username with only ping, tag format (user#number),discord id, u:username or lfm:lastfmname to use their now playing song\n";
+    public List<Explanation> getUsages() {
+        return List.of(new QuerySearchExplanation(), new StrictUserExplanation());
     }
+
+
 }

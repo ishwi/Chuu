@@ -1,5 +1,7 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.UrlParameters;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -65,8 +67,8 @@ public class FileParser extends Parser<UrlParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *file*\n\t File must be a " + fileExtension + " file\n";
-
+    public List<Explanation> getUsages() {
+        return List.of(() -> new ExplanationLine("File", "File must be a " + fileExtension + "file"));
     }
+
 }

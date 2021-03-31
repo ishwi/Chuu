@@ -39,9 +39,5 @@ public class RainbowParser extends ChartableParser<RainbowParams> {
         return new RainbowParams(e, chartParameters.getUser(), chartParameters.getDiscordId(), chartParameters.getTimeFrameEnum(), chartParameters.getX(), chartParameters.getY(), chartParameters.chartMode(), chartParameters.getLastFMData());
     }
 
-    @Override
-    public String getUsageLogic(String commandName) {
-        return super.getUsageLogic(commandName) +
-                "\tOriginal tool: http://thechurchofkoen.com/\n";
-    }
+
 }

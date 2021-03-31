@@ -3,9 +3,9 @@ package core.commands.config;
 import core.Chuu;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.parsers.CharacterParser;
 import core.parsers.Parser;
 import core.parsers.PrefixParser;
+import core.parsers.params.CharacterParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class PrefixCommand extends ConcurrentCommand<CharacterParser> {
+public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
     public PrefixCommand(ChuuService dao) {
         super(dao);
         respondInPrivate = false;
@@ -28,7 +28,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParser> {
     }
 
     @Override
-    public Parser<CharacterParser> initParser() {
+    public Parser<CharacterParameters> initParser() {
         return new PrefixParser();
     }
 
@@ -43,7 +43,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParser> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CharacterParser params) {
+    protected void onCommand(MessageReceivedEvent e, @NotNull CharacterParameters params) {
 
 
         char newPrefix = params.getaChar();

@@ -1,11 +1,15 @@
 package core.parsers;
 
+import core.parsers.explanation.ArtistExplanation;
+import core.parsers.explanation.UrlExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ArtistUrlParameters;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
@@ -75,9 +79,8 @@ public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *artist url***\n";
-
+    public List<Explanation> getUsages() {
+        return List.of(new ArtistExplanation(), new UrlExplanation());
     }
 
 

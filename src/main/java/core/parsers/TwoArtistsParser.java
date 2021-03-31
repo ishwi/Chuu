@@ -1,8 +1,12 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.TwoArtistParams;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,8 +41,8 @@ public class TwoArtistsParser extends Parser<TwoArtistParams> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *firstArtist* *to:* *secondArtist*** \n" +
-                "\t It's also valid when the two artists are both one word long to write: " + commandName + " firstArtist secondArtist";
+    public List<Explanation> getUsages() {
+        return Collections.singletonList(() -> new ExplanationLine("firstArtist to: secondArtist", "It's also valid when the two artists are both one word long to write them without the to:"));
     }
+
 }

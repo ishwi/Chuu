@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.NaturalTimeParams;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
@@ -26,8 +27,7 @@ public class PaceParser extends NumberParser<NumberParameters<NaturalTimeParams>
                                 , null,
                                 Long.MAX_VALUE
                                 , errorMessages,
-                                "The total number of scrobbles you want to see",
-                                "Scrobble Goal",
+                                new ExplanationLine("Scrobble Goal", "The total number of scrobbles you want to see"),
                                 (item, number) -> {
                                     NaturalTimeFrameEnum naturalTimeFrameEnum = item.getTime();
                                     LocalDate now = LocalDate.now();

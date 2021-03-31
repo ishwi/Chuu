@@ -1,5 +1,7 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.GuildConfigParams;
 import core.parsers.params.GuildConfigType;
 import dao.ChuuService;
@@ -7,6 +9,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,10 +69,10 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
+    public List<Explanation> getUsages() {
         String line = Arrays.stream(GuildConfigType.values()).map(x -> String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
-        return "**" + commandName + " *command* *argument* ** \n" +
-                "Possible Values:\n" + line;
+        String usage = "Possible values:\n" + line;
+        return Collections.singletonList(() -> new ExplanationLine("Command with argument", usage));
     }
 
     @Override

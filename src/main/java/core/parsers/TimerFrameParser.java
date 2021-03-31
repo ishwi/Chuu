@@ -1,11 +1,16 @@
 package core.parsers;
 
+import core.parsers.explanation.PermissiveUserExplanation;
+import core.parsers.explanation.TimeframeExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.TimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.List;
 
 public class TimerFrameParser extends DaoParser<TimeFrameParameters> {
     private final TimeFrameEnum defaultTFE;
@@ -25,12 +30,10 @@ public class TimerFrameParser extends DaoParser<TimeFrameParameters> {
         return new TimeFrameParameters(e, data, timeFrame);
     }
 
-
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *[d,w,m,q,s,y,a]* *username***\n" +
-                "\tIf timeframe is not specified it defaults to " + defaultTFE.toString() + "\n" +
-                "\tIf username is not specified it defaults to authors account \n";
+    public List<Explanation> getUsages() {
+        return List.of(new TimeframeExplanation(defaultTFE), new PermissiveUserExplanation());
     }
+
 
 }

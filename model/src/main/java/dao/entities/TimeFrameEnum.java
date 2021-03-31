@@ -1,6 +1,7 @@
 package dao.entities;
 
 import dao.utils.Constants;
+import org.apache.commons.text.WordUtils;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -71,9 +72,13 @@ public enum TimeFrameEnum {
                 .fromCompletePeriod(timefraeStr).toString().toLowerCase());
     }
 
+    public String toValueString() {
+        return WordUtils.capitalizeFully(this.name);
+    }
+
+
     public String getDisplayString() {
         return (this.equals(TimeFrameEnum.ALL) ? "" : " in the last " + this.toString().toLowerCase());
-
     }
 
     public LocalDateTime toLocalDate(int count) {

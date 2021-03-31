@@ -1,10 +1,15 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.Collections;
+import java.util.List;
 
 public class UserModerationParser extends DaoParser<ChuuDataParams> {
     public UserModerationParser(ChuuService dao, OptionalEntity... opts) {
@@ -28,7 +33,8 @@ public class UserModerationParser extends DaoParser<ChuuDataParams> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *discord-id|lastfm-id* **";
+    public List<Explanation> getUsages() {
+        return Collections.singletonList(() -> new ExplanationLine("discord-id|lastfm-id", null));
     }
+
 }

@@ -8,8 +8,9 @@ import core.apis.last.queues.ArtistQueue;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
-import core.parsers.TopParser;
-import core.parsers.params.TopParameters;
+import core.parsers.OnlyChartSizeParser;
+import core.parsers.OptionalEntity;
+import core.parsers.params.ChartSizeParameters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
@@ -24,21 +25,24 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class TopCommand extends ArtistAbleCommand<TopParameters> {
+public class TopCommand extends ArtistAbleCommand<ChartSizeParameters> {
     public TopCommand(ChuuService dao) {
         super(dao);
     }
 
     @Override
-    public ChartableParser<TopParameters> initParser() {
-        return new TopParser(db);
+    public ChartableParser<ChartSizeParameters> initParser() {
+        OnlyChartSizeParser parser = new OnlyChartSizeParser(db, null, new OptionalEntity("album", "use albums instead of artist"));
+        parser.replaceOptional("plays", new OptionalEntity("noplays", "don't display plays"));
+        parser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
+        return parser;
     }
 
     @Override
-    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(TopParameters params) throws LastFmException {
+    public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartSizeParameters params) throws LastFmException {
         BlockingQueue<UrlCapsule> queue;
         int count;
-        if (params.isDoAlbum()) {
+        if (params.hasOptional("album")) {
             queue = new ArrayBlockingQueue<>(params.getX() * params.getY());
             count = lastFM.getChart(params.getUser(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
         } else {
@@ -49,25 +53,25 @@ public class TopCommand extends ArtistAbleCommand<TopParameters> {
     }
 
     @Override
-    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, TopParameters params, int count) {
-        String s = params.isDoAlbum() ? "albums" : "artists";
+    public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartSizeParameters params, int count) {
+        String s = params.hasOptional("album") ? "albums" : "artists";
         return params.initEmbed(String.format("'s top %s", s), embedBuilder, " has listened to " + count + " " + s, params.getUser().getName());
     }
 
     @Override
-    public String configPieChart(PieChart pieChart, TopParameters params, int count, String initTitle) {
-        String s = params.isDoAlbum() ? "albums" : "artists";
+    public String configPieChart(PieChart pieChart, ChartSizeParameters params, int count, String initTitle) {
+        String s = params.hasOptional("album") ? "albums" : "artists";
         String time = params.getTimeFrameEnum().getDisplayString();
         pieChart.setTitle(String.format("%s's top %s%s", initTitle, s, time));
         return String.format("%s has listened to %d %s%s (showing top %d)", initTitle, count, time, s, params.getX() * params.getY());
     }
 
     @Override
-    public void noElementsMessage(TopParameters parameters) {
-        String s = parameters.isDoAlbum() ? "albums" : "artists";
-        MessageReceivedEvent e = parameters.getE();
-        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
-        sendMessageQueue(e, String.format("%s didn't listen to any %s%s!", ingo.getUsername(), s, parameters.getTimeFrameEnum().getDisplayString()));
+    public void noElementsMessage(ChartSizeParameters params) {
+        String s = params.hasOptional("album") ? "albums" : "artists";
+        MessageReceivedEvent e = params.getE();
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getDiscordId());
+        sendMessageQueue(e, String.format("%s didn't listen to any %s%s!", ingo.getUsername(), s, params.getTimeFrameEnum().getDisplayString()));
     }
 
     @Override

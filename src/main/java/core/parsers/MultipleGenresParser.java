@@ -3,6 +3,9 @@ package core.parsers;
 import core.apis.ExecutorsSingleton;
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
+import core.parsers.explanation.StrictUserExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.MultiExplanation;
 import core.parsers.params.MultipleGenresParameters;
 import core.services.NPService;
 import core.services.tracklist.TagStorer;
@@ -36,13 +39,19 @@ public class MultipleGenresParser extends MultiStringParser<MultipleGenresParame
     }
 
     @Override
+    public List<Explanation> getUsages() {
+        return MultiExplanation.obtainMultiExplanation("genre", "genres", List.of(new StrictUserExplanation()));
+
+    }
+
+    @Override
     protected MultipleGenresParameters doSomethingNoWords(int limit, LastFMData lastFMData, MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
 
         NowPlayingArtist nowPlayingInfo = new NPService(lastFM, lastFMData).getNowPlaying();
         List<String> tags = new TagStorer(dao, lastFM, executor, nowPlayingInfo).findTags();
         if (tags.isEmpty()) {
             sendError("Was not able to find any tags on your now playing song/album/artist: "
-                            + String.format("%s - %s | %s", nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName(), nowPlayingInfo.getAlbumName())
+                      + String.format("%s - %s | %s", nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName(), nowPlayingInfo.getAlbumName())
                     , e);
             return null;
         }
@@ -55,11 +64,4 @@ public class MultipleGenresParser extends MultiStringParser<MultipleGenresParame
 
     }
 
-    @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *[genre genre1 genre2]* *number***\n" +
-                "\t You can give any variable number of genres, if you want to introduce a genre with multiple words you will have to surround it with quotes like for example \"hip hop\"\n" +
-                "\t If user is not specified if will grab your tags from your user, otherwise from the provided user\n" +
-                "\t If you dont give any genres you can also specify a number and it will try to get that number of tags from your recent artists, otherwise just from your 2 songs";
-    }
 }

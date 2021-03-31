@@ -2,6 +2,8 @@ package core.parsers;
 
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.UsageLogic;
 import core.parsers.params.CommandParameters;
 import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
@@ -17,7 +19,7 @@ import java.util.stream.Stream;
 
 public abstract class Parser<T extends CommandParameters> {
     final Map<Integer, String> errorMessages = new HashMap<>(10);
-    final Set<OptionalEntity> opts = new HashSet<>();
+    final Set<OptionalEntity> opts = new LinkedHashSet<>();
 
 
     Parser() {
@@ -37,12 +39,12 @@ public abstract class Parser<T extends CommandParameters> {
 
     protected abstract void setUpErrorMessages();
 
-    public static <Y> Pair<String[], Y> filterMessage(String[] ogMessage, Predicate<String> filter, Function<String, Y> mappingFuntion, Y defualt) {
+    public static <Y> Pair<String[], Y> filterMessage(String[] ogMessage, Predicate<String> filter, Function<String, Y> mapper, Y yDefault) {
         Stream<String> secondStream = Arrays.stream(ogMessage).filter(filter);
-        Y apply = defualt;
+        Y apply = yDefault;
         Optional<String> opt2 = secondStream.findAny();
         if (opt2.isPresent()) {
-            apply = mappingFuntion.apply(opt2.get());
+            apply = mapper.apply(opt2.get());
             ogMessage = Arrays.stream(ogMessage).filter(s -> !s.equals(opt2.get())).toArray(String[]::new);
         }
         return Pair.of(ogMessage, apply);
@@ -85,6 +87,7 @@ public abstract class Parser<T extends CommandParameters> {
 
     }
 
+
     private String[] getSubMessage(String string) {
         String[] parts = string.substring(1).split("\\s+");
         return Arrays.copyOfRange(parts, 1, parts.length);
@@ -119,15 +122,13 @@ public abstract class Parser<T extends CommandParameters> {
 
 
     public String getUsage(String commandName) {
-        StringBuilder s = new StringBuilder();
-        for (OptionalEntity opt : opts) {
-            if (!opt.isEnabledByDefault()) {
-                s.append(opt.getDefinition());
-            }
-        }
-        return getUsageLogic(commandName) + s;
+        return new UsageLogic(commandName, getUsages(), opts).getUsage();
+
 
     }
+
+    public abstract List<Explanation> getUsages();
+
 
     public void replaceOptional(String previousOptional, OptionalEntity optionalEntity) {
         opts.remove(new OptionalEntity(previousOptional, null));
@@ -141,8 +142,6 @@ public abstract class Parser<T extends CommandParameters> {
     public void removeOptional(String previousOptional) {
         opts.remove(new OptionalEntity(previousOptional, null));
     }
-
-    public abstract String getUsageLogic(String commandName);
 
 
 }

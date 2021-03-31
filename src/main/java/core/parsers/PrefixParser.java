@@ -1,12 +1,16 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.params.CharacterParameters;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-public class PrefixParser extends Parser<CharacterParser> {
+public class PrefixParser extends Parser<CharacterParameters> {
     public static final List<Character> acceptecChars = (Arrays
             .asList('!', '@', '#', '$', '%', '^', '_', '.', ',', ';', ':', '~', '>', '<', '-', '?', '|'));
 
@@ -21,7 +25,7 @@ public class PrefixParser extends Parser<CharacterParser> {
     }
 
     @Override
-    protected CharacterParser parseLogic(MessageReceivedEvent e, String[] words) {
+    protected CharacterParameters parseLogic(MessageReceivedEvent e, String[] words) {
         if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
             sendError(getErrorMessage(2), e);
             return null;
@@ -36,12 +40,12 @@ public class PrefixParser extends Parser<CharacterParser> {
             sendError(this.getErrorMessage(1), e);
             return null;
         }
-        return new CharacterParser(e, expectedChar.charAt(0));
+        return new CharacterParameters(e, expectedChar.charAt(0));
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *[!@#$%^_.,;:~><-?|]*** " +
-                "\n\tOnly server admins can run this command";
+    public List<Explanation> getUsages() {
+        return Collections.singletonList(() -> new ExplanationLine("[!@#$%^_.,;:~><-?|]", "Only one of the characters listed"));
     }
+
 }

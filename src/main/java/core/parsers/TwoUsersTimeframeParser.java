@@ -1,5 +1,8 @@
 package core.parsers;
 
+import core.parsers.explanation.TimeframeExplanation;
+import core.parsers.explanation.TwoUsersExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.TwoUsersTimeframeParamaters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -8,6 +11,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class TwoUsersTimeframeParser extends DaoParser<TwoUsersTimeframeParamaters> {
     public TwoUsersTimeframeParser(ChuuService dao) {
@@ -43,13 +47,11 @@ public class TwoUsersTimeframeParser extends DaoParser<TwoUsersTimeframeParamate
         return new TwoUsersTimeframeParamaters(e, datas[0], datas[1], timeFrameEnum);
     }
 
-
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *userName* *userName***\n" +
-                "\tIf the second user is missing it gets replaced by the owner of the message\n";
-
+    public List<Explanation> getUsages() {
+        return List.of(new TwoUsersExplanation(), new TimeframeExplanation(TimeFrameEnum.ALL));
     }
+
 
     @Override
     public void setUpErrorMessages() {

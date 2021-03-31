@@ -1,9 +1,12 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.RateLimitParams;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class RateLimitParser extends DaoParser<RateLimitParams> {
@@ -58,8 +61,10 @@ public class RateLimitParser extends DaoParser<RateLimitParams> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *discord_id* *rate*** \n" +
-                "\tdiscord_id is the 20 long identifier of an user and rate must be a float bigger than 0.01\n";
+    public List<Explanation> getUsages() {
+        return List.of(() -> new ExplanationLine("Discord id", "discord_id is the 20 long identifier of an user"),
+                () -> new ExplanationLine("Rate", "The rate is the number of request the user can do per second. Must be bigger than 0.01")
+        );
     }
+
 }

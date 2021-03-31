@@ -2,6 +2,9 @@ package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
+import core.parsers.explanation.AlbumExplanation;
+import core.parsers.explanation.UrlExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.params.ArtistAlbumUrlParameters;
 import dao.ChuuService;
@@ -9,6 +12,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class ArtistAlbumUrlParser extends DaoParser<ArtistAlbumUrlParameters> {
@@ -81,8 +85,8 @@ public class ArtistAlbumUrlParser extends DaoParser<ArtistAlbumUrlParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *artist - album url***\n";
+    public List<Explanation> getUsages() {
+        return List.of(new AlbumExplanation(), new UrlExplanation());
 
     }
 

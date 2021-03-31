@@ -1,10 +1,14 @@
 package core.parsers;
 
+import core.parsers.explanation.UrlExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.UrlParameters;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 
 public class UrlParser extends Parser<UrlParameters> {
     private final boolean permCheck;
@@ -64,8 +68,8 @@ public class UrlParser extends Parser<UrlParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *url***\n" +
-                "\t User needs to have administration permissions\n";
+    public List<Explanation> getUsages() {
+        return Collections.singletonList(new UrlExplanation());
     }
+
 }

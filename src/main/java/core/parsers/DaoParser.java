@@ -25,7 +25,7 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
 
     LastFMData atTheEndOneUser(MessageReceivedEvent event, String[] message) throws InstanceNotFoundException {
         ParserAux aux = new ParserAux(message);
-        User oneUserPermissive = aux.getOneUserPermissive(event);
+        User oneUserPermissive = aux.getOneUserPermissive(event, dao);
         return findLastfmFromID(oneUserPermissive, event);
     }
 

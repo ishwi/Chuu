@@ -1,5 +1,9 @@
 package core.parsers;
 
+import core.parsers.explanation.FullTimeframeExplanation;
+import core.parsers.explanation.PermissiveUserExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.GayParams;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
@@ -10,6 +14,7 @@ import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class GayParser extends ChartableParser<GayParams> {
@@ -71,10 +76,7 @@ public class GayParser extends ChartableParser<GayParams> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *[d,w,m,q,s,y,a]* *[LGTBQ,BI,TRANS,NB,LESBIAN,ACE,]* *number_of_columns*  *Username* ** \n" +
-                "\tIf time is not specified defaults to " + defaultTFE.name().toLowerCase() + "\n" +
-                "\tIf username is not specified defaults to authors account \n" +
-                "\tIf number of columns is not specified it defaults to 5 items per row\n";
+    public List<Explanation> getUsages() {
+        return List.of(() -> new ExplanationLine("[LGTBQ,BI,TRANS,NB,LESBIAN,ACE]", null), () -> new ExplanationLine("Number of columns", "If number of columns is not specified it defaults to 5 columns"), new FullTimeframeExplanation(defaultTFE), new PermissiveUserExplanation());
     }
 }

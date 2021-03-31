@@ -1,7 +1,12 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.WordParameter;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.Collections;
+import java.util.List;
 
 public class SetParser extends Parser<WordParameter> {
     @Override
@@ -19,9 +24,8 @@ public class SetParser extends Parser<WordParameter> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *lastFmName***\n";
-
+    public List<Explanation> getUsages() {
+        return Collections.singletonList(() -> new ExplanationLine("Last.fm username", "The last.fm username you wish to link with your discord account"));
     }
 
 

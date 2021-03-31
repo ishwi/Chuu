@@ -7,6 +7,7 @@ import dao.entities.TimeFrameEnum;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
+import java.util.Objects;
 
 public class CustomTimeFrame {
 
@@ -78,7 +79,7 @@ public class CustomTimeFrame {
         NORMAL, NATURAL, CUSTOM
     }
 
-    public boolean isNormally() {
+    public boolean isNormal() {
         return switch (type) {
             case NORMAL -> true;
             case NATURAL -> (count == 1 && !EnumSet.of(NaturalTimeFrameEnum.MINUTE, NaturalTimeFrameEnum.SECOND, NaturalTimeFrameEnum.HOUR).contains(naturalTimeFrameEnum));
@@ -94,6 +95,15 @@ public class CustomTimeFrame {
         };
 
     }
+
+    public String toValueString() {
+        return switch (type) {
+            case NORMAL -> Objects.requireNonNull(timeFrameEnum).toValueString();
+            case NATURAL -> Objects.requireNonNull(naturalTimeFrameEnum).toValueString();
+            case CUSTOM -> getDisplayString();
+        };
+    }
+
 
     public String getDisplayString() {
         if (type == Type.NORMAL) {
@@ -123,9 +133,9 @@ public class CustomTimeFrame {
             }
         }
         String fromFormat = DateTimeFormatter.ofPattern("MMMM ").format(from) + DateTimeFormatter.ofPattern("d").format(from) + fromDayNumberSuffix
-                + DateTimeFormatter.ofPattern(" yyyy" + fromHourFormat).format(from);
+                            + DateTimeFormatter.ofPattern(" yyyy" + fromHourFormat).format(from);
         String toFormat = DateTimeFormatter.ofPattern("MMMM ").format(to) + DateTimeFormatter.ofPattern("d").format(to) + toDayNumberSuffix
-                + DateTimeFormatter.ofPattern(" yyyy" + toHourFormat).format(to);
+                          + DateTimeFormatter.ofPattern(" yyyy" + toHourFormat).format(to);
 
         return " from " + fromFormat + " to " + toFormat;
 

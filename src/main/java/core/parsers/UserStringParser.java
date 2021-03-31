@@ -1,11 +1,16 @@
 package core.parsers;
 
+import core.parsers.explanation.StrictUserExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.UserStringParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.List;
 
 public class UserStringParser extends DaoParser<UserStringParameters> {
     private final boolean allowEmpty;
@@ -35,8 +40,8 @@ public class UserStringParser extends DaoParser<UserStringParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *username* *phrase* **\n" +
-                "\t If the username is not specified it defaults to authors account\n";
+    public List<Explanation> getUsages() {
+        return List.of(() -> new ExplanationLine("Search phrase", null), new StrictUserExplanation());
     }
+
 }

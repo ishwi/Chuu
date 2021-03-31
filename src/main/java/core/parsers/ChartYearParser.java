@@ -2,6 +2,8 @@ package core.parsers;
 
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.exceptions.InvalidDateException;
+import core.parsers.explanation.YearExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ChartYearParameters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
@@ -13,6 +15,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 import java.time.Year;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class ChartYearParser extends ChartableParser<ChartYearParameters> {
     private final int searchSpace;
@@ -69,12 +73,8 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *[d,w,m,q,s,y,a]* *sizeXsize* *Username* *YEAR*** \n" +
-                "\tIf time is not specified defaults to " + defaultTFE.toString() + "\n" +
-                "\tIf username is not specified defaults to authors account \n" +
-                "\tIf Size not specified it defaults to 5x5\n" +
-                "\tIf YEAR not specified it default to current year\n";
+    public List<Explanation> getUsages() {
+        return Stream.concat(Stream.of(new YearExplanation()), super.getUsages().stream()).toList();
     }
 
     @Override

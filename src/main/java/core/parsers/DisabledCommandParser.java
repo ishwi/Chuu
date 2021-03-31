@@ -2,6 +2,9 @@ package core.parsers;
 
 import core.commands.abstracts.MyCommand;
 import core.commands.moderation.DisabledCommand;
+import core.parsers.explanation.CommandExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.DisabledCommandParameters;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -63,9 +66,9 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " Alias of a Command\n" +
-                "\tThis command has different alias (enable,disable,toggle), and depending on the alias used the result will be different\n ";
-
+    public List<Explanation> getUsages() {
+        return List.of(() -> new ExplanationLine("Command Name", "The name of a command"),
+                new CommandExplanation("This command has different alias (enable,disable,toggle), and depending on the alias used the result will be different"));
     }
+
 }

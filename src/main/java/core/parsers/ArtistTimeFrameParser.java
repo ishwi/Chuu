@@ -2,6 +2,10 @@ package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
+import core.parsers.explanation.ArtistExplanation;
+import core.parsers.explanation.StrictTimeframeExplanation;
+import core.parsers.explanation.StrictUserExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ArtistTimeFrameParameters;
 import core.services.NPService;
 import dao.ChuuService;
@@ -11,6 +15,8 @@ import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.List;
 
 public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> {
     private final static TimeFrameEnum defaultTFE = TimeFrameEnum.ALL;
@@ -63,13 +69,8 @@ public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> 
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *artist* *[d,w,m,q,s,y]* *username***\n" +
-                "\tIf a timeframe it's not specified defaults to " + defaultTFE.toString() + "\n" +
-                "\tIf an username it's not provided it defaults to authors account, only ping, tag format (user#number),discord id, u:username or lfm:lastfmname\n " +
-                "\tDue to being able to provide an artist name and the timeframe, some" +
-                " conflicts may occur if the timeframe keyword appears on the artist name, to reduce possible" +
-                " conflicts only the one letter shorthand is available for the timeframe, the [a] shorthand is also disabled to reduce more conflicts " +
-                "since its the default time frame applied\n";
+    public List<Explanation> getUsages() {
+        return List.of(new ArtistExplanation(), new StrictTimeframeExplanation(defaultTFE), new StrictUserExplanation());
     }
+
 }

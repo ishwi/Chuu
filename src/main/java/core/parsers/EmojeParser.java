@@ -2,6 +2,8 @@ package core.parsers;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.vdurmont.emoji.EmojiParser;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.EmotiParameters;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -46,9 +48,8 @@ public class EmojeParser extends Parser<EmotiParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *emotes** \n" +
-                "\tIf no emotes are provided, the reactions will be cleared\n" +
-                "\tEmotes can be either server emotes or emojis\n";
+    public List<Explanation> getUsages() {
+        return List.of(() -> new ExplanationLine("Emote|Emoji", "If not emotes are provided, the reactions will be cleared\nEmotes can be either server emotes or emojis."));
     }
+
 }

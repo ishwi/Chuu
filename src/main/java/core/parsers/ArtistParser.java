@@ -2,6 +2,9 @@ package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
+import core.parsers.explanation.ArtistExplanation;
+import core.parsers.explanation.StrictUserExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ArtistParameters;
 import core.services.NPService;
 import dao.ChuuService;
@@ -12,6 +15,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class ArtistParser extends DaoParser<ArtistParameters> {
     final ConcurrentLastFM lastFM;
@@ -63,11 +67,8 @@ public class ArtistParser extends DaoParser<ArtistParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-
-        return "**" + commandName + " *artist* *username***\n" +
-                "\tIf an username it's not provided it defaults to authors account, only ping, tag format (user#number),discord id, u:username or lfm:lastfmname\n";
-
+    public List<Explanation> getUsages() {
+        return List.of(new ArtistExplanation(), new StrictUserExplanation());
     }
 
 

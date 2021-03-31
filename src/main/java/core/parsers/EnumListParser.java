@@ -1,5 +1,7 @@
 package core.parsers;
 
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.EnumListParameters;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
@@ -60,13 +62,16 @@ public class EnumListParser<T extends Enum<T>> extends Parser<EnumListParameters
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
+    public List<Explanation> getUsages() {
         EnumSet<T> set = EnumSet.complementOf(excluded);
         List<String> lines = set.stream().map(x -> WordUtils.capitalizeFully(x.name().replaceAll("_", "-"), '-')).toList();
         String join = String.join("** | **", lines);
-        return "**" + commandName + "** **[help|help all|list|]** **" + name + "**\n" +
-                "\t Writing **__help__** will give you a brief description of all the " + name + " that you include in the command or alternatively all the options with **__help__**\n" +
-                "\t Writing **__list__** will give you all your current set " + name + "\n" +
-                "\t " + name + " being any combination of: **" + join + " **";
+        String usage = "\t Writing **__help__** will give you a brief description of all the " + name + " that you include in the command or alternatively all the options with **__help__**\n" +
+                       "\t Writing **__list__** will give you all your current set " + name + "\n" +
+                       "\t " + name + " being any combination of: **" + join + " **";
+        return List.of(() -> new ExplanationLine("[help|help all|list|] " + name, usage));
+
+
     }
+
 }

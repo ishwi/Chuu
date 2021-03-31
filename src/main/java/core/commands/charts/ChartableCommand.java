@@ -1,13 +1,9 @@
 package core.commands.charts;
 
 import core.Chuu;
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.entities.chartentities.AlbumChart;
 import core.apis.last.entities.chartentities.TrackDurationAlbumArtistChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -42,15 +38,11 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class ChartableCommand<T extends ChartParameters> extends ConcurrentCommand<T> {
     public final IPieableList<UrlCapsule, ChartParameters> pie;
-    private final Spotify spotify;
-    private final DiscogsApi discogsApi;
 
     public ChartableCommand(ChuuService dao) {
         super(dao);
         this.pie = getPie();
         ((DaoParser<?>) getParser()).setExpensiveSearch(true);
-        this.spotify = SpotifySingleton.getInstance();
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
     }
 
 
@@ -64,11 +56,11 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     ChartMode getEffectiveMode(ChartParameters chartParameters) {
         ChartMode chartMode = chartParameters.chartMode();
         if ((chartMode.equals(ChartMode.LIST) && !chartParameters.isList() && !chartParameters.isPieFormat() && !chartParameters.isAside())
-                ||
-                (!chartMode.equals(ChartMode.LIST) && chartParameters.isList())) {
+            ||
+            (!chartMode.equals(ChartMode.LIST) && chartParameters.isList())) {
             return ChartMode.LIST;
         } else if ((chartMode.equals(ChartMode.PIE) && !chartParameters.isPieFormat() && !chartParameters.isList() && !chartParameters.isAside())
-                || (!chartMode.equals(ChartMode.PIE) && chartParameters.isPieFormat())) {
+                   || (!chartMode.equals(ChartMode.PIE) && chartParameters.isPieFormat())) {
             return ChartMode.PIE;
         } else {
             return ChartMode.IMAGE;

@@ -1,5 +1,7 @@
 package core.parsers;
 
+import core.parsers.explanation.TwoUsersExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.TwoUsersParamaters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -7,6 +9,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
     public TwoUsersParser(ChuuService dao) {
@@ -38,13 +41,11 @@ public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
         return new TwoUsersParamaters(e, datas[0], datas[1]);
     }
 
-
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *userName* *userName***\n" +
-                "\tIf the second user is missing it gets replaced by the owner of the message\n";
-
+    public List<Explanation> getUsages() {
+        return List.of(new TwoUsersExplanation());
     }
+
 
     @Override
     public void setUpErrorMessages() {

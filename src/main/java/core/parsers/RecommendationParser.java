@@ -1,5 +1,8 @@
 package core.parsers;
 
+import core.parsers.explanation.PermissiveUserExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.RecommendationsParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -7,6 +10,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -69,13 +73,21 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
 
     }
 
-
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *user* **\n" +
-                "\t If user is not specified if will give you a recommendation from a random user " +
-                "(biasing more users with more affinity with you), otherwise a rec from that user\n" +
-                "\t Alternatively you could also mention two different users\n";
-
+    public List<Explanation> getUsages() {
+        return List.of(
+                new PermissiveUserExplanation() {
+                    @Override
+                    public ExplanationLine explanation() {
+                        return new ExplanationLine(super.explanation().header(),
+                                """
+                                        If an user is not specified it will give you a recommendation from a random user (biasing more users with more affinity with you), otherwise a rec from that user
+                                        Alternatively you could also mention two different users.
+                                        """);
+                    }
+                }
+        );
     }
+
+
 }
