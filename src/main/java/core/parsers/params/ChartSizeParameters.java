@@ -7,6 +7,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class ChartSizeParameters extends ChartParameters {
 
     public ChartSizeParameters(MessageReceivedEvent e, int x, int y, ChartMode chartMode, LastFMData lastFMData) {
-        super(e, null, -1, chartMode, lastFMData, null, x, y);
+        super(e, lastFMData, -1, chartMode, lastFMData, null, x, y);
     }
 }

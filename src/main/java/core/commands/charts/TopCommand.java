@@ -44,10 +44,10 @@ public class TopCommand extends ArtistAbleCommand<ChartSizeParameters> {
         int count;
         if (params.hasOptional("album")) {
             queue = new ArrayBlockingQueue<>(params.getX() * params.getY());
-            count = lastFM.getChart(params.getUser(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
+            count = lastFM.getChart(params.getLastFMData(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ALBUM, AlbumChart.getAlbumParser(params), queue);
         } else {
             queue = new ArtistQueue(db, discogsApi, spotifyApi, !params.isList());
-            count = lastFM.getChart(params.getUser(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ARTIST, ArtistChart.getArtistParser(params), queue);
+            count = lastFM.getChart(params.getLastFMData(), new CustomTimeFrame(TimeFrameEnum.ALL), params.getX(), params.getY(), TopEntity.ARTIST, ArtistChart.getArtistParser(params), queue);
         }
         return new CountWrapper<>(count, queue);
     }
