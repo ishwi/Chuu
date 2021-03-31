@@ -19,12 +19,12 @@ import core.services.AlbumValidator;
 import core.services.ColorService;
 import core.services.TrackValidator;
 import core.services.tracklist.TagStorer;
-import core.util.UniqueBag;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.apache.commons.collections4.Bag;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -80,7 +80,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         Map<String, Long> artistToId = new HashMap<>();
         Map<AlbumInfo, Long> albumToId = new HashMap<>();
         Map<TrackInfo, Long> trackToId = new HashMap<>();
-        UniqueBag<String> tagCombo = lastFM.getTagCombo(user, (artist, track, album) -> {
+        Bag<String> tagCombo = lastFM.getTagCombo(user, (artist, track, album) -> {
             Set<String> accumTags = null;
             try {
                 Long artistId = artistToId.get(artist);
@@ -122,7 +122,13 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
                 return accumTags;
             }
         });
-        if (tagCombo.isEmpty()) {
+
+
+        List<String> tags = tagCombo.stream().map(t -> new StringFrequency(t, tagCombo.getCount(t))).filter(t -> t.freq() > 1)
+                .sorted(Comparator.comparingInt(StringFrequency::freq).reversed())
+                .map(z -> "**[%s](%s)**: ".formatted(z.key(), LinkUtils.getLastFmTagUrl(z.key())) +
+                          z.freq() + (z.freq() >= 2000 ? "+" : "") + " consecutive plays\n").toList();
+        if (tags.isEmpty()) {
             sendMessageQueue(e, "Couldn't find any tag combo on your history :(");
             return;
         }
@@ -131,18 +137,11 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
 
-
-        List<String> tags = tagCombo.stream().map(t -> new StringFrequency(t, tagCombo.getSize(t))).filter(t -> t.freq() > 1)
-                .sorted(Comparator.comparingInt(StringFrequency::freq).reversed())
-                .map(z -> "**[%s](%s)**: ".formatted(z.key(), LinkUtils.getLastFmTagUrl(z.key())) +
-                          z.freq() + (z.freq() >= 2000 ? "+" : "") + " consecutive plays\n").toList();
-
-
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(String.format("%s's current tag streak", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
                 .setColor(ColorService.computeColor(e))
                 .setDescription(tags.stream().limit(5).collect(Collectors.joining()));
         e.getChannel().sendMessage(embedBuilder.build()).
-                queue(m -> new Reactionary<>(tags, m, 5, embedBuilder));
+                queue(m -> new Reactionary<>(tags, m, 5, embedBuilder, false));
     }
 }

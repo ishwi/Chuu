@@ -21,6 +21,7 @@ import core.util.UniqueBag;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import net.dv8tion.jda.internal.utils.tuple.Pair;
+import org.apache.commons.collections4.Bag;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -740,14 +741,14 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     }
 
-    public UniqueBag<String> getTagCombo(LastFMData lastFMData, TriFunction<String, String, String, Set<String>> tagFactory) throws LastFmException {
+    public Bag<String> getTagCombo(LastFMData lastFMData, TriFunction<String, String, String, Set<String>> tagFactory) throws LastFmException {
         String url = "%s%s&user=%s%s%s&extended=1&limit=1000".formatted(BASE, RECENT_TRACKS, lastFMData.getName(), apiKey, ENDING);
 
         int page = 0;
         boolean cont = true;
         int totalPages = 1;
         boolean init = false;
-        UniqueBag<String> bag = new UniqueBag<>();
+        Bag<String> bag = new UniqueBag<>(String.class);
         Set<String> currentSet = new HashSet<>();
         int nullCounts = 0;
         while (cont) {
