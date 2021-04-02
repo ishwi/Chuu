@@ -741,15 +741,15 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     }
 
-    public Bag<String> getTagCombo(LastFMData lastFMData, TriFunction<String, String, String, Set<String>> tagFactory) throws LastFmException {
+    public Bag<Genre> getTagCombo(LastFMData lastFMData, TriFunction<String, String, String, Set<Genre>> tagFactory) throws LastFmException {
         String url = "%s%s&user=%s%s%s&extended=1&limit=1000".formatted(BASE, RECENT_TRACKS, lastFMData.getName(), apiKey, ENDING);
 
         int page = 0;
         boolean cont = true;
         int totalPages = 1;
         boolean init = false;
-        Bag<String> bag = new UniqueBag<>(String.class);
-        Set<String> currentSet = new HashSet<>();
+        Bag<Genre> bag = new UniqueBag<>(Genre.class);
+        Set<Genre> currentSet = new HashSet<>();
         int nullCounts = 0;
         while (cont) {
             String urlPage = url + "&page=" + ++page;
@@ -775,7 +775,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                     albumString = album.getString("#text");
 
                 }
-                Set<String> tags = tagFactory.apply(artistName, trackName, albumString);
+                Set<Genre> tags = tagFactory.apply(artistName, trackName, albumString);
                 if (tags == null) {
                     nullCounts++;
                     continue;
@@ -788,7 +788,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                         cont = false;
                         break;
                     }
-                    Set<String> finalCurrentSet = currentSet;
+                    Set<Genre> finalCurrentSet = currentSet;
                     bag.addAll(currentSet);
                 } else {
                     init = true;
@@ -1294,10 +1294,31 @@ public class ConcurrentLastFM {//implements LastFMService {
                 }
                 list.add(track);
             }
-
         }
         return list;
     }
+
+    public int getLastScrobbleUTS(LastFMData user) throws
+            LastFmException {
+        String url = BASE + RECENT_TRACKS + "&limit=1&user=" + user.getName() + apiKey + ENDING + "&extended=1";
+
+        JSONObject obj = initGetRecentTracks(user, url, new CustomTimeFrame(TimeFrameEnum.ALL));
+        JSONObject attrObj = obj.getJSONObject("@attr");
+        int totalPages = attrObj.getInt("totalPages");
+        if (totalPages == 0) {
+            return Math.toIntExact(Instant.now().getEpochSecond());
+        }
+
+        JSONArray arr = obj.getJSONArray("track");
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject trackObj = arr.getJSONObject(i);
+            if (trackObj.has("@attr"))
+                continue;
+            return trackObj.getJSONObject("date").getInt("uts");
+        }
+        return Math.toIntExact(Instant.now().getEpochSecond());
+    }
+
 
     public NPService.NPUpdate getNPWithUpdate(LastFMData user, int from, boolean returnNp) throws
             LastFmException {

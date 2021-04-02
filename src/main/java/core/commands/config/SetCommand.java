@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -76,7 +77,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
         }
 
         String repeatedMessage = "That username is already registered. If you own the account pls use: **" + Chuu.getCorrespondingPrefix(e) + "login**\n" +
-                "Any doubt you might have please contact the bot developers on the support server";
+                                 "Any doubt you might have please contact the bot developers on the support server";
         boolean repeated;
         try {
             LastFMData byLastfmName = db.findByLastfmName(lastFmID);
@@ -156,16 +157,18 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
             db.insertArtistDataList(artistData, lastFmID);
             channel.sendMessage("Finished updating your artist, now the album/track process will start").queue();
-
             channel.sendTyping().queue();
             List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
             db.albumUpdate(albumData, artistData, lastFmID);
             List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
             db.trackUpdate(trackData, artistData, lastFmID);
             channel.sendMessage("Successfully updated " + lastFmID + " info!").queue();
+            int lastScrobbleUTS = lastFM.getLastScrobbleUTS(lastFMData);
+            db.updateUserTimeStamp(lastFmID, lastScrobbleUTS, null);
             //  e.getGuild().loadMembers((Chuu::caching));
         } catch (
                 LastFMNoPlaysException ex) {
+            db.updateUserTimeStamp(lastFmID, Math.toIntExact(Instant.now().getEpochSecond()), null);
             channel.sendMessage("Finished updating " + CommandUtil.cleanMarkdownCharacter(name) + "'s library, you are good to go!").queue();
         } catch (
                 LastFmEntityNotFoundException ex) {
@@ -177,10 +180,11 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             System.out.println("Error while updating " + lastFmID + LocalDateTime.now()
                     .format(DateTimeFormatter.ISO_DATE));
             Chuu.getLogger().warn(ex.getMessage(), ex);
-            db.updateUserTimeStamp(lastFmID, 0, null);
+            db.updateUserTimeStamp(lastFmID, 954682307, null);
             channel.sendMessage("Error downloading your library, try to run !update, try again later or contact bot admins if the error persists").queue();
         }
     }
+
 
     @Override
     public String getName() {
