@@ -1,10 +1,6 @@
 package core.commands.stats;
 
 import core.Chuu;
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -34,14 +30,9 @@ import java.util.stream.Collectors;
  * Credits: to flushed_emoji bot owner for the idea. Aka stolen completely
  */
 public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotifyApi;
 
     public TagStreakCommand(ChuuService dao) {
         super(dao);
-        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotifyApi = SpotifySingleton.getInstance();
-
     }
 
 
@@ -70,6 +61,10 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         return "Genre streak";
     }
 
+    private Set<Genre> map(Collection<String> genres) {
+        return genres.stream().map(Genre::new).collect(Collectors.toSet());
+    }
+
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException {
 
@@ -80,8 +75,8 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         Map<String, Long> artistToId = new HashMap<>();
         Map<AlbumInfo, Long> albumToId = new HashMap<>();
         Map<TrackInfo, Long> trackToId = new HashMap<>();
-        Bag<String> tagCombo = lastFM.getTagCombo(user, (artist, track, album) -> {
-            Set<String> accumTags = null;
+        Bag<Genre> tagCombo = lastFM.getTagCombo(user, (artist, track, album) -> {
+            Set<Genre> accumTags = null;
             try {
                 Long artistId = artistToId.get(artist);
                 if (artistId == null) {
@@ -90,7 +85,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
                     artistToId.put(artist, sa.getArtistId());
                     artistId = sa.getArtistId();
                 }
-                accumTags = db.getArtistTag(artistId);
+                accumTags = db.getArtistTag(artistId).stream().map(Genre::new).collect(Collectors.toSet());
 
                 TrackInfo ti = new TrackInfo(artist, album, track, null);
                 Long trackId = trackToId.get(ti);
@@ -99,7 +94,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
                     trackToId.put(ti, sTr.getTrackId());
                     trackId = sTr.getTrackId();
                 }
-                accumTags.addAll(db.getTrackTags(trackId));
+                accumTags.addAll(map(db.getTrackTags(trackId)));
 
                 if (album != null) {
                     AlbumInfo ai = new AlbumInfo(album, artist);
@@ -109,10 +104,10 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
                         albumToId.put(ai, sAlb.getAlbumId());
                         albumId = sAlb.getAlbumId();
                     }
-                    accumTags.addAll(db.getAlbumTags(albumId));
+                    accumTags.addAll(map(db.getAlbumTags(albumId)));
                 }
                 if (accumTags.isEmpty()) {
-                    accumTags = new HashSet<>(new TagStorer(db, lastFM, executor, new NowPlayingArtist(artist, null, true, album, track, null, lastfmId, false)).findTags(15));
+                    accumTags = map(new TagStorer(db, lastFM, executor, new NowPlayingArtist(artist, null, true, album, track, null, lastfmId, false)).findTags(15));
                 }
                 return accumTags;
             } catch (Exception ex) {
@@ -124,7 +119,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         });
 
 
-        List<String> tags = tagCombo.stream().map(t -> new StringFrequency(t, tagCombo.getCount(t))).filter(t -> t.freq() > 1)
+        List<String> tags = tagCombo.stream().map(t -> new StringFrequency(t.getName(), tagCombo.getCount(t))).filter(t -> t.freq() > 1)
                 .sorted(Comparator.comparingInt(StringFrequency::freq).reversed())
                 .map(z -> "**[%s](%s)**: ".formatted(z.key(), LinkUtils.getLastFmTagUrl(z.key())) +
                           z.freq() + (z.freq() >= 2000 ? "+" : "") + " consecutive plays\n").toList();
