@@ -181,7 +181,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             destroy();
             return false;
         }
-        if (channel.getUserLimit() == 0 && channel.getMembers().size() >= channel.getUserLimit() && !getGuild().getSelfMember().hasPermission(channel, Permission.VOICE_MOVE_OTHERS)) {
+        if (channel.getUserLimit() != 0 && channel.getMembers().size() >= channel.getUserLimit() && !getGuild().getSelfMember().hasPermission(channel, Permission.VOICE_MOVE_OTHERS)) {
             e.getChannel().sendMessage("The bot can't join due to the user limit. Grant me `" + Permission.VOICE_MOVE_OTHERS.getName() + "` or raise the user limit.").queue();
             destroy();
             return false;

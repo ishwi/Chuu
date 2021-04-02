@@ -60,7 +60,7 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
 
     // Audio
-    implementation 'com.sedmelluq:lavaplayer:1.3.73'
+    implementation 'com.sedmelluq:lavaplayer:1.3.75'
     implementation 'com.github.natanbc:lavadsp:0.7.7'
     implementation 'com.sedmelluq:lavaplayer-ext-youtube-rotator:0.2.3'
     implementation 'com.sedmelluq:jda-nas:1.1.0'
@@ -68,7 +68,7 @@ dependencies {
     implementation 'com.neovisionaries:nv-i18n:1.28'
     implementation 'com.github.natanbc:java-eval:1.0'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation('net.dv8tion:JDA:4.2.0_252')
+    implementation('net.dv8tion:JDA:4.2.1_253')
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'org.json', name: 'json', version: '20210307'
     implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.104'
