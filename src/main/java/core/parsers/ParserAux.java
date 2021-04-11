@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.Chuu;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
@@ -92,7 +93,7 @@ public class ParserAux {
                             if (membersByNickname.isEmpty()) {
                                 try {
                                     long l = Long.parseLong(join);
-                                    User userById = e.getJDA().getUserById(l);
+                                    User userById = Chuu.getShardManager().getUserById(l);
                                     if (userById != null) {
                                         return userById;
                                     }
@@ -301,7 +302,6 @@ public class ParserAux {
     }
 
     Optional<User> userString(String message, MessageReceivedEvent e, ChuuService db) throws InstanceNotFoundException {
-
         Set<Long> all = db.getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
         Predicate<Member> isOnServer = member -> member != null && all.stream().anyMatch(x -> x == member.getIdLong());
 

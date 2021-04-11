@@ -64,7 +64,7 @@ public class IndexCommand extends ConcurrentCommand<CommandParameters> {
         if (toInsert.isEmpty()) {
             sendMessageQueue(e, "Didn't have anyone to add");
         } else {
-            sendMessageQueue(e, String.format("Succesfully added %s %s to this server", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members")));
+            sendMessageQueue(e, String.format("Successfully added %s %s to this server", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members")));
         }
         if (!notOnServer.isEmpty()) {
             notOnServer.forEach(x -> db.removeUserFromOneGuildConsequent(x, e.getGuild().getIdLong()));

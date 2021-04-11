@@ -40,9 +40,10 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
 
     public WhoKnowsBaseCommand(ChuuService dao) {
         super(dao);
-        assert this.parser instanceof DaoParser<?>;
-        ((DaoParser<?>) parser).setExpensiveSearch(true);
-        ((DaoParser<?>) parser).setAllowUnaothorizedUsers(true);
+        if (this.parser instanceof DaoParser<?> p) {
+            p.setExpensiveSearch(true);
+            p.setAllowUnaothorizedUsers(true);
+        }
         pie = new PieableListKnows<>(parser);
         parser.addOptional(new OptionalEntity("list", "display in list format"));
         this.respondInPrivate = false;
@@ -87,10 +88,10 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
                             String userString = getUserString(ap.getE(), x.getDiscordId());
                             x.setDiscordName(userString);
                             return ". " +
-                                    "**[" + LinkUtils.cleanMarkdownCharacter(userString) + "](" +
-                                    PrivacyUtils.getUrlTitle(x) +
-                                    ")** - " +
-                                    x.getPlayNumber() + " plays\n";
+                                   "**[" + LinkUtils.cleanMarkdownCharacter(userString) + "](" +
+                                   PrivacyUtils.getUrlTitle(x) +
+                                   ")** - " +
+                                   x.getPlayNumber() + " plays\n";
                         })
                 );
         switch (effectiveMode) {

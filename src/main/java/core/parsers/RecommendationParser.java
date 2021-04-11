@@ -82,8 +82,7 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
                         return new ExplanationLine(super.explanation().header(),
                                 """
                                         If an user is not specified it will give you a recommendation from a random user (biasing more users with more affinity with you), otherwise a rec from that user
-                                        Alternatively you could also mention two different users.
-                                        """);
+                                        Alternatively you could also mention two different users.""");
                     }
                 }
         );

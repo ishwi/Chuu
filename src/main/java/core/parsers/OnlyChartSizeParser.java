@@ -23,6 +23,7 @@ public class OnlyChartSizeParser extends ChartableParser<ChartSizeParameters> {
     @Override
 
     protected void setUpErrorMessages() {
+        super.setUpErrorMessages();
         errorMessages.put(1, "0 is not a valid value for a chart!");
     }
 

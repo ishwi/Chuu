@@ -56,7 +56,7 @@ public class BanTagCommand extends ConcurrentCommand<CommandParameters> {
         String joined = String.join(" ", subMessage).trim();
         db.addBannedTag(joined, idLong);
         if (!joined.isBlank()) {
-            sendMessageQueue(e, "Succesfully banned the tag: " + joined);
+            sendMessageQueue(e, "Successfully banned the tag: " + joined);
             return;
         }
         sendMessageQueue(e, "Bruh.");

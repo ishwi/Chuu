@@ -25,7 +25,8 @@ import java.util.Map;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
-public class TrackCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
+public class
+TrackCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
     public TrackCrownsCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;

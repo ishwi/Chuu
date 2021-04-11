@@ -72,7 +72,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         TimeFrameEnum timeframew = params.getTimeFrame();
         String artist = params.getArtist();
         ScrobbledArtist who = new ScrobbledArtist(artist, 0, "");
-        CommandUtil.validate(db, who, lastFM, discogs, spotify);
+        CommandUtil.validate(db, who, lastFM, discogs, spotify, true, !params.isNoredirect());
         List<Track> ai;
         String lastFmName = params.getLastFMData().getName();
         if (timeframew.equals(TimeFrameEnum.ALL)) {
@@ -93,7 +93,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
 
         StringBuilder a = new StringBuilder();
         List<String> s = ai.stream().map(g -> ". **[" + CommandUtil.cleanMarkdownCharacter(g.getName()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getName()) + ")** - " + g.getPlays() + " plays" +
-                "\n").toList();
+                                              "\n").toList();
         for (int i = 0; i < ai.size() && i < 10; i++) {
             String sb = s.get(i);
             a.append(i + 1).append(sb);

@@ -97,7 +97,7 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
                         if (!finalNotExisting) {
                             if (userAccount.equalsIgnoreCase(finalLastFMData.getName())) {
                                 db.storeSess(session, finalLastFMData.getName());
-                                z.editMessage(new EmbedBuilder().setColor(Color.green).setTitle(":white_check_mark: Succesfully logged in!").build()).queue();
+                                z.editMessage(new EmbedBuilder().setColor(Color.green).setTitle(":white_check_mark: Successfully logged in!").build()).queue();
                                 scheduledExecutor.shutdown();
                                 return;
                             } else {
@@ -136,13 +136,13 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
                             newUser.setDiscordId(e.getAuthor().getIdLong());
                             db.insertNewUser(newUser);
                             db.storeSess(session, userAccount);
-                            z.editMessage(new EmbedBuilder().setTitle(":white_check_mark: Succesfully logged in!").setDescription("Now will try to index your library").setColor(Color.green).build()).queue();
+                            z.editMessage(new EmbedBuilder().setTitle(":white_check_mark: Successfully logged in!").setDescription("Now will try to index your library").setColor(Color.green).build()).queue();
                             setCommand.setProcess(t, userAccount, e.getAuthor().getIdLong(), LastFMData.ofUser(userAccount), e.getAuthor().getName());
                             scheduledExecutor.shutdown();
                             return;
                         }
                         scheduledExecutor.shutdown();
-                        z.editMessage(new EmbedBuilder().setTitle(":white_check_mark: Succesfully logged in!").setColor(Color.green).build()).queue();
+                        z.editMessage(new EmbedBuilder().setTitle(":white_check_mark: Successfully logged in!").setColor(Color.green).build()).queue();
                     } catch (LastFmException instanceNotFoundException) {
                         instanceNotFoundException.printStackTrace();
                     }

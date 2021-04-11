@@ -28,10 +28,10 @@ public record UsageLogic(String commandName, List<Explanation> explanations, Set
         String body = explanations.stream().map(Explanation::explanation).map(ExplanationLine::usage).filter(UsageLogic::checkString).map(
                 str -> {
                     String trimmed = str.trim();
-                    if (!str.endsWith(".")) {
-                        str += ".";
+                    if (!trimmed.endsWith(".")) {
+                        trimmed += ".";
                     }
-                    return "\t " + str.replaceAll("\n", "\n\t");
+                    return "\t " + trimmed.replaceAll("\n", "\n\t");
                 }).collect(Collectors.joining("\n"));
         if (!body.isBlank()) {
             body += "\n";
