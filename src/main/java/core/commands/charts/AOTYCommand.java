@@ -8,10 +8,10 @@ import dao.ChuuService;
 import java.util.Arrays;
 import java.util.List;
 
-public class MbizThisYearCommand extends MusicBrainzCommand {
-    private static final int CUSTOM_SEARCH_SPACE = 2000;
+public class AOTYCommand extends AOTYBaseCommand {
+    private static final int CUSTOM_SEARCH_SPACE = 1620;
 
-    public MbizThisYearCommand(ChuuService dao) {
+    public AOTYCommand(ChuuService dao) {
         super(dao);
         this.searchSpace = CUSTOM_SEARCH_SPACE;
     }

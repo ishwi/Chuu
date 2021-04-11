@@ -437,9 +437,13 @@ public class ConcurrentLastFM {//implements LastFMService {
         String url = BASE + apiMethod + user.getName() + apiKey + ENDING + "&period=" + timeFrameEnum.toApiFormat();
         int size = 0;
         int page = 1;
-        if (requestedSize >= 1000)
-            url += "&limit=1000";
-        else
+        if (requestedSize >= 1000) {
+            if (entity == TopEntity.ALBUM) {
+                url += "&limit=540";
+            } else {
+                url += "&limit=1000";
+            }
+        } else
             url += "&limit=" + requestedSize;
 
 

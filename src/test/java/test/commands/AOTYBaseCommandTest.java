@@ -8,7 +8,7 @@ import test.commands.utils.OneLineUtils;
 
 import java.util.regex.Pattern;
 
-public class MusicBrainzCommandTest extends CommandTest {
+public class AOTYBaseCommandTest extends CommandTest {
     @Override
     public String giveCommandName() {
         return "!releaseyear";

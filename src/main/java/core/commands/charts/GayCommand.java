@@ -146,7 +146,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
                     ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getUser()),
                     queue);
         } else {
-            count = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getUser()), queue);
+            count = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 2700, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getUser()), queue);
         }
 
         List<UrlCapsule> holding = new ArrayList<>();

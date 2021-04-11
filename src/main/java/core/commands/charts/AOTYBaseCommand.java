@@ -29,13 +29,13 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class MusicBrainzCommand extends ChartableCommand<ChartYearParameters> {
+public class AOTYBaseCommand extends ChartableCommand<ChartYearParameters> {
     private final DiscogsApi discogsApi;
     private final MusicBrainzService mb;
     public int searchSpace = 100;
 
 
-    public MusicBrainzCommand(ChuuService dao) {
+    public AOTYBaseCommand(ChuuService dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         mb = MusicBrainzServiceSingleton.getInstance();
