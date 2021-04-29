@@ -90,8 +90,7 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(a)
                 .setColor(ColorService.computeColor(e))
-                .setTitle(correctedArtist + "'s tags")
-                .setThumbnail(scrobbledArtist.getUrl());
+                .setAuthor(correctedArtist + "'s tags", LinkUtils.getLastFmArtistUrl(scrobbledArtist.getArtist()), scrobbledArtist.getUrl());
         e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(artistTags, message1, embedBuilder));
     }

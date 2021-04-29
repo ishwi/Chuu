@@ -435,7 +435,7 @@ public class CommandUtil {
 
     public static GlobalStreakEntities.DateHolder toDateHolder(Instant streakStart, String lastfmId) {
 
-        if (streakStart.isBefore(Instant.EPOCH.plus(1, ChronoUnit.YEARS))) {
+        if (streakStart.isBefore(Instant.EPOCH.plus(60 * 60 * 24 * 365, ChronoUnit.SECONDS))) {
             return new GlobalStreakEntities.DateHolder(streakStart, "-", PrivacyUtils.getLastFmUser(lastfmId));
         } else {
             OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(streakStart, ZoneId.of("UTC"));

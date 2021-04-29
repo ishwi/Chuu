@@ -143,7 +143,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         }
         if (params.hasOptional("start")) {
             OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(combo.getStreakStart(), user.getTimeZone().toZoneId());
-            if (combo.getStreakStart().isBefore(Instant.EPOCH.plus(1, ChronoUnit.YEARS))) {
+            if (combo.getStreakStart().isBefore(Instant.EPOCH.plus(60 * 60 * 24 * 365, ChronoUnit.SECONDS))) {
                 description.append("**Started**: ").append("**-**").append("\n");
             } else {
                 String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);

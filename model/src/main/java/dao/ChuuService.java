@@ -3806,4 +3806,22 @@ public class ChuuService {
 
 
     }
+
+    public List<CommandUsage> getUserCommands(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getUserCommands(connection, discordId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<UserCount> getServerCommandsLb(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getServerCommandsLb(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }

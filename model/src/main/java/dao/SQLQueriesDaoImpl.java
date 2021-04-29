@@ -1303,6 +1303,49 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     }
 
+    @Override
+    public List<CommandUsage> getUserCommands(Connection connection, long discordId) {
+        ArrayList<CommandUsage> returnList = new ArrayList<>();
+        String queryString = "SELECT count(*),command  FROM command_logs WHERE discord_id = ? group by command order by count(*) desc ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, discordId);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                long count = resultSet.getLong(1);
+                String command = resultSet.getString(2);
+                returnList.add(new CommandUsage(count, command));
+
+            }
+            return returnList;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<UserCount> getServerCommandsLb(Connection connection, long guildId) {
+        ArrayList<UserCount> returnList = new ArrayList<>();
+        String queryString = "SELECT count(*),a.discord_id,c.lastfm_id  FROM command_logs a join user_guild b on a.discord_id = b.discord_id join user c on b.discord_id = c.discord_id  WHERE a.guild_id = ? group by a.discord_id order by count(*) desc ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, guildId);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                long count = resultSet.getLong(1);
+                long discordId = resultSet.getLong(2);
+                String lastfm_id = resultSet.getString(3);
+                returnList.add(new UserCount(count, discordId, lastfm_id));
+
+            }
+            return returnList;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
     @Override
     public int userArtistCount(Connection con, String whom, int threshold) {

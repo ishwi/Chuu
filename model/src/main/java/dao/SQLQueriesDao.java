@@ -260,4 +260,7 @@ interface SQLQueriesDao {
 
     List<TrackInfo> getTracksWithTag(Connection connection, List<TrackInfo> tracks, long discordId, String tag);
 
+    List<CommandUsage> getUserCommands(Connection connection, long discordId);
+
+    List<UserCount> getServerCommandsLb(Connection connection, long guildId);
 }
