@@ -107,7 +107,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
             } else {
                 UpdaterUserWrapper userUpdateStatus = db.getUserUpdateStatus(lastFMData.getDiscordId());
                 try {
-                    UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, db, lastFM);
+                    UpdaterHoarder updaterHoarder = new UpdaterHoarder(userUpdateStatus, db, lastFM, lastFMData);
                     int i = updaterHoarder.updateUser();
                     sendMessageQueue(e, "Successfully updated %s info with %d new %s".formatted(userString, i, CommandUtil.singlePlural(i, "scrobble", "scrobbles")));
 
