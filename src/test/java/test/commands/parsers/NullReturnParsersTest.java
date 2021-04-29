@@ -69,7 +69,7 @@ public class NullReturnParsersTest {
 		for (int i = 1; i <= numberOfWords; i++) {
 			sb.append(" test").append(i);
 		}
-		long id = channelWorker.sendMessage(command + sb.toString()).complete().getIdLong();
+		long id = channelWorker.sendMessage(command + sb).complete().getIdLong();
 		await().atMost(45, TimeUnit.SECONDS).until(() ->
 		{
 			MessageHistory complete = channelWorker.getHistoryAfter(id, 20).complete();

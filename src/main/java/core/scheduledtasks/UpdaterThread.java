@@ -71,10 +71,10 @@ public class UpdaterThread implements Runnable {
                 String lastFMName = userWork.getLastFMName();
                 try {
                     if (isIncremental && chance <= 0.995f) {
-                        UpdaterHoarder updaterHoarder = new UpdaterHoarder(userWork, dao, lastFM);
+                        UpdaterHoarder updaterHoarder = new UpdaterHoarder(userWork, dao, lastFM, dao.findLastFMData(userWork.getDiscordID()));
                         updaterHoarder.updateUser();
                         System.out.println("Updated Info Incrementally of " + lastFMName
-                                + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+                                           + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
 
                     } else {
 
@@ -95,7 +95,7 @@ public class UpdaterThread implements Runnable {
                     dao.updateUserTimeStamp(lastFMName, userWork.getTimestamp(),
                             (int) (Instant.now().getEpochSecond() + 4000));
                     System.out.println("No plays " + lastFMName
-                            + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+                                       + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
                 } catch (LastFmEntityNotFoundException e) {
                     dao.removeUserCompletely(userWork.getDiscordID());
                 } catch (UnknownLastFmException ex) {

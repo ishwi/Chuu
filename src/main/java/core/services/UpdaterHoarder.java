@@ -11,6 +11,7 @@ import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.*;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,11 +24,13 @@ public class UpdaterHoarder {
     private final Spotify spotify;
     private final ConcurrentLastFM lastFM;
     private final UsersWrapper user;
+    private final LastFMData lastFMData;
     private final Map<String, Long> dbIdMap = new HashMap<>();
 
-    public UpdaterHoarder(UsersWrapper user, ChuuService service, ConcurrentLastFM lastFM) {
+    public UpdaterHoarder(UsersWrapper user, ChuuService service, ConcurrentLastFM lastFM, @Nullable LastFMData lastFMData) {
         this.user = user;
         this.lastFM = lastFM;
+        this.lastFMData = lastFMData == null ? LastFMData.ofUserWrapper(user) : lastFMData;
         spotify = SpotifySingleton.getInstance();
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.service = service;
@@ -37,7 +40,8 @@ public class UpdaterHoarder {
         List<TrackWithArtistId> trackWithArtistIds;
 
         String lastFMName = user.getLastFMName();
-        trackWithArtistIds = lastFM.getWeeklyBillboard(LastFMData.ofUserWrapper(user),
+
+        trackWithArtistIds = lastFM.getWeeklyBillboard(lastFMData,
                 user.getTimestamp()
                 , Integer.MAX_VALUE);
         updateList(trackWithArtistIds);

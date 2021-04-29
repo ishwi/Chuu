@@ -1,10 +1,11 @@
 package core.commands;
 
 import core.commands.utils.EvalContext;
-import core.imagerenderer.stealing.blur.GaussianFilter;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.State;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -73,13 +74,6 @@ public class Eval {
 
     public void measureName() {
 
-    }
 
-    @Benchmark
-    @BenchmarkMode(Mode.AverageTime)
-    public void init(ExecutionPlan plan) {
-        for (int i = plan.iterations; i > 0; i--) {
-            new GaussianFilter(90).filter(plan.getImage(), null);
-        }
     }
 }

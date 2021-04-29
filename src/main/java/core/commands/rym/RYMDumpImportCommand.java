@@ -7,6 +7,7 @@ import core.parsers.UrlParser;
 import core.parsers.params.UrlParameters;
 import dao.ChuuService;
 import dao.entities.RYMImportRating;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -101,6 +102,12 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
             sendMessageQueue(e, "You need to upload a file :thinking:");
             return;
         }
+        try {
+            db.findLastFMData(e.getAuthor().getIdLong());
+        } catch (InstanceNotFoundException instanceNotFoundException) {
+            parser.sendError("You need to have a linked last.fm account in order to import your ratings :(", e);
+            return;
+        }
         Pattern compile = Pattern.compile("https?://rateyourmusic.com/");
         if (compile.matcher(url).matches()) {
             sendMessageQueue(e, "You can't link directly to the export page, you should download the file and upload it to discord");
@@ -123,10 +130,6 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
                     return;
                 }
                 String next = s.nextLine();
-                for (int i = 0; i < next.length(); i++) {
-                    boolean equals = headerLine.charAt(i) == next.charAt(i);
-                    assert equals;
-                }
                 if (!next.equals(headerLine)) {
                     sendMessageQueue(e, "File did not match rym export format :thinking:");
                     return;
@@ -163,8 +166,8 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
     @Override
     public String getUsageInstructions() {
         return getAliases().get(0) + " rym_import_file \n" + " " +
-                "In order to import your data you need to actively download your rym data and then link it to the bot uploading the plain .txt file while using this command." +
-                "The file can be exported and the bottom of your profile page on rym clicking on the button ***EXPORT YOUR DATA*** or ***EXPORT WITH REVIEWS***";
+               "In order to import your data you need to actively download your rym data and then link it to the bot uploading the plain .txt file while using this command." +
+               "The file can be exported and the bottom of your profile page on rym clicking on the button ***EXPORT YOUR DATA*** or ***EXPORT WITH REVIEWS***";
 
     }
 }

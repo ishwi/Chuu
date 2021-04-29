@@ -42,7 +42,7 @@ public class NPService {
                 Chuu.getLogger().warn("User was being updated while querying for NP " + user.getName());
                 npWithUpdate.data.cancel(true);
             } else {
-                npWithUpdate.data().thenAccept(list -> new UpdaterHoarder(wrapper, db, lastFM).updateList(list));
+                npWithUpdate.data().thenAccept(list -> new UpdaterHoarder(wrapper, db, lastFM, user).updateList(list));
             }
             return npWithUpdate;
         } finally {

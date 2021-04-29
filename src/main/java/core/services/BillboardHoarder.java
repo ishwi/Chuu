@@ -10,6 +10,7 @@ import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -57,12 +58,12 @@ public class BillboardHoarder {
                             int untilToCalculate = (int) OffsetDateTime.of(weekStart.toLocalDate().atStartOfDay(), ZoneOffset.ofTotalSeconds(usersWrapper.getTimeZone().getOffset(Calendar.getInstance().getTimeInMillis()) / 1000)).toInstant().getEpochSecond();
                             if (usersWrapper.getTimestamp() < untilToCalculate) {
                                 usersBeingProcessed.add(usersWrapper.getDiscordID());
-                                UpdaterHoarder updaterHoarder = new UpdaterHoarder(usersWrapper, service, lastFM);
+                                UpdaterHoarder updaterHoarder = new UpdaterHoarder(usersWrapper, service, lastFM, service.findLastFMData(usersWrapper.getDiscordID()));
                                 updaterHoarder.updateUser();
                             }
                         }
 
-                    } catch (LastFmException ignored) {
+                    } catch (LastFmException | InstanceNotFoundException ignored) {
                     } finally {
                         service.prepareBillboardWeek(usersWrapper.getLastFMName(), weekId);
                         usersBeingProcessed.remove(usersWrapper.getDiscordID());
