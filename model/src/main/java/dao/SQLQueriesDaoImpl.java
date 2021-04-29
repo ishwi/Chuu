@@ -1346,6 +1346,45 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         }
     }
 
+    @Override
+    public Optional<Rank<PrivacyUserCount>> getGlobalPosition(Connection connection, long discordId) {
+        String queryString = "select * from (SELECT count(*),a.discord_id,c.lastfm_id,c.privacy_mode  FROM command_logs a  join user c on a.discord_id = c.discord_id group by a.discord_id order by count(*) desc ) main where main.discord_id = ?  ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, discordId);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                long count = resultSet.getLong(1);
+                String lastfm_id = resultSet.getString(3);
+                PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(4));
+                return Optional.of(new Rank<>(new PrivacyUserCount(count, discordId, lastfm_id, privacyMode), resultSet.getLong(4)));
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<PrivacyUserCount> getGlobalCommands(Connection connection) {
+        ArrayList<PrivacyUserCount> returnList = new ArrayList<>();
+        String queryString = "SELECT count(*),a.discord_id,c.lastfm_id,c.privacy_mode  FROM command_logs a  join user c on a.discord_id = c.discord_id group by a.discord_id order by count(*) desc limit 1000  ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                long count = resultSet.getLong(1);
+                long discordId = resultSet.getLong(2);
+                String lastfm_id = resultSet.getString(3);
+                PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString(4));
+                returnList.add(new PrivacyUserCount(count, discordId, lastfm_id, privacyMode));
+            }
+            return returnList;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 
     @Override
     public int userArtistCount(Connection con, String whom, int threshold) {
@@ -2120,7 +2159,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              "(select table_rows from  information_schema.TABLES WHERE TABLES.TABLE_SCHEMA = 'lastfm' and TABLE_NAME = 'album_rating' ) rym_count," +
                              " (select avg(rating) from album_rating ) rym_avg," +
                              " (select count(*) from past_recommendations) recommedation_count," +
-                             " (Select count(*) from corrections)correction_count, " +
+                             " (Select count(*) from corrections) correction_count, " +
                              "(select count(*) from randomlinks) random_count," +
                              " (select table_rows from  information_schema.TABLES WHERE TABLES.TABLE_SCHEMA = 'lastfm' and TABLE_NAME = 'alt_url') image_count, " +
                              "(select count(*) from vote) vote_count," +
@@ -2131,20 +2170,20 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                long user_count = resultSet.getLong("userCount");
-                long guild_count = resultSet.getLong("guildCount");
+                long user_count = resultSet.getLong("user_count");
+                long guild_count = resultSet.getLong("guild_count");
                 long artist_count = resultSet.getLong("artist_count");
                 long album_count = resultSet.getLong("album_count");
-                long scrobbled_count = resultSet.getLong("scrobbledCount");
-                long rym_count = resultSet.getLong("rymCount");
-                double rym_avg = resultSet.getDouble("rymAvg");
+                long scrobbled_count = resultSet.getLong("scrobbled_count");
+                long rym_count = resultSet.getLong("rym_count");
+                double rym_avg = resultSet.getDouble("rym_avg");
                 long recommendation_count = resultSet.getLong("recommedation_count");
-                long correction_count = resultSet.getLong("correctionCount");
-                long random_count = resultSet.getLong("randomCount");
-                long image_count = resultSet.getLong("imageCount");
-                long vote_count = resultSet.getLong("voteCount");
-                long set_count = resultSet.getLong("setCount");
-                long api_count = resultSet.getLong("apiCount");
+                long correction_count = resultSet.getLong("correction_count");
+                long random_count = resultSet.getLong("random_count");
+                long image_count = resultSet.getLong("image_count");
+                long vote_count = resultSet.getLong("vote_count");
+                long set_count = resultSet.getLong("set_count");
+                long api_count = resultSet.getLong("api_count");
 
                 return new BotStats(user_count, guild_count, artist_count, album_count, scrobbled_count, rym_count, rym_avg, recommendation_count, correction_count, random_count, image_count, vote_count, set_count, api_count);
 

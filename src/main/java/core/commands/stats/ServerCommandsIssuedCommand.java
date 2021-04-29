@@ -45,7 +45,7 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
 
     @Override
     public List<String> getAliases() {
-        return List.of("commandslb", "ranlb");
+        return List.of("commandslb", "commandlb", "ranlb", "commandsleaderboard", "ranleaderboard");
     }
 
     @Override
@@ -57,7 +57,6 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
     @Override
     protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
         List<UserCount> userCommands = db.getServerCommandsLb(e.getGuild().getIdLong());
-
 
         if (userCommands.isEmpty()) {
             sendMessageQueue(e, e.getGuild().getName() + " doesn't have any user that have ran any command!");

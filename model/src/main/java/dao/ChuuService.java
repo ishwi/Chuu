@@ -3824,4 +3824,22 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+
+    public Optional<Rank<PrivacyUserCount>> getUserPosition(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getGlobalPosition(connection, discordId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<PrivacyUserCount> getGlobalCommandLb(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getGlobalCommands(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }

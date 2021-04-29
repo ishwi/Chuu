@@ -378,6 +378,20 @@ public class CommandUtil {
         };
     }
 
+    public static String getRank(long rank) {
+        long l = rank % 100;
+        if (l >= 11 && l <= 13) {
+            return "th";
+        }
+        l = rank % 10L;
+        return switch (Math.toIntExact(l)) {
+            case 1 -> "st";
+            case 2 -> "nd";
+            case 3 -> "rd";
+            default -> "th";
+        };
+    }
+
     public static RemainingImagesMode getEffectiveMode(RemainingImagesMode remainingImagesMode, CommandParameters params) {
         boolean pie = params.hasOptional("pie");
         boolean list = params.hasOptional("list");

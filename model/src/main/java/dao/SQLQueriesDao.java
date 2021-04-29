@@ -40,6 +40,11 @@ interface SQLQueriesDao {
 
     List<LbEntry> uniqueLeaderboard(Connection connection, long guildId);
 
+
+    Optional<Rank<PrivacyUserCount>> getGlobalPosition(Connection connection, long discordId);
+
+    List<PrivacyUserCount> getGlobalCommands(Connection connection);
+
     int userArtistCount(Connection con, String whom, int threshold);
 
     List<LbEntry> artistLeaderboard(Connection con, long guildID, int threshold);
