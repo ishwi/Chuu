@@ -1,6 +1,7 @@
 package core.parsers;
 
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,22 +11,26 @@ public class OptionalEntity {
     private final String value;
     private final String definition;
     private final boolean isEnabledByDefault;
-    private final String blockedBy;
+    private final Set<String> blockedBy;
 
 
     public OptionalEntity(String value, String definition) {
-        this(value, definition, false, null);
+        this(value, definition, false, Collections.emptySet());
     }
 
 
     public OptionalEntity(String value, String definition, boolean isEnabledByDefault, String blockedBy) {
+        this.value = value;
+        this.definition = definition;
+        this.isEnabledByDefault = isEnabledByDefault;
+        this.blockedBy = Set.of(blockedBy);
+    }
 
-
+    public OptionalEntity(String value, String definition, boolean isEnabledByDefault, Set<String> blockedBy) {
         this.value = value;
         this.definition = definition;
         this.isEnabledByDefault = isEnabledByDefault;
         this.blockedBy = blockedBy;
-
     }
 
     public static boolean isWordAValidOptional(Set<OptionalEntity> optPool, String toTest) {
@@ -77,7 +82,7 @@ public class OptionalEntity {
         return isEnabledByDefault;
     }
 
-    public String getBlockedBy() {
+    public Set<String> getBlockedBy() {
         return blockedBy;
     }
 }

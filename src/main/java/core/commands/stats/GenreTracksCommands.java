@@ -36,7 +36,7 @@ public class GenreTracksCommands extends ChartableCommand<ChartableGenreParamete
 
         GenreChartParser genreChartParser = new GenreChartParser(db, TimeFrameEnum.WEEK, lastFM);
         genreChartParser.replaceOptional("list", new OptionalEntity("image", "show this with a chart instead of a list "));
-        genreChartParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, "image"));
+        genreChartParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, Set.of("image", "pie")));
         return genreChartParser;
     }
 

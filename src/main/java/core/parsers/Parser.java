@@ -68,7 +68,14 @@ public abstract class Parser<T extends CommandParameters> {
         Set<OptionalEntity> defaults = opts.stream().filter(OptionalEntity::isEnabledByDefault).collect(Collectors.toSet());
         for (
                 OptionalEntity aDefault : defaults) {
-            if (!optionals.contains(aDefault.getBlockedBy())) {
+            boolean block = false;
+            for (String blocked : aDefault.getBlockedBy()) {
+                if (optionals.contains(blocked)) {
+                    block = true;
+                    break;
+                }
+            }
+            if (!block) {
                 optionals.add(aDefault.getValue());
             }
         }

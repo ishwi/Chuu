@@ -25,6 +25,7 @@ import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
@@ -60,7 +61,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
     public ChartableParser<ChartParameters> initParser() {
         ChartParser chartParser = new ChartParser(db);
         chartParser.replaceOptional("list", new OptionalEntity("image", "show this with a chart instead of a list "));
-        chartParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, "image"));
+        chartParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, Set.of("image", "pie")));
         chartParser.setExpensiveSearch(false);
         return chartParser;
     }

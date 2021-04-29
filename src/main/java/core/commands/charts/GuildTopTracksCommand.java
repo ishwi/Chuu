@@ -16,6 +16,7 @@ import org.knowm.xchart.PieChart;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,7 +35,7 @@ public class GuildTopTracksCommand extends GuildTopCommand {
         onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noplays", "don't display plays"));
         onlyChartSizeParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
         onlyChartSizeParser.replaceOptional("list", new OptionalEntity("image", "show this with a chart instead of a list "));
-        onlyChartSizeParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, "image"));
+        onlyChartSizeParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, Set.of("image", "pie")));
         onlyChartSizeParser.setExpensiveSearch(false);
         onlyChartSizeParser.setAllowUnaothorizedUsers(true);
         return onlyChartSizeParser;
