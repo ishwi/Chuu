@@ -63,7 +63,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> initParser() {
-        NoOpParser noOpParser = new NoOpParser();
+        NoOpParser noOpParser = NoOpParser.INSTANCE;
         noOpParser.addOptional(new OptionalEntity("all", "DM you a list of all the commands with an explanation"));
         return noOpParser;
     }

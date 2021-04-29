@@ -32,7 +32,7 @@ public class AlbumCountLeaderboard extends LeaderboardCommand<NumberParameters<C
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce the playcount to only show albums above that number of plays";
-        return new NumberParser<>(new NoOpParser(),
+        return new NumberParser<>(NoOpParser.INSTANCE,
                 -0L,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);

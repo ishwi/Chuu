@@ -49,7 +49,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to only get streak with more than that number of plays. ";
-        NumberParser<CommandParameters, NoOpParser> parser = new NumberParser<>(new NoOpParser(),
+        NumberParser<CommandParameters, NoOpParser> parser = new NumberParser<>(NoOpParser.INSTANCE,
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);

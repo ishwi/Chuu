@@ -33,7 +33,7 @@ public class GlobalYearDistributionCommand extends ConcurrentCommand<CommandPara
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        return NoOpParser.INSTANCE;
 
     }
 

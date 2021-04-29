@@ -35,7 +35,7 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        return NoOpParser.INSTANCE;
     }
 
 

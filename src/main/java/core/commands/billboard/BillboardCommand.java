@@ -56,7 +56,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and 100");
         String s = "You can also introduce a number to vary the number of tracks shown in the image" +
                    "defaults to 5";
-        NumberParser<CommandParameters, NoOpParser> extraParser = new NumberParser<>(new NoOpParser(),
+        NumberParser<CommandParameters, NoOpParser> extraParser = new NumberParser<>(NoOpParser.INSTANCE,
                 5L,
                 100L,
                 map, s, false, true, false);

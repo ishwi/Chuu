@@ -35,7 +35,7 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParam
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        return NoOpParser.INSTANCE;
     }
 
     @Override

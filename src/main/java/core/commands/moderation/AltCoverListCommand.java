@@ -33,7 +33,7 @@ public class AltCoverListCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        return NoOpParser.INSTANCE;
     }
 
     @Override

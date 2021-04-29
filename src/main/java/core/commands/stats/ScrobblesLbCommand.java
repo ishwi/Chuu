@@ -28,7 +28,7 @@ public class ScrobblesLbCommand extends LeaderboardCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        return NoOpParser.INSTANCE;
     }
 
     @Override

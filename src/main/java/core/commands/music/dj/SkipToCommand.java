@@ -45,7 +45,7 @@ public class SkipToCommand extends MusicCommand<NumberParameters<CommandParamete
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You need to specify the position of the track in the queue that you want to skip to.";
-        return new NumberParser<>(new NoOpParser(),
+        return new NumberParser<>(NoOpParser.INSTANCE,
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true);

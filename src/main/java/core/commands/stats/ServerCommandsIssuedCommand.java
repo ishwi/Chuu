@@ -35,7 +35,7 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        return NoOpParser.INSTANCE;
     }
 
     @Override

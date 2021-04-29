@@ -24,7 +24,7 @@ public class UniqueLeaderboardCommand extends LeaderboardCommand<CommandParamete
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        return NoOpParser.INSTANCE;
     }
 
     @Override

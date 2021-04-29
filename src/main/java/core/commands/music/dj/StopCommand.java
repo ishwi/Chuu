@@ -36,7 +36,7 @@ public class StopCommand extends MusicCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        return NoOpParser.INSTANCE;
     }
 
     @Override

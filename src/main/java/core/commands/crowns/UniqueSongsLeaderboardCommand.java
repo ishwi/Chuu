@@ -23,7 +23,7 @@ public class UniqueSongsLeaderboardCommand extends LeaderboardCommand<CommandPar
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        return NoOpParser.INSTANCE;
     }
 
     @Override

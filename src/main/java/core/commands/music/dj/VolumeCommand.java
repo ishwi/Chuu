@@ -50,7 +50,7 @@ public class VolumeCommand extends MusicCommand<NumberParameters<CommandParamete
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can introduce a goal that will be the number of scrobbles that you want to obtain.";
-        return new NumberParser<>(new NoOpParser(),
+        return new NumberParser<>(NoOpParser.INSTANCE,
                 null,
                 MAX_VOLUME,
                 map, s, false, true, true);

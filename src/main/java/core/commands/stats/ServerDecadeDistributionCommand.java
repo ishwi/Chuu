@@ -33,7 +33,7 @@ public class ServerDecadeDistributionCommand extends ConcurrentCommand<CommandPa
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        return NoOpParser.INSTANCE;
 
     }
 

@@ -31,7 +31,7 @@ public class TopServerRatingsCommand extends ListCommand<ScoredAlbumRatings, Com
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        return NoOpParser.INSTANCE;
     }
 
     @Override

@@ -9,6 +9,14 @@ import java.util.List;
 
 public class NoOpParser extends Parser<CommandParameters> {
 
+    public static final NoOpParser INSTANCE = new NoOpParser();
+
+    private NoOpParser() {
+    }
+
+    private NoOpParser(OptionalEntity... opts) {
+        super(opts);
+    }
 
     @Override
     protected void setUpErrorMessages() {

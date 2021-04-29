@@ -35,7 +35,7 @@ public class UnreachableTests {
 
     @Test(expected = UnsupportedOperationException.class)
     public void noOpParserParsing() {
-        NoOpParser noOpParser = new NoOpParser();
+        NoOpParser noOpParser = NoOpParser.INSTANCE;
         noOpParser.parseLogic(null, null);
     }
 

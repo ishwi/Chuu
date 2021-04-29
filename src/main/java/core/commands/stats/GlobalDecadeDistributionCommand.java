@@ -32,7 +32,7 @@ public class GlobalDecadeDistributionCommand extends ConcurrentCommand<CommandPa
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser();
+        return NoOpParser.INSTANCE;
 
     }
 
