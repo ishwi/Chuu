@@ -82,13 +82,15 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
         if (event.getUser().isBot()) {
             return;
         }
-        try {
-            LastFMData lastFMData = db.findLastFMData(event.getUser().getIdLong());
-            db.addGuildUser(lastFMData.getDiscordId(), event.getGuild().getIdLong());
-            Chuu.getLogger().info("Successfully added {} to server: {} ", lastFMData.getDiscordId(), event.getGuild().getName());
-        } catch (InstanceNotFoundException e) {
-            //Ignored
-        }
+        ExecutorsSingleton.getInstance().submit(() -> {
+            try {
+                LastFMData lastFMData = db.findLastFMData(event.getUser().getIdLong());
+                db.addGuildUser(lastFMData.getDiscordId(), event.getGuild().getIdLong());
+                Chuu.getLogger().info("Successfully added {} to server: {} ", lastFMData.getDiscordId(), event.getGuild().getName());
+            } catch (InstanceNotFoundException e) {
+                //Ignored
+            }
+        });
     }
 
     public void onGuildMemberRemove(@Nonnull GuildMemberRemoveEvent event) {
