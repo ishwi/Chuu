@@ -1327,7 +1327,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<UserCount> getServerCommandsLb(Connection connection, long guildId) {
         ArrayList<UserCount> returnList = new ArrayList<>();
-        String queryString = "SELECT count(*),a.discord_id,c.lastfm_id  FROM command_logs a join user_guild b on a.discord_id = b.discord_id join user c on b.discord_id = c.discord_id  WHERE a.guild_id = ? group by a.discord_id order by count(*) desc ";
+        String queryString = "SELECT count(*),a.discord_id,c.lastfm_id  FROM command_logs a join user_guild b on a.discord_id = b.discord_id join user c on b.discord_id = c.discord_id  WHERE b.guild_id = ? group by a.discord_id order by count(*) desc ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, guildId);
 

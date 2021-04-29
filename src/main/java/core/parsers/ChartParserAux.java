@@ -189,7 +189,7 @@ public class ChartParserAux {
             }
             int x1 = Integer.parseInt(x);
             int y1 = Integer.parseInt(y);
-            if (x1 * y1 > 225) {
+            if (x1 * y1 > 400) {
                 throw new InvalidChartValuesException(x);
             }
             return new Point(x1, y1);
