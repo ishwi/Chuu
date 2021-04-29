@@ -26,8 +26,10 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
                                     .normalized().getRules().getStandardOffset(Instant.now()).getId()
                             , x -> x, (x, y) -> x));
 
+    private static final TimeZone gmt = TimeZone.getTimeZone("GMT");
+
     final Predicate<String> errored = Pattern.compile("[+-]*00?:?0?0?[ ]*(gmt)?").asMatchPredicate();
-    final Pattern weekPattern = Pattern.compile("([+-])*(\\d{0,2})(:(\\d){0,2})?[ ]*(gmt)?", Pattern.CASE_INSENSITIVE);
+    final Pattern weekPattern = Pattern.compile("(?:UTC)?([+-])?(\\d{0,2})(:(\\d){2})?[ ]*(gmt)?", Pattern.CASE_INSENSITIVE);
 
     Predicate<String> gmtBased = Pattern.compile("[+-]*[ ]*(\\d{1,2}):\\d{1,2}").asMatchPredicate();
 
@@ -37,7 +39,6 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
 
     @Override
     void setUpOptionals() {
-        this.opts.add(new OptionalEntity("nam", "lol"));
     }
 
     @Override
@@ -66,9 +67,11 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
         }
         String join = String.join(" ", words);
         String id;
-        TimeZone timeZone = TimeZone.getTimeZone(join.toUpperCase());
-        id = timeZone.toZoneId().getId();
-        if (timeZone.equals(TimeZone.getTimeZone("GMT")) && !errored.test(join)) {
+        if (join.length() <= 3) {
+            join = join.toUpperCase(Locale.ROOT);
+        }
+        TimeZone timeZone = TimeZone.getTimeZone(join);
+        if (timeZone.equals(gmt) && !errored.test(join)) {
             Set<String> zids = ZoneId.getAvailableZoneIds();
             String tzCityName = Normalizer.normalize(join, Normalizer.Form.NFKD)
                     .replaceAll("[^\\p{ASCII}-_ ]", "")
@@ -105,7 +108,7 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
                         if (matcher.group(3) == null) {
                             appender += ":00";
                         } else {
-                            appender += matcher.group(1);
+                            appender += matcher.group(3);
                         }
                         join = appender;
                     }
@@ -124,9 +127,10 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
                     return null;
                 }
             }
+            timeZone = TimeZone.getTimeZone(id);
         }
 
-        return new TimezoneParams(e, oneUser, TimeZone.getTimeZone(id));
+        return new TimezoneParams(e, oneUser, timeZone);
     }
 
     @Override

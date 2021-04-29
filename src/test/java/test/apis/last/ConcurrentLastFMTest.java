@@ -83,29 +83,30 @@ public class ConcurrentLastFMTest {
     @Test(expected = LastFMNoPlaysException.class)
     public void getIncrementalNonPLaysUser() throws LastFmException {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getWhole(LastFMData.ofUser(nonPlaysOnUser), 0);
+        lastFM.getWeeklyBillboard(LastFMData.ofUser(nonPlaysOnUser), 0, Integer.MAX_VALUE);
     }
 
     @Test(expected = LastFmEntityNotFoundException.class)
     public void getIncrementalNonExistingUser() throws LastFmException {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getWhole(LastFMData.ofUser("iausdhiaushdnbiuasnbdiuasnbdiua"), 0);
+        lastFM.getWeeklyBillboard(LastFMData.ofUser("iausdhiaushdnbiuasnbdiuasnbdiua"), 0, Integer.MAX_VALUE);
+
     }
 
     @Test(expected = LastFMNoPlaysException.class)
     public void empty() throws LastFmException {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        TimestampWrapper<List<ScrobbledArtist>> ishwaracoello = lastFM
-                .getWhole(LastFMData.ofUser("ishwaracoello"), (int) (Instant.now().getEpochSecond() + 4000));
+        var ishwaracoello = lastFM
+                .getWeeklyBillboard(LastFMData.ofUser("ishwaracoello"), (int) (Instant.now().getEpochSecond() + 4000), Integer.MAX_VALUE);
     }
 
     //Will fail if I stop listening to music for 11 days
     @Test
     public void nonempty() throws LastFmException {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        TimestampWrapper<List<ScrobbledArtist>> ishwaracoello = lastFM
-                .getWhole(LastFMData.ofUser("ishwaracoello"), (int) (Instant.now().getEpochSecond() - 1000000));
-        Assert.assertFalse(ishwaracoello.getWrapped().isEmpty());
+        var ishwaracoello = lastFM
+                .getWeeklyBillboard(LastFMData.ofUser("ishwaracoello"), (int) (Instant.now().getEpochSecond() - 1000000), Integer.MAX_VALUE);
+        Assert.assertFalse(ishwaracoello.isEmpty());
     }
 
     @Test

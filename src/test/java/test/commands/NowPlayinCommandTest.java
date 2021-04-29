@@ -33,7 +33,7 @@ public class NowPlayinCommandTest extends CommandTest {
 		ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
 		try {
 			NowPlayingArtist pablopita = lastFM.getNowPlayingInfo(LastFMData.ofUser("pablopita"));
-			String header = pablopita.isNowPlaying() ? "Current:" : "Last:";
+			String header = pablopita.current() ? "Current:" : "Last:";
 			List<FieldRowMatcher> fieldRowMatchers = new ArrayList<>();
 			fieldRowMatchers.add(new FieldRowMatcher(header, compile));
 

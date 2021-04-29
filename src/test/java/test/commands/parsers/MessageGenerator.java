@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Formatter;
 import java.util.List;
@@ -32,7 +33,7 @@ public class MessageGenerator {
 
             @Override
             public @Nonnull List<User> getMentionedUsers() {
-                return null;
+                return new ArrayList<>();
             }
 
             @Override
@@ -67,7 +68,7 @@ public class MessageGenerator {
 
             @Override
             public @Nonnull List<Member> getMentionedMembers() {
-                return null;
+                return new ArrayList<>();
             }
 
             @Override
@@ -142,7 +143,7 @@ public class MessageGenerator {
 
             @Override
             public boolean isFromGuild() {
-                return Message.super.isFromGuild();
+                return true;
             }
 
             @Override
@@ -426,6 +427,10 @@ public class MessageGenerator {
             }
         };
         return new MessageReceivedEvent(null, 0, message) {
+            @Override
+            public boolean isFromGuild() {
+                return true;
+            }
         };
 
     }
