@@ -156,7 +156,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
             List<AlbumInfo> albumMbids;
 
             if (timeframe == TimeFrameEnum.ALL) {
-                albumInfos = db.getUserAlbumByMbid(username).stream().map(x ->
+                albumInfos = db.getUserAlbums(username).stream().map(x ->
                         new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).toList();
                 albumMbids = albumInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty()).toList();
             } else {

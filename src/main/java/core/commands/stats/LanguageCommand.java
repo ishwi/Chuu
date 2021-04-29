@@ -84,7 +84,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         Long discordId = user.getDiscordId();
         List<AlbumInfo> albumInfos;
         if (params.getTime().equals(TimeFrameEnum.ALL)) {
-            albumInfos = db.getUserAlbumByMbid(name).stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
+            albumInfos = db.getUserAlbums(name).stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->
                     new AlbumInfo(x.getAlbumMbid(), x.getAlbum(), x.getArtist())).toList();
 
         } else {

@@ -269,10 +269,13 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<ScrobbledArtist> getAllUsersArtist(Connection connection, long discordId) {
+    public List<ScrobbledArtist> getAllUsersArtist(Connection connection, long discordId, Integer limit) {
         List<ScrobbledArtist> scrobbledArtists = new ArrayList<>();
         String queryString = " Select * from scrobbled_artist a join artist b on a.artist_id = b.id join user" +
                              " c on a.lastfm_id = c.lastfm_id where c.discord_id = ? order by a.playnumber desc";
+        if (limit != null) {
+            queryString += " limit " + limit;
+        }
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, discordId);
@@ -2454,10 +2457,13 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<ScrobbledAlbum> getUserAlbums(Connection connection, String lastfmId) {
+    public List<ScrobbledAlbum> getUserAlbums(Connection connection, String lastfmId, @Nullable Integer limit) {
 
         List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
         String s = "select b.album_name,c.name,b.url,b.mbid,a.playnumber  from scrobbled_album a join album b on a.album_id = b.id join artist c on a.artist_id = c.id  where a.lastfm_id = ? order by a.playnumber desc";
+        if (limit != null) {
+            s += " limit " + limit;
+        }
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setString(1, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();

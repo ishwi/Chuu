@@ -61,7 +61,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
         List<AlbumInfo> emptyMbid;
 
         if (!isByTime && param.getTimeFrameEnum().isAllTime()) {
-            List<ScrobbledAlbum> userAlbumByMbid = db.getUserAlbumByMbid(param.getUser().getName());
+            List<ScrobbledAlbum> userAlbumByMbid = db.getUserAlbums(param.getUser().getName());
             AtomicInteger atomicInteger = new AtomicInteger(0);
 
             nonEmptyMbid = userAlbumByMbid.stream().peek(x -> queue.add(new AlbumChart(x.getUrl(), atomicInteger.getAndIncrement(), x.getAlbum(), x.getArtist(), x.getAlbumMbid(), x.getCount(), param.isWriteTitles(), param.isWritePlays(), param.isAside())))

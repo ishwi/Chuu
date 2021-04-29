@@ -195,13 +195,17 @@ public class CommandUtil {
     public static String albumUrl(ChuuService dao, ConcurrentLastFM lastFM, String artist, String album, DiscogsApi discogsApi, Spotify spotifyApi) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         validate(dao, scrobbledArtist, lastFM, discogsApi, spotifyApi);
+        return albumUrl(dao, lastFM, scrobbledArtist.getArtistId(), scrobbledArtist.getArtist(), album);
+    }
+
+    public static String albumUrl(ChuuService dao, ConcurrentLastFM lastFM, long artistId, String artist, String album) throws LastFmException {
         try {
-            return dao.findAlbumUrlByName(scrobbledArtist.getArtistId(), album);
+            return dao.findAlbumUrlByName(artistId, album);
         } catch (InstanceNotFoundException exception) {
             try {
-                FullAlbumEntityExtended chuu = lastFM.getAlbumSummary(LastFMData.ofDefault(), scrobbledArtist.getArtist(), album);
-                ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), chuu.getAlbumUrl(), chuu.getMbid());
-                scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
+                FullAlbumEntityExtended chuu = lastFM.getAlbumSummary(LastFMData.ofDefault(), artist, album);
+                ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, artist, chuu.getAlbumUrl(), chuu.getMbid());
+                scrobbledAlbum.setArtistId(artistId);
                 dao.insertAlbum(scrobbledAlbum);
                 return scrobbledAlbum.getUrl();
             } catch (LastFmEntityNotFoundException e) {

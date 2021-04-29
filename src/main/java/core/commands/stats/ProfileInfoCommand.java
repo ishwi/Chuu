@@ -8,6 +8,7 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ProfileMaker;
 import core.parsers.OnlyUsernameParser;
@@ -15,11 +16,14 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.services.ColorService;
+import core.services.UserInfoService;
 import dao.ChuuService;
-import dao.entities.*;
-import dao.exceptions.ChuuServiceException;
+import dao.entities.CommandStats;
+import dao.entities.ProfileEntity;
+import dao.entities.UserInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -27,8 +31,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
     private final Spotify spotify;
@@ -72,90 +74,64 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
         long guildId = e.getGuild().getIdLong();
+        Long discordId = params.getLastFMData().getDiscordId();
+
+        var topArtist = db.getAllUserArtist(discordId, 1).stream().findFirst().orElse(null);
+        var topAlbum = db.getUserAlbums(lastFmName, 1).stream().findFirst().orElse(null);
+        if (topAlbum != null && StringUtils.isBlank(topAlbum.getAlbum())) {
+            String s = CommandUtil.albumUrl(db, lastFM, topAlbum.getArtistId(), topAlbum.getArtist(), topAlbum.getAlbum());
+            topAlbum.setUrl(s);
+        }
         int guildCrownThreshold = db.getGuildCrownThreshold(guildId);
-        CompletableFuture<UniqueWrapper<ArtistPlays>> completablecrowns = CompletableFuture.supplyAsync(() -> db.getCrowns(lastFmName, guildId, guildCrownThreshold));
-        CompletableFuture<UniqueWrapper<ArtistPlays>> completableUnique = CompletableFuture.supplyAsync(() -> db.getUniqueArtist(guildId, lastFmName));
-        CommandStats commandStats = db.getCommandStats(params.getLastFMData().getDiscordId());
-        userInfo = lastFM.getUserInfo(Collections.singletonList(params.getLastFMData().getName()), params.getLastFMData()).get(0);
-        albumCount = db.getUserAlbumCount(params.getLastFMData().getDiscordId());
+        CommandStats commandStats = db.getCommandStats(discordId);
+        userInfo = new UserInfoService(db).getUserInfo(params.getLastFMData());
+        albumCount = db.getUserAlbumCount(discordId);
         int totalArtist = db.getUserArtistCount(lastFmName, 0);
-        int randomCount = db.randomCount(params.getLastFMData().getDiscordId());
+        int randomCount = db.randomCount(discordId);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String date = LocalDateTime.ofEpochSecond(userInfo.getUnixtimestamp(), 0, ZoneOffset.UTC)
                 .format(formatter);
-
-        UniqueWrapper<ArtistPlays> crowns;
-        try {
-            crowns = completablecrowns.get();
-        } catch (InterruptedException | ExecutionException interruptedException) {
-            interruptedException.printStackTrace();
-            throw new ChuuServiceException(interruptedException);
-        }
-        int totalCrowns = crowns.getRows();
-        String crownRepresentative = !crowns.getUniqueData().isEmpty() ? crowns.getUniqueData().get(0)
-                .getArtistName() : "no crowns";
-
-        UniqueWrapper<ArtistPlays> unique;
-        try {
-            unique = completableUnique.get();
-        } catch (InterruptedException | ExecutionException interruptedException) {
-            interruptedException.printStackTrace();
-            throw new ChuuServiceException(interruptedException);
-        }
-        String uniqueRepresentative = !unique.getUniqueData().isEmpty() ? unique.getUniqueData().get(0)
-                .getArtistName() : "no unique artists";
-        int totalUnique = unique.getRows();
-
-
-        switch (CommandUtil.getEffectiveMode(params.getLastFMData().getRemainingImagesMode(), params)) {
-            case IMAGE -> doImage(e, params.getLastFMData().getDiscordId(), lastFmName, userInfo, albumCount, crowns, unique, totalUnique, totalCrowns, totalArtist, crownRepresentative, uniqueRepresentative, date, commandStats, randomCount);
-            case LIST, PIE -> list(e, lastFmName, userInfo, albumCount, unique, totalUnique, totalCrowns, totalArtist, crownRepresentative, uniqueRepresentative, date, commandStats, randomCount);
-        }
-    }
-
-    private void doImage(MessageReceivedEvent e, long discordId, String lastFmName, UserInfo userInfo, long albumCount, UniqueWrapper<ArtistPlays> crowns, UniqueWrapper<ArtistPlays> unique, int totalUnique, int totalCrowns, int totalArtist, String crownRepresentative, String uniqueRepresentative, String date, CommandStats commandStats, int randomCount) throws LastFmException {
-
-        String crownImage = !crowns.getUniqueData().isEmpty() ?
-                CommandUtil
-                        .getArtistImageUrl(db, crownRepresentative, lastFM, discogsApi, spotify)
-                : null;
-
-        String uniqueImage = !unique.getUniqueData().isEmpty() ? CommandUtil
-                .getArtistImageUrl(db, uniqueRepresentative, lastFM, discogsApi, spotify) : null;
-
         String lastFmId = Chuu.getLastFmId(lastFmName);
         if (lastFmId.equals(Chuu.DEFAULT_LASTFM_ID)) {
             lastFmId = getUserString(e, discordId);
         }
-        ProfileEntity entity = new ProfileEntity(lastFmId, "", crownRepresentative, uniqueRepresentative, uniqueImage, crownImage, userInfo
-                .getImage(), "", userInfo
-                .getPlayCount(), Math.toIntExact(albumCount), totalArtist, totalCrowns, totalUnique, randomCount, date, commandStats);
+
+        ProfileEntity entity = new ProfileEntity(lastFmId, "", userInfo.getImage(), userInfo.getPlayCount(),
+                Math.toIntExact(albumCount), totalArtist, randomCount, date, commandStats, topArtist, topAlbum);
+
+        switch (CommandUtil.getEffectiveMode(params.getLastFMData().getRemainingImagesMode(), params)) {
+            case IMAGE -> doImage(e, entity);
+            case LIST, PIE -> list(e, entity);
+        }
+    }
+
+    private void doImage(MessageReceivedEvent e, ProfileEntity entity) {
         sendImage(ProfileMaker.makeProfile(entity), e);
     }
 
-    private void list(MessageReceivedEvent e, String lastFmName, UserInfo userInfo, long albumCount, UniqueWrapper<ArtistPlays> unique, int totalUnique, int totalCrowns, int totalArtist, String crownRepresentative, String uniqueRepresentative, String date, CommandStats commandStats, int randomurlCount) {
+    private void list(MessageReceivedEvent e, ProfileEntity entity) {
 
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("# of scrobbles: ").append(userInfo.getPlayCount()).append("\n")
-                .append("# of albums: ").append(albumCount).append("\n")
-                .append("# of artists: ").append(totalArtist).append("\n")
-                .append("# of crowns: ").append(totalCrowns).append("\n")
-                .append("Top crown: ").append(CommandUtil.cleanMarkdownCharacter(crownRepresentative)).append("\n")
-                .append("Number of unique artist: ").append(totalUnique).append("\n")
-                .append("Top unique: ").append(CommandUtil.cleanMarkdownCharacter(uniqueRepresentative)).append("\n")
-                .append("# of commands executed: ").append(commandStats.commandCount()).append("\n")
-                .append("# of images submitted: ").append(commandStats.imageCount()).append("\n")
-                .append("# of random url submitted ").append(randomurlCount).append("\n");
+        StringBuilder sb = new StringBuilder();
+        sb.append("# of scrobbles: ").append(entity.scrobbles()).append("\n")
+                .append("# of albums: ").append(entity.albums()).append("\n")
+                .append("# of artists: ").append(entity.artist()).append("\n")
+                .append("# of commands executed: ").append(entity.commandStats().commandCount()).append("\n")
+                .append("# of images submitted: ").append(entity.commandStats().imageCount()).append("\n")
+                .append("# of random url submitted: ").append(entity.randomCount()).append("\n");
 
-        String name = getUserString(e, unique.getDiscordId());
+        if (entity.topArtist() != null) {
+            sb.append("Favourite artist: ").append(entity.topArtist().getArtist()).append("\n");
+        }
+        if (entity.topAlbum() != null) {
+            sb.append("Favourite album: ").append(entity.topAlbum().getAlbum()).append("\n");
+        }
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setTitle(name + "'s profile", CommandUtil.getLastFmUser(lastFmName))
+                .setAuthor(entity.lastmId() + "'s profile", PrivacyUtils.getLastFmUser(entity.lastmId()), entity.imageUrl())
                 .setColor(ColorService.computeColor(e))
-                .setThumbnail(userInfo.getImage().isEmpty() ? null : userInfo.getImage())
-                .setDescription(stringBuilder)
-                .setFooter("Account created on " + date);
+                .setDescription(sb)
+                .setFooter("Account created on " + entity.date());
 
         e.getChannel().sendMessage(embedBuilder.build()).queue();
     }

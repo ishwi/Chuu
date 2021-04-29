@@ -81,7 +81,7 @@ interface SQLQueriesDao {
 
     ResultWrapper<ArtistPlays> getGlobalArtistFrequencies(Connection connection);
 
-    List<ScrobbledArtist> getAllUsersArtist(Connection connection, long discordId);
+    List<ScrobbledArtist> getAllUsersArtist(Connection connection, long discordId, Integer limit);
 
     List<LbEntry> matchingArtistCount(Connection connection, long userId, long guildId, Long threshold);
 
@@ -146,7 +146,7 @@ interface SQLQueriesDao {
 
     Set<String> getPrivateLastfmIds(Connection connection);
 
-    List<ScrobbledAlbum> getUserAlbums(Connection connection, String lastfmId);
+    List<ScrobbledAlbum> getUserAlbums(Connection connection, String lastfmId, Integer limit);
 
 
     ResultWrapper<ScrobbledAlbum> getGuildTopAlbum(Connection connection, Long guildID, int limit, boolean doCount);
