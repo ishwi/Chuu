@@ -7,7 +7,7 @@ import core.commands.utils.PrivacyUtils;
 import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
-import core.parsers.params.UrlParameters;
+import core.parsers.params.RandomUrlParameters;
 import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 import static core.commands.rym.AlbumRatings.getStartsFromScore;
 
-public class RandomLinkDetailsCommand extends ConcurrentCommand<UrlParameters> {
+public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParameters> {
     public RandomLinkDetailsCommand(ChuuService dao) {
         super(dao);
     }
@@ -38,8 +38,8 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    public Parser<UrlParameters> initParser() {
-        return new RandomAlbumParser();
+    public Parser<RandomUrlParameters> initParser() {
+        return new RandomAlbumParser(db);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull UrlParameters params) {
+    protected void onCommand(MessageReceivedEvent e, @NotNull RandomUrlParameters params) {
 
 
         String url = params.getUrl();

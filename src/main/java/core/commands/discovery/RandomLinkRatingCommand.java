@@ -7,7 +7,7 @@ import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.NumberParameters;
-import core.parsers.params.UrlParameters;
+import core.parsers.params.RandomUrlParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
@@ -23,7 +23,7 @@ import java.util.Map;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
-public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<UrlParameters>> {
+public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<RandomUrlParameters>> {
     public RandomLinkRatingCommand(ChuuService dao) {
         super(dao);
     }
@@ -34,11 +34,11 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
     }
 
     @Override
-    public Parser<NumberParameters<UrlParameters>> initParser() {
+    public Parser<NumberParameters<RandomUrlParameters>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 0 and 10");
         String s = "You should introduce a number to rate the given url";
-        return new NumberParser<>(new RandomAlbumParser(),
+        return new NumberParser<>(new RandomAlbumParser(db),
                 null,
                 10,
                 map, s, false, true, true);
@@ -60,7 +60,7 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<UrlParameters> params) {
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<RandomUrlParameters> params) {
 
 
         Long rating = params.getExtraParam();

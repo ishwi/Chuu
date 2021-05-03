@@ -2061,8 +2061,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                         JOIN album a2 ON a.album_id = a2.id
                         join artist a3 on a2.artist_id = a3.id
                         JOIN `user` c on c.lastFm_Id = a.lastFM_ID
-                        where   (? or not c.botted_account or c.discord_id = ? ) 
-
+                        where   (? or not c.botted_account or c.discord_id = ? )
                         and (not ? or c.privacy_mode not in ('NORMAL','STRICT') or c.discord_id = ?) and
                           a2.id = ? ORDER BY a.playNumber desc\s""";
         queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;

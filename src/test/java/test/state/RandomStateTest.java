@@ -3,6 +3,7 @@ package test.state;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.UrlParameters;
 import dao.entities.RandomUrlEntity;
+import dao.exceptions.InstanceNotFoundException;
 import org.graphwalker.core.condition.EdgeCoverage;
 import org.graphwalker.core.generator.RandomPath;
 import org.graphwalker.core.machine.Context;
@@ -152,7 +153,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
         Assert.assertEquals(1, formatQueue.size());
         String peek = formatQueue.peek();
 
-        RandomAlbumParser randomAlbumParser = new RandomAlbumParser();
+        RandomAlbumParser randomAlbumParser = new RandomAlbumParser(null);
         try {
             UrlParameters received = randomAlbumParser.parseLogic(null, new String[]{peek});
             formatQueue.poll();
@@ -160,7 +161,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
             isMessageValid = true;
         }
         //A error message was tried to be sent so it means an error occured because we are sending null as MessageReceivedEvent
-        catch (NullPointerException ex) {
+        catch (NullPointerException | InstanceNotFoundException ex) {
             isMessageValid = false;
         }
     }

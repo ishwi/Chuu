@@ -1,17 +1,20 @@
 package core.parsers;
 
+import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
-import core.parsers.params.UrlParameters;
+import core.parsers.params.RandomUrlParameters;
+import dao.ChuuService;
+import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RandomAlbumParser extends Parser<UrlParameters> {
+public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
 
     private final Pattern spotify = Pattern
             .compile("^(https://open.spotify.com/(album|artist|track|playlist)/|spotify:(album|artist|track|playlist):)([a-zA-Z0-9]{22})(?:\\?.*)?$");
@@ -25,6 +28,10 @@ public class RandomAlbumParser extends Parser<UrlParameters> {
     private final Pattern bandCampPatter = Pattern
             .compile("(http://(.*\\.bandcamp\\.com/|.*\\.bandcamp\\.com/track/.*|.*\\.bandcamp\\.com/album/.*))|(https://(.*\\.bandcamp\\.com/|.*\\.bandcamp\\.com/track/.*|.*\\.bandcamp\\.com/album/.*))");
 
+    public RandomAlbumParser(ChuuService dao, OptionalEntity... opts) {
+        super(dao, opts);
+    }
+
     @Override
     void setUpOptionals() {
         super.setUpOptionals();
@@ -36,9 +43,13 @@ public class RandomAlbumParser extends Parser<UrlParameters> {
         errorMessages.put(1, "Invalid url, only accepts spotify uri or url, yt url, deezer's url,bandcamp's and  soundcloud's url");
     }
 
-    public UrlParameters parseLogic(MessageReceivedEvent e, String[] subMessage) {
+    public RandomUrlParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+        ParserAux parserAux = new ParserAux(subMessage);
+        User oneUser = parserAux.getOneUser(e, dao);
+        subMessage = parserAux.getMessage();
+
         if (subMessage == null || subMessage.length == 0)
-            return new UrlParameters(e, "");
+            return new RandomUrlParameters(e, "", oneUser);
         else if (subMessage.length != 1) {
             sendError("Only one word was expected", e);
             return null;
@@ -71,12 +82,12 @@ public class RandomAlbumParser extends Parser<UrlParameters> {
             return null;
         }
 
-        return new UrlParameters(e, url);
+        return new RandomUrlParameters(e, url, oneUser);
     }
 
     @Override
     public List<Explanation> getUsages() {
-        return Collections.singletonList(new UrlExplanation() {
+        return List.of(new UrlExplanation() {
             @Override
             public ExplanationLine explanation() {
                 return new ExplanationLine(super.explanation().header(),
@@ -85,7 +96,7 @@ public class RandomAlbumParser extends Parser<UrlParameters> {
                                 The allowed platforms for links are: Spotify,Youtube,Bandcamp,Deezer and Soundcloud
                                 """);
             }
-        });
+        }, new StrictUserExplanation());
     }
 
 

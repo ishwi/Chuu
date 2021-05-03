@@ -13,9 +13,11 @@ import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
     final ConcurrentLastFM lastFM;
@@ -85,7 +87,7 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
         //To escape the "-" that could appear on some cases
         String regex = "(?<!\\\\)\\s*-\\s*";
         String[] content = s.split(regex);
-
+        content = Arrays.stream(content).filter(Predicate.not(StringUtils::isBlank)).toArray(String[]::new);
         if (content.length < 2) {
             sendError(this.getErrorMessage(5), e);
             return null;

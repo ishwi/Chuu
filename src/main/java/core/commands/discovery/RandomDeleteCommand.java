@@ -4,7 +4,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
-import core.parsers.params.UrlParameters;
+import core.parsers.params.RandomUrlParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.RandomUrlDetails;
@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public class RandomDeleteCommand extends ConcurrentCommand<UrlParameters> {
+public class RandomDeleteCommand extends ConcurrentCommand<RandomUrlParameters> {
     public RandomDeleteCommand(ChuuService dao) {
         super(dao);
     }
@@ -27,8 +27,8 @@ public class RandomDeleteCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    public Parser<UrlParameters> initParser() {
-        return new RandomAlbumParser();
+    public Parser<RandomUrlParameters> initParser() {
+        return new RandomAlbumParser(db);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class RandomDeleteCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull UrlParameters params) throws InstanceNotFoundException {
+    protected void onCommand(MessageReceivedEvent e, @NotNull RandomUrlParameters params) throws InstanceNotFoundException {
 
 
         String url = params.getUrl();

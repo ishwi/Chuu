@@ -5,7 +5,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
-import core.parsers.params.UrlParameters;
+import core.parsers.params.RandomUrlParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 
-public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
+public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
     public RandomAlbumCommand(ChuuService dao) {
         super(dao);
     }
@@ -28,8 +28,8 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    public Parser<UrlParameters> initParser() {
-        return new RandomAlbumParser();
+    public Parser<RandomUrlParameters> initParser() {
+        return new RandomAlbumParser(db);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull UrlParameters params) {
+    protected void onCommand(MessageReceivedEvent e, @NotNull RandomUrlParameters params) {
 
 
         String url = params.getUrl();
@@ -52,13 +52,26 @@ public class RandomAlbumCommand extends ConcurrentCommand<UrlParameters> {
             RandomUrlEntity randomUrl;
             if (params.hasOptional("server") && e.isFromGuild()) {
                 randomUrl = db.getRandomUrlFromServer(e.getGuild().getIdLong());
+                if (randomUrl == null) {
+                    String name = e.getGuild().getName();
+                    sendMessageQueue(e, name + " doesn't have any submitted url!");
+                    return;
+                }
+            } else if (params.getUser().getIdLong() != e.getAuthor().getIdLong()) {
+                randomUrl = db.getRandomUrlFromUser(params.getUser().getIdLong());
+                if (randomUrl == null) {
+                    String userString = getUserString(e, params.getUser().getIdLong());
+                    sendMessageQueue(e, userString + " hasn't submitted any url!");
+                    return;
+                }
             } else {
                 randomUrl = db.getRandomUrl();
+                if (randomUrl == null) {
+                    sendMessageQueue(e, "The pool of urls was empty, add one first!");
+                    return;
+                }
             }
-            if (randomUrl == null) {
-                sendMessageQueue(e, "The pool of urls was empty, add one first!");
-                return;
-            }
+
             String ownerRec = null;// getUserString(e, randomUrl.getDiscordId());
             if (randomUrl.discordId() != null && randomUrl.discordId() != e.getJDA().getSelfUser().getIdLong()) {
                 try {
