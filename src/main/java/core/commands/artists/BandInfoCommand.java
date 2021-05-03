@@ -15,9 +15,11 @@ import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.pie.PieableListBand;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
+import core.parsers.NumberParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.parsers.params.NumberParameters;
 import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -34,9 +36,13 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
+import static core.parsers.ExtraParser.LIMIT_ERROR;
+
+public class BandInfoCommand extends ConcurrentCommand<NumberParameters<ArtistParameters>> {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
     private final PieableListBand pie;
@@ -57,11 +63,19 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    public Parser<ArtistParameters> initParser() {
-        ArtistParser artistTimeFrameParser = new ArtistParser(db, lastFM);
-        artistTimeFrameParser.addOptional(new OptionalEntity("list", "display in list format"));
-        artistTimeFrameParser.setExpensiveSearch(true);
-        return artistTimeFrameParser;
+    public Parser<NumberParameters<ArtistParameters>> initParser() {
+        Map<Integer, String> map = new HashMap<>(2);
+        map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
+        String s = "You can also introduce a number to vary the number of plays to award a crown, " +
+                   "defaults to whatever the guild has configured (0 if not configured)";
+        ArtistParser ap = new ArtistParser(db, lastFM);
+        NumberParser<ArtistParameters, ArtistParser> parser = new NumberParser<>(ap,
+                null,
+                Integer.MAX_VALUE,
+                map, s, false, true, true);
+        parser.addOptional(new OptionalEntity("list", "display in list format"));
+        ap.setExpensiveSearch(true);
+        return parser;
     }
 
     @Override
@@ -75,44 +89,58 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
 
-    void bandLogic(ArtistParameters ap) {
+    void bandLogic(NumberParameters<ArtistParameters> nump) {
 
-
+        ArtistParameters ap = nump.getInnerParams();
         long idLong = ap.getLastFMData().getDiscordId();
         final String username = ap.getLastFMData().getName();
+        long threshold = (nump.getExtraParam() == null) ? ap.getLastFMData().getArtistThreshold() : nump.getExtraParam();
 
         boolean b = ap.hasOptional("list");
         boolean b1 = ap.hasOptional("pie");
-        int limit = b || b1 ? Integer.MAX_VALUE : 4;
+        int limit = b || b1 ? Integer.MAX_VALUE : 9;
         ScrobbledArtist who = ap.getScrobbledArtist();
         List<AlbumUserPlays> userTopArtistAlbums = db.getUserTopArtistAlbums(limit, who.getArtistId(), idLong);
         MessageReceivedEvent e = ap.getE();
 
         ArtistAlbums ai = new ArtistAlbums(who.getArtist(), userTopArtistAlbums);
-        userTopArtistAlbums.forEach(t -> t.setAlbumUrl(Chuu.getCoverService().getCover(t.getArtist(), t.getAlbum(), t.getAlbumUrl(), e)));
+        userTopArtistAlbums.forEach(t -> t.setAlbumUrl(Chuu.getCoverService().
+
+                getCover(t.getArtist(), t.
+
+                        getAlbum(), t.
+
+                        getAlbumUrl(), e)));
 
         if (b || !e.isFromGuild()) {
             doList(ap, ai);
             return;
         }
+
         WrapperReturnNowPlaying np = db.whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
-        np.getReturnNowPlayings().forEach(element ->
-                element.setDiscordName(CommandUtil.getUserInfoNotStripped(e, element.getDiscordId()).getUsername())
-        );
+        np.getReturnNowPlayings().
+
+                forEach(element ->
+                        element.setDiscordName(CommandUtil.getUserInfoNotStripped(e, element.getDiscordId()).
+
+                                getUsername())
+                );
         BufferedImage logo = CommandUtil.getLogo(db, e);
         if (b1) {
             doPie(ap, np, ai, logo);
             return;
         }
+
         int plays = db.getArtistPlays(who.getArtistId(), username);
-        doImage(ap, np, ai, plays, logo);
+
+        doImage(ap, np, ai, plays, logo, threshold);
 
 
     }
 
-    void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo) {
+    void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
         BufferedImage returnedImage = BandRendered
-                .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getLastFMData().getDiscordId()).getUsername());
+                .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getLastFMData().getDiscordId()).getUsername(), threshold);
         sendImage(returnedImage, ap.getE());
     }
 
@@ -175,12 +203,12 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
-
+    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ArtistParameters> nump) throws LastFmException {
+        ArtistParameters params = nump.getInnerParams();
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
         CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
         params.setScrobbledArtist(scrobbledArtist);
-        bandLogic(params);
+        bandLogic(nump);
     }
 
 

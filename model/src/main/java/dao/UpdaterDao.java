@@ -198,4 +198,5 @@ interface UpdaterDao {
     void insertTrackTags(Connection connection, Map<Genre, List<ScrobbledTrack>> genres, Map<String, String> correctedTags);
 
 
+    RandomUrlEntity getRandomUrlFromUser(Connection connection, long userId);
 }

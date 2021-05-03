@@ -5,6 +5,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.BandRendered;
 import core.parsers.params.ArtistParameters;
+import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ArtistAlbums;
@@ -43,9 +44,9 @@ public class BandInfoServerCommand extends BandInfoCommand {
     }
 
     @Override
-    void bandLogic(ArtistParameters ap) {
+    void bandLogic(NumberParameters<ArtistParameters> nump) {
 
-
+        ArtistParameters ap = nump.getInnerParams();
         boolean b = ap.hasOptional("list");
         boolean b1 = ap.hasOptional("pie");
         int limit = b || b1 ? Integer.MAX_VALUE : 4;
@@ -70,12 +71,12 @@ public class BandInfoServerCommand extends BandInfoCommand {
             return;
         }
         long plays = db.getServerArtistPlays(ap.getE().getGuild().getIdLong(), who.getArtistId());
-        doImage(ap, np, ai, Math.toIntExact(plays), logo);
+        doImage(ap, np, ai, Math.toIntExact(plays), logo, nump.getExtraParam());
     }
 
-    void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo) {
+    void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, Long threshold) {
         BufferedImage returnedImage = BandRendered
-                .makeBandImage(np, ai, plays, logo, ap.getE().getGuild().getName());
+                .makeBandImage(np, ai, plays, logo, ap.getE().getGuild().getName(), threshold);
         sendImage(returnedImage, ap.getE());
     }
 

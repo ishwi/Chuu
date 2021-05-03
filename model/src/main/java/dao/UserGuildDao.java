@@ -78,6 +78,8 @@ interface UserGuildDao {
 
     void setUserProperty(Connection connection, long discordId, String additional_embed, String value);
 
+    void setUserProperty(Connection connection, long discordId, String property, Integer value);
+
     void setGuildProperty(Connection connection, long guildId, String property, boolean value);
 
     void setGuildProperty(Connection connection, long guildId, String property, String value);

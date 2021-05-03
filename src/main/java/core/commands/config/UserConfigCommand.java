@@ -242,6 +242,17 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                     sendMessageQueue(e, "Wont prioritize your own tags for artist in the np command");
                 }
                 break;
+            case ARTIST_THRESHOLD:
+                int threshold = Integer.parseInt(value);
+                db.setArtistThreshold(e.getAuthor().getIdLong(), threshold);
+                if (threshold > 0) {
+                    sendMessageQueue(e, "Will filter out albums with less than %d plays in the artist commands");
+                } else {
+                    sendMessageQueue(e, "Won't filter out albums in the artist commands");
+
+                }
+
+                break;
             case TIMEZONE:
                 break;
         }

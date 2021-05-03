@@ -95,7 +95,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
         /* Create "queryString". */
-        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color,own_tags FROM user WHERE discord_id = ?";
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color,own_tags,artist_threshold FROM user WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -133,8 +133,9 @@ public class UserGuildDaoImpl implements UserGuildDao {
             boolean scrobbling = (resultSet.getBoolean(i++));
             String color = resultSet.getString(i++);
             EmbedColor embedColor = EmbedColor.fromString(color);
-            boolean ownTags = (resultSet.getBoolean(i));
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor, ownTags);
+            boolean ownTags = (resultSet.getBoolean(i++));
+            int artistThreshold = (resultSet.getInt(i));
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor, ownTags, artistThreshold);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -488,7 +489,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public LastFMData findByLastFMId(Connection connection, String lastFmID) throws InstanceNotFoundException {
         String queryString = "SELECT a.discord_id, a.lastfm_id , a.role,a.private_update,a.notify_image," +
                              "a.chart_mode,a.whoknows_mode,a.remaining_mode,a.default_x,a.default_y,a.privacy_mode,a.notify_rating,a.private_lastfm," +
-                             "timezone,show_botted,token,sess,scrobbling,color,own_tags " +
+                             "timezone,show_botted,token,sess,scrobbling,color,own_tags,artist_threshold " +
                              "FROM   user a" +
                              " WHERE  a.lastfm_id = ? ";
 
@@ -524,7 +525,8 @@ public class UserGuildDaoImpl implements UserGuildDao {
             String color = resultSet.getString(19);
             EmbedColor embedColor = EmbedColor.fromString(color);
             boolean ownTags = resultSet.getBoolean(20);
-            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor, ownTags);
+            int artistThreshold = resultSet.getInt(21);
+            return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor, ownTags, artistThreshold);
 
 
             /* Get results. */
@@ -738,6 +740,22 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
+    public void setUserProperty(Connection connection, long discordId, String property, Integer value) {
+        String queryString = "UPDATE  user SET  " + property + " = ? WHERE discord_id = ? ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+            int i = 1;
+            preparedStatement.setInt(i++, value);
+            preparedStatement.setLong(i, discordId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public void setGuildProperty(Connection connection, long guildId, String property, boolean value) {
         String queryString = "UPDATE  guild SET  " + property + " = ? WHERE guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -882,10 +900,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
             boolean scrobbling = (resultSet.getBoolean(i++));
             String color = resultSet.getString(i++);
             EmbedColor embedColor = EmbedColor.fromString(color);
-            boolean ownTags = (resultSet.getBoolean(i));
+            boolean ownTags = (resultSet.getBoolean(i++));
+            int artistThreshold = (resultSet.getInt(i));
 
 
-            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor, ownTags);
+            return new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor, ownTags, artistThreshold);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -1146,7 +1165,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public Set<LastFMData> findScrobbleableUsers(Connection con, long guildId) {
         /* Create "queryString". */
         Set<LastFMData> lastFMData = new HashSet<>();
-        String queryString = "SELECT discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color,own_tags FROM user a natural  join user_guild b where b.guild_id = ? and sess is not null and scrobbling = true ";
+        String queryString = "SELECT discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color,own_tags,artist_threshold FROM user a natural  join user_guild b where b.guild_id = ? and sess is not null and scrobbling = true ";
 
         return new HashSet<>(getServerData(con, guildId, queryString));
 
@@ -1383,7 +1402,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public List<LastFMData> getAllData(Connection con, long guildId) {
         Set<LastFMData> lastFMData = new HashSet<>();
-        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color,own_tags FROM user a natural  join user_guild b where b.guild_id = ? ";
+        String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color,own_tags,artist_threshold FROM user a natural  join user_guild b where b.guild_id = ? ";
 
         return getServerData(con, guildId, queryString);
 
@@ -1451,9 +1470,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 boolean scrobbling = (resultSet.getBoolean(i++));
                 String color = resultSet.getString(i++);
                 EmbedColor embedColor = EmbedColor.fromString(color);
-                boolean ownTags = (resultSet.getBoolean(i));
+                boolean ownTags = (resultSet.getBoolean(i++));
+                int artistThreshold = (resultSet.getInt(i));
 
-                LastFMData e = new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor, ownTags);
+                LastFMData e = new LastFMData(lastFmID, resDiscordID, role, privateUpdate, notify_image, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor, ownTags, artistThreshold);
                 lastFMData.add(e);
             }
 

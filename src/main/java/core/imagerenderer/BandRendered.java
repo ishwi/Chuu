@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class BandRendered {
 
@@ -29,13 +30,15 @@ public class BandRendered {
     private static final StringFitter fitter = new StringFitterBuilder(32, 300)
             .setBaseFont(NORMAL_FONT)
             .setMinSize(8).build();
+    private static final int albumsStartPosition = X_MARGIN + 400 + 195 + 40;
+    private static final int albumsStartPositionSmall = X_MARGIN + 355 + 195 + 52;
 
 
     private BandRendered() {
 
     }
 
-    public static BufferedImage makeBandImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, ArtistAlbums ai, int plays, BufferedImage logo, String user) {
+    public static BufferedImage makeBandImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, ArtistAlbums ai, int plays, BufferedImage logo, String user, long threshold) {
         BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
         BufferedImage lastFmLogo;
         BufferedImage artistReplacement;
@@ -44,7 +47,8 @@ public class BandRendered {
 
         //Loads logo if it were to exist
         try (InputStream in = BandRendered.class.getResourceAsStream("/images/logo2.png")) {
-            lastFmLogo = ImageIO.read(in);
+            InputStream input = Objects.requireNonNull(in);
+            lastFmLogo = ImageIO.read(input);
             lastFmLogo = Scalr.resize(lastFmLogo, 30);
         } catch (IOException e) {
             lastFmLogo = null;
@@ -65,13 +69,15 @@ public class BandRendered {
 
         List<AlbumUserPlays> albumUserPlaysList = ai.getAlbumList();
         List<BufferedImage> albumsImages = new ArrayList<>();
-        for (int i = 0, albumUserPlaysListSize = albumUserPlaysList.size(); i < albumUserPlaysListSize && i < 4; i++) {
+        for (int i = 0, albumUserPlaysListSize = albumUserPlaysList.size(); i < albumUserPlaysListSize && i < 9; i++) {
             AlbumUserPlays albumUserPlays = albumUserPlaysList.get(i);
             BufferedImage image = GraphicUtils.getImage(albumUserPlays.getAlbumUrl());
             if (image == null) {
                 image = GraphicUtils.noArtistImage;
             }
-            albumsImages.add(image);
+            if (albumUserPlays.getPlays() > threshold) {
+                albumsImages.add(image);
+            }
         }
 
         g.setFont(NORMAL_FONT);
@@ -88,55 +94,36 @@ public class BandRendered {
         int count = 0;
         int imagesDrawn = 0;
 
-        int albumsStartPosition = X_MARGIN + 400 + 195 + 40;
+        int imageSize = albumsImages.size() > 4 ? 210 : 300;
+        int size = albumsImages.size();
         for (BufferedImage albumsImage : albumsImages) {
-            count++;
             int posX;
-            int baseline;
-            switch (albumsImages.size()) {
-                case 3 -> {
-                    int[] pos = {20, 370, 175};
-                    posX = albumsStartPosition + pos[count - 1];
-                    baseline = 105 + 400 * (imagesDrawn / 2);
-                }
-                case 2 -> {
-                    posX = albumsStartPosition + 175;
-                    baseline = 105 + 400 * (imagesDrawn);
-                }
-                case 1 -> {
-                    posX = albumsStartPosition + 175;
-                    baseline = 105 + 200;
-                }
-                default -> {
-                    posX = albumsStartPosition + 350 * (imagesDrawn % 2);
-                    baseline = 105 + 400 * (imagesDrawn / 2);
-                }
-            }
-            g.drawImage(albumsImage, posX, baseline, 300, 300, null);
-            baseline += 300;
+
+            Point point = drawImage(count++, size);
+            g.drawImage(albumsImage, point.x, point.y, imageSize, imageSize, null);
+            int baseline = point.y + imageSize;
             AlbumUserPlays albumUserPlays = albumUserPlaysList.get(count - 1);
             String album = albumUserPlays.getAlbum();
-
             String play = Integer.toString(albumUserPlays.getPlays());
 
             Font ogFont = g.getFont();
             float sizeFont = ogFont.getSize();
 
             StringFitter.FontMetadata albumFont = fitter
-                    .getFontMetadata(g, album);
+                    .getFontMetadata(g, album, imageSize);
             width = (int) albumFont.bounds().getWidth();
             GraphicUtils
-                    .drawStringNicely(g, albumFont, posX + (300 / 2) - width / 2, baseline + metrics.getAscent(), canvas);
+                    .drawStringNicely(g, albumFont, point.x + (imageSize / 2) - width / 2, baseline + metrics.getAscent(), canvas);
             g.setFont(ogFont);
 
             baseline += metrics.getAscent() + metrics.getDescent();
             width = metrics.stringWidth(play);
-            int start = posX + (300 / 2) - width / 2;
+            int start = point.x + (imageSize / 2) - width / 2;
             int finish = start + width;
             width += 25;
 
             GraphicUtils
-                    .drawStringNicely(g, play, posX + (300 / 2) - width / 2, baseline + metrics.getAscent(), canvas);
+                    .drawStringNicely(g, play, point.x + (imageSize / 2) - width / 2, baseline + metrics.getAscent(), canvas);
             g.drawImage(lastFmLogo, finish, baseline + metrics.getAscent() - metrics.getDescent() - metrics
                     .getLeading() - 8, null);
             imagesDrawn++;
@@ -162,5 +149,42 @@ public class BandRendered {
                 .deriveFont(36f));
 
         return canvas;
+    }
+
+    public static Point drawImage(int index, int total) {
+        int totalWidthSmall = X_MAX - albumsStartPositionSmall;
+        int fitOne = (totalWidthSmall - 300) / 2;
+        int fitTwo = (totalWidthSmall - 550) / 2;
+        return switch (total) {
+            case 1 -> new Point(albumsStartPosition + 175, 105 + 200);
+            case 2 -> new Point(albumsStartPosition + 175, 105 + 400 * index);
+            case 3 -> {
+                int[] pos = {20, 370, 175};
+                yield new Point(albumsStartPosition + pos[index], 105 + 400 * (index / 2));
+            }
+            case 4 -> new Point(albumsStartPosition + 350 * (index % 2), 105 + 400 * (index / 2));
+            case 5 -> {
+                if (index < 3) {
+                    yield new Point(albumsStartPositionSmall + 275 * (index % 3), 205);
+                } else {
+                    yield new Point(albumsStartPositionSmall + (fitTwo + 250 * (index - 3)), 205 + 300);
+                }
+            }
+            case 6 -> new Point(albumsStartPositionSmall + 275 * (index % 3), 205 + 300 * ((index) / 3));
+            case 7 -> {
+                if (index == 6) {
+                    yield new Point(albumsStartPositionSmall + fitOne, 55 + 300 * 2);
+                }
+                yield new Point(albumsStartPositionSmall + 275 * (index % 3), 55 + 300 * ((index) / 3));
+            }
+            case 8 -> {
+                if (index >= 6) {
+                    yield new Point(albumsStartPositionSmall + (fitTwo + 250 * (index - 6)), 55 + 300 * 2);
+                }
+                yield new Point(albumsStartPositionSmall + 275 * (index % 3), 55 + 300 * ((index) / 3));
+            }
+            case 9 -> new Point(albumsStartPositionSmall + 275 * (index % 3), 55 + 300 * ((index) / 3));
+            default -> throw new IllegalStateException();
+        };
     }
 }
