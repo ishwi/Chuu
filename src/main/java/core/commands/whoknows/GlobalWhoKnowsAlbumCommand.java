@@ -67,7 +67,7 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
         long author = params.getE().getAuthor().getIdLong();
         int limit = effectiveMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE;
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                this.db.getGlobalWhoKnowsAlbum(limit, albumId, author, b);
+                this.db.getGlobalWhoKnowsAlbum(limit, albumId, author, b, hidePrivate(params));
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(params.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist() + " - " + params.getAlbum()));
             return null;

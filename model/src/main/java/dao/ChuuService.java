@@ -311,17 +311,17 @@ public class ChuuService {
     }
 
 
-    public WrapperReturnNowPlaying globalWhoKnows(long artistId, boolean includeBottedUsers, long ownerId) {
-        return globalWhoKnows(artistId, 10, includeBottedUsers, ownerId);
+    public WrapperReturnNowPlaying globalWhoKnows(long artistId, boolean includeBottedUsers, long ownerId, boolean hidePrivate) {
+        return globalWhoKnows(artistId, 10, includeBottedUsers, ownerId, hidePrivate);
     }
 
     public WrapperReturnNowPlaying globalWhoKnows(long artistId, int limit, boolean includeBottedUsers,
-                                                  long ownerId) {
+                                                  long ownerId, boolean hidePrivate) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             if (limit < 1)
                 limit = 10;
-            return queriesDao.getGlobalWhoKnows(connection, artistId, limit, includeBottedUsers, ownerId);
+            return queriesDao.getGlobalWhoKnows(connection, artistId, limit, includeBottedUsers, ownerId, hidePrivate);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -2153,17 +2153,17 @@ public class ChuuService {
     }
 
 
-    public WrapperReturnNowPlaying getGlobalWhoKnowsAlbum(int limit, long albumId, long ownerId, boolean includeBotted) {
+    public WrapperReturnNowPlaying getGlobalWhoKnowsAlbum(int limit, long albumId, long ownerId, boolean includeBotted, boolean hidePrivate) {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.globalWhoKnowsAlbum(connection, albumId, limit, ownerId, includeBotted);
+            return queriesDao.globalWhoKnowsAlbum(connection, albumId, limit, ownerId, includeBotted, hidePrivate);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
     }
 
-    public WrapperReturnNowPlaying getGlobalWhoKnowsTrack(int limit, long trackId, long ownerId, boolean includeBotted) {
+    public WrapperReturnNowPlaying getGlobalWhoKnowsTrack(int limit, long trackId, long ownerId, boolean includeBotted, boolean hidePrivate) {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.globalWhoKnowsTrack(connection, trackId, limit, ownerId, includeBotted);
+            return queriesDao.globalWhoKnowsTrack(connection, trackId, limit, ownerId, includeBotted, hidePrivate);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3842,4 +3842,25 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+
+    public RandomUrlEntity getRandomUrlFromUser(long userId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return updaterDao.getRandomUrlFromUser(connection, userId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public void setArtistThreshold(long idLong, int threshold) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setUserProperty(connection, idLong, "artist_threshold", threshold);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 }
+

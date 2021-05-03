@@ -1,11 +1,10 @@
 package core.commands;
 
 import core.commands.utils.EvalContext;
+import core.parsers.NoOpParser;
 import dao.ChuuService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.openjdk.jmh.annotations.Param;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -13,15 +12,11 @@ import java.awt.image.WritableRaster;
 import java.util.Collections;
 import java.util.List;
 
-@State(Scope.Benchmark)
 public class Eval {
 
     @Param({"10"})
     public int iterations;
 
-    public static void main(String[] args) throws Exception {
-        org.openjdk.jmh.Main.main(args);
-    }
 
     static BufferedImage deepCopy(BufferedImage bi) {
         EvalContext ctx = null;
@@ -39,7 +34,7 @@ public class Eval {
 
             @Override
             public core.parsers.Parser<core.parsers.params.CommandParameters> initParser() {
-                return new core.parsers.NoOpParser();
+                return NoOpParser.INSTANCE;
             }
 
             @Override

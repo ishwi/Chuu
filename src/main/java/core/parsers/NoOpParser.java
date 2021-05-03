@@ -3,6 +3,7 @@ package core.parsers;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.CommandParameters;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,8 +15,8 @@ public class NoOpParser extends Parser<CommandParameters> {
     private NoOpParser() {
     }
 
-    private NoOpParser(OptionalEntity... opts) {
-        super(opts);
+    public NoOpParser(OptionalEntity opt, OptionalEntity... opts) {
+        super(ArrayUtils.insert(0, opts, opt));
     }
 
     @Override

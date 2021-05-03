@@ -59,7 +59,7 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
 
         long author = params.getE().getAuthor().getIdLong();
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.db.globalWhoKnows(artistId, b, author) : this.db.globalWhoKnows(artistId, Integer.MAX_VALUE, b, author);
+                effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.db.globalWhoKnows(artistId, b, author, hidePrivate(params)) : this.db.globalWhoKnows(artistId, Integer.MAX_VALUE, b, author, hidePrivate(params));
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(params.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()));
             return null;

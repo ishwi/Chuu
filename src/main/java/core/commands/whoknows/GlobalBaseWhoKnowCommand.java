@@ -26,7 +26,8 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
         this.respondInPrivate = true;
         parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
         parser.addOptional(new OptionalEntity("botted", "show botted accounts in case you have the config show-botted disabled"));
-
+        parser.addOptional(new OptionalEntity("hideprivate", "only shows public users"));
+        parser.addOptional(new OptionalEntity("hp", "use as a shorthand for hideprivate"));
     }
 
 
@@ -76,10 +77,10 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
                             x.setDiscordName(privacy.discordName());
                             x.setLastFMId(privacy.lastfmName());
                             return ". " +
-                                    "**[" + privacy.discordName() + "](" +
-                                    PrivacyUtils.getUrlTitle(x) +
-                                    ")** - " +
-                                    x.getPlayNumber() + " plays\n";
+                                   "**[" + privacy.discordName() + "](" +
+                                   PrivacyUtils.getUrlTitle(x) +
+                                   ")** - " +
+                                   x.getPlayNumber() + " plays\n";
                         })
                 );
         switch (effectiveMode) {
@@ -90,6 +91,10 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
     }
 
     abstract PrivacyMode obtainPrivacyMode(T params);
+
+    boolean hidePrivate(T params) {
+        return params.hasOptional("hp") || params.hasOptional("hideprivate");
+    }
 
 
 }

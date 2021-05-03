@@ -83,7 +83,7 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
         }
         String s = builder.toString();
         //To escape the "-" that could appear on some cases
-        String regex = "(?<!\\\\)" + ("\\s*-\\s*");
+        String regex = "(?<!\\\\)\\s*-\\s*";
         String[] content = s.split(regex);
 
         if (content.length < 2) {

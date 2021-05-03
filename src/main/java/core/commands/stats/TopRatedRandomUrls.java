@@ -27,10 +27,8 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> initParser() {
-        NoOpParser noOpParser = NoOpParser.INSTANCE;
-        noOpParser.addOptional(new OptionalEntity("myself", " show your top rated urls "));
-        noOpParser.addOptional(new OptionalEntity("server", " show ratings from users only in this server"));
-        return noOpParser;
+        return new NoOpParser(new OptionalEntity("myself", " show your top rated urls "),
+                new OptionalEntity("server", " show ratings from users only in this server"));
     }
 
     @Override

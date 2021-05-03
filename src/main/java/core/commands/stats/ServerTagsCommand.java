@@ -47,9 +47,7 @@ public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, Comman
 
     @Override
     public Parser<CommandParameters> initParser() {
-        NoOpParser noOpParser = NoOpParser.INSTANCE;
-        noOpParser.addOptional(new OptionalEntity("plays", "to display number of artists instead of scrobbles"));
-        return noOpParser;
+        return new NoOpParser(new OptionalEntity("plays", "to display number of artists instead of scrobbles"));
     }
 
     @Override

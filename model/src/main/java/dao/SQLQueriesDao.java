@@ -114,14 +114,14 @@ interface SQLQueriesDao {
 
     Map<Long, Float> getRateLimited(Connection connection);
 
-    WrapperReturnNowPlaying getGlobalWhoKnows(Connection connection, long artistId, int limit, boolean includeBottedUsers, long ownerId);
+    WrapperReturnNowPlaying getGlobalWhoKnows(Connection connection, long artistId, int limit, boolean includeBottedUsers, long ownerId, boolean hidePrivate);
 
     WrapperReturnNowPlaying whoKnowsAlbum(Connection con, long albumId, long guildId, int limit);
 
 
     WrapperReturnNowPlaying whoKnowsTrack(Connection con, long trackId, long guildId, int limit);
 
-    WrapperReturnNowPlaying globalWhoKnowsAlbum(Connection con, long albumId, int limit, long ownerId, boolean includeBottedUsers);
+    WrapperReturnNowPlaying globalWhoKnowsAlbum(Connection con, long albumId, int limit, long ownerId, boolean includeBottedUsers, boolean hidePrivate);
 
     UniqueWrapper<AlbumPlays> albumUniques(Connection connection, long guildId, String lastfmId);
 
@@ -189,7 +189,7 @@ interface SQLQueriesDao {
 
     Set<String> getArtistTag(Connection connection, long artistId);
 
-    WrapperReturnNowPlaying globalWhoKnowsTrack(Connection connection, long trackId, int limit, long ownerId, boolean includeBotted);
+    WrapperReturnNowPlaying globalWhoKnowsTrack(Connection connection, long trackId, int limit, long ownerId, boolean includeBotted, boolean hidePrivate);
 
     UniqueWrapper<TrackPlays> getUserTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId);
 

@@ -556,7 +556,7 @@ public class NPModeBuilder {
                             break;
                         }
                         completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
-                            WrapperReturnNowPlaying wrapperReturnNowPlaying = service.getGlobalWhoKnowsAlbum(10_000, albumId, discordId, false);
+                            WrapperReturnNowPlaying wrapperReturnNowPlaying = service.getGlobalWhoKnowsAlbum(10_000, albumId, discordId, false, false);
                             List<ReturnNowPlaying> returnNowPlayings = wrapperReturnNowPlaying.getReturnNowPlayings();
                             if (!returnNowPlayings.isEmpty()) {
 
@@ -588,7 +588,7 @@ public class NPModeBuilder {
                             break;
                         }
                         completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
-                            WrapperReturnNowPlaying wrapperReturnNowPlaying = service.getGlobalWhoKnowsTrack(10_000, trackId, discordId, false);
+                            WrapperReturnNowPlaying wrapperReturnNowPlaying = service.getGlobalWhoKnowsTrack(10_000, trackId, discordId, false, false);
                             List<ReturnNowPlaying> returnNowPlayings = wrapperReturnNowPlaying.getReturnNowPlayings();
                             if (!returnNowPlayings.isEmpty()) {
                                 ReturnNowPlaying returnNowPlaying = returnNowPlayings.get(0);

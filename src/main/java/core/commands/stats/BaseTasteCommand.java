@@ -15,13 +15,16 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class BaseTasteCommand<T extends CommandParameters> extends ConcurrentCommand<T> {
     boolean thumbnailPerRow = false;
@@ -68,6 +71,12 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         }
     }
 
+    private static Optional<Color> getColor(MessageReceivedEvent e, long discordId) {
+        return Optional.ofNullable(e.getGuild().getMemberById(discordId))
+                .flatMap(t -> t.getRoles().stream().filter(z -> z.getColor() != null).findFirst())
+                .map(Role::getColor);
+    }
+
     private void doImage(MessageReceivedEvent e, ResultWrapper<UserArtistComparison> resultWrapper, long firstId, long secondId, T params) {
         String userA = resultWrapper.getResultList().get(0).getUserA();
         String userB = resultWrapper.getResultList().get(0).getUserB();
@@ -81,7 +90,10 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
             userInfo1.setUsername(CommandUtil.getUserInfoNotStripped(e, secondId).getUsername());
         }
         Pair<Integer, Integer> tasteBar = getTasteBar(resultWrapper, userInfo, userInfo1, params);
-        BufferedImage image = TasteRenderer.generateTasteImage(resultWrapper, List.of(userInfo, userInfo1), getEntity(params), hasCustomUrl(params), this.thumbnailPerRow, tasteBar);
+        var palette = getColor(e, firstId)
+                .flatMap(t ->
+                        getColor(e, secondId).map(z -> Pair.of(t, z))).orElse(null);
+        BufferedImage image = TasteRenderer.generateTasteImage(resultWrapper, List.of(userInfo, userInfo1), getEntity(params), hasCustomUrl(params), this.thumbnailPerRow, tasteBar, palette);
         sendImage(image, e);
     }
 

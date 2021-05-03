@@ -32,7 +32,7 @@ public enum GuildConfigType {
     static final Pattern colorMode = Pattern.compile("(random|clear|role|.+)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     private static final Map<String, GuildConfigType> ENUM_MAP;
-    private static final Pattern number = Pattern.compile("\\d+");
+    public static final Pattern number = Pattern.compile("\\d+");
 
     static {
         ENUM_MAP = Stream.of(GuildConfigType.values())

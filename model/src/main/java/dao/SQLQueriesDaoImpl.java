@@ -649,26 +649,29 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public WrapperReturnNowPlaying getGlobalWhoKnows(Connection con, long artistId, int limit, boolean includeBottedUsers, long ownerId) {
+    public WrapperReturnNowPlaying getGlobalWhoKnows(Connection con, long artistId, int limit, boolean includeBottedUsers, long ownerId, boolean hidePrivate) {
 
 
         String queryString =
-                "SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id,c.privacy_mode " +
-                "FROM  scrobbled_artist a use index (artist_id)" +
-                "JOIN artist a2 ON a.artist_id = a2.id  " +
-                "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
-                " where   (? or not c.botted_account or c.discord_id = ? )  " +
-                "and  a2.id = ? " +
-                "ORDER BY a.playNumber desc ";
+                """    
+                        SELECT a2.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id,c.privacy_mode
+                        FROM  scrobbled_artist a
+                        JOIN artist a2 ON a.artist_id = a2.id  JOIN `user` c on c.lastFm_Id = a.lastFM_ID  where
+                        (? or not c.botted_account or c.discord_id = ? )
+                        and (not ? or c.privacy_mode not in ('NORMAL','STRICT') or c.discord_id = ?)
+                         and  a2.id = ? ORDER BY a.playNumber desc
+                                """;
+
         queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
-        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+        try (
+                PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             int i = 1;
             preparedStatement.setBoolean(i++, includeBottedUsers);
             preparedStatement.setLong(i++, ownerId);
+            preparedStatement.setBoolean(i++, hidePrivate);
+            preparedStatement.setLong(i++, ownerId);
             preparedStatement.setLong(i, artistId);
-
-
 
 
 
@@ -698,7 +701,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             /* Return booking. */
             return new WrapperReturnNowPlaying(returnList, returnList.size(), url, artistName);
 
-        } catch (SQLException e) {
+        } catch (
+                SQLException e) {
             throw new ChuuServiceException(e);
         }
     }
@@ -2047,24 +2051,29 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public WrapperReturnNowPlaying globalWhoKnowsAlbum(Connection con, long albumId, int limit, long ownerId, boolean includeBottedUsers) {
+    public WrapperReturnNowPlaying globalWhoKnowsAlbum(Connection con, long albumId, int limit, long ownerId, boolean includeBottedUsers, boolean hidePrivate) {
 
 
         String queryString =
-                "SELECT a2.album_name,a3.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id,c.privacy_mode " +
-                "FROM  scrobbled_album a" +
-                " JOIN album a2 ON a.album_id = a2.id  " +
-                " join artist a3 on a2.artist_id = a3.id " +
-                "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
-                " where   (? or not c.botted_account or c.discord_id = ? )  " +
-                "and  a2.id = ? " +
-                "ORDER BY a.playNumber desc ";
+                """
+                        SELECT a2.album_name,a3.name, a.lastfm_id, a.playNumber, a2.url, c.discord_id,c.privacy_mode\s
+                        FROM  scrobbled_album a\s
+                        JOIN album a2 ON a.album_id = a2.id
+                        join artist a3 on a2.artist_id = a3.id
+                        JOIN `user` c on c.lastFm_Id = a.lastFM_ID
+                        where   (? or not c.botted_account or c.discord_id = ? ) 
+
+                        and (not ? or c.privacy_mode not in ('NORMAL','STRICT') or c.discord_id = ?) and
+                          a2.id = ? ORDER BY a.playNumber desc\s""";
         queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             int i = 1;
             preparedStatement.setBoolean(i++, includeBottedUsers);
             preparedStatement.setLong(i++, ownerId);
+            preparedStatement.setBoolean(i++, hidePrivate);
+            preparedStatement.setLong(i++, ownerId);
+
             preparedStatement.setLong(i, albumId);
 
 
@@ -3261,25 +3270,29 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public WrapperReturnNowPlaying globalWhoKnowsTrack(Connection connection, long trackId, int limit, long ownerId, boolean includeBotted) {
+    public WrapperReturnNowPlaying globalWhoKnowsTrack(Connection connection, long trackId, int limit, long ownerId, boolean includeBotted, boolean hidePrivate) {
 
 
         String queryString =
-                "SELECT a2.track_name,a3.name, a.lastfm_id, a.playNumber, coalesce(a2.url,a4.url,a3.url) as url, c.discord_id,c.privacy_mode " +
-                "FROM  scrobbled_track a" +
-                " JOIN track a2 ON a.track_id = a2.id  " +
-                " join artist a3 on a2.artist_id = a3.id " +
-                " left join album a4 on a2.album_id = a4.id " +
-                "JOIN `user` c on c.lastFm_Id = a.lastFM_ID " +
-                " where   (? or not c.botted_account or c.discord_id = ? )  " +
-                "and  a2.id = ? " +
-                "ORDER BY a.playNumber desc ";
+                """
+                        SELECT a2.track_name,a3.name, a.lastfm_id, a.playNumber, coalesce(a2.url,a4.url,a3.url) as url, c.discord_id,c.privacy_mode
+                         FROM  scrobbled_track a
+                         JOIN track a2 ON a.track_id = a2.id
+                        join artist a3 on a2.artist_id = a3.id
+                        left join album a4 on a2.album_id = a4.id
+                        JOIN `user` c on c.lastFm_Id = a.lastFM_ID
+                        where   (? or not c.botted_account or c.discord_id = ? )
+                        and (not ? or c.privacy_mode not in ('NORMAL','STRICT') or c.discord_id = ?) and
+                        a2.id = ? ORDER BY a.playNumber desc\s""";
         queryString = limit == Integer.MAX_VALUE ? queryString : queryString + "limit " + limit;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             int i = 1;
             preparedStatement.setBoolean(i++, includeBotted);
             preparedStatement.setLong(i++, ownerId);
+            preparedStatement.setBoolean(i++, hidePrivate);
+            preparedStatement.setLong(i++, ownerId);
+
             preparedStatement.setLong(i, trackId);
 
 

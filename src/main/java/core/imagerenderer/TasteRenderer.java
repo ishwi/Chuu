@@ -24,8 +24,30 @@ public class TasteRenderer {
     }
 
 
-    public static BufferedImage generateTasteImage(ResultWrapper<UserArtistComparison> resultWrapper, List<UserInfo> userInfoLiust, String entityName, @Nullable String url, boolean thumbnail, Pair<Integer, Integer> tasteBar) {
+    public static BufferedImage generateTasteImage(ResultWrapper<UserArtistComparison> resultWrapper, List<UserInfo> userInfoLiust, String entityName, @Nullable String url, boolean thumbnail, Pair<Integer, Integer> tasteBar, @Nullable Pair<Color, Color> palette) {
 
+
+        Color temp1;
+        Color temp2;
+        if (palette == null) {
+            temp1 = Color.ORANGE;
+            temp2 = Color.CYAN;
+        } else {
+            temp1 = palette.getLeft();
+            temp2 = palette.getRight();
+            if (temp1.equals(temp2)) {
+                temp1 = temp2.brighter();
+            }
+        }
+        float[] rgb1 = new float[3];
+        temp1.getRGBColorComponents(rgb1);
+        Color colorA = new Color(rgb1[0], rgb1[1], rgb1[2], 0.5f);
+        Color colorA1 = new Color(rgb1[0], rgb1[1], rgb1[2], 0.8f);
+
+        float[] rgb2 = new float[3];
+        temp2.getRGBColorComponents(rgb2);
+        Color colorB = new Color(rgb2[0], rgb2[1], rgb2[2], 0.5f);
+        Color colorB1 = new Color(rgb2[0], rgb2[1], rgb2[2], 0.8f);
         BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
 
         List<BufferedImage> imageList = new ArrayList<>();
@@ -66,15 +88,6 @@ public class TasteRenderer {
         int rectangleHeight = g.getFontMetrics().getHeight();
         int rectangleWidth = image2StartPosition - image1StartPosition - PROFILE_IMAGE_SIZE - 8;
 
-        float[] rgb1 = new float[3];
-        Color.ORANGE.getRGBColorComponents(rgb1);
-        Color colorA = new Color(rgb1[0], rgb1[1], rgb1[2], 0.5f);
-        Color colorA1 = new Color(rgb1[0], rgb1[1], rgb1[2], 0.8f);
-
-        float[] rgb2 = new float[3];
-        Color.CYAN.getRGBColorComponents(rgb2);
-        Color colorB = new Color(rgb2[0], rgb2[1], rgb2[2], 0.5f);
-        Color colorB1 = new Color(rgb2[0], rgb2[1], rgb2[2], 0.8f);
 
         g.setFont(usernameFont);
         String username = userInfoLiust.get(0).getUsername();

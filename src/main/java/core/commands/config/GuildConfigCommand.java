@@ -173,10 +173,10 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 db.setServerShowDisabledWarning(guildId, b);
                 Chuu.getMessageDisablingService().setDontRespondOnError(b, guildId);
                 if (b) {
+                    sendMessageQueue(e, "The bot won't say anything when you run a disabled command");
+                } else {
                     sendMessageQueue(e, "You will be notified when you run a disabled command");
 
-                } else {
-                    sendMessageQueue(e, "The bot won't say anything when you run a disabled command");
                 }
                 break;
             case NP:
