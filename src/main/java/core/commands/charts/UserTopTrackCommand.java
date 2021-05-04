@@ -74,7 +74,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("toptracks", "tt");/
+        return Arrays.asList("toptracks", "tt");
     }
 
     @Override

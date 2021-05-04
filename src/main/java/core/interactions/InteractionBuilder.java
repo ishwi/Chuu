@@ -3,6 +3,7 @@ package core.interactions;
 import core.commands.abstracts.MyCommand;
 import core.commands.config.HelpCommand;
 import core.commands.discovery.FeaturedCommand;
+import core.commands.discovery.RandomAlbumCommand;
 import core.commands.moderation.InviteCommand;
 import core.commands.scrobble.LoginCommand;
 import core.commands.stats.HardwareStatsCommand;
@@ -11,6 +12,7 @@ import core.commands.stats.TopCombosCommand;
 import core.parsers.*;
 import core.parsers.explanation.util.Explanation;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -23,20 +25,29 @@ import java.util.List;
 import java.util.Set;
 
 public class InteractionBuilder {
-    private static final Set<Class<? extends Parser<?>>> valid = Set.of(ArtistParser.class, NpParser.class, ArtistAlbumParser.class, ArtistSongParser.class, ChartParser.class, OnlyUsernameParser.class, SetParser.class, TwoUsersTimeframeParser.class, TwoUsersParser.class);
-    private static final Set<Class<? extends MyCommand<?>>> valid2 = Set.of(HelpCommand.class, SourceCommand.class, InviteCommand.class, LoginCommand.class, TopCombosCommand.class, HardwareStatsCommand.class, FeaturedCommand.class);
+    private static final Set<Class<? extends Parser<?>>> parsers = Set.of(ArtistParser.class, NpParser.class, ArtistAlbumParser.class, ArtistSongParser.class, ChartParser.class, OnlyUsernameParser.class, SetParser.class, TwoUsersTimeframeParser.class, TwoUsersParser.class);
+    private static final Set<Class<? extends MyCommand<?>>> commands = Set.of(HelpCommand.class, SourceCommand.class, InviteCommand.class, LoginCommand.class, TopCombosCommand.class, HardwareStatsCommand.class, FeaturedCommand.class, RandomAlbumCommand.class);
 
     @CheckReturnValue
     public static CommandUpdateAction setGlobalCommands(JDA jda) {
+        CommandUpdateAction commandUpdateAction = jda.updateCommands();
+        return fillAction(jda, commandUpdateAction);
+    }
+
+    @CheckReturnValue
+    public static CommandUpdateAction setServerCommand(Guild guild) {
+        CommandUpdateAction commandUpdateAction = guild.updateCommands();
+        return fillAction(guild.getJDA(), commandUpdateAction);
+    }
+
+    private static CommandUpdateAction fillAction(JDA jda, CommandUpdateAction commandUpdateAction) {
         List<? extends MyCommand<?>> myCommands = jda.getRegisteredListeners().stream()
                 .filter(t -> t instanceof MyCommand<?>)
                 .map(t -> (MyCommand<?>) t)
                 .sorted(Comparator.comparingInt(t -> t.order))
-                .filter(t -> valid.contains(t.getParser().getClass()) || valid2.contains(t.getClass()))
+                .filter(t -> parsers.contains(t.getParser().getClass()) || commands.contains(t.getClass()))
                 .limit(100)
                 .toList();
-
-        CommandUpdateAction commandUpdateAction = jda.updateCommands();
         for (MyCommand<?> myCommand : myCommands) {
             try {
                 CommandData commandData = new CommandData(myCommand.getAliases().get(0), StringUtils.abbreviate(myCommand.getDescription(), 100));

@@ -26,15 +26,15 @@ public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
     }
 
     @Override
-    public TwoUsersParamaters parseSlashLogic(ContextSlashReceived e) throws LastFmException, InstanceNotFoundException {
+    public TwoUsersParamaters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
 
-        SlashCommandEvent event = e.e();
+        SlashCommandEvent event = ctx.e();
         User oneUser = event.getOption(TwoUsersExplanation.NAME).getAsUser();
-        if (!e.isFromGuild() && oneUser.getIdLong() != e.getAuthor().getIdLong()) {
-            sendError("Can't get two different users on DM's", e);
+        if (!ctx.isFromGuild() && oneUser.getIdLong() != ctx.getAuthor().getIdLong()) {
+            sendError("Can't get two different users on DM's", ctx);
             return null;
         }
-        return new TwoUsersParamaters(e, findLastfmFromID(e.getAuthor(), e), findLastfmFromID(oneUser, e));
+        return new TwoUsersParamaters(ctx, findLastfmFromID(ctx.getAuthor(), ctx), findLastfmFromID(oneUser, ctx));
     }
 
     public TwoUsersParamaters parseLogic(Context e, String[] words) throws InstanceNotFoundException {

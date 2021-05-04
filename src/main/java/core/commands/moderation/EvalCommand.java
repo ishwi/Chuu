@@ -13,7 +13,6 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import javax.validation.constraints.NotNull;
@@ -120,7 +119,5 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
 
     }
 
-    public void setOwnerId(ShardManager shard) {
-        shard.getShards().get(0).retrieveApplicationInfo().queue(x -> ownerId = x.getOwner().getIdLong());
-    }
+
 }

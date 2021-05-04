@@ -224,7 +224,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
                 return;
             }
         }
-        channel.sendMessage(new MessageBuilder().append("The provided command '**").append(args[1])
+        channel.sendMessage(new MessageBuilder().append("The provided command '**").append(args[0])
                 .append("**' does not exist. Use ").append(prefix).append("help to list all commands.")
                 .build()).queue();
     }

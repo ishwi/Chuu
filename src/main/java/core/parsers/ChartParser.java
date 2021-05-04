@@ -28,20 +28,20 @@ public class ChartParser extends ChartableParser<ChartParameters> {
     }
 
     @Override
-    public ChartParameters parseSlashLogic(ContextSlashReceived e) throws LastFmException, InstanceNotFoundException {
-        TimeFrameEnum timeFrameEnum = Optional.ofNullable(e.e().getOption(FullTimeframeExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsString).map(TimeFrameEnum::get).orElse(this.defaultTFE);
-        String size = Optional.ofNullable(e.e().getOption(ChartSizeExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsString).orElse("5x5");
-        User user = Optional.ofNullable(e.e().getOption(PermissiveUserExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsUser).orElse(e.getAuthor());
+    public ChartParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        TimeFrameEnum timeFrameEnum = Optional.ofNullable(ctx.e().getOption(FullTimeframeExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsString).map(TimeFrameEnum::get).orElse(this.defaultTFE);
+        String size = Optional.ofNullable(ctx.e().getOption(ChartSizeExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsString).orElse("5x5");
+        User user = Optional.ofNullable(ctx.e().getOption(PermissiveUserExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsUser).orElse(ctx.getAuthor());
         int x = 5;
         int y = 5;
         try {
             Point chartSize = ChartParserAux.processString(size);
         } catch (InvalidChartValuesException ex) {
-            this.sendError(getErrorMessage(6), e);
+            this.sendError(getErrorMessage(6), ctx);
             return null;
         }
-        LastFMData data = findLastfmFromID(user, e);
-        return new ChartParameters(e, data, CustomTimeFrame.ofTimeFrameEnum(timeFrameEnum), x, y);
+        LastFMData data = findLastfmFromID(user, ctx);
+        return new ChartParameters(ctx, data, CustomTimeFrame.ofTimeFrameEnum(timeFrameEnum), x, y);
     }
 
     @Override

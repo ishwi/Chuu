@@ -1255,7 +1255,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 String artistMbid = resultSet.getString("artist_mbid");
                 ScrobbledTrack st = new ScrobbledTrack(name, albumName, plays, false, 0, url, artistMbid, albumMbid);
                 st.setArtistId(resultSet.getLong("id"));
-                st.setAlbumId(resultSet.getLong("album_id"));
+                st.setTrackId(resultSet.getLong("track_id"));
                 st.setCount(resultSet.getInt("playnumber"));
 
                 returnInfoes.add(st);

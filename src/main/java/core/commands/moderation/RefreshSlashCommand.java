@@ -5,9 +5,11 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.interactions.InteractionBuilder;
 import core.parsers.NoOpParser;
+import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
+import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -26,7 +28,10 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return NoOpParser.INSTANCE;
+        NoOpParser noOpParser = new NoOpParser();
+        noOpParser.addOptional(new OptionalEntity("server", "refresh only this server"));
+        noOpParser.addOptional(new OptionalEntity("delete", "clean this server"));
+        return noOpParser;
     }
 
     @Override
@@ -48,6 +53,12 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
     protected void onCommand(Context e, @NotNull CommandParameters params) {
         e.getJDA().retrieveApplicationInfo().queue(t -> {
             if (t.getOwner().getIdLong() != e.getAuthor().getIdLong()) {
+                if (params.hasOptional("delete")) {
+                    e.getGuild().retrieveCommands().flatMap(z -> RestAction.allOf(z.stream().map(l -> e.getGuild().deleteCommandById(l.getId())).toList())).queue(z -> sendMessageQueue(e, "Finished the deletion!"));
+                } else if (params.hasOptional("server")) {
+                    InteractionBuilder.setServerCommand(e.getGuild()).queue(z -> sendMessageQueue(e, "Finished the refresh!"));
+                }
+
                 InteractionBuilder.setGlobalCommands(e.getJDA()).queue(z -> sendMessageQueue(e, "Finished the refresh!"));
             }
         });

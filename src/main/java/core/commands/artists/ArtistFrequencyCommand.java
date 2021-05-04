@@ -40,7 +40,7 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return NoOpParser.INSTANCE;
+        return new NoOpParser();
     }
 
     @Override

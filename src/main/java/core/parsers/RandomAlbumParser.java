@@ -1,6 +1,8 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -9,8 +11,10 @@ import core.parsers.params.RandomUrlParameters;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +37,24 @@ public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
     }
 
     @Override
+    public RandomUrlParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = Optional.ofNullable(e.getOption(StrictUserExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsUser).orElse(ctx.getAuthor());
+        var option = e.getOption(UrlExplanation.NAME);
+        if (option == null) {
+            return new RandomUrlParameters(ctx, "", user);
+        } else {
+            String url = option.getAsString();
+            String[] words = url.split("\\s+");
+            if (words.length != 1) {
+                sendError("Only submit a link pls", ctx);
+                return null;
+            }
+            return processUrl(url, ctx, user);
+        }
+    }
+
+    @Override
     void setUpOptionals() {
         super.setUpOptionals();
         this.opts.add(new OptionalEntity("server", "only include urls from people in this server"));
@@ -51,10 +73,14 @@ public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
         if (subMessage == null || subMessage.length == 0)
             return new RandomUrlParameters(e, "", oneUser);
         else if (subMessage.length != 1) {
-            sendError("Only one word was expected", e);
+            sendError("Only submit a link pls", e);
             return null;
         }
-        String url = subMessage[0].trim();
+        return processUrl(subMessage[0], e, oneUser);
+    }
+
+    private RandomUrlParameters processUrl(String url, Context e, User oneUser) {
+        url = url.trim();
         Matcher matches;
 
         if ((matches = spotify.matcher(url)).matches()) {

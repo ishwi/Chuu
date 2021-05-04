@@ -120,7 +120,7 @@ public abstract class Parser<T extends CommandParameters> {
         }
     }
 
-    public T parseSlashLogic(ContextSlashReceived e) throws LastFmException, InstanceNotFoundException {
+    public T parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
         throw new UnsupportedOperationException();
     }
 

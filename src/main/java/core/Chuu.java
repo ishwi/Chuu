@@ -249,6 +249,7 @@ public class Chuu {
                 .setEventManagerProvider(a -> customManager)
                 .addEventListeners(help)
                 .setShardsTotal(-1)
+                .addEventListeners(evalCommand)
                 .addEventListeners(help.registerCommand(commandAdministrator))
                 .addEventListeners(help.registerCommand(prefixCommand))
                 .addEventListeners(new VoiceListener())
@@ -258,14 +259,11 @@ public class Chuu {
                 .addEventListeners((Object[]) scanListeners(help))
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
                     messageDisablingService = new MessageDisablingService(shard, dao);
-                    InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue(t -> logger.warn("Finished with commands"));
                     prefixCommand.onStartup(shard);
+                    InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue(t -> logger.warn("Finished with commands"));
                     if (!isTest) {
                         commandAdministrator.onStartup(shardManager);
                     }
-
-                    evalCommand.setOwnerId(shard);
-                    shardManager.addEventListener(evalCommand);
                     shardManager.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
                     updatePresence("Chuu");
                 }));
@@ -283,7 +281,7 @@ public class Chuu {
             scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 20, 12, TimeUnit.MINUTES);
             scheduledExecutorService.scheduleAtFixedRate(
                     new SpotifyUpdaterThread(dao), 5, 5, TimeUnit.MINUTES);
-            scheduledExecutorService.scheduleAtFixedRate(new ArtistMbidUpdater(dao), 10, 60, TimeUnit.MINUTES);
+            scheduledExecutorService.scheduleAtFixedRate(new ArtistMbidUpdater(dao), 10, 3600, TimeUnit.MINUTES);
         } catch (LoginException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);

@@ -23,9 +23,14 @@ public record UsageLogic(String commandName, List<Explanation> explanations, Set
                 a.append(opt.getDefinition());
             }
         }
-        String headerLine = "**%s** *%s*".formatted(commandName, explanations.stream().map(Explanation::explanation)
-                .map(Interactible::header).filter(UsageLogic::checkString).map(this::mapHeader).collect(Collectors.joining(" ")));
-        String body = explanations.stream().map(Explanation::explanation).map(Interactible::usage).filter(UsageLogic::checkString).map(
+        String explanations = "";
+        if (!this.explanations.isEmpty()) {
+            explanations = "*" + this.explanations.stream().map(Explanation::explanation)
+                    .map(Interactible::header).filter(UsageLogic::checkString).map(this::mapHeader).collect(Collectors.joining(" ")) + "*";
+        }
+
+        String headerLine = "**%s** %s".formatted(commandName, explanations);
+        String body = this.explanations.stream().map(Explanation::explanation).map(Interactible::usage).filter(UsageLogic::checkString).map(
                 str -> {
                     String trimmed = str.trim();
                     if (!trimmed.endsWith(".")) {

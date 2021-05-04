@@ -892,7 +892,7 @@ public class ChuuService {
             connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
             if (updaterDao.findRandomUrlById(connection, randomUrlEntity.url()) == null) {
                 updaterDao.insertRandomUrl(connection, randomUrlEntity.url(), randomUrlEntity
-                        .discordId(), randomUrlEntity.guildId());
+                        .discordId(), -1L);
                 return true;
             }
             return false;

@@ -20,14 +20,14 @@ public class SetParser extends Parser<WordParameter> {
 
 
     @Override
-    public WordParameter parseSlashLogic(ContextSlashReceived e) {
-        SlashCommandEvent e1 = e.e();
+    public WordParameter parseSlashLogic(ContextSlashReceived ctx) {
+        SlashCommandEvent e1 = ctx.e();
         String lfmName = e1.getOption("lfm-user").getAsString();
         if (lfmName == null) {
-            sendError(getErrorMessage(0), e);
+            sendError(getErrorMessage(0), ctx);
             return null;
         }
-        return new WordParameter(e, lfmName);
+        return new WordParameter(ctx, lfmName);
     }
 
     @Override

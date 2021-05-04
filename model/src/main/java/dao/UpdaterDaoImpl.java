@@ -364,17 +364,12 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public boolean insertRandomUrl(Connection con, String url, long discordId, Long guildId) {
         String queryString = "INSERT INTO  randomlinks"
-                             + " ( discord_id,url,guild_id) " + " VALUES (?,  ?, ?)";
+                             + " ( discord_id,url) " + " VALUES (?,  ?)";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             int i = 1;
             preparedStatement.setLong(i++, discordId);
-            preparedStatement.setString(i++, url);
-            if (guildId == null) {
-                preparedStatement.setNull(i, Types.BIGINT);
-            } else {
-                preparedStatement.setLong(i, guildId);
-            }
+            preparedStatement.setString(i, url);
 
             /* Execute query. */
             int rows = preparedStatement.executeUpdate();
@@ -400,8 +395,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
             String url = resultSet.getString("url");
             Long discordID = resultSet.getLong("discord_Id");
-            Long guildId = resultSet.getLong("guild_Id");
-            return new RandomUrlEntity(url, discordID, guildId);
+            return new RandomUrlEntity(url, discordID);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -424,8 +418,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
             String url = resultSet.getString("url");
             Long discordID = resultSet.getLong("discord_Id");
-            Long guildId = resultSet.getLong("guild_Id");
-            return new RandomUrlEntity(url, discordID, guildId);
+            return new RandomUrlEntity(url, discordID);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -446,8 +439,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
             String url = resultSet.getString("url");
             Long discordID = resultSet.getLong("discord_Id");
-            Long guildId = resultSet.getLong("guild_Id");
-            return new RandomUrlEntity(url, discordID, guildId);
+            return new RandomUrlEntity(url, discordID);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -471,8 +463,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
             String url = resultSet.getString("url");
             long discordID = resultSet.getLong("discord_Id");
-            long guildId = resultSet.getLong("guild_Id");
-            return new RandomUrlEntity(url, discordID, guildId);
+            return new RandomUrlEntity(url, discordID);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

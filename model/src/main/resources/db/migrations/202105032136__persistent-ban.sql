@@ -50,3 +50,6 @@ create table role_colour_server
 );
 alter table user
     add column chart_options bigint not null default 0;
+alter table randomlinks
+    drop constraint randomlinks_fk_guild,
+    drop column guild_id;

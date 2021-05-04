@@ -12,6 +12,6 @@ public class PermissiveUserExplanation implements Explanation {
     @Override
     public Interactible explanation() {
         return new ExplanationLineType(NAME,
-                "If an username it's not provided it defaults to authors account, all formats for naming other users are allowed", OptionType.USER);
+                "Person who will be used for the command. Defaults to the author.", OptionType.USER);
     }
 }

@@ -29,16 +29,16 @@ public class TwoUsersTimeframeParser extends DaoParser<TwoUsersTimeframeParamate
     }
 
     @Override
-    public TwoUsersTimeframeParamaters parseSlashLogic(ContextSlashReceived e) throws LastFmException, InstanceNotFoundException {
+    public TwoUsersTimeframeParamaters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
 
-        SlashCommandEvent event = e.e();
+        SlashCommandEvent event = ctx.e();
         User oneUser = event.getOption(TwoUsersExplanation.NAME).getAsUser();
-        TimeFrameEnum timeFrameEnum = Optional.ofNullable(e.e().getOption(TimeframeExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsString).map(TimeFrameEnum::get).orElse(TimeFrameEnum.ALL);
-        if (!e.isFromGuild() && oneUser.getIdLong() != e.getAuthor().getIdLong()) {
-            sendError("Can't get two different users on DM's", e);
+        TimeFrameEnum timeFrameEnum = Optional.ofNullable(ctx.e().getOption(TimeframeExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsString).map(TimeFrameEnum::get).orElse(TimeFrameEnum.ALL);
+        if (!ctx.isFromGuild() && oneUser.getIdLong() != ctx.getAuthor().getIdLong()) {
+            sendError("Can't get two different users on DM's", ctx);
             return null;
         }
-        return new TwoUsersTimeframeParamaters(e, findLastfmFromID(e.getAuthor(), e), findLastfmFromID(oneUser, e), timeFrameEnum);
+        return new TwoUsersTimeframeParamaters(ctx, findLastfmFromID(ctx.getAuthor(), ctx), findLastfmFromID(oneUser, ctx), timeFrameEnum);
     }
 
     public TwoUsersTimeframeParamaters parseLogic(Context e, String[] words) throws InstanceNotFoundException {

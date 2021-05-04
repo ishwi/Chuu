@@ -28,14 +28,14 @@ public class NpParser extends DaoParser<NowPlayingParameters> {
     }
 
     @Override
-    public NowPlayingParameters parseSlashLogic(ContextSlashReceived e) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent.OptionData option = e.e().getOption(PermissiveUserExplanation.NAME);
-        User user = Optional.ofNullable(option).map(SlashCommandEvent.OptionData::getAsUser).orElse(e.getAuthor());
-        LastFMData data = findLastfmFromID(user, e);
+    public NowPlayingParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent.OptionData option = ctx.e().getOption(PermissiveUserExplanation.NAME);
+        User user = Optional.ofNullable(option).map(SlashCommandEvent.OptionData::getAsUser).orElse(ctx.getAuthor());
+        LastFMData data = findLastfmFromID(user, ctx);
         NPService npService = new NPService(lastFM, data);
         NPService.NPUpdate nowPlayingBoth = npService.getNowPlayingBoth();
         NowPlayingArtist nowPlayingArtist = nowPlayingBoth.np();
-        return new NowPlayingParameters(e, data, nowPlayingArtist, nowPlayingBoth.data());
+        return new NowPlayingParameters(ctx, data, nowPlayingArtist, nowPlayingBoth.data());
     }
 
     public NowPlayingParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException, LastFmException {

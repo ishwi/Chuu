@@ -34,7 +34,7 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return NoOpParser.INSTANCE;
+        return new NoOpParser();
     }
 
 

@@ -196,8 +196,9 @@ public class ChartParserAux {
 
         Optional<String> opt = Arrays.stream(message).filter(s -> chartSizePattern.matcher(s).matches()).findAny();
         if (opt.isPresent()) {
-            processString(opt.get());
+
             message = Arrays.stream(message).filter(s -> !s.equals(opt.get())).toArray(String[]::new);
+            return processString(opt.get());
         }
         return null;
     }

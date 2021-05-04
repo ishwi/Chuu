@@ -13,7 +13,7 @@ public class NoOpParser extends Parser<CommandParameters> {
 
     public static final NoOpParser INSTANCE = new NoOpParser();
 
-    private NoOpParser() {
+    public NoOpParser() {
     }
 
     public NoOpParser(OptionalEntity opt, OptionalEntity... opts) {
@@ -26,8 +26,8 @@ public class NoOpParser extends Parser<CommandParameters> {
     }
 
     @Override
-    public CommandParameters parseSlashLogic(ContextSlashReceived e) {
-        return new CommandParameters(e);
+    public CommandParameters parseSlashLogic(ContextSlashReceived ctx) {
+        return new CommandParameters(ctx);
     }
 
     @Override
@@ -40,5 +40,6 @@ public class NoOpParser extends Parser<CommandParameters> {
     public List<Explanation> getUsages() {
         return Collections.emptyList();
     }
+
 
 }
