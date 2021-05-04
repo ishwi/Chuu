@@ -1,5 +1,6 @@
 package core.commands.crowns;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -13,7 +14,6 @@ import dao.entities.AlbumPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -51,7 +51,7 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
 
         String lastFmName = params.getLastFMData().getName();
 
@@ -78,7 +78,7 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setThumbnail(userInfo.getUrlImage())
                 .setFooter(String.format("%s has %d%s unique albums!%n", CommandUtil.markdownLessUserString(userInfo.getUsername(), resultWrapper.getDiscordId(), e), rows, isGlobal() ? " global" : ""), null);
 
-        e.getChannel().sendMessage(embedBuilder.build()).queue(m ->
+        e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder));
 
     }

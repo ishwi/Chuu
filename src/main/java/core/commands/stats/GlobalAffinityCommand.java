@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -17,7 +18,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Comparator;
@@ -68,7 +68,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
 
 
         LastFMData ogData = db.findLastFMData(e.getAuthor().getIdLong());
@@ -98,7 +98,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
                 .setColor(ColorService.computeColor(e))
                 .setFooter(String.format("%s's global affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uinfo.getUsername()), threshold), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
-        e.getChannel().sendMessage(embedBuilder.build())
+        e.sendMessage(embedBuilder.build())
                 .queue(message1 -> new Reactionary<>(lines, message1, embedBuilder));
     }
 

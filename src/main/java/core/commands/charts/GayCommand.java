@@ -7,6 +7,7 @@ import core.apis.last.entities.chartentities.*;
 import core.apis.last.queues.DiscardByQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
@@ -19,7 +20,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.GayType;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;
@@ -119,7 +119,6 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(GayParams params) throws LastFmException {
-        String substring = params.getE().getMessage().getContentRaw().substring(1).split("\\s+")[0].toLowerCase();
 
         DiscardByQueue queue;
         List<Color> palettes = params.getGayType().getPalettes();
@@ -206,7 +205,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
     @Override
     public void noElementsMessage(GayParams parameters) {
-        MessageReceivedEvent e = parameters.getE();
+        Context e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("Couldn't find enough matching covers for %s's pride chart%s", ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
 

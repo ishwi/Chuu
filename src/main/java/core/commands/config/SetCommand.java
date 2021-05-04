@@ -1,6 +1,7 @@
 package core.commands.config;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -18,7 +19,6 @@ import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -57,7 +57,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull WordParameter params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull WordParameter params) throws LastFmException, InstanceNotFoundException {
 
 
         String lastFmID = params.getWord();
@@ -137,11 +137,11 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
                 .
 
                         getName()) + "** has set their last FM name \n Updating your library, wait a moment");
-        e.getChannel().sendMessage(mes.build()).
+        e.sendMessage(mes.build()).
                 queue(t -> e.getChannel().
                         sendTyping().
                         queue());
-        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0);
+        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
         lastFMData.setGuildID(guildID);
 
         db.insertNewUser(lastFMData);

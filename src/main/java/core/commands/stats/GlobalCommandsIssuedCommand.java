@@ -1,6 +1,7 @@
 package core.commands.stats;
 
 import core.apis.ExecutorsSingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -18,7 +19,6 @@ import dao.entities.Rank;
 import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -63,7 +63,7 @@ public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParam
 
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
         long idLong = params.getLastFMData().getDiscordId();
         CompletableFuture<Optional<Rank<PrivacyUserCount>>> rankOpt = CompletableFuture.supplyAsync(() -> {
@@ -126,13 +126,13 @@ public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParam
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(a)
                 .setColor(ColorService.computeColor(e))
-                .setAuthor(e.getGuild().getName() + "'s spammers", null, e.getGuild().getIconUrl());
+                .setAuthor(e.getJDA().getSelfUser().getName() + "'s spammers", null, e.getGuild().getIconUrl());
         if (rank.isPresent()) {
             Rank<PrivacyUserCount> me = rank.get();
             String userString = getUserString(e, me.entity().discordId());
             embedBuilder.setFooter("%s is ranked %d%s with %d commands".formatted(userString, me.rank(), CommandUtil.getRank(me.rank()), me.entity().count()));
         }
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(strings, message1, embedBuilder));
     }
 

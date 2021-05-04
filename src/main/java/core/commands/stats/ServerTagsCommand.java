@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.PieableListCommand;
 import core.commands.utils.CommandCategory;
 import core.imagerenderer.util.pie.PieableListResultWrapper;
@@ -12,7 +13,6 @@ import dao.ChuuService;
 import dao.entities.TagPlays;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.Collections;
@@ -67,7 +67,7 @@ public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, Comman
     @Override
     public void printList(List<TagPlays> tags, CommandParameters params) {
         String buzzz = params.hasOptional("play") ? "tags" : "plays";
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         if (tags.isEmpty()) {
             sendMessageQueue(e, "No one has played any artist yet!");
             return;
@@ -80,7 +80,7 @@ public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, Comman
         EmbedBuilder embedBuilder = initList(lines, e)
                 .setTitle("Server Tags")
                 .setThumbnail(e.getGuild().getIconUrl());
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(lines, message1, embedBuilder));
     }
 

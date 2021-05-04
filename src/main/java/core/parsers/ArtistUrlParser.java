@@ -1,5 +1,7 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
 import core.parsers.explanation.ArtistExplanation;
 import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -7,7 +9,6 @@ import core.parsers.params.ArtistUrlParameters;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -34,7 +35,7 @@ public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
     }
 
     @Override
-    public ArtistUrlParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public ArtistUrlParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
 
         boolean noUrl = true;
 
@@ -60,13 +61,13 @@ public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
             sendError(getErrorMessage(0), e);
             return null;
         }
-        if (url == null) {
-            if (e.getMessage().getAttachments().isEmpty()) {
+        if (url == null && e instanceof ContextMessageReceived mes) {
+            if (mes.e().getMessage().getAttachments().isEmpty()) {
                 sendError(getErrorMessage(1), e);
                 return null;
 
             } else {
-                Message.Attachment attachment = e.getMessage().getAttachments().get(0);
+                Message.Attachment attachment = mes.e().getMessage().getAttachments().get(0);
                 url = attachment.getUrl();
             }
         }

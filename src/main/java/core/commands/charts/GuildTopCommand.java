@@ -2,6 +2,7 @@ package core.commands.charts;
 
 import core.apis.last.entities.chartentities.ArtistChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.GraphicUtils;
 import core.otherlisteners.Reactionary;
@@ -13,7 +14,6 @@ import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.awt.*;
@@ -83,7 +83,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
                 .setDescription(a)
                 .setColor(CommandUtil.randomColor(params.getE()))
                 .setThumbnail(guild.getIconUrl()), params, count);
-        params.getE().getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        params.getE().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(urlCapsules, message1, embedBuilder));
     }
 
@@ -130,7 +130,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
 
     @Override
     public void noElementsMessage(ChartSizeParameters gp) {
-        MessageReceivedEvent e = gp.getE();
+        Context e = gp.getE();
         if (gp.hasOptional("global")) {
             sendMessageQueue(e, "No one has listened a single artist in the whole bot");
         } else {

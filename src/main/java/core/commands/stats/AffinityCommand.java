@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -17,7 +18,6 @@ import dao.entities.LastFMData;
 import dao.entities.UserInfo;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
@@ -61,7 +61,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull AffinityParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull AffinityParameters params) throws LastFmException, InstanceNotFoundException {
         if (params.isDoServer()) {
             doGuild(params);
         } else {
@@ -70,7 +70,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     }
 
     void doIndividual(AffinityParameters ap) throws LastFmException {
-        MessageReceivedEvent e = ap.getE();
+        Context e = ap.getE();
 
         Affinity affinity = db.getAffinity(ap.getFirstLastfmId().getName(), ap.getSecondLastfmId().getName(), ap.getThreshold());
         DiscordUserDisplay first = CommandUtil.getUserInfoNotStripped(e, ap.getFirstDiscordID());
@@ -81,7 +81,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     }
 
     void doGuild(AffinityParameters ap) throws InstanceNotFoundException {
-        MessageReceivedEvent e = ap.getE();
+        Context e = ap.getE();
         LastFMData ogData = db.findLastFMData(e.getAuthor().getIdLong());
         List<Affinity> serverAff = db.getServerAffinity(ogData.getName(), e.getGuild().getIdLong(), ap.getThreshold()).stream()
                 .sorted(Comparator.comparing(Affinity::getAffinity).reversed()).toList();
@@ -102,7 +102,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
                 .setColor(ColorService.computeColor(e))
                 .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uInfo.getUsername()), ap.getThreshold()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(lines, message1, embedBuilder));
     }
 

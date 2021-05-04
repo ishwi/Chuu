@@ -1,8 +1,8 @@
 package core.services;
 
+import core.commands.Context;
 import core.commands.abstracts.MyCommand;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
@@ -87,14 +87,14 @@ public class MessageDisablingService {
         }
     }
 
-    public boolean isMessageAllowed(MyCommand<?> command, MessageReceivedEvent e) {
+    public boolean isMessageAllowed(MyCommand<?> command, Context e) {
         if (!e.isFromGuild()) {
             return true;
         }
         long guildId = e.getGuild().getIdLong();
         long channelId = e.getChannel().getIdLong();
         return (!(disabledServersMap.get(guildId).contains(command) || disabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command)))
-                || enabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command);
+               || enabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command);
     }
 
     //Returns if its disabled or enabled now
@@ -114,7 +114,7 @@ public class MessageDisablingService {
         }
     }
 
-    public boolean doResponse(MessageReceivedEvent e) {
+    public boolean doResponse(Context e) {
         if (!e.isFromGuild()) {
             return true;
         }

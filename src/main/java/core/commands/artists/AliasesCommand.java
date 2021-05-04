@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -17,7 +18,6 @@ import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -60,7 +60,7 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
         String artist = params.getArtist();
         char prefix = CommandUtil.getMessagePrefix(e);
 
@@ -87,7 +87,7 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
                 .setTitle(correctedArtist + "'s aliases")
                 .setFooter("You can submit an alias using " + prefix + "alias", null)
                 .setThumbnail(scrobbledArtist.getUrl());
-        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 new Reactionary<>(artistAliases, message1, embedBuilder));
     }
 

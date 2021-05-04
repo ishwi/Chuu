@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
@@ -7,7 +8,6 @@ import core.parsers.params.RecommendationsParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +41,7 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
     }
 
     @Override
-    public RecommendationsParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    public RecommendationsParams parseLogic(Context e, String[] words) throws InstanceNotFoundException {
 
         Stream<String> secondStream = Arrays.stream(words).filter(s -> s.matches("\\d+"));
         Optional<String> opt2 = secondStream.findAny();
@@ -62,7 +62,7 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
         if (datas == null) {
             noUserFlag = true;
         } else if (datas[0].getDiscordId().equals(datas[1].getDiscordId())) {
-            e.getChannel().sendMessage("Don't use the same person twice\n").queue();
+            e.sendMessage("Don't use the same person twice\n").queue();
             return null;
         }
         if (noUserFlag) {
@@ -82,7 +82,7 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
                         return new ExplanationLine(super.explanation().header(),
                                 """
                                         If an user is not specified it will give you a recommendation from a random user (biasing more users with more affinity with you), otherwise a rec from that user
-                                        Alternatively you could also mention two different users.""");
+                                        Alternatively you could also mention two different users.""", super.explanation().optionData());
                     }
                 }
         );

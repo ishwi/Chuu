@@ -5,6 +5,7 @@ import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.queues.TrackGroupAlbumQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -22,7 +23,6 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.StreakEntity;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -73,7 +73,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException {
 
 
         LastFMData user = params.getLastFMData();
@@ -158,7 +158,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         embedBuilder.setDescription(description)
                 .setColor(ColorService.computeColor(e))
                 .setFooter(String.format("%s has played %s %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), artist.getArtist(), artistPlays, CommandUtil.singlePlural(artistPlays, "time", "times")));
-        e.getChannel().sendMessage(embedBuilder.build()).
+        e.sendMessage(embedBuilder.build()).
                 queue();
 
     }

@@ -1,11 +1,11 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.ExtraParameters;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -97,7 +97,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
     }
 
     @Override
-    protected Z parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected Z parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
         Map<Boolean, List<String>> predicateToLines = Arrays.stream(words).collect(Collectors.partitioningBy((predicate)));
         List<J> first = predicateToLines.get(true).stream().map(fromString).toList();
         List<String> returning = predicateToLines.get(false);

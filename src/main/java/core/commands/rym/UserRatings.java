@@ -1,5 +1,6 @@
 package core.commands.rym;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -15,7 +16,6 @@ import dao.entities.ScoredAlbumRatings;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
@@ -54,7 +54,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull RYMRatingParams params) {
+    protected void onCommand(Context e, @NotNull RYMRatingParams params) {
 
 
         Short rating = params.getRating();
@@ -69,7 +69,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
     }
 
     private void listOnlyOneRating(List<ScoredAlbumRatings> myRatings, RYMRatingParams params) {
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         EmbedBuilder embedBuilder = new EmbedBuilder().
@@ -88,7 +88,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
     }
 
     private void listWithRating(List<ScoredAlbumRatings> myRatings, RYMRatingParams params) {
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         EmbedBuilder embedBuilder = new EmbedBuilder().
@@ -115,7 +115,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
 
     }
 
-    private void build(RYMRatingParams params, MessageReceivedEvent e, NumberFormat formatter, EmbedBuilder embedBuilder, List<String> stringList, DiscordUserDisplay userInfoConsideringGuildOrNot) {
+    private void build(RYMRatingParams params, Context e, NumberFormat formatter, EmbedBuilder embedBuilder, List<String> stringList, DiscordUserDisplay userInfoConsideringGuildOrNot) {
         StringBuilder a = new StringBuilder();
         for (int i = 0; i < 8 && i < stringList.size(); i++) {
             a.append(stringList.get(i));
@@ -126,7 +126,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
                 .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage())
                 .setFooter(userInfoConsideringGuildOrNot.getUsername() + " has rated " + stats.getNumberOfRatings() + " albums with an average of " + formatter.format(stats.getAverage() / 2f))
                 .setDescription(a);
-        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 new Reactionary<>(stringList, message1, 8, embedBuilder, false));
     }
 }

@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -20,7 +21,6 @@ import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
@@ -76,7 +76,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @javax.validation.constraints.NotNull ArtistAlbumParameters params) throws LastFmException {
+    protected void onCommand(Context e, @javax.validation.constraints.NotNull ArtistAlbumParameters params) throws LastFmException {
         EmbedBuilder embedBuilder = new EmbedBuilder();
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
@@ -123,7 +123,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
                 .setColor(ColorService.computeColor(e))
                 .setDescription(a + "\n" + name + "\n" + global);
 
-        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 new Reactionary<>(stringList, message1, embedBuilder));
 
 

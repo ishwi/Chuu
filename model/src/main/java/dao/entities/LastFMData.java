@@ -2,6 +2,7 @@ package dao.entities;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.EnumSet;
 import java.util.TimeZone;
 
 public class LastFMData {
@@ -28,8 +29,9 @@ public class LastFMData {
     private final EmbedColor embedColor;
     private final boolean ownTags;
     private final int artistThreshold;
+    private final EnumSet<ChartOptions> chartOptions;
 
-    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor, boolean ownTags, int artistThreshold) {
+    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor, boolean ownTags, int artistThreshold, EnumSet<ChartOptions> chartOptions) {
         this.discordId = discordId;
         this.name = name;
         this.guildID = guildID;
@@ -51,9 +53,10 @@ public class LastFMData {
         this.embedColor = embedColor;
         this.ownTags = ownTags;
         this.artistThreshold = artistThreshold;
+        this.chartOptions = chartOptions;
     }
 
-    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor, boolean ownTags, int artistThreshold) {
+    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor, boolean ownTags, int artistThreshold, EnumSet<ChartOptions> chartOptions) {
         this.name = lastFmID;
         this.discordId = resDiscordID;
         this.role = role;
@@ -75,20 +78,23 @@ public class LastFMData {
         this.embedColor = embedColor;
         this.ownTags = ownTags;
         this.artistThreshold = artistThreshold;
+        this.chartOptions = chartOptions;
+
+
     }
 
     public static LastFMData ofUserWrapper(UsersWrapper usersWrapper) {
-        return new LastFMData(usersWrapper.getLastFMName(), usersWrapper.getDiscordID(), usersWrapper.getRole(), false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, usersWrapper.getTimeZone(), null, null, true, EmbedColor.defaultColor(), false, 0);
+        return new LastFMData(usersWrapper.getLastFMName(), usersWrapper.getDiscordID(), usersWrapper.getRole(), false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, usersWrapper.getTimeZone(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
 
     }
 
     public static LastFMData ofDefault() {
-        return new LastFMData("chuubot", -1L, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0);
+        return new LastFMData("chuubot", -1L, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
 
     }
 
     public static LastFMData ofUser(@NotNull String user) {
-        return new LastFMData(user, -1L, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0);
+        return new LastFMData(user, -1L, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
 
     }
 
@@ -208,5 +214,9 @@ public class LastFMData {
 
     public int getArtistThreshold() {
         return artistThreshold;
+    }
+
+    public EnumSet<ChartOptions> getChartOptions() {
+        return chartOptions;
     }
 }

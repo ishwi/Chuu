@@ -16,6 +16,8 @@
 package core.commands.config;
 
 import core.Chuu;
+import core.apis.lyrics.TextSplitter;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandCategory;
@@ -28,7 +30,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
@@ -105,13 +106,13 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         Character prefix = Chuu.getCorrespondingPrefix(e);
-        String[] args = commandArgs(e.getMessage());
+        String[] args = parser.getSubMessage(e);
 
 
         if (params.hasOptional("all")) {
-            e.getChannel().sendMessage(new MessageBuilder()
+            e.sendMessage(new MessageBuilder()
                     .append(e.getAuthor())
                     .append(": Help information was sent as a private message.")
                     .mentionUsers(e.getAuthor().getIdLong())
@@ -119,7 +120,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
             e.getAuthor().openPrivateChannel().queue(privateChannel -> sendPrivate(privateChannel, e));
             return;
         }
-        if (args.length == 1) {
+        if (args.length == 0) {
             sendEmbed(e);
             return;
 
@@ -127,7 +128,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
         doSend(args, e.getChannel(), prefix);
     }
 
-    public void sendPrivate(MessageChannel channel, MessageReceivedEvent e) {
+    public void sendPrivate(MessageChannel channel, Context e) {
         Character prefix = Chuu.getCorrespondingPrefix(e);
         StringBuilder s = new StringBuilder();
         List<MessageAction> messageActions = new ArrayList<>();
@@ -175,7 +176,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
         RestAction.allOf(messageActions).queue();
     }
 
-    public void sendEmbed(MessageReceivedEvent e) {
+    public void sendEmbed(Context e) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         Character correspondingPrefix = Chuu.getCorrespondingPrefix(e);
         for (Map.Entry<CommandCategory, SortedSet<MyCommand<?>>> a : categoryMap.entrySet()) {
@@ -188,12 +189,11 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
         }
         embedBuilder.setFooter(correspondingPrefix + "help \"command\" for the explanation of one command.\n" + correspondingPrefix + "help --all for the whole help message")
                 .setTitle("Commands");
-        e.getChannel().sendMessage(embedBuilder.build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
     }
 
     private void doSend(String[] args, MessageChannel channel, Character prefix) {
-        String command = args[1]
-                                 .charAt(0) == prefix ? args[1] : "" + args[1];    //If there is not a preceding . attached to the command we are search, then prepend one.
+        String command = args[0];
         List<MyCommand<?>> values = categoryMap.values().stream().flatMap(Collection::stream).toList();
         for (MyCommand<?> c : values) {
             if (c.getAliases().contains(command.toLowerCase())) {
@@ -208,24 +208,17 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
                 boolean resend = false;
                 String realUsageInstructions = usageInstructions;
                 String remainingUsageInstructions = null;
-                if (realUsageInstructions.length() > 1900) {
-                    int i = usageInstructions.substring(0, 1900).lastIndexOf("\n");
-                    realUsageInstructions = realUsageInstructions.substring(0, i);
-                    remainingUsageInstructions = EmbedBuilder.ZERO_WIDTH_SPACE + usageInstructions.substring(i + 1);
-                    resend = true;
-                }
+                List<String> pagees = TextSplitter.split(realUsageInstructions, 1900);
                 //TODO: Replace with a PrivateMessage
-                boolean finalResend = resend;
-                String finalRemainingUsageInstructions = remainingUsageInstructions;
                 channel.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n")
                         .append("**Description:** ").append(description).append("\n")
                         .append("**Aliases:** ").append(String.valueOf(prefix))
                         .append(String.join(", " + prefix, c.getAliases())).append("\n")
                         .append("**Usage:** ")
-                        .append(prefix).append(realUsageInstructions)
+                        .append(prefix).append(pagees.get(0))
                         .build()).queue(x -> {
-                    if (finalResend) {
-                        channel.sendMessage(finalRemainingUsageInstructions).queue();
+                    for (int i = 1; i < pagees.size(); i++) {
+                        channel.sendMessage(EmbedBuilder.ZERO_WIDTH_SPACE + pagees.get(i)).queue();
                     }
                 });
                 return;

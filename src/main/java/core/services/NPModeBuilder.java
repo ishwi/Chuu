@@ -10,6 +10,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.rym.RYMSearch;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
@@ -19,7 +20,6 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.DecimalFormat;
@@ -103,7 +103,7 @@ public class NPModeBuilder {
 
     private final Spotify spotifyApi;
     private final NowPlayingArtist np;
-    private final MessageReceivedEvent e;
+    private final Context e;
     private final String[] footerSpaces;
     private final long discordId;
     private final String userName;
@@ -121,7 +121,7 @@ public class NPModeBuilder {
     private final DiscogsApi discogsApi;
     private final RYMSearch rymSearch;
 
-    public NPModeBuilder(NowPlayingArtist np, MessageReceivedEvent e, String[] footerSpaces, long discordId, String userName, EnumSet<NPMode> npModes, LastFMData lastFMName, EmbedBuilder embedBuilder, ScrobbledArtist scrobbledArtist, ChuuService service, ConcurrentLastFM lastFM, String serverName, MusicBrainzService mb, List<String> outputList, CompletableFuture<List<TrackWithArtistId>> data) {
+    public NPModeBuilder(NowPlayingArtist np, Context e, String[] footerSpaces, long discordId, String userName, EnumSet<NPMode> npModes, LastFMData lastFMName, EmbedBuilder embedBuilder, ScrobbledArtist scrobbledArtist, ChuuService service, ConcurrentLastFM lastFM, String serverName, MusicBrainzService mb, List<String> outputList, CompletableFuture<List<TrackWithArtistId>> data) {
         this.np = np;
         this.e = e;
         this.footerSpaces = footerSpaces;

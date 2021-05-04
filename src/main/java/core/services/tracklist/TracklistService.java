@@ -6,6 +6,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
@@ -15,7 +16,6 @@ import dao.entities.ScrobbledAlbum;
 import dao.entities.Track;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -35,7 +35,7 @@ public abstract class TracklistService {
         this.mb = MusicBrainzServiceSingleton.getInstance();
     }
 
-    public Optional<FullAlbumEntity> getTrackList(ScrobbledAlbum scrobbledAlbum, LastFMData lastfmId, @Nullable String artistUrl, MessageReceivedEvent event) throws LastFmException {
+    public Optional<FullAlbumEntity> getTrackList(ScrobbledAlbum scrobbledAlbum, LastFMData lastfmId, @Nullable String artistUrl, Context event) throws LastFmException {
         Optional<FullAlbumEntity> opt = obtainTrackList(scrobbledAlbum.getAlbumId());
         FullAlbumEntity fullAlbumEntity;
         String artist = scrobbledAlbum.getArtist();

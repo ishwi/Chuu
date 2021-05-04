@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -13,7 +14,6 @@ import dao.entities.LastFMData;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
 import dao.entities.Track;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.text.MessageFormat;
@@ -55,7 +55,7 @@ public class DailyCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException {
 
         LastFMData user = params.getLastFMData();
         String lastFmName = user.getName();

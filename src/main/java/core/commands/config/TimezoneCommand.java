@@ -1,12 +1,12 @@
 package core.commands.config;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.TimezoneParser;
 import core.parsers.params.TimezoneParams;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -45,7 +45,7 @@ public class TimezoneCommand extends ConcurrentCommand<TimezoneParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull TimezoneParams params) {
+    protected void onCommand(Context e, @NotNull TimezoneParams params) {
 
 
         TimeZone timeZone = params.getTimeZone();

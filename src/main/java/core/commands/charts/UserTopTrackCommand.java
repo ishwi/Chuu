@@ -8,6 +8,7 @@ import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.last.queues.ArtistQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -20,7 +21,6 @@ import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
@@ -74,7 +74,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("toptracks", "tt");
+        return Arrays.asList("toptracks", "tt");/
     }
 
     @Override
@@ -115,7 +115,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public void noElementsMessage(ChartParameters parameters) {
-        MessageReceivedEvent e = parameters.getE();
+        Context e = parameters.getE();
 
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s didn't listen to any track%s!", ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));

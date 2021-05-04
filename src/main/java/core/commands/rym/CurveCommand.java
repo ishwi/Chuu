@@ -1,5 +1,6 @@
 package core.commands.rym;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -11,7 +12,6 @@ import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Comparator;
@@ -49,7 +49,7 @@ public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
         Long discordId = params.getLastFMData().getDiscordId();
         Map<Integer, Integer> userCurve = db.getUserCurve(discordId);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
@@ -65,7 +65,7 @@ public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
             String s = "<:full:794269605170118658>".repeat(repeating) + (isOdd ? "<:half:794269605266849862>" : "") + ":" + ((EmbedBuilder.ZERO_WIDTH_SPACE + "\t").repeat(2)).repeat(5 - (key - 1) / 2);
             embedBuilder.appendDescription(s + x.getValue() + " ratings \n");
         });
-        e.getChannel().sendMessage(embedBuilder.build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
     }
 
 }

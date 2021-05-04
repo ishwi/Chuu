@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -8,7 +9,6 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -44,7 +44,7 @@ public class LastFmLinkCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
 
 
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());

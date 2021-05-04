@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
@@ -7,7 +8,6 @@ import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,7 +20,7 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
     }
 
     @Override
-    protected T parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected T parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
         ParserAux parserAux = new ParserAux(words);
         User oneUser = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
@@ -36,7 +36,7 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
             return doSomethingNoWords(x, lastFMData, e);
 
         } else {
-            String str = String.join(" ", getSubMessage(e.getMessage()));
+            String str = String.join(" ", getSubMessage(e));
             String[] split = str.split("(?<!\\\\)\\s*[|-]\\s*");
             Set<String> set = Set.of(split).stream().map(t ->
                     t.trim().replaceAll("\\\\(|-)", "$1")
@@ -50,9 +50,9 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
         }
     }
 
-    protected abstract T doSomethingNoWords(int limit, LastFMData lastFMData, MessageReceivedEvent e) throws InstanceNotFoundException, LastFmException;
+    protected abstract T doSomethingNoWords(int limit, LastFMData lastFMData, Context e) throws InstanceNotFoundException, LastFmException;
 
-    protected abstract T doSomethingWords(LastFMData lastFMData, MessageReceivedEvent e, Set<String> strings);
+    protected abstract T doSomethingWords(LastFMData lastFMData, Context e, Set<String> strings);
 
 
 }

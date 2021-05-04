@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -19,7 +20,6 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -65,7 +65,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
         final ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
         CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
@@ -127,7 +127,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                 .addField("Bio:", CommandUtil.cleanMarkdownCharacter(summary.getSummary()), false)
                 .setImage(scrobbledArtist.getUrl())
                 .setColor(ColorService.computeColor(e));
-        e.getChannel().sendMessage(embedBuilder.build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
         if (!summary.getTags().isEmpty()) {
             executor.submit(new TagArtistService(db, lastFM, summary.getTags(), new ArtistInfo(scrobbledArtist.getUrl(), summary.getArtistname(), summary.getMbid())));
         }

@@ -1,6 +1,7 @@
 package core.commands.stats;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -16,7 +17,6 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -29,8 +29,10 @@ import java.util.Optional;
 public abstract class BaseTasteCommand<T extends CommandParameters> extends ConcurrentCommand<T> {
     boolean thumbnailPerRow = false;
 
+
     public BaseTasteCommand(ChuuService dao) {
         super(dao);
+        respondInPrivate = false;
     }
 
     @Override
@@ -43,8 +45,14 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
     public abstract @Nullable
     String hasCustomUrl(T params);
 
+    private static Optional<Color> getColor(Context e, long discordId) {
+        return Optional.ofNullable(e.getGuild().getMemberById(discordId))
+                .flatMap(t -> t.getRoles().stream().filter(z -> z.getColor() != null).findFirst())
+                .map(Role::getColor);
+    }
+
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull T params) throws LastFmException, InstanceNotFoundException {
         Pair<LastFMData, LastFMData> userDatas = getUserDatas(e, params);
         if (userDatas == null) {
             return;
@@ -53,14 +61,14 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         handleResult(e, result, userDatas.getKey(), userDatas.getValue(), params);
     }
 
-    public abstract @Nullable
-    Pair<LastFMData, LastFMData> getUserDatas(MessageReceivedEvent e, T params) throws InstanceNotFoundException;
-
     public abstract ResultWrapper<UserArtistComparison> getResult(LastFMData og, LastFMData second, T params) throws LastFmException;
 
     public abstract Pair<Integer, Integer> getTasteBar(ResultWrapper<UserArtistComparison> resultWrapper, UserInfo og, UserInfo second, T params);
 
-    public void handleResult(MessageReceivedEvent e, ResultWrapper<UserArtistComparison> resultWrapper, LastFMData og, LastFMData second, T params) {
+    public abstract @Nullable
+    Pair<LastFMData, LastFMData> getUserDatas(Context e, T params) throws InstanceNotFoundException;
+
+    public void handleResult(Context e, ResultWrapper<UserArtistComparison> resultWrapper, LastFMData og, LastFMData second, T params) {
         if (resultWrapper.getRows() == 0) {
             sendMessageQueue(e, String.format("You don't share any %s :(", getEntity(params)));
             return;
@@ -71,13 +79,7 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         }
     }
 
-    private static Optional<Color> getColor(MessageReceivedEvent e, long discordId) {
-        return Optional.ofNullable(e.getGuild().getMemberById(discordId))
-                .flatMap(t -> t.getRoles().stream().filter(z -> z.getColor() != null).findFirst())
-                .map(Role::getColor);
-    }
-
-    private void doImage(MessageReceivedEvent e, ResultWrapper<UserArtistComparison> resultWrapper, long firstId, long secondId, T params) {
+    private void doImage(Context e, ResultWrapper<UserArtistComparison> resultWrapper, long firstId, long secondId, T params) {
         String userA = resultWrapper.getResultList().get(0).getUserA();
         String userB = resultWrapper.getResultList().get(0).getUserB();
         UserInfoService userInfoService = new UserInfoService(db);
@@ -97,7 +99,7 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         sendImage(image, e);
     }
 
-    private void doList(MessageReceivedEvent e, long ogDiscordID, long secondDiscordId, ResultWrapper<UserArtistComparison> resultWrapper, T params) {
+    private void doList(Context e, long ogDiscordID, long secondDiscordId, ResultWrapper<UserArtistComparison> resultWrapper, T params) {
         StringBuilder stringBuilder = new StringBuilder();
         List<String> strings = resultWrapper.getResultList().stream().map(x -> String.format(". [%s](%s) - %d vs %d plays%n",
                 x.getArtistID(),
@@ -115,7 +117,7 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
                 .setColor(ColorService.computeColor(e))
                 .setFooter(String.format("Both user have %d common %s", resultWrapper.getRows(), getEntity(params)), null)
                 .setThumbnail(uinfo1.getUrlImage());
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(strings, message1, embedBuilder));
     }
 

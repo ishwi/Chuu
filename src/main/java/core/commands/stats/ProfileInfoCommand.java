@@ -5,6 +5,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -22,7 +23,6 @@ import dao.entities.CommandStats;
 import dao.entities.ProfileEntity;
 import dao.entities.UserInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
@@ -66,7 +66,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException {
 
         String lastFmName = params.getLastFMData().getName();
         UserInfo userInfo;
@@ -106,11 +106,11 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
         }
     }
 
-    private void doImage(MessageReceivedEvent e, ProfileEntity entity) {
+    private void doImage(Context e, ProfileEntity entity) {
         sendImage(ProfileMaker.makeProfile(entity), e);
     }
 
-    private void list(MessageReceivedEvent e, ProfileEntity entity) {
+    private void list(Context e, ProfileEntity entity) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("# of scrobbles: ").append(entity.scrobbles()).append("\n")
@@ -133,7 +133,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setDescription(sb)
                 .setFooter("Account created on " + entity.date());
 
-        e.getChannel().sendMessage(embedBuilder.build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
     }
 
     @Override

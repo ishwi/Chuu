@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.exceptions.LastFmException;
@@ -11,7 +12,6 @@ import dao.entities.GenreInfo;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -47,7 +47,7 @@ public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull GenreParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull GenreParameters params) throws LastFmException {
 
 
         String genre = params.getGenre();
@@ -63,6 +63,6 @@ public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
             NowPlayingArtist np = params.getNp();
             embedBuilder.setFooter("This genre was obtained from " + String.format("%s - %s | %s", np.artistName(), np.songName(), np.albumName()));
         }
-        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
+        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
     }
 }

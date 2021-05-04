@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandCategory;
@@ -18,7 +19,6 @@ import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -69,7 +69,7 @@ public class TopCommandsCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
         LastFMData lastFMData = params.getLastFMData();
         List<CommandUsage> userCommands = db.getUserCommands(params.getLastFMData().getDiscordId());
 
@@ -91,7 +91,7 @@ public class TopCommandsCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setDescription(a)
                 .setColor(ColorService.computeColor(e))
                 .setAuthor(uInfo.getUsername() + "'s commands", PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage());
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(strings, message1, embedBuilder));
     }
 

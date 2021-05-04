@@ -1,5 +1,6 @@
 package core.commands.artists;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -14,7 +15,6 @@ import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.SearchMode;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
 import javax.validation.constraints.NotNull;
@@ -27,12 +27,12 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
         super(dao);
     }
 
-    public static void sendTopTags(MessageReceivedEvent e, CommandParameters params, String genre, List<ScrobbledArtist> topInTag) {
+    public static void sendTopTags(Context e, CommandParameters params, String genre, List<ScrobbledArtist> topInTag) {
         String usableServer = !e.isFromGuild() || params.hasOptional("global") ? e.getJDA().getSelfUser().getName() : e.getGuild().getName();
         String url = !e.isFromGuild() || params.hasOptional("global") ? e.getJDA().getSelfUser().getAvatarUrl() : e.getGuild().getIconUrl();
 
         if (topInTag.isEmpty()) {
-            e.getChannel().sendMessage(usableServer + " doesnt have any artist tagged as " + genre).queue();
+            e.sendMessage(usableServer + " doesnt have any artist tagged as " + genre).queue();
             return;
         }
         StringBuilder a = new StringBuilder();
@@ -48,7 +48,7 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
                 .setFooter(text, null)
                 .setTitle(title)
                 .setDescription(a);
-        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
+        e.sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(topInTag, mes, embedBuilder));
     }
 
@@ -80,7 +80,7 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull MultipleGenresParameters params) {
+    protected void onCommand(Context e, @NotNull MultipleGenresParameters params) {
 
 
         Set<String> genres = params.getGenres();

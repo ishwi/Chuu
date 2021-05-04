@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -20,7 +21,6 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -74,7 +74,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) {
+    protected void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
 
         Long author = e.getAuthor().getIdLong();
 
@@ -138,7 +138,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
                 .setColor(ColorService.computeColor(e))
                 .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s!", CommandUtil.cleanMarkdownCharacter(title), topStreaks.size(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(z, message1, 5, embedBuilder));
     }
 }

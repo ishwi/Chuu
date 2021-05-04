@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -10,7 +11,6 @@ import core.parsers.params.CommandParameters;
 import core.services.ColorService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Comparator;
@@ -54,7 +54,7 @@ public class ServerDecadeDistributionCommand extends ConcurrentCommand<CommandPa
 
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         var counts = db.getGuildDecades(e.getGuild().getIdLong());
         List<String> lines = counts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                 ". **%ds**: %d %s%n".formatted(CommandUtil.getDecade(t.getKey().getValue()), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))
@@ -72,7 +72,7 @@ public class ServerDecadeDistributionCommand extends ConcurrentCommand<CommandPa
                 .setColor(ColorService.computeColor(e))
                 .setFooter("%s has albums from %d different %s".formatted(CommandUtil.markdownLessString(e.getGuild().getName()), counts.size(), CommandUtil.singlePlural(counts.size(), "decade", "decades")), null);
 
-        e.getChannel().sendMessage(embedBuilder.build()).queue(m ->
+        e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(lines, m, 10, embedBuilder));
     }
 

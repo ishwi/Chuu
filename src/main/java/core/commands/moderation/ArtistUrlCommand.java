@@ -1,6 +1,7 @@
 package core.commands.moderation;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -12,7 +13,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
 import javax.validation.constraints.NotNull;
@@ -51,7 +51,7 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistUrlParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ArtistUrlParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
         if (lastFMData.getRole().equals(Role.IMAGE_BLOCKED)) {
             sendMessageQueue(e, "You don't have enough permissions to add an image!");

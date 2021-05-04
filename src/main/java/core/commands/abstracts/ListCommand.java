@@ -1,9 +1,9 @@
 package core.commands.abstracts;
 
+import core.commands.Context;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -19,7 +19,7 @@ public abstract class ListCommand<T, Y extends CommandParameters> extends Concur
     public abstract Parser<Y> initParser();
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull Y params) {
+    protected void onCommand(Context e, @NotNull Y params) {
 
 
         List<T> list = getList(params);

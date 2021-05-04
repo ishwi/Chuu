@@ -1,5 +1,6 @@
 package core.commands.whoknows;
 
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.ChartQuality;
@@ -14,7 +15,6 @@ import dao.ChuuService;
 import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
@@ -98,7 +98,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull LOONAParameters params) {
+    protected void onCommand(Context e, @NotNull LOONAParameters params) {
 
 
         @Nullable String nullableOwner = params.getSubject() == LOONAParameters.Subject.ME ? params.getLastFMData().getName() : null;
@@ -292,7 +292,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
     @Override
     BufferedImage doImage(LOONAParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
-        MessageReceivedEvent e = ap.getE();
+        Context e = ap.getE();
         BufferedImage logo = null;
         String title;
         if (e.isFromGuild()) {
@@ -309,7 +309,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         StringBuilder builder = new StringBuilder();
 
-        MessageReceivedEvent e = ap.getE();
+        Context e = ap.getE();
 
 
         int counter = 1;
@@ -328,7 +328,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         embedBuilder.setTitle(getTitle(ap, usable)).
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
                 .setColor(ColorService.computeColor(e));
-        e.getChannel().sendMessage(embedBuilder.build())
+        e.sendMessage(embedBuilder.build())
                 .queue(message1 ->
                         new Reactionary<>(wrapperReturnNowPlaying
                                 .getReturnNowPlayings(), message1, embedBuilder));

@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.RatingExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -8,7 +9,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -23,7 +23,7 @@ public class RYMRatingParser extends DaoParser<RYMRatingParams> {
     }
 
     @Override
-    protected RYMRatingParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    protected RYMRatingParams parseLogic(Context e, String[] words) throws InstanceNotFoundException {
         Predicate<String> stringPredicate = doublePatter.asMatchPredicate();
         Pair<String[], Double> doubleFilter = filterMessage(words, stringPredicate, x -> Double.valueOf(x.replaceAll(",", ".")), null);
         Double decimalRating = doubleFilter.second;

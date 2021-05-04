@@ -1,5 +1,6 @@
 package core.commands.albums;
 
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -13,7 +14,6 @@ import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
@@ -50,13 +50,14 @@ public class MirroredTracksCommand extends AlbumPlaysCommand {
         return Arrays.asList("comparetracks", "tracklistcompare", "tlc", "ctl");
     }
 
+
     @Override
     public String getName() {
         return "Track list comparison";
     }
 
     @Override
-    protected void doSomethingWithAlbumArtist(ScrobbledArtist scrobbledArtist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void doSomethingWithAlbumArtist(ScrobbledArtist scrobbledArtist, String album, Context e, long who, ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
         User author = params.getE().getAuthor();
         LastFMData secondUser = params.getLastFMData();
         if (author.getIdLong() == secondUser.getDiscordId()) {

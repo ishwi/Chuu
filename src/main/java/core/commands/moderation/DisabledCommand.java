@@ -2,6 +2,8 @@ package core.commands.moderation;
 
 import core.Chuu;
 import core.apis.lyrics.TextSplitter;
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandCategory;
@@ -13,7 +15,6 @@ import core.services.ColorService;
 import core.services.MessageDisablingService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull DisabledCommandParameters params) {
+    protected void onCommand(Context e, @NotNull DisabledCommandParameters params) {
 
         MessageDisablingService messageDisablingService = Chuu.getMessageDisablingService();
 
@@ -72,7 +73,10 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
         // Wont accept this command
         commandsToAllow.removeIf(x -> x.getName().equals(this.getName()));
         StringBuilder s = new StringBuilder();
-        String substring = e.getMessage().getContentRaw().substring(1);
+        String substring = "disable";
+        if (e instanceof ContextMessageReceived mes) {
+            substring = mes.e().getMessage().getContentRaw().substring(1);
+        }
 
         boolean enable = substring.startsWith("enable");
         boolean toggl = substring.startsWith("toggle");
@@ -106,7 +110,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
                     if (commands.isBlank()) return "";
                     else
                         return commands + (x.getValue().size() > 1 ? " are now " : " is now ")
-                                + (x.getKey() ? "enabled." : "disabled.") + "\n";
+                               + (x.getKey() ? "enabled." : "disabled.") + "\n";
                 }).collect(Collectors.joining(""));
         List<String> pages = TextSplitter.split(allowedStr, 2000, ", ");
 
@@ -117,7 +121,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setDescription(desc)
                 .setColor(ColorService.computeColor(e));
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(pages, message1, 1, embedBuilder, false, true));
     }
 }

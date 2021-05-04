@@ -1,6 +1,7 @@
 package core.commands.config;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -16,7 +17,6 @@ import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
 import javax.validation.constraints.NotNull;
@@ -24,6 +24,7 @@ import java.awt.*;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
@@ -57,7 +58,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull UserConfigParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull UserConfigParameters params) throws LastFmException, InstanceNotFoundException {
         UserConfigParameters parse = this.parser.parse(e);
 
         UserConfigType config = parse.getConfig();
@@ -252,6 +253,25 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
 
                 }
 
+                break;
+            case CHART_OPTIONS:
+                EnumSet<ChartOptions> chartOpts;
+                if (value.trim().toLowerCase(Locale.ROOT).contains("clear")) {
+                    chartOpts = ChartOptions.defaultMode();
+                } else {
+                    split = value.trim().replaceAll("--|~~|—", "").replaceAll("\\s+", " ").split("[|,& ]+");
+                    chartOpts = EnumSet.noneOf(ChartOptions.class);
+                    for (String mode : split) {
+                        ChartOptions npMode = ChartOptions.valueOf(mode.replace("-", "_").toUpperCase());
+                        chartOpts.add(npMode);
+                    }
+                }
+                if (chartOpts.isEmpty() || chartOpts.contains(ChartOptions.NONE)) {
+                    chartOpts = ChartOptions.defaultMode();
+                }
+                db.changeChartMode(e.getAuthor().getIdLong(), chartOpts);
+                strModes = ChartOptions.getListedName(chartOpts);
+                sendMessageQueue(e, String.format("Successfully changed to the following %s: %s", CommandUtil.singlePlural(chartOpts.size(), "chart options", "chart options"), strModes));
                 break;
             case TIMEZONE:
                 break;

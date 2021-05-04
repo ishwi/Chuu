@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -15,7 +16,6 @@ import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +29,7 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
+
 
     }
 
@@ -64,7 +65,7 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
         CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
         params.setScrobbledArtist(scrobbledArtist);
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 whoKnowsMode.equals(WhoKnowsMode.IMAGE) ? this.db.whoKnows(scrobbledArtist.getArtistId(), e.getGuild().getIdLong()) : this.db.whoKnows(scrobbledArtist.getArtistId(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
         if (wrapperReturnNowPlaying.getRows() == 0) {

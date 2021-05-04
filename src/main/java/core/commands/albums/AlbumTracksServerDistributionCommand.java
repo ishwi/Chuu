@@ -1,5 +1,6 @@
 package core.commands.albums;
 
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -23,7 +24,6 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.Track;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
 
@@ -75,7 +75,7 @@ public class AlbumTracksServerDistributionCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    protected void doSomethingWithAlbumArtist(ScrobbledArtist scrobbledArtist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
+    protected void doSomethingWithAlbumArtist(ScrobbledArtist scrobbledArtist, String album, Context e, long who, ArtistAlbumParameters params) throws LastFmException {
 
         String artist = scrobbledArtist.getArtist();
         ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, scrobbledArtist.getArtistId(), artist, album, lastFM);
@@ -125,7 +125,7 @@ public class AlbumTracksServerDistributionCommand extends AlbumPlaysCommand {
                             .setTitle(String.format("%s tracklist", album), LinkUtils.getLastFmArtistAlbumUrl(artist, album))
                             .setFooter(String.format("%s has %d total plays on the album!!%n", e.getGuild().getName(), fullAlbumEntity.getTrackList().stream().mapToInt(Track::getPlays).sum()), null)
                             .setThumbnail(fullAlbumEntity.getAlbumUrl());
-                    e.getChannel().sendMessage(embedBuilder.build()).queue(message ->
+                    e.sendMessage(embedBuilder.build()).queue(message ->
                             new Reactionary<>(lines, message, 20, embedBuilder));
                 }
             }

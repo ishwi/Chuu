@@ -1,10 +1,11 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
 import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.UrlParameters;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.net.URL;
 import java.util.Collections;
@@ -38,18 +39,18 @@ public class UrlParser extends Parser<UrlParameters> {
 
     }
 
-    public UrlParameters parseLogic(MessageReceivedEvent e, String[] subMessage) {
+    public UrlParameters parseLogic(Context e, String[] subMessage) {
         if (permCheck && (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE))) {
             sendError(getErrorMessage(2), e);
             return null;
         }
         String url;
 
-        if (subMessage == null || subMessage.length == 0) {
-            if (e.getMessage().getAttachments().isEmpty()) {
+        if ((subMessage.length == 0) && e instanceof ContextMessageReceived mes) {
+            if (mes.e().getMessage().getAttachments().isEmpty()) {
                 return new UrlParameters(e, "");
             } else {
-                url = e.getMessage().getAttachments().get(0).getUrl();
+                url = mes.e().getMessage().getAttachments().get(0).getUrl();
             }
         } else if (subMessage.length == 1) {
             url = subMessage[0];

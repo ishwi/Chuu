@@ -1,11 +1,11 @@
 package core.parsers.params;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import core.commands.Context;
 
 public class CharacterParameters extends CommandParameters {
     private final char aChar;
 
-    public CharacterParameters(MessageReceivedEvent e, char aChar) {
+    public CharacterParameters(Context e, char aChar) {
         super(e);
         this.aChar = aChar;
     }

@@ -3,6 +3,7 @@ package core.commands.stats;
 import core.apis.last.entities.chartentities.ChartUtil;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -20,7 +21,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.Year;
@@ -64,7 +64,7 @@ public class YearDistributionCommand extends ConcurrentCommand<TimeFrameParamete
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull TimeFrameParameters params) throws LastFmException {
         LastFMData user = params.getLastFMData();
         Map<Year, Integer> counts;
         if (params.getTime() == TimeFrameEnum.ALL) {
@@ -94,7 +94,7 @@ public class YearDistributionCommand extends ConcurrentCommand<TimeFrameParamete
                 .setColor(ColorService.computeColor(e))
                 .setFooter("%s has albums from %d different %s".formatted(CommandUtil.markdownLessString(uInfo.getUsername()), counts.size(), CommandUtil.singlePlural(counts.size(), "year", "years")), null);
 
-        e.getChannel().sendMessage(embedBuilder.build()).queue(m ->
+        e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(lines, m, 20, embedBuilder));
     }
 

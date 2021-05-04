@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -19,7 +20,6 @@ import dao.entities.Memoized;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UserListened;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
@@ -36,7 +36,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
         this.spotify = SpotifySingleton.getInstance();
     }
 
-    public static void handleUserListened(MessageReceivedEvent e, ArtistParameters params, List<UserListened> firsts, boolean isFirst) {
+    public static void handleUserListened(Context e, ArtistParameters params, List<UserListened> firsts, boolean isFirst) {
         Function<UserListened, String> toMemoize = (userListened) -> {
             String whem;
             if (userListened.moment().isEmpty()) {
@@ -67,7 +67,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
                 setThumbnail(CommandUtil.noImageUrl(params.getScrobbledArtist().getUrl())).setDescription(builder)
                 .setFooter(strings.size() + CommandUtil.singlePlural(strings.size(), " listener", " listeners"))
                 .setColor(ColorService.computeColor(e));
-        e.getChannel().sendMessage(embedBuilder.build())
+        e.sendMessage(embedBuilder.build())
                 .queue(message1 ->
                         new Reactionary<>(strings, message1, embedBuilder));
     }
@@ -98,7 +98,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
         String artist = params.getArtist();
 

@@ -1,5 +1,6 @@
 package core.commands.discovery;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -12,7 +13,6 @@ import dao.ChuuService;
 import dao.entities.ScoredAlbumRatings;
 import dao.entities.ScrobbledAlbum;
 import dao.entities.TimeFrameEnum;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -49,7 +49,7 @@ public class DiscoveredAlbumRatioCommand extends ConcurrentCommand<TimeFramePara
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull TimeFrameParameters params) throws LastFmException {
 
 
         if (params.getTime().equals(TimeFrameEnum.ALL)) {

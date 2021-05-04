@@ -1,12 +1,12 @@
 package core.parsers.params;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import core.commands.Context;
 
 public class TwoArtistParams extends CommandParameters {
     private final String firstArtist;
     private final String secondArtist;
 
-    public TwoArtistParams(MessageReceivedEvent e, String firstArtist, String secondArtist) {
+    public TwoArtistParams(Context e, String firstArtist, String secondArtist) {
         super(e);
         this.firstArtist = firstArtist;
         this.secondArtist = secondArtist;

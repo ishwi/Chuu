@@ -1,5 +1,6 @@
 package core.commands.rym;
 
+import core.commands.Context;
 import core.commands.abstracts.ListCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -12,7 +13,6 @@ import dao.ChuuService;
 import dao.entities.AlbumPlays;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
@@ -55,7 +55,7 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
     @Override
     public void printList(List<AlbumPlays> list, ChuuDataParams params) {
         Long discordId = params.getLastFMData().getDiscordId();
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         DiscordUserDisplay dp = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         if (list.isEmpty()) {
             sendMessageQueue(e, "Couldn't find any unrated album in " + dp.getUsername() + " albums");
@@ -75,7 +75,7 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
         embedBuilder.setTitle(dp.getUsername() + "'s Unrated Albums");
         embedBuilder.setFooter("You can link your rym account using " + prefix + "rymimport\n You have " + list.size() + " unrated albums", null);
         embedBuilder.setThumbnail(dp.getUrlImage());
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(list, message1, embedBuilder));
     }
 }

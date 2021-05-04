@@ -5,6 +5,7 @@ import core.apis.last.entities.chartentities.ArtistChart;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.last.queues.ArtistQueue;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
@@ -17,7 +18,6 @@ import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.Collections;
@@ -69,7 +69,7 @@ public class TopCommand extends ArtistAbleCommand<ChartSizeParameters> {
     @Override
     public void noElementsMessage(ChartSizeParameters params) {
         String s = params.hasOptional("album") ? "albums" : "artists";
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getDiscordId());
         sendMessageQueue(e, String.format("%s didn't listen to any %s%s!", ingo.getUsername(), s, params.getTimeFrameEnum().getDisplayString()));
     }

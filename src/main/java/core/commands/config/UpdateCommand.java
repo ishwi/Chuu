@@ -1,5 +1,6 @@
 package core.commands.config;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -15,7 +16,6 @@ import core.services.UpdaterService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
@@ -30,6 +30,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
     public UpdateCommand(ChuuService dao) {
         super(dao);
+        order = 6;
     }
 
     @Override
@@ -39,7 +40,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(db, new OptionalEntity("force", "Does a full heavy update"));
+        return new OnlyUsernameParser(db, new OptionalEntity("force", "reset all your scrobble data in the bot"));
     }
 
     @Override
@@ -53,7 +54,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
         LastFMData lastFMData = params.getLastFMData();
         String lastFmName = lastFMData.getName();

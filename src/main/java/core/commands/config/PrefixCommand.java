@@ -1,6 +1,7 @@
 package core.commands.config;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
@@ -8,7 +9,6 @@ import core.parsers.PrefixParser;
 import core.parsers.params.CharacterParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.validation.constraints.NotNull;
@@ -43,7 +43,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CharacterParameters params) {
+    protected void onCommand(Context e, @NotNull CharacterParameters params) {
 
 
         char newPrefix = params.getaChar();

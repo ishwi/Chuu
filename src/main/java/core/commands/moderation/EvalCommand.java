@@ -3,6 +3,8 @@ package core.commands.moderation;
 import com.github.natanbc.javaeval.CompilationException;
 import com.github.natanbc.javaeval.CompilationResult;
 import com.github.natanbc.javaeval.JavaEvaluator;
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.EvalClassLoader;
@@ -11,7 +13,6 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -71,7 +72,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         if (ownerId == null) {
             e.getJDA().retrieveApplicationInfo().queue(x -> ownerId = x.getOwner().getIdLong());
             return;
@@ -79,7 +80,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
         if (ownerId != e.getAuthor().getIdLong()) {
             return;
         }
-        String contentRaw = e.getMessage().getContentRaw();
+        String contentRaw = e instanceof ContextMessageReceived mes ? mes.e().getMessage().getContentRaw() : "";
         if (contentRaw.length() < 5)
             return;
         contentRaw = contentRaw.substring(5).trim();
@@ -96,15 +97,15 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
             CompilationResult r = javaEvaluator.compile()
                     .addCompilerOptions("-Xlint:unchecked", "--target=16", "--enable-preview", "--source=16")
                     .source("Eval", JAVA_EVAL_IMPORTS + "\n\n" +
-                            "public class Eval {\n" +
-                            "   public static Object run(EvalContext ctx) throws Throwable {\n" +
-                            "       try {\n" +
-                            "           return null;\n" +
-                            "       } finally {\n" +
-                            "           " + (contentRaw + ";").replaceAll(";{2,}", ";") + "\n" +
-                            "       }\n" +
-                            "   }\n" +
-                            "}"
+                                    "public class Eval {\n" +
+                                    "   public static Object run(EvalContext ctx) throws Throwable {\n" +
+                                    "       try {\n" +
+                                    "           return null;\n" +
+                                    "       } finally {\n" +
+                                    "           " + (contentRaw + ";").replaceAll(";{2,}", ";") + "\n" +
+                                    "       }\n" +
+                                    "   }\n" +
+                                    "}"
                     )
                     .execute();
             EvalClassLoader ecl = new EvalClassLoader();

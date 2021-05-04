@@ -30,11 +30,13 @@ public enum UserConfigType {
     COLOR("color"),
     OWN_TAGS("own-tags"),
     ARTIST_THRESHOLD("artist-threshold"),
+    CHART_OPTIONS("chart-options"),
     TIMEZONE("timezone");
 
     static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
     static final Pattern chartMode = Pattern.compile("(Image|Image-info|Image-Aside|Image-aside-info|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
     static final Pattern whoknowsMode = Pattern.compile("(Image|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
+    static final Pattern chartOptions = Pattern.compile("((--|—|~~)? ?(no([\\-_ ])?titles|plays|Clear)[ |&,]*)+", Pattern.CASE_INSENSITIVE);
     static final Pattern privacyMode = Pattern.compile("(Normal|Tag|Last-name|Discord-Name)", Pattern.CASE_INSENSITIVE);
     static final Pattern npMode = Pattern.compile("((" +
                                                   EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
@@ -161,6 +163,15 @@ public enum UserConfigType {
                             }
                             return String.format("**%s** -> %s", key, remaining);
                         }
+                        case CHART_OPTIONS:
+                            String remaining;
+                            if (lastFMData == null) {
+                                remaining = "NOT SET";
+                            } else {
+                                EnumSet<ChartOptions> chartOptions = lastFMData.getChartOptions();
+                                remaining = ChartOptions.getListedName(chartOptions);
+                            }
+                            return String.format("**%s** -> %s", key, remaining);
                         case TIMEZONE:
                             return "";
                     }
@@ -184,6 +195,7 @@ public enum UserConfigType {
             case NP -> npMode.asMatchPredicate();
             case COLOR -> GuildConfigType.colorMode.asMatchPredicate();
             case ARTIST_THRESHOLD -> GuildConfigType.number.asMatchPredicate();
+            case CHART_OPTIONS -> chartOptions.asMatchPredicate();
             case TIMEZONE -> stringPredicate;
         };
     }
@@ -227,6 +239,7 @@ public enum UserConfigType {
             }
             case OWN_TAGS -> "Setting this to true will mean that for the np command your own tags will be prioritized. (Need also to authorize the bot with `login`)";
             case ARTIST_THRESHOLD -> "Changes the minimun number of plays required for an album to show on the artist command";
+            case CHART_OPTIONS -> "Specify some chart options that will apply as default for all your charts. Right now only --plays and --notitles";
             case TIMEZONE -> "TIMEZONE ";
         };
     }

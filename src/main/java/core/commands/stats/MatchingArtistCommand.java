@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -15,7 +16,6 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -65,7 +65,7 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) {
+    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) {
 
         ChuuDataParams innerParams = params.getInnerParams();
 
@@ -93,7 +93,7 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
         int count = db.getUserArtistCount(innerParams.getLastFMData().getName(), 0);
         embedBuilder.setDescription(a).setTitle("Matching artists with " + usableName)
                 .setFooter(String.format("%s has %d total %s!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), count, CommandUtil.singlePlural(count, "artist", "artists")), null);
-        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
+        e.sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(strings, mes, embedBuilder));
     }
 }

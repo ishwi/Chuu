@@ -39,7 +39,7 @@
 //    }
 //
 //    @Override
-//    public void onMessageReceived(MessageReceivedEvent e) {
+//    public void onMessageReceived(Context e) {
 //        class b extends ConcurrentCommand<core.parsers.params.CommandParameters> {
 //            public b(ChuuService dao) {
 //                super(dao);
@@ -63,7 +63,7 @@
 //                return "n";
 //            }
 //
-//            @Override public void onMessageReceived(MessageReceivedEvent e) {
+//            @Override public void onMessageReceived(Context e) {
 //                try {
 //                    var c = Pattern.compile("(\\w+)[\\s+]from:(.*)");
 //                    var s = parser.getSubMessage(e.getMessage());
@@ -96,7 +96,7 @@
 //                }
 //            }
 //
-//            @Override void onCommand(MessageReceivedEvent e, core.parsers.params.CommandParameters params) throws core.exceptions.LastFmException, dao.exceptions.InstanceNotFoundException {
+//            @Override void onCommand(Context e, core.parsers.params.CommandParameters params) throws core.exceptions.LastFmException, dao.exceptions.InstanceNotFoundException {
 //
 //            }
 //        }
@@ -106,7 +106,7 @@
 //    }
 //
 //    @Override
-//    void onCommand(MessageReceivedEvent e, core.parsers.params.CommandParameters params) throws core.exceptions.LastFmException, dao.exceptions.InstanceNotFoundException {
+//    void onCommand(Context e, core.parsers.params.CommandParameters params) throws core.exceptions.LastFmException, dao.exceptions.InstanceNotFoundException {
 //
 //    }
 //}

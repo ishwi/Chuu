@@ -1,11 +1,11 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.RainbowParams;
 import dao.ChuuService;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class RainbowParser extends ChartableParser<RainbowParams> {
     private final ChartNormalParser inner;
@@ -31,7 +31,7 @@ public class RainbowParser extends ChartableParser<RainbowParams> {
     }
 
     @Override
-    public RainbowParams parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public RainbowParams parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
         ChartParameters chartParameters = inner.parseLogic(e, subMessage);
         if (chartParameters == null) {
             return null;

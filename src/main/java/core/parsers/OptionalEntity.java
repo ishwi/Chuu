@@ -36,7 +36,6 @@ public class OptionalEntity {
     public static boolean isWordAValidOptional(Set<OptionalEntity> optPool, String toTest) {
         Matcher matcher = options.matcher(toTest);
         return matcher.matches() && optPool.contains(new OptionalEntity(matcher.group(1), ""));
-
     }
 
     /**
@@ -55,6 +54,10 @@ public class OptionalEntity {
 
     public String getDefinition() {
         return "\t Can use **" + "--" + value + "** to " + definition + "\n";
+    }
+
+    public String getDescription() {
+        return "\tCan be use to " + definition + "\n";
     }
 
     @Override

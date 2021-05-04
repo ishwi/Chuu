@@ -2,12 +2,13 @@ package core.services;
 
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.CoverItem;
 import dao.entities.ScrobbledArtist;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
@@ -47,7 +48,7 @@ public class CoverService {
         bannedCovers.removeMapping(albumId, cover);
     }
 
-    public String getCover(long albumId, String replacement, MessageReceivedEvent e) {
+    public String getCover(long albumId, String replacement, Context e) {
         return obtain(replacement, e, () -> bannedCoversById.get(albumId));
     }
 
@@ -55,11 +56,11 @@ public class CoverService {
         return bannedCoversById.get(albumId);
     }
 
-    public String getCover(CoverItem coverItem, String replacement, MessageReceivedEvent e) {
+    public String getCover(CoverItem coverItem, String replacement, Context e) {
         return obtain(replacement, e, () -> bannedCovers.get(coverItem));
     }
 
-    private String obtain(String replacement, MessageReceivedEvent e, Supplier<List<String>> altCovers) {
+    private String obtain(String replacement, Context e, Supplier<List<String>> altCovers) {
         if (dontCensor(e)) {
             return replacement;
         }
@@ -72,12 +73,12 @@ public class CoverService {
         return replacement;
     }
 
-    public String getCover(String artist, String album, String replacement, MessageReceivedEvent e) {
+    public String getCover(String artist, String album, String replacement, Context e) {
         return getCover(new CoverItem(album, artist), replacement, e);
     }
 
 
-    public String getCover(long artistId, String album, String replacement, MessageReceivedEvent e) {
+    public String getCover(long artistId, String album, String replacement, Context e) {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist("", 0, "");
         scrobbledArtist.setArtistId(artistId);
         try {
@@ -92,8 +93,8 @@ public class CoverService {
         return bannedCovers.asMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, t -> t.getValue().size()));
     }
 
-    private boolean dontCensor(MessageReceivedEvent e) {
-        return e.isFromGuild() && (guildsAcceptingAll.contains(e.getGuild().getIdLong()) || (e.getTextChannel() != null && e.getTextChannel().isNSFW()));
+    private boolean dontCensor(Context e) {
+        return e.isFromGuild() && (guildsAcceptingAll.contains(e.getGuild().getIdLong()) || (e.getChannel() != null && e.getChannel() instanceof TextChannel textChannel && textChannel.isNSFW()));
     }
 
     public void removeServer(long guildId) {

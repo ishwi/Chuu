@@ -4,6 +4,9 @@ import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
 import core.apis.last.TokenExceptionHandler;
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
+import core.commands.ContextSlashReceived;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.*;
@@ -15,22 +18,19 @@ import core.services.HeavyCommandRateLimiter;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.ErrorResponse;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.RestAction;
 
-import javax.imageio.ImageIO;
 import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -41,9 +41,11 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
     protected final ChuuService db;
     private final CommandCategory category;
     public boolean respondInPrivate = true;
+    public boolean ephemeral = false;
+    public boolean canAnswerFast = false;
     protected boolean isLongRunningCommand = false;
     protected final Parser<T> parser;
-
+    public int order = Integer.MAX_VALUE;
 
     protected MyCommand(ChuuService db) {
         this.db = db;
@@ -52,7 +54,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         this.category = initCategory();
     }
 
-    private static void logCommand(ChuuService service, MessageReceivedEvent e, MyCommand<?> command, long exectTime) {
+    private static void logCommand(ChuuService service, Context e, MyCommand<?> command, long exectTime) {
         service.logCommand(e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : null, command.getName(), exectTime, Instant.now());
 
     }
@@ -76,38 +78,62 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
     @Override
     public void onEvent(@org.jetbrains.annotations.NotNull GenericEvent event) {
-        onMessageReceived((MessageReceivedEvent) event);
+        onMessageReceived(((MessageReceivedEvent) event));
+    }
+
+    public void onSlashCommandReceived(@NotNull SlashCommandEvent event) {
+        if (!event.isFromGuild() && !respondInPrivate) {
+            event.reply("This command only works in a server").queue();
+            return;
+        }
+        if (!canAnswerFast) {
+            event.acknowledge(ephemeral).queue();
+        }
+        ContextSlashReceived ctx = new ContextSlashReceived(event);
+        if (isLongRunningCommand) {
+            HeavyCommandRateLimiter.RateLimited rateLimited = HeavyCommandRateLimiter.checkRateLimit(ctx);
+            switch (rateLimited) {
+                case SERVER -> {
+                    sendMessageQueue(ctx, "This command takes a while to execute so it cannot be executed in this server more than 4 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(ctx));
+                    return;
+                }
+                case GLOBAL -> {
+                    sendMessageQueue(ctx, "This command takes a while to execute so it cannot be executed more than 12 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(ctx));
+                    return;
+                }
+
+            }
+        }
+        measureTime(ctx);
     }
 
     /**
      * @param e Because we are using the {@link core.commands.CustomInterfacedEventManager CustomInterfacedEventManager} we know that this is the only OnMessageReceived event handled so we can skip the cheks
      */
     public void onMessageReceived(MessageReceivedEvent e) {
-
+        ContextMessageReceived ctx = new ContextMessageReceived(e);
         e.getChannel().sendTyping().queue(unused -> {
         }, throwable -> {
         });
-        System.out.println("We received a message from " +
-                           e.getAuthor().getName() + "; " + e.getMessage().getContentDisplay());
         if (!e.isFromGuild() && !respondInPrivate) {
-            sendMessageQueue(e, "This command only works in a server");
+            sendMessageQueue(ctx, "This command only works in a server");
             return;
         }
         if (isLongRunningCommand) {
-            HeavyCommandRateLimiter.RateLimited rateLimited = HeavyCommandRateLimiter.checkRateLimit(e);
+            HeavyCommandRateLimiter.RateLimited rateLimited = HeavyCommandRateLimiter.checkRateLimit(ctx);
             switch (rateLimited) {
                 case SERVER -> {
-                    sendMessageQueue(e, "This command takes a while to execute so it cannot be executed in this server more than 4 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(e));
+                    sendMessageQueue(ctx, "This command takes a while to execute so it cannot be executed in this server more than 4 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(ctx));
                     return;
                 }
                 case GLOBAL -> {
-                    sendMessageQueue(e, "This command takes a while to execute so it cannot be executed more than 12 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(e));
+                    sendMessageQueue(ctx, "This command takes a while to execute so it cannot be executed more than 12 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(ctx));
                     return;
                 }
 
             }
         }
-        measureTime(e);
+        measureTime(ctx);
     }
 
     public CommandCategory getCategory() {
@@ -116,7 +142,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
     public abstract String getName();
 
-    protected void measureTime(MessageReceivedEvent e) {
+    protected void measureTime(Context e) {
         long startTime = System.nanoTime();
         handleCommand(e);
         long timeElapsed = System.nanoTime() - startTime;
@@ -125,7 +151,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
     }
 
 
-    protected void handleCommand(MessageReceivedEvent e) {
+    protected void handleCommand(Context e) {
         try {
             T params = parser.parse(e);
             if (params != null) {
@@ -161,11 +187,18 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
             String s = instanceNotFoundTemplate
                     .replaceFirst("user_to_be_used_yep_yep", Matcher.quoteReplacement(getUserString(e, ex.getDiscordId(), ex
                             .getLastFMName())));
-            s = s.replaceFirst("prefix_to_be_used_yep_yep", Matcher.quoteReplacement(String.valueOf(e.getMessage().getContentStripped().charAt(0))));
+            s = s.replaceFirst("prefix_to_be_used_yep_yep", Matcher.quoteReplacement(String.valueOf(CommandUtil.getMessagePrefix(e))));
 
-            e.getChannel().sendMessage(new EmbedBuilder()
+            MessageEmbed build = new EmbedBuilder()
                     .setColor(ColorService.computeColor(e))
-                    .setDescription(s).build()).reference(e.getMessage()).queue();
+                    .setDescription(s).build();
+            if (e instanceof ContextMessageReceived mes) {
+                mes.e().getChannel().sendMessage(build).reference(mes.e().getMessage()).queue();
+
+            } else {
+                e.sendMessage(build).queue();
+            }
+
         } catch (LastFMConnectionException ex) {
             parser.sendError("Last.fm is not working well or the bot might be overloaded :(", e);
         } catch (
@@ -181,9 +214,9 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
             deleteMessage(e, e.getGuild().getIdLong());
     }
 
-    private void deleteMessage(MessageReceivedEvent e, long guildId) {
-        if (Chuu.getMessageDeletionService().isMarked(guildId) && e.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-            e.getMessage().delete().queueAfter(5, TimeUnit.SECONDS, (vo) -> {
+    private void deleteMessage(Context e, long guildId) {
+        if (e instanceof ContextMessageReceived mes && Chuu.getMessageDeletionService().isMarked(guildId) && e.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+            mes.e().getMessage().delete().queueAfter(5, TimeUnit.SECONDS, (vo) -> {
             }, (throwable) -> {
                 if (throwable instanceof ErrorResponseException) {
                     ErrorResponse errorResponse = ((ErrorResponseException) throwable).getErrorResponse();
@@ -196,22 +229,14 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         }
     }
 
-    protected abstract void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException, InstanceNotFoundException;
+    protected abstract void onCommand(Context e, @NotNull T params) throws LastFmException, InstanceNotFoundException;
 
 
-    public void sendMessageQueue(MessageReceivedEvent e, String message) {
-        sendMessageQueue(e, new MessageBuilder().append(message).build());
-    }
-
-    private void sendMessageQueue(MessageReceivedEvent e, Message message) {
-        e.getChannel().sendMessage(message).queue();
-    }
-
-    public String getUserString(MessageReceivedEvent e, long discordId) {
+    public String getUserString(Context e, long discordId) {
         return getUserString(e, discordId, "Unknown");
     }
 
-    public String getUserString(MessageReceivedEvent e, long discordId, String replacement) {
+    public String getUserString(Context e, long discordId, String replacement) {
         try {
             return CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId).getUsername();
         } catch (Exception ex) {
@@ -220,73 +245,25 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
     }
 
-
-    protected MessageAction sendMessage(MessageReceivedEvent e, String message) {
-        return sendMessage(e, new MessageBuilder().append(message).build());
+    public void sendMessageQueue(Context e, String message) {
+        e.sendMessageQueue(message);
     }
 
-    private MessageAction sendMessage(MessageReceivedEvent e, Message message) {
-        if (e.isFromType(ChannelType.PRIVATE))
-            return e.getPrivateChannel().sendMessage(message);
-        else
-            return e.getTextChannel().sendMessage(message);
+    protected RestAction<Message> sendMessage(Context e, String message) {
+        return e.sendMessage(message);
     }
 
-    protected static String[] commandArgs(Message message) {
-        return commandArgs(message.getContentDisplay());
+    public void sendImage(BufferedImage image, Context e) {
+        e.sendImage(image);
     }
 
-    private static String[] commandArgs(String string) {
-        return string.split("\\s+");
+    protected void sendImage(BufferedImage image, Context e, ChartQuality chartQuality) {
+        e.sendImage(image, chartQuality);
     }
 
-    public void sendImage(BufferedImage image, MessageReceivedEvent e) {
-        sendImage(image, e, ChartQuality.PNG_BIG, null);
-    }
-
-    protected void sendImage(BufferedImage image, MessageReceivedEvent e, ChartQuality chartQuality) {
-        sendImage(image, e, chartQuality, null);
-    }
-
-    protected void sendImage(BufferedImage image, MessageReceivedEvent e, ChartQuality chartQuality, EmbedBuilder
+    protected void sendImage(BufferedImage image, Context e, ChartQuality chartQuality, EmbedBuilder
             embedBuilder) {
-        if (image == null) {
-            sendMessageQueue(e, "Something went wrong generating the image");
-            return;
-        }
-        ByteArrayOutputStream b = new ByteArrayOutputStream();
-
-        try {
-            String format = "png";
-            if (chartQuality == ChartQuality.JPEG_SMALL || chartQuality == ChartQuality.JPEG_BIG)
-                format = "jpg";
-            ImageIO.write(image, format, b);
-
-            byte[] img = b.toByteArray();
-            long maxSize = e.isFromGuild() ? e.getGuild().getMaxFileSize() : Message.MAX_FILE_SIZE;
-            if (img.length < maxSize) {
-                if (embedBuilder != null) {
-                    //embedBuilder.setImage("attachment://cat." + format);
-                    e.getChannel().sendFile(img, "cat." + format).embed(embedBuilder.build()).queue();
-                } else {
-                    e.getChannel().sendFile(img, "cat." + format).queue();
-                }
-            } else
-                e.getChannel().sendMessage("File was real big").queue();
-
-        } catch (
-                IOException ex) {
-            if (ex.getMessage().equals("Maximum supported image dimension is 65500 pixels")) {
-                sendMessageQueue(e, "Programming language won't allow images with more than 65500 pixels in one dimension");
-
-            } else {
-                sendMessageQueue(e, "Ish Pc Bad");
-                Chuu.getLogger().warn(ex.getMessage(), ex);
-            }
-        }
-
-
+        e.sendImage(image, chartQuality, embedBuilder);
     }
-
 
 }

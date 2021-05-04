@@ -1,6 +1,7 @@
 package core.commands.abstracts;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -11,7 +12,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.entities.ScrobbledArtist;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.concurrent.CompletableFuture;
@@ -34,17 +34,17 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NowPlayingParameters params) {
+    protected void onCommand(Context e, @NotNull NowPlayingParameters params) {
         NowPlayingArtist np = params.getNowPlayingArtist();
         doSomethingWithArtist(np, e, params.getLastFMData().getDiscordId(), params.getLastFMData(), params);
         CompletableFuture.runAsync(() -> {
-                    if (np.url() != null && !np.url().isBlank()) {
-                        try {
-                            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, np.artistName(), lastFM, true);
-                            long trackValidate = CommandUtil.trackValidate(db, scrobbledArtist, lastFM, np.songName());
-                            db.updateTrackImage(trackValidate, np.url());
-                        } catch (LastFmException instanceNotFoundException) {
-                            Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
+            if (np.url() != null && !np.url().isBlank()) {
+                try {
+                    ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, np.artistName(), lastFM, true);
+                    long trackValidate = CommandUtil.trackValidate(db, scrobbledArtist, lastFM, np.songName());
+                    db.updateTrackImage(trackValidate, np.url());
+                } catch (LastFmException instanceNotFoundException) {
+                    Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
                         }
                     }
                 }
@@ -52,5 +52,5 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
 
     }
 
-    protected abstract void doSomethingWithArtist(NowPlayingArtist artist, MessageReceivedEvent e, long discordId, LastFMData user, NowPlayingParameters parameters);
+    protected abstract void doSomethingWithArtist(NowPlayingArtist artist, Context e, long discordId, LastFMData user, NowPlayingParameters parameters);
 }

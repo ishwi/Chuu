@@ -2,6 +2,7 @@ package core.commands.charts;
 
 import core.apis.last.entities.chartentities.AlbumChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.util.pie.PieSetUp;
 import core.parsers.ChartDecadeParser;
@@ -12,7 +13,6 @@ import dao.entities.CountWrapper;
 import dao.entities.ResultWrapper;
 import dao.entities.ScrobbledAlbum;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.awt.image.BufferedImage;
@@ -102,7 +102,7 @@ public class GlobalAOTD extends ChartableCommand<ChartYearRangeParameters> {
 
     @Override
     public void noElementsMessage(ChartYearRangeParameters parameters) {
-        MessageReceivedEvent e = parameters.getE();
+        Context e = parameters.getE();
         sendMessageQueue(e, String.format("Couldn't find any %s album!", parameters.getDisplayString()));
     }
 

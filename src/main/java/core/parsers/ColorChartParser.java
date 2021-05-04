@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.ColorChartParams;
 import core.parsers.utils.CustomTimeFrame;
@@ -7,7 +8,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.beryx.awt.color.ColorFactory;
 
 import java.awt.*;
@@ -36,7 +36,7 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
     }
 
     @Override
-    public ColorChartParams parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public ColorChartParams parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
         TimeFrameEnum timeFrame = this.defaultTFE;
         int x = 5;
         int y = 5;

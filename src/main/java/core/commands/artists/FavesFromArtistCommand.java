@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -21,7 +22,6 @@ import dao.entities.TimeFrameEnum;
 import dao.entities.Track;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -66,7 +66,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistTimeFrameParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ArtistTimeFrameParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
         TimeFrameEnum timeframew = params.getTimeFrame();
@@ -105,10 +105,10 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
                 .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
         if (ai.size() > 10) {
             embedBuilder.setFooter(userString + " has listened to " + s.size() + " different " + who.getArtist() + " songs!");
-            e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
+            e.sendMessage(embedBuilder.build()).queue(mes ->
                     new Reactionary<>(s, mes, embedBuilder));
         } else {
-            e.getChannel().sendMessage(embedBuilder.build()).queue();
+            e.sendMessage(embedBuilder.build()).queue();
         }
     }
 }

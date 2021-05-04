@@ -1,5 +1,6 @@
 package core.commands.artists;
 
+import core.commands.Context;
 import core.commands.abstracts.ResultWrappedCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -14,7 +15,6 @@ import dao.entities.ResultWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
@@ -59,7 +59,7 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
     @Override
     public void printList(ResultWrapper<ArtistPlays> wrapper, CommandParameters params) {
         List<ArtistPlays> list = wrapper.getResultList();
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         if (list.isEmpty()) {
             sendMessageQueue(e, "No one has played any artist yet!");
         }
@@ -73,7 +73,7 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
                 .setTitle("Artist's frequencies")
                 .setFooter(String.format("%s has %d different artists!%n", e.getGuild().getName(), wrapper.getRows()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
-        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 new Reactionary<>(lines, message1, embedBuilder));
     }
 

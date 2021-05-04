@@ -7,6 +7,7 @@ import core.apis.last.entities.chartentities.*;
 import core.apis.last.queues.DiscardByQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.ContextMessageReceived;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
 import core.parsers.ChartableParser;
@@ -46,13 +47,13 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
             params.getColors().stream().noneMatch(color -> {
                 double threshold = params.isStrict() ? STRICT_THRESHOLD : DISTANCE_THRESHOLD;
                 return preComputedChartEntity.getImage() != null &&
-                        (GraphicUtils.getDistance(color, preComputedChartEntity.getAverageColor()) < threshold ||
-                                preComputedChartEntity.getDominantColor().stream().anyMatch(palette -> GraphicUtils.getDistance(color, palette) < threshold))
-                        &&
-                        GraphicUtils.getDistance(preComputedChartEntity.getAverageColor(), preComputedChartEntity.getDominantColor().stream()
-                                .map(palette -> Pair.of(color, GraphicUtils.getDistance(color, palette)))
-                                .min(Comparator.comparingDouble(Pair::getRight)).map(Pair::getLeft).orElse(GraphicUtils.getBetter(preComputedChartEntity.getAverageColor())))
-                                < (params.isStrict() ? STRICT_ERROR : ERROR_MATCHING);
+                       (GraphicUtils.getDistance(color, preComputedChartEntity.getAverageColor()) < threshold ||
+                        preComputedChartEntity.getDominantColor().stream().anyMatch(palette -> GraphicUtils.getDistance(color, palette) < threshold))
+                       &&
+                       GraphicUtils.getDistance(preComputedChartEntity.getAverageColor(), preComputedChartEntity.getDominantColor().stream()
+                               .map(palette -> Pair.of(color, GraphicUtils.getDistance(color, palette)))
+                               .min(Comparator.comparingDouble(Pair::getRight)).map(Pair::getLeft).orElse(GraphicUtils.getBetter(preComputedChartEntity.getAverageColor())))
+                       < (params.isStrict() ? STRICT_ERROR : ERROR_MATCHING);
             });
 
     public ColorChartCommand(ChuuService dao) {
@@ -174,13 +175,13 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ColorChartParams params, int count) {
         String stringBuilder = "top " +
-                (params.isStrict() ? " strict " : "") +
-                getColorsParams(params) +
-                (params.isArtist() ? " artist " : " albums ") +
-                "sorted by " +
-                (params.isSorted() ? "plays" : params.isColor() ? "color" : "brightness") +
-                (params.isInverse() ? " inversed" : "") +
-                " ordered by " + (params.isColumn() ? "column" : params.isLinear() ? "rows" : "diagonal");
+                               (params.isStrict() ? " strict " : "") +
+                               getColorsParams(params) +
+                               (params.isArtist() ? " artist " : " albums ") +
+                               "sorted by " +
+                               (params.isSorted() ? "plays" : params.isColor() ? "color" : "brightness") +
+                               (params.isInverse() ? " inversed" : "") +
+                               " ordered by " + (params.isColumn() ? "column" : params.isLinear() ? "rows" : "diagonal");
         return params.initEmbed("'s " + stringBuilder, embedBuilder, " has listened to " + count + (params.isArtist() ? " artists" : " albums"), params.getUser().getName());
 
 
@@ -193,15 +194,18 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
     }
 
     private String getColorsParams(ColorChartParams params) {
-        Message message = params.getE().getMessage();
-        return Arrays.stream(message.getContentRaw().split("\\s+")).filter(x ->
-        {
-            try {
-                ColorFactory.valueOf(x);
-                return true;
-            } catch (IllegalArgumentException ex) {
-                return false;
-            }
-        }).collect(Collectors.joining(", "));
+        if (params.getE() instanceof ContextMessageReceived mes) {
+            Message message = mes.e().getMessage();
+            return Arrays.stream(message.getContentRaw().split("\\s+")).filter(x ->
+            {
+                try {
+                    ColorFactory.valueOf(x);
+                    return true;
+                } catch (IllegalArgumentException ex) {
+                    return false;
+                }
+            }).collect(Collectors.joining(", "));
+        }
+        return "";
     }
 }

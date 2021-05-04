@@ -17,6 +17,7 @@
  */
 package core.commands.music.dj;
 
+import core.commands.Context;
 import core.commands.abstracts.MusicCommand;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
@@ -26,7 +27,6 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -67,7 +67,7 @@ public class SkipToCommand extends MusicCommand<NumberParameters<CommandParamete
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) {
+    protected void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
         Long toIndex = params.getExtraParam();
         MusicManager manager = getManager(e);
         if (toIndex == null || toIndex <= 0 || toIndex >= manager.getQueue().size()) {

@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.artists.MultipleWhoIsTagCommand;
 import core.commands.utils.CommandCategory;
@@ -9,7 +10,6 @@ import core.parsers.Parser;
 import core.parsers.params.GenreParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -47,7 +47,7 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull GenreParameters params) {
+    protected void onCommand(Context e, @NotNull GenreParameters params) {
 
 
         String genre = params.getGenre();

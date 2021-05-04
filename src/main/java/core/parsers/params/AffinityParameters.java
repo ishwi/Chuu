@@ -1,8 +1,8 @@
 package core.parsers.params;
 
+import core.commands.Context;
 import core.commands.stats.AffinityCommand;
 import dao.entities.LastFMData;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class AffinityParameters extends CommandParameters {
     private final boolean doServer;
@@ -13,7 +13,7 @@ public class AffinityParameters extends CommandParameters {
     private final Integer threshold;
 
 
-    public AffinityParameters(MessageReceivedEvent e, boolean doServer, LastFMData firstLastfmId, LastFMData secondLastfmId, Long firstDiscordID, Long secondDiscordID, Integer threshold) {
+    public AffinityParameters(Context e, boolean doServer, LastFMData firstLastfmId, LastFMData secondLastfmId, Long firstDiscordID, Long secondDiscordID, Integer threshold) {
         super(e);
         this.doServer = doServer;
         this.firstLastfmId = firstLastfmId;

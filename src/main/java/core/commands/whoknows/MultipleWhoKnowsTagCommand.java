@@ -1,6 +1,7 @@
 package core.commands.whoknows;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.MultipleGenresParser;
@@ -9,7 +10,6 @@ import core.parsers.params.MultipleGenresParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +25,7 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
     }
 
     @NotNull
-    static WrapperReturnNowPlaying formatTag(MessageReceivedEvent e, CompletableFuture<Optional<ScrobbledArtist>> completableFuture, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
+    static WrapperReturnNowPlaying formatTag(Context e, CompletableFuture<Optional<ScrobbledArtist>> completableFuture, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername()));
         try {
@@ -55,7 +55,7 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
 
     @Override
     WrapperReturnNowPlaying generateWrapper(MultipleGenresParameters params, WhoKnowsMode whoKnowsMode) {
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         SearchMode mode = params.getMode();
         CompletableFuture<Optional<ScrobbledArtist>> completableFuture = CompletableFuture.supplyAsync(() -> db.getTopInTag(params.getGenres(), e.getGuild().getIdLong(), mode));
 

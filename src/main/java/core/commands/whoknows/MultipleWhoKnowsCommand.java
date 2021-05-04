@@ -72,7 +72,7 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
 
     @Override
     public String getDescription() {
-        return null;
+        return "Like whoknows but for a lot of artists at the same time";
     }
 
     @Override

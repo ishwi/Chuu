@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartGroupParameters;
 import core.parsers.params.ChartParameters;
@@ -7,7 +8,6 @@ import dao.ChuuService;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ChartGroupParser extends ChartableParser<ChartGroupParameters> {
 
@@ -21,7 +21,7 @@ public class ChartGroupParser extends ChartableParser<ChartGroupParameters> {
     }
 
     @Override
-    public ChartGroupParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public ChartGroupParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
         ChartParameters chartParameters;
         try {
             chartParameters = inner.parse(e);

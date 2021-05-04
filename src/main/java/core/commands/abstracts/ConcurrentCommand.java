@@ -1,9 +1,9 @@
 package core.commands.abstracts;
 
 import core.apis.ExecutorsSingleton;
+import core.commands.Context;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.concurrent.ExecutorService;
 
@@ -18,7 +18,7 @@ public abstract class ConcurrentCommand<T extends CommandParameters> extends MyC
 
 
     @Override
-    protected void measureTime(MessageReceivedEvent e) {
+    protected void measureTime(Context e) {
         executor.execute(() -> super.measureTime(e));
     }
 }

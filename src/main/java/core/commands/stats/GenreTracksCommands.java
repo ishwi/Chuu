@@ -4,6 +4,7 @@ import core.apis.last.entities.chartentities.ChartUtil;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.TrackChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.commands.charts.ChartableCommand;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -15,7 +16,6 @@ import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.*;
@@ -123,7 +123,7 @@ public class GenreTracksCommands extends ChartableCommand<ChartableGenreParamete
 
     @Override
     public void noElementsMessage(ChartableGenreParameters parameters) {
-        MessageReceivedEvent e = parameters.getE();
+        Context e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("Couldn't find any %s track in %s's tracks%s!", parameters.getGenreParameters().getGenre(), ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
     }

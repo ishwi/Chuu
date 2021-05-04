@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -15,7 +16,6 @@ import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -64,7 +64,7 @@ public class TasteArtistCommand extends BaseTasteCommand<ArtistParameters> {
 
 
     @Override
-    public Pair<LastFMData, LastFMData> getUserDatas(MessageReceivedEvent e, ArtistParameters params) throws InstanceNotFoundException {
+    public Pair<LastFMData, LastFMData> getUserDatas(Context e, ArtistParameters params) throws InstanceNotFoundException {
         User author = params.getE().getAuthor();
         LastFMData secondUser = params.getLastFMData();
         if (author.getIdLong() == secondUser.getDiscordId()) {

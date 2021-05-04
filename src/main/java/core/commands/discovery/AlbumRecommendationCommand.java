@@ -2,6 +2,7 @@ package core.commands.discovery;
 
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.stats.AffinityCommand;
 import core.commands.utils.CommandCategory;
@@ -20,7 +21,6 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -63,7 +63,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull RecommendationsParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull RecommendationsParams params) throws LastFmException, InstanceNotFoundException {
 
         long firstDiscordID;
         long secondDiscordID;
@@ -160,7 +160,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
                 .setThumbnail(giverUI.getUrlImage())
                 .setColor(ColorService.computeColor(e))
                 .setDescription(a);
-        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
+        e.sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(stringedList, mes, 10, embedBuilder));
     }
 }

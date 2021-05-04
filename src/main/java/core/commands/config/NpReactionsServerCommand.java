@@ -1,5 +1,6 @@
 package core.commands.config;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.EmojeParser;
@@ -8,7 +9,6 @@ import core.parsers.Parser;
 import core.parsers.params.EmotiParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters>
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull EmotiParameters params) {
+    protected void onCommand(Context e, @NotNull EmotiParameters params) {
         if (params.hasOptional("check")) {
             List<String> serverReactions = db.getServerReactions(e.getGuild().getIdLong());
             if (serverReactions.isEmpty()) {

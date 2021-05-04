@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.albums.AlbumPlaysCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -10,7 +11,6 @@ import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -50,7 +50,7 @@ public class LastPlayedCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, MessageReceivedEvent e, long who, ArtistAlbumParameters params) {
+    protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, Context e, long who, ArtistAlbumParameters params) {
         LastFMData lastFMData = params.getLastFMData();
 
         Optional<Instant> instant = db.getLastScrobbled(artist.getArtistId(), song, params.getLastFMData().getName());

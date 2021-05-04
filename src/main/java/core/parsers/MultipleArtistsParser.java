@@ -1,6 +1,7 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
+import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -10,7 +11,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.Set;
@@ -25,7 +25,7 @@ public class MultipleArtistsParser extends MultiStringParser<MultiArtistParamete
     }
 
     @Override
-    protected MultiArtistParameters doSomethingNoWords(int limit, LastFMData lastFMData, MessageReceivedEvent e) throws InstanceNotFoundException, LastFmException {
+    protected MultiArtistParameters doSomethingNoWords(int limit, LastFMData lastFMData, Context e) throws InstanceNotFoundException, LastFmException {
         if (isAllowUnaothorizedUsers() && lastFMData.getName() == null) {
             throw new InstanceNotFoundException(lastFMData.getDiscordId());
         }
@@ -34,7 +34,7 @@ public class MultipleArtistsParser extends MultiStringParser<MultiArtistParamete
     }
 
     @Override
-    protected MultiArtistParameters doSomethingWords(LastFMData lastFMData, MessageReceivedEvent e, Set<String> strings) {
+    protected MultiArtistParameters doSomethingWords(LastFMData lastFMData, Context e, Set<String> strings) {
         return new MultiArtistParameters(e, lastFMData, strings);
     }
 

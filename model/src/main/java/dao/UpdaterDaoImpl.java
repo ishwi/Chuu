@@ -1803,7 +1803,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void banUserImage(Connection connection, long uploader) {
-        String queryString = "update user set role = 'IMAGE_BLOCKED' where discord_id = ? ";
+        String queryString = "insert ignore into image_blocked(discord_id) values (?) ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(i, uploader);

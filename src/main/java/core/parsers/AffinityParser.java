@@ -1,13 +1,15 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.AffinityParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +29,7 @@ public class AffinityParser extends DaoParser<AffinityParameters> {
     }
 
     @Override
-    public AffinityParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    public AffinityParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
         Stream<String> secondStream = Arrays.stream(words).filter(s -> s.matches("\\d+"));
         Optional<String> opt2 = secondStream.findAny();
         Integer threshold = null;
@@ -49,7 +51,7 @@ public class AffinityParser extends DaoParser<AffinityParameters> {
             doServer = true;
         } else {
             if (datas[0].getDiscordId().equals(datas[1].getDiscordId())) {
-                e.getChannel().sendMessage("Don't use the same person twice\n").queue();
+                e.sendMessage("Don't use the same person twice\n").queue();
                 return null;
             }
         }
@@ -67,10 +69,10 @@ public class AffinityParser extends DaoParser<AffinityParameters> {
                     @Override
                     public ExplanationLine explanation() {
                         return new ExplanationLine(super.explanation().header(),
-                                "If an user is not specified it will display your affinity with all users from this server, otherwise your affinity with that user\n Alternatively you could also mention two different users"
-                        );
+                                "If an user is not specified it will display your affinity with all users from this server, otherwise your affinity with that user\n Alternatively you could also mention two different users",
+                                super.explanation().optionData());
                     }
-                }, () -> new ExplanationLine("Affinity Threshold", "\t If a threshold is set it means that the artists below that threshold will be discarded for the comparison")
+                }, () -> new ExplanationLineType("Affinity Threshold", "\t If a threshold is set it means that the artists below that threshold will be discarded for the comparison", OptionType.INTEGER)
         );
     }
 

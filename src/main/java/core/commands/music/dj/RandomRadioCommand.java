@@ -1,6 +1,7 @@
 package core.commands.music.dj;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.MusicCommand;
 import core.music.MusicManager;
 import core.music.radio.RandomRadio;
@@ -12,7 +13,6 @@ import core.services.ColorService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -46,13 +46,13 @@ public class RandomRadioCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         MusicManager musicManager = Chuu.playerRegistry.get(e.getGuild());
         RandomRadioTrackContext context = new RandomRadioTrackContext(e.getAuthor().getIdLong(), e.getChannel().getIdLong(), new RandomRadio("Random Radio", params.hasOptional("server") ? e.getGuild().getIdLong() : -1, params.hasOptional("server")));
         musicManager.setRadio(context);
 
 
-        e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e))
+        e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e))
                 .setTitle("Radio")
                 .setDescription("Radio set to " + "`Random Radio`. The radio will be played when there's nothing else queued").build()).queue();
         if (musicManager.isIdle()) {

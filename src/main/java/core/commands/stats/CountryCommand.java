@@ -1,6 +1,7 @@
 package core.commands.stats;
 
 import com.neovisionaries.i18n.CountryCode;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -23,7 +24,6 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -83,7 +83,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException {
 
 
         Long palette = params.getExtraParam();
@@ -148,7 +148,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
                     .setColor(ColorService.computeColor(e))
                     .setFooter("%s has artist from %d different %s".formatted(uInfo.getUsername(), lines.size(), CommandUtil.singlePlural(lines.size(), "country", "countries")), null);
 
-            e.getChannel().sendMessage(embedBuilder.build()).queue(m ->
+            e.sendMessage(embedBuilder.build()).queue(m ->
                     new Reactionary<>(lines, m, 10, embedBuilder));
         } else {
             Integer indexPalette;
@@ -166,7 +166,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
             if (b.length < 8388608)
                 e.getChannel().sendFile(b, "cat.png").queue();
             else
-                e.getChannel().sendMessage("Boot too big").queue();
+                e.sendMessage("Boot too big").queue();
         }
     }
 

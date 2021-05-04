@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ListCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -15,7 +16,6 @@ import dao.entities.LastFMData;
 import dao.entities.ScrobbledAlbum;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -60,13 +60,13 @@ public class AlbumSearchCommand extends ListCommand<ScrobbledAlbum, UserStringPa
 
     @Override
     public void printList(List<ScrobbledAlbum> list, UserStringParameters params) {
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         String value = params.getValue();
         String abbreviate = StringUtils.abbreviate(value, 120);
 
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         if (list.isEmpty()) {
-            e.getChannel().sendMessage(uInfo.getUsername() + " doesnt have any album searching by `" + abbreviate + '`').queue();
+            e.sendMessage(uInfo.getUsername() + " doesnt have any album searching by `" + abbreviate + '`').queue();
             return;
         }
 
@@ -86,7 +86,7 @@ public class AlbumSearchCommand extends ListCommand<ScrobbledAlbum, UserStringPa
                 .setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
                 .setFooter(list.size() + " matching albums!")
                 .setDescription(a);
-        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
+        e.sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(strs, mes, embedBuilder));
     }
 

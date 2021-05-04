@@ -1,6 +1,7 @@
 package core.commands.whoknows;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -9,7 +10,6 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.*;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -56,7 +56,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
         ScrobbledArtist validable = new ScrobbledArtist(ap.getArtist(), 0, "");
         CommandUtil.validate(db, validable, lastFM, discogsApi, spotify, true, !ap.isNoredirect());
         ap.setScrobbledArtist(validable);
-        MessageReceivedEvent e = ap.getE();
+        Context e = ap.getE();
         ScrobbledArtist artist = ap.getScrobbledArtist();
         long id = e.getGuild().getIdLong();
         // Gets list of users registered in guild

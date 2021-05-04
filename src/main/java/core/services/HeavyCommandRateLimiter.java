@@ -4,7 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.Chuu;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import core.commands.Context;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
@@ -52,7 +52,7 @@ public class HeavyCommandRateLimiter {
                         }
                     });
 
-    public static RateLimited checkRateLimit(MessageReceivedEvent e) {
+    public static RateLimited checkRateLimit(Context e) {
         try {
 
             if (e.isFromGuild()) {
@@ -87,7 +87,7 @@ public class HeavyCommandRateLimiter {
             return "%d minutes and %d seconds".formatted(hours, minutes);
         }
 
-        public String remainingTime(MessageReceivedEvent e) {
+        public String remainingTime(Context e) {
             return switch (this) {
                 case SERVER -> {
                     LocalDateTime localDateTime = accesibleAgain.get(e.getGuild().getIdLong());

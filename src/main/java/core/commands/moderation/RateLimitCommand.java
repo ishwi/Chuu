@@ -2,6 +2,7 @@ package core.commands.moderation;
 
 import com.google.common.util.concurrent.RateLimiter;
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
@@ -11,7 +12,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -49,7 +49,7 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull RateLimitParams params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull RateLimitParams params) throws InstanceNotFoundException {
 
 
         long idLong = e.getAuthor().getIdLong();
@@ -65,7 +65,7 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
         e.getJDA().retrieveUserById(discordId).queue(x -> handleUser(e, params, ratelimited, discordId), throwable -> sendMessageQueue(e, "Couldn't find any user with id " + discordId));
     }
 
-    private void handleUser(MessageReceivedEvent e, RateLimitParams params, Map<Long, RateLimiter> ratelimited, long discordId) {
+    private void handleUser(Context e, RateLimitParams params, Map<Long, RateLimiter> ratelimited, long discordId) {
         if (params.isDeleting()) {
             ratelimited.remove(discordId);
             db.removeRateLimit(discordId);

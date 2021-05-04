@@ -1,5 +1,6 @@
 package core.commands.moderation;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -12,7 +13,6 @@ import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -50,7 +50,7 @@ public class BanArtistTagCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
 
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = db.findLastFMData(idLong);
@@ -60,7 +60,7 @@ public class BanArtistTagCommand extends ConcurrentCommand<CommandParameters> {
         }
         Pattern regex = Pattern.compile("tag:([\\s\\S]+)artist:(.*)");
 
-        String[] subMessage = parser.getSubMessage(e.getMessage());
+        String[] subMessage = parser.getSubMessage(e);
         String joined = String.join(" ", subMessage).trim();
         Matcher matcher = regex.matcher(joined);
         if (!matcher.matches()) {

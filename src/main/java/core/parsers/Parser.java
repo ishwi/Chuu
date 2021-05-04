@@ -1,5 +1,8 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
+import core.commands.ContextSlashReceived;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
@@ -9,7 +12,8 @@ import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.*;
 import java.util.function.Function;
@@ -51,11 +55,10 @@ public abstract class Parser<T extends CommandParameters> {
 
     }
 
-    public T parse(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] subMessage = getSubMessage(e.getMessage());
+    public T parseMessage(Context e) throws LastFmException, InstanceNotFoundException {
+        String[] subMessage = getSubMessage(e);
         List<String> subMessageBuilding = new ArrayList<>();
         List<String> optionals = new ArrayList<>();
-
         for (String s : subMessage) {
             //eghh asdhi
             if (OptionalEntity.isWordAValidOptional(opts, s)) {
@@ -65,6 +68,42 @@ public abstract class Parser<T extends CommandParameters> {
             }
         }
 
+        processOpts(optionals);
+        T preParams = parseLogic(e, subMessageBuilding.toArray(new String[0]));
+        if (preParams != null) {
+            preParams.initParams(optionals);
+        }
+        return preParams;
+    }
+
+    public T parse(Context e) throws LastFmException, InstanceNotFoundException {
+        if (e instanceof ContextMessageReceived mes) {
+            return parseMessage(mes);
+        } else if (e instanceof ContextSlashReceived sce) {
+            return parseSlash(sce);
+        }
+        return null;
+    }
+
+    public T parseSlash(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        List<SlashCommandEvent.OptionData> strings = e.getOptionsByType(OptionType.STRING);
+        List<String> optionals = new ArrayList<>();
+        for (SlashCommandEvent.OptionData s : strings) {
+            if (s.getAsString().equals("true") && opts.contains(new OptionalEntity(s.getName(), null))) {
+                optionals.add(s.getName());
+            }
+        }
+
+        processOpts(optionals);
+        T preParams = parseSlashLogic(ctx);
+        if (preParams != null) {
+            preParams.initParams(optionals);
+        }
+        return preParams;
+    }
+
+    private void processOpts(List<String> optionals) {
         Set<OptionalEntity> defaults = opts.stream().filter(OptionalEntity::isEnabledByDefault).collect(Collectors.toSet());
         for (
                 OptionalEntity aDefault : defaults) {
@@ -79,18 +118,30 @@ public abstract class Parser<T extends CommandParameters> {
                 optionals.add(aDefault.getValue());
             }
         }
-
-        T preParams = parseLogic(e, subMessageBuilding.toArray(new String[0]));
-        if (preParams != null) {
-            preParams.initParams(optionals);
-        }
-        return preParams;
     }
 
-    protected abstract T parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException;
+    public T parseSlashLogic(ContextSlashReceived e) throws LastFmException, InstanceNotFoundException {
+        throw new UnsupportedOperationException();
+    }
 
-    public String[] getSubMessage(Message message) {
-        return getSubMessage(message.getContentRaw());
+    protected abstract T parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException;
+
+    public String[] getSubMessage(Context context) {
+        if (context instanceof ContextMessageReceived mes) {
+            return getSubMessage(mes.e().getMessage().getContentRaw());
+        } else {
+
+            throw new IllegalStateException();
+        }
+
+    }
+
+    public String getAlias(Context context) {
+        if (context instanceof ContextMessageReceived mes) {
+            return mes.e().getMessage().getContentRaw().substring(1).toLowerCase();
+        } else {
+            throw new IllegalStateException();
+        }
 
     }
 
@@ -101,8 +152,8 @@ public abstract class Parser<T extends CommandParameters> {
 
     }
 
-    public boolean hasOptional(String optional, MessageReceivedEvent e) {
-        String[] subMessage = getSubMessage(e.getMessage());
+    public boolean hasOptional(String optional, Context e) {
+        String[] subMessage = getSubMessage(e);
         List<String> arrayList = Arrays.asList(subMessage);
         return arrayList.stream().anyMatch(x -> OptionalEntity.isWordAValidOptional(opts, x) && opts.contains(new OptionalEntity(optional, null)));
     }
@@ -112,29 +163,29 @@ public abstract class Parser<T extends CommandParameters> {
     }
 
 
-    private void sendMessage(Message message, MessageReceivedEvent e) {
-        e.getChannel().sendMessage(message).reference(e.getMessage()).queue();
+    private void sendMessage(Message message, Context e) {
+        if (e instanceof ContextMessageReceived mes) {
+            mes.getChannel().sendMessage(message).reference(mes.e().getMessage()).queue();
+        } else {
+            e.sendMessage(message).queue();
+        }
     }
 
-    public void sendError(String message, MessageReceivedEvent e) {
+    public void sendError(String message, Context e) {
         String errorBase = "Error on " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + "'s request:\n";
-        sendMessage(new MessageBuilder().append(errorBase).append(message).build(), e);
-    }
-
-    public void sendFocusedError(String message, MessageReceivedEvent e, long discordID) {
-        String username = CommandUtil.getUserInfoNotStripped(e, discordID).getUsername();
-        String errorBase = "Error on " + CommandUtil.cleanMarkdownCharacter(username) + "'s request:\n";
         sendMessage(new MessageBuilder().append(errorBase).append(message).build(), e);
     }
 
 
     public String getUsage(String commandName) {
         return new UsageLogic(commandName, getUsages(), opts).getUsage();
-
-
     }
 
     public abstract List<Explanation> getUsages();
+
+    public List<OptionalEntity> getOptionals() {
+        return new ArrayList<>(opts);
+    }
 
 
     public void replaceOptional(String previousOptional, OptionalEntity optionalEntity) {

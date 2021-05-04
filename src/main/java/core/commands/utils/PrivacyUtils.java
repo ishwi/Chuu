@@ -1,8 +1,8 @@
 package core.commands.utils;
 
 import core.Chuu;
+import core.commands.Context;
 import dao.entities.*;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 import static dao.utils.LinkUtils.encodeUrl;
 
 public class PrivacyUtils {
-    public static final TriFunction<MessageReceivedEvent, AtomicInteger, Predicate<Long>, Consumer<GlobalStreakEntities>> consumer = (e, c, p) -> (x) -> {
+    public static final TriFunction<Context, AtomicInteger, Predicate<Long>, Consumer<GlobalStreakEntities>> consumer = (e, c, p) -> (x) -> {
         PrivacyMode privacyMode = x.getPrivacyMode();
         if (p.test(x.getDiscordId())) {
             privacyMode = PrivacyMode.DISCORD_NAME;
@@ -69,7 +69,7 @@ public class PrivacyUtils {
         }
     }
 
-    public static PrivateString getPublicString(PrivacyMode privacyMode, long discordId, String lastfmId, AtomicInteger atomicInteger, MessageReceivedEvent e, Set<Long> showableUsers) {
+    public static PrivateString getPublicString(PrivacyMode privacyMode, long discordId, String lastfmId, AtomicInteger atomicInteger, Context e, Set<Long> showableUsers) {
         if (showableUsers.contains(discordId)) {
             privacyMode = PrivacyMode.DISCORD_NAME;
         }
@@ -85,7 +85,7 @@ public class PrivacyUtils {
     }
 
 
-    public static String getPublicStr(PrivacyMode privacyMode, long discordId, String lastfmId, MessageReceivedEvent e) {
+    public static String getPublicStr(PrivacyMode privacyMode, long discordId, String lastfmId, Context e) {
         return switch (privacyMode) {
             case DISCORD_NAME -> CommandUtil.getUserInfoNotStripped(e, discordId).getUsername();
             case TAG -> Chuu.getShardManager().retrieveUserById(discordId).complete().getAsTag();

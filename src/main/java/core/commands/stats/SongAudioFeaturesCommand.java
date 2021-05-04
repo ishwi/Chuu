@@ -4,6 +4,7 @@ import com.wrapper.spotify.model_objects.specification.AudioFeatures;
 import com.wrapper.spotify.model_objects.specification.Track;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -20,7 +21,6 @@ import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.ScrobbledTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.validation.constraints.NotNull;
@@ -63,7 +63,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistAlbumParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
 
         ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, params.getArtist(), lastFM, true);
@@ -112,6 +112,6 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
                 .addField("Energy:", df.format(audioFeature.getEnergy() / s), true)
                 .addField("Average Tempo:", (int) (audioFeature.getTempo() / s) + " BPM", true);
 
-        e.getChannel().sendMessage(embedBuilder.build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
     }
 }

@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -22,7 +23,6 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -84,7 +84,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ArtistParameters> params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull NumberParameters<ArtistParameters> params) throws LastFmException {
 
         Long author = e.getAuthor().getIdLong();
 
@@ -165,7 +165,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
                 .setThumbnail(scrobbledArtist.getUrl())
                 .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s %s!", CommandUtil.cleanMarkdownCharacter(title), topStreaks.size(), scrobbledArtist.getArtist(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(z, message1, 5, embedBuilder));
     }
 }

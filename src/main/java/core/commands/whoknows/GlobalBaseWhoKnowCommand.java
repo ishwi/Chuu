@@ -1,6 +1,7 @@
 package core.commands.whoknows;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -11,7 +12,6 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
@@ -38,7 +38,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
 
     @Override
     BufferedImage doImage(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
-        MessageReceivedEvent e = ap.getE();
+        Context e = ap.getE();
 
         BufferedImage logo = null;
         String title = e.getJDA().getSelfUser().getName();

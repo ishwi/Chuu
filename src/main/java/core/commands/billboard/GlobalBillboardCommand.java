@@ -1,12 +1,12 @@
 package core.commands.billboard;
 
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.BillboardEntity;
 import dao.entities.Week;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -48,7 +48,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) {
+    protected void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
 
         Week week = db.getCurrentWeekId();
         if (week.getId() == 1) {
@@ -87,7 +87,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
 
     // You have to call the insert_weeks procedure first that is declared in MariadBnew. on the mysql client it would be something like `call inert_weeks()`
 
-    public List<BillboardEntity> getEntities(int weekId, boolean doListeners, MessageReceivedEvent e) {
+    public List<BillboardEntity> getEntities(int weekId, boolean doListeners, Context e) {
         return db.getGlobalBillboard(weekId, doListeners);
 
     }

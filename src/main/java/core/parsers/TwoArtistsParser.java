@@ -1,9 +1,10 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.TwoArtistParams;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +20,7 @@ public class TwoArtistsParser extends Parser<TwoArtistParams> {
     }
 
     @Override
-    protected TwoArtistParams parseLogic(MessageReceivedEvent e, String[] words) {
+    protected TwoArtistParams parseLogic(Context e, String[] words) {
         String first;
         String second;
 
@@ -42,7 +43,7 @@ public class TwoArtistsParser extends Parser<TwoArtistParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        return Collections.singletonList(() -> new ExplanationLine("firstArtist to: secondArtist", "It's also valid when the two artists are both one word long to write them without the to:"));
+        return Collections.singletonList(() -> new ExplanationLineType("firstArtist to: secondArtist", "It's also valid when the two artists are both one word long to write them without the to:", OptionType.STRING));
     }
 
 }

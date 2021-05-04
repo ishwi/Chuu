@@ -2,19 +2,27 @@ package core.parsers.explanation;
 
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.Interactible;
 import dao.entities.TimeFrameEnum;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-public class TimeframeExplanation implements Explanation {
+public record TimeframeExplanation(TimeFrameEnum timeFrame) implements Explanation {
+    public static final String NAME = "timeframe";
+    private static final OptionData optionData;
 
-    private final TimeFrameEnum timeFrame;
+    static {
 
-    public TimeframeExplanation(TimeFrameEnum timeFrame) {
-        this.timeFrame = timeFrame;
+        optionData = new OptionData(OptionType.STRING, NAME, "time-frame of the chart");
+        for (TimeFrameEnum value : TimeFrameEnum.values()) {
+            optionData.addChoice(value.toValueString(), value.name());
+        }
     }
 
     @Override
-    public ExplanationLine explanation() {
-        return new ExplanationLine("Time Expression", "If a timeframe it's not specified defaults to " + timeFrame.toString() + "\n");
+    public Interactible explanation() {
+        return new ExplanationLine("timeframe", "" +
+                                                "If a timeframe it's not specified defaults to " + timeFrame.toValueString() + "\n", optionData);
     }
 
 }

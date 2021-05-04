@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -14,7 +15,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.GlobalStreakEntities;
 import dao.entities.StreakEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
 
 
         Long discordID = params.getLastFMData().getDiscordId();
@@ -111,7 +111,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setColor(ColorService.computeColor(e))
                 .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), streaks.size(), CommandUtil.singlePlural(streaks.size(), "streak", "streaks")));
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(streaks, message1, maxSize.get(), embedBuilder));
     }
 }

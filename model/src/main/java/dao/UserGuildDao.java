@@ -106,6 +106,8 @@ interface UserGuildDao {
 
     void setNpRaw(Connection connection, long discordId, long raw);
 
+    void setChartOptionsRaw(Connection connection, long discordId, long raw);
+
     long getServerNPRaw(Connection connection, long guildId);
 
     void setServerNpRaw(Connection connection, long guild_id, long raw);
@@ -160,4 +162,8 @@ interface UserGuildDao {
     List<LastFMData> getAllData(Connection connection, long guildId);
 
     Set<Long> getServerBlocked(Connection connection, long guildId);
+
+    List<RoleColour> getRoles(Connection connection, long guildId);
+
+    void addRole(Connection connection, long guildId, int first, int second, String rest, Color color, long roleId);
 }

@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -19,7 +20,6 @@ import dao.entities.AlbumUserPlays;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
 
     public GlobalFavesFromArtistCommand(ChuuService dao) {
         super(dao);
-        respondInPrivate = false;
+        respondInPrivate = true;
         this.discogs = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
     }
@@ -64,14 +64,14 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
         String artist = params.getArtist();
         ScrobbledArtist who = new ScrobbledArtist(artist, 0, "");
         CommandUtil.validate(db, who, lastFM, discogs, spotify);
         String lastFmName = params.getLastFMData().getName();
-        List<AlbumUserPlays> songs = db.getGlboalTopArtistTracks(e.getGuild().getIdLong(), who.getArtistId(), Integer.MAX_VALUE);
+        List<AlbumUserPlays> songs = db.getGlboalTopArtistTracks(who.getArtistId(), Integer.MAX_VALUE);
         if (songs.isEmpty()) {
             sendMessageQueue(e, ("Couldn't find any tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + " in the bot!"));
             return;
@@ -79,7 +79,7 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         String userString = e.getJDA().getSelfUser().getName();
         StringBuilder a = new StringBuilder();
         List<String> s = songs.stream().map(g -> ". **[" + CommandUtil.cleanMarkdownCharacter(g.getAlbum()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getAlbum()) + ")** - " + g.getPlays() + " plays" +
-                "\n").toList();
+                                                 "\n").toList();
         for (int i = 0; i < s.size() && i < 10; i++) {
             String sb = s.get(i);
             a.append(i + 1).append(sb);
@@ -90,7 +90,7 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
                 .setAuthor(String.format("%s's top %s tracks", userString, who.getArtist()), PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), e.getJDA().getSelfUser().getAvatarUrl())
                 .setColor(ColorService.computeColor(e))
                 .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
-        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
+        e.sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(s, mes, embedBuilder));
     }
 }

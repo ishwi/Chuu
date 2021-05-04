@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -18,7 +19,6 @@ import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
 import javax.validation.constraints.NotNull;
@@ -62,7 +62,7 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
         ArtistParameters parse = this.parser.parse(e);
 
         String artist = parse.getArtist();
@@ -91,7 +91,7 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
                 .setDescription(a)
                 .setColor(ColorService.computeColor(e))
                 .setAuthor(correctedArtist + "'s tags", LinkUtils.getLastFmArtistUrl(scrobbledArtist.getArtist()), scrobbledArtist.getUrl());
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(artistTags, message1, embedBuilder));
     }
 

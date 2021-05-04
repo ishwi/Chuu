@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.CustomInterfacedEventManager;
 import core.commands.abstracts.MyCommand;
 import core.commands.config.HelpCommand;
@@ -12,6 +13,7 @@ import core.commands.discovery.FeaturedCommand;
 import core.commands.moderation.AdministrativeCommand;
 import core.commands.moderation.EvalCommand;
 import core.commands.moderation.TagWithYearCommand;
+import core.interactions.InteractionBuilder;
 import core.music.ExtendedAudioPlayerManager;
 import core.music.PlayerRegistry;
 import core.music.listeners.VoiceListener;
@@ -105,7 +107,7 @@ public class Chuu {
     //Returns if its disabled or enabled now
 
 
-    public static Character getCorrespondingPrefix(MessageReceivedEvent e) {
+    public static Character getCorrespondingPrefix(Context e) {
         if (!e.isFromGuild())
             return DEFAULT_PREFIX;
         long id = e.getGuild().getIdLong();
@@ -256,6 +258,7 @@ public class Chuu {
                 .addEventListeners((Object[]) scanListeners(help))
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
                     messageDisablingService = new MessageDisablingService(shard, dao);
+                    InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue(t -> logger.warn("Finished with commands"));
                     prefixCommand.onStartup(shard);
                     if (!isTest) {
                         commandAdministrator.onStartup(shardManager);
@@ -270,6 +273,7 @@ public class Chuu {
 
         try {
             initPrivateLastfms(dao);
+
             messageDeletionService = new MessageDeletionService(dao.getServersWithDeletableMessages());
             shardManager = builder.build();
             scheduledExecutorService.scheduleAtFixedRate(
@@ -290,11 +294,11 @@ public class Chuu {
         try (ScanResult result = new ClassGraph().acceptPackages("core.commands").scan()) {
             return result.getAllClasses().stream().filter(x -> x.isStandardClass() && !x.isAbstract())
                     .filter(x -> !x.getSimpleName().equals(HelpCommand.class.getSimpleName())
-                            && !x.getSimpleName().equals(AdministrativeCommand.class.getSimpleName())
-                            && !x.getSimpleName().equals(PrefixCommand.class.getSimpleName())
-                            && !x.getSimpleName().equals(TagWithYearCommand.class.getSimpleName())
-                            && !x.getSimpleName().equals(EvalCommand.class.getSimpleName())
-                            && !x.getSimpleName().equals(FeaturedCommand.class.getSimpleName()))
+                                 && !x.getSimpleName().equals(AdministrativeCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(PrefixCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(TagWithYearCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(EvalCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(FeaturedCommand.class.getSimpleName()))
                     .filter(x -> x.extendsSuperclass("core.commands.abstracts.MyCommand"))
                     .map(x -> {
                         try {

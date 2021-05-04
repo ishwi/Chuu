@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.NaturalTimeframeExplanation;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -8,7 +9,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
@@ -20,9 +20,9 @@ public class NaturalTimeFrameParser extends DaoParser<NaturalTimeParams> {
         this.defaultTFE = defaultTFE;
     }
 
-    public NaturalTimeParams parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public NaturalTimeParams parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
 
-        String[] message = getSubMessage(e.getMessage());
+        String[] message = getSubMessage(e);
         NaturalTimeFrameEnum timeFrame = defaultTFE;
 
         ChartParserAux auxiliar = new ChartParserAux(message);

@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -24,7 +25,6 @@ import dao.entities.UniqueWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -96,7 +96,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ArtistParameters> params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull NumberParameters<ArtistParameters> params) throws LastFmException {
 
 
         ArtistParameters innerParams = params.getInnerParams();
@@ -132,7 +132,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
                 .setAuthor(String.format("%s's %scrowns", userName, getTitle(scrobbledArtist)), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()), userInformation.getUrlImage())
                 .setThumbnail(scrobbledArtist.getUrl())
                 .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), getTitle(scrobbledArtist)), null);
-        e.getChannel().sendMessage(new MessageBuilder()
+        e.sendMessage(new MessageBuilder()
                 .setEmbed(embedBuilder.build()).build()).queue(message1 ->
 
                 new Reactionary<>(strings, message1, embedBuilder));

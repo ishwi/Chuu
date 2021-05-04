@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -23,7 +24,6 @@ import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 import org.knowm.xchart.PieChart;
 
@@ -110,7 +110,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException {
 
 
         TimeFrameParameters innerParams = params.getInnerParams();
@@ -200,7 +200,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                     .setTitle(usableString + "'s genres")
                     .setFooter(usableString + " has " + lines.size() + " found genres" + timeframe.getDisplayString(), null)
                     .setThumbnail(urlImage);
-            e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+            e.sendMessage(embedBuilder.build()).queue(message1 ->
                     new Reactionary<>(lines, message1, embedBuilder));
 
 

@@ -1,12 +1,12 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -42,7 +42,7 @@ public class SupportCommand extends MyCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         sendMessageQueue(e, "For any doubt or suggestion you can contact the bot developers on:\nhttps://discord.gg/HQGqYD7");
     }
 }

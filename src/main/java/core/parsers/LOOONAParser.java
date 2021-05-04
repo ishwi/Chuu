@@ -1,5 +1,7 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.parsers.explanation.CommandExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.LOONAParameters;
@@ -8,8 +10,9 @@ import dao.entities.LOONA;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -34,7 +37,7 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
     }
 
     @Override
-    protected LOONAParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    protected LOONAParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
         EnumSet<LOONA> loonas = EnumSet.allOf(LOONA.class);
         Map<Predicate<String>, LOONA> predicateToLOONA = loonas.stream().collect(Collectors.toMap(LOONA::getParser, x -> x));
         LOONAParameters.Display display = LOONAParameters.Display.COLLAGE;
@@ -122,19 +125,40 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
         String mods = String.format(("[%s]"), modes);
         String target = String.format(("[%s]"), subject);
 
-        String explanation = "The first group means the selector you can use. You can either select all the members, a specific member,all subgroups, a specif subgroup,the main group or what is tagged as Misc.\n" +
-                             EmbedBuilder.ZERO_WIDTH_SPACE +
-                             "\tThe second group represents the different operations that can be done. COLLAGE draws a image with all the resulting artist of the previous selector. SUM returns a normal _whoknows_ with the aggregate of each user for the given selection. COUNT displays an embbed with the artist with the most listeners.\n" +
-                             EmbedBuilder.ZERO_WIDTH_SPACE +
-                             "\tThe third group means whether the results will be shown grouped within the selector or not. For example if I were to choose ***COLLAGE YYXY UNGROUPED***  I would get one image per artist tagged on last.fm under the Subunit YYXY. If I chose **GROUPED** only one result will appear.\n" +
-                             EmbedBuilder.ZERO_WIDTH_SPACE +
-                             "\tThe last group means whether the results contains info from all the server members or only the caller of the command.\n" +
-                             EmbedBuilder.ZERO_WIDTH_SPACE +
-                             "\tThe defaults are: ALL COLLAGE UNGROUPED SERVER   ";
 
-        String header = String.format("%s\n\u200E\t%s\n\u200E\t%s\n\u200E\t%s\n\t", selector, ops, mods, target);
-
-        return List.of(() -> new ExplanationLine(header, explanation));
+        OptionData selectorData = new OptionData(OptionType.STRING, "group-selector", StringUtils.abbreviate("You can either select all the members, a specific member,all subgroups, a specific subgroup,the main group or what is tagged as Misc.", 100));
+        for (LOONA.Type value : LOONA.Type.values()) {
+            String s = value.toString().replaceAll("_", " ");
+            selectorData.addChoice(s, s);
+        }
+        OptionData opsData = new OptionData(OptionType.STRING, "operations", "The possible operations on the resulting image/embed");
+        Arrays.stream(LOONAParameters.Display.values()).map(Enum::toString).forEach(t -> opsData.addChoice(t, t));
+        OptionData modsDatga = new OptionData(OptionType.STRING, "modes", "Whether the results will be shown grouped within the selector or not");
+        Arrays.stream(LOONAParameters.Mode.values()).map(Enum::toString).forEach(t -> modsDatga.addChoice(t, t));
+        OptionData targetData = new OptionData(OptionType.STRING, "target", "Whether the results contains info from all the server members or only the caller of the command.");
+        Arrays.stream(LOONAParameters.Subject.values()).map(Enum::toString).forEach(t -> targetData.addChoice(t, t));
+        return List.of(
+                () ->
+                        new ExplanationLine(
+                                "Group Selector",
+                                "The first group means the selector you can use. You can either select all the members, a specific member,all subgroups, a specific subgroup,the main group or what is tagged as Misc.",
+                                selectorData
+                        ),
+                () -> new ExplanationLine(
+                        "Operations",
+                        "The second group represents the different operations that can be done. COLLAGE draws a image with all the resulting artist of the previous selector. SUM returns a normal _whoknows_ with the aggregate of each user for the given selection. COUNT displays an embbed with the artist with the most listeners.",
+                        opsData
+                ),
+                () -> new ExplanationLine(
+                        "Modes",
+                        "The third group means whether the results will be shown grouped within the selector or not. For example if I were to choose ***COLLAGE YYXY UNGROUPED***  I would get one image per artist tagged on last.fm under the Subunit YYXY. If I chose **GROUPED** only one result will appear.",
+                        modsDatga
+                ),
+                () -> new ExplanationLine(
+                        "Target",
+                        "The last group means whether the results contains info from all the server members or only the caller of the command.",
+                        targetData
+                ), new CommandExplanation("The defaults are: ALL COLLAGE UNGROUPED SERVER"));
     }
 
 }

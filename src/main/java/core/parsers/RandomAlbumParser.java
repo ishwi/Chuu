@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -8,7 +9,6 @@ import core.parsers.params.RandomUrlParameters;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -43,7 +43,7 @@ public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
         errorMessages.put(1, "Invalid url, only accepts spotify uri or url, yt url, deezer's url,bandcamp's and  soundcloud's url");
     }
 
-    public RandomUrlParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public RandomUrlParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(subMessage);
         User oneUser = parserAux.getOneUser(e, dao);
         subMessage = parserAux.getMessage();
@@ -94,7 +94,7 @@ public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
                         """
                                 If no link is provided you'll get a random link
                                 The allowed platforms for links are: Spotify,Youtube,Bandcamp,Deezer and Soundcloud
-                                """);
+                                """, super.explanation().optionData());
             }
         }, new StrictUserExplanation());
     }

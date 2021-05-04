@@ -1,11 +1,11 @@
 package core.parsers.params;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import core.commands.Context;
 
 public class UrlParameters extends CommandParameters {
     private final String url;
 
-    public UrlParameters(MessageReceivedEvent e, String url) {
+    public UrlParameters(Context e, String url) {
         super(e);
         this.url = url;
     }

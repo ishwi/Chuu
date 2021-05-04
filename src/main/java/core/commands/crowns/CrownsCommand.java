@@ -1,5 +1,6 @@
 package core.commands.crowns;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -16,7 +17,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -76,7 +76,7 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) {
+    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) {
 
 
         ChuuDataParams innerParams = params.getInnerParams();
@@ -105,7 +105,7 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
                 .setTitle(String.format("%s's %scrowns", userName, getTitle()), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
                 .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), getTitle()), null)
                 .setThumbnail(userUrl);
-        e.getChannel().sendMessage(new MessageBuilder()
+        e.sendMessage(new MessageBuilder()
                 .setEmbed(embedBuilder.build()).build()).queue(message1 ->
 
                 new Reactionary<>(resultWrapper, message1, embedBuilder));

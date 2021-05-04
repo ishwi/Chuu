@@ -1,6 +1,7 @@
 package core.parsers;
 
 import com.neovisionaries.i18n.CountryCode;
+import core.commands.Context;
 import core.parsers.explanation.CountryExplanation;
 import core.parsers.explanation.TimeframeExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -11,7 +12,6 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +35,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
 
 
     @Override
-    protected CountryParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    protected CountryParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(words);
         User sample = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();

@@ -1,5 +1,6 @@
 package core.commands.rym;
 
+import core.commands.Context;
 import core.commands.abstracts.ListCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -12,7 +13,6 @@ import dao.ChuuService;
 import dao.entities.RymStats;
 import dao.entities.ScoredAlbumRatings;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -57,7 +57,7 @@ public class TopRatingsCommand extends ListCommand<ScoredAlbumRatings, CommandPa
 
     @Override
     public void printList(List<ScoredAlbumRatings> list, CommandParameters params) {
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
@@ -78,7 +78,7 @@ public class TopRatingsCommand extends ListCommand<ScoredAlbumRatings, CommandPa
                 .setFooter(String.format(e.getJDA().getSelfUser().getName() + " users have rated a total of %s albums with an average of %s!", rymServerStats.getNumberOfRatings(), formatter.format(rymServerStats.getAverage() / 2f)), null)
                 .setColor(ColorService.computeColor(e));
 
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message ->
+        e.sendMessage(embedBuilder.build()).queue(message ->
                 new Reactionary<>(list, message, embedBuilder));
     }
 }

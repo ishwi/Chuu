@@ -1,12 +1,16 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.TwoUsersExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.TwoUsersParamaters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,12 +25,21 @@ public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
         this.opts.addAll(Arrays.asList(opts));
     }
 
-    public TwoUsersParamaters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
-        String[] message = getSubMessage(e.getMessage());
-        if (!e.isFromGuild()) {
+    @Override
+    public TwoUsersParamaters parseSlashLogic(ContextSlashReceived e) throws LastFmException, InstanceNotFoundException {
+
+        SlashCommandEvent event = e.e();
+        User oneUser = event.getOption(TwoUsersExplanation.NAME).getAsUser();
+        if (!e.isFromGuild() && oneUser.getIdLong() != e.getAuthor().getIdLong()) {
             sendError("Can't get two different users on DM's", e);
             return null;
         }
+        return new TwoUsersParamaters(e, findLastfmFromID(e.getAuthor(), e), findLastfmFromID(oneUser, e));
+    }
+
+    public TwoUsersParamaters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
+        String[] message = getSubMessage(e);
+
         if (message.length == 0) {
             sendError(getErrorMessage(5), e);
             return null;
@@ -36,6 +49,10 @@ public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
         // words = parserAux.getMessage();
         if (datas == null) {
             sendError("Couldn't get two users", e);
+            return null;
+        }
+        if (!e.isFromGuild() && !datas[0].getDiscordId().equals(datas[1].getDiscordId())) {
+            sendError("Can't get two different users on DM's", e);
             return null;
         }
         return new TwoUsersParamaters(e, datas[0], datas[1]);

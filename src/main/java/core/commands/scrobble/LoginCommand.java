@@ -1,6 +1,7 @@
 package core.commands.scrobble;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.config.SetCommand;
 import core.commands.utils.CommandCategory;
@@ -14,7 +15,6 @@ import dao.entities.LastFMData;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.awt.*;
@@ -24,10 +24,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
+public class LoginCommand extends ConcurrentCommand<CommandParameters> {
     private final SetCommand setCommand;
 
-    public ScrobbleCommand(ChuuService dao) {
+    public LoginCommand(ChuuService dao) {
         super(dao);
         this.setCommand = new SetCommand(dao);
     }
@@ -58,7 +58,7 @@ public class ScrobbleCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull CommandParameters params) throws LastFmException {
         boolean notExisting = false;
         LastFMData lastFMData = null;
         String tempUser = null;

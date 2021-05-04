@@ -1,5 +1,6 @@
 package core.commands.moderation;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
@@ -7,7 +8,6 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -47,7 +47,7 @@ public class InviteCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         EnumSet<Permission> permissions = Permission.getPermissions(PERMISSIONS);
         // TODO when there is proper support for creating url with JDA
         String inviteUrl = e.getJDA().getInviteUrl(permissions).replaceAll("\\?scope=bot", "?scope=bot%20applications.commands");

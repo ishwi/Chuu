@@ -1,5 +1,6 @@
 package core.commands.charts;
 
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.parsers.ChartParser;
 import core.parsers.ChartableParser;
@@ -7,7 +8,6 @@ import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
@@ -66,7 +66,7 @@ public class ArtistCommand extends ArtistAbleCommand<ChartParameters> {
 
     @Override
     public void noElementsMessage(ChartParameters parameters) {
-        MessageReceivedEvent e = parameters.getE();
+        Context e = parameters.getE();
 
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s didn't listen to any artist%s!", ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));

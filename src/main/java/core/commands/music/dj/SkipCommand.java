@@ -17,13 +17,13 @@
  */
 package core.commands.music.dj;
 
+import core.commands.Context;
 import core.commands.abstracts.MusicCommand;
 import core.music.MusicManager;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -57,7 +57,7 @@ public class SkipCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         MusicManager manager = getManager(e);
         manager.nextTrack();
         sendMessageQueue(e, "Skipped current song");

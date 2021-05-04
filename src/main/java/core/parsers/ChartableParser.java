@@ -1,5 +1,8 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.ChartSizeExplanation;
 import core.parsers.explanation.FullTimeframeExplanation;
@@ -7,11 +10,12 @@ import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
+import dao.entities.ChartOptions;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 public abstract class ChartableParser<T extends ChartParameters> extends DaoParser<T> {
@@ -44,18 +48,33 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
 
 
     @Override
-    public abstract T parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException;
+    public abstract T parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException;
 
     @Override
-    public T parse(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    public T parse(Context e) throws LastFmException, InstanceNotFoundException {
         T params = super.parse(e);
         if (params != null) {
             if (params.getX() == DEFAULT_X && params.getY() == DEFAULT_Y) {
-                String[] subMessage = getSubMessage(e.getMessage());
-                if (Arrays.stream(subMessage).filter(ChartParserAux.chartSizePattern.asMatchPredicate()).findAny().isEmpty()) {
-                    params.setX(params.getUser().getDefaultX());
-                    params.setY(params.getUser().getDefaultY());
+                if (e instanceof ContextMessageReceived) {
+                    String[] subMessage = getSubMessage(e);
+                    if (Arrays.stream(subMessage).filter(ChartParserAux.chartSizePattern.asMatchPredicate()).findAny().isEmpty()) {
+                        params.setX(params.getUser().getDefaultX());
+                        params.setY(params.getUser().getDefaultY());
+                    }
+                } else if (e instanceof ContextSlashReceived ctxe) {
+                    if (ctxe.e().getOption(ChartSizeExplanation.NAME) == null) {
+                        params.setX(params.getUser().getDefaultX());
+                        params.setY(params.getUser().getDefaultY());
+                    }
                 }
+
+            }
+            EnumSet<ChartOptions> chartOptions = params.getUser().getChartOptions();
+            if (chartOptions.contains(ChartOptions.NOTITLES)) {
+                params.addOpts("notitles");
+            }
+            if (chartOptions.contains(ChartOptions.PLAYS)) {
+                params.addOpts("plays");
             }
         }
         return params;

@@ -2,6 +2,7 @@ package core.commands.charts;
 
 import core.apis.last.entities.chartentities.TrackChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
@@ -10,7 +11,6 @@ import core.parsers.params.ChartSizeParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
@@ -85,7 +85,7 @@ public class GuildTopTracksCommand extends GuildTopCommand {
 
     @Override
     public void noElementsMessage(ChartSizeParameters gp) {
-        MessageReceivedEvent e = gp.getE();
+        Context e = gp.getE();
         if (gp.hasOptional("global")) {
             sendMessageQueue(e, "No one has listened a single track in the whole bot");
         } else {

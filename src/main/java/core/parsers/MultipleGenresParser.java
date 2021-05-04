@@ -2,6 +2,7 @@ package core.parsers;
 
 import core.apis.ExecutorsSingleton;
 import core.apis.last.ConcurrentLastFM;
+import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -13,7 +14,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +45,7 @@ public class MultipleGenresParser extends MultiStringParser<MultipleGenresParame
     }
 
     @Override
-    protected MultipleGenresParameters doSomethingNoWords(int limit, LastFMData lastFMData, MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
+    protected MultipleGenresParameters doSomethingNoWords(int limit, LastFMData lastFMData, Context e) throws LastFmException, InstanceNotFoundException {
 
         NowPlayingArtist nowPlayingInfo = new NPService(lastFM, lastFMData).getNowPlaying();
         List<String> tags = new TagStorer(dao, lastFM, executor, nowPlayingInfo).findTags();
@@ -59,7 +59,7 @@ public class MultipleGenresParser extends MultiStringParser<MultipleGenresParame
     }
 
     @Override
-    protected MultipleGenresParameters doSomethingWords(LastFMData lastFMData, MessageReceivedEvent e, Set<String> strings) {
+    protected MultipleGenresParameters doSomethingWords(LastFMData lastFMData, Context e, Set<String> strings) {
         return new MultipleGenresParameters(e, lastFMData, strings);
 
     }

@@ -1,5 +1,6 @@
 package core.commands.rym;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
@@ -8,7 +9,6 @@ import core.parsers.params.UrlParameters;
 import dao.ChuuService;
 import dao.entities.RYMImportRating;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.StringEscapeUtils;
 
 import javax.validation.constraints.NotNull;
@@ -93,7 +93,7 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull UrlParameters params) {
+    protected void onCommand(Context e, @NotNull UrlParameters params) {
 
 
         List<RYMImportRating> ratings = new ArrayList<>();

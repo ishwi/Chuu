@@ -1,8 +1,8 @@
 package core.parsers.params;
 
+import core.commands.Context;
 import core.parsers.utils.CustomTimeFrame;
 import dao.entities.LastFMData;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 import java.util.Set;
@@ -13,7 +13,7 @@ public class ColorChartParams extends ChartParameters {
     private int y;
 
 
-    public ColorChartParams(MessageReceivedEvent e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y, Set<Color> colors) {
+    public ColorChartParams(Context e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y, Set<Color> colors) {
         super(e, lastFMData, timeFrameEnum, x, y);
         this.colors = colors;
         this.x = x;

@@ -3,6 +3,7 @@ package core.commands.stats;
 import core.apis.last.entities.chartentities.ChartUtil;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -24,7 +25,6 @@ import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import javax.validation.constraints.NotNull;
@@ -75,7 +75,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull TimeFrameParameters params) throws LastFmException {
 
 
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(3000);
@@ -123,7 +123,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
                 .setFooter(String.format("%s has %d%s%s", CommandUtil.markdownLessUserString(userName, discordId, e), count, count == 1 ? " language" : " languages", usableTime), null)
                 .setTitle(title)
                 .setDescription(a);
-        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
+        e.sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(stringedList, mes, 15, embedBuilder));
     }
 

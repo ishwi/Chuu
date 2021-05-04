@@ -1,5 +1,6 @@
 package core.commands.discovery;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.stats.AffinityCommand;
 import core.commands.utils.CommandCategory;
@@ -17,7 +18,6 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -56,7 +56,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull RecommendationsParams params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull RecommendationsParams params) throws InstanceNotFoundException {
 
         long firstDiscordID;
         long secondDiscordID;
@@ -124,7 +124,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
                         .setThumbnail(giverUI.getUrlImage())
                         .setColor(ColorService.computeColor(e))
                         .setDescription(s);
-                e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
+                e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
             }
         }
     }

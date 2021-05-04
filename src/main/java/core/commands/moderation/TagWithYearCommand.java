@@ -1,6 +1,7 @@
 package core.commands.moderation;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.otherlisteners.Confirmator;
@@ -15,7 +16,6 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.Year;
@@ -56,11 +56,11 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         Pattern a = Pattern.compile(".*(?:year|y):(\\d{4}).*");
         // Check if it exists
-        String[] subMessage = parser.getSubMessage(e.getMessage());
+        String[] subMessage = parser.getSubMessage(e);
         String message = String.join(" ", subMessage);
         Matcher matcher = a.matcher(message);
         if (!matcher.matches()) {
@@ -95,7 +95,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("Year confirmation")
                 .setDescription(String.format("%s, want to tag the album **%s** of **%s** with the year **%s**?", userString, album, artist, year));
-        e.getChannel().sendMessage(new MessageBuilder(embedBuilder.build()).build())
+        e.sendMessage(new MessageBuilder(embedBuilder.build()).build())
                 .queue(queu -> new Confirmator(embedBuilder, queu, idLong,
                         () -> {
                             if (lastFMData.getRole() == Role.ADMIN) {

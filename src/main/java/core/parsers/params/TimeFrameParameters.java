@@ -1,13 +1,13 @@
 package core.parsers.params;
 
+import core.commands.Context;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class TimeFrameParameters extends ChuuDataParams {
     private final TimeFrameEnum time;
 
-    public TimeFrameParameters(MessageReceivedEvent e, LastFMData lastFMData, TimeFrameEnum time) {
+    public TimeFrameParameters(Context e, LastFMData lastFMData, TimeFrameEnum time) {
         super(e, lastFMData);
         this.time = time;
     }

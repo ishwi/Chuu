@@ -1,6 +1,7 @@
 package core.commands.albums;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -14,7 +15,6 @@ import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,7 +49,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
+    protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, Context e, long who, ArtistAlbumParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
         FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(lastFMData, artist.getArtist(), album);
         String username = getUserString(e, who, lastFMData.getName());
@@ -97,7 +97,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                 Chuu.getCoverService().getCover(albumSummary.getArtist(), albumSummary.getAlbum(), albumSummary.getAlbumUrl(), e))
                 .setColor(ColorService.computeColor(e))
                 .setThumbnail(artist.getUrl());
-        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
+        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
         if (!albumSummary.getTagList().isEmpty()) {
             executor.submit(new TagAlbumService(db, lastFM, albumSummary.getTagList(), new AlbumInfo(albumSummary.getMbid(), albumSummary.getAlbum(), albumSummary.getArtist())));
 

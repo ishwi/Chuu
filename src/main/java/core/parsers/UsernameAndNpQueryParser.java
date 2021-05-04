@@ -1,6 +1,7 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
+import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.QuerySearchExplanation;
 import core.parsers.explanation.StrictUserExplanation;
@@ -13,7 +14,6 @@ import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.function.Function;
@@ -34,7 +34,7 @@ public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordPara
     }
 
     @Override
-    protected ExtraParameters<WordParameter, User> parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected ExtraParameters<WordParameter, User> parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
         ParserAux parserAux = new ParserAux(words);
         User oneUser = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();

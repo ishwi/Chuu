@@ -1,14 +1,15 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.UserStringParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class UserStringParser extends DaoParser<UserStringParameters> {
     }
 
     @Override
-    protected UserStringParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    protected UserStringParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(words);
         User oneUser = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
@@ -41,7 +42,7 @@ public class UserStringParser extends DaoParser<UserStringParameters> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(() -> new ExplanationLine("Search phrase", null), new StrictUserExplanation());
+        return List.of(() -> new ExplanationLineType("Search phrase", "What you want to search on youtube", OptionType.STRING), new StrictUserExplanation());
     }
 
 }

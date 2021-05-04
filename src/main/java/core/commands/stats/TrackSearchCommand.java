@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ListCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -15,7 +16,6 @@ import dao.entities.LastFMData;
 import dao.entities.ScrobbledTrack;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -60,12 +60,12 @@ public class TrackSearchCommand extends ListCommand<ScrobbledTrack, UserStringPa
 
     @Override
     public void printList(List<ScrobbledTrack> list, UserStringParameters params) {
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         String value = params.getValue();
         String abbreviate = StringUtils.abbreviate(value, 120);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         if (list.isEmpty()) {
-            e.getChannel().sendMessage(uInfo.getUsername() + " doesnt have any track searching by `" + abbreviate + '`').queue();
+            e.sendMessage(uInfo.getUsername() + " doesnt have any track searching by `" + abbreviate + '`').queue();
             return;
         }
         List<String> strs = list.stream().map(t ->
@@ -84,7 +84,7 @@ public class TrackSearchCommand extends ListCommand<ScrobbledTrack, UserStringPa
                 .setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
                 .setFooter(list.size() + " matching tracks!")
                 .setDescription(a);
-        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
+        e.sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(strs, mes, embedBuilder));
     }
 

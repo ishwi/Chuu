@@ -1,6 +1,7 @@
 package core.commands.moderation;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.exceptions.LastFmException;
@@ -14,7 +15,6 @@ import dao.entities.CoverItem;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledAlbum;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.imageio.ImageIO;
 import javax.validation.constraints.NotNull;
@@ -56,7 +56,7 @@ public class BanCoverCommand extends ConcurrentCommand<ArtistAlbumUrlParameters>
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistAlbumUrlParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ArtistAlbumUrlParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Not enough chuu perms to do this");

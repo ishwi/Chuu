@@ -27,6 +27,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import core.Chuu;
 import core.apis.last.LastFMFactory;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.music.listeners.ScrobblerEventListener;
 import core.music.radio.PlaylistRadio;
@@ -40,7 +41,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.jetbrains.annotations.Nullable;
 
@@ -175,14 +175,14 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         }
     }
 
-    public boolean openAudioConnection(VoiceChannel channel, MessageReceivedEvent e) {
+    public boolean openAudioConnection(VoiceChannel channel, Context e) {
         if (!getGuild().getSelfMember().hasPermission(channel, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK)) {
-            e.getChannel().sendMessage("Unable to connect to **" + channel.getName() + "**. I must have permission to `Connect` and `Speak`.").queue();
+            e.sendMessage("Unable to connect to **" + channel.getName() + "**. I must have permission to `Connect` and `Speak`.").queue();
             destroy();
             return false;
         }
         if (channel.getUserLimit() != 0 && channel.getMembers().size() >= channel.getUserLimit() && !getGuild().getSelfMember().hasPermission(channel, Permission.VOICE_MOVE_OTHERS)) {
-            e.getChannel().sendMessage("The bot can't join due to the user limit. Grant me `" + Permission.VOICE_MOVE_OTHERS.getName() + "` or raise the user limit.").queue();
+            e.sendMessage("The bot can't join due to the user limit. Grant me `" + Permission.VOICE_MOVE_OTHERS.getName() + "` or raise the user limit.").queue();
             destroy();
             return false;
         } else {
@@ -190,7 +190,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             audioManager.setSendingHandler(this);
             audioManager.openAudioConnection(channel);
 
-            e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Music Playback").setDescription("Joining channel <#" + channel.getId() + ">").build()).queue();
+            e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Music Playback").setDescription("Joining channel <#" + channel.getId() + ">").build()).queue();
 
             return true;
         }

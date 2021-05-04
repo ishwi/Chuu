@@ -1,6 +1,7 @@
 package core.commands.stats;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.LeaderboardCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -10,7 +11,6 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,7 +60,7 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParam
     }
 
     @Override
-    protected void handleCommand(MessageReceivedEvent e) {
+    protected void handleCommand(Context e) {
         if (disabled) {
             sendMessageQueue(e, "This command has been temporarily disabled :(");
             return;

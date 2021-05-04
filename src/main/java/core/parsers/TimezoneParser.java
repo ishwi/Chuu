@@ -1,12 +1,13 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.TimezoneParams;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.text.Normalizer;
 import java.time.DateTimeException;
@@ -51,7 +52,7 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
     }
 
     @Override
-    protected TimezoneParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    protected TimezoneParams parseLogic(Context e, String[] words) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(words);
         User oneUser = parserAux.getOneUser(e, dao);
         if (Arrays.equals(words, parserAux.getMessage())) {
@@ -135,8 +136,8 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(() -> new ExplanationLine("Timezone", "The timezone can be written either as a abbreviate of the timezone (CET, PT...), the offset of the timezone" +
-                                                             " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)"));
+        return List.of(() -> new ExplanationLineType("Timezone", "The timezone can be written either as a abbreviate of the timezone (CET, PT...), the offset of the timezone" +
+                                                                 " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)", OptionType.STRING));
     }
 
 }

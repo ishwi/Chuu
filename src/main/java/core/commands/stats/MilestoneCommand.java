@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -17,7 +18,6 @@ import dao.entities.LastFMData;
 import dao.entities.TrackWithArtistId;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -69,14 +69,14 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException {
         Long extraParam = params.getExtraParam();
         LastFMData lastFMData = params.getInnerParams().getLastFMData();
         Optional<TrackWithArtistId> milestoneOpt = lastFM.getMilestone(lastFMData, extraParam);
         milestoneOpt.ifPresentOrElse(tr -> buildEmbed(e, extraParam, lastFMData, tr), () -> sendMessageQueue(e, "There was a problem getting your milestone"));
     }
 
-    private void buildEmbed(MessageReceivedEvent e, Long extraParam, LastFMData lastFMData, TrackWithArtistId milestone) {
+    private void buildEmbed(Context e, Long extraParam, LastFMData lastFMData, TrackWithArtistId milestone) {
         DiscordUserDisplay uinfo = CommandUtil.getUserInfoNotStripped(e, lastFMData.getDiscordId());
 
         OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(Instant.ofEpochSecond(milestone.getUtc()), lastFMData.getTimeZone().toZoneId());
@@ -90,7 +90,7 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
                 .setThumbnail(milestone.getImageUrl() == null || milestone.getImageUrl().isBlank() ? null : milestone.getImageUrl())
                 .setDescription("**" + milestone.getArtist() + "** | " + milestone.getAlbum())
                 .setFooter("Obtained at " + date);
-        e.getChannel().sendMessage(embedBuilder.build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
     }
 
 

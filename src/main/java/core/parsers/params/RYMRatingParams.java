@@ -1,12 +1,12 @@
 package core.parsers.params;
 
+import core.commands.Context;
 import dao.entities.LastFMData;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class RYMRatingParams extends ChuuDataParams {
     private final Short rating;
 
-    public RYMRatingParams(MessageReceivedEvent e, LastFMData lastFMData, Short rating) {
+    public RYMRatingParams(Context e, LastFMData lastFMData, Short rating) {
         super(e, lastFMData);
         this.rating = rating;
     }

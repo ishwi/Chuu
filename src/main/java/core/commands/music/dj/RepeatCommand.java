@@ -17,6 +17,7 @@
  */
 package core.commands.music.dj;
 
+import core.commands.Context;
 import core.commands.abstracts.MusicCommand;
 import core.music.MusicManager;
 import core.music.utils.RepeatOption;
@@ -24,7 +25,6 @@ import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -57,7 +57,7 @@ public class RepeatCommand extends MusicCommand<EnumParameters<RepeatOption>> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull EnumParameters<RepeatOption> params) {
+    protected void onCommand(Context e, @NotNull EnumParameters<RepeatOption> params) {
         RepeatOption element = params.getElement();
         MusicManager manager = getManager(e);
         manager.setRepeatOption(element);

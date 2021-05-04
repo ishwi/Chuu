@@ -4,6 +4,7 @@ import core.Chuu;
 import core.apis.last.entities.chartentities.AlbumChart;
 import core.apis.last.entities.chartentities.TrackDurationAlbumArtistChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -24,7 +25,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledAlbum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import javax.validation.constraints.NotNull;
@@ -43,6 +43,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         super(dao);
         this.pie = getPie();
         ((DaoParser<?>) getParser()).setExpensiveSearch(true);
+        order = 3;
     }
 
 
@@ -68,7 +69,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull T params) throws LastFmException {
 
         CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(params);
         BlockingQueue<UrlCapsule> urlCapsules = countWrapper.getResult();
@@ -103,7 +104,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     public abstract CountWrapper<BlockingQueue<UrlCapsule>> processQueue(T params) throws
             LastFmException;
 
-    void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, MessageReceivedEvent e, T params, int size) {
+    void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, Context e, T params, int size) {
         int chartSize = queue.size();
 
         ChartQuality chartQuality = ChartQuality.PNG_BIG;
@@ -136,14 +137,14 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
 
     public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, T parameters, int size) {
         CompletableFuture<Message> future = null;
-        MessageReceivedEvent e = parameters.getE();
+        Context e = parameters.getE();
         if (queue.size() < x * y) {
             x = Math.max((int) Math.ceil(Math.sqrt(queue.size())), 1);
             //noinspection SuspiciousNameCombination
             y = x;
         }
         if (x * y > 100) {
-            future = e.getChannel().sendMessage("Going to take a while").submit();
+            future = e.sendMessage("Going to take a while").submit();
         }
         UrlCapsule first = queue.peek();
         if (first instanceof AlbumChart || first instanceof TrackDurationAlbumArtistChart) {
@@ -182,7 +183,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
                 .setDescription(a)
                 .setColor(CommandUtil.randomColor(params.getE()))
                 .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage()), params, count);
-        params.getE().getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        params.getE().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(urlCapsules, message1, embedBuilder));
     }
 

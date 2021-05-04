@@ -1,6 +1,7 @@
 package core.commands.whoknows;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistAlbumParser;
@@ -11,7 +12,6 @@ import dao.entities.PrivacyMode;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +57,7 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
         CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         long artistId = scrobbledArtist.getArtistId();
         params.setScrobbledArtist(scrobbledArtist);
         long albumId = CommandUtil.albumvalidate(db, scrobbledArtist, lastFM, params.getAlbum());

@@ -1,5 +1,6 @@
 package core.commands.discovery;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -13,7 +14,6 @@ import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
@@ -58,7 +58,7 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull RandomUrlParameters params) {
+    protected void onCommand(Context e, @NotNull RandomUrlParameters params) {
 
 
         String url = params.getUrl();
@@ -120,7 +120,7 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
                 .setFooter("Has been rated by %d %s | average: %s%nSubmited by %s".formatted(randomUrl.count(), CommandUtil.singlePlural(randomUrl.count(), "person", "people"), formatter.format(randomUrl.avg()),
                         own == null ? "" : PrivacyUtils.getPublicString(own.getPrivacyMode(), own.getDiscordId(), own.getName(), new AtomicInteger(0), e, ids).discordName()
                 ));
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(z, message1, 5, embedBuilder));
 
     }

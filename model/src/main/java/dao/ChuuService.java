@@ -2717,6 +2717,16 @@ public class ChuuService {
         }
     }
 
+
+    public void changeChartMode(long discordId, EnumSet<ChartOptions> modes) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setChartOptionsRaw(connection, discordId, ChartOptions.getRaw(modes.toArray(ChartOptions[]::new)));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
     public Rating getUserAlbumRating(long discordId, long albumId, long artistId) {
         try (Connection connection = dataSource.getConnection()) {
             return rymDao.getUserAlbumRating(connection, discordId, albumId, artistId);
@@ -3223,7 +3233,7 @@ public class ChuuService {
         }
     }
 
-    public List<AlbumUserPlays> getGlboalTopArtistTracks(long guildId, long artistId, int limit) {
+    public List<AlbumUserPlays> getGlboalTopArtistTracks(long artistId, int limit) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return trackDao.getGlobalTopArtistTracks(connection, artistId, limit);
@@ -3862,5 +3872,23 @@ public class ChuuService {
         }
     }
 
+    public List<RoleColour> getRoles(long idLong) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getRoles(connection, idLong);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void addRole(long guildId, int first, int second, String rest, Color color, long roleId) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.addRole(connection, guildId, first, second, rest, color, roleId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
 }
 

@@ -1,6 +1,7 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
+import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.AlbumExplanation;
 import core.parsers.explanation.StrictTimeframeExplanation;
@@ -16,7 +17,6 @@ import dao.entities.NowPlayingArtist;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ public class AlbumTimeFrameParser extends DaoParser<AlbumTimeFrameParameters> {
     }
 
     @Override
-    public AlbumTimeFrameParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    public AlbumTimeFrameParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
         TimeFrameEnum timeFrame = defaultTFE;
 
         ChartParserAux chartParserAux = new ChartParserAux(words, false);
@@ -67,7 +67,8 @@ public class AlbumTimeFrameParser extends DaoParser<AlbumTimeFrameParameters> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(new AlbumExplanation(), new StrictTimeframeExplanation(defaultTFE), new StrictUserExplanation());
+        AlbumExplanation alb = new AlbumExplanation();
+        return List.of(alb.artist(), alb.album(), new StrictTimeframeExplanation(defaultTFE), new StrictUserExplanation());
     }
 
     @Override

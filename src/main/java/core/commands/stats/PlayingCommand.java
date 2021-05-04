@@ -3,6 +3,7 @@ package core.commands.stats;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -16,8 +17,8 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -69,7 +70,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @javax.validation.constraints.NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
 
 
         boolean showFresh = !params.hasOptional("recent");
@@ -144,12 +145,12 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
             a.append("\n1").append("/").append(pages);
         }
         embedBuilder.setDescription(a);
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(result, message1, pageSize, embedBuilder, false, true));
 
     }
 
-    private void format(MessageReceivedEvent e, LocalDateTime cooldown, String s) {
+    private void format(Context e, LocalDateTime cooldown, String s) {
         LocalDateTime now = LocalDateTime.now();
         long hours = now.until(cooldown, ChronoUnit.HOURS);
         now = now.plus(hours, ChronoUnit.HOURS);

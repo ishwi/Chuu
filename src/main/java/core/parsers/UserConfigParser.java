@@ -1,11 +1,14 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.utils.CommandUtil;
 import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.UserConfigParameters;
 import core.parsers.params.UserConfigType;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import org.apache.commons.text.WordUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,15 +18,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class UserConfigParser extends DaoParser<UserConfigParameters> {
-    private static final Set<String> multipleWordsConfigs = Stream.of(UserConfigType.NP, UserConfigType.COLOR).map(UserConfigType::getCommandName).collect(Collectors.toSet());
+    private static final Set<String> multipleWordsConfigs = Stream.of(UserConfigType.NP, UserConfigType.COLOR, UserConfigType.CHART_OPTIONS).map(UserConfigType::getCommandName).collect(Collectors.toSet());
 
     public UserConfigParser(ChuuService dao, OptionalEntity... opts) {
         super(dao, opts);
     }
 
     @Override
-    protected UserConfigParameters parseLogic(MessageReceivedEvent e, String[] words) {
-        String prefix = e.getMessage().getContentRaw().substring(0, 1);
+    protected UserConfigParameters parseLogic(Context e, String[] words) {
+        char prefix = CommandUtil.getMessagePrefix(e);
         if (words.length == 1) {
             String line = Arrays.stream(UserConfigType.values()).filter(x -> x.getCommandName().equalsIgnoreCase(words[0])).map(x ->
                     String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
@@ -31,7 +34,7 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> {
                 line = Arrays.stream(UserConfigType.values()).map(UserConfigType::getCommandName).collect(Collectors.joining(", "));
                 sendError(words[0] + " is not a valid configuration, use one of the following:\n\t" + line, e);
             } else {
-                e.getChannel().sendMessage(line).queue();
+                e.sendMessage(line).queue();
             }
             return null;
         }
@@ -54,7 +57,7 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> {
             return null;
         }
         if (!userConfigType.getParser().test(args)) {
-            sendError(String.format("%s is not a valid value for %s", args, command.toUpperCase()), e);
+            sendError(String.format("%s is not a valid value for %s", args, WordUtils.capitalizeFully(command)), e);
             return null;
         }
         return new UserConfigParameters(e, userConfigType, args);
@@ -66,7 +69,7 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> {
     public List<Explanation> getUsages() {
         String line = Arrays.stream(UserConfigType.values()).map(x -> String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
         String usage = "Possible values:\n" + line;
-        return Collections.singletonList(() -> new ExplanationLine("Command with argument", usage));
+        return Collections.singletonList(() -> new ExplanationLineType("Command with argument", usage, OptionType.STRING));
     }
 
     @Override

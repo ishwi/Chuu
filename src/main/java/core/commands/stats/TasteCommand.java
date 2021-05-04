@@ -3,6 +3,7 @@ package core.commands.stats;
 import core.apis.last.entities.chartentities.ChartUtil;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -14,7 +15,6 @@ import core.parsers.params.TwoUsersTimeframeParamaters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.*;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -24,10 +24,11 @@ import java.util.stream.Collectors;
 import static java.lang.Math.abs;
 
 public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> {
-    private final Map<String, Pair<Integer, Integer>> timeFrameMap = new ConcurrentHashMap<>();
+    private final Map<Long, Pair<Integer, Integer>> timeFrameMap = new ConcurrentHashMap<>();
 
     public TasteCommand(ChuuService dao) {
         super(dao);
+        order = 8;
     }
 
     @Override
@@ -64,7 +65,7 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
 
 
     @Override
-    public Pair<LastFMData, LastFMData> getUserDatas(MessageReceivedEvent e, TwoUsersTimeframeParamaters params) {
+    public Pair<LastFMData, LastFMData> getUserDatas(Context e, TwoUsersTimeframeParamaters params) {
         return Pair.of(params.getFirstUser(), params.getSecondUser());
     }
 
@@ -112,7 +113,7 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
                         })
                         .collect(Collectors.collectingAndThen(Collectors.toList(), t -> new ResultWrapper<>(t.size(), t)));
                 if (userComparisons.getRows() != 0 && CommandUtil.getEffectiveMode(og.getRemainingImagesMode(), params) == RemainingImagesMode.IMAGE) {
-                    this.timeFrameMap.put(params.getE().getMessageId(), Pair.of(ogSize, secondSize));
+                    this.timeFrameMap.put(params.getE().getId(), Pair.of(ogSize, secondSize));
                 }
                 return userComparisons;
 
@@ -127,7 +128,7 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
 
     @Override
     public Pair<Integer, Integer> getTasteBar(ResultWrapper<UserArtistComparison> resultWrapper, UserInfo og, UserInfo second, TwoUsersTimeframeParamaters params) {
-        Pair<Integer, Integer> remove = this.timeFrameMap.remove(params.getE().getMessageId());
+        Pair<Integer, Integer> remove = this.timeFrameMap.remove(params.getE().getId());
         return remove != null ? remove : Pair.of(og.getPlayCount(), second.getPlayCount());
     }
 

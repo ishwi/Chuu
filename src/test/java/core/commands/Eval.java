@@ -2,8 +2,8 @@ package core.commands;
 
 import core.commands.utils.EvalContext;
 import core.parsers.NoOpParser;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.openjdk.jmh.annotations.Param;
 
 import java.awt.image.BufferedImage;
@@ -53,7 +53,7 @@ public class Eval {
             }
 
             @Override
-            protected void onCommand(MessageReceivedEvent e, core.parsers.params.CommandParameters params) {
+            protected void onCommand(Context e, CommandParameters params) {
                 sendMessageQueue(e, "<https://support.last.fm/t/user-gettopalbums-not-returning-album-artwork-with-high-values-of-limit>");
             }
         }

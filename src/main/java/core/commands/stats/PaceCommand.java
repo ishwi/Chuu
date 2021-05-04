@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.exceptions.LastFmException;
@@ -11,7 +12,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.UserInfo;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
@@ -68,7 +68,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<NumberParameters<NaturalTimeParams>> hopefullyNoOneSeesThis) throws LastFmException {
+    protected void onCommand(Context e, @NotNull NumberParameters<NumberParameters<NaturalTimeParams>> hopefullyNoOneSeesThis) throws LastFmException {
 
 
         NumberParameters<NaturalTimeParams> unitCount = hopefullyNoOneSeesThis.getInnerParams();

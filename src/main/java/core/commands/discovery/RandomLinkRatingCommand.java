@@ -1,5 +1,6 @@
 package core.commands.discovery;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -14,7 +15,6 @@ import dao.entities.PrivacyMode;
 import dao.entities.RandomUrlEntity;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -60,7 +60,7 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<RandomUrlParameters> params) {
+    protected void onCommand(Context e, @NotNull NumberParameters<RandomUrlParameters> params) {
 
 
         Long rating = params.getExtraParam();

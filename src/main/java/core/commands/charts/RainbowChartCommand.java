@@ -7,6 +7,7 @@ import core.apis.last.entities.chartentities.*;
 import core.apis.last.queues.ArtistQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
@@ -18,7 +19,6 @@ import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
     }
 
     @Override
-    protected void handleCommand(MessageReceivedEvent e) {
+    protected void handleCommand(Context e) {
         if (maxConcurrency.decrementAndGet() == 0) {
             sendMessageQueue(e, "There are a lot of people executing this command right now, try again later :(");
             maxConcurrency.incrementAndGet();
@@ -151,7 +151,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
     @Override
     public void noElementsMessage(RainbowParams parameters) {
         String s = parameters.isArtist() ? "artists" : "albums";
-        MessageReceivedEvent e = parameters.getE();
+        Context e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s didn't listen to any %s%s!", ingo.getUsername(), s, parameters.getTimeFrameEnum().getDisplayString()));
 

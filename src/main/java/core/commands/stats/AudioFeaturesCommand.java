@@ -3,6 +3,7 @@ package core.commands.stats;
 import com.wrapper.spotify.model_objects.specification.AudioFeatures;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -17,7 +18,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
@@ -62,7 +62,7 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
         LastFMData lastFMData = params.getLastFMData();
         SpotifyTrackService spotifyTrackService = new SpotifyTrackService(db, lastFMData.getName());
         List<ScrobbledTrack> tracksWithId = spotifyTrackService.getTracksWithId();
@@ -116,6 +116,6 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
         embedBuilder.addField("Energy:", df.format(audioFeature.getEnergy() / s), true)
                 .addField("Average Tempo:", (int) (audioFeature.getTempo() / s) + " BPM", true);
 
-        e.getChannel().sendMessage(embedBuilder.build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
     }
 }

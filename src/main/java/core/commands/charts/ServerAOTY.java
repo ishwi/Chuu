@@ -2,6 +2,7 @@ package core.commands.charts;
 
 import core.apis.last.entities.chartentities.AlbumChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.util.pie.PieSetUp;
 import core.parsers.ChartYearParser;
@@ -15,7 +16,6 @@ import dao.entities.TimeFrameEnum;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.awt.image.BufferedImage;
@@ -107,7 +107,7 @@ public class ServerAOTY extends ChartableCommand<ChartYearParameters> {
 
     @Override
     public void noElementsMessage(ChartYearParameters parameters) {
-        MessageReceivedEvent e = parameters.getE();
+        Context e = parameters.getE();
         sendMessageQueue(e, String.format("Couldn't find any %s album!", parameters.getYear().toString()));
     }
 

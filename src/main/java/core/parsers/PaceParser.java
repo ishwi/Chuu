@@ -1,10 +1,11 @@
 package core.parsers;
 
-import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.NaturalTimeParams;
 import core.parsers.params.NumberParameters;
 import dao.ChuuService;
 import dao.entities.NaturalTimeFrameEnum;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -28,7 +29,7 @@ public class PaceParser extends NumberParser<NumberParameters<NaturalTimeParams>
                                 null,
                                 Long.MAX_VALUE,
                                 errorMessages,
-                                new ExplanationLine("Scrobble Goal", "The total number of scrobbles you want to see"),
+                                new ExplanationLineType("Scrobble Goal", "The total number of scrobbles you want to see", OptionType.INTEGER),
                                 PaceParser::matches),
                 null,
                 Long.MAX_VALUE,

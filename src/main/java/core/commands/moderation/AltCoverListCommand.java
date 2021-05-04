@@ -1,6 +1,7 @@
 package core.commands.moderation;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -14,7 +15,6 @@ import dao.ChuuService;
 import dao.entities.CoverItem;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -52,7 +52,7 @@ public class AltCoverListCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         CoverService coverService = Chuu.getCoverService();
         Map<CoverItem, Integer> counts = coverService.getCounts();
         List<String> str = counts.entrySet().stream().map((t -> "**%s - %s**: %d %s%n".formatted(t.getKey().artist(), t.getKey().album(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "cover", "covers"))))
@@ -68,7 +68,7 @@ public class AltCoverListCommand extends ConcurrentCommand<CommandParameters> {
                 .setColor(ColorService.computeColor(e))
                 .setTitle("Alt covers");
 
-        e.getChannel().sendMessage(new MessageBuilder()
+        e.sendMessage(new MessageBuilder()
                 .setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 new Reactionary<>(str, message1, embedBuilder));
 

@@ -1,13 +1,14 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.commands.abstracts.MyCommand;
 import core.commands.moderation.DisabledCommand;
 import core.parsers.explanation.CommandExplanation;
 import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.DisabledCommandParameters;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +31,7 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> {
     }
 
     @Override
-    protected DisabledCommandParameters parseLogic(MessageReceivedEvent e, String[] words) {
+    protected DisabledCommandParameters parseLogic(Context e, String[] words) {
         List<Character> acceptecChars = PrefixParser.acceptecChars;
         if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
             sendError("Only server admins can disable commands", e);
@@ -67,7 +68,7 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(() -> new ExplanationLine("Command Name", "The name of a command"),
+        return List.of(() -> new ExplanationLineType("Command Name", "The name of a command", OptionType.STRING),
                 new CommandExplanation("This command has different alias (enable,disable,toggle), and depending on the alias used the result will be different"));
     }
 

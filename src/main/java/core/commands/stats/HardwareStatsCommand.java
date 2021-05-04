@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
@@ -9,7 +10,6 @@ import core.services.ColorService;
 import dao.BotStats;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
@@ -46,7 +46,7 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         BotStats botStats = db.getBotStats();
         int shardTotal = e.getJDA().getShardInfo().getShardTotal();
         int mb = 1024 * 1024;
@@ -71,7 +71,7 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
                 .addField("**Total Number of api requests:**", "**" + botStats.apiCount() + "**", true)
                 .addField("**Shards Count:**", "**" + (shardTotal) + "**", true)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
-        e.getChannel().sendMessage(embedBuilder.build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
 
 
     }

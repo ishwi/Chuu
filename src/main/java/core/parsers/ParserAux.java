@@ -1,13 +1,14 @@
 package core.parsers;
 
 import core.Chuu;
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -52,13 +53,13 @@ public class ParserAux {
     public record Snowflake(long id) {
     }
 
-    @NotNull User getOneUserPermissive(MessageReceivedEvent e, ChuuService dao) throws InstanceNotFoundException {
+    @NotNull User getOneUserPermissive(Context e, ChuuService dao) throws InstanceNotFoundException {
         User sample;
         String join = String.join(" ", message);
         if (e.isFromGuild()) {
-            List<Member> members = e.getMessage().getMentionedMembers();
+            List<User> members = e.getMentionedUsers();
             if (!members.isEmpty()) {
-                sample = members.get(0).getUser();
+                sample = members.get(0);
                 message = Arrays.stream(message).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
             } else {
                 if (join.isBlank()) {
@@ -115,7 +116,7 @@ public class ParserAux {
         return sample;
     }
 
-    @NotNull User getOneUser(MessageReceivedEvent e, ChuuService dao) throws InstanceNotFoundException {
+    @NotNull User getOneUser(Context e, ChuuService dao) throws InstanceNotFoundException {
         User sample = null;
         List<String> tempArray = new ArrayList<>();
         boolean hasMatched = false;
@@ -166,8 +167,8 @@ public class ParserAux {
         if (sample != null) {
             return sample;
         }
-        if (e.isFromGuild()) {
-            List<Member> members = e.getMessage().getMentionedMembers();
+        if (e.isFromGuild() && e instanceof ContextMessageReceived mes) {
+            List<Member> members = mes.e().getMessage().getMentionedMembers();
             if (!members.isEmpty()) {
                 sample = members.get(0).getUser();
                 User finalSample = sample;
@@ -181,7 +182,7 @@ public class ParserAux {
     }
 
 
-    private LastFMData findUsername(MessageReceivedEvent event, User user, ChuuService dao) throws InstanceNotFoundException {
+    private LastFMData findUsername(Context event, User user, ChuuService dao) throws InstanceNotFoundException {
         if (event.isFromGuild() && this.doExpensiveSearch) {
             return dao.computeLastFmData(user.getIdLong(), event.getGuild().getIdLong());
         } else {
@@ -189,7 +190,7 @@ public class ParserAux {
         }
     }
 
-    public LastFMData[] getTwoUsers(ChuuService dao, String[] message, MessageReceivedEvent e) throws InstanceNotFoundException {
+    public LastFMData[] getTwoUsers(ChuuService dao, String[] message, Context e) throws InstanceNotFoundException {
         LastFMData[] result = null;
         boolean finished = false;
         if (message.length != 0) {
@@ -199,7 +200,7 @@ public class ParserAux {
                 datas[0] = findUsername(e, e.getAuthor(), dao);
                 datas[1] = handleRawMessage(join, e, dao);
             } else {
-                List<User> list = e.getMessage().getMentionedUsers();
+                List<User> list = e.getMentionedUsers();
                 if (message.length == 1 && list.size() == 1) {
                     datas[1] = findUsername(e, list.get(0), dao);
                     datas[0] = findUsername(e, e.getAuthor(), dao);
@@ -238,7 +239,7 @@ public class ParserAux {
         return result;
     }
 
-    private LastFMData getLastFMData(Optional<User> opt, String message, ChuuService dao, MessageReceivedEvent e) throws InstanceNotFoundException {
+    private LastFMData getLastFMData(Optional<User> opt, String message, ChuuService dao, Context e) throws InstanceNotFoundException {
         if (opt.isEmpty()) {
             throw new InstanceNotFoundException(message);
         } else {
@@ -246,7 +247,7 @@ public class ParserAux {
         }
     }
 
-    LastFMData handleRawMessage(String message, MessageReceivedEvent e, ChuuService db) throws InstanceNotFoundException {
+    LastFMData handleRawMessage(String message, Context e, ChuuService db) throws InstanceNotFoundException {
 
         Set<Long> all = db.getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
         Predicate<Member> isOnServer = member -> member != null && all.stream().anyMatch(x -> x == member.getIdLong());
@@ -301,7 +302,7 @@ public class ParserAux {
         return getLastFMData(Optional.ofNullable(e.getGuild().getJDA().getUserById(discordIdFromLastfm)), message, db, e);
     }
 
-    Optional<User> userString(String message, MessageReceivedEvent e, ChuuService db) throws InstanceNotFoundException {
+    Optional<User> userString(String message, Context e, ChuuService db) throws InstanceNotFoundException {
         Set<Long> all = db.getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
         Predicate<Member> isOnServer = member -> member != null && all.stream().anyMatch(x -> x == member.getIdLong());
 

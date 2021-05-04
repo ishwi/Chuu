@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -10,7 +11,6 @@ import core.parsers.params.TimeFrameParameters;
 import dao.ChuuService;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -43,7 +43,7 @@ public class TimeSpentCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull TimeFrameParameters params) throws LastFmException {
 
         String username = params.getLastFMData().getName();
         long discordId = params.getLastFMData().getDiscordId();

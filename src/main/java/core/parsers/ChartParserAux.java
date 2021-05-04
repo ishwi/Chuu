@@ -176,25 +176,29 @@ public class ChartParserAux {
     }
 
 
+    public static Point processString(String chartSize) throws InvalidChartValuesException {
+        String[] sizes = chartSize.split("[xX]");
+        String x = sizes[0];
+        String y = sizes[1];
+        if (x.equals("0") || y.equals("0")) {
+            throw new InvalidChartValuesException(x);
+        }
+        int x1 = Integer.parseInt(x);
+        int y1 = Integer.parseInt(y);
+        if (x1 * y1 > 400) {
+            throw new InvalidChartValuesException(x);
+        }
+        return new Point(x1, y1);
+    }
+
     @Nullable
     public Point getChartSize() throws InvalidChartValuesException {
 
         Optional<String> opt = Arrays.stream(message).filter(s -> chartSizePattern.matcher(s).matches()).findAny();
         if (opt.isPresent()) {
-            String x = (opt.get().split("[xX]")[0]);
-            String y = opt.get().split("[xX]")[1];
+            processString(opt.get());
             message = Arrays.stream(message).filter(s -> !s.equals(opt.get())).toArray(String[]::new);
-            if (x.equals("0") || y.equals("0")) {
-                throw new InvalidChartValuesException(x);
-            }
-            int x1 = Integer.parseInt(x);
-            int y1 = Integer.parseInt(y);
-            if (x1 * y1 > 400) {
-                throw new InvalidChartValuesException(x);
-            }
-            return new Point(x1, y1);
         }
         return null;
-
     }
 }

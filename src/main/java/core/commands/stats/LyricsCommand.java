@@ -7,6 +7,7 @@ import core.apis.lyrics.Lyrics;
 import core.apis.lyrics.TextSplitter;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -22,7 +23,6 @@ import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -68,7 +68,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistAlbumParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException {
         String song = params.getAlbum();
         String artist = params.getArtist();
         String url = null;
@@ -103,7 +103,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
                 .setAuthor(String.format("%s - %s", correctedArtist, song), LinkUtils.getLastFMArtistTrack(correctedArtist, song), urlImage)
                 .setFooter(String.format("Lyrics found for %s - %s", correctedArtist, song))
                 .setThumbnail(lyrics.getImageUrl() == null ? url : lyrics.getImageUrl());
-        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
                 new Reactionary<>(pages, message1, 1, embedBuilder, false, true, 120));
     }
 }

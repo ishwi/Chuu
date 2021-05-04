@@ -1,13 +1,16 @@
 package core.parsers.explanation;
 
 import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
-public class TrackExplanation implements Explanation {
+public record TrackExplanation(Explanation artist, Explanation song) {
+    public static final String NAME = "song";
 
-    @Override
-    public ExplanationLine explanation() {
-        return new ExplanationLine("Artist - Song", "The song written will be used or if no song is provided the one that you are currently listening to will be used");
+    public TrackExplanation() {
+        this(
+                () -> new ExplanationLineType(ArtistExplanation.NAME, "The artist to query for", OptionType.STRING)
+                , () -> new ExplanationLineType(NAME, "The song of the artist to query for, separated with -", OptionType.STRING));
     }
 
 }

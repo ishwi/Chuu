@@ -1,5 +1,6 @@
 package core.commands.config;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -8,7 +9,6 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -44,14 +44,14 @@ public class ScrooblingCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
         LastFMData lastFMData = params.getLastFMData();
         boolean scrobbling = lastFMData.isScrobbling();
         char messagePrefix = CommandUtil.getMessagePrefix(e);
 
         if (lastFMData.getSession() == null) {
             sendMessageQueue(e, "You have not authorized " + params.getE().getJDA().getSelfUser().getName() + " to scrobble!\n" +
-                    "do `" + messagePrefix + "login` to enable it.");
+                                "do `" + messagePrefix + "login` to enable it.");
             return;
         }
         if (params.hasOptional("enable")) {

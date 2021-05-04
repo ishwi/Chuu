@@ -1,5 +1,6 @@
 package core.commands.moderation;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
@@ -9,7 +10,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -45,7 +45,7 @@ public class FlagBottedCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws InstanceNotFoundException {
         LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Only bot admins can flag people as bots!");

@@ -1,11 +1,12 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.ChannelParameters;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,7 @@ public class ChannelParser extends Parser<ChannelParameters> {
     }
 
     @Override
-    protected ChannelParameters parseLogic(MessageReceivedEvent e, String[] words) {
+    protected ChannelParameters parseLogic(Context e, String[] words) {
 
         if (words.length == 0) {
             Member member = e.getMember();
@@ -40,7 +41,7 @@ public class ChannelParser extends Parser<ChannelParameters> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(() -> new ExplanationLine("Channel", "Channel can be either the name of a channel or the id of the channel"));
+        return List.of(() -> new ExplanationLineType("Channel", "Channel can be either the name of a channel or the id of the channel", OptionType.CHANNEL));
     }
 
 

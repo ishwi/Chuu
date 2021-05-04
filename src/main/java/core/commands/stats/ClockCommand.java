@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.OnlyUsernameParser;
@@ -15,7 +16,6 @@ import dao.entities.Week;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -54,7 +54,7 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws InstanceNotFoundException {
 
 
         Long discordId = params.getLastFMData().getDiscordId();
@@ -87,6 +87,6 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
             embed.setImage("attachment://cat.gif").setDescription("");
             e.getChannel().sendFile(bytes, "cat.gif").embed(embed.build()).queue();
         } else
-            e.getChannel().sendMessage("File was too big").queue();
+            e.sendMessage("File was too big").queue();
     }
 }

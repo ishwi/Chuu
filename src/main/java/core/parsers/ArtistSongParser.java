@@ -1,6 +1,7 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
+import core.commands.Context;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.TrackExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -8,7 +9,6 @@ import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
@@ -17,14 +17,16 @@ public class ArtistSongParser extends ArtistAlbumParser {
 
     public ArtistSongParser(ChuuService dao, ConcurrentLastFM lastFM, boolean forComparison, OptionalEntity... o) {
         super(dao, lastFM, forComparison, o);
+        slashName = TrackExplanation.NAME;
     }
 
     public ArtistSongParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... o) {
         super(dao, lastFM, o);
+        slashName = TrackExplanation.NAME;
     }
 
     @Override
-    ArtistAlbumParameters doSomethingWithNp(NowPlayingArtist np, LastFMData lastFMData, MessageReceivedEvent e) {
+    ArtistAlbumParameters doSomethingWithNp(NowPlayingArtist np, LastFMData lastFMData, Context e) {
         return new ArtistAlbumParameters(e, np.artistName(), np.songName(), lastFMData);
     }
 
@@ -32,6 +34,7 @@ public class ArtistSongParser extends ArtistAlbumParser {
     public void setUpErrorMessages() {
         super.setUpErrorMessages();
         errorMessages.put(5, "You need to use - to separate artist and song!");
+        errorMessages.put(8, "Need both the artist and the song!");
         errorMessages
                 .put(7, "You need to add the escape character **\"\\\\\"** in the **\"-\"** that appear on the album or song.\n " +
                         "\tFor example: Artist - So**\\\\-**ng  ");
@@ -40,7 +43,8 @@ public class ArtistSongParser extends ArtistAlbumParser {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(new TrackExplanation(), new StrictUserExplanation());
+        TrackExplanation trackExplanation = new TrackExplanation();
+        return List.of(trackExplanation.artist(), trackExplanation.song(), new StrictUserExplanation());
     }
 
 }

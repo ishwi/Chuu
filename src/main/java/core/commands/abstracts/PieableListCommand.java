@@ -1,12 +1,12 @@
 package core.commands.abstracts;
 
+import core.commands.Context;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.pie.IPieableList;
 import core.parsers.params.CommandParameters;
 import core.services.ColorService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import javax.validation.constraints.NotNull;
@@ -25,7 +25,7 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
 
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull Y params) {
+    protected void onCommand(Context e, @NotNull Y params) {
 
         if (params.hasOptional("pie")) {
             doPie(getList(params), params);
@@ -37,7 +37,7 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
 
     public abstract void doPie(T data, Y parameters);
 
-    public EmbedBuilder initList(List<String> strList, MessageReceivedEvent event) {
+    public EmbedBuilder initList(List<String> strList, Context event) {
         StringBuilder a = new StringBuilder();
         for (int i = 0, size = strList.size(); i < 10 && i < size; i++) {
             String text = strList.get(i);

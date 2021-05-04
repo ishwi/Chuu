@@ -51,7 +51,7 @@
 //    }
 //
 //    @Override
-//    protected void onCommand(MessageReceivedEvent e, @NotNull ArtistUrlParameters params) throws LastFmException {
+//    protected void onCommand(Context e, @NotNull ArtistUrlParameters params) throws LastFmException {
 //        if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
 //            sendMessageQueue(e, "Only server mods can use this command");
 //            return;

@@ -2,6 +2,7 @@ package core.parsers;
 
 import core.apis.ExecutorsSingleton;
 import core.apis.last.ConcurrentLastFM;
+import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.GenreExplanation;
 import core.parsers.explanation.StrictUserExplanation;
@@ -14,7 +15,6 @@ import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class GenreParser extends DaoParser<GenreParameters> {
     }
 
     @Override
-    protected GenreParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected GenreParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
         String genre;
         NowPlayingArtist nowPlayingInfo = null;
         LastFMData lastFMData;

@@ -1,5 +1,6 @@
 package core.commands.billboard;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -19,7 +20,6 @@ import dao.entities.UsersWrapper;
 import dao.entities.Week;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
@@ -84,7 +84,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
 
     // You have to call the insert_weeks procedure first that is declared in MariadBnew. on the mysql client it would be something like `call inert_weeks()`
 
-    public List<BillboardEntity> getEntities(int weekId, long guildId, boolean doListeners, MessageReceivedEvent event) {
+    public List<BillboardEntity> getEntities(int weekId, long guildId, boolean doListeners, Context event) {
         return db.getBillboard(weekId, guildId, doListeners);
 
     }
@@ -94,7 +94,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<CommandParameters> params) {
+    protected void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
 
 
         long guildId = e.getGuild().getIdLong();
@@ -165,7 +165,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
 
-    protected void doBillboard(MessageReceivedEvent e, NumberParameters<CommandParameters> params, boolean doListeners, List<BillboardEntity> entities, LocalDateTime weekStart, LocalDateTime weekBeggining, String name) {
+    protected void doBillboard(Context e, NumberParameters<CommandParameters> params, boolean doListeners, List<BillboardEntity> entities, LocalDateTime weekStart, LocalDateTime weekBeggining, String name) {
         if (params.hasOptional("list")) {
             EmbedBuilder embedBuilder = new EmbedBuilder();
             List<String> artistAliases = entities
@@ -188,7 +188,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             embedBuilder.setTitle("Billboard Top 100 " + getTitle() + "from " + name)
                     .setColor(ColorService.computeColor(e))
                     .setDescription(a);
-            e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+            e.sendMessage(embedBuilder.build()).queue(message1 ->
                     new Reactionary<>(artistAliases, message1, embedBuilder));
         } else {
             BufferedImage logo = CommandUtil.getLogo(db, e);

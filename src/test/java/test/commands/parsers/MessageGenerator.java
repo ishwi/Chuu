@@ -206,6 +206,12 @@ public class MessageGenerator {
                 return null;
             }
 
+            @NotNull
+            @Override
+            public List<MessageSticker> getStickers() {
+                return null;
+            }
+
             @Override
             public boolean isTTS() {
                 return false;

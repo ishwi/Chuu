@@ -1,12 +1,12 @@
 package core.commands.charts;
 
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.imagerenderer.util.pie.IPieableList;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import javax.validation.constraints.NotNull;
@@ -23,7 +23,7 @@ public abstract class OnlyChartCommand<T extends ChartParameters> extends Charta
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull T params) throws LastFmException {
 
         CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(params);
         BlockingQueue<UrlCapsule> urlCapsules = countWrapper.getResult();

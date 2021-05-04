@@ -18,6 +18,8 @@
 package core.commands.music;
 
 import core.Chuu;
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.music.LoadResultHandler;
@@ -27,10 +29,8 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -67,8 +67,30 @@ public class MusicCommand extends ConcurrentCommand<CommandParameters> {
         return "Play music";
     }
 
+    public static void play(Context e, MusicManager manager, String query, boolean isSearchResult, boolean isNext) {
+        MusicManager musicManager = Chuu.playerRegistry.get(e.getGuild());
+//        musicManager.getQueue().clear();
+
+
+        if (query.contains("https://") || query.contains("http://") || query.startsWith("spotify:")) {
+            if (query.startsWith("<")) {
+                query = query.substring(1);
+            }
+            if (query.endsWith(">")) {
+                query = query.substring(0, query.length() - 1);
+            }
+        } else if (isSearchResult) {
+            // IDK
+            Chuu.getLogger().info(":)");
+        } else {
+            query = String.format("ytsearch:%s", query.trim());
+        }
+        TrackContext trackContext = new TrackContext(e.getAuthor().getIdLong(), e.getChannel().getIdLong());
+        LoadResultHandler.loadItem(query, e, musicManager, trackContext, isNext, "");
+    }
+
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
 
         assert e.getGuild().getSelfMember().getVoiceState() != null;
         var botChannel = e.getGuild().getSelfMember().getVoiceState().getChannel();
@@ -84,7 +106,7 @@ public class MusicCommand extends ConcurrentCommand<CommandParameters> {
             return;
         }
 
-        var attachment = e.getMessage().getAttachments().stream().findFirst().orElse(null);
+        var attachment = e instanceof ContextMessageReceived mes ? mes.e().getMessage().getAttachments().stream().findFirst().orElse(null) : null;
         boolean hasManager = Chuu.playerRegistry.contains(e.getGuild());
 
         prompt(e, hasManager).thenAccept(proceed -> {
@@ -94,7 +116,7 @@ public class MusicCommand extends ConcurrentCommand<CommandParameters> {
             }
 
             var newManager = Chuu.playerRegistry.get(e.getGuild());
-            play(e, newManager, e.getMessage().getContentRaw(), false, false);
+            play(e, newManager, String.join(" ", parser.getSubMessage(e)), false, false);
         }).exceptionally(ex -> {
             sendMessageQueue(e, "ERROR ");
             ex.printStackTrace();
@@ -102,35 +124,12 @@ public class MusicCommand extends ConcurrentCommand<CommandParameters> {
         });
     }
 
-    private CompletableFuture<Boolean> prompt(MessageReceivedEvent e, boolean hasManager) {
+    private CompletableFuture<Boolean> prompt(Context e, boolean hasManager) {
         var future = new CompletableFuture<Boolean>();
         var oldQueue = new LinkedBlockingQueue<String>();
 
         boolean complete = future.complete(true);
         return future;
-    }
-
-    public static void play(MessageReceivedEvent e, MusicManager manager, String uri, boolean isSearchResult, boolean isNext) {
-        MusicManager musicManager = Chuu.playerRegistry.get(e.getGuild());
-//        musicManager.getQueue().clear();
-        String[] strings = commandArgs(e.getMessage());
-        String query = String.join(" ", Arrays.copyOfRange(strings, 1, strings.length));
-
-
-        if (query.contains("https://") || query.contains("http://") || query.startsWith("spotify:")) {
-            if (query.startsWith("<")) {
-                query = query.substring(1);
-            }
-            if (query.endsWith(">")) {
-                query = query.substring(0, query.length() - 1);
-            }
-        } else if (isSearchResult) {
-            query = uri;
-        } else {
-            query = String.format("ytsearch:%s", query.trim());
-        }
-        TrackContext trackContext = new TrackContext(e.getAuthor().getIdLong(), e.getChannel().getIdLong());
-        LoadResultHandler.loadItem(query, e, musicManager, trackContext, isNext, "");
     }
 }
 

@@ -1,6 +1,8 @@
 package core.commands.music;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
 import core.commands.abstracts.MusicCommand;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
@@ -14,7 +16,6 @@ import dao.entities.Metadata;
 import dao.entities.TriFunction;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -56,8 +57,8 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
-        String[] message = parser.getSubMessage(e.getMessage());
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
+        String[] message = parser.getSubMessage(e);
         MusicManager manager = getManager(e);
         AudioTrack track = manager.getCurrentTrack();
         String identifier = track.getInfo().uri;
@@ -73,10 +74,10 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
             Optional<Metadata> metadata = Optional.ofNullable(manager.getMetadata());
             String finalUrl = url;
             String finalAlbum = album;
-            metadata.ifPresentOrElse(meta -> e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(meta.image()).setTitle("Current song metadata", identifier)
+            metadata.ifPresentOrElse(meta -> e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(meta.image()).setTitle("Current song metadata", identifier)
                     .setDescription(mapper.apply(meta.artist(), meta.album(), meta.song())).build()).
                     queue(), () ->
-                    e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(finalUrl)
+                    e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(finalUrl)
                             .setTitle("Current song metadata", identifier)
                             .setThumbnail(finalUrl)
                             .setDescription(mapper.apply(track.getInfo().author, finalAlbum, track.getInfo().title))
@@ -94,11 +95,14 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
         String[] songSplitted = song.split("\\|");
         song = songSplitted[0];
         String matchedAlbum = songSplitted.length > 1 ? String.join(" ", Arrays.copyOfRange(songSplitted, 1, songSplitted.length)) : null;
-        String image = e.getMessage().getAttachments().stream().filter(Message.Attachment::isImage).findFirst().map(Message.Attachment::getUrl).orElse(null);
+        String image = null;
+        if (e instanceof ContextMessageReceived mes) {
+            image = mes.e().getMessage().getAttachments().stream().filter(Message.Attachment::isImage).findFirst().map(Message.Attachment::getUrl).orElse(null);
+        }
         Metadata metadata = new Metadata(artist, song, matchedAlbum, image);
         manager.setMetadata(metadata);
         db.storeMetadata(identifier, metadata);
-        e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(image)
+        e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(image)
                 .setTitle("Current song metadata", identifier)
                 .setDescription(mapper.apply(artist, matchedAlbum, song))
                 .build()).

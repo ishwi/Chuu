@@ -1,13 +1,13 @@
 package core.parsers.params;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import core.commands.Context;
 
 public class RateLimitParams extends CommandParameters {
     private final long discordId;
     private final Float rateLimit;
 
 
-    public RateLimitParams(MessageReceivedEvent e, long discordId, Float rateLimit) {
+    public RateLimitParams(Context e, long discordId, Float rateLimit) {
         super(e);
         this.discordId = discordId;
         this.rateLimit = rateLimit;

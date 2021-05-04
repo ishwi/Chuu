@@ -1,15 +1,18 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.utils.CommandUtil;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.GuildConfigParams;
 import core.parsers.params.GuildConfigType;
 import dao.ChuuService;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,7 +26,7 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
     }
 
     @Override
-    protected GuildConfigParams parseLogic(MessageReceivedEvent e, String[] words) {
+    protected GuildConfigParams parseLogic(Context e, String[] words) {
 
         if (e.getMember() == null || !e.getMember().hasPermission(Permission.ADMINISTRATOR)) {
             sendError("Only admins can modify the server configuration", e);
@@ -36,12 +39,12 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
                 line = Arrays.stream(GuildConfigType.values()).map(GuildConfigType::getCommandName).collect(Collectors.joining(", "));
                 sendError(words[0] + " is not a valid configuration, use one of the following:\n\t" + line, e);
             } else {
-                e.getChannel().sendMessage(line).queue();
+                e.sendMessage(line).queue();
             }
             return null;
         }
         if ((words.length == 0) || (words.length > 2 && !multipleWordsConfigs.contains(words[0]))) {
-            String prefix = e.getMessage().getContentRaw().substring(0, 1);
+            char prefix = CommandUtil.getMessagePrefix(e);
             String list = GuildConfigType.list(dao, e.getGuild().getIdLong());
             sendError("The config format must be the following: **`Command`**  **`Value`**\n do " + prefix + "help sconfig for more info.\nCurrent Values:\n" + list, e);
             return null;
@@ -72,7 +75,11 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
     public List<Explanation> getUsages() {
         String line = Arrays.stream(GuildConfigType.values()).map(x -> String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
         String usage = "Possible values:\n" + line;
-        return Collections.singletonList(() -> new ExplanationLine("Command with argument", usage));
+        OptionData optionData = new OptionData(OptionType.STRING, "config", "Name of the config");
+        for (GuildConfigType value : GuildConfigType.values()) {
+            optionData.addChoice(value.getCommandName(), value.getCommandName());
+        }
+        return List.of(() -> new ExplanationLine("Property to configure", usage, optionData), () -> new ExplanationLineType("value of config", "The value to choose", OptionType.STRING));
     }
 
     @Override

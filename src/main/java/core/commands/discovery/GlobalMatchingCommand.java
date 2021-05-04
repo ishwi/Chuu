@@ -1,5 +1,6 @@
 package core.commands.discovery;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -18,7 +19,6 @@ import dao.entities.Memoized;
 import dao.entities.UsersWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -71,7 +71,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) {
+    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) {
 
 
         ChuuDataParams innerParams = params.getInnerParams();
@@ -116,7 +116,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
                 .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), db
                         .getUserArtistCount(innerParams.getLastFMData().
                                 getName(), 0)), null);
-        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
+        e.sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(strings, mes, embedBuilder));
     }
 }

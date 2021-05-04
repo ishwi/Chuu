@@ -1,5 +1,6 @@
 package core.commands.moderation;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.exceptions.LastFmException;
@@ -12,7 +13,6 @@ import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -50,7 +50,7 @@ public class MbidUpdatedCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
         long issuer = e.getAuthor().getIdLong();
         LastFMData lastFMData = db.findLastFMData(issuer);
         if (lastFMData.getRole() != Role.ADMIN) {

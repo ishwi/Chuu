@@ -1,10 +1,12 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.CharacterParameters;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,7 +27,7 @@ public class PrefixParser extends Parser<CharacterParameters> {
     }
 
     @Override
-    protected CharacterParameters parseLogic(MessageReceivedEvent e, String[] words) {
+    protected CharacterParameters parseLogic(Context e, String[] words) {
         if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
             sendError(getErrorMessage(2), e);
             return null;
@@ -45,7 +47,13 @@ public class PrefixParser extends Parser<CharacterParameters> {
 
     @Override
     public List<Explanation> getUsages() {
-        return Collections.singletonList(() -> new ExplanationLine("[!@#$%^_.,;:~><-?|]", "Only one of the characters listed"));
+        String s = "!@#$%^_.,;:~><-?|";
+        OptionData optionData = new OptionData(OptionType.STRING, "prefix", "The prefix to use");
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            optionData.addChoice(String.valueOf(c), String.valueOf(c));
+        }
+        return Collections.singletonList(() -> new ExplanationLine("[!@#$%^_.,;:~><-?|]", "Only one of the characters listed", optionData));
     }
 
 }

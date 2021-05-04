@@ -2,6 +2,7 @@ package core.commands.moderation;
 
 import core.Chuu;
 import core.apis.lyrics.TextSplitter;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandCategory;
@@ -16,7 +17,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.ISnowflake;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -58,7 +58,7 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         MessageDisablingService messageDisablingService = Chuu.getMessageDisablingService();
         MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = messageDisablingService.disabledChannelsMap;
         MultiValuedMap<Pair<Long, Long>, MyCommand<?>> enabledChannelsMap = messageDisablingService.enabledChannelsMap;
@@ -138,6 +138,6 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
 
         embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "'s commands status")
                 .setThumbnail(e.getGuild().getIconUrl());
-        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
+        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
     }
 }

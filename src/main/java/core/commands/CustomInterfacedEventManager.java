@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -24,10 +25,7 @@ import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.internal.JDAImpl;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -112,17 +110,17 @@ public class CustomInterfacedEventManager implements IEventManager {
      */
     @Override
     public void handle(@Nonnull GenericEvent event) {
-
         if (event instanceof MessageReceivedEvent mes) {
             if (mes.getAuthor().isBot()) {
                 return;
             }
-            Character correspondingPrefix = Chuu.getCorrespondingPrefix(mes);
+            ContextMessageReceived ctx = new ContextMessageReceived(mes);
+            Character correspondingPrefix = Chuu.getCorrespondingPrefix(ctx);
             String contentRaw = mes.getMessage().getContentRaw();
             if (contentRaw.length() <= 1 || contentRaw.charAt(0) != correspondingPrefix) {
                 if (mes.getMessage().getMentionedUsers().contains(mes
                         .getJDA().getSelfUser()) && mes.getMessage().getType() != MessageType.INLINE_REPLY) {
-                    mes.getChannel().sendMessage("My prefix is: `" + Chuu.getCorrespondingPrefix(mes) + "`").queue();
+                    mes.getChannel().sendMessage("My prefix is: `" + Chuu.getCorrespondingPrefix(ctx) + "`").queue();
                 }
                 return;
             }
@@ -137,8 +135,8 @@ public class CustomInterfacedEventManager implements IEventManager {
             String substring = contentRaw.substring(1).split("\\s+")[0];
             MyCommand<?> myCommand = commandListeners.get(substring.toLowerCase());
             if (myCommand != null) {
-                if (!Chuu.getMessageDisablingService().isMessageAllowed(myCommand, mes)) {
-                    if (Chuu.getMessageDisablingService().doResponse(mes))
+                if (!Chuu.getMessageDisablingService().isMessageAllowed(myCommand, ctx)) {
+                    if (Chuu.getMessageDisablingService().doResponse(ctx))
                         mes.getChannel().sendMessage("This command is disabled in this channel.").queue();
                     return;
                 }
@@ -149,6 +147,14 @@ public class CustomInterfacedEventManager implements IEventManager {
                 }
             }
 
+        } else if (event instanceof SlashCommandEvent sce) {
+            String name = sce.getName();
+            MyCommand<?> myCommand = commandListeners.get(name.toLowerCase(Locale.ROOT));
+            try {
+                myCommand.onSlashCommandReceived(sce);
+            } catch (Throwable throwable) {
+                JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
+            }
         } else
             try {
                 if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {

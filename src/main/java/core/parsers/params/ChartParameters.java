@@ -3,6 +3,7 @@ package core.parsers.params;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.OptionalEntity;
@@ -11,7 +12,6 @@ import dao.entities.ChartMode;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONObject;
 
 import java.util.concurrent.BlockingQueue;
@@ -24,7 +24,7 @@ public class ChartParameters extends CommandParameters {
     private int y;
 
 
-    public ChartParameters(MessageReceivedEvent e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
+    public ChartParameters(Context e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
         super(e);
         this.user = lastFMData;
         this.timeFrameEnum = timeFrameEnum;
@@ -32,7 +32,7 @@ public class ChartParameters extends CommandParameters {
         this.y = y;
     }
 
-    public ChartParameters(MessageReceivedEvent e, LastFMData user, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList) {
+    public ChartParameters(Context e, LastFMData user, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList) {
         super(e);
         this.user = user;
         this.timeFrameEnum = timeFrameEnum;

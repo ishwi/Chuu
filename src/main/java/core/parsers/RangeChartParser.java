@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.exceptions.InvalidDateException;
 import core.parsers.params.CustomRangeChartParameters;
@@ -9,7 +10,6 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 
@@ -19,7 +19,7 @@ public class RangeChartParser extends ChartableParser<CustomRangeChartParameters
     }
 
     @Override
-    public CustomRangeChartParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public CustomRangeChartParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
         int x = 5;
         int y = 5;
 

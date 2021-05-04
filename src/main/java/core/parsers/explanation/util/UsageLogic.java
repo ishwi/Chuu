@@ -24,8 +24,8 @@ public record UsageLogic(String commandName, List<Explanation> explanations, Set
             }
         }
         String headerLine = "**%s** *%s*".formatted(commandName, explanations.stream().map(Explanation::explanation)
-                .map(ExplanationLine::header).filter(UsageLogic::checkString).map(this::mapHeader).collect(Collectors.joining(" ")));
-        String body = explanations.stream().map(Explanation::explanation).map(ExplanationLine::usage).filter(UsageLogic::checkString).map(
+                .map(Interactible::header).filter(UsageLogic::checkString).map(this::mapHeader).collect(Collectors.joining(" ")));
+        String body = explanations.stream().map(Explanation::explanation).map(Interactible::usage).filter(UsageLogic::checkString).map(
                 str -> {
                     String trimmed = str.trim();
                     if (!trimmed.endsWith(".")) {

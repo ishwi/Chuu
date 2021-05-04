@@ -1,5 +1,6 @@
 package core.commands.config;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.otherlisteners.Confirmator;
@@ -10,7 +11,6 @@ import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -48,7 +48,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         // Check if it exists
         db.findLastFMData(idLong);
@@ -57,7 +57,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("User Deletion Confirmation")
                 .setDescription(String.format("%s, are you sure you want to delete all your info from the bot?", userString));
-        e.getChannel().sendMessage(new MessageBuilder(embedBuilder.build()).build())
+        e.sendMessage(new MessageBuilder(embedBuilder.build()).build())
                 .queue(message -> new Confirmator(embedBuilder, message, idLong,
                         () -> db.removeUserCompletely(idLong), () -> {
                 }

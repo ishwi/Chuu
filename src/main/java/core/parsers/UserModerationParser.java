@@ -1,12 +1,13 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +18,7 @@ public class UserModerationParser extends DaoParser<ChuuDataParams> {
     }
 
     @Override
-    protected ChuuDataParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    protected ChuuDataParams parseLogic(Context e, String[] words) throws InstanceNotFoundException {
         if (words.length != 1) {
             sendError("Need a Discord Id or a lastfm name", e);
             return null;
@@ -34,7 +35,7 @@ public class UserModerationParser extends DaoParser<ChuuDataParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        return Collections.singletonList(() -> new ExplanationLine("discord-id|lastfm-id", null));
+        return Collections.singletonList(() -> new ExplanationLineType("discord-id|lastfm-id", null, OptionType.STRING));
     }
 
 }

@@ -1,11 +1,11 @@
 package core.parsers.params;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import core.commands.Context;
 
 public class StringParameters extends CommandParameters {
     private final String value;
 
-    public StringParameters(MessageReceivedEvent e, String value) {
+    public StringParameters(Context e, String value) {
         super(e);
         this.value = value;
     }

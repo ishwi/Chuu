@@ -1,9 +1,9 @@
 package core.parsers.params;
 
+import core.commands.Context;
 import core.parsers.utils.CustomTimeFrame;
 import dao.entities.GayType;
 import dao.entities.LastFMData;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 
 public class GayParams extends ChartParameters {
@@ -12,7 +12,7 @@ public class GayParams extends ChartParameters {
     private int cols;
     private GayType gayType;
 
-    public GayParams(MessageReceivedEvent e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y, int cols, GayType gayType) {
+    public GayParams(Context e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y, int cols, GayType gayType) {
         super(e, lastFMData, timeFrameEnum, x, y);
         this.cols = cols;
         this.gayType = gayType;

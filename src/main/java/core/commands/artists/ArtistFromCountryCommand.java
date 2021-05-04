@@ -9,6 +9,7 @@ import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -30,7 +31,6 @@ import dao.entities.ScrobbledArtist;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
@@ -111,7 +111,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CountryParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull CountryParameters params) throws LastFmException {
 
         CountryCode country = params.getCode();
         LastFMData user = params.getLastFMData();
@@ -166,7 +166,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
                         (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
                 .setTitle(title)
                 .setDescription(a);
-        e.getChannel().sendMessage(embedBuilder.build()).queue(mes ->
+        e.sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(list, mes, embedBuilder));
     }
 }

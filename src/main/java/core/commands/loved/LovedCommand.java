@@ -1,5 +1,6 @@
 package core.commands.loved;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -16,7 +17,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.TrackWithArtistId;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -55,7 +55,7 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
         CountWrapper<List<TrackWithArtistId>> wrapper = lastFM.getLovedSongs(params.getLastFMData());
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, params.getLastFMData().getDiscordId());
         if (wrapper.getRows() == 0) {
@@ -74,7 +74,7 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setAuthor("%s's loved songs".formatted(uInfo.getUsername()), PrivacyUtils.getLastFmUser(userName) + "/loved", uInfo.getUrlImage())
                 .setDescription(a)
                 .setFooter("%d total %s loved".formatted(wrapper.getRows(), CommandUtil.singlePlural(wrapper.getRows(), "song", "songs")));
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message ->
+        e.sendMessage(embedBuilder.build()).queue(message ->
                 new Reactionary<>(lines, message, embedBuilder, false));
 
 

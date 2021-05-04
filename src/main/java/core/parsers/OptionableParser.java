@@ -1,8 +1,8 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.CommandParameters;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,7 +20,7 @@ public class OptionableParser extends Parser<CommandParameters> {
     }
 
     @Override
-    public CommandParameters parseLogic(MessageReceivedEvent e, String[] words) {
+    public CommandParameters parseLogic(Context e, String[] words) {
         return new CommandParameters(e);
     }
 

@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.explanation.DecadeExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -9,7 +10,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 import java.time.Year;
@@ -37,7 +37,7 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
     }
 
     @Override
-    public ChartYearRangeParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public ChartYearRangeParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
         TimeFrameEnum timeFrame = defaultTFE;
         LastFMData discordName;
         Year baseYear = Year.now().minus(Year.now().getValue() % 10, ChronoUnit.YEARS);
@@ -87,7 +87,8 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
         }
 
         if (chartSize != null) {
-            boolean conflictFlag = e.getMessage().getContentRaw().contains("nolimit");
+
+            boolean conflictFlag = hasOptional("nolimit", e);
             if (conflictFlag) {
                 sendError(getErrorMessage(7), e);
                 return null;

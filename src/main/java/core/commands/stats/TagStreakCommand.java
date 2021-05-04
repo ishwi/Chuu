@@ -1,6 +1,7 @@
 package core.commands.stats;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -19,7 +20,6 @@ import dao.ChuuService;
 import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.Bag;
 
 import javax.validation.constraints.NotNull;
@@ -66,7 +66,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException {
 
 
         LastFMData user = params.getLastFMData();
@@ -136,7 +136,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setAuthor(String.format("%s's current tag streak", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
                 .setColor(ColorService.computeColor(e))
                 .setDescription(tags.stream().limit(5).collect(Collectors.joining()));
-        e.getChannel().sendMessage(embedBuilder.build()).
+        e.sendMessage(embedBuilder.build()).
                 queue(m -> new Reactionary<>(tags, m, 5, embedBuilder, false));
     }
 }

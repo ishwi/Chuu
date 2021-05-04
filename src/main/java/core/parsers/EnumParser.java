@@ -1,9 +1,11 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.EnumParameters;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -22,7 +24,7 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     }
 
     @Override
-    protected EnumParameters<T> parseLogic(MessageReceivedEvent e, String[] words) {
+    protected EnumParameters<T> parseLogic(Context e, String[] words) {
         EnumSet<T> ts = EnumSet.allOf(clazz);
         List<String> lines = ts.stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
         if (words.length != 1) {
@@ -43,8 +45,11 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     @Override
     public List<Explanation> getUsages() {
         List<String> lines = EnumSet.allOf(clazz).stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
-
-        return List.of(() -> new ExplanationLine("Config Value", "Config value being one of: **" + String.join("**, **", lines) + "**"));
+        OptionData data = new OptionData(OptionType.STRING, "config-value", "One of the possible configuration values");
+        for (String line : lines) {
+            data.addChoice(line, line);
+        }
+        return List.of(() -> new ExplanationLine("Config Value", "Config value being one of: **" + String.join("**, **", lines) + "**", data));
     }
 
 }

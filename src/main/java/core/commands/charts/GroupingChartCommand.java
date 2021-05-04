@@ -7,6 +7,7 @@ import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.last.queues.GroupingQueue;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.ChartGroupParser;
 import core.parsers.ChartableParser;
@@ -15,7 +16,6 @@ import dao.ChuuService;
 import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.TimeFrameEnum;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -42,7 +42,7 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChartGroupParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull ChartGroupParameters params) throws LastFmException {
 
         CountWrapper<GroupingQueue> countWrapper = processGroupedQueue(params);
         if (countWrapper.getResult().isEmpty()) {

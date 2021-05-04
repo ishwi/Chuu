@@ -1,10 +1,11 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.RateLimitParams;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -18,7 +19,7 @@ public class RateLimitParser extends DaoParser<RateLimitParams> {
     }
 
     @Override
-    protected RateLimitParams parseLogic(MessageReceivedEvent e, String[] words) {
+    protected RateLimitParams parseLogic(Context e, String[] words) {
         if (words.length != 1 && words.length != 2) {
             sendError("A raw discordId is expected, optionally with a new rate limit to apply to that user", e);
             return null;
@@ -62,8 +63,8 @@ public class RateLimitParser extends DaoParser<RateLimitParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(() -> new ExplanationLine("Discord id", "discord_id is the 20 long identifier of an user"),
-                () -> new ExplanationLine("Rate", "The rate is the number of request the user can do per second. Must be bigger than 0.01")
+        return List.of(() -> new ExplanationLineType("Discord id", "discord_id is the 20 long identifier of an user", OptionType.USER),
+                () -> new ExplanationLineType("Rate", "The rate is the number of request the user can do per second. Must be bigger than 0.01", OptionType.STRING)
         );
     }
 

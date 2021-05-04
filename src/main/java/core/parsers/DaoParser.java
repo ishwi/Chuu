@@ -1,17 +1,17 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.TimeZone;
 
 public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
-    private static final QuadFunction<MessageReceivedEvent, ChartMode, WhoKnowsMode, RemainingImagesMode, LastFMData> DEFAULT_DATA = (e, c, w, r) ->
-            new LastFMData(null, e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : 693124899220226178L, false, false, w, c, r, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0);
+    private static final QuadFunction<Context, ChartMode, WhoKnowsMode, RemainingImagesMode, LastFMData> DEFAULT_DATA = (e, c, w, r) ->
+            new LastFMData(null, e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : 693124899220226178L, false, false, w, c, r, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
     final ChuuService dao;
     private boolean expensiveSearch = false;
     private boolean allowUnaothorizedUsers = false;
@@ -23,13 +23,13 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
     }
 
 
-    LastFMData atTheEndOneUser(MessageReceivedEvent event, String[] message) throws InstanceNotFoundException {
+    LastFMData atTheEndOneUser(Context event, String[] message) throws InstanceNotFoundException {
         ParserAux aux = new ParserAux(message);
         User oneUserPermissive = aux.getOneUserPermissive(event, dao);
         return findLastfmFromID(oneUserPermissive, event);
     }
 
-    protected LastFMData findLastfmFromID(User user, MessageReceivedEvent event) throws InstanceNotFoundException {
+    protected LastFMData findLastfmFromID(User user, Context event) throws InstanceNotFoundException {
         try {
             if (event.isFromGuild() && expensiveSearch) {
                 return this.dao.computeLastFmData(user.getIdLong(), event.getGuild().getIdLong());

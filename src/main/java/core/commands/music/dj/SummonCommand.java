@@ -18,6 +18,7 @@
 package core.commands.music.dj;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.MusicCommand;
 import core.music.MusicManager;
 import core.parsers.ChannelParser;
@@ -26,7 +27,6 @@ import core.parsers.params.ChannelParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -59,7 +59,7 @@ public class SummonCommand extends MusicCommand<ChannelParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChannelParameters params) {
+    protected void onCommand(Context e, @NotNull ChannelParameters params) {
         MusicManager manager = Chuu.playerRegistry.get(e.getGuild());
         GuildChannel targetChannel = params.getGuildChannel();
         if (targetChannel instanceof VoiceChannel voiceChannel) {

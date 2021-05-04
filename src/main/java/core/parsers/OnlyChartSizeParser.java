@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.explanation.ChartSizeExplanation;
 import core.parsers.explanation.PermissiveUserExplanation;
@@ -9,7 +10,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 import java.util.List;
@@ -29,7 +29,7 @@ public class OnlyChartSizeParser extends ChartableParser<ChartSizeParameters> {
 
 
     @Override
-    public ChartSizeParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    public ChartSizeParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
 
         ChartParserAux chartParserAux = new ChartParserAux(words);
         int x = 5;

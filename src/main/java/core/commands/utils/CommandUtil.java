@@ -4,6 +4,7 @@ import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.spotify.Spotify;
+import core.commands.Context;
 import core.exceptions.DiscogsServiceException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
@@ -14,11 +15,9 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -36,7 +35,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
@@ -52,7 +50,7 @@ public class CommandUtil {
                 .isEmpty() ? "https://lastfm-img2.akamaized.net/i/u/174s/4128a6eb29f94943c9d206c08e625904" : artist;
     }
 
-    public static Color randomColor(MessageReceivedEvent event) {
+    public static Color randomColor(Context event) {
         return ColorService.computeColor(event);
     }
 
@@ -64,7 +62,7 @@ public class CommandUtil {
     }
 
 
-    public static BufferedImage getLogo(ChuuService dao, MessageReceivedEvent e) {
+    public static BufferedImage getLogo(ChuuService dao, Context e) {
         try (InputStream stream = dao.findLogo(e.getGuild().getIdLong())) {
             if (stream != null)
                 return ImageIO.read(stream);
@@ -261,24 +259,6 @@ public class CommandUtil {
     }
 
 
-    public static Long getGuildIdConsideringPrivateChannel(MessageReceivedEvent e) {
-        if (e.getChannelType().isGuild())
-            return (e.getGuild().getIdLong());
-        else {
-            User user;
-            if ((user = Chuu.getShardManager().getUserById(e.getAuthor().getIdLong())) == null) {
-                return null;
-            } else {
-                List<Guild> mutualGuilds = user.getMutualGuilds();
-                if (mutualGuilds.isEmpty()) {
-                    return null;
-                } else {
-                    return mutualGuilds.get(0).getIdLong();
-                }
-            }
-        }
-    }
-
     public static String getGlobalUsername(JDA jda, long discordID) {
         return CommandUtil.cleanMarkdownCharacter(jda.retrieveUserById(discordID, false).complete().getName());
     }
@@ -291,7 +271,7 @@ public class CommandUtil {
     }
 
     // ugh
-    private static DiscordUserDisplay handleUser(MessageReceivedEvent e, long discordID) {
+    private static DiscordUserDisplay handleUser(Context e, long discordID) {
         User user;
         String username;
         if (e.isFromGuild()) {
@@ -318,18 +298,18 @@ public class CommandUtil {
 
     }
 
-    public static DiscordUserDisplay getUserInfoNotStripped(MessageReceivedEvent e, long discordID) {
+    public static DiscordUserDisplay getUserInfoNotStripped(Context e, long discordID) {
         return handleUser(e, discordID);
     }
 
-    public static DiscordUserDisplay getUserInfoConsideringGuildOrNot(MessageReceivedEvent e, long discordID) {
+    public static DiscordUserDisplay getUserInfoConsideringGuildOrNot(Context e, long discordID) {
         DiscordUserDisplay discordUserDisplay = handleUser(e, discordID);
         return new DiscordUserDisplay(cleanMarkdownCharacter(discordUserDisplay.getUsername()), discordUserDisplay.getUrlImage());
     }
 
 
-    public static char getMessagePrefix(MessageReceivedEvent e) {
-        return e.getMessage().getContentRaw().charAt(0);
+    public static char getMessagePrefix(Context e) {
+        return e.getPrefix();
     }
 
     public static String encodeUrl(String url) {
@@ -348,7 +328,7 @@ public class CommandUtil {
 
     }
 
-    public static String markdownLessUserString(String string, long discordId, MessageReceivedEvent e) {
+    public static String markdownLessUserString(String string, long discordId, Context e) {
         if (!string.contains("\\")) {
             return string;
         }

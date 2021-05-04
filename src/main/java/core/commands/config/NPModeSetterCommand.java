@@ -1,6 +1,7 @@
 package core.commands.config;
 
 import core.apis.lyrics.TextSplitter;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -9,7 +10,6 @@ import core.parsers.Parser;
 import core.parsers.params.EnumListParameters;
 import dao.ChuuService;
 import dao.entities.NPMode;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.EnumSet;
@@ -63,7 +63,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull EnumListParameters<NPMode> params) {
+    protected void onCommand(Context e, @NotNull EnumListParameters<NPMode> params) {
 
         EnumSet<NPMode> modes = params.getEnums();
         if (params.isHelp()) {
@@ -82,9 +82,9 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
             modes = db.getNPModes(e.getAuthor().getIdLong());
             String strMode = NPMode.getListedName(modes);
             sendMessageQueue(e,
-                    "Do `" + e.getMessage().getContentRaw().split("\\s+")[0] + " help` for a list of all options.\n" +
-                            "Current modes: " +
-                            strMode);
+                    "Do `" + CommandUtil.getMessagePrefix(e) + " help` for a list of all options.\n" +
+                    "Current modes: " +
+                    strMode);
         } else {
             String strMode = NPMode.getListedName(modes);
             db.changeNpMode(e.getAuthor().getIdLong(), modes);

@@ -1,16 +1,17 @@
 package core.services;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import dao.ChuuService;
 import dao.entities.EmbedColor;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,7 +31,7 @@ public class ColorService {
         hasEmptyGuild = chuuService.getGuildsWithEmptyColorOverride();
     }
 
-    public static @NotNull Color computeColor(MessageReceivedEvent event) {
+    public static @NotNull Color computeColor(Context event) {
         long idLong;
         if (event.isFromGuild()) {
             EmbedColor.EmbedColorType colorType = guildColorTypes.get(event.getGuild().getIdLong());
@@ -44,11 +45,8 @@ public class ColorService {
                     return getServerMode(event, colorType);
                 }
                 Color userMode = getUserMode(event);
-                if (userMode == null) {
-                    return getServerMode(event, colorType);
-                } else {
-                    return userMode;
-                }
+                return Objects.requireNonNullElseGet(userMode,
+                        () -> getServerMode(event, colorType));
             }
         }
         Color userMode = getUserMode(event);
@@ -58,12 +56,12 @@ public class ColorService {
         return userMode;
     }
 
-    private static Color getServerMode(MessageReceivedEvent event, EmbedColor.EmbedColorType colorType) {
+    private static Color getServerMode(Context event, EmbedColor.EmbedColorType colorType) {
         Color color = getColor(event, colorType, guildByColors);
         return color == null ? CommandUtil.pastelColor() : color;
     }
 
-    private static @Nullable Color getUserMode(MessageReceivedEvent e) {
+    private static @Nullable Color getUserMode(Context e) {
         var colorType = userColorTypes.get(e.getAuthor().getIdLong());
         if (colorType == null) {
             return null;
@@ -72,7 +70,7 @@ public class ColorService {
     }
 
     @Nullable
-    private static Color getColor(MessageReceivedEvent e, EmbedColor.EmbedColorType colorType, Map<Long, Color[]> map) {
+    private static Color getColor(Context e, EmbedColor.EmbedColorType colorType, Map<Long, Color[]> map) {
         return switch (colorType) {
             case RANDOM -> CommandUtil.pastelColor();
 
@@ -89,7 +87,7 @@ public class ColorService {
         };
     }
 
-    private static Color getmemberColour(MessageReceivedEvent e) {
+    private static Color getmemberColour(Context e) {
         return Optional.ofNullable(e.getMember())
                 .flatMap(t -> t.getRoles().stream().filter(z -> z.getColor() != null).findFirst())
                 .map(Role::getColor)

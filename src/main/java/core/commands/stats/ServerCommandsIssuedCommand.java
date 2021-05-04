@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -15,7 +16,6 @@ import dao.entities.Memoized;
 import dao.entities.UserCount;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -55,7 +55,7 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
 
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
         List<UserCount> userCommands = db.getServerCommandsLb(e.getGuild().getIdLong());
 
         if (userCommands.isEmpty()) {
@@ -78,7 +78,7 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
                 .setDescription(a)
                 .setColor(ColorService.computeColor(e))
                 .setAuthor(e.getGuild().getName() + "'s spammers", null, e.getGuild().getIconUrl());
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(strings, message1, embedBuilder));
     }
 

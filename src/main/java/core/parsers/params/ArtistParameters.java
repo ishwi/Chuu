@@ -1,15 +1,15 @@
 package core.parsers.params;
 
+import core.commands.Context;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ArtistParameters extends ChuuDataParams {
     private final String artist;
     private ScrobbledArtist scrobbledArtist;
 
 
-    public ArtistParameters(MessageReceivedEvent e, String artist, LastFMData user) {
+    public ArtistParameters(Context e, String artist, LastFMData user) {
         super(e, user);
         this.artist = artist;
     }

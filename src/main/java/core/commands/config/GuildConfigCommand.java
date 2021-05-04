@@ -2,6 +2,7 @@ package core.commands.config;
 
 import com.google.common.collect.Sets;
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -15,7 +16,6 @@ import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.text.WordUtils;
 
 import javax.validation.constraints.NotNull;
@@ -54,7 +54,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull GuildConfigParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull GuildConfigParams params) throws LastFmException, InstanceNotFoundException {
         GuildConfigParams parse = this.parser.parse(e);
 
         GuildConfigType config = parse.getConfig();

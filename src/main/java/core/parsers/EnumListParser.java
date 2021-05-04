@@ -1,9 +1,11 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.EnumListParameters;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.apache.commons.text.WordUtils;
 
 import java.util.Arrays;
@@ -31,7 +33,7 @@ public class EnumListParser<T extends Enum<T>> extends Parser<EnumListParameters
     }
 
     @Override
-    protected EnumListParameters<T> parseLogic(MessageReceivedEvent e, String[] words) {
+    protected EnumListParameters<T> parseLogic(Context e, String[] words) {
         EnumSet<T> building = EnumSet.noneOf(clazz);
 
         if (words.length == 0) {
@@ -67,9 +69,16 @@ public class EnumListParser<T extends Enum<T>> extends Parser<EnumListParameters
         List<String> lines = set.stream().map(x -> WordUtils.capitalizeFully(x.name().replaceAll("_", "-"), '-')).toList();
         String join = String.join("** | **", lines);
         String usage = "\t Writing **__help__** will give you a brief description of all the " + name + " that you include in the command or alternatively all the options with **__help__**\n" +
-                       "\t Writing **__list__** will give you all your current set " + name + "\n" +
-                       "\t " + name + " being any combination of: **" + join + " **";
-        return List.of(() -> new ExplanationLine("[help|help all|list|] " + name, usage));
+                       "\t Writing **__list__** will give you all your current set " + name + "\n";
+        OptionData optionData = new OptionData(OptionType.STRING, "auxiliar", "auxiliar options");
+        optionData.addChoice("help", "help");
+        optionData.addChoice("help-all", "help-all");
+        optionData.addChoice("list", "list");
+        OptionData optionData2 = new OptionData(OptionType.STRING, "values", "the values to select");
+        lines.stream().limit(25).forEach(t -> optionData2.addChoice(t, t));
+        Explanation explanation = () -> new ExplanationLine("[help|help all|list|] " + name, usage, optionData);
+        Explanation explanation2 = () -> new ExplanationLine("config value ", join, optionData2);
+        return List.of(explanation, explanation2);
 
 
     }

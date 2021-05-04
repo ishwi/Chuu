@@ -1,5 +1,6 @@
 package core.commands.crowns;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -15,7 +16,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.StolenCrown;
 import dao.entities.StolenCrownWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -65,7 +65,7 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<TwoUsersParamaters> params) {
+    protected void onCommand(Context e, @NotNull NumberParameters<TwoUsersParamaters> params) {
 
 
         TwoUsersParamaters innerParams = params.getInnerParams();
@@ -116,7 +116,7 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
                 .getLastFmUser(ogLastFmId))
                 .setThumbnail(userUrl2)
                 .setFooter(CommandUtil.markdownLessUserString(userName2, resultWrapper.getQuriedId(), e) + " has stolen " + rows + " crowns!\n", null);
-        e.getChannel().sendMessage(embedBuilder.build()).queue(m ->
+        e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(resultWrapper.getList(), m, embedBuilder));
 
     }

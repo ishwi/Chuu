@@ -18,16 +18,17 @@
 package core.commands.music;
 
 import core.Chuu;
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Message;
 
 import javax.validation.constraints.NotNull;
-import java.util.Arrays;
 import java.util.List;
 
 public class PlayNextCommand extends ConcurrentCommand<CommandParameters> {
@@ -63,7 +64,7 @@ public class PlayNextCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         if (e.getGuild().getSelfMember().getVoiceState() == null) {
             sendMessageQueue(e, "I'm not on a voice channel");
             return;
@@ -82,12 +83,12 @@ public class PlayNextCommand extends ConcurrentCommand<CommandParameters> {
             return;
         }
 
-        var attachment = e.getMessage().getAttachments().stream().findFirst().orElse(null);
+        Message.Attachment attachment = (e instanceof ContextMessageReceived mes) ? mes.e().getMessage().getAttachments().stream().findFirst().orElse(null) : null;
         boolean hasManager = Chuu.playerRegistry.contains(e.getGuild());
         var newManager = Chuu.playerRegistry.get(e.getGuild());
 
-        String[] original = commandArgs(e.getMessage());
-        MusicCommand.play(e, newManager, String.join(" ", Arrays.copyOfRange(original, 1, original.length)), false, true);
+        String[] original = parser.getSubMessage(e);
+        MusicCommand.play(e, newManager, String.join(" ", original), false, true);
 
     }
 

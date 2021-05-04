@@ -1,13 +1,14 @@
 package core.commands.albums;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.annotation.CheckReturnValue;
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class CoverCommand extends AlbumPlaysCommand {
     }
 
     @Override
-    protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
+    protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String album, Context e, long who, ArtistAlbumParameters params) throws LastFmException {
         String albumUrl = lastFM.getAlbumSummary(params.getLastFMData(), artist.getArtist(), album).getAlbumUrl();
         albumUrl = Chuu.getCoverService().getCover(params.getArtist(), params.getAlbum(), albumUrl, e);
         if (albumUrl == null || albumUrl.isBlank()) {
@@ -100,13 +101,13 @@ public class CoverCommand extends AlbumPlaysCommand {
         }
     }
 
-    private void sendError(MessageReceivedEvent e, String artist, String album) {
+    private void sendError(Context e, String artist, String album) {
         sendMessageQueue(e, "An error occurred while sending the album cover for " + artist + " - " + album);
 
     }
 
     @CheckReturnValue
-    private MessageAction sendCover(InputStream inputStream, ScrobbledArtist artist, String album, MessageReceivedEvent e, String albumUrl) throws IOException {
-        return e.getChannel().sendFile(inputStream, "cat.png").append(String.format("**%s** - **%s**", artist.getArtist(), album));
+    private RestAction<Message> sendCover(InputStream inputStream, ScrobbledArtist artist, String album, Context e, String albumUrl) throws IOException {
+        return e.sendFile(inputStream, "cat.png", String.format("**%s** - **%s**", artist.getArtist(), album));
     }
 }

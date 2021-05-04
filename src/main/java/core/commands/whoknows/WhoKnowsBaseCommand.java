@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -24,7 +25,6 @@ import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
 
@@ -49,6 +49,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         this.respondInPrivate = false;
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
+        order = 2;
     }
 
     public static WhoKnowsMode getEffectiveMode(WhoKnowsMode whoKnowsMode, CommandParameters chartParameters) {
@@ -64,7 +65,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull T params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull T params) throws LastFmException {
 
 
         WhoKnowsMode whoknowsMode = getWhoknowsMode(params);
@@ -110,7 +111,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     }
 
     BufferedImage doImage(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
-        MessageReceivedEvent e = ap.getE();
+        Context e = ap.getE();
 
         BufferedImage logo = null;
         String title;
@@ -130,7 +131,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         EmbedBuilder embedBuilder = new EmbedBuilder();
         StringBuilder builder = new StringBuilder();
 
-        MessageReceivedEvent e = ap.getE();
+        Context e = ap.getE();
 
         int counter = 1;
         for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {
@@ -148,7 +149,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         embedBuilder.setTitle(getTitle(ap, usable)).
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
                 .setColor(ColorService.computeColor(e));
-        e.getChannel().sendMessage(embedBuilder.build())
+        e.sendMessage(embedBuilder.build())
                 .queue(message1 ->
                         new Reactionary<>(wrapperReturnNowPlaying
                                 .getReturnNowPlayings(), message1, embedBuilder));
@@ -157,7 +158,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     void doPie(T ap, WrapperReturnNowPlaying returnNowPlaying) {
         PieChart pieChart = this.pie.doPie(ap, returnNowPlaying.getReturnNowPlayings());
         String usable;
-        MessageReceivedEvent e = ap.getE();
+        Context e = ap.getE();
         if (e.isFromGuild()) {
             usable = CommandUtil.cleanMarkdownCharacter(e.getGuild().getName());
         } else {

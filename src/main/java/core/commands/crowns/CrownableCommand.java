@@ -1,5 +1,6 @@
 package core.commands.crowns;
 
+import core.commands.Context;
 import core.commands.abstracts.ListCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -16,7 +17,6 @@ import dao.entities.CrownableArtist;
 import dao.entities.DiscordUserDisplay;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -68,7 +68,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
 
     @Override
     public void printList(List<CrownableArtist> list, NumberParameters<ChuuDataParams> outerParmams) {
-        MessageReceivedEvent e = outerParmams.getE();
+        Context e = outerParmams.getE();
         ChuuDataParams params = outerParmams.getInnerParams();
         if (list.isEmpty()) {
             sendMessageQueue(e, "Found no users :(");
@@ -115,7 +115,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
                 .setAuthor(String.format("%s's artist resume in %s", (uInfo.getUsername()), s), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
                 .setThumbnail(thumbnail)
                 .setFooter(footer);
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message ->
+        e.sendMessage(embedBuilder.build()).queue(message ->
                 new Reactionary<>(lines, message, embedBuilder));
     }
 

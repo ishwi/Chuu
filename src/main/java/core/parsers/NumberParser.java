@@ -1,8 +1,10 @@
 package core.parsers;
 
-import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
+import core.parsers.explanation.util.Interactible;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +28,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                         Long defaultItem,
                         long max,
                         Map<Integer, String> errorMessages,
-                        ExplanationLine explanationLine,
+                        Interactible explanationLine,
                         BiPredicate<K, Long> innerPredicate
     ) {
         super(innerParser,
@@ -53,7 +55,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 Long::parseLong,
                 errorMessages,
                 (k, aLong) ->
-                        new NumberParameters<>(k.getE(), k, aLong), Collections.singletonList(() -> new ExplanationLine("Number", description))
+                        new NumberParameters<>(k.getE(), k, aLong), Collections.singletonList(() -> new ExplanationLineType("Number", description, OptionType.INTEGER))
         );
     }
 
@@ -71,7 +73,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 number -> number > max || number < 0,
                 NumberParser::parseStr,
                 errorMessages,
-                Collections.singletonList(() -> new ExplanationLine("Number", description)),
+                Collections.singletonList(() -> new ExplanationLineType("Number", description, OptionType.INTEGER)),
                 null,
                 null,
                 panicOnFailure,
@@ -95,7 +97,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 number -> number > max || number < 0,
                 NumberParser::parseStr,
                 errorMessages,
-                Collections.singletonList(() -> new ExplanationLine("Number", description)), null,
+                Collections.singletonList(() -> new ExplanationLineType("Number", description, OptionType.INTEGER)), null,
                 accum,
                 panicOnFailure,
                 false, (k, aLong) ->
@@ -117,7 +119,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 number -> number > max || number < 0,
                 NumberParser::parseStr,
                 errorMessages,
-                Collections.singletonList(() -> new ExplanationLine("Number", description)), null,
+                Collections.singletonList(() -> new ExplanationLineType("Number", description, OptionType.INTEGER)), null,
                 null,
                 panicOnFailure,
                 catchFirst, (k, aLong) ->

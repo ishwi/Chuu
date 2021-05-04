@@ -19,6 +19,7 @@ package core.commands.music;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.MusicCommand;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
@@ -30,7 +31,6 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.Metadata;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -66,7 +66,7 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         MusicManager manager = Chuu.playerRegistry.get(e.getGuild());
         AudioTrack track = manager.getPlayer().getPlayingTrack();
 
@@ -75,8 +75,8 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
                 .setDescription(String.format("[%s](%s)", track.getInfo().title, CommandUtil.cleanMarkdownCharacter(track.getInfo().uri)));
         if (manager.getRadio() != null) {
             String b = "Currently streaming music from radio station " + manager.getRadio().getSource().getName() +
-                    ", requested by " + manager.getRadio().requester() +
-                    ". When the queue is empty, random tracks from the station will be added.";
+                       ", requested by " + manager.getRadio().requester() +
+                       ". When the queue is empty, random tracks from the station will be added.";
             embedBuilder.addField("Radio", b, false);
         }
         String album = null;
@@ -123,7 +123,7 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
         } else {
             embedBuilder.setFooter("Use " + CommandUtil.getMessagePrefix(e) + "lyrics to see the lyrics of the song!");
         }
-        e.getChannel().sendMessage(embedBuilder.build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
     }
 
 }

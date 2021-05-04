@@ -1,5 +1,6 @@
 package core.commands.artists;
 
+import core.commands.Context;
 import core.commands.abstracts.ResultWrappedCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -13,7 +14,6 @@ import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
@@ -52,7 +52,7 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
 
     @Override
     public void printList(ResultWrapper<ArtistPlays> list, CommandParameters params) {
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         if (list.getRows() == 0) {
             sendMessageQueue(e, "No one has ever played any artist!");
             return;
@@ -66,7 +66,7 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
                 .setTitle("Most Played Artists")
                 .setFooter(String.format("%s has stored %d plays!%n", e.getJDA().getSelfUser().getName(), list.getRows()), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(strList, message1, embedBuilder));
     }
 

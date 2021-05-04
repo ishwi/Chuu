@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ResultWrappedCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -13,7 +14,6 @@ import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.List;
@@ -53,7 +53,7 @@ public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlay
     @Override
     public void printList(ResultWrapper<ArtistPlays> wrapper, CommandParameters params) {
         List<ArtistPlays> artistPlays = wrapper.getResultList();
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         if (artistPlays.isEmpty()) {
             sendMessageQueue(e, "No one has played any artist yet!");
             return;
@@ -66,7 +66,7 @@ public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlay
                 .setTitle("Total artist plays")
                 .setFooter(String.format("%s has %d total plays!%n", e.getGuild().getName(), wrapper.getRows()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(lines, message1, embedBuilder));
     }
 

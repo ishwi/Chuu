@@ -1,5 +1,6 @@
 package core.commands.whoknows;
 
+import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.GenreParser;
@@ -9,7 +10,6 @@ import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
 
     @Override
     WrapperReturnNowPlaying generateWrapper(GenreParameters params, WhoKnowsMode whoKnowsMode) {
-        MessageReceivedEvent e = params.getE();
+        Context e = params.getE();
         CompletableFuture<Optional<ScrobbledArtist>> completableFuture = CompletableFuture.supplyAsync(() -> db.getTopInTag(params.getGenre(), e.getGuild().getIdLong()));
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 whoKnowsMode.equals(WhoKnowsMode.IMAGE) ?

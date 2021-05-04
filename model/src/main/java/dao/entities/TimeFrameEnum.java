@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 public enum TimeFrameEnum {
 
-    YEAR("y"), QUARTER("q"), MONTH("m"), ALL("a"), SEMESTER("s"), WEEK("w"), DAY("d");
+    DAY("d"), WEEK("w"), MONTH("m"), QUARTER("q"), SEMESTER("s"), YEAR("y"), ALL("a");
 
     private static final Map<String, TimeFrameEnum> ENUM_MAP;
 
@@ -73,7 +73,7 @@ public enum TimeFrameEnum {
     }
 
     public String toValueString() {
-        return WordUtils.capitalizeFully(this.name);
+        return WordUtils.capitalizeFully(this.name());
     }
 
 

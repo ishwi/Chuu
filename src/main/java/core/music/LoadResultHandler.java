@@ -23,10 +23,10 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
+import core.commands.Context;
 import core.music.utils.TrackContext;
 import core.services.ColorService;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 public class LoadResultHandler implements AudioLoadResultHandler {
@@ -36,16 +36,16 @@ public class LoadResultHandler implements AudioLoadResultHandler {
     private String identifier;
     private final MusicManager musicManager;
     private final TrackContext trackContext;
-    private final MessageReceivedEvent e;
+    private static final int MAX_LOAD_RETRIES = 2;
     private final Boolean isNext;
     private final String footnote;
 
     private Object settings;
     private final boolean premiumGuild = false;
     private int retryCount = 0;
+    private final Context e;
 
-
-    public LoadResultHandler(String query, MessageReceivedEvent e, MusicManager musicManager, TrackContext trackContext, Boolean isNext, String footnote) {
+    public LoadResultHandler(String query, Context e, MusicManager musicManager, TrackContext trackContext, Boolean isNext, String footnote) {
 
         this.query = query;
         this.e = e;
@@ -53,6 +53,12 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         this.trackContext = trackContext;
         this.isNext = isNext;
         this.footnote = footnote;
+    }
+
+    public static void loadItem(String query, Context e, MusicManager musicManager, TrackContext trackContext, Boolean isNext, String footnote) {
+        var resultHandler = new LoadResultHandler(query, e, musicManager, trackContext, isNext, footnote);
+
+        Chuu.playerManager.loadItemOrdered(e.getGuild().getIdLong(), query, resultHandler);
     }
 
     @Override
@@ -69,10 +75,9 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         musicManager.enqueue(track, isNext);
 
         if (!isImmediatePlay) {
-            e.getChannel().sendMessage(" queued").queue();
+            e.sendMessage(" queued").queue();
         }
     }
-
 
     public void playlistLoaded(AudioPlaylist playlist) {
         cache(playlist);
@@ -100,7 +105,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         }
 
         var ignored = pendingEnqueue.size() - added;
-        e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Music Queue")
+        e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Music Queue")
                 .setDescription("Added **" + added + "** tracks to queue from playlist **" + playlist.getName() + "**")
                 .setFooter(footnote).build()).queue();
     }
@@ -109,9 +114,8 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         if (musicManager.isIdle()) {
             musicManager.destroy();
         }
-        e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Load Results").setDescription("Unable to load the track:\n`" + exception.getMessage() + "`").build()).queue();
+        e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Load Results").setDescription("Unable to load the track:\n`" + exception.getMessage() + "`").build()).queue();
     }
-
 
     public void noMatches() {
 
@@ -124,7 +128,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         if (musicManager.isIdle()) {
             musicManager.destroy();
         }
-        e.getChannel().sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Load Results").setDescription("Nothing found by **" + identifier + "**").build()).queue();
+        e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Load Results").setDescription("Nothing found by **" + identifier + "**").build()).queue();
     }
 
     @Override
@@ -132,7 +136,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         if (musicManager.isIdle()) {
             musicManager.destroy();
         }
-        e.getChannel().sendMessage(new EmbedBuilder()
+        e.sendMessage(new EmbedBuilder()
                 .setColor(ColorService.computeColor(e))
                 .setTitle("Load Results")
                 .setDescription("Unable to load the track:\n`" + exception.getMessage() + "`").build()).queue();
@@ -143,7 +147,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         if (manager.getConnectedChannel() == null) {
             assert e.getMember() != null && e.getMember().getVoiceState() != null : "Whatever";
             if (e.getMember().getVoiceState().getChannel() == null) {
-                e.getChannel().sendMessage("You left the voice channel before the track was loaded.").queue();
+                e.sendMessage("You left the voice channel before the track was loaded.").queue();
 
 
                 if (musicManager.isIdle()) {
@@ -159,6 +163,14 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         return true;
     }
 
+    private int queueLimit() {
+        return 500;
+    }
+
+    public void cache(AudioItem item) {
+
+    }
+
     private boolean checkTrack(AudioTrack track, Boolean isPlaylist) {
         if (!isPlaylist) {
             var queueLimit = queueLimit();
@@ -171,7 +183,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
 
 
             if (musicManager.getQueue().size() + 1 >= queueLimit) {
-                e.getChannel().sendMessage("The queue can not exceed  songs." + queueLimitDisplay).queue();
+                e.sendMessage("The queue can not exceed  songs." + queueLimitDisplay).queue();
                 return false;
             }
         }
@@ -182,22 +194,6 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         }
         return true;
 
-    }
-
-    private int queueLimit() {
-        return 500;
-    }
-
-    public void cache(AudioItem item) {
-
-    }
-
-    private static final int MAX_LOAD_RETRIES = 2;
-
-    public static void loadItem(String query, MessageReceivedEvent e, MusicManager musicManager, TrackContext trackContext, Boolean isNext, String footnote) {
-        var resultHandler = new LoadResultHandler(query, e, musicManager, trackContext, isNext, footnote);
-
-        Chuu.playerManager.loadItemOrdered(e.getGuild().getIdLong(), query, resultHandler);
     }
 }
 

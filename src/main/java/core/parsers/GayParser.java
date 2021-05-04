@@ -1,9 +1,12 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
 import core.parsers.explanation.FullTimeframeExplanation;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.GayParams;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
@@ -12,7 +15,8 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -32,17 +36,20 @@ public class GayParser extends ChartableParser<GayParams> {
     }
 
     @Override
-    public GayParams parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public GayParams parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
         TimeFrameEnum timeFrame = this.defaultTFE;
-        String substring = e.getMessage().getContentRaw().substring(1).split("\\s+")[0].toLowerCase();
-        GayType type = switch (substring) {
-            case "trans" -> GayType.TRANS;
-            case "ace" -> GayType.ACE;
-            case "nonbinary", "nb" -> GayType.NB;
-            case "lesbian" -> GayType.LESBIAN;
-            case "bi" -> GayType.BI;
-            default -> null;
-        };
+        GayType type = null;
+        if (e instanceof ContextMessageReceived mes) {
+            String substring = mes.e().getMessage().getContentRaw().substring(1).split("\\s+")[0].toLowerCase();
+            type = switch (substring) {
+                case "trans" -> GayType.TRANS;
+                case "ace" -> GayType.ACE;
+                case "nonbinary", "nb" -> GayType.NB;
+                case "lesbian" -> GayType.LESBIAN;
+                case "bi" -> GayType.BI;
+                default -> null;
+            };
+        }
         if (type == null) {
             Pair<String[], GayType> gayPair = filterMessage(subMessage, gayRegex.asMatchPredicate(), s1 -> {
                 s1 = s1.toLowerCase();
@@ -77,6 +84,10 @@ public class GayParser extends ChartableParser<GayParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(() -> new ExplanationLine("[LGTBQ,BI,TRANS,NB,LESBIAN,ACE]", null), () -> new ExplanationLine("Number of columns", "If number of columns is not specified it defaults to 5 columns"), new FullTimeframeExplanation(defaultTFE), new PermissiveUserExplanation());
+        OptionData optionData = new OptionData(OptionType.STRING, "Flag", "Flag Type");
+        for (GayType value : GayType.values()) {
+            optionData.addChoice(value.name(), value.name());
+        }
+        return List.of(() -> new ExplanationLine("[LGTBQ,BI,TRANS,NB,LESBIAN,ACE]", null, optionData), () -> new ExplanationLineType("Number of columns", "If number of columns is not specified it defaults to 5 columns", OptionType.INTEGER), new FullTimeframeExplanation(defaultTFE), new PermissiveUserExplanation());
     }
 }

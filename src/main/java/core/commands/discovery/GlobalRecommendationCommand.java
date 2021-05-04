@@ -1,5 +1,6 @@
 package core.commands.discovery;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.stats.AffinityCommand;
 import core.commands.utils.CommandCategory;
@@ -20,7 +21,6 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -70,7 +70,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
 
         ChuuDataParams innerParams = params.getInnerParams();
 
@@ -143,7 +143,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
                 embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
                         .setColor(ColorService.computeColor(e))
                         .setDescription(s);
-                e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
+                e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
             }
         }
     }

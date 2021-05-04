@@ -1,6 +1,7 @@
 package core.commands.discovery;
 
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -12,7 +13,6 @@ import dao.ChuuService;
 import dao.entities.PresenceInfo;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -73,7 +73,7 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         String userString = this.getUserString(e, currentPresence.getDiscordId(), DEFAULT_USER);
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(ColorService.computeColor(e))
@@ -84,6 +84,6 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
                 .addField("User:", userString, false)
                 .addField("Total Artist Plays:", String.valueOf(currentPresence.getSum()), false);
 
-        e.getChannel().sendMessage(embedBuilder.build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
     }
 }

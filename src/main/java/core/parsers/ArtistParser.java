@@ -1,6 +1,8 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.ArtistExplanation;
 import core.parsers.explanation.StrictUserExplanation;
@@ -12,10 +14,11 @@ import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class ArtistParser extends DaoParser<ArtistParameters> {
     final ConcurrentLastFM lastFM;
@@ -38,8 +41,40 @@ public class ArtistParser extends DaoParser<ArtistParameters> {
         opts.add(new OptionalEntity("noredirect", "not change the artist name for a correction automatically"));
     }
 
+
     @Override
-    protected ArtistParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    public ArtistParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        var artist = e.getOption(ArtistExplanation.NAME);
+        var optionsByName = e.getOption(StrictUserExplanation.NAME);
+
+        User oneUser = Optional.ofNullable(optionsByName).map(SlashCommandEvent.OptionData::getAsUser).orElse(ctx.getAuthor());
+
+        LastFMData data = findLastfmFromID(oneUser, ctx);
+        if (artist == null) {
+            NowPlayingArtist np;
+            if (isAllowUnaothorizedUsers() && data.getName() == null) {
+                throw new InstanceNotFoundException(oneUser.getIdLong());
+            }
+            try {
+                if (forComparison && ctx.getAuthor().getIdLong() != oneUser.getIdLong()) {
+                    LastFMData lastfmFromID = findLastfmFromID(ctx.getAuthor(), ctx);
+                    np = new NPService(lastFM, lastfmFromID).getNowPlaying();
+                } else {
+                    np = new NPService(lastFM, data).getNowPlaying();
+                }
+            } catch (InstanceNotFoundException ex) {
+                np = new NPService(lastFM, data).getNowPlaying();
+            }
+            return new ArtistParameters(ctx, np.artistName(), data);
+        } else {
+            return new ArtistParameters(ctx, String.join(" ", artist.getAsString()), data);
+        }
+    }
+
+    @Override
+    protected ArtistParameters parseLogic(Context e, String[] words) throws
+            InstanceNotFoundException, LastFmException {
         ParserAux parserAux = new ParserAux(words);
         User oneUser = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();

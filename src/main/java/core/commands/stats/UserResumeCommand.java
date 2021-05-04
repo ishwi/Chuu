@@ -3,6 +3,7 @@ package core.commands.stats;
 import core.apis.last.entities.chartentities.ChartUtil;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -19,7 +20,6 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -59,7 +59,7 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull TimeFrameParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull TimeFrameParameters params) throws LastFmException {
 
         LastFMData name = params.getLastFMData();
         BlockingQueue<UrlCapsule> capsules = new LinkedBlockingQueue<>();
@@ -82,6 +82,6 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
                 .addField("Total albums:", albumCount + " albums", true)
                 .addField("Total artists:", artistCount + " artists", true);
 
-        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
+        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
     }
 }

@@ -1,7 +1,7 @@
 package core.parsers.params;
 
+import core.commands.Context;
 import net.dv8tion.jda.api.entities.Emote;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.SortedSet;
@@ -10,7 +10,7 @@ public class EmotiParameters extends CommandParameters {
 
     private final SortedSet<Emotable<?>> getEmojis;
 
-    public EmotiParameters(MessageReceivedEvent e, SortedSet<Emotable<?>> getEmojis) {
+    public EmotiParameters(Context e, SortedSet<Emotable<?>> getEmojis) {
         super(e);
         this.getEmojis = getEmojis;
     }

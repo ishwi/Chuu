@@ -1,5 +1,6 @@
 package core.commands.moderation;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.OnlyUsernameParser;
@@ -7,7 +8,6 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -44,7 +44,7 @@ public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
 
 
         if (e.getMember() != null && !e.getMember().hasPermission(Permission.ADMINISTRATOR)) {
@@ -56,7 +56,7 @@ public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
             sendMessageQueue(e, "You can't block/unblock yourself.");
             return;
         }
-        String contentRaw = e.getMessage().getContentRaw().substring(1).toLowerCase();
+        String contentRaw = parser.getAlias(e);
         String user = getUserString(e, discordId);
         String server = e.getGuild().getName();
         if (contentRaw.startsWith("serverblock") || contentRaw.startsWith("serverban")) {

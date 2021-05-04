@@ -1,6 +1,7 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
+import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.explanation.GenreExplanation;
@@ -14,7 +15,6 @@ import dao.entities.TimeFrameEnum;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 import java.util.List;
@@ -30,7 +30,7 @@ public class GenreChartParser extends ChartableParser<ChartableGenreParameters> 
 
 
     @Override
-    public ChartableGenreParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public ChartableGenreParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
         int x = 5;
         int y = 5;
 

@@ -2,6 +2,7 @@ package core.commands.moderation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
@@ -11,7 +12,6 @@ import dao.ChuuService;
 import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
@@ -54,7 +54,7 @@ public class UserExportCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
 
 
         Member member = e.getGuild().getMember(e.getAuthor());

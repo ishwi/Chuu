@@ -1,5 +1,6 @@
 package core.commands.discovery;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -11,7 +12,6 @@ import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
 import dao.entities.RandomUrlEntity;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -43,7 +43,7 @@ public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull RandomUrlParameters params) {
+    protected void onCommand(Context e, @NotNull RandomUrlParameters params) {
 
 
         String url = params.getUrl();
@@ -91,14 +91,13 @@ public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
                 ownerRec = e.getJDA().getSelfUser().getName();
             }
             String sb = String.format("%s, here's your random recommendation%n**Posted by:** %s%n**Link:** %s", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()), ownerRec, randomUrl.url());
-            e.getChannel().sendMessage(sb).queue();
+            e.sendMessage(sb).queue();
             return;
         }
         //add url
-        Long guildId = CommandUtil.getGuildIdConsideringPrivateChannel(e);
         //db.findLastFMData(e.getAuthor().getIdLong());
 
-        if (!db.addToRandomPool(new RandomUrlEntity(url, e.getAuthor().getIdLong(), guildId))) {
+        if (!db.addToRandomPool(new RandomUrlEntity(url, e.getAuthor().getIdLong(), null))) {
             sendMessageQueue(e, String.format("The provided url: %s was already on the pool", url));
             return;
         }

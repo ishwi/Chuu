@@ -1,11 +1,11 @@
 package core.parsers.params;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import core.commands.Context;
 
 public class EnumParameters<T extends Enum<T>> extends CommandParameters {
     private final T element;
 
-    public EnumParameters(MessageReceivedEvent e, T element) {
+    public EnumParameters(Context e, T element) {
         super(e);
         this.element = element;
     }

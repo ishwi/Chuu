@@ -1,6 +1,7 @@
 package core.commands.charts;
 
 import core.apis.last.entities.chartentities.*;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartDecadeParser;
@@ -11,7 +12,6 @@ import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONObject;
 import org.knowm.xchart.PieChart;
 
@@ -141,7 +141,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
 
     @Override
     public void noElementsMessage(ChartYearRangeParameters parameters) {
-        MessageReceivedEvent e = parameters.getE();
+        Context e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("Couldn't find any %s album in %s top %d albums%s!", parameters.getDisplayString(), ingo.getUsername(), searchSpace, parameters.getTimeFrameEnum().getDisplayString()));
     }

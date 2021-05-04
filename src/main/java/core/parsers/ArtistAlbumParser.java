@@ -1,8 +1,11 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.AlbumExplanation;
+import core.parsers.explanation.ArtistExplanation;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ArtistAlbumParameters;
@@ -12,16 +15,19 @@ import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
+
     final ConcurrentLastFM lastFM;
     private final boolean forComparison;
+    String slashName = AlbumExplanation.NAME;
 
     public ArtistAlbumParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... o) {
         this(dao, lastFM, true, o);
@@ -41,7 +47,39 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
 
 
     @Override
-    public ArtistAlbumParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
+    public ArtistAlbumParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        var artist = e.getOption(ArtistExplanation.NAME);
+        var album = e.getOption(slashName);
+        var user = e.getOption(StrictUserExplanation.NAME);
+        User oneUser = Optional.ofNullable(user).map(SlashCommandEvent.OptionData::getAsUser).orElse(ctx.getAuthor());
+        LastFMData userName = findLastfmFromID(oneUser, ctx);
+        if ((artist == null && album != null) || (artist != null && album == null)) {
+            sendError(this.getErrorMessage(8), ctx);
+            return null;
+        }
+        if (artist == null) {
+            NowPlayingArtist np;
+            try {
+                if (forComparison && ctx.getAuthor().getIdLong() != oneUser.getIdLong()) {
+                    LastFMData lastfmFromID = findLastfmFromID(ctx.getAuthor(), ctx);
+                    np = new NPService(lastFM, lastfmFromID).getNowPlaying();
+                } else {
+                    np = new NPService(lastFM, userName).getNowPlaying();
+                }
+            } catch (InstanceNotFoundException ex) {
+                np = new NPService(lastFM, userName).getNowPlaying();
+            }
+
+            return doSomethingWithNp(np, userName, ctx);
+
+        } else {
+            return doSomethingWithString(new String[]{artist.getAsString(), " - ", album.getAsString()}, userName, ctx);
+        }
+    }
+
+    @Override
+    public ArtistAlbumParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
 
         ParserAux parserAux = new ParserAux(subMessage);
         User sample = parserAux.getOneUser(e, dao);
@@ -70,15 +108,16 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(new AlbumExplanation(), new StrictUserExplanation());
+        AlbumExplanation alb = new AlbumExplanation();
+        return List.of(alb.artist(), alb.album(), new StrictUserExplanation());
     }
 
 
-    ArtistAlbumParameters doSomethingWithNp(NowPlayingArtist np, LastFMData lastFMData, MessageReceivedEvent e) {
+    ArtistAlbumParameters doSomethingWithNp(NowPlayingArtist np, LastFMData lastFMData, Context e) {
         return new ArtistAlbumParameters(e, np.artistName(), np.albumName(), lastFMData);
     }
 
-    ArtistAlbumParameters doSomethingWithString(String[] subMessage, LastFMData sample, MessageReceivedEvent e) {
+    ArtistAlbumParameters doSomethingWithString(String[] subMessage, LastFMData sample, Context e) {
         StringBuilder builder = new StringBuilder();
         for (String s : subMessage) {
             builder.append(s).append(" ");
@@ -106,6 +145,7 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
     public void setUpErrorMessages() {
         super.setUpErrorMessages();
         errorMessages.put(5, "You need to use - to separate artist and album!");
+        errorMessages.put(8, "Need both the artist and the album!");
         errorMessages
                 .put(7, "You need to add the escape character **\"\\\\\"** in the **\"-\"** that appear on the album or artist.\n " +
                         "\tFor example: Artist - Alb**\\\\-**um  ");

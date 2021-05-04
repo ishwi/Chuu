@@ -1,5 +1,6 @@
 package core.commands.config;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.PrivacyUtils;
@@ -10,7 +11,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
@@ -48,7 +48,7 @@ public class PrivacySetterCommand extends ConcurrentCommand<EnumParameters<Priva
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull EnumParameters<PrivacyMode> params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull EnumParameters<PrivacyMode> params) throws InstanceNotFoundException {
 
 
         PrivacyMode element = params.getElement();

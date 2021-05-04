@@ -3,6 +3,7 @@ package core.commands.discovery;
 import core.apis.last.entities.chartentities.ChartUtil;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
 import core.commands.charts.ChartableCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -16,7 +17,6 @@ import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledAlbum;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.knowm.xchart.PieChart;
 
 import java.util.ArrayList;
@@ -107,7 +107,7 @@ public class DiscoveredAlbumCommand extends ChartableCommand<ChartParameters> {
             sendMessageQueue(parameters.getE(), "All timeframe is not supported for this command");
             return;
         }
-        MessageReceivedEvent e = parameters.getE();
+        Context e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s hasn't discovered any album%s!", ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
     }

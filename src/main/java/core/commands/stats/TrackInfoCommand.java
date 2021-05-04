@@ -1,6 +1,7 @@
 package core.commands.stats;
 
 import core.apis.last.entities.TrackExtended;
+import core.commands.Context;
 import core.commands.albums.AlbumPlaysCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -16,7 +17,6 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.TrackInfo;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,7 +51,7 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
         return "Track Info";
     }
 
-    protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, MessageReceivedEvent e, long who, ArtistAlbumParameters params) throws LastFmException {
+    protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, Context e, long who, ArtistAlbumParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
         TrackExtended trackInfo = this.lastFM.getTrackInfoExtended(lastFMData, artist.getArtist(), song);
 
@@ -88,7 +88,7 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
         embedBuilder.setImage(trackInfo.getImageUrl() == null || trackInfo.getImageUrl().isBlank() ? null : trackInfo.getImageUrl())
                 .setColor(ColorService.computeColor(e))
                 .setThumbnail(artist.getUrl());
-        e.getChannel().sendMessage(embedBuilder.build()).
+        e.sendMessage(embedBuilder.build()).
 
                 queue();
         if (!trackInfo.getTags().isEmpty()) {

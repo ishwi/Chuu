@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.explanation.FullTimeframeExplanation;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -10,7 +11,6 @@ import dao.entities.TimeFrameEnum;
 import dao.entities.TriFunction;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.set.ListOrderedSet;
 
 import java.time.*;
@@ -152,7 +152,7 @@ public class DateParser extends DaoParser<DateParameters> {
     }
 
     @Override
-    protected DateParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    protected DateParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
 
         ParserAux parserAux = new ParserAux(words);
         User sample = parserAux.getOneUser(e, dao);

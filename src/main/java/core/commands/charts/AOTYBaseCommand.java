@@ -3,6 +3,7 @@ package core.commands.charts;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.entities.chartentities.*;
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartYearParser;
@@ -14,7 +15,6 @@ import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONObject;
 import org.knowm.xchart.PieChart;
 
@@ -210,7 +210,7 @@ public class AOTYBaseCommand extends ChartableCommand<ChartYearParameters> {
 
     @Override
     public void noElementsMessage(ChartYearParameters parameters) {
-        MessageReceivedEvent e = parameters.getE();
+        Context e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
         String s;
         if (parameters.getYear().getValue() != Year.now().getValue()) {

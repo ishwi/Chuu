@@ -1,5 +1,6 @@
 package core.commands.stats;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -13,7 +14,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -23,7 +23,7 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
         super(dao);
     }
 
-    static void RandomUrlDisplay(MessageReceivedEvent e, List<ScoredAlbumRatings> ratings, String title, String url) {
+    static void RandomUrlDisplay(Context e, List<ScoredAlbumRatings> ratings, String title, String url) {
         List<String> list = ratings.stream().map(x -> {
             String average;
             String count;
@@ -52,7 +52,7 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
                 .setThumbnail(url)
                 .setColor(ColorService.computeColor(e));
 
-        e.getChannel().sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).
+        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).
                 queue(message ->
                         new Reactionary<>(list, message, embedBuilder));
     }
@@ -83,7 +83,7 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull ChuuDataParams params) {
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
 
 
         long idLong = e.getAuthor().getIdLong();

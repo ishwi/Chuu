@@ -1,5 +1,6 @@
 package core.commands.discovery;
 
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
@@ -10,7 +11,6 @@ import dao.entities.LastFMData;
 import dao.entities.RandomUrlDetails;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
@@ -47,7 +47,7 @@ public class RandomDeleteCommand extends ConcurrentCommand<RandomUrlParameters> 
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull RandomUrlParameters params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull RandomUrlParameters params) throws InstanceNotFoundException {
 
 
         String url = params.getUrl();

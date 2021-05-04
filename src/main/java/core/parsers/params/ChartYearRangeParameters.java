@@ -1,8 +1,8 @@
 package core.parsers.params;
 
+import core.commands.Context;
 import core.parsers.utils.CustomTimeFrame;
 import dao.entities.LastFMData;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
@@ -14,13 +14,13 @@ public class ChartYearRangeParameters extends ChartParameters {
     private final int numberOfYears;
 
 
-    public ChartYearRangeParameters(MessageReceivedEvent e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y, Year baseYear, int numberOfYears) {
+    public ChartYearRangeParameters(Context e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y, Year baseYear, int numberOfYears) {
         super(e, lastFMData, timeFrameEnum, x, y);
         this.baseYear = baseYear;
         this.numberOfYears = numberOfYears;
     }
 
-    public ChartYearRangeParameters(MessageReceivedEvent e, LastFMData user, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, Year baseYear, int numberOfYears) {
+    public ChartYearRangeParameters(Context e, LastFMData user, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, Year baseYear, int numberOfYears) {
         super(e, user, timeFrameEnum, x, y, writeTitles, writePlays, isList);
         this.baseYear = baseYear;
         this.numberOfYears = numberOfYears;

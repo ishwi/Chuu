@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.abstracts.NpCommand;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -19,7 +20,6 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.ArrayList;
@@ -42,11 +42,12 @@ public class NowPlayingCommand extends NpCommand {
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotifyApi = SpotifySingleton.getInstance();
         mb = MusicBrainzServiceSingleton.getInstance();
+        order = 1;
     }
 
 
     @Override
-    public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, MessageReceivedEvent e, long discordId, LastFMData user, NowPlayingParameters parameters) {
+    public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, Context e, long discordId, LastFMData user, NowPlayingParameters parameters) {
         StringBuilder a = new StringBuilder();
 
         // Author fields cant have escaped markdown characters
@@ -129,7 +130,7 @@ public class NowPlayingCommand extends NpCommand {
         }
         embedBuilder.setFooter(footer, url);
 
-        e.getChannel().sendMessage(embedBuilder.build()).queue(message -> {
+        e.sendMessage(embedBuilder.build()).queue(message -> {
             List<String> serverReactions;
             if (e.isFromGuild()) {
                 GuildProperties guildProperties = null;

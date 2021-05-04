@@ -19,6 +19,7 @@ package core.commands.music;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
+import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -34,7 +35,6 @@ import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(MessageReceivedEvent e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull CommandParameters params) {
         MusicManager manager = Chuu.playerRegistry.getExisting(e.getGuild().getIdLong());
         if (manager == null) {
             sendMessageQueue(e, "There's no music manager in this server");
