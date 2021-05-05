@@ -37,6 +37,7 @@ public class TasteRenderer {
             temp2 = palette.getRight();
             if (temp1.equals(temp2)) {
                 temp1 = temp2.brighter();
+                temp2 = temp2.darker();
             }
         }
         float[] rgb1 = new float[3];

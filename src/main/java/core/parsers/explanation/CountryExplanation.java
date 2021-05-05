@@ -9,7 +9,7 @@ public class CountryExplanation implements Explanation {
 
     @Override
     public Interactible explanation() {
-        return new ExplanationLineType("Country",
+        return new ExplanationLineType("country",
                 "Country must come in the full name format or in the ISO 3166-1 alpha-2/alpha-3 format", OptionType.STRING);
     }
 

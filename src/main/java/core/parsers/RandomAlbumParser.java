@@ -7,6 +7,7 @@ import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.RandomUrlParameters;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
@@ -14,7 +15,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,8 +39,8 @@ public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
     @Override
     public RandomUrlParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
         SlashCommandEvent e = ctx.e();
-        User user = Optional.ofNullable(e.getOption(StrictUserExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsUser).orElse(ctx.getAuthor());
-        var option = e.getOption(UrlExplanation.NAME);
+        User user = InteractionAux.parseUser(e);
+        SlashCommandEvent.OptionData option = e.getOption(UrlExplanation.NAME);
         if (option == null) {
             return new RandomUrlParameters(ctx, "", user);
         } else {

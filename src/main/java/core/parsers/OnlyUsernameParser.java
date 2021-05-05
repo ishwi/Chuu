@@ -4,6 +4,7 @@ import core.commands.Context;
 import core.commands.ContextSlashReceived;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChuuDataParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -14,7 +15,6 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * returns: []; in 0 -> lastfmid, 1 -> discordId, 2... -> opts
@@ -32,7 +32,7 @@ public class OnlyUsernameParser extends DaoParser<ChuuDataParams> {
     @Override
     public ChuuDataParams parseSlashLogic(ContextSlashReceived ctx) throws InstanceNotFoundException {
         SlashCommandEvent e = ctx.e();
-        User user = Optional.ofNullable(e.getOption(PermissiveUserExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsUser).orElse(ctx.getAuthor());
+        User user = InteractionAux.parseUser(e);
         var data = findLastfmFromID(user, ctx);
         return new ChuuDataParams(ctx, data);
     }

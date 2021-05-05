@@ -2,11 +2,13 @@ package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.ArtistExplanation;
 import core.parsers.explanation.StrictTimeframeExplanation;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ArtistTimeFrameParameters;
 import core.services.NPService;
 import dao.ChuuService;
@@ -15,6 +17,7 @@ import dao.entities.NowPlayingArtist;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.List;
 
@@ -36,6 +39,18 @@ public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> 
     @Override
     void setUpOptionals() {
         opts.add(new OptionalEntity("noredirect", "not change the artist name for a correction automatically"));
+    }
+
+    @Override
+    public ArtistTimeFrameParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+        LastFMData datra = findLastfmFromID(user, ctx);
+        TimeFrameEnum tfe = InteractionAux.parseTimeFrame(e, defaultTFE);
+        return InteractionAux.processArtist(ctx, lastFM, ctx.getAuthor(), user, datra, this.wrapperFind(ctx), forComparison, isAllowUnaothorizedUsers(),
+                (np, lastFMData) -> new ArtistTimeFrameParameters(ctx, np.artistName(), lastFMData, tfe),
+                (s, lastFMData) -> new ArtistTimeFrameParameters(ctx, s, lastFMData, tfe));
+
     }
 
     @Override

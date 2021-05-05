@@ -23,7 +23,7 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.BOT_INFO;
+        return CommandCategory.MODERATION;
     }
 
     @Override
@@ -31,6 +31,7 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
         NoOpParser noOpParser = new NoOpParser();
         noOpParser.addOptional(new OptionalEntity("server", "refresh only this server"));
         noOpParser.addOptional(new OptionalEntity("delete", "clean this server"));
+        noOpParser.addOptional(new OptionalEntity("globaldelete", "clean the bot"));
         return noOpParser;
     }
 
@@ -52,14 +53,16 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
     @Override
     protected void onCommand(Context e, @NotNull CommandParameters params) {
         e.getJDA().retrieveApplicationInfo().queue(t -> {
-            if (t.getOwner().getIdLong() != e.getAuthor().getIdLong()) {
+            if (t.getOwner().getIdLong() == e.getAuthor().getIdLong()) {
                 if (params.hasOptional("delete")) {
                     e.getGuild().retrieveCommands().flatMap(z -> RestAction.allOf(z.stream().map(l -> e.getGuild().deleteCommandById(l.getId())).toList())).queue(z -> sendMessageQueue(e, "Finished the deletion!"));
                 } else if (params.hasOptional("server")) {
                     InteractionBuilder.setServerCommand(e.getGuild()).queue(z -> sendMessageQueue(e, "Finished the refresh!"));
+                } else if (params.hasOptional("globaldelete")) {
+                    e.getJDA().retrieveCommands().flatMap(z -> RestAction.allOf(z.stream().map(l -> e.getJDA().deleteCommandById(l.getId())).toList())).queue(z -> sendMessageQueue(e, "Finished the global deletion!"));
+                } else {
+                    InteractionBuilder.setGlobalCommands(e.getJDA()).queue(z -> sendMessageQueue(e, "Finished the global refresh!"));
                 }
-
-                InteractionBuilder.setGlobalCommands(e.getJDA()).queue(z -> sendMessageQueue(e, "Finished the refresh!"));
             }
         });
     }

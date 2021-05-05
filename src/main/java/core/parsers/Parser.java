@@ -90,7 +90,7 @@ public abstract class Parser<T extends CommandParameters> {
         List<SlashCommandEvent.OptionData> strings = e.getOptionsByType(OptionType.STRING);
         List<String> optionals = new ArrayList<>();
         for (SlashCommandEvent.OptionData s : strings) {
-            if (s.getAsString().equals("true") && opts.contains(new OptionalEntity(s.getName(), null))) {
+            if (s.getAsString().equals("yes") && opts.contains(new OptionalEntity(s.getName(), null))) {
                 optionals.add(s.getName());
             }
         }

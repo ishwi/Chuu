@@ -1,11 +1,10 @@
 package core.otherlisteners;
 
+import core.commands.Context;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -24,7 +23,7 @@ public class Validator<T> extends ReactionListener {
     private final Supplier<T> elementFetcher;
     private final BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder;
     private final long whom;
-    private final MessageChannel messageChannel;
+    private final Context context;
     private final Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap;
     private final boolean allowOtherUsers;
     private final boolean renderInSameElement;
@@ -32,12 +31,12 @@ public class Validator<T> extends ReactionListener {
     private final AtomicBoolean hasCleaned = new AtomicBoolean(false);
     private T currentElement;
 
-    public Validator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, MessageChannel channel, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap, boolean allowOtherUsers, boolean renderInSameElement) {
-        super(who, null, 30, channel.getJDA());
+    public Validator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, Context context, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap, boolean allowOtherUsers, boolean renderInSameElement) {
+        super(who, null, 30, context.getJDA());
         this.getLastMessage = getLastMessage;
         this.elementFetcher = elementFetcher;
         this.fillBuilder = fillBuilder;
-        this.messageChannel = channel;
+        this.context = context;
         this.whom = discordId;
         this.actionMap = actionMap;
         this.allowOtherUsers = allowOtherUsers;
@@ -53,7 +52,7 @@ public class Validator<T> extends ReactionListener {
             boolean check;
             if (message == null) {
                 check = true;
-                a = messageChannel.sendMessage(getLastMessage.apply(who).build());
+                a = context.sendMessage(getLastMessage.apply(who).build());
             } else {
                 check = false;
                 a = message.editMessage(getLastMessage.apply(who).build());
@@ -73,7 +72,7 @@ public class Validator<T> extends ReactionListener {
         RestAction.allOf(reacts).queue();
     }
 
-    private MessageAction doTheThing(boolean newElement) {
+    private RestAction<Message> doTheThing(boolean newElement) {
         T t = elementFetcher.get();
         if (t == null) {
             noMoreElements();
@@ -83,10 +82,10 @@ public class Validator<T> extends ReactionListener {
         return dotheLogicThing(t, newElement);
     }
 
-    private MessageAction dotheLogicThing(T t, boolean newElement) {
+    private RestAction<Message> dotheLogicThing(T t, boolean newElement) {
         EmbedBuilder apply = fillBuilder.apply(t, who);
         if (newElement || this.message == null) {
-            return messageChannel.sendMessage(apply.build());
+            return context.sendMessage(apply.build());
         }
         return this.message.editMessage(apply.build());
     }
@@ -94,7 +93,7 @@ public class Validator<T> extends ReactionListener {
 
     @Override
     public void init() {
-        MessageAction messageAction = doTheThing(true);
+        RestAction<Message> messageAction = doTheThing(true);
         if (messageAction == null) {
             return;
         }
@@ -119,13 +118,13 @@ public class Validator<T> extends ReactionListener {
             return;
         }
         if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUserIdLong() != whom) ||
-                event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong() || !event.getReaction().getReactionEmote().isEmoji())
+            event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong() || !event.getReaction().getReactionEmote().isEmoji())
             return;
         BiFunction<T, MessageReactionAddEvent, Boolean> action = this.actionMap.get(event.getReaction().getReactionEmote().getAsCodepoints());
         if (action == null)
             return;
         boolean apply = action.apply(currentElement, event);
-        MessageAction messageAction = this.doTheThing(apply);
+        RestAction<Message> messageAction = this.doTheThing(apply);
         if (messageAction != null) {
             if (apply) {
                 messageAction.queue(this::accept);

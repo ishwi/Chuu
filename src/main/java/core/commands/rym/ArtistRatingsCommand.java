@@ -44,7 +44,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.RYM_BETA;
+        return CommandCategory.RYM;
     }
 
     @Override
@@ -99,9 +99,9 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
             counter.addAndGet(serverList.size());
             String s = ratings.getReleaseYear() != null ? " \\(" + ratings.getReleaseYear().toString() + "\\)" : "";
             return ". **[" + ratings.getAlbumName() + s +
-                    "](" + LinkUtils.getLastFmArtistAlbumUrl(artist, ratings.getAlbumName()) +
-                    ")** - " + format +
-                    "\n\n";
+                   "](" + LinkUtils.getLastFmArtistAlbumUrl(artist, ratings.getAlbumName()) +
+                   ")** - " + format +
+                   "\n\n";
         }).toList();
         StringBuilder a = new StringBuilder();
         for (int i = 0; i < 5 && i < mappedString.size(); i++) {
@@ -115,10 +115,9 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
                 .setColor(ColorService.computeColor(e))
                 .setThumbnail(scrobbledArtist.getUrl());
 
-        e.getChannel().
-                sendMessage(new MessageBuilder().
-                        setEmbed(embedBuilder.build()).
-                        build()).
+        e.sendMessage(new MessageBuilder().
+                setEmbed(embedBuilder.build()).
+                build()).
                 queue(message1 ->
                         new Reactionary<>(mappedString, message1, 5, embedBuilder));
     }

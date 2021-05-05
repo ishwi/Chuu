@@ -34,7 +34,6 @@ import core.services.ColorService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.MessageChannel;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -124,11 +123,10 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
                 .addField("Entries", String.valueOf(queue.size()), true)
                 .addField("Total Duration", CommandUtil.getTimestamp(length), true)
                 .addField("Repeating", manager.getRepeatOption().name(), true);
-        MessageChannel channel = e.getChannel();
 //        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, e.getAuthor().getIdLong());
         embedBuilder
                 .setDescription(str.stream().limit(10).collect(Collectors.joining()))
                 .setColor(ColorService.computeColor(e));
-        channel.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(m -> new Reactionary<>(str, m, 10, embedBuilder, false, true));
+        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(m -> new Reactionary<>(str, m, 10, embedBuilder, false, true));
     }
 }

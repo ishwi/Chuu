@@ -132,7 +132,10 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
         RemainingImagesMode mode = CommandUtil.getEffectiveMode(user.getRemainingImagesMode(), params);
         if (mode == RemainingImagesMode.LIST) {
             List<String> lines = map.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
-                    ". **%s**: %d %s%n".formatted(CountryCode.getByCode(t.getKey().countryCode(), false).getName(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "artist", "artist"))
+                    {
+                        CountryCode byCode = CountryCode.getByCode(t.getKey().countryCode(), false);
+                        return ". **%s**: %d %s%n".formatted(byCode == null ? t.getKey().countryCode() : byCode.getName(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "artist", "artists"));
+                    }
             ).toList();
 
             StringBuilder a = new StringBuilder();
@@ -164,7 +167,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
             }
 
             if (b.length < 8388608)
-                e.getChannel().sendFile(b, "cat.png").queue();
+                e.doSendImage(b, "cat.png", null);
             else
                 e.sendMessage("Boot too big").queue();
         }

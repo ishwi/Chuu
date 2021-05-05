@@ -26,7 +26,7 @@ public class TopServerRatingsCommand extends ListCommand<ScoredAlbumRatings, Com
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.RYM_BETA;
+        return CommandCategory.RYM;
     }
 
     @Override

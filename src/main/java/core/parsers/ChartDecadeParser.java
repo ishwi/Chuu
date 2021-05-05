@@ -114,4 +114,6 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
     public void setUpErrorMessages() {
         super.setUpErrorMessages();
     }
+
+
 }

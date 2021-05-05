@@ -5,9 +5,9 @@ import core.commands.Context;
 import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.AlbumExplanation;
-import core.parsers.explanation.ArtistExplanation;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.NPService;
 import dao.ChuuService;
@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
@@ -49,33 +48,23 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
     @Override
     public ArtistAlbumParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
         SlashCommandEvent e = ctx.e();
-        var artist = e.getOption(ArtistExplanation.NAME);
-        var album = e.getOption(slashName);
-        var user = e.getOption(StrictUserExplanation.NAME);
-        User oneUser = Optional.ofNullable(user).map(SlashCommandEvent.OptionData::getAsUser).orElse(ctx.getAuthor());
+        User oneUser = InteractionAux.parseUser(e);
         LastFMData userName = findLastfmFromID(oneUser, ctx);
-        if ((artist == null && album != null) || (artist != null && album == null)) {
-            sendError(this.getErrorMessage(8), ctx);
+        InteractionAux.ArtistAlbum artistAlbum = InteractionAux.parseCommon(() -> sendError(this.getErrorMessage(8), ctx), e, slashName);
+        if (artistAlbum == null) {
             return null;
         }
-        if (artist == null) {
-            NowPlayingArtist np;
-            try {
-                if (forComparison && ctx.getAuthor().getIdLong() != oneUser.getIdLong()) {
-                    LastFMData lastfmFromID = findLastfmFromID(ctx.getAuthor(), ctx);
-                    np = new NPService(lastFM, lastfmFromID).getNowPlaying();
-                } else {
-                    np = new NPService(lastFM, userName).getNowPlaying();
-                }
-            } catch (InstanceNotFoundException ex) {
-                np = new NPService(lastFM, userName).getNowPlaying();
-            }
+        return InteractionAux.processAlbum(artistAlbum,
+                lastFM,
+                userName,
+                true,
+                ctx.getAuthor(),
+                oneUser,
+                this.wrapperFind(ctx),
+                (nowPlayingArtist, lastFMData) -> doSomethingWithNp(nowPlayingArtist, lastFMData, ctx),
+                (s, lastFMData) -> doSomethingWithString(s, lastFMData, ctx));
 
-            return doSomethingWithNp(np, userName, ctx);
 
-        } else {
-            return doSomethingWithString(new String[]{artist.getAsString(), " - ", album.getAsString()}, userName, ctx);
-        }
     }
 
     @Override

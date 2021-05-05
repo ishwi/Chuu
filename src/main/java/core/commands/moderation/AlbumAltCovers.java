@@ -108,6 +108,6 @@ public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
                     return covers.get(counter.get());
                 },
                 builder.apply(e.getJDA(), covers.size())
-                , new EmbedBuilder().setTitle("%s - %s".formatted(params.getArtist(), params.getAlbum())), e.getChannel(), e.getAuthor().getIdLong(), actionMap, true, true);
+                , new EmbedBuilder().setTitle("%s - %s".formatted(params.getArtist(), params.getAlbum())), e, e.getAuthor().getIdLong(), actionMap, true, true);
     }
 }

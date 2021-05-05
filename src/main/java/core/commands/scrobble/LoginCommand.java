@@ -115,7 +115,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
                                     scheduledExecutor.shutdown();
                                     return;
                                 }
-                                setCommand.setProcess(t, userAccount, e.getAuthor().getIdLong(), LastFMData.ofUser(userAccount), e.getAuthor().getName());
+                                setCommand.setProcess(e, t, userAccount, e.getAuthor().getIdLong(), LastFMData.ofUser(userAccount), e.getAuthor().getName());
                                 scheduledExecutor.shutdown();
 
                             }
@@ -137,7 +137,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
                             db.insertNewUser(newUser);
                             db.storeSess(session, userAccount);
                             z.editMessage(new EmbedBuilder().setTitle(":white_check_mark: Successfully logged in!").setDescription("Now will try to index your library").setColor(Color.green).build()).queue();
-                            setCommand.setProcess(t, userAccount, e.getAuthor().getIdLong(), LastFMData.ofUser(userAccount), e.getAuthor().getName());
+                            setCommand.setProcess(e, t, userAccount, e.getAuthor().getIdLong(), LastFMData.ofUser(userAccount), e.getAuthor().getName());
                             scheduledExecutor.shutdown();
                             return;
                         }

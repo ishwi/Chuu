@@ -6,6 +6,7 @@ import core.exceptions.LastFmException;
 import core.parsers.explanation.TimeframeExplanation;
 import core.parsers.explanation.TwoUsersExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.TwoUsersTimeframeParamaters;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -16,7 +17,6 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class TwoUsersTimeframeParser extends DaoParser<TwoUsersTimeframeParamaters> {
     public TwoUsersTimeframeParser(ChuuService dao) {
@@ -31,9 +31,10 @@ public class TwoUsersTimeframeParser extends DaoParser<TwoUsersTimeframeParamate
     @Override
     public TwoUsersTimeframeParamaters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
 
-        SlashCommandEvent event = ctx.e();
-        User oneUser = event.getOption(TwoUsersExplanation.NAME).getAsUser();
-        TimeFrameEnum timeFrameEnum = Optional.ofNullable(ctx.e().getOption(TimeframeExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsString).map(TimeFrameEnum::get).orElse(TimeFrameEnum.ALL);
+        SlashCommandEvent e = ctx.e();
+        User oneUser = InteractionAux.parseUser(e);
+        TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, TimeFrameEnum.ALL);
+
         if (!ctx.isFromGuild() && oneUser.getIdLong() != ctx.getAuthor().getIdLong()) {
             sendError("Can't get two different users on DM's", ctx);
             return null;

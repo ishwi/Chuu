@@ -25,7 +25,7 @@ public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.RYM_BETA;
+        return CommandCategory.RYM;
     }
 
     @Override

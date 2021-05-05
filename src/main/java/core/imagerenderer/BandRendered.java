@@ -30,6 +30,9 @@ public class BandRendered {
     private static final StringFitter fitter = new StringFitterBuilder(32, 300)
             .setBaseFont(NORMAL_FONT)
             .setMinSize(8).build();
+    private static final StringFitter artist = new StringFitterBuilder(32, 300)
+            .setBaseFont(NORMAL_FONT)
+            .setMinSize(8).build();
     private static final int albumsStartPosition = X_MARGIN + 400 + 195 + 40;
     private static final int albumsStartPositionSmall = X_MARGIN + 355 + 195 + 52;
 
@@ -136,7 +139,10 @@ public class BandRendered {
         }
         width = metrics.stringWidth(artist);
         yBaseLine += metrics.getAscent() + metrics.getDescent() + metrics.getLeading() + 20;
-        GraphicUtils.drawStringNicely(g, artist, X_MARGIN + 40 + (380 / 2) - width / 2, yBaseLine, canvas);
+        StringFitter.FontMetadata fontMetadata = new StringFitterBuilder(g.getFont().getSize(), 380)
+                .setBaseFont(g.getFont())
+                .build().getFontMetadata(g, artist);
+        GraphicUtils.drawStringNicely(g, fontMetadata, X_MARGIN + 40 + (380 / 2) - width / 2, yBaseLine, canvas);
 
 
         ReturnNowPlaying myRow = new ReturnNowPlaying(1, user, artist, plays);

@@ -203,7 +203,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                     return allArtistImages.get(counter.get());
                 },
                 builder.apply(e.getJDA(), size, counter)
-                , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, true, true);
+                , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, true, true);
 
     }
 

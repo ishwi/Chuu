@@ -2,13 +2,19 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.ArtistExplanation;
 import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ArtistUrlParameters;
 import dao.ChuuService;
+import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -27,6 +33,27 @@ public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
         errorMessages.put(1, "You didn't specify a valid URL");
         errorMessages.put(2, "Couldn't get an Image from link supplied");
         errorMessages.put(3, "Tumblr images in that format cannot be read from a bot, you can try to copy and paste the image instead of the link");
+    }
+
+    @Override
+    public ArtistUrlParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User caller = InteractionAux.parseUser(e);
+        LastFMData data = findLastfmFromID(caller, ctx);
+        String artist = e.getOption(ArtistExplanation.NAME).getAsString();
+        String url = InteractionAux.parseUrl(e);
+        assert url != null;
+        if (!UrlParser.isValidURL(url)) {
+            if (tumblr.matcher(url).matches()) {
+                sendError(getErrorMessage(3), ctx);
+                return null;
+            }
+        } else {
+            sendError(getErrorMessage(1), ctx);
+            return null;
+        }
+        return new ArtistUrlParameters(ctx, artist, data, url);
+
     }
 
     @Override
@@ -81,7 +108,7 @@ public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(new ArtistExplanation(), new UrlExplanation());
+        return List.of(new ArtistExplanation(), new UrlExplanation()).stream().map(InteractionAux::required).toList();
     }
 
 

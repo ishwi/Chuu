@@ -6,6 +6,7 @@ import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.NowPlayingParameters;
 import core.services.NPService;
 import dao.ChuuService;
@@ -17,7 +18,6 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 public class NpParser extends DaoParser<NowPlayingParameters> {
     private final ConcurrentLastFM lastFM;
@@ -29,8 +29,9 @@ public class NpParser extends DaoParser<NowPlayingParameters> {
 
     @Override
     public NowPlayingParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent.OptionData option = ctx.e().getOption(PermissiveUserExplanation.NAME);
-        User user = Optional.ofNullable(option).map(SlashCommandEvent.OptionData::getAsUser).orElse(ctx.getAuthor());
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+
         LastFMData data = findLastfmFromID(user, ctx);
         NPService npService = new NPService(lastFM, data);
         NPService.NPUpdate nowPlayingBoth = npService.getNowPlayingBoth();

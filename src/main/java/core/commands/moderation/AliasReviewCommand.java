@@ -113,7 +113,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
                     embedBuilder1 -> embedBuilder.setTitle("No more  Aliases to Review").clearFields(),
                     db::getNextInAliasQueue,
                     builder
-                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, false);
+                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, false, false);
         } catch (Exception ex) {
             Chuu.getLogger().warn(ex.getMessage());
         } finally {

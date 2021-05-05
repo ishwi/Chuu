@@ -30,7 +30,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.RYM_BETA;
+        return CommandCategory.RYM;
     }
 
     @Override

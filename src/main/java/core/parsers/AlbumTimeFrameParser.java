@@ -2,11 +2,13 @@ package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.AlbumExplanation;
 import core.parsers.explanation.StrictTimeframeExplanation;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.AlbumTimeFrameParameters;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.utils.CustomTimeFrame;
@@ -17,6 +19,7 @@ import dao.entities.NowPlayingArtist;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.List;
 
@@ -80,5 +83,32 @@ public class AlbumTimeFrameParser extends DaoParser<AlbumTimeFrameParameters> {
                         "\tFor example: Artist - Alb**\\\\-**um  ");
 
     }
+
+    @Override
+    public AlbumTimeFrameParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        InteractionAux.ArtistAlbum artistAlbum = InteractionAux.parseAlbum(e, () -> sendError(this.getErrorMessage(8), ctx));
+        if (artistAlbum == null) {
+            return null;
+        }
+        TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, TimeFrameEnum.ALL);
+
+        User oneUser = InteractionAux.parseUser(e);
+        LastFMData userName = findLastfmFromID(oneUser, ctx);
+        var ap = InteractionAux.processAlbum(artistAlbum,
+                lastFM,
+                userName,
+                true,
+                ctx.getAuthor(),
+                oneUser,
+                this.wrapperFind(ctx),
+                (nowPlayingArtist, lastFMData) -> innerParser.doSomethingWithNp(nowPlayingArtist, lastFMData, ctx),
+                (s, lastFMData) -> innerParser.doSomethingWithString(s, lastFMData, ctx));
+        if (ap == null) {
+            return null;
+        }
+        return new AlbumTimeFrameParameters(ctx, ap.getArtist(), ap.getAlbum(), userName, new CustomTimeFrame(timeFrameEnum));
+    }
+
 
 }

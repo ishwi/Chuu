@@ -13,7 +13,7 @@ import java.util.List;
 
 public class AffinityDaoImpl implements AffinityDao {
     @Override
-    public void initTempTable(Connection connection, String ownerLastfmID, String receiverLastFMId, int threshold) {
+    public void initTempTable(Connection connection, String ownerLastfmID, String receiverLastFMId, long threshold) {
         String queryBody =
                 """
                         CREATE TEMPORARY TABLE affinity
@@ -35,14 +35,14 @@ public class AffinityDaoImpl implements AffinityDao {
 
     }
 
-    private void executeComparisonWithThreshold(Connection connection, String ownerLastfmID, String receiverLastFMId, int threshold, String queryBody) {
+    private void executeComparisonWithThreshold(Connection connection, String ownerLastfmID, String receiverLastFMId, long threshold, String queryBody) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             int i = 1;
             preparedStatement.setString(i++, ownerLastfmID);
-            preparedStatement.setInt(i++, threshold);
+            preparedStatement.setLong(i++, threshold);
 
             preparedStatement.setString(i++, receiverLastFMId);
-            preparedStatement.setInt(i, threshold);
+            preparedStatement.setLong(i, threshold);
             preparedStatement.execute();
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -50,7 +50,7 @@ public class AffinityDaoImpl implements AffinityDao {
     }
 
     @Override
-    public Affinity getPercentageStats(Connection connection, String ownerLastfmID, String receiverLastFMId, int threshold) {
+    public Affinity getPercentageStats(Connection connection, String ownerLastfmID, String receiverLastFMId, long threshold) {
         String queryBody = """
                 SELECT Count(*) AS matchingcount,
                        ((SELECT Count(*)
@@ -66,11 +66,11 @@ public class AffinityDaoImpl implements AffinityDao {
             int i = 1;
             preparedStatement.setString(i++, ownerLastfmID);
             preparedStatement.setString(i++, receiverLastFMId);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setInt(i, threshold);
+            preparedStatement.setLong(i++, threshold);
+            preparedStatement.setLong(i++, threshold);
+            preparedStatement.setLong(i++, threshold);
+            preparedStatement.setLong(i++, threshold);
+            preparedStatement.setLong(i, threshold);
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -129,7 +129,7 @@ public class AffinityDaoImpl implements AffinityDao {
 
 
     @Override
-    public void setServerTempTable(Connection connection, long guildId, String ogLastfmID, int threshold) {
+    public void setServerTempTable(Connection connection, long guildId, String ogLastfmID, long threshold) {
         String queryBody =
                 """
                         CREATE TEMPORARY TABLE server_affinity\s
@@ -154,9 +154,9 @@ public class AffinityDaoImpl implements AffinityDao {
             int i = 1;
             preparedStatement.setLong(i++, guildId);
             preparedStatement.setString(i++, ogLastfmID);
-            preparedStatement.setInt(i++, threshold);
+            preparedStatement.setLong(i++, threshold);
             preparedStatement.setString(i++, ogLastfmID);
-            preparedStatement.setInt(i, threshold);
+            preparedStatement.setLong(i, threshold);
             preparedStatement.execute();
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -165,7 +165,7 @@ public class AffinityDaoImpl implements AffinityDao {
     }
 
     @Override
-    public void setGlobalTable(Connection connection, String ogLastfmID, int threshold) {
+    public void setGlobalTable(Connection connection, String ogLastfmID, long threshold) {
 
         String queryBody
                 = """
@@ -243,7 +243,7 @@ public class AffinityDaoImpl implements AffinityDao {
     }
 
     @Override
-    public List<GlobalAffinity> doGlobalAffinity(Connection connection, String ogLastfmId, int threshold) {
+    public List<GlobalAffinity> doGlobalAffinity(Connection connection, String ogLastfmId, long threshold) {
         List<GlobalAffinity> affinityList = new ArrayList<>();
         String queryBody = """
                 SELECT u.discord_id ,u.privacy_mode,l1 AS lastfmid,Count(*) AS matchingcount,\s
@@ -269,11 +269,11 @@ public class AffinityDaoImpl implements AffinityDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             int i = 1;
             preparedStatement.setString(i++, ogLastfmId);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setInt(i, threshold);
+            preparedStatement.setLong(i++, threshold);
+            preparedStatement.setLong(i++, threshold);
+            preparedStatement.setLong(i++, threshold);
+            preparedStatement.setLong(i++, threshold);
+            preparedStatement.setLong(i, threshold);
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -299,7 +299,7 @@ public class AffinityDaoImpl implements AffinityDao {
     }
 
     @Override
-    public List<Affinity> doServerAffinity(Connection connection, String ogLastfmId, int threshold) {
+    public List<Affinity> doServerAffinity(Connection connection, String ogLastfmId, long threshold) {
         List<Affinity> affinityList = new ArrayList<>();
         String queryBody = """
                 SELECT u.discord_id ,l1 AS lastfmid,Count(*) AS matchingcount,\s
@@ -324,11 +324,11 @@ public class AffinityDaoImpl implements AffinityDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             int i = 1;
             preparedStatement.setString(i++, ogLastfmId);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setInt(i++, threshold);
-            preparedStatement.setInt(i, threshold);
+            preparedStatement.setLong(i++, threshold);
+            preparedStatement.setLong(i++, threshold);
+            preparedStatement.setLong(i++, threshold);
+            preparedStatement.setLong(i++, threshold);
+            preparedStatement.setLong(i, threshold);
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {

@@ -74,7 +74,8 @@ public class BandInfoGlobalCommand extends BandInfoCommand {
         doImage(ap, np, ai, Math.toIntExact(plays), logo, threshold);
     }
 
-    void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, Long threshold) {
+    @Override
+    void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
         BufferedImage returnedImage = BandRendered
                 .makeBandImage(np, ai, plays, logo, ap.getE().getJDA().getSelfUser().getName(), threshold);
         sendImage(returnedImage, ap.getE());

@@ -133,7 +133,7 @@ public class Chuu {
 
     public static void main(String[] args) throws InterruptedException {
         if (System.getProperty("file.encoding").equals("UTF-8")) {
-            setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")));
+            setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")), Arrays.stream(args).noneMatch(x -> x.equalsIgnoreCase("no-global")));
         } else {
             relaunchInUTF8();
         }
@@ -193,7 +193,7 @@ public class Chuu {
         return gatewayIntents;
     }
 
-    public static void setupBot(boolean isTest) {
+    public static void setupBot(boolean doDbCleanUp, boolean installGlobalCommands) {
         logger = LoggerFactory.getLogger(Chuu.class);
         Properties properties = readToken();
         String channel = properties.getProperty("MODERATION_CHANNEL_ID");
@@ -260,8 +260,11 @@ public class Chuu {
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
                     messageDisablingService = new MessageDisablingService(shard, dao);
                     prefixCommand.onStartup(shard);
-                    InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue(t -> logger.warn("Finished with commands"));
-                    if (!isTest) {
+                    if (installGlobalCommands) {
+                        InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue();
+                    }
+//                            .queue(t -> logger.warn("Finished with commands"));
+                    if (!doDbCleanUp) {
                         commandAdministrator.onStartup(shardManager);
                     }
                     shardManager.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));

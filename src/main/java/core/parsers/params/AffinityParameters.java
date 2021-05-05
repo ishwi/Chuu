@@ -10,10 +10,10 @@ public class AffinityParameters extends CommandParameters {
     private final LastFMData secondLastfmId;
     private final Long firstDiscordID;
     private final Long secondDiscordID;
-    private final Integer threshold;
+    private final Long threshold;
 
 
-    public AffinityParameters(Context e, boolean doServer, LastFMData firstLastfmId, LastFMData secondLastfmId, Long firstDiscordID, Long secondDiscordID, Integer threshold) {
+    public AffinityParameters(Context e, boolean doServer, LastFMData firstLastfmId, LastFMData secondLastfmId, Long firstDiscordID, Long secondDiscordID, Long threshold) {
         super(e);
         this.doServer = doServer;
         this.firstLastfmId = firstLastfmId;
@@ -44,7 +44,7 @@ public class AffinityParameters extends CommandParameters {
         return secondDiscordID;
     }
 
-    public Integer getThreshold() {
+    public Long getThreshold() {
         return threshold;
     }
 }

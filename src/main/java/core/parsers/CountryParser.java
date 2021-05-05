@@ -2,9 +2,12 @@ package core.parsers;
 
 import com.neovisionaries.i18n.CountryCode;
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.CountryExplanation;
 import core.parsers.explanation.TimeframeExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.CountryParameters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
@@ -12,6 +15,8 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +38,17 @@ public class CountryParser extends DaoParser<CountryParameters> {
 
     }
 
+    @Override
+    public CountryParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, TimeFrameEnum.ALL);
+        User user = InteractionAux.parseUser(e);
+        LastFMData data = findLastfmFromID(user, ctx);
+        SlashCommandEvent.OptionData country = e.getOption("country");
+        CountryCode countryCode = fromString(ctx, country.getAsString());
+        if (countryCode == null) return null;
+        return new CountryParameters(ctx, data, countryCode, new CustomTimeFrame(timeFrameEnum));
+    }
 
     @Override
     protected CountryParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
@@ -50,30 +66,45 @@ public class CountryParser extends DaoParser<CountryParameters> {
         } else {
             countryCode = String.join(" ", words);
         }
-        CountryCode country;
-        if (countryCode.length() == 2) {
-            if (countryCode.equalsIgnoreCase("uk")) {
-                countryCode = "gb";
-            }
-            country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
-        } else if (countryCode.length() == 3) {
-            if (countryCode.equalsIgnoreCase("eng")) {
-                countryCode = "gb";
-            }
-            country = CountryCode.getByAlpha3Code(countryCode.toUpperCase());
-        } else {
-            if (countryCode.equalsIgnoreCase("england")) {
-                countryCode = "gb";
-                country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
+        CountryCode country = fromString(e, countryCode);
+        if (country == null) return null;
+        // :pensive:
+//        if (country == CountryCode.IL) {
+//            // No political statement at all, just bugfixing
+//            country = CountryCode.PS;
+//        }
+        return new
 
-            } else if (countryCode.equalsIgnoreCase("northen macedonia")) {
-                countryCode = "mk";
-                country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
-            } else if (countryCode.equalsIgnoreCase("eSwatini ")) {
-                countryCode = "sz";
-                country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
+                CountryParameters(e, lastFMData, country, new CustomTimeFrame(timeFrameEnum));
+
+    }
+
+    @Nullable
+    private CountryCode fromString(Context e, String value) {
+        CountryCode country;
+        if (value.length() == 2) {
+            if (value.equalsIgnoreCase("uk")) {
+                value = "gb";
+            }
+            country = CountryCode.getByAlpha2Code(value.toUpperCase());
+        } else if (value.length() == 3) {
+            if (value.equalsIgnoreCase("eng")) {
+                value = "gb";
+            }
+            country = CountryCode.getByAlpha3Code(value.toUpperCase());
+        } else {
+            if (value.equalsIgnoreCase("england")) {
+                value = "gb";
+                country = CountryCode.getByAlpha2Code(value.toUpperCase());
+
+            } else if (value.equalsIgnoreCase("northen macedonia")) {
+                value = "mk";
+                country = CountryCode.getByAlpha2Code(value.toUpperCase());
+            } else if (value.equalsIgnoreCase("eSwatini ")) {
+                value = "sz";
+                country = CountryCode.getByAlpha2Code(value.toUpperCase());
             } else {
-                String finalCountryCode = countryCode;
+                String finalCountryCode = value;
                 Optional<Locale> opt = Arrays.stream(Locale.getISOCountries()).map(x -> new Locale("en", x)).
                         filter(y -> y.getDisplayCountry().equalsIgnoreCase(finalCountryCode))
                         .findFirst();
@@ -81,7 +112,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
                     country = CountryCode.getByAlpha3Code(opt.get().getISO3Country());
                 } else {
                     try {
-                        List<CountryCode> byName = CountryCode.findByName(Pattern.compile(".*" + countryCode + ".*", Pattern.CASE_INSENSITIVE | Pattern.DOTALL)).stream()
+                        List<CountryCode> byName = CountryCode.findByName(Pattern.compile(".*" + value + ".*", Pattern.CASE_INSENSITIVE | Pattern.DOTALL)).stream()
                                 .filter(x -> !x.getName().equalsIgnoreCase("Undefined")).toList();
 
                         if (byName.isEmpty()) {
@@ -100,20 +131,12 @@ public class CountryParser extends DaoParser<CountryParameters> {
             sendError(getErrorMessage(6), e);
             return null;
         }
-        // :pensive:
-//        if (country == CountryCode.IL) {
-//            // No political statement at all, just bugfixing
-//            country = CountryCode.PS;
-//        }
-        return new
-
-                CountryParameters(e, lastFMData, country, new CustomTimeFrame(timeFrameEnum));
-
+        return country;
     }
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(new CountryExplanation(), new TimeframeExplanation(TimeFrameEnum.ALL));
+        return List.of(InteractionAux.required(new CountryExplanation()), new TimeframeExplanation(TimeFrameEnum.ALL));
     }
 
 }

@@ -7,7 +7,9 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 
+import java.util.Optional;
 import java.util.TimeZone;
+import java.util.function.Function;
 
 public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
     private static final QuadFunction<Context, ChartMode, WhoKnowsMode, RemainingImagesMode, LastFMData> DEFAULT_DATA = (e, c, w, r) ->
@@ -54,6 +56,15 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
         }
     }
 
+    Function<User, Optional<LastFMData>> wrapperFind(Context ctx) {
+        return (x) -> {
+            try {
+                return Optional.of(findLastfmFromID(x, ctx));
+            } catch (InstanceNotFoundException instanceNotFoundException) {
+                return Optional.empty();
+            }
+        };
+    }
 
     @Override
     protected void setUpErrorMessages() {

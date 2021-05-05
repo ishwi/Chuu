@@ -13,7 +13,7 @@ public enum CommandCategory {
     BOT_INFO(9, "Information about the bot"),
     LOVE(10, "Using the love feature of last.fm"),
     ARTIST_IMAGES(11, "Personalize the artist images displayed on the bot"),
-    RYM_BETA(12, "Testing command about a RYM integration, possibly broken"),
+    RYM(12, "Testing command about a RYM integration, possibly broken"),
     MUSIC(13, "Play and scrobble music"),
     CONFIGURATION(14, "Personalize your bot usage"),
     MODERATION(15, "Command for bot admins"),

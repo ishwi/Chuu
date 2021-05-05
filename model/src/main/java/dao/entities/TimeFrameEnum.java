@@ -5,6 +5,7 @@ import org.apache.commons.text.WordUtils;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -48,6 +49,11 @@ public enum TimeFrameEnum {
     public static TimeFrameEnum get(String name) {
         return ENUM_MAP.get(name);
     }
+
+    public static TimeFrameEnum getFromComplete(String name) {
+        return EnumSet.allOf(TimeFrameEnum.class).stream().filter(t -> t.toString().equalsIgnoreCase(name)).findFirst().orElseThrow(IllegalArgumentException::new);
+    }
+
 
     // getter method
     private String getName() {

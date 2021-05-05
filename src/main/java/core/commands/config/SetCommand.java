@@ -146,42 +146,42 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
 
         db.insertNewUser(lastFMData);
 
-        setProcess(e.getChannel(), lastFmID, userId, lastFMData, e.getAuthor().getName());
+        setProcess(e, e.getChannel(), lastFmID, userId, lastFMData, e.getAuthor().getName());
 
     }
 
-    public void setProcess(MessageChannel channel, String lastFmID, long userId, LastFMData lastFMData, String name) {
+    public void setProcess(Context e, MessageChannel channel, String lastFmID, long userId, LastFMData lastFMData, String name) {
         try {
 
 
             List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
             db.insertArtistDataList(artistData, lastFmID);
-            channel.sendMessage("Finished updating your artist, now the album/track process will start").queue();
+            e.sendMessage("Finished updating your artist, now the album/track process will start").queue();
             channel.sendTyping().queue();
             List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
             db.albumUpdate(albumData, artistData, lastFmID);
             List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
             db.trackUpdate(trackData, artistData, lastFmID);
-            channel.sendMessage("Successfully updated " + lastFmID + " info!").queue();
+            e.sendMessage("Successfully updated " + lastFmID + " info!").queue();
             int lastScrobbleUTS = lastFM.getLastScrobbleUTS(lastFMData);
             db.updateUserTimeStamp(lastFmID, lastScrobbleUTS, null);
             //  e.getGuild().loadMembers((Chuu::caching));
         } catch (
                 LastFMNoPlaysException ex) {
             db.updateUserTimeStamp(lastFmID, Math.toIntExact(Instant.now().getEpochSecond()), null);
-            channel.sendMessage("Finished updating " + CommandUtil.cleanMarkdownCharacter(name) + "'s library, you are good to go!").queue();
+            e.sendMessage("Finished updating " + CommandUtil.cleanMarkdownCharacter(name) + "'s library, you are good to go!").queue();
         } catch (
                 LastFmEntityNotFoundException ex) {
             db.removeUserCompletely(userId);
             Chuu.getLogger().warn(ex.getMessage(), ex);
-            channel.sendMessage("The provided username doesn't exist anymore on last.fm, please re-set your account").queue();
+            e.sendMessage("The provided username doesn't exist anymore on last.fm, please re-set your account").queue();
         } catch (
                 Throwable ex) {
             System.out.println("Error while updating " + lastFmID + LocalDateTime.now()
                     .format(DateTimeFormatter.ISO_DATE));
             Chuu.getLogger().warn(ex.getMessage(), ex);
             db.updateUserTimeStamp(lastFmID, 954682307, null);
-            channel.sendMessage("Error downloading your library, try to run !update, try again later or contact bot admins if the error persists").queue();
+            e.sendMessage("Error downloading your library, try to run !update, try again later or contact bot admins if the error persists").queue();
         }
     }
 

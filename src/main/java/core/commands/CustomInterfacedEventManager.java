@@ -148,8 +148,14 @@ public class CustomInterfacedEventManager implements IEventManager {
             }
 
         } else if (event instanceof SlashCommandEvent sce) {
-            String name = sce.getName();
-            MyCommand<?> myCommand = commandListeners.get(name.toLowerCase(Locale.ROOT));
+
+            MyCommand<?> myCommand;
+            if (sce.getSubcommandName() == null) {
+                myCommand = commandListeners.get(sce.getName().toLowerCase(Locale.ROOT));
+            } else {
+                myCommand = commandListeners.get(sce.getSubcommandName().toLowerCase(Locale.ROOT));
+
+            }
             try {
                 myCommand.onSlashCommandReceived(sce);
             } catch (Throwable throwable) {

@@ -7,6 +7,7 @@ import core.exceptions.LastFmException;
 import core.parsers.explanation.ArtistExplanation;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ArtistParameters;
 import core.services.NPService;
 import dao.ChuuService;
@@ -18,7 +19,6 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class ArtistParser extends DaoParser<ArtistParameters> {
     final ConcurrentLastFM lastFM;
@@ -46,9 +46,7 @@ public class ArtistParser extends DaoParser<ArtistParameters> {
     public ArtistParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
         SlashCommandEvent e = ctx.e();
         var artist = e.getOption(ArtistExplanation.NAME);
-        var optionsByName = e.getOption(StrictUserExplanation.NAME);
-
-        User oneUser = Optional.ofNullable(optionsByName).map(SlashCommandEvent.OptionData::getAsUser).orElse(ctx.getAuthor());
+        User oneUser = InteractionAux.parseUser(e);
 
         LastFMData data = findLastfmFromID(oneUser, ctx);
         if (artist == null) {

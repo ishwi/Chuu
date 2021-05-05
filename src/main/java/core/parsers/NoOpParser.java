@@ -26,8 +26,8 @@ public class NoOpParser extends Parser<CommandParameters> {
     }
 
     @Override
-    public CommandParameters parseSlashLogic(ContextSlashReceived ctx) {
-        return new CommandParameters(ctx);
+    public CommandParameters parseSlashLogic(ContextSlashReceived e) {
+        return new CommandParameters(e);
     }
 
     @Override

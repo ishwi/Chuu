@@ -190,7 +190,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                     },
                     () -> db.getNextQueue(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
-                    , embedBuilder, e.getChannel(), e.getAuthor().getIdLong(), actionMap, false, true);
+                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, false, true);
         } catch (Throwable ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);
         } finally {

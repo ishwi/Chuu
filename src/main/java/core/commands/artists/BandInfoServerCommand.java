@@ -47,7 +47,7 @@ public class BandInfoServerCommand extends BandInfoCommand {
 
         boolean b = ap.hasOptional("list");
         boolean b1 = ap.hasOptional("pie");
-        int limit = b || b1 ? Integer.MAX_VALUE : 4;
+        int limit = b || b1 ? Integer.MAX_VALUE : 9;
         ScrobbledArtist who = ap.getScrobbledArtist();
         long threshold = ap.getLastFMData().getArtistThreshold();
 
@@ -74,7 +74,9 @@ public class BandInfoServerCommand extends BandInfoCommand {
         doImage(ap, np, ai, Math.toIntExact(plays), logo, threshold);
     }
 
-    void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, Long threshold) {
+
+    @Override
+    void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
         BufferedImage returnedImage = BandRendered
                 .makeBandImage(np, ai, plays, logo, ap.getE().getGuild().getName(), threshold);
         sendImage(returnedImage, ap.getE());

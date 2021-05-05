@@ -3,15 +3,20 @@ package core.parsers;
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.AlbumExplanation;
 import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.params.ArtistAlbumUrlParameters;
 import dao.ChuuService;
+import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -32,6 +37,33 @@ public class ArtistAlbumUrlParser extends DaoParser<ArtistAlbumUrlParameters> {
         errorMessages.put(1, "You didn't specify a valid URL");
         errorMessages.put(2, "Couldn't get an Image from link supplied");
         errorMessages.put(3, "Tumblr images in that format cannot be read from a bot, you can try to copy and paste the image instead of the link");
+    }
+
+    @Override
+    public ArtistAlbumUrlParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User oneUser = InteractionAux.parseUser(e);
+        LastFMData userName = findLastfmFromID(oneUser, ctx);
+        InteractionAux.ArtistAlbum artistAlbum = InteractionAux.parseAlbum(e, () -> sendError(this.getErrorMessage(0), ctx));
+        if (artistAlbum == null) {
+            return null;
+        }
+        String url = InteractionAux.parseUrl(e);
+        if (url == null) {
+            sendError(getErrorMessage(0), ctx);
+            return null;
+        }
+        if (!UrlParser.isValidURL(url)) {
+            if (tumblr.matcher(url).matches()) {
+                sendError(getErrorMessage(3), ctx);
+                return null;
+
+            }
+        } else {
+            sendError(getErrorMessage(1), ctx);
+            return null;
+        }
+        return new ArtistAlbumUrlParameters(ctx, artistAlbum.artist(), artistAlbum.album(), userName, url);
     }
 
     @Override
@@ -88,9 +120,7 @@ public class ArtistAlbumUrlParser extends DaoParser<ArtistAlbumUrlParameters> {
     @Override
     public List<Explanation> getUsages() {
         AlbumExplanation albumExplanation = new AlbumExplanation();
-
-        return List.of(albumExplanation.artist(), albumExplanation.album(), new UrlExplanation());
-
+        return List.of(albumExplanation.artist(), albumExplanation.album(), new UrlExplanation()).stream().map(InteractionAux::required).toList();
     }
 
 

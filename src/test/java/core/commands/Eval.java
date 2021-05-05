@@ -21,7 +21,7 @@ public class Eval {
     static BufferedImage deepCopy(BufferedImage bi) {
         EvalContext ctx = null;
 
-
+        core.Chuu.getShardManager().getTextChannelById(693124899220226178L).sendMessage("https:" + "//github.com/ishwi/Chuu").queue();
         class A extends core.commands.abstracts.ConcurrentCommand<core.parsers.params.CommandParameters> {
             public A(ChuuService dao) {
                 super(dao);

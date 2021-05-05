@@ -69,7 +69,7 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.RYM_BETA;
+        return CommandCategory.RYM;
     }
 
     @Override

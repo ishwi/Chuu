@@ -1457,7 +1457,7 @@ public class ChuuService {
 
     }
 
-    public Affinity getAffinity(String ogLastFmID, String receiverLastfmID, int threshold) {
+    public Affinity getAffinity(String ogLastFmID, String receiverLastfmID, long threshold) {
         try (Connection connection = dataSource.getConnection()) {
             affinityDao.initTempTable(connection, ogLastFmID, receiverLastfmID, threshold);
             Affinity affinity = affinityDao.getPercentageStats(connection, ogLastFmID, receiverLastfmID, threshold);
@@ -1475,7 +1475,7 @@ public class ChuuService {
 
     }
 
-    public List<Affinity> getServerAffinity(String ogLastFmID, long guildId, int threshold) {
+    public List<Affinity> getServerAffinity(String ogLastFmID, long guildId, long threshold) {
         try (Connection connection = dataSource.getConnection()) {
             affinityDao.setServerTempTable(connection, guildId, ogLastFmID, threshold);
             List<Affinity> affinityList = affinityDao.doServerAffinity(connection, ogLastFmID, threshold);
