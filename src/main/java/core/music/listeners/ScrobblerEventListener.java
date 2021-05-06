@@ -119,6 +119,9 @@ public class ScrobblerEventListener implements AudioEventListener {
             GuildVoiceState voiceState = musicManager.getGuild().getSelfMember().getVoiceState();
             assert voiceState != null && voiceState.inVoiceChannel() && voiceState.getChannel() != null;
             VoiceChannel channel = voiceState.getChannel();
+            if (channel == null) {
+                return;
+            }
             List<Long> membersId = channel.getMembers().stream().mapToLong(ISnowflake::getIdLong).boxed().toList();
             Set<LastFMData> scrobbleableUsers = db.findScrobbleableUsers(channel.getGuild().getIdLong()).stream().filter(x -> membersId.contains(x.getDiscordId())).collect(Collectors.toSet());
 

@@ -51,7 +51,6 @@ public class GlobalCrownsCommand extends CrownsCommand {
         Parser<NumberParameters<ChuuDataParams>> parser = super.initParser();
         parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
         parser.addOptional(new OptionalEntity("botted", "discard users that have been manually flagged as potentially botted accounts"));
-
         return parser;
     }
 

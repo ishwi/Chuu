@@ -33,7 +33,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.CROWNS;
+        return CommandCategory.USER_STATS;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
 
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
-        String s = "You can also introduce the playcount to only show crowns achievable within that number of plays, defaults to a number big enough to not filter anything";
+        String s = "You can set a distance to show crowns achievable within it";
         OnlyUsernameParser onlyUsernameParser = new OnlyUsernameParser(db);
         onlyUsernameParser.addOptional(new OptionalEntity("nofirst", "show only the artists in which you are not first"));
         onlyUsernameParser.addOptional(new OptionalEntity("server", "make the ranking only count for this server"));
@@ -53,7 +53,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         return new NumberParser<>(onlyUsernameParser,
                 (long) Integer.MAX_VALUE,
                 Integer.MAX_VALUE,
-                map, s, false, true, false);
+                map, s, false, true, false, "distance");
     }
 
 

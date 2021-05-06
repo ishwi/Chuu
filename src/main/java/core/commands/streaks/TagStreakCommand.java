@@ -1,4 +1,4 @@
-package core.commands.stats;
+package core.commands.streaks;
 
 import core.Chuu;
 import core.commands.Context;
@@ -38,7 +38,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.STREAKS;
     }
 
     @Override

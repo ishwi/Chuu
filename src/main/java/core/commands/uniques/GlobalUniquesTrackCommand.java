@@ -1,4 +1,4 @@
-package core.commands.crowns;
+package core.commands.uniques;
 
 import core.commands.utils.CommandCategory;
 import dao.ChuuService;
@@ -18,7 +18,7 @@ public class GlobalUniquesTrackCommand extends UniqueSongCommand {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.UNIQUES;
     }
 
     @Override

@@ -59,13 +59,13 @@ public class Confirmator extends ReactionListener {
         switch (event.getReaction().getReactionEmote().getAsCodepoints()) {
             case ACCEPT:
                 wasThisCalled.set(true);
-                onAccept.executeCallback();
+                onAccept.execute();
                 this.didConfirm.set(true);
                 unregister();
                 break;
             case REJECT:
                 wasThisCalled.set(true);
-                onReject.executeCallback();
+                onReject.execute();
                 this.didConfirm.set(false);
                 unregister();
                 break;

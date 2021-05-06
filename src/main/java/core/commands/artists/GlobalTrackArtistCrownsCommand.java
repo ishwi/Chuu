@@ -11,7 +11,6 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
-import core.parsers.NumberParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
@@ -27,11 +26,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static core.parsers.ExtraParser.LIMIT_ERROR;
+import static core.parsers.NumberParser.generateThresholdParser;
 
 public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberParameters<ArtistParameters>> {
     private final DiscogsApi discogsApi;
@@ -52,18 +49,10 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
 
     @Override
     public Parser<NumberParameters<ArtistParameters>> initParser() {
-        Map<Integer, String> map = new HashMap<>(2);
-        map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
-        String s = "You can also introduce a number to vary the number of plays to award a crown, " +
-                "defaults to whatever the guild has configured (0 if not configured)";
-        NumberParser<ArtistParameters, ArtistParser> artistParametersArtistParserNumberParser = new NumberParser<>(new ArtistParser(db, lastFM),
-                null,
-                Integer.MAX_VALUE,
-                map, s, false, true, true);
-        artistParametersArtistParserNumberParser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
-        artistParametersArtistParserNumberParser.addOptional(new OptionalEntity("botted", "show botted accounts in case you have the config show-botted disabled"));
-
-        return artistParametersArtistParserNumberParser;
+        Parser<NumberParameters<ArtistParameters>> parser = generateThresholdParser(new ArtistParser(db, lastFM));
+        parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
+        parser.addOptional(new OptionalEntity("botted", "show botted accounts in case you have the config show-botted disabled"));
+        return parser;
     }
 
     public String getTitle(ScrobbledArtist scrobbledArtist) {
@@ -117,10 +106,10 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
 
         StringBuilder a = new StringBuilder();
         List<String> strings = resultWrapper.stream().map(x -> ". **[" +
-                LinkUtils.cleanMarkdownCharacter(x.getTrack()) +
-                "](" + LinkUtils.getLastFMArtistTrack(scrobbledArtist.getArtist(), x.getTrack()) +
-                ")** - " + x.getCount() +
-                " plays\n").toList();
+                                                               LinkUtils.cleanMarkdownCharacter(x.getTrack()) +
+                                                               "](" + LinkUtils.getLastFMArtistTrack(scrobbledArtist.getArtist(), x.getTrack()) +
+                                                               ")** - " + x.getCount() +
+                                                               " plays\n").toList();
         for (int i = 0; i < 10 && i < rows; i++) {
             a.append(i + 1).append(strings.get(i));
         }

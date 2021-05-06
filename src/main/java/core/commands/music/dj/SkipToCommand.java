@@ -48,7 +48,7 @@ public class SkipToCommand extends MusicCommand<NumberParameters<CommandParamete
         return new NumberParser<>(NoOpParser.INSTANCE,
                 null,
                 Integer.MAX_VALUE,
-                map, s, false, true, true);
+                map, s, false, true, true, "index");
     }
 
     @Override

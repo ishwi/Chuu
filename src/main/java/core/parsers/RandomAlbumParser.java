@@ -13,6 +13,7 @@ import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -40,7 +41,7 @@ public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
     public RandomUrlParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
         SlashCommandEvent e = ctx.e();
         User user = InteractionAux.parseUser(e);
-        SlashCommandEvent.OptionData option = e.getOption(UrlExplanation.NAME);
+        OptionMapping option = e.getOption(UrlExplanation.NAME);
         if (option == null) {
             return new RandomUrlParameters(ctx, "", user);
         } else {
@@ -120,7 +121,7 @@ public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
                         """
                                 If no link is provided you'll get a random link
                                 The allowed platforms for links are: Spotify,Youtube,Bandcamp,Deezer and Soundcloud
-                                """, super.explanation().optionData());
+                                """, super.explanation().options());
             }
         }, new StrictUserExplanation());
     }

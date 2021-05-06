@@ -50,7 +50,7 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
         SlashCommandEvent e = ctx.e();
         User oneUser = InteractionAux.parseUser(e);
         LastFMData userName = findLastfmFromID(oneUser, ctx);
-        InteractionAux.ArtistAlbum artistAlbum = InteractionAux.parseCommon(() -> sendError(this.getErrorMessage(8), ctx), e, slashName);
+        InteractionAux.ArtistAlbum artistAlbum = InteractionAux.parseCommonArtistAlbum(() -> sendError(this.getErrorMessage(8), ctx), e, slashName);
         if (artistAlbum == null) {
             return null;
         }

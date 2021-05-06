@@ -467,7 +467,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         if (userData == null) {
             return null;
         }
-        return guild.getTextChannelById(userData.channelRequester());
+        return getGuild().getTextChannelById(userData.channelRequester());
     }
 
     public ByteBuffer getFrameBuffer() {

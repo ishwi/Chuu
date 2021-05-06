@@ -1,4 +1,4 @@
-package core.commands.stats;
+package core.commands.leaderboards;
 
 import core.Chuu;
 import core.commands.Context;
@@ -30,7 +30,7 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParam
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
+        return CommandCategory.SERVER_LEADERBOARDS;
     }
 
     @Override
@@ -60,26 +60,30 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParam
     }
 
     @Override
-    protected void handleCommand(Context e) {
+    protected boolean handleCommand(Context e) {
         if (disabled) {
             sendMessageQueue(e, "This command has been temporarily disabled :(");
-            return;
+            return false;
         }
         if (maxConcurrency.decrementAndGet() == 0) {
             sendMessageQueue(e, "There are a lot of people executing this command right now, try again later :(");
             maxConcurrency.incrementAndGet();
+            return true;
         } else {
             CompletableFuture<Message> future = null;
             try {
                 future = sendMessage(e, "Obscurity command can take a really long time :(").submit();
                 super.handleCommand(e);
+                return true;
             } catch (Throwable ex) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);
+                return false;
             } finally {
                 maxConcurrency.incrementAndGet();
                 CommandUtil.handleConditionalMessage(future);
             }
         }
+
     }
 
 

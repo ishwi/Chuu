@@ -44,12 +44,11 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
     public Parser<NumberParameters<ChuuDataParams>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
-        String s = "You can also introduce a number to vary the number of plays to award a crown, " +
-                "defaults to whatever the guild has configured (0 if not configured)";
+        String s = "The specific milestone you want to lookup";
         return new NumberParser<>(new OnlyUsernameParser(db),
                 1L,
                 Integer.MAX_VALUE,
-                map, s, false, true, false);
+                map, s, false, true, false, "milestone");
 
     }
 

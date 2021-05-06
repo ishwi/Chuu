@@ -1,15 +1,22 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.commands.utils.CommandUtil;
+import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.explanation.DecadeExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChartYearRangeParameters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.awt.*;
 import java.time.Year;
@@ -17,6 +24,7 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -34,6 +42,50 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
         super.setUpOptionals();
         opts.add(new OptionalEntity("nolimit", "make the chart as big as possible (40x40 is the hard limit)"));
         opts.add(new OptionalEntity("time", "make the chart to be sorted by duration (quite inaccurate)"));
+    }
+
+    @Override
+    public ChartYearRangeParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        TimeFrameEnum tfe = InteractionAux.parseTimeFrame(e, defaultTFE);
+        User user = InteractionAux.parseUser(e);
+        OptionMapping option = e.getOption(DecadeExplanation.NAME);
+        Point size = InteractionAux.parseSize(e, () -> sendError(getErrorMessage(8), ctx));
+        if (size == null) {
+            return null;
+        }
+
+        int baseYear;
+        int numberOfYears;
+        if (option != null) {
+            String value = option.getAsString();
+            value = value.substring(0, value.length() - 1);
+            baseYear = CommandUtil.getDecade(Integer.parseInt(value));
+            numberOfYears = 9;
+        } else {
+            OptionMapping start = e.getOption(DecadeExplanation.RANGE_START);
+
+            baseYear = Optional.ofNullable(e.getOption(DecadeExplanation.RANGE_START))
+                    .map(OptionMapping::getAsLong)
+                    .map(Math::toIntExact)
+                    .map(CommandUtil::getDecade)
+                    .orElse(Year.now().getValue());
+            OptionMapping end = e.getOption(DecadeExplanation.RANGE_END);
+
+
+            if (end != null) {
+                long endYear = e.getOption(DecadeExplanation.RANGE_END).getAsLong();
+                if (baseYear > endYear) {
+                    sendError("First year must be greater than the second", ctx);
+                    return null;
+                }
+                numberOfYears = (int) (endYear - baseYear);
+            } else {
+                numberOfYears = 9;
+            }
+        }
+        return new ChartYearRangeParameters(ctx, findLastfmFromID(user, ctx), CustomTimeFrame.ofTimeFrameEnum(tfe), size.x, size.y, Year.of(baseYear), numberOfYears);
+
     }
 
     @Override
@@ -107,13 +159,12 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
 
     @Override
     public List<Explanation> getUsages() {
-        return Stream.concat(super.getUsages().stream(), Stream.of(new DecadeExplanation())).toList();
+        return Stream.concat(Stream.of(new DecadeExplanation()), super.getUsages().stream()).toList();
     }
 
     @Override
     public void setUpErrorMessages() {
         super.setUpErrorMessages();
     }
-
 
 }

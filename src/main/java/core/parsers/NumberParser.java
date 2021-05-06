@@ -4,9 +4,14 @@ import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.explanation.util.Interactible;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
@@ -22,6 +27,15 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
     private static final Pattern digitMatcher = Pattern.compile("[1-9]([0-9]+)?[kKmM]?");
     private static final Pattern allow0 = Pattern.compile("[0-9]+[kKmM]?");
     private static final Predicate<String> predicate = digitMatcher.asMatchPredicate();
+    private static final Function<Interactible, String> nameObtainer = s -> s.options().stream().filter(t -> t.getType() == OptionType.STRING).map(OptionData::getName).findFirst().orElse("number");
+    private static final Function<String, Function<SlashCommandEvent, Long>> slash = s -> event ->
+    {
+        OptionMapping number = event.getOption(s);
+        if (number == null) {
+            return null;
+        }
+        return number.getAsLong();
+    };
 
     //TODO Builder
     public NumberParser(T innerParser,
@@ -39,7 +53,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 errorMessages,
                 innerPredicate,
                 (k, aLong) ->
-                        new NumberParameters<>(k.getE(), k, aLong), Collections.singletonList(() -> explanationLine));
+                        new NumberParameters<>(k.getE(), k, aLong), Collections.singletonList(() -> explanationLine), slash.apply(nameObtainer.apply(explanationLine)));
 
     }
 
@@ -55,8 +69,8 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 Long::parseLong,
                 errorMessages,
                 (k, aLong) ->
-                        new NumberParameters<>(k.getE(), k, aLong), Collections.singletonList(() -> new ExplanationLineType("Number", description, OptionType.INTEGER))
-        );
+                        new NumberParameters<>(k.getE(), k, aLong), Collections.singletonList(() -> new ExplanationLineType("number", description, OptionType.INTEGER)),
+                slash.apply("number"));
     }
 
     public NumberParser(T innerParser,
@@ -73,11 +87,11 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 number -> number > max || number < 0,
                 NumberParser::parseStr,
                 errorMessages,
-                Collections.singletonList(() -> new ExplanationLineType("Number", description, OptionType.INTEGER)),
+                Collections.singletonList(() -> new ExplanationLineType("number", description, OptionType.INTEGER)),
                 null,
                 null,
                 panicOnFailure,
-                catchFirst, (k, aLong) ->
+                catchFirst, slash.apply("number"), (k, aLong) ->
                         new NumberParameters<>(k.getE(), k, aLong)
 
 
@@ -90,17 +104,17 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                         Map<Integer, String> errorMessages,
                         String description,
                         boolean panicOnFailure,
-                        Function<List<Long>, Long> accum) {
+                        Function<List<Long>, Long> accum, String header) {
         super(innerParser,
                 defaultItem,
                 predicate,
                 number -> number > max || number < 0,
                 NumberParser::parseStr,
                 errorMessages,
-                Collections.singletonList(() -> new ExplanationLineType("Number", description, OptionType.INTEGER)), null,
+                Collections.singletonList(() -> new ExplanationLineType(header, description, OptionType.INTEGER)), null,
                 accum,
                 panicOnFailure,
-                false, (k, aLong) ->
+                false, slash.apply(header), (k, aLong) ->
                         new NumberParameters<>(k.getE(), k, aLong));
     }
 
@@ -111,7 +125,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                         String description,
                         boolean panicOnFailure,
                         boolean catchFirst,
-                        boolean allow0
+                        boolean allow0, String header
     ) {
         super(innerParser,
                 defaultItem,
@@ -119,10 +133,10 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 number -> number > max || number < 0,
                 NumberParser::parseStr,
                 errorMessages,
-                Collections.singletonList(() -> new ExplanationLineType("Number", description, OptionType.INTEGER)), null,
+                Collections.singletonList(() -> new ExplanationLineType(header, description, OptionType.INTEGER)), null,
                 null,
                 panicOnFailure,
-                catchFirst, (k, aLong) ->
+                catchFirst, slash.apply(header), (k, aLong) ->
                         new NumberParameters<>(k.getE(), k, aLong));
     }
 
@@ -138,5 +152,16 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
             multiplier = 1_000_000;
         }
         return Long.parseLong(str) * multiplier;
+    }
+
+    @NotNull
+    public static <T extends CommandParameters> Parser<NumberParameters<T>> generateThresholdParser(Parser<T> parser) {
+        Map<Integer, String> map = new HashMap<>(2);
+        map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
+        String s = "Use a threshold to require a set amount of plays for a crowns";
+        return new NumberParser<>(parser,
+                null,
+                Integer.MAX_VALUE,
+                map, s, false, true, true, "threshold");
     }
 }

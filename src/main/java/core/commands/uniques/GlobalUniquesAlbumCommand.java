@@ -1,15 +1,15 @@
-package core.commands.crowns;
+package core.commands.uniques;
 
 import core.commands.utils.CommandCategory;
 import dao.ChuuService;
-import dao.entities.ArtistPlays;
+import dao.entities.AlbumPlays;
 import dao.entities.UniqueWrapper;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class GlobalUniquesCommand extends UniqueCommand {
-    public GlobalUniquesCommand(ChuuService dao) {
+public class GlobalUniquesAlbumCommand extends UniqueAlbumCommand {
+    public GlobalUniquesAlbumCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = true;
         isLongRunningCommand = true;
@@ -18,7 +18,7 @@ public class GlobalUniquesCommand extends UniqueCommand {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.UNIQUES;
     }
 
     @Override
@@ -27,22 +27,22 @@ public class GlobalUniquesCommand extends UniqueCommand {
     }
 
     @Override
-    public UniqueWrapper<ArtistPlays> getList(long ignored, String lastFmName) {
-        return db.getGlobalUniques(lastFmName);
+    public UniqueWrapper<AlbumPlays> getList(long ignored, String lastFmName) {
+        return db.getGlobalAlbumUniques(lastFmName);
     }
 
     @Override
     public String getDescription() {
-        return "Your unique top considering all bot users";
+        return "Your unique albums considering all bot users";
     }
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("globalunique", "gu");
+        return Arrays.asList("globalalbumunique", "galbu");
     }
 
     @Override
     public String getName() {
-        return "Global Uniques";
+        return "Global album uniques";
     }
 }

@@ -30,6 +30,7 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
     public Parser<CommandParameters> initParser() {
         NoOpParser noOpParser = new NoOpParser();
         noOpParser.addOptional(new OptionalEntity("server", "refresh only this server"));
+        noOpParser.addOptional(new OptionalEntity("global", "global refresh"));
         noOpParser.addOptional(new OptionalEntity("delete", "clean this server"));
         noOpParser.addOptional(new OptionalEntity("globaldelete", "clean the bot"));
         return noOpParser;
@@ -60,8 +61,10 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
                     InteractionBuilder.setServerCommand(e.getGuild()).queue(z -> sendMessageQueue(e, "Finished the refresh!"));
                 } else if (params.hasOptional("globaldelete")) {
                     e.getJDA().retrieveCommands().flatMap(z -> RestAction.allOf(z.stream().map(l -> e.getJDA().deleteCommandById(l.getId())).toList())).queue(z -> sendMessageQueue(e, "Finished the global deletion!"));
-                } else {
+                } else if (params.hasOptional("global")) {
                     InteractionBuilder.setGlobalCommands(e.getJDA()).queue(z -> sendMessageQueue(e, "Finished the global refresh!"));
+                } else {
+                    sendMessageQueue(e, "Nothing done :)");
                 }
             }
         });

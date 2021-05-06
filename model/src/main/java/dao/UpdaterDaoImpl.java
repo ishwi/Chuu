@@ -1619,10 +1619,10 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
-    public void logCommand(Connection connection, long discordId, Long guildId, String commandName, long nanos, Instant utc) {
+    public void logCommand(Connection connection, long discordId, Long guildId, String commandName, long nanos, Instant utc, boolean success, boolean isNormalCommand) {
 
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO  command_logs  (discord_id,guild_id,command,nanos) VALUES (?,?,?,?) ")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO  command_logs  (discord_id,guild_id,command,nanos,success,is_slash) VALUES (?,?,?,?,?,?) ")) {
             preparedStatement.setLong(1, discordId);
             if (guildId != null) {
                 preparedStatement.setLong(2, guildId);
@@ -1631,6 +1631,8 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             }
             preparedStatement.setString(3, commandName);
             preparedStatement.setLong(4, nanos);
+            preparedStatement.setBoolean(5, success);
+            preparedStatement.setBoolean(6, isNormalCommand);
             preparedStatement.executeUpdate();
         } catch (
                 SQLException e) {

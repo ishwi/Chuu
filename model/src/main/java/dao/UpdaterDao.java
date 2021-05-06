@@ -166,7 +166,7 @@ interface UpdaterDao {
 
     void removeTagTrack(Connection connection, String tag, long artistId);
 
-    void logCommand(Connection connection, long discordId, Long guildId, String commandName, long nanos, Instant utc);
+    void logCommand(Connection connection, long discordId, Long guildId, String commandName, long nanos, Instant utc, boolean success, boolean isNormalCommand);
 
     void updateTrackImage(Connection connection, long trackId, String imageUrl);
 

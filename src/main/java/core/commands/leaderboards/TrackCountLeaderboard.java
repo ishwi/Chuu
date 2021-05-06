@@ -1,4 +1,4 @@
-package core.commands.stats;
+package core.commands.leaderboards;
 
 import core.commands.abstracts.LeaderboardCommand;
 import core.commands.utils.CommandCategory;
@@ -24,7 +24,7 @@ public class TrackCountLeaderboard extends LeaderboardCommand<NumberParameters<C
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
+        return CommandCategory.SERVER_LEADERBOARDS;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class TrackCountLeaderboard extends LeaderboardCommand<NumberParameters<C
         return new NumberParser<>(NoOpParser.INSTANCE,
                 -0L,
                 Integer.MAX_VALUE,
-                map, s, false, true, true);
+                map, s, false, true, true, "filter");
     }
 
     @Override

@@ -1,7 +1,6 @@
 package core.commands.whoknows;
 
 import core.commands.Context;
-import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.GenreParser;
 import core.parsers.Parser;
@@ -50,10 +49,6 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
     }
 
 
-    @Override
-    protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
-    }
 
     @Override
     public Parser<GenreParameters> initParser() {

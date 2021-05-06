@@ -1,21 +1,28 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.explanation.FullTimeframeExplanation;
 import core.parsers.explanation.YearExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChartYearParameters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
@@ -45,11 +52,30 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
         return timeframe;
     }
 
+
     @Override
     void setUpOptionals() {
         super.setUpOptionals();
         opts.add(new OptionalEntity("nolimit", "make the chart as big as possible"));
         opts.add(new OptionalEntity("time", "make the chart to be sorted by duration (quite inaccurate)"));
+    }
+
+    @Override
+    public ChartYearParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        Point point = InteractionAux.parseSize(e, () -> sendError(getErrorMessage(8), ctx));
+        if (point == null) {
+            return null;
+        }
+        Year year = Optional.ofNullable(e.getOption(YearExplanation.NAME)).map(OptionMapping::getAsLong).map(Long::intValue).map(Year::of).orElse(Year.now());
+        if (Year.now().compareTo(year) < 0) {
+            sendError(getErrorMessage(6), ctx);
+            return null;
+        }
+        TimeFrameEnum timeFrameEnum = calculateTimeFrame(year);
+        User user = InteractionAux.parseUser(e);
+        LastFMData data = findLastfmFromID(user, ctx);
+        return new ChartYearParameters(ctx, data, CustomTimeFrame.ofTimeFrameEnum(timeFrameEnum), point.x, point.y, year);
     }
 
     @Override

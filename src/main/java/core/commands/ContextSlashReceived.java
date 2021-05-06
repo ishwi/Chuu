@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.InteractionWebhookAction;
@@ -57,7 +58,7 @@ public final record ContextSlashReceived(SlashCommandEvent e) implements Context
 
     @Override
     public long getId() {
-        return e.getInteractionIdLong();
+        return e.getIdLong();
     }
 
     @Override
@@ -67,7 +68,7 @@ public final record ContextSlashReceived(SlashCommandEvent e) implements Context
 
     @Override
     public List<User> getMentionedUsers() {
-        return e.getOptions().stream().filter(t -> t.getType() == OptionType.USER).map(SlashCommandEvent.OptionData::getAsUser).toList();
+        return e.getOptions().stream().filter(t -> t.getType() == OptionType.USER).map(OptionMapping::getAsUser).toList();
     }
 
     @Override

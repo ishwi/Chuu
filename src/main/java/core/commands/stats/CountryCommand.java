@@ -56,7 +56,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
         NumberParser<TimeFrameParameters, TimerFrameParser> parser = new NumberParser<>(new TimerFrameParser(db, TimeFrameEnum.ALL),
                 null,
                 5,
-                map, s, false, true, false);
+                map, s, false, true, false, "palette");
         parser.addOptional(new OptionalEntity("list", "display in list format"));
         return parser;
 

@@ -67,7 +67,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         return new NumberParser<>(new ArtistTimeFrameParser(db, lastFM),
                 null,
                 Integer.MAX_VALUE,
-                map, s, false, true, true);
+                map, s, false, true, true, "goal");
     }
 
     @Override

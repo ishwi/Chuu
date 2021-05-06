@@ -1,4 +1,4 @@
-package core.commands.crowns;
+package core.commands.uniques;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
@@ -10,16 +10,17 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.services.ColorService;
 import dao.ChuuService;
-import dao.entities.AlbumPlays;
+import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.List;
 
-public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
-    public UniqueAlbumCommand(ChuuService dao) {
+public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
+    public UniqueCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
 
@@ -27,7 +28,7 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.UNIQUES;
     }
 
     @Override
@@ -37,17 +38,17 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public String getDescription() {
-        return ("Returns lists of all the unique albums you have scrobbled");
+        return ("Returns lists of all the unique artist you have scrobbled");
     }
 
     @Override
     public List<String> getAliases() {
-        return List.of("uniquealbums", "uniquealb");
+        return Collections.singletonList("unique");
     }
 
     @Override
     public String getName() {
-        return "Unique list of albums";
+        return "Unique list of artists";
     }
 
     @Override
@@ -55,16 +56,16 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
 
         String lastFmName = params.getLastFMData().getName();
 
-        UniqueWrapper<AlbumPlays> resultWrapper = getList(e.getGuild().getIdLong(), lastFmName);
+        UniqueWrapper<ArtistPlays> resultWrapper = getList(isGlobal() ? -1 : e.getGuild().getIdLong(), lastFmName);
         int rows = resultWrapper.getUniqueData().size();
         if (rows == 0) {
-            sendMessageQueue(e, String.format("You have no %sunique albums :(", isGlobal() ? "global " : ""));
+            sendMessageQueue(e, String.format("You have no %sunique artists :(", isGlobal() ? "global " : ""));
             return;
         }
 
         StringBuilder a = new StringBuilder();
         for (int i = 0; i < 10 && i < rows; i++) {
-            AlbumPlays g = resultWrapper.getUniqueData().get(i);
+            ArtistPlays g = resultWrapper.getUniqueData().get(i);
             a.append(i + 1).append(g.toString());
         }
 
@@ -72,11 +73,10 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
-                .setThumbnail(e.getGuild().getIconUrl());
-        embedBuilder.setDescription(a).setTitle(String.format("%s's%s unique albums", userInfo.getUsername(), isGlobal() ? " global" : ""), CommandUtil
-                .getLastFmUser(lastFmName))
-                .setThumbnail(userInfo.getUrlImage())
-                .setFooter(String.format("%s has %d%s unique albums!%n", CommandUtil.markdownLessUserString(userInfo.getUsername(), resultWrapper.getDiscordId(), e), rows, isGlobal() ? " global" : ""), null);
+                .setDescription(a)
+                .setAuthor(String.format("%s's%s unique artists", userInfo.getUsername(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.getUrlImage())
+                .setDescription(a)
+                .setFooter(String.format("%s has %d%s unique artists!%n", CommandUtil.markdownLessUserString(userInfo.getUsername(), resultWrapper.getDiscordId(), e), rows, isGlobal() ? " global" : ""), null);
 
         e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder));
@@ -87,8 +87,8 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
         return false;
     }
 
-    public UniqueWrapper<AlbumPlays> getList(long guildId, String lastFmName) {
-        return db.getUniquAlbums(guildId, lastFmName);
+    public UniqueWrapper<ArtistPlays> getList(long guildId, String lastFmName) {
+        return db.getUniqueArtist(guildId, lastFmName);
     }
 
 

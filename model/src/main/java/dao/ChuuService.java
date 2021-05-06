@@ -3041,9 +3041,9 @@ public class ChuuService {
         }
     }
 
-    public void logCommand(long discordId, Long guildId, String commandName, long nanos, Instant utc) {
+    public void logCommand(long discordId, Long guildId, String commandName, long nanos, Instant utc, boolean success, boolean isNormalCommand) {
         try (Connection connection = dataSource.getConnection()) {
-            updaterDao.logCommand(connection, discordId, guildId, commandName, nanos, utc);
+            updaterDao.logCommand(connection, discordId, guildId, commandName, nanos, utc, success, isNormalCommand);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

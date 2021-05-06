@@ -14,6 +14,7 @@ import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.Arrays;
@@ -37,7 +38,8 @@ public class AffinityParser extends DaoParser<AffinityParameters> {
     @Override
     public AffinityParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
         SlashCommandEvent e = ctx.e();
-        SlashCommandEvent.OptionData option = e.getOption("affinity-threshold");
+        OptionMapping option = e.getOption("affinity-threshold");
+
         Long threshold = null;
         if (option != null)
             threshold = option.getAsLong();
@@ -94,7 +96,7 @@ public class AffinityParser extends DaoParser<AffinityParameters> {
                     public ExplanationLine explanation() {
                         return new ExplanationLine(super.explanation().header(),
                                 "If an user is not specified it will display your affinity with all users from this server, otherwise your affinity with that user\n Alternatively you could also mention two different users",
-                                super.explanation().optionData());
+                                super.explanation().options());
                     }
                 }, () -> new ExplanationLineType("affinity-threshold", "\t If a threshold is set it means that the artists below that threshold will be discarded for the comparison", OptionType.INTEGER)
         );

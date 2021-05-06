@@ -147,24 +147,6 @@ public class AOTYBaseCommand extends ChartableCommand<ChartYearParameters> {
         emptyMbid.removeAll(mbFoundBYName);
 
         int discogsMetrics = 0;
-        if (doDiscogs()) {
-            List<AlbumInfo> foundDiscogsMatchingYear = emptyMbid.stream().filter(albumInfo -> {
-                try {
-
-                    Year tempYear = (discogsApi.getYearRelease(albumInfo.getName(), albumInfo.getArtist()));
-                    if (tempYear == null) {
-                        return false;
-                    }
-                    return tempYear.equals(year);
-                } catch (Exception ex) {
-                    return false;
-                }
-            }).toList();
-            CompletableFuture.runAsync(() -> db.insertAlbumsOfYear(foundDiscogsMatchingYear, year));
-            albumsMbizMatchingYear.addAll(foundDiscogsMatchingYear);
-            discogsMetrics = foundDiscogsMatchingYear.size();
-        }
-
         //Keep the order of the original queue so the final chart is ordered by plays
         AtomicInteger counter2 = new AtomicInteger(0);
         queue.removeIf(urlCapsule -> {

@@ -1,11 +1,13 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.ExtraParameters;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -41,6 +43,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
     private final boolean panicOnMultiple;
     private final boolean catchFirst;
     private final BiPredicate<Y, J> innerPredicate;
+    private final Function<SlashCommandEvent, J> fromSlash;
     private final BiFunction<Y, J, Z> finalReducer;
 
     public ExtraParser(T innerParser,
@@ -49,8 +52,8 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
                        Predicate<J> safetyPredicate,
                        Function<String, J> fromString,
                        Map<Integer, String> errorMessages,
-                       BiFunction<Y, J, Z> finalReducer, List<Explanation> explanations) {
-        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, errorMessages, null, finalReducer, explanations);
+                       BiFunction<Y, J, Z> finalReducer, List<Explanation> explanations, Function<SlashCommandEvent, J> fromSlash) {
+        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, errorMessages, null, finalReducer, explanations, fromSlash);
     }
 
 
@@ -60,8 +63,8 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
                        Predicate<J> safetyPredicate,
                        Function<String, J> fromString,
                        Map<Integer, String> errorMessages,
-                       BiPredicate<Y, J> innerPredicate, BiFunction<Y, J, Z> finalReducer, List<Explanation> explanations) {
-        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, errorMessages, explanations, innerPredicate, null, true, false, finalReducer);
+                       BiPredicate<Y, J> innerPredicate, BiFunction<Y, J, Z> finalReducer, List<Explanation> explanations, Function<SlashCommandEvent, J> fromSlash) {
+        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, errorMessages, explanations, innerPredicate, null, true, false, fromSlash, finalReducer);
     }
 
 
@@ -73,7 +76,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
                        Map<Integer, String> errorMessages,
                        List<Explanation> explanations, BiPredicate<Y, J> innerPredicate,
                        Function<List<J>, J> chooserPredicate,
-                       boolean panicOnMultiple, boolean catchFirst, BiFunction<Y, J, Z> finalReducer) {
+                       boolean panicOnMultiple, boolean catchFirst, Function<SlashCommandEvent, J> fromSlash, BiFunction<Y, J, Z> finalReducer) {
         super();
         this.innerParser = innerParser;
         def = defaultItem;
@@ -83,6 +86,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
         this.explanations = explanations;
         this.innerPredicate = innerPredicate;
         this.catchFirst = catchFirst;
+        this.fromSlash = fromSlash;
         this.finalReducer = finalReducer;
         this.opts.addAll(innerParser.opts);
         this.errorMessages.putAll(innerParser.errorMessages);
@@ -94,6 +98,30 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
     @Override
     protected void setUpErrorMessages() {
         //Ovverriding
+    }
+
+    @Override
+    public Z parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+
+        J item = fromSlash.apply(ctx.e());
+        if (item == null) {
+            item = def;
+        } else if (checkPredicate.test(item)) {
+            this.sendError(this.getErrorMessage(LIMIT_ERROR), ctx);
+            return null;
+        }
+        Y y = innerParser.parse(ctx);
+        if (y == null) {
+            return null;
+        }
+        if (this.innerPredicate != null && item != null) {
+            if (innerPredicate.test(y, item)) {
+                this.sendError(this.getErrorMessage(INNER_ERROR), ctx);
+                return null;
+            }
+        }
+        return finalReducer.apply(y, item);
+
     }
 
     @Override

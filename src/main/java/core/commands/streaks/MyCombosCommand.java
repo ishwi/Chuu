@@ -1,4 +1,4 @@
-package core.commands.stats;
+package core.commands.streaks;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
@@ -30,7 +30,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.STREAKS;
     }
 
     @Override

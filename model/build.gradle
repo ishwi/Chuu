@@ -33,7 +33,6 @@ update.dependsOn processResources
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {

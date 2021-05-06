@@ -36,7 +36,7 @@ public class PaceParser extends NumberParser<NumberParameters<NaturalTimeParams>
                 new HashMap<>(),
                 "Number that represents the number of periods of the specified timeframe",
                 false,
-                PaceParser::chooser);
+                PaceParser::chooser, "unit-count");
 
     }
 

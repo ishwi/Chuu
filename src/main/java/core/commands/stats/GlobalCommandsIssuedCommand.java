@@ -38,7 +38,7 @@ public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParam
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
+        return CommandCategory.BOT_STATS;
     }
 
     @Override

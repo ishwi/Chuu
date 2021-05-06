@@ -5,7 +5,6 @@ import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
-import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
@@ -33,10 +32,6 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
 
     }
 
-    @Override
-    protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
-    }
 
     @Override
     public Parser<ArtistParameters> initParser() {

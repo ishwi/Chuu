@@ -1,10 +1,12 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
-import core.parsers.exceptions.InvalidDateException;
 import core.parsers.explanation.YearExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChartYearParameters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
@@ -12,6 +14,7 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.awt.*;
 import java.time.Year;
@@ -37,6 +40,20 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
     }
 
     @Override
+    public ChartYearParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+        Year year = InteractionAux.parseYear(e, () -> sendError(getErrorMessage(6), ctx));
+        Point point = InteractionAux.parseSize(e, () -> sendError(getErrorMessage(6), ctx));
+
+        if (year == null || point == null) {
+            return null;
+        }
+        return new ChartYearParameters(ctx, findLastfmFromID(user, ctx), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL), point.x, point.y, year);
+
+    }
+
+    @Override
     public ChartYearParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(subMessage);
         User oneUser = parserAux.getOneUser(e, dao);
@@ -57,18 +74,11 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
             this.sendError(getErrorMessage(6), e);
             return null;
         }
-        CustomTimeFrame customTimeFrame;
-        try {
-            customTimeFrame = chartParserAux.parseCustomTimeFrame(defaultTFE);
-        } catch (InvalidDateException invalidDateException) {
-            this.sendError(invalidDateException.getErrorMessage(), e);
-            return null;
-        }
         if (Year.now().compareTo(year) < 0) {
             sendError(getErrorMessage(6), e);
             return null;
         }
-        return new ChartYearParameters(e, data, customTimeFrame, x, y, year);
+        return new ChartYearParameters(e, data, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL), x, y, year);
 
     }
 

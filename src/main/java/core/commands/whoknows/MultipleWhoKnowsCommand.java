@@ -1,6 +1,5 @@
 package core.commands.whoknows;
 
-import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.MultipleArtistsParser;
 import core.parsers.Parser;
@@ -60,10 +59,6 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
 
     }
 
-    @Override
-    protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
-    }
 
     @Override
     public Parser<MultiArtistParameters> initParser() {

@@ -1,4 +1,4 @@
-package core.commands.crowns;
+package core.commands.uniques;
 
 import core.commands.abstracts.LeaderboardCommand;
 import core.commands.utils.CommandCategory;
@@ -8,18 +8,17 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.entities.LbEntry;
 
-import java.util.Collections;
 import java.util.List;
 
-public class UniqueLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
-    public UniqueLeaderboardCommand(ChuuService dao) {
+public class UniqueSongsLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
+    public UniqueSongsLeaderboardCommand(ChuuService dao) {
         super(dao);
     }
 
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
+        return CommandCategory.UNIQUES;
     }
 
     @Override
@@ -29,27 +28,27 @@ public class UniqueLeaderboardCommand extends LeaderboardCommand<CommandParamete
 
     @Override
     public String getEntryName(CommandParameters params) {
-        return "unique artists";
+        return "unique songs";
     }
 
     @Override
     public String getDescription() {
-        return ("Unique artist leaderboard in guild");
+        return ("Unique songs leaderboard in guild");
     }
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("uniquelb");
+        return List.of("uniquesongslb", "uniquetrlb");
     }
 
     @Override
     public List<LbEntry> getList(CommandParameters parameters) {
-        return db.getUniqueLeaderboard(parameters.getE().getGuild().getIdLong());
+        return db.getUniqueSongLeaderboard(parameters.getE().getGuild().getIdLong());
     }
 
     @Override
     public String getName() {
-        return "Unique Leaderboard";
+        return "Unique songs leaderboard";
     }
 
 }

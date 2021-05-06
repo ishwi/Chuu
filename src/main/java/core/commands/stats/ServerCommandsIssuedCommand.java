@@ -30,7 +30,7 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
+        return CommandCategory.SERVER_LEADERBOARDS;
     }
 
     @Override

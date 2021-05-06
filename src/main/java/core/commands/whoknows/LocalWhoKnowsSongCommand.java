@@ -5,7 +5,6 @@ import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.entities.TrackExtended;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
@@ -30,10 +29,6 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
         this.spotify = SpotifySingleton.getInstance();
     }
 
-    @Override
-    protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
-    }
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {

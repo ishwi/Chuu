@@ -22,7 +22,7 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.BOT_STATS;
+        return CommandCategory.DISCOVERY;
     }
 
     @Override

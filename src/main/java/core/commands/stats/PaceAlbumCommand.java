@@ -68,7 +68,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         return new NumberParser<>(new AlbumTimeFrameParser(db, lastFM),
                 null,
                 Integer.MAX_VALUE,
-                map, s, false, true, true);
+                map, s, false, true, true, "goal");
     }
 
     @Override

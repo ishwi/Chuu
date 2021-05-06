@@ -591,7 +591,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(tempTable)) {
             preparedStatement.execute();
             String append = "insert into findAlbumByTrackName(artist,track) values (?,?)" +
-                    (",(?,?)").repeat(Math.max(0, urlCapsules.size() - 1));
+                            (",(?,?)").repeat(Math.max(0, urlCapsules.size() - 1));
             PreparedStatement preparedStatement1 = connection.prepareStatement(append);
             for (int i = 0; i < urlCapsules.size(); i++) {
                 preparedStatement1.setString(2 * i + 1, urlCapsules.get(i).getArtist());
@@ -640,7 +640,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(tempTable)) {
             preparedStatement.execute();
             String append = "insert into frequencies(mbid) values (?)" +
-                    (",(?)").repeat(Math.max(0, urlCapsules.size() - 1));
+                            (",(?)").repeat(Math.max(0, urlCapsules.size() - 1));
             PreparedStatement preparedStatement1 = connection.prepareStatement(append);
             for (int i = 0; i < urlCapsules.size(); i++) {
                 preparedStatement1.setObject(i + 1, java.util.UUID.fromString(urlCapsules.get(i).getAlbumMbid()));
@@ -648,10 +648,10 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
             preparedStatement1.execute();
 
             String queryString = "SELECT a.gid AS mbid,c.gid AS ambid ,c.name AS albumname, e.name AS artistaname  FROM musicbrainz.track a " +
-                    "JOIN musicbrainz.medium b ON a.medium = b.id " +
-                    "JOIN musicbrainz.release c ON b.release = c.id " +
-                    "JOIN musicbrainz.artist_credit e ON a.artist_credit = e.id " +
-                    "JOIN frequencies d ON a.gid = d.mbid";
+                                 "JOIN musicbrainz.medium b ON a.medium = b.id " +
+                                 "JOIN musicbrainz.release c ON b.release = c.id " +
+                                 "JOIN musicbrainz.artist_credit e ON a.artist_credit = e.id " +
+                                 "JOIN frequencies d ON a.gid = d.mbid";
             ResultSet resultSet = connection.prepareStatement(queryString).executeQuery();
             while (resultSet.next()) {
                 String mbid = resultSet.getString("mbid");
@@ -1154,6 +1154,9 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     @Override
     public MultiValuedMap<Genre, String> genreCountByArtist(Connection connection, List<ArtistInfo> releaseInfo) {
         MultiValuedMap<Genre, String> returnMap = new HashSetValuedHashMap<>();
+        if (releaseInfo.isEmpty()) {
+            return returnMap;
+        }
         StringBuilder queryString = new StringBuilder("""
                 SELECT\s
                        c.name as neim,d.gid as mbid
@@ -1166,9 +1169,11 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
                 WHERE
                     d.gid in (""");
 
+
         for (ArtistInfo ignored : releaseInfo) {
             queryString.append(" ? ,");
         }
+
 
         queryString = new StringBuilder(queryString.substring(0, queryString.length() - 1) + ")");
 

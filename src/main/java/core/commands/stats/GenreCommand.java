@@ -77,7 +77,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and a big number");
         String s = "You can also introduce a number to vary the number of genres shown in the pie," +
-                "defaults to 10";
+                   "defaults to 10";
 
         TimerFrameParser timerFrameParser = new TimerFrameParser(db, TimeFrameEnum.ALL);
         timerFrameParser.addOptional(new OptionalEntity("albums", "use albums instead of artist for the genres"));
@@ -91,7 +91,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         return new NumberParser<>(timerFrameParser,
                 10L,
                 Integer.MAX_VALUE,
-                map, s, false, true, false);
+                map, s, false, true, false, "count");
     }
 
     @Override

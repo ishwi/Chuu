@@ -5,7 +5,6 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
-import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.TwoUsersParser;
 import core.parsers.params.NumberParameters;
@@ -19,11 +18,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static core.parsers.ExtraParser.LIMIT_ERROR;
+import static core.parsers.NumberParser.generateThresholdParser;
 
 public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoUsersParamaters>> {
     public CrownsStolenCommand(ChuuService dao) {
@@ -39,14 +36,8 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
 
     @Override
     public Parser<NumberParameters<TwoUsersParamaters>> initParser() {
-        Map<Integer, String> map = new HashMap<>(2);
-        map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
-        String s = "You can also introduce a number to vary the number of plays to award a crown, " +
-                "defaults to whatever the guild has configured (0 if not configured)";
-        return new NumberParser<>(new TwoUsersParser(db),
-                null,
-                Integer.MAX_VALUE,
-                map, s, false, true, true);
+        return generateThresholdParser(new TwoUsersParser(db));
+
     }
 
     @Override

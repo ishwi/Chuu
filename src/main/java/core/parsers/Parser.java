@@ -13,6 +13,7 @@ import javacutils.Pair;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.*;
@@ -87,9 +88,9 @@ public abstract class Parser<T extends CommandParameters> {
 
     public T parseSlash(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
         SlashCommandEvent e = ctx.e();
-        List<SlashCommandEvent.OptionData> strings = e.getOptionsByType(OptionType.STRING);
+        List<OptionMapping> strings = e.getOptionsByType(OptionType.STRING);
         List<String> optionals = new ArrayList<>();
-        for (SlashCommandEvent.OptionData s : strings) {
+        for (OptionMapping s : strings) {
             if (s.getAsString().equals("yes") && opts.contains(new OptionalEntity(s.getName(), null))) {
                 optionals.add(s.getName());
             }

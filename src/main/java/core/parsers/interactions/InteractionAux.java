@@ -10,25 +10,23 @@ import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.explanation.util.Interactible;
 import core.services.NPService;
-import dao.entities.Callback;
-import dao.entities.LastFMData;
-import dao.entities.NowPlayingArtist;
-import dao.entities.TimeFrameEnum;
+import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.awt.*;
+import java.time.Year;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class InteractionAux {
-    static {
-
-    }
 
     private InteractionAux() {
 
@@ -36,19 +34,23 @@ public class InteractionAux {
     }
 
     public static TimeFrameEnum parseTimeFrame(SlashCommandEvent e, TimeFrameEnum fallback) {
-        return Optional.ofNullable(e.getOption(TimeframeExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsString).map(TimeFrameEnum::getFromComplete).orElse(fallback);
+        return Optional.ofNullable(e.getOption(TimeframeExplanation.NAME)).map(OptionMapping::getAsString).map(TimeFrameEnum::getFromComplete).orElse(fallback);
+    }
+
+    public static NaturalTimeFrameEnum parseNaturalTimeFrame(SlashCommandEvent e, NaturalTimeFrameEnum fallback) {
+        return Optional.ofNullable(e.getOption(NaturalTimeframeExplanation.NAME)).map(OptionMapping::getAsString).map(NaturalTimeFrameEnum::getFromComplete).orElse(fallback);
     }
 
     public static User parseUser(SlashCommandEvent e) {
-        return Optional.ofNullable(e.getOption(StrictUserExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsUser).orElse(e.getUser());
+        return Optional.ofNullable(e.getOption(StrictUserExplanation.NAME)).map(OptionMapping::getAsUser).orElse(e.getUser());
     }
 
     public static @Nullable String parseUrl(SlashCommandEvent e) {
-        return Optional.ofNullable(e.getOption(UrlExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsString).orElse(null);
+        return Optional.ofNullable(e.getOption(UrlExplanation.NAME)).map(OptionMapping::getAsString).orElse(null);
     }
 
     public static String parseSize(SlashCommandEvent e) {
-        return Optional.ofNullable(e.getOption(ChartSizeExplanation.NAME)).map(SlashCommandEvent.OptionData::getAsString).orElse("5x5");
+        return Optional.ofNullable(e.getOption(ChartSizeExplanation.NAME)).map(OptionMapping::getAsString).orElse("5x5");
     }
 
     public static @Nullable Point parseSize(SlashCommandEvent e, Callback errorMessage) {
@@ -57,37 +59,40 @@ public class InteractionAux {
         try {
             return ChartParserAux.processString(parseSize(e));
         } catch (InvalidChartValuesException ex) {
-            errorMessage.executeCallback();
+            errorMessage.execute();
             return null;
         }
     }
 
 
     public static @Nullable ArtistAlbum parseAlbum(SlashCommandEvent e, Callback errorMessage) {
-        return parseCommon(errorMessage, e, AlbumExplanation.NAME);
+        return parseCommonArtistAlbum(errorMessage, e, AlbumExplanation.NAME);
     }
 
     public static Explanation required(Explanation explanation) {
-        Interactible explanation1 = explanation.explanation();
-        return () -> new ExplanationLine(explanation1.header(), explanation1.usage(), explanation.explanation().optionData().setRequired(true));
+        Interactible intercepted = explanation.explanation();
+        List<OptionData> optionData = explanation.explanation().options();
+        optionData.forEach(t -> t.setRequired(true));
+
+        return () -> new ExplanationLine(intercepted.header(), intercepted.usage(), optionData);
     }
 
     @org.jetbrains.annotations.Nullable
-    public static InteractionAux.ArtistAlbum parseCommon(Callback errorMessage, SlashCommandEvent e, String explanation) {
+    public static InteractionAux.ArtistAlbum parseCommonArtistAlbum(Callback errorCallback, SlashCommandEvent e, String explanation) {
         var artist = e.getOption(ArtistExplanation.NAME);
         var album = e.getOption(explanation);
 
         if ((artist == null && album != null) || (album == null && artist != null)) {
-            errorMessage.executeCallback();
+            errorCallback.execute();
             return null;
         }
-        String artist1 = Optional.ofNullable(artist).map(SlashCommandEvent.OptionData::getAsString).orElse(null);
-        String album1 = Optional.ofNullable(album).map(SlashCommandEvent.OptionData::getAsString).orElse(null);
+        String artist1 = Optional.ofNullable(artist).map(OptionMapping::getAsString).orElse(null);
+        String album1 = Optional.ofNullable(album).map(OptionMapping::getAsString).orElse(null);
         return new ArtistAlbum(artist1, album1);
     }
 
     public static @Nullable ArtistAlbum parseSong(SlashCommandEvent e, Callback errorMessage) {
-        return parseCommon(errorMessage, e, TrackExplanation.NAME);
+        return parseCommonArtistAlbum(errorMessage, e, TrackExplanation.NAME);
 
     }
 
@@ -153,6 +158,15 @@ public class InteractionAux {
         public boolean empty() {
             return artist == null || album == null;
         }
+    }
+
+    public static @Nullable Year parseYear(SlashCommandEvent e, Callback errorCallback) {
+        Year year = Optional.ofNullable(e.getOption(YearExplanation.NAME)).map(OptionMapping::getAsLong).map(Long::intValue).map(Year::of).orElse(Year.now());
+        if (Year.now().compareTo(year) < 0) {
+            errorCallback.execute();
+            return null;
+        }
+        return year;
     }
 
 

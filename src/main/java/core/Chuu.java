@@ -242,6 +242,7 @@ public class Chuu {
                 //.setMemberCachePolicy(Chuu.cacheMember)
                 .enableCache(CacheFlag.EMOTE)
                 .enableCache(CacheFlag.VOICE_STATE)
+                .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
                 .setAudioSendFactory(new NativeAudioSendFactory())
 
                 .setBulkDeleteSplittingEnabled(false)

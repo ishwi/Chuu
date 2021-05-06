@@ -3,7 +3,6 @@ package core.commands.crowns;
 import core.commands.abstracts.LeaderboardCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
-import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
@@ -11,11 +10,9 @@ import dao.ChuuService;
 import dao.entities.LbEntry;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static core.parsers.ExtraParser.LIMIT_ERROR;
+import static core.parsers.NumberParser.generateThresholdParser;
 
 public class TrackCrownsLeaderboardCommand extends LeaderboardCommand<NumberParameters<CommandParameters>> {
 
@@ -30,16 +27,9 @@ public class TrackCrownsLeaderboardCommand extends LeaderboardCommand<NumberPara
 
     @Override
     public Parser<NumberParameters<CommandParameters>> initParser() {
-
-        Map<Integer, String> map = new HashMap<>(2);
-        map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
-        String s = "You can also introduce a number to vary the number of plays to award a crown, " +
-                "defaults to whatever the guild has configured (0 if not configured)";
-        return new NumberParser<>(NoOpParser.INSTANCE,
-                null,
-                Integer.MAX_VALUE,
-                map, s, false, true, true);
+        return generateThresholdParser(NoOpParser.INSTANCE);
     }
+
 
     @Override
     public String getEntryName(NumberParameters<CommandParameters> params) {

@@ -43,7 +43,7 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
         return new NumberParser<>(new TwoUsersParser(db),
                 null,
                 Integer.MAX_VALUE,
-                map, s, false, true, true);
+                map, s, false, true, true, "filter");
     }
 
     @Override

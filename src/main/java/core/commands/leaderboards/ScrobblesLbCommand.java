@@ -1,4 +1,4 @@
-package core.commands.stats;
+package core.commands.leaderboards;
 
 import core.commands.abstracts.LeaderboardCommand;
 import core.commands.utils.CommandCategory;
@@ -18,7 +18,7 @@ public class ScrobblesLbCommand extends LeaderboardCommand<CommandParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
+        return CommandCategory.SERVER_LEADERBOARDS;
     }
 
     @Override

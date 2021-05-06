@@ -6,6 +6,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
@@ -37,6 +38,12 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     final DiscogsApi discogsApi;
     final Spotify spotify;
     private final IPieableList<ReturnNowPlaying, T> pie;
+
+
+    @Override
+    public final CommandCategory initCategory() {
+        return CommandCategory.WHO_KNOWS;
+    }
 
     public WhoKnowsBaseCommand(ChuuService dao) {
         super(dao);

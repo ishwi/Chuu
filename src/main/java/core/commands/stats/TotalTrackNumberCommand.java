@@ -31,14 +31,13 @@ public class TotalTrackNumberCommand extends ConcurrentCommand<NumberParameters<
     @Override
     public Parser<NumberParameters<ChuuDataParams>> initParser() {
 
-
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce the playcount to only show songs above that number of plays";
         return new NumberParser<>(new OnlyUsernameParser(db),
                 -0L,
                 Integer.MAX_VALUE,
-                map, s, false, true, true);
+                map, s, false, true, true, "filter");
 
     }
 

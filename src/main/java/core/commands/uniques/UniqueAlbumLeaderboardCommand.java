@@ -1,4 +1,4 @@
-package core.commands.crowns;
+package core.commands.uniques;
 
 import core.commands.abstracts.LeaderboardCommand;
 import core.commands.utils.CommandCategory;
@@ -18,7 +18,7 @@ public class UniqueAlbumLeaderboardCommand extends LeaderboardCommand<CommandPar
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
+        return CommandCategory.UNIQUES;
     }
 
     @Override

@@ -21,7 +21,7 @@ public class RefreshLastfmDataCommand extends ConcurrentCommand<ChuuDataParams> 
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.CONFIGURATION;
     }
 
     @Override

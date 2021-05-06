@@ -10,6 +10,7 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UsersWrapper;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ArtistMbidUpdater implements Runnable {
@@ -43,6 +44,6 @@ public class ArtistMbidUpdater implements Runnable {
         } catch (Exception exception) {
             Chuu.getLogger().warn(exception.getMessage(), exception);
         }
-        return null;
+        return Collections.emptyList();
     }
 }

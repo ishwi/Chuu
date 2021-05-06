@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class TwoUsersExplanation implements Explanation {
-    public static final String NAME = "other-user";
+    public static final String NAME = "user";
 
     @Override
     public Interactible explanation() {

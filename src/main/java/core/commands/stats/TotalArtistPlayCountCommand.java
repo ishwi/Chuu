@@ -25,6 +25,7 @@ public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlay
         this.pie = new PieableListResultWrapper<>(getParser(),
                 ArtistPlays::getArtistName,
                 ArtistPlays::getCount);
+        this.respondInPrivate = false;
     }
 
     @Override
@@ -73,7 +74,7 @@ public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlay
 
     @Override
     public String getDescription() {
-        return "Total Plays";
+        return "Most played artists in a server";
     }
 
     @Override

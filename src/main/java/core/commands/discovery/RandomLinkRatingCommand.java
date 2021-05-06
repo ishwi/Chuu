@@ -41,7 +41,7 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
         return new NumberParser<>(new RandomAlbumParser(db),
                 null,
                 10,
-                map, s, false, true, true);
+                map, s, false, true, true, "rating");
     }
 
     @Override

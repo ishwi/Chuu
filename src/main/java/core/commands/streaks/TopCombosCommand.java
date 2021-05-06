@@ -1,4 +1,4 @@
-package core.commands.stats;
+package core.commands.streaks;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
@@ -41,7 +41,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.BOT_STATS;
+        return CommandCategory.STREAKS;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
         NumberParser<CommandParameters, NoOpParser> parser = new NumberParser<>(NoOpParser.INSTANCE,
                 null,
                 Integer.MAX_VALUE,
-                map, s, false, true, true);
+                map, s, false, true, true, "filter");
         parser.addOptional(new OptionalEntity("server", "only include people in this server"));
         parser.addOptional(new OptionalEntity("start", "show the moment the streak started"));
         return parser;

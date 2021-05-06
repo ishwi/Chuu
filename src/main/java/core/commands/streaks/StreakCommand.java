@@ -1,4 +1,4 @@
-package core.commands.stats;
+package core.commands.streaks;
 
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
@@ -49,7 +49,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.STREAKS;
     }
 
     @Override

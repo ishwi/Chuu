@@ -22,7 +22,7 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.BOT_STATS;
+        return CommandCategory.BOT_INFO;
     }
 
     @Override

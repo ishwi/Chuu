@@ -21,23 +21,23 @@ import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandCategory;
-import core.parsers.NoOpParser;
+import core.parsers.HelpParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
-import core.parsers.params.CommandParameters;
+import core.parsers.params.WordParameter;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class HelpCommand extends ConcurrentCommand<CommandParameters> {
+public class HelpCommand extends ConcurrentCommand<WordParameter> {
     private static final String NO_NAME = "No name provided for this command. Sorry!";
     private static final String NO_DESCRIPTION = "No description has been provided for this command. Sorry!";
     private static final String NO_USAGE = "No usage instructions have been provided for this command. Sorry!";
@@ -59,12 +59,12 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.BOT_INFO;
+        return CommandCategory.STARTING;
     }
 
     @Override
-    public Parser<CommandParameters> initParser() {
-        return new NoOpParser(new OptionalEntity("all", "DM you a list of all the commands with an explanation"));
+    public Parser<WordParameter> initParser() {
+        return new HelpParser(new OptionalEntity("all", "DM you a list of all the commands with an explanation"));
     }
 
     public MyCommand<?> registerCommand(MyCommand<?> command) {
@@ -106,11 +106,8 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @NotNull WordParameter params) {
         Character prefix = Chuu.getCorrespondingPrefix(e);
-        String[] args = parser.getSubMessage(e);
-
-
         if (params.hasOptional("all")) {
             e.sendMessage(new MessageBuilder()
                     .append(e.getAuthor())
@@ -120,18 +117,18 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
             e.getAuthor().openPrivateChannel().queue(privateChannel -> sendPrivate(privateChannel, e));
             return;
         }
-        if (args.length == 0) {
+        if (params.getWord() == null) {
             sendEmbed(e);
             return;
 
         }
-        doSend(args, e.getChannel(), prefix);
+        doSend(params.getWord(), e, prefix);
     }
 
     public void sendPrivate(MessageChannel channel, Context e) {
         Character prefix = Chuu.getCorrespondingPrefix(e);
         StringBuilder s = new StringBuilder();
-        List<MessageAction> messageActions = new ArrayList<>();
+        List<RestAction<Message>> messageActions = new ArrayList<>();
         s.append("A lot of commands accept different time frames which are the following:\n")
                 .append(" d: Day \n")
                 .append(" w: Week \n")
@@ -192,8 +189,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
         e.sendMessage(embedBuilder.build()).queue();
     }
 
-    private void doSend(String[] args, MessageChannel channel, Character prefix) {
-        String command = args[0];
+    private void doSend(String command, Context e, Character prefix) {
         List<MyCommand<?>> values = categoryMap.values().stream().flatMap(Collection::stream).toList();
         for (MyCommand<?> c : values) {
             if (c.getAliases().contains(command.toLowerCase())) {
@@ -209,8 +205,7 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
                 String realUsageInstructions = usageInstructions;
                 String remainingUsageInstructions = null;
                 List<String> pagees = TextSplitter.split(realUsageInstructions, 1900);
-                //TODO: Replace with a PrivateMessage
-                channel.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n")
+                e.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n")
                         .append("**Description:** ").append(description).append("\n")
                         .append("**Aliases:** ").append(String.valueOf(prefix))
                         .append(String.join(", " + prefix, c.getAliases())).append("\n")
@@ -218,13 +213,13 @@ public class HelpCommand extends ConcurrentCommand<CommandParameters> {
                         .append(prefix).append(pagees.get(0))
                         .build()).queue(x -> {
                     for (int i = 1; i < pagees.size(); i++) {
-                        channel.sendMessage(EmbedBuilder.ZERO_WIDTH_SPACE + pagees.get(i)).queue();
+                        e.sendMessage(EmbedBuilder.ZERO_WIDTH_SPACE + pagees.get(i)).queue();
                     }
                 });
                 return;
             }
         }
-        channel.sendMessage(new MessageBuilder().append("The provided command '**").append(args[0])
+        e.sendMessage(new MessageBuilder().append("The provided command '**").append(command)
                 .append("**' does not exist. Use ").append(prefix).append("help to list all commands.")
                 .build()).queue();
     }

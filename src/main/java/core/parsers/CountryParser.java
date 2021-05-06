@@ -16,6 +16,7 @@ import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
         TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, TimeFrameEnum.ALL);
         User user = InteractionAux.parseUser(e);
         LastFMData data = findLastfmFromID(user, ctx);
-        SlashCommandEvent.OptionData country = e.getOption("country");
+        OptionMapping country = e.getOption("country");
         CountryCode countryCode = fromString(ctx, country.getAsString());
         if (countryCode == null) return null;
         return new CountryParameters(ctx, data, countryCode, new CustomTimeFrame(timeFrameEnum));

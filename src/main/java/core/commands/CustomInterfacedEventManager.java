@@ -154,7 +154,6 @@ public class CustomInterfacedEventManager implements IEventManager {
                 myCommand = commandListeners.get(sce.getName().toLowerCase(Locale.ROOT));
             } else {
                 myCommand = commandListeners.get(sce.getSubcommandName().toLowerCase(Locale.ROOT));
-
             }
             try {
                 myCommand.onSlashCommandReceived(sce);

@@ -10,10 +10,11 @@ import org.apache.commons.lang3.ArrayUtils;
 
 public record NaturalTimeframeExplanation(NaturalTimeFrameEnum timeFrame) implements Explanation {
     private static final OptionData optionData;
+    public static final String NAME = "timeframe";
 
 
     static {
-        optionData = new OptionData(OptionType.STRING, "Timeframe", "idk");
+        optionData = new OptionData(OptionType.STRING, "timeframe", "the timeframe to use");
         NaturalTimeFrameEnum[] values = NaturalTimeFrameEnum.values();
         ArrayUtils.reverse(values);
         for (NaturalTimeFrameEnum value : values) {
@@ -23,7 +24,7 @@ public record NaturalTimeframeExplanation(NaturalTimeFrameEnum timeFrame) implem
 
     @Override
     public Interactible explanation() {
-        return new ExplanationLine("Time Expression",
+        return new ExplanationLine("natural-timeframe",
                 "One of Year,Quarter,Month,All,Semester,Week,Day,Hour,Minute,Second with plural forms and abbreviations included\n" +
                 "If the time expression is not specified it defaults to " + timeFrame.toValueString() + "\n", optionData);
     }

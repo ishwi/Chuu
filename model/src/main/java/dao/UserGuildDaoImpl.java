@@ -955,7 +955,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void serverBlock(Connection connection, long discordId, long guildId) {
-        String queryString = "insert into server_blocked(discord_id,guild_id)  values (?,?) ";
+        String queryString = "insert ignore into server_blocked(discord_id,guild_id)  values (?,?) ";
         updateUserGuild(connection, discordId, guildId, queryString);
     }
 

@@ -48,15 +48,18 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
     }
 
     @Override
-    protected void handleCommand(Context e) {
+    protected boolean handleCommand(Context e) {
         if (maxConcurrency.decrementAndGet() == 0) {
             sendMessageQueue(e, "There are a lot of people executing this command right now, try again later :(");
             maxConcurrency.incrementAndGet();
+            return true;
         } else {
             try {
                 super.handleCommand(e);
+                return true;
             } catch (Throwable ex) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);
+                return false;
             } finally {
                 maxConcurrency.incrementAndGet();
             }

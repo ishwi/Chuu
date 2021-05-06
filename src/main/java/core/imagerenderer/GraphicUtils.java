@@ -47,7 +47,7 @@ public class GraphicUtils {
     public static final Font[] palletes = new Font[]{JAPANESE_FIRST, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT, THAI_FONT};
 
     static {
-        try (InputStream in = GraphicUtils.class.getResourceAsStream("/" + "all.properties");
+        try (InputStream in = GraphicUtils.class.getResourceAsStream("/all.properties");
              InputStream in2 = WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png")) {
             if (in == null || in2 == null) {
                 throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
@@ -237,7 +237,7 @@ public class GraphicUtils {
         }
         g.drawImage(artistImage, 0, 0, canvas.getWidth(), canvas.getHeight(), 0, 0, artistImage.getWidth(), artistImage
                 .getHeight(), null);
-        new GaussianFilter(90).filter(canvas, canvas);
+        new GaussianFilter(75).filter(canvas, canvas);
         return g;
     }
 
@@ -460,7 +460,7 @@ public class GraphicUtils {
             if (temp != null) {
                 bim = cropImage(temp, SIZE_X, SIZE_Y);
                 temp.flush();
-                g.drawImage(bim, new GaussianFilter(90), 0, 0);
+                g.drawImage(bim, new GaussianFilter(75), 0, 0);
                 bim.flush();
             }
         } catch (IOException e) {

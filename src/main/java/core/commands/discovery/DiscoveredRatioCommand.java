@@ -24,7 +24,7 @@ public class DiscoveredRatioCommand extends ConcurrentCommand<TimeFrameParameter
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.DISCOVERY;
     }
 
     @Override

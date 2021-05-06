@@ -69,13 +69,14 @@ dependencies {
     implementation 'com.neovisionaries:nv-i18n:1.28'
     implementation 'com.github.natanbc:java-eval:1.0'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation("com.github.DV8FromTheWorld:JDA:5951675256d2418ed50fdfebc540438c4f6d001e")
+    implementation("com.github.DV8FromTheWorld:JDA:5336c2912d0aa33f8a93aedc2ec96d6360598380")
 //    implementation('net.dv8tion:JDA:4.2.1_255')
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'org.json', name: 'json', version: '20210307'
     implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.105'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-core', version: '3.7.0'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.7.0'
+    implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-webp', version: '3.7.0'
     implementation group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
     implementation group: 'org.apache.xmlgraphics', name: 'batik-transcoder', version: '1.14'
     implementation group: 'org.apache.xmlgraphics', name: 'batik-codec', version: '1.14'

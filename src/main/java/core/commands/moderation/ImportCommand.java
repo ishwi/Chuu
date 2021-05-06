@@ -233,7 +233,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
         Callback call;
         while ((call = queue.poll()) != null) {
             int length = stringBuilder.length();
-            call.executeCallback();
+            call.execute();
             if (stringBuilder.length() != length) {
                 stringBuilder.append(",");
             }

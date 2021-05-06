@@ -46,7 +46,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
+        return CommandCategory.TRENDS;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
         NumberParser<CommandParameters, NoOpParser> extraParser = new NumberParser<>(NoOpParser.INSTANCE,
                 5L,
                 100L,
-                map, s, false, true, false);
+                map, s, false, true, false, "count");
 
         extraParser.addOptional(new OptionalEntity("scrobbles", "sort the top by scrobble count, not listeners"));
         extraParser.addOptional(new OptionalEntity("full", "in case of doing the image show first 100 songs in the image"));

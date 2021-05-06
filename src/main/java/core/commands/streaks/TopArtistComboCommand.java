@@ -1,4 +1,4 @@
-package core.commands.stats;
+package core.commands.streaks;
 
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
@@ -49,7 +49,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.BOT_STATS;
+        return CommandCategory.STREAKS;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         NumberParser<ArtistParameters, ArtistParser> parser = new NumberParser<>(new ArtistParser(db, lastFM),
                 null,
                 Integer.MAX_VALUE,
-                map, s, false, true, true);
+                map, s, false, true, true, "filter");
         parser.addOptional(new OptionalEntity("server", "only include people in this server"));
         parser.addOptional(new OptionalEntity("me", "only include author of the command"));
         parser.addOptional(new OptionalEntity("myself", "same as `me`"));

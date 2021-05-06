@@ -54,8 +54,14 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         this.category = initCategory();
     }
 
-    private static void logCommand(ChuuService service, Context e, MyCommand<?> command, long exectTime) {
-        service.logCommand(e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : null, command.getName(), exectTime, Instant.now());
+    private static void logCommand(ChuuService service, Context e, MyCommand<?> command, long exectTime, boolean success, boolean isNormalCommand) {
+        service.logCommand(
+                e.getAuthor().getIdLong(),
+                e.isFromGuild() ? e.getGuild().getIdLong() : null,
+                command.getName(),
+                exectTime,
+                Instant.now(),
+                success, isNormalCommand);
 
     }
 
@@ -87,7 +93,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
             return;
         }
         if (!canAnswerFast) {
-            event.acknowledge(ephemeral).queue();
+            event.deferReply(ephemeral).queue();
         }
         ContextSlashReceived ctx = new ContextSlashReceived(event);
         if (isLongRunningCommand) {
@@ -144,18 +150,20 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
     protected void measureTime(Context e) {
         long startTime = System.nanoTime();
-        handleCommand(e);
+        boolean sucess = handleCommand(e);
         long timeElapsed = System.nanoTime() - startTime;
         System.out.printf("Execution time in milliseconds %s: %d%n", getName(), timeElapsed / 1000);
-        logCommand(db, e, this, timeElapsed);
+        logCommand(db, e, this, timeElapsed, sucess, e instanceof ContextMessageReceived);
     }
 
 
-    protected void handleCommand(Context e) {
+    protected boolean handleCommand(Context e) {
+        boolean success = false;
         try {
             T params = parser.parse(e);
             if (params != null) {
                 onCommand(e, params);
+                success = true;
             }
         } catch (LastFMNoPlaysException ex) {
             String username = ex.getUsername();
@@ -205,13 +213,14 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
                 Exception ex) {
             if (ex instanceof LastFMServiceException && ex.getMessage().equals("500")) {
                 parser.sendError("Last.fm is not working well atm :(", e);
-                return;
+                return false;
             }
             parser.sendError("Internal Chuu Error", e);
             Chuu.getLogger().warn(ex.getMessage(), ex);
         }
         if (e.isFromGuild())
             deleteMessage(e, e.getGuild().getIdLong());
+        return success;
     }
 
     private void deleteMessage(Context e, long guildId) {

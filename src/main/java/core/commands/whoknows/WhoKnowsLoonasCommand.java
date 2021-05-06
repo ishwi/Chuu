@@ -1,7 +1,6 @@
 package core.commands.whoknows;
 
 import core.commands.Context;
-import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageGenerator;
@@ -334,10 +333,6 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                                 .getReturnNowPlayings(), message1, embedBuilder));
     }
 
-    @Override
-    protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
-    }
 
     @Override
     public Parser<LOONAParameters> initParser() {

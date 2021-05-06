@@ -38,7 +38,7 @@ public class TotalAlbumNumberCommand extends ConcurrentCommand<NumberParameters<
         return new NumberParser<>(new OnlyUsernameParser(db),
                 -0L,
                 Integer.MAX_VALUE,
-                map, s, false, true, true);
+                map, s, false, true, true, "filter");
 
     }
 
