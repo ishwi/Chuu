@@ -87,13 +87,19 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         BlockingQueue<UrlCapsule> queue;
 
         int count;
+        int y = (int) (param.getY() * 1.4);
+        int x = (int) (param.getX() * 1.4);
+        if (y * x > 540) {
+            y = 1000;
+            x = 1;
+        }
         if (param.isArtist()) {
             queue = new ArtistQueue(db, discogsApi, spotifyApi, true);
-            count = lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), (int) (param.getX() * 1.4),
-                    (int) (param.getY() * 1.4), TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getUser()), queue);
+            count = lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), x,
+                    y, TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getUser()), queue);
         } else {
             queue = new ArrayBlockingQueue<>((int) (param.getX() * param.getY() * 2 * 1.4));
-            count = lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), (int) (param.getX() * 1.4), (int) (param.getY() * 1.4), TopEntity.ALBUM,
+            count = lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), x, y, TopEntity.ALBUM,
                     ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getUser()), queue);
         }
         boolean inverted = param.isInverse();
@@ -104,7 +110,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         List<UrlCapsule> temp = new ArrayList<>();
         queue.drainTo(temp);
         AtomicInteger coutner = new AtomicInteger(0);
-        temp = temp.stream().filter(x -> !x.getUrl().isBlank()).takeWhile(x -> coutner.incrementAndGet() <= param.getX() * param.getY()).toList();
+        temp = temp.stream().filter(z -> !z.getUrl().isBlank()).takeWhile(z -> coutner.incrementAndGet() <= param.getX() * param.getY()).toList();
         int rows = param.getX();
         int cols = param.getY();
         if (temp.size() < rows * cols) {
@@ -115,15 +121,15 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
 
 
         }
-        List<PreComputedChartEntity> preComputedItems = temp.parallelStream().map(x -> {
+        List<PreComputedChartEntity> preComputedItems = temp.parallelStream().map(z -> {
 
-            String cover = Chuu.getCoverService().getCover(x.getArtistName(), x.getAlbumName(), x.getUrl(), param.getE());
-            x.setUrl(cover);
+            String cover = Chuu.getCoverService().getCover(z.getArtistName(), z.getAlbumName(), z.getUrl(), param.getE());
+            z.setUrl(cover);
             BufferedImage image = GraphicUtils.getImage(cover);
             if (param.isColor()) {
-                return new PreComputedByColor(x, image, inverted);
+                return new PreComputedByColor(z, image, inverted);
             } else {
-                return new PreComputedByBrightness(x, image, inverted);
+                return new PreComputedByBrightness(z, image, inverted);
             }
         }).sorted().limit((long) rows * cols).toList();
         if (isColumn) {
