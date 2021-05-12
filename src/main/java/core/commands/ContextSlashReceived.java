@@ -76,14 +76,15 @@ public final record ContextSlashReceived(SlashCommandEvent e) implements Context
         return e.getHook().sendMessage(message);
     }
 
-    @Override
-    public RestAction<Message> sendMessage(Message message) {
-        return e.getHook().sendMessage(message);
-    }
 
     @Override
     public RestAction<Message> sendMessage(MessageEmbed embed) {
         return e.getHook().sendMessage(embed);
+    }
+
+    @Override
+    public RestAction<Message> sendMessage(MessageEmbed embed, User toMention) {
+        return e.getHook().sendMessage(embed).mention(toMention);
     }
 
     @Override

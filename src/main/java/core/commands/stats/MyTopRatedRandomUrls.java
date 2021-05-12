@@ -13,7 +13,6 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -52,7 +51,7 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
                 .setThumbnail(url)
                 .setColor(ColorService.computeColor(e));
 
-        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).
+        e.sendMessage(embedBuilder.build()).
                 queue(message ->
                         new Reactionary<>(list, message, embedBuilder));
     }

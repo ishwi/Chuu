@@ -11,7 +11,6 @@ import dao.ChuuService;
 import dao.entities.GenreInfo;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -63,6 +62,6 @@ public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
             NowPlayingArtist np = params.getNp();
             embedBuilder.setFooter("This genre was obtained from " + String.format("%s - %s | %s", np.artistName(), np.songName(), np.albumName()));
         }
-        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
     }
 }

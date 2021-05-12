@@ -10,7 +10,6 @@ import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -57,7 +56,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("User Deletion Confirmation")
                 .setDescription(String.format("%s, are you sure you want to delete all your info from the bot?", userString));
-        e.sendMessage(new MessageBuilder(embedBuilder.build()).build())
+        e.sendMessage(embedBuilder.build())
                 .queue(message -> new Confirmator(embedBuilder, message, idLong,
                         () -> db.removeUserCompletely(idLong), () -> {
                 }

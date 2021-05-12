@@ -15,7 +15,6 @@ import dao.entities.RymStats;
 import dao.entities.ScoredAlbumRatings;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
@@ -126,7 +125,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
                 .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage())
                 .setFooter(userInfoConsideringGuildOrNot.getUsername() + " has rated " + stats.getNumberOfRatings() + " albums with an average of " + formatter.format(stats.getAverage() / 2f))
                 .setDescription(a);
-        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(stringList, message1, 8, embedBuilder, false));
     }
 }

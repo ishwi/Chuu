@@ -14,7 +14,6 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -97,7 +96,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                 Chuu.getCoverService().getCover(albumSummary.getArtist(), albumSummary.getAlbum(), albumSummary.getAlbumUrl(), e))
                 .setColor(ColorService.computeColor(e))
                 .setThumbnail(artist.getUrl());
-        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
         if (!albumSummary.getTagList().isEmpty()) {
             executor.submit(new TagAlbumService(db, lastFM, albumSummary.getTagList(), new AlbumInfo(albumSummary.getMbid(), albumSummary.getAlbum(), albumSummary.getArtist())));
 

@@ -36,7 +36,7 @@ public class NPSpotifyCommand extends NpCommand {
                     .songName())));
             return;
         }
-        e.sendMessage(messageBuilder.setContent(uri).build()).queue();
+        e.sendMessage(uri).queue();
     }
 
     @Override

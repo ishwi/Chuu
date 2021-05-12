@@ -14,7 +14,6 @@ import core.services.ColorService;
 import core.services.MessageDisablingService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -138,6 +137,6 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
 
         embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "'s commands status")
                 .setThumbnail(e.getGuild().getIconUrl());
-        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
     }
 }

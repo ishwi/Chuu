@@ -23,7 +23,6 @@ import dao.entities.TrackPlays;
 import dao.entities.UniqueWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -121,8 +120,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
                 .setAuthor(String.format("%s's %scrowns", userName, getTitle(scrobbledArtist)), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()), userInformation.getUrlImage())
                 .setThumbnail(scrobbledArtist.getUrl())
                 .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), getTitle(scrobbledArtist)), null);
-        e.sendMessage(new MessageBuilder()
-                .setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
 
                 new Reactionary<>(strings, message1, embedBuilder));
     }

@@ -10,8 +10,6 @@ import core.parsers.explanation.util.UsageLogic;
 import core.parsers.params.CommandParameters;
 import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -164,17 +162,11 @@ public abstract class Parser<T extends CommandParameters> {
     }
 
 
-    private void sendMessage(Message message, Context e) {
-        if (e instanceof ContextMessageReceived mes) {
-            mes.getChannel().sendMessage(message).reference(mes.e().getMessage()).queue();
-        } else {
-            e.sendMessage(message).queue();
-        }
-    }
+
 
     public void sendError(String message, Context e) {
         String errorBase = "Error on " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + "'s request:\n";
-        sendMessage(new MessageBuilder().append(errorBase).append(message).build(), e);
+        e.sendMessage(errorBase + message).queue();
     }
 
 

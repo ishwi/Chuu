@@ -20,7 +20,6 @@ import dao.entities.Rating;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
@@ -123,7 +122,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
                 .setColor(ColorService.computeColor(e))
                 .setDescription(a + "\n" + name + "\n" + global);
 
-        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(stringList, message1, embedBuilder));
 
 

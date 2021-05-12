@@ -14,7 +14,6 @@ import core.services.CoverService;
 import dao.ChuuService;
 import dao.entities.CoverItem;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -68,8 +67,7 @@ public class AltCoverListCommand extends ConcurrentCommand<CommandParameters> {
                 .setColor(ColorService.computeColor(e))
                 .setTitle("Alt covers");
 
-        e.sendMessage(new MessageBuilder()
-                .setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(str, message1, embedBuilder));
 
 

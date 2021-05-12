@@ -46,8 +46,6 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
     @CheckReturnValue
     RestAction<Message> sendMessage(String content);
 
-    @CheckReturnValue
-    RestAction<Message> sendMessage(Message message);
 
     @CheckReturnValue
     RestAction<Message> sendMessage(MessageEmbed embed);
@@ -64,6 +62,8 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
     default void sendImage(BufferedImage image, ChartQuality chartQuality) {
         sendImage(image, chartQuality, null);
     }
+
+    RestAction<Message> sendMessage(MessageEmbed embed, User toMention);
 
     void doSendImage(byte[] img, String format, @Nullable EmbedBuilder embedBuilder);
 

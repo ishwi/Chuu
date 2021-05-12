@@ -15,7 +15,6 @@ import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -96,8 +95,7 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
                 .setTitle(String.format("%s's %scrowns", userName, getTitle()), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
                 .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), getTitle()), null)
                 .setThumbnail(userUrl);
-        e.sendMessage(new MessageBuilder()
-                .setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
 
                 new Reactionary<>(resultWrapper, message1, embedBuilder));
     }

@@ -17,7 +17,6 @@ import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -87,7 +86,7 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
                 .setTitle(correctedArtist + "'s aliases")
                 .setFooter("You can submit an alias using " + prefix + "alias", null)
                 .setThumbnail(scrobbledArtist.getUrl());
-        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(artistAliases, message1, embedBuilder));
     }
 

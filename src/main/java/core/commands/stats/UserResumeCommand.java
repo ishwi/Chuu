@@ -19,7 +19,6 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -82,6 +81,6 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
                 .addField("Total albums:", albumCount + " albums", true)
                 .addField("Total artists:", artistCount + " artists", true);
 
-        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
+        e.sendMessage(embedBuilder.build()).queue();
     }
 }

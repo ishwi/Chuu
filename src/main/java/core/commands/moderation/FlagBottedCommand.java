@@ -52,7 +52,7 @@ public class FlagBottedCommand extends ConcurrentCommand<ChuuDataParams> {
             return;
         }
         LastFMData botter = params.getLastFMData();
-        db.flagAsBotted(botter.getDiscordId());
+        db.flagAsBotted(botter.getName());
         sendMessageQueue(e, "Flagged %s as a botter".formatted(botter.getName()));
     }
 }

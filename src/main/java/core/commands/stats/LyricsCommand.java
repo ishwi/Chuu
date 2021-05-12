@@ -22,7 +22,6 @@ import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -103,7 +102,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
                 .setAuthor(String.format("%s - %s", correctedArtist, song), LinkUtils.getLastFMArtistTrack(correctedArtist, song), urlImage)
                 .setFooter(String.format("Lyrics found for %s - %s", correctedArtist, song))
                 .setThumbnail(lyrics.getImageUrl() == null ? url : lyrics.getImageUrl());
-        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(pages, message1, 1, embedBuilder, false, true, 120));
     }
 }

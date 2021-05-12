@@ -20,7 +20,6 @@ import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -142,7 +141,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
                 embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
                         .setColor(ColorService.computeColor(e))
                         .setDescription(s);
-                e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue();
+                e.sendMessage(embedBuilder.build()).queue();
             }
         }
     }

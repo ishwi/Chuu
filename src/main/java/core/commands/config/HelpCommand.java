@@ -109,11 +109,9 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     protected void onCommand(Context e, @NotNull WordParameter params) {
         Character prefix = Chuu.getCorrespondingPrefix(e);
         if (params.hasOptional("all")) {
-            e.sendMessage(new MessageBuilder()
-                    .append(e.getAuthor())
-                    .append(": Help information was sent as a private message.")
-                    .mentionUsers(e.getAuthor().getIdLong())
-                    .build()).queue();
+            e.sendMessage(new EmbedBuilder().setDescription(new StringBuilder()
+                    .append(e.getAuthor()))
+                    .build(), e.getAuthor()).queue();
             e.getAuthor().openPrivateChannel().queue(privateChannel -> sendPrivate(privateChannel, e));
             return;
         }
@@ -205,13 +203,12 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
                 String realUsageInstructions = usageInstructions;
                 String remainingUsageInstructions = null;
                 List<String> pagees = TextSplitter.split(realUsageInstructions, 1900);
-                e.sendMessage(new MessageBuilder().append("**Name:** ").append(name).append("\n")
-                        .append("**Description:** ").append(description).append("\n")
-                        .append("**Aliases:** ").append(String.valueOf(prefix))
-                        .append(String.join(", " + prefix, c.getAliases())).append("\n")
-                        .append("**Usage:** ")
-                        .append(prefix).append(pagees.get(0))
-                        .build()).queue(x -> {
+                e.sendMessage("**Name:** " + name + "\n" +
+                              "**Description:** " + description + "\n" +
+                              "**Aliases:** " + prefix +
+                              String.join(", " + prefix, c.getAliases()) + "\n" +
+                              "**Usage:** " +
+                              prefix + pagees.get(0)).queue(x -> {
                     for (int i = 1; i < pagees.size(); i++) {
                         e.sendMessage(EmbedBuilder.ZERO_WIDTH_SPACE + pagees.get(i)).queue();
                     }
@@ -219,9 +216,8 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
                 return;
             }
         }
-        e.sendMessage(new MessageBuilder().append("The provided command '**").append(command)
-                .append("**' does not exist. Use ").append(prefix).append("help to list all commands.")
-                .build()).queue();
+        e.sendMessage("The provided command '**" + command +
+                      "**' does not exist. Use " + prefix + "help to list all commands.").queue();
     }
 
 

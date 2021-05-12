@@ -14,7 +14,6 @@ import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
@@ -73,7 +72,7 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
                 .setTitle("Artist's frequencies")
                 .setFooter(String.format("%s has %d different artists!%n", e.getGuild().getName(), wrapper.getRows()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
-        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(message1 ->
+        e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(lines, message1, embedBuilder));
     }
 

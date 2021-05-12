@@ -33,7 +33,6 @@ import core.parsers.params.CommandParameters;
 import core.services.ColorService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -127,6 +126,6 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
         embedBuilder
                 .setDescription(str.stream().limit(10).collect(Collectors.joining()))
                 .setColor(ColorService.computeColor(e));
-        e.sendMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build()).queue(m -> new Reactionary<>(str, m, 10, embedBuilder, false, true));
+        e.sendMessage(embedBuilder.build()).queue(m -> new Reactionary<>(str, m, 10, embedBuilder, false, true));
     }
 }

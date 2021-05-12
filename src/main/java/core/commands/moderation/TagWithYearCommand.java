@@ -14,7 +14,6 @@ import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import javax.validation.constraints.NotNull;
@@ -95,7 +94,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("Year confirmation")
                 .setDescription(String.format("%s, want to tag the album **%s** of **%s** with the year **%s**?", userString, album, artist, year));
-        e.sendMessage(new MessageBuilder(embedBuilder.build()).build())
+        e.sendMessage(embedBuilder.build())
                 .queue(queu -> new Confirmator(embedBuilder, queu, idLong,
                         () -> {
                             if (lastFMData.getRole() == Role.ADMIN) {

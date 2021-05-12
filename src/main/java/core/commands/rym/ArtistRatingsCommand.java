@@ -21,7 +21,6 @@ import dao.entities.Rating;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
@@ -115,9 +114,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
                 .setColor(ColorService.computeColor(e))
                 .setThumbnail(scrobbledArtist.getUrl());
 
-        e.sendMessage(new MessageBuilder().
-                setEmbed(embedBuilder.build()).
-                build()).
+        e.sendMessage(embedBuilder.build()).
                 queue(message1 ->
                         new Reactionary<>(mappedString, message1, 5, embedBuilder));
     }

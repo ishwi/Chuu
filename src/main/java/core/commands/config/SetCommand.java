@@ -17,7 +17,6 @@ import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 import javax.validation.constraints.NotNull;
@@ -132,12 +131,11 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
         }
 
         //Never registered before
-        MessageBuilder mes = new MessageBuilder();
-        mes.setContent("**" + CommandUtil.cleanMarkdownCharacter(e.getAuthor()
+        String sb = "**" + CommandUtil.cleanMarkdownCharacter(e.getAuthor()
                 .
 
-                        getName()) + "** has set their last FM name \n Updating your library, wait a moment");
-        e.sendMessage(mes.build()).
+                        getName()) + "** has set their last FM name \n Updating your library, wait a moment";
+        e.sendMessage(sb).
                 queue(t -> e.getChannel().
                         sendTyping().
                         queue());
