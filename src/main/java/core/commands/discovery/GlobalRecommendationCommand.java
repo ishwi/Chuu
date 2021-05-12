@@ -5,11 +5,11 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.stats.AffinityCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.parsers.NoOpParser;
 import core.parsers.NumberParser;
-import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
-import core.parsers.params.ChuuDataParams;
+import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import core.services.ColorService;
 import dao.ChuuService;
@@ -30,7 +30,7 @@ import java.util.TreeMap;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
-public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
+public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParameters<CommandParameters>> {
     public GlobalRecommendationCommand(ChuuService dao) {
         super(dao);
     }
@@ -41,12 +41,12 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
     }
 
     @Override
-    public Parser<NumberParameters<ChuuDataParams>> initParser() {
+    public Parser<NumberParameters<CommandParameters>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and smaller than 25");
         String s = "You can also introduce a number to vary the number of recommendations that you will receive, " +
-                "defaults to 1";
-        NumberParser<ChuuDataParams, OnlyUsernameParser> parser = new NumberParser<>(new OnlyUsernameParser(db),
+                   "defaults to 1";
+        NumberParser<CommandParameters, NoOpParser> parser = new NumberParser<>(NoOpParser.INSTANCE,
                 1L,
                 Integer.MAX_VALUE,
                 map, s, false, true);
@@ -70,9 +70,8 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) throws InstanceNotFoundException {
 
-        ChuuDataParams innerParams = params.getInnerParams();
 
         long firstDiscordID;
         long secondDiscordID;
