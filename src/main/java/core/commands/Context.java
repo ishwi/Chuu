@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.annotation.CheckReturnValue;
+import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -64,7 +65,7 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
         sendImage(image, chartQuality, null);
     }
 
-    void doSendImage(byte[] img, String format, EmbedBuilder embedBuilder);
+    void doSendImage(byte[] img, String format, @Nullable EmbedBuilder embedBuilder);
 
     default void sendImage(BufferedImage image, ChartQuality chartQuality, EmbedBuilder embedBuilder) {
         if (image == null) {

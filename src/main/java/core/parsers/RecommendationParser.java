@@ -1,21 +1,36 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.RecommendationsParams;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class RecommendationParser extends DaoParser<RecommendationsParams> {
     private final int defaultCount;
+    private static final OptionData recs;
+
+    static {
+        recs = new OptionData(OptionType.INTEGER, "number-of-recs", "Indicates the number of recommendations allowed. Defaults to 1");
+        IntStream.range(1, 26).forEachOrdered(t -> recs.addChoice(String.valueOf(t), t));
+    }
 
     public RecommendationParser(ChuuService dao) {
         this(dao, 1);
@@ -33,6 +48,26 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
     @Override
     void setUpOptionals() {
         this.opts.add(new OptionalEntity("repeated", "gives you a repeated recommendation"));
+    }
+
+
+    @Override
+    public RecommendationsParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        OptionMapping recCount = e.getOption(recs.getName());
+
+        int threshold = defaultCount;
+        if (recCount != null)
+            threshold = Math.toIntExact(recCount.getAsLong());
+        User user = InteractionAux.parseUser(e);
+        boolean doServer = user == e.getUser();
+        if (!doServer) {
+            LastFMData first = findLastfmFromID(e.getUser(), ctx);
+            LastFMData second = findLastfmFromID(user, ctx);
+            return new RecommendationsParams(ctx, first, second, false, threshold);
+        } else {
+            return new RecommendationsParams(ctx, null, null, true, threshold);
+        }
     }
 
     @Override
@@ -75,6 +110,7 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
 
     @Override
     public List<Explanation> getUsages() {
+
         return List.of(
                 new PermissiveUserExplanation() {
                     @Override
@@ -85,7 +121,8 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
                                         Alternatively you could also mention two different users.""", super.explanation().options());
                     }
                 }
-        );
+                ,
+                () -> new ExplanationLine(recs.getName(), recs.getDescription(), recs));
     }
 
 

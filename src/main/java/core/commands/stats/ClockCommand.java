@@ -85,7 +85,7 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
         if (bytes.length < maxSize) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setImage("attachment://cat.gif").setDescription("");
-            e.doSendImage(bytes, ".gif", embed);
+            e.doSendImage(bytes, ".gif", null);
 
         } else
             e.sendMessage("File was too big").queue();

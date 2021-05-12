@@ -50,7 +50,8 @@ public class InteractionBuilder {
             CommandCategory.CONFIGURATION,
             CommandCategory.MODERATION,
             CommandCategory.STARTING,
-            CommandCategory.MUSIC
+            CommandCategory.MUSIC,
+            CommandCategory.DISCOVERY
     );
     private static final Set<Class<? extends MyCommand<?>>> filtered = Set.of(EvalCommand.class, MbidUpdatedCommand.class, RefreshSlashCommand.class);
 

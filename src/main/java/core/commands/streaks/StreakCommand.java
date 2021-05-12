@@ -94,7 +94,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
         if (combo.getaCounter() >= 3) {
-            if (combo.gettCounter() >= StreakEntity.MAX_STREAK) {
+            if (combo.gettCounter() >= StreakEntity.MAX_STREAK || combo.getStreakStart().isBefore(Instant.EPOCH.plus(350, ChronoUnit.DAYS))) {
                 //Only one allowed Max Streak per user
                 combo.setStreakStart(Instant.EPOCH.plus(1, ChronoUnit.DAYS));
             }

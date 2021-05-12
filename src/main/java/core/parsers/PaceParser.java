@@ -37,6 +37,7 @@ public class PaceParser extends NumberParser<NumberParameters<NaturalTimeParams>
                 "Number that represents the number of periods of the specified timeframe",
                 false,
                 PaceParser::chooser, "unit-count");
+        this.setReverseOrder(true);
 
     }
 

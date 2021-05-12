@@ -36,7 +36,7 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.DISCOVERY;
+        return CommandCategory.CHARTS;
     }
 
     @Override

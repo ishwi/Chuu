@@ -45,6 +45,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
     private final BiPredicate<Y, J> innerPredicate;
     private final Function<SlashCommandEvent, J> fromSlash;
     private final BiFunction<Y, J, Z> finalReducer;
+    private boolean reverseOrder = false;
 
     public ExtraParser(T innerParser,
                        J defaultItem,
@@ -93,6 +94,10 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
         this.errorMessages.putAll(errorMessages);
         this.chooserPredicate = chooserPredicate;
         this.panicOnMultiple = panicOnMultiple;
+    }
+
+    public void setReverseOrder(boolean reverseOrder) {
+        this.reverseOrder = reverseOrder;
     }
 
     @Override
@@ -164,8 +169,13 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
 
     @Override
     public List<Explanation> getUsages() {
+        if (this.reverseOrder) {
+            return Stream.of(this.explanations, innerParser.getUsages()).flatMap(Collection::stream).toList();
+        }
         return Stream.of(innerParser.getUsages(), this.explanations).flatMap(Collection::stream).toList();
+
     }
 
 
 }
+

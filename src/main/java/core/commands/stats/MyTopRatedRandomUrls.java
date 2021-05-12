@@ -59,7 +59,7 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.DISCOVERY;
     }
 
     @Override

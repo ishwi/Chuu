@@ -239,9 +239,7 @@ public class Chuu {
         EnumSet<CacheFlag> cacheFlags = EnumSet.allOf(CacheFlag.class);
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents())
                 .setChunkingFilter(ChunkingFilter.ALL)
-                //.setMemberCachePolicy(Chuu.cacheMember)
-                .enableCache(CacheFlag.EMOTE)
-                .enableCache(CacheFlag.VOICE_STATE)
+                .enableCache(CacheFlag.EMOTE, CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
                 .setAudioSendFactory(new NativeAudioSendFactory())
 
