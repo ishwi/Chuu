@@ -3353,10 +3353,10 @@ public class ChuuService {
         }
     }
 
-    public Optional<Instant> getLastScrobbled(long artistId, String song, String lastfmId) {
+    public Optional<Instant> getLastScrobbled(long artistId, String song, String lastfmId, boolean skipToday) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getLastScrobbled(connection, lastfmId, artistId, song, false);
+            return queriesDao.getLastScrobbled(connection, lastfmId, artistId, song, skipToday);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

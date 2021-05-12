@@ -53,7 +53,7 @@ public class LastPlayedCommand extends AlbumPlaysCommand {
     protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, Context e, long who, ArtistAlbumParameters params) {
         LastFMData lastFMData = params.getLastFMData();
 
-        Optional<Instant> instant = db.getLastScrobbled(artist.getArtistId(), song, params.getLastFMData().getName());
+        Optional<Instant> instant = db.getLastScrobbled(artist.getArtistId(), song, params.getLastFMData().getName(), params.hasOptional("today"));
         if (instant.isEmpty()) {
             sendMessageQueue(e, "Couldn't get the last time you scrobbled **" + song + "** by _" + artist.getArtist() + "_");
             return;

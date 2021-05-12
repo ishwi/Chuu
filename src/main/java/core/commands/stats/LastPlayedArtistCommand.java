@@ -57,7 +57,7 @@ public class LastPlayedArtistCommand extends ConcurrentCommand<ArtistParameters>
         long whom = params.getLastFMData().getDiscordId();
         int a;
         LastFMData data = params.getLastFMData();
-        Optional<Instant> instant = db.getLastScrobbledArtist(artist.getArtistId(), params.getLastFMData().getName(), false);
+        Optional<Instant> instant = db.getLastScrobbledArtist(artist.getArtistId(), params.getLastFMData().getName(), params.hasOptional("today"));
         if (instant.isEmpty()) {
             sendMessageQueue(e, "Couldn't get the last time you scrobbled **" + artist.getArtist() + "**");
             return;

@@ -3846,7 +3846,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public Optional<Instant> getLastScrobbled(Connection connection, String lastfmId, long artistId, String song, boolean skipToday) {
-        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ? and track_name = ? and (not ? || date(timestamp ) <> now()) order by timestamp  desc limit 1";
+        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ? and track_name = ? and (not ? || timestamp  <= now() - interval  1 day) order by timestamp  desc limit 1";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, artistId);
@@ -3889,7 +3889,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public Optional<Instant> getLastScrobbledArtist(Connection connection, String lastfmId, long artistId, boolean skipToday) {
-        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ? and (not ? || date(timestamp ) <> now())  order by timestamp  desc limit 1";
+        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ? and (not ? ||  timestamp  <= (now() - interval  1 day))  order by timestamp  desc limit 1";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, artistId);
