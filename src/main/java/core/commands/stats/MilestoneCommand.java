@@ -72,7 +72,7 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
         Long extraParam = params.getExtraParam();
         LastFMData lastFMData = params.getInnerParams().getLastFMData();
         Optional<TrackWithArtistId> milestoneOpt = lastFM.getMilestone(lastFMData, extraParam);
-        milestoneOpt.ifPresentOrElse(tr -> buildEmbed(e, extraParam, lastFMData, tr), () -> sendMessageQueue(e, "There was a problem getting your milestone"));
+        milestoneOpt.ifPresentOrElse(tr -> buildEmbed(e, extraParam, lastFMData, tr), () -> sendMessageQueue(e, "You probably don't have %d scrobbles".formatted(extraParam)));
     }
 
     private void buildEmbed(Context e, Long extraParam, LastFMData lastFMData, TrackWithArtistId milestone) {
