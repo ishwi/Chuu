@@ -1353,11 +1353,11 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
-    public void flagBotted(long discordId, Connection connection) {
-        String queryString = "insert ignore botted(discord_id) values (?)";
+    public void flagBotted(String lastfmId, Connection connection) {
+        String queryString = "insert ignore botted(lastfm_id) values (?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setLong(1, discordId);
+            preparedStatement.setString(1, lastfmId);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

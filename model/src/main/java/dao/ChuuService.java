@@ -3730,9 +3730,9 @@ public class ChuuService {
         }
     }
 
-    public void flagAsBotted(long discordId) {
+    public void flagAsBotted(String lastfmId) {
         try (Connection connection = dataSource.getConnection()) {
-            userGuildDao.flagBotted(discordId, connection);
+            userGuildDao.flagBotted(lastfmId, connection);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

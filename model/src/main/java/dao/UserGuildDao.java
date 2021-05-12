@@ -151,7 +151,7 @@ interface UserGuildDao {
 
     Map<Long, EmbedColor.EmbedColorType> getServerColorTypes(Connection connection);
 
-    void flagBotted(long discordId, Connection connection);
+    void flagBotted(String lastfmId, Connection connection);
 
     void insertBannedCover(Connection connection, long albumId, String cover);
 

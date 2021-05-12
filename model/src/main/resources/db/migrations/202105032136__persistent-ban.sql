@@ -1,11 +1,11 @@
 create table botted
 (
-    id         bigint primary key auto_increment not null,
-    discord_id bigint                            not null,
-    unique (discord_id)
+    id        bigint primary key auto_increment not null,
+    lastfm_id varchar(45) charset ascii         not null,
+    unique (lastfm_id)
 );
-insert into botted(discord_id)
-select discord_id
+insert into botted(lastfm_id)
+select lastfm_id
 from user
 where botted_account = true;
 
@@ -27,7 +27,7 @@ create trigger botter
     for each row
     update user
     set botted_account = true
-    where discord_id = NEW.discord_id;
+    where lastfm_id = NEW.lastfm_id;
 
 create trigger imaged
     after INSERT
@@ -57,3 +57,5 @@ alter table command_logs
     add column success boolean;
 alter table command_logs
     add column is_slash boolean;
+
+
