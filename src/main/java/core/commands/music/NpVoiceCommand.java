@@ -21,6 +21,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.MusicCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
 import core.music.sources.MetadataTrack;
@@ -70,7 +71,7 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
         MusicManager manager = Chuu.playerRegistry.get(e.getGuild());
         AudioTrack track = manager.getPlayer().getPlayingTrack();
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         embedBuilder.setTitle("Now Playing")
                 .setDescription(String.format("[%s](%s)", track.getInfo().title, CommandUtil.cleanMarkdownCharacter(track.getInfo().uri)));
         if (manager.getRadio() != null) {

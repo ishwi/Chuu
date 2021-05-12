@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -74,7 +75,7 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
             a.append(i + 1).append(strings.get(i));
         }
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setDescription(a)
                 .setColor(ColorService.computeColor(e))
                 .setAuthor(e.getGuild().getName() + "'s spammers", null, e.getGuild().getIconUrl());

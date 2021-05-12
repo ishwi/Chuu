@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
 import core.commands.abstracts.MusicCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
 import core.music.sources.MetadataTrack;
@@ -14,7 +15,6 @@ import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Metadata;
 import dao.entities.TriFunction;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 
 import javax.validation.constraints.NotNull;
@@ -74,10 +74,10 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
             Optional<Metadata> metadata = Optional.ofNullable(manager.getMetadata());
             String finalUrl = url;
             String finalAlbum = album;
-            metadata.ifPresentOrElse(meta -> e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(meta.image()).setTitle("Current song metadata", identifier)
+            metadata.ifPresentOrElse(meta -> e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(meta.image()).setTitle("Current song metadata", identifier)
                     .setDescription(mapper.apply(meta.artist(), meta.album(), meta.song())).build()).
                     queue(), () ->
-                    e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(finalUrl)
+                    e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(finalUrl)
                             .setTitle("Current song metadata", identifier)
                             .setThumbnail(finalUrl)
                             .setDescription(mapper.apply(track.getInfo().author, finalAlbum, track.getInfo().title))
@@ -102,7 +102,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
         Metadata metadata = new Metadata(artist, song, matchedAlbum, image);
         manager.setMetadata(metadata);
         db.storeMetadata(identifier, metadata);
-        e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(image)
+        e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(image)
                 .setTitle("Current song metadata", identifier)
                 .setDescription(mapper.apply(artist, matchedAlbum, song))
                 .build()).

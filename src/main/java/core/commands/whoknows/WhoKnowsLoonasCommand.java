@@ -1,6 +1,7 @@
 package core.commands.whoknows;
 
 import core.commands.Context;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageGenerator;
@@ -305,7 +306,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     void doList(LOONAParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         StringBuilder builder = new StringBuilder();
 
         Context e = ap.getE();

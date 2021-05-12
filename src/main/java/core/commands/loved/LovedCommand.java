@@ -2,6 +2,7 @@ package core.commands.loved;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -70,7 +71,7 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
         for (int i = 0; i < lines.size() && i < 10; i++) {
             a.append(lines.get(i));
         }
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
                 .setAuthor("%s's loved songs".formatted(uInfo.getUsername()), PrivacyUtils.getLastFmUser(userName) + "/loved", uInfo.getUrlImage())
                 .setDescription(a)
                 .setFooter("%d total %s loved".formatted(wrapper.getRows(), CommandUtil.singlePlural(wrapper.getRows(), "song", "songs")));

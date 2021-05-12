@@ -6,6 +6,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -50,7 +51,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
 
         List<Memoized<UserListened, String>> strings = firsts.stream().map(t -> new Memoized<>(t, toMemoize)).toList();
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         StringBuilder builder = new StringBuilder();
 
 

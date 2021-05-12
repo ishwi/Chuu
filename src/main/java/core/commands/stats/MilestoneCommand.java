@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -82,7 +83,7 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
 
         String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
         String date = CommandUtil.getAmericanizedDate(offsetDateTime);
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setColor(ColorService.computeColor(e))
                 .setAuthor(String.format("%s's #%d scrobble was:", uinfo.getUsername(), extraParam), String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(lastFMData.getName()), day), uinfo.getUrlImage())
                 .setTitle(milestone.getName(), LinkUtils.getLastFMArtistTrack(milestone.getArtist(), milestone.getName()))

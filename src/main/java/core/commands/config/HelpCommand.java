@@ -20,6 +20,7 @@ import core.apis.lyrics.TextSplitter;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.parsers.HelpParser;
 import core.parsers.OptionalEntity;
@@ -109,7 +110,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     protected void onCommand(Context e, @NotNull WordParameter params) {
         Character prefix = Chuu.getCorrespondingPrefix(e);
         if (params.hasOptional("all")) {
-            e.sendMessage(new EmbedBuilder().setDescription(new StringBuilder()
+            e.sendMessage(new ChuuEmbedBuilder().setDescription(new StringBuilder()
                     .append(e.getAuthor()))
                     .build(), e.getAuthor()).queue();
             e.getAuthor().openPrivateChannel().queue(privateChannel -> sendPrivate(privateChannel, e));
@@ -172,7 +173,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     }
 
     public void sendEmbed(Context e) {
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         Character correspondingPrefix = Chuu.getCorrespondingPrefix(e);
         for (Map.Entry<CommandCategory, SortedSet<MyCommand<?>>> a : categoryMap.entrySet()) {
             StringBuilder s = new StringBuilder();

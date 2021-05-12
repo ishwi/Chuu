@@ -3,6 +3,7 @@ package core.commands.moderation;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmEntityNotFoundException;
@@ -207,7 +208,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
         }
 //        PrivateChannel privateChannel = e.getAuthor().openPrivateChannel().complete();
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
                 .setTitle("Import In Progress")
                 .setFooter("Total users to import: " + arr.length())
                 .setThumbnail("https://cdnjs.cloudflare.com/ajax/libs/prettyPhoto/3.1.6/images/prettyPhoto/dark_rounded/loader.gif");

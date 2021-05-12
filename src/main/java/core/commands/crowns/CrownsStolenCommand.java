@@ -2,6 +2,7 @@ package core.commands.crowns;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
@@ -91,7 +92,7 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
             sendMessageQueue(e, userName2 + " hasn't stolen anything from " + userName);
             return;
         }
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(e.getGuild().getIconUrl());
         StringBuilder a = new StringBuilder();
 

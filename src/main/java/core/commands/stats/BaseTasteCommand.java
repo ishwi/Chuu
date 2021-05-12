@@ -3,6 +3,7 @@ package core.commands.stats;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -111,7 +112,7 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         }
         DiscordUserDisplay uinfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ogDiscordID);
         DiscordUserDisplay uinfo1 = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordId);
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setDescription(stringBuilder)
                 .setTitle(String.format("%s vs %s", uinfo.getUsername(), uinfo1.getUsername()))
                 .setColor(ColorService.computeColor(e))

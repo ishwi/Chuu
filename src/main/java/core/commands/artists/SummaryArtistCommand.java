@@ -6,6 +6,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -77,7 +78,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
         long globalArtistFrequencies = db.getGlobalArtistFrequencies(scrobbledArtist.getArtistId());
 
         String username = getUserString(e, whom, data.getName());
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         String tagsField = summary.getTags().isEmpty()
                 ? ""
                 : summary.getTags().stream()

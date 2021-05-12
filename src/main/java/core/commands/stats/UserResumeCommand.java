@@ -5,6 +5,7 @@ import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -72,7 +73,7 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
         LocalDateTime localDateTime = time.toLocalDate(1);
         int i = lastFM.scrobblesSince(name, localDateTime.atOffset(ZoneOffset.UTC));
         DiscordUserDisplay info = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setTitle(info.getUsername() + "'s summary" + time.getDisplayString())
                 .setColor(ColorService.computeColor(e))
                 .setThumbnail(info.getUrlImage())

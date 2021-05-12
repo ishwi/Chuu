@@ -3,6 +3,7 @@ package core.commands.moderation;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.otherlisteners.Confirmator;
 import core.parsers.NoOpParser;
@@ -91,7 +92,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
         String artist = content[0].trim().replaceAll("\\\\-", "-");
         String album = content[1].trim().replaceAll("\\\\-", "-");
         String userString = getUserString(e, idLong);
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setTitle("Year confirmation")
                 .setDescription(String.format("%s, want to tag the album **%s** of **%s** with the year **%s**?", userString, album, artist, year));
         e.sendMessage(embedBuilder.build())
@@ -102,7 +103,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
                             } else {
                                 TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channelId);
                                 if (textChannelById != null)
-                                    textChannelById.sendMessage(new EmbedBuilder().setTitle("Year submission")
+                                    textChannelById.sendMessage(new ChuuEmbedBuilder().setTitle("Year submission")
                                             .setDescription("Artist: **" + artist + "**\nAlbum: **" + album + "**\nYear: **" + year + "**\nAuthor: " + e.getAuthor().getIdLong()).build()).flatMap(q ->
                                             q.addReaction("U+2714").flatMap(t -> q.addReaction("U+274c"))
                                     ).queue();

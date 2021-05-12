@@ -2,6 +2,7 @@ package core.commands.artists;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
@@ -43,7 +44,7 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
 
         String title = usableServer + "'s top tagged artist with " + genre + (":");
         String text = CommandUtil.rand.nextInt(324) % 5 == 2 ? "Use artistgenre or albumgenre for your artist or albums of the given genre" : null;
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(url)
                 .setFooter(text, null)
                 .setTitle(title)

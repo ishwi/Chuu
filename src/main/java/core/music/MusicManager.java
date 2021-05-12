@@ -28,6 +28,7 @@ import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import core.Chuu;
 import core.apis.last.LastFMFactory;
 import core.commands.Context;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.music.listeners.ScrobblerEventListener;
 import core.music.radio.PlaylistRadio;
@@ -37,7 +38,6 @@ import core.music.utils.Task;
 import core.music.utils.TrackContext;
 import core.services.ColorService;
 import dao.entities.Metadata;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.*;
@@ -190,7 +190,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             audioManager.setSendingHandler(this);
             audioManager.openAudioConnection(channel);
 
-            e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Music Playback").setDescription("Joining channel <#" + channel.getId() + ">").build()).queue();
+            e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Music Playback").setDescription("Joining channel <#" + channel.getId() + ">").build()).queue();
 
             return true;
         }
@@ -293,7 +293,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             a.append("Now playing __**[").append(track.getInfo().title)
                     .append("](").append(CommandUtil.cleanMarkdownCharacter(track.getInfo().uri)).append(")**__")
                     .append(" requested by ").append("<@").append(reqData.requester()).append(">");
-            announcementChannel.sendMessage(new EmbedBuilder()
+            announcementChannel.sendMessage(new ChuuEmbedBuilder()
                     .setDescription(a)
                     .setColor(CommandUtil.pastelColor()).build()).queue(t -> lastTimeAnnounced = System.currentTimeMillis());
         }

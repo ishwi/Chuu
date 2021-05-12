@@ -3,6 +3,7 @@ package core.commands.stats;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -87,7 +88,7 @@ public class TopCommandsCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setDescription(a)
                 .setColor(ColorService.computeColor(e))
                 .setAuthor(uInfo.getUsername() + "'s commands", PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage());

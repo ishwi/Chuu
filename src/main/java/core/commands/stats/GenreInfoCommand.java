@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.exceptions.LastFmException;
 import core.parsers.GenreParser;
@@ -51,7 +52,7 @@ public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
 
         String genre = params.getGenre();
         GenreInfo genreInfo = lastFM.getGenreInfo(genre);
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         String substring = genreInfo.getString() != null && !genreInfo.getString().isBlank() ? genreInfo.getString().substring(0, Math.min(1024, genreInfo.getString().length())) : "";
         embedBuilder.setTitle("Information about " + genreInfo.getName())
                 .addField("Usage of the genre:", String.valueOf(genreInfo.getTotal()), false)

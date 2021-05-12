@@ -19,6 +19,7 @@ package core.commands.music.dj;
 
 import core.commands.Context;
 import core.commands.abstracts.MusicCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
 import core.parsers.NoOpParser;
@@ -28,7 +29,6 @@ import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import core.services.ColorService;
 import dao.ChuuService;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -78,13 +78,13 @@ public class VolumeCommand extends MusicCommand<NumberParameters<CommandParamete
         int currentVolume = manager.getPlayer().getVolume();
         if (volume == null) {
             String bar = buildBar(currentVolume);
-            e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Volume").setDescription(bar)
+            e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Volume").setDescription(bar)
                     .setFooter("Set the volume by using " + CommandUtil.getMessagePrefix(e) + "volume (number)").build()).queue();
             return;
         }
         String bar = buildBar(volume);
         manager.getPlayer().setVolume(volume.intValue());
-        e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Volume").setDescription(bar)
+        e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Volume").setDescription(bar)
                 .setFooter("Volume changed from " + currentVolume + " to " + volume).build()).queue();
     }
 

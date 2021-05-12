@@ -5,6 +5,7 @@ import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -20,7 +21,6 @@ import dao.entities.AlbumInfo;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.time.Year;
@@ -88,7 +88,7 @@ public class YearDistributionCommand extends ConcurrentCommand<TimeFrameParamete
             a.append(i + 1).append(s);
         }
 
-        var embedBuilder = new EmbedBuilder()
+        var embedBuilder = new ChuuEmbedBuilder()
                 .setDescription(a)
                 .setAuthor(String.format("%s's years%s", uInfo.getUsername(), params.getTime().getDisplayString()), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
                 .setColor(ColorService.computeColor(e))

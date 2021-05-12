@@ -3,6 +3,7 @@ package core.commands.moderation;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Validator;
@@ -78,7 +79,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
             return;
         }
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
 
         try {
 

@@ -2,6 +2,7 @@ package core.commands.rym;
 
 import core.commands.Context;
 import core.commands.abstracts.ListCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
@@ -59,7 +60,7 @@ public class TopServerRatingsCommand extends ListCommand<ScoredAlbumRatings, Com
         Context e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(e.getGuild().getIconUrl());
         StringBuilder a = new StringBuilder();
 

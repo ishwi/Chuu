@@ -3,6 +3,7 @@ package core.commands.stats;
 import core.apis.last.entities.TrackExtended;
 import core.commands.Context;
 import core.commands.albums.AlbumPlaysCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -57,7 +58,7 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
 
 
         String username = getUserString(e, who, lastFMData.getName());
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         String tagsField = trackInfo.getTags().isEmpty()
                 ? ""
                 : trackInfo.getTags().stream()

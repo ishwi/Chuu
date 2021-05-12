@@ -3,6 +3,7 @@ package core.commands.moderation;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Validator;
@@ -92,7 +93,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         AtomicInteger statBan = new AtomicInteger(0);
         AtomicInteger navigationCounter = new AtomicInteger(0);
         AtomicInteger statIgnore = new AtomicInteger(0);
-        EmbedBuilder embedBuilder = new EmbedBuilder().setTitle("Reports Review");
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setTitle("Reports Review");
         // TODO :DD
         long maxId;
         ReportEntity nextReport = db.getNextReport(Long.MAX_VALUE, new HashSet<>());

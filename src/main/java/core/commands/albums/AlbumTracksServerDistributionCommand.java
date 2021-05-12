@@ -1,6 +1,7 @@
 package core.commands.albums;
 
 import core.commands.Context;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -120,7 +121,7 @@ public class AlbumTracksServerDistributionCommand extends AlbumPlaysCommand {
                         String s = lines.get(i);
                         a.append(i + 1).append(s);
                     }
-                    EmbedBuilder embedBuilder = new EmbedBuilder()
+                    EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                             .setDescription(a)
                             .setColor(ColorService.computeColor(e))
                             .setTitle(String.format("%s tracklist", album), LinkUtils.getLastFmArtistAlbumUrl(artist, album))

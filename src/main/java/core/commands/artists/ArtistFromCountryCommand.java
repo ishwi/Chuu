@@ -11,6 +11,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -160,10 +161,10 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         }
 
         String title = userName + "'s top artists from " + countryRep + (":");
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(userUrl)
                 .setFooter(CommandUtil.markdownLessUserString(userName, discordId, e) + " has " + list.size() +
-                        (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
+                           (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
                 .setTitle(title)
                 .setDescription(a);
         e.sendMessage(embedBuilder.build()).queue(mes ->

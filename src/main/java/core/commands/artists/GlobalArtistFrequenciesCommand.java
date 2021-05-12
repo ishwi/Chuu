@@ -2,6 +2,7 @@ package core.commands.artists;
 
 import core.commands.Context;
 import core.commands.abstracts.ResultWrappedCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.util.pie.PieableListResultWrapper;
@@ -70,7 +71,7 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
             a.append(i + 1).append(text);
         }
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setDescription(a)
                 .setTitle("Most Popular artists")
                 .setColor(ColorService.computeColor(e))

@@ -2,6 +2,7 @@ package core.commands.streaks;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
@@ -78,34 +79,16 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
             return;
         }
 
-        int maxLength = streaks.stream().mapToInt(String::length).max().orElse(0);
-        int j = 0;
-        while (j < streaks.size()) {
-            int size = 0;
-            for (int i = j; i < 5 + j && i < streaks.size(); i++) {
-                size += streaks.get(i).length();
-            }
-            if (size >= 2048) {
-                for (int i = j; i < 5 + j && i < streaks.size(); i++) {
-                    streaks.set(i, streaks.get(i).replaceAll("\\[(.*)]\\(.*\\)", "$1"));
-                }
-            }
-            j += 5;
-        }
-
 
         StringBuilder a = new StringBuilder();
         AtomicInteger maxSize = new AtomicInteger(0);
         for (int i = 0; i < 5 && i < streaks.size(); i++) {
             String str = streaks.get(i);
-            if (a.length() + str.length() > 2048) {
-                break;
-            }
             a.append(i + 1).append(str);
             maxSize.incrementAndGet();
         }
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setAuthor(String.format("%s's streaks", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(params.getLastFMData().getName()), userUrl)
                 .setThumbnail(CommandUtil.noImageUrl(userUrl))
                 .setColor(ColorService.computeColor(e))

@@ -1,6 +1,7 @@
 package core.commands.abstracts;
 
 import core.commands.Context;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.pie.IPieableList;
 import core.parsers.params.CommandParameters;
@@ -43,7 +44,7 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
             String text = strList.get(i);
             a.append(i + 1).append(text);
         }
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         embedBuilder.setDescription(a);
         return embedBuilder.setColor(ColorService.computeColor(event));
     }

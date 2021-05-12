@@ -2,6 +2,7 @@ package core.commands.discovery;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -113,7 +114,7 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
             a.append(i + 1).append(z.get(i).toString());
         }
         NumberFormat formatter = new DecimalFormat("#0.##");
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setTitle(randomUrl.url() + " details", randomUrl.url())
                 .setColor(ColorService.computeColor(e))
                 .setDescription(a)

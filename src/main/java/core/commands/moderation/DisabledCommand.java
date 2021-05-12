@@ -6,6 +6,7 @@ import core.commands.Context;
 import core.commands.ContextMessageReceived;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.otherlisteners.Reactionary;
 import core.parsers.DisabledCommandParser;
@@ -118,7 +119,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
         if (pages.size() != 1) {
             desc += "\n1" + "/" + pages.size();
         }
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         embedBuilder.setDescription(desc)
                 .setColor(ColorService.computeColor(e));
         e.sendMessage(embedBuilder.build()).queue(message1 ->

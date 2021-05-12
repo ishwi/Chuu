@@ -3,6 +3,7 @@ package core.commands.moderation;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
@@ -62,7 +63,7 @@ public class AltCoverListCommand extends ConcurrentCommand<CommandParameters> {
         }
 
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setDescription(a)
                 .setColor(ColorService.computeColor(e))
                 .setTitle("Alt covers");

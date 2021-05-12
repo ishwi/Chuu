@@ -2,6 +2,7 @@ package core.commands.streaks;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -131,7 +132,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
             a.append(i + 1).append(z.get(i).toString());
         }
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .
                         setAuthor(String.format("%s's Top streaks", CommandUtil.cleanMarkdownCharacter(title)))
                 .setThumbnail(CommandUtil.noImageUrl(validUrl))

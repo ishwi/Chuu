@@ -2,6 +2,7 @@ package core.commands.crowns;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
@@ -83,7 +84,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
             ArtistPlays g = resultWrapper.get(i);
             a.append(i + 1).append(g.toString());
         }
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setDescription(a)
                 .setColor(ColorService.computeColor(e))
                 .setTitle(String.format("%s's album crowns", name), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))

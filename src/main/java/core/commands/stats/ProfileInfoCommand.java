@@ -7,6 +7,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -127,7 +128,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
             sb.append("Favourite album: ").append(entity.topAlbum().getAlbum()).append("\n");
         }
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setAuthor(entity.lastmId() + "'s profile", PrivacyUtils.getLastFmUser(entity.lastmId()), entity.imageUrl())
                 .setColor(ColorService.computeColor(e))
                 .setDescription(sb)

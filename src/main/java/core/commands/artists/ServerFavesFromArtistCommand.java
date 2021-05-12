@@ -6,6 +6,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -85,7 +86,7 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
             String sb = s.get(i);
             a.append(i + 1).append(sb);
         }
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setDescription(a)
                 .setFooter(userString + " users have listened to " + s.size() + " different " + who.getArtist() + " songs!")
                 .setAuthor(String.format("%s's top %s tracks", userString, who.getArtist()), PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), e.getGuild().getIconUrl())

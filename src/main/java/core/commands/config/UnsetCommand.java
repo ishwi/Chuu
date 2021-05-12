@@ -2,6 +2,7 @@ package core.commands.config;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.otherlisteners.Confirmator;
 import core.parsers.NoOpParser;
@@ -53,7 +54,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
         db.findLastFMData(idLong);
         String userString = getUserString(e, idLong);
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setTitle("User Deletion Confirmation")
                 .setDescription(String.format("%s, are you sure you want to delete all your info from the bot?", userString));
         e.sendMessage(embedBuilder.build())

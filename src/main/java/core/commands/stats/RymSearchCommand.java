@@ -3,6 +3,7 @@ package core.commands.stats;
 import core.apis.rym.RYMSearch;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.UsernameAndNpQueryParser;
@@ -10,7 +11,6 @@ import core.parsers.params.ExtraParameters;
 import core.parsers.params.WordParameter;
 import core.services.ColorService;
 import dao.ChuuService;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 
 import javax.validation.constraints.NotNull;
@@ -52,7 +52,7 @@ public class RymSearchCommand extends ConcurrentCommand<ExtraParameters<WordPara
 
         String query = params.getInnerParams().getWord();
         String url = rymSearch.searchUrl(query);
-        e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e))
+        e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
                 .setAuthor("RYM search for: \"" + query.replaceAll("\"", "") + "\"", url)
                 .setTitle("\t<:rym:820111349690531850> Click here to view the results", url).build()).queue();
     }

@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -52,7 +53,7 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
         int mb = 1024 * 1024;
         Runtime instance = Runtime.getRuntime();
         long l = (instance.totalMemory() - instance.freeMemory()) / mb;
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setTitle(e.getJDA().getSelfUser().getName() + "'s stats")
                 .setColor(ColorService.computeColor(e))
                 .addField("**Registered users:**", "**" + botStats.userCount() + "**", true)

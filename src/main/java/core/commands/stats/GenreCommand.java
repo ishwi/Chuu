@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -194,7 +195,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
             for (int i = 0; i < 10 && i < lines.size(); i++) {
                 a.append(i + 1).append(lines.get(i));
             }
-            EmbedBuilder embedBuilder = new EmbedBuilder();
+            EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
             embedBuilder.setDescription(a)
                     .setColor(ColorService.computeColor(e))
                     .setTitle(usableString + "'s genres")

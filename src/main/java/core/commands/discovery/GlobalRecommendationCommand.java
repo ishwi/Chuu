@@ -3,6 +3,7 @@ package core.commands.discovery;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.stats.AffinityCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.NoOpParser;
@@ -136,7 +137,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
                 for (ScrobbledArtist rec : recs) {
                     s.append((String.format("# [%s](%s): %d plays%n", CommandUtil.cleanMarkdownCharacter(rec.getArtist()), LinkUtils.getLastFmArtistUrl(rec.getArtist()), rec.getCount())));
                 }
-                EmbedBuilder embedBuilder = new EmbedBuilder();
+                EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
 
                 embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
                         .setColor(ColorService.computeColor(e))

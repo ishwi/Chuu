@@ -1,6 +1,7 @@
 package core.commands.abstracts;
 
 import core.commands.Context;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.otherlisteners.Reactionary;
@@ -26,7 +27,7 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
         Context e = params.getE();
         list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(e.getGuild().getIconUrl());
         StringBuilder a = new StringBuilder();
 

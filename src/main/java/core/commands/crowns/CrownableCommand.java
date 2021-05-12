@@ -2,6 +2,7 @@ package core.commands.crowns;
 
 import core.commands.Context;
 import core.commands.abstracts.ListCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
@@ -76,7 +77,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         }
         boolean isServer = outerParmams.hasOptional("server") && e.isFromGuild();
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(ColorService.computeColor(e))
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
                 .setThumbnail(isServer ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl());
         StringBuilder a = new StringBuilder();
         List<String> lines = list.stream().map(x ->

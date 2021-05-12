@@ -9,6 +9,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmEntityNotFoundException;
@@ -96,7 +97,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
             desc += "\n1" + "/" + pages.size();
         }
         String urlImage = CommandUtil.getUserInfoNotStripped(e, params.getLastFMData().getDiscordId()).getUrlImage();
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         embedBuilder.setDescription(desc)
                 .setColor(ColorService.computeColor(e))
                 .setAuthor(String.format("%s - %s", correctedArtist, song), LinkUtils.getLastFMArtistTrack(correctedArtist, song), urlImage)

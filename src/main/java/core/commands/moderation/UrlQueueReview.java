@@ -3,6 +3,7 @@ package core.commands.moderation;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Validator;
@@ -104,7 +105,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         AtomicInteger statDeclined = new AtomicInteger(0);
         AtomicInteger navigationCounter = new AtomicInteger(0);
         AtomicInteger statAccepeted = new AtomicInteger(0);
-        EmbedBuilder embedBuilder = new EmbedBuilder().setTitle("Image Queue Review");
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setTitle("Image Queue Review");
         long maxId;
         ImageQueue nextQueue = db.getNextQueue(Long.MAX_VALUE, new HashSet<>());
         if (nextQueue == null) {
@@ -156,7 +157,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 if (banned) {
                     TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
                     if (textChannelById != null)
-                        textChannelById.sendMessage(new EmbedBuilder().setTitle("Banned user for adding pics")
+                        textChannelById.sendMessage(new ChuuEmbedBuilder().setTitle("Banned user for adding pics")
                                 .setDescription("User: **%s**\n".formatted(User.fromId(a.uploader()).getAsMention())).build()).queue();
                 }
                 statDeclined.getAndIncrement();

@@ -3,6 +3,7 @@ package core.commands.music.dj;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.MusicCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.music.MusicManager;
 import core.music.radio.RandomRadio;
 import core.music.radio.RandomRadioTrackContext;
@@ -11,7 +12,6 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.ColorService;
 import dao.ChuuService;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import javax.validation.constraints.NotNull;
@@ -52,7 +52,7 @@ public class RandomRadioCommand extends MusicCommand<CommandParameters> {
         musicManager.setRadio(context);
 
 
-        e.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e))
+        e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
                 .setTitle("Radio")
                 .setDescription("Radio set to " + "`Random Radio`. The radio will be played when there's nothing else queued").build()).queue();
         if (musicManager.isIdle()) {

@@ -3,6 +3,7 @@ package core.commands.discovery;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.NoOpParser;
@@ -75,7 +76,7 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
     @Override
     protected void onCommand(Context e, @NotNull CommandParameters params) {
         String userString = this.getUserString(e, currentPresence.getDiscordId(), DEFAULT_USER);
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setColor(ColorService.computeColor(e))
                 .setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
                 .setTitle(e.getJDA().getSelfUser().getName() + "'s Featured Artist:", LinkUtils

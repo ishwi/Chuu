@@ -2,6 +2,7 @@ package core.commands.moderation;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -95,7 +96,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
             return;
         }
         String correctedArtist = CommandUtil.cleanMarkdownCharacter(allArtistImages.get(0).getArtist());
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setTitle(correctedArtist + " Images");
 
         AtomicInteger counter = new AtomicInteger(0);

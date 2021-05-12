@@ -2,6 +2,7 @@ package core.commands.rym;
 
 import core.commands.Context;
 import core.commands.abstracts.ListCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
@@ -69,7 +70,7 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
 
         char prefix = CommandUtil.getMessagePrefix(e);
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         embedBuilder.setDescription(a);
         embedBuilder.setColor(ColorService.computeColor(e));
         embedBuilder.setTitle(dp.getUsername() + "'s Unrated Albums");

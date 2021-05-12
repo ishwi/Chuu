@@ -3,6 +3,7 @@ package core.commands.moderation;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -108,6 +109,6 @@ public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
                     return covers.get(counter.get());
                 },
                 builder.apply(e.getJDA(), covers.size())
-                , new EmbedBuilder().setTitle("%s - %s".formatted(params.getArtist(), params.getAlbum())), e, e.getAuthor().getIdLong(), actionMap, true, true);
+                , new ChuuEmbedBuilder().setTitle("%s - %s".formatted(params.getArtist(), params.getAlbum())), e, e.getAuthor().getIdLong(), actionMap, true, true);
     }
 }

@@ -8,6 +8,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -134,7 +135,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     void doList(ArtistParameters ap, ArtistAlbums ai) {
         Context e = ap.getE();
         StringBuilder str = new StringBuilder();
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         List<String> lines = ai.getAlbumList().stream().map(x -> (String.format(". **[%s](%s)** - %d plays%n", x.getAlbum(), LinkUtils.getLastFmArtistAlbumUrl(ai.getArtist(), x.getAlbum()), x.getPlays()))).toList();
         for (int i = 0; i < lines.size() && i < 10; i++) {
             String s = lines.get(i);

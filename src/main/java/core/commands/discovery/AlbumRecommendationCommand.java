@@ -5,6 +5,7 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.stats.AffinityCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -155,7 +156,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
         }
 
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         embedBuilder.setTitle(String.format("%s album recommendations for %s", giver, receiver))
                 .setThumbnail(giverUI.getUrlImage())
                 .setColor(ColorService.computeColor(e))

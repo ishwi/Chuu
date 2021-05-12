@@ -7,6 +7,7 @@ import core.apis.last.TokenExceptionHandler;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
 import core.commands.ContextSlashReceived;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.*;
@@ -197,7 +198,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
                             .getLastFMName())));
             s = s.replaceFirst("prefix_to_be_used_yep_yep", Matcher.quoteReplacement(String.valueOf(CommandUtil.getMessagePrefix(e))));
 
-            MessageEmbed build = new EmbedBuilder()
+            MessageEmbed build = new ChuuEmbedBuilder()
                     .setColor(ColorService.computeColor(e))
                     .setDescription(s).build();
             if (e instanceof ContextMessageReceived mes) {

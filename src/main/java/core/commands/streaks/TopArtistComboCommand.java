@@ -6,6 +6,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -159,7 +160,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
             a.append(i + 1).append(z.get(i).toString());
         }
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .
                         setAuthor(String.format("%s's top streaks in %s ", scrobbledArtist.getArtist(), CommandUtil.cleanMarkdownCharacter(title)))
                 .setThumbnail(scrobbledArtist.getUrl())

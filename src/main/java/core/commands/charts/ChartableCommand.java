@@ -6,6 +6,7 @@ import core.apis.last.entities.chartentities.TrackDurationAlbumArtistChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -124,7 +125,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
                 .generateCollageThreaded(x, minx, queue, chartQuality, params.isAside() || params.chartMode().equals(ChartMode.IMAGE_ASIDE) || params.chartMode().equals(ChartMode.IMAGE_ASIDE_INFO));
 
         boolean info = params.chartMode().equals(ChartMode.IMAGE_INFO) || params.chartMode().equals(ChartMode.IMAGE_ASIDE_INFO);
-        sendImage(image, e, chartQuality, info ? configEmbed(new EmbedBuilder(), params, size) : null);
+        sendImage(image, e, chartQuality, info ? configEmbed(new ChuuEmbedBuilder(), params, size) : null);
     }
 
 
@@ -172,7 +173,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         }
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), params.getDiscordId());
 
-        EmbedBuilder embedBuilder = configEmbed(new EmbedBuilder()
+        EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder()
                 .setDescription(a)
                 .setColor(CommandUtil.randomColor(params.getE()))
                 .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage()), params, count);

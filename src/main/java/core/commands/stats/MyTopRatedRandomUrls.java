@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
@@ -46,7 +47,7 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
             a.append(i + 1).append(list.get(i));
         }
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setDescription(a).setTitle(title)
                 .setThumbnail(url)
                 .setColor(ColorService.computeColor(e));

@@ -4,6 +4,7 @@ import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.config.SetCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
@@ -14,7 +15,6 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.awt.*;
@@ -77,7 +77,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
         e.getAuthor().openPrivateChannel().queue(t -> {
 
             sendMessage(e, "Sent you a DM with the login details!").queue();
-            t.sendMessage(new EmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Last.fm login").setDescription(String.format("**[%s](%s)**", "Follow this link to complete the login", s)).build()).queue(z -> {
+            t.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Last.fm login").setDescription(String.format("**[%s](%s)**", "Follow this link to complete the login", s)).build()).queue(z -> {
 
                 ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
                 AtomicInteger counter = new AtomicInteger();
@@ -86,7 +86,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
                     if (counter.get() >= 25) {
                         db.storeSess(null, authToken);
                         scheduledExecutor.shutdown();
-                        z.editMessage(new EmbedBuilder().setTitle("Link expired").setColor(Color.red).build()).queue();
+                        z.editMessage(new ChuuEmbedBuilder().setTitle("Link expired").setColor(Color.red).build()).queue();
                     }
 
                     try {
@@ -97,7 +97,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
                         if (!finalNotExisting) {
                             if (userAccount.equalsIgnoreCase(finalLastFMData.getName())) {
                                 db.storeSess(session, finalLastFMData.getName());
-                                z.editMessage(new EmbedBuilder().setColor(Color.green).setTitle(":white_check_mark: Successfully logged in!").build()).queue();
+                                z.editMessage(new ChuuEmbedBuilder().setColor(Color.green).setTitle(":white_check_mark: Successfully logged in!").build()).queue();
                                 scheduledExecutor.shutdown();
                                 return;
                             } else {
@@ -136,13 +136,13 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
                             newUser.setDiscordId(e.getAuthor().getIdLong());
                             db.insertNewUser(newUser);
                             db.storeSess(session, userAccount);
-                            z.editMessage(new EmbedBuilder().setTitle(":white_check_mark: Successfully logged in!").setDescription("Now will try to index your library").setColor(Color.green).build()).queue();
+                            z.editMessage(new ChuuEmbedBuilder().setTitle(":white_check_mark: Successfully logged in!").setDescription("Now will try to index your library").setColor(Color.green).build()).queue();
                             setCommand.setProcess(e, t, userAccount, e.getAuthor().getIdLong(), LastFMData.ofUser(userAccount), e.getAuthor().getName());
                             scheduledExecutor.shutdown();
                             return;
                         }
                         scheduledExecutor.shutdown();
-                        z.editMessage(new EmbedBuilder().setTitle(":white_check_mark: Successfully logged in!").setColor(Color.green).build()).queue();
+                        z.editMessage(new ChuuEmbedBuilder().setTitle(":white_check_mark: Successfully logged in!").setColor(Color.green).build()).queue();
                     } catch (LastFmException instanceNotFoundException) {
                         instanceNotFoundException.printStackTrace();
                     }

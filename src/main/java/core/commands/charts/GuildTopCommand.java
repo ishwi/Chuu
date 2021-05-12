@@ -3,6 +3,7 @@ package core.commands.charts;
 import core.apis.last.entities.chartentities.ArtistChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.Context;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.GraphicUtils;
 import core.otherlisteners.Reactionary;
@@ -79,7 +80,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
             a.append(i + 1).append(urlCapsules.get(i).toEmbedDisplay());
         }
         Guild guild = params.getE().getGuild();
-        EmbedBuilder embedBuilder = configEmbed(new EmbedBuilder()
+        EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder()
                 .setDescription(a)
                 .setColor(CommandUtil.randomColor(params.getE()))
                 .setThumbnail(guild.getIconUrl()), params, count);

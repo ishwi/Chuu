@@ -3,6 +3,7 @@ package core.commands.streaks;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -132,7 +133,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setAuthor(String.format("%s's current tag streak", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
                 .setColor(ColorService.computeColor(e))
                 .setDescription(tags.stream().limit(5).collect(Collectors.joining()));

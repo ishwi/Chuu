@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -131,7 +132,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
             String url = userInfo.getUrlImage();
             String usableName = userInfo.getUsername();
             minutesWastedOnMusicDaily.setSeconds(totalSeconds.get());
-            EmbedBuilder embedBuilder = new EmbedBuilder().setDescription(s)
+            EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setDescription(s)
                     .setColor(ColorService.computeColor(e))
                     .setTitle(usableName + "'s week", CommandUtil.getLastFmUser(lastFmName.getName()))
                     .setThumbnail(url)

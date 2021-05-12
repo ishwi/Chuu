@@ -3,6 +3,7 @@ package core.commands.stats;
 import com.neovisionaries.i18n.CountryCode;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -22,7 +23,6 @@ import dao.ChuuService;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 
 import javax.validation.constraints.NotNull;
@@ -145,7 +145,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
             }
             DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(params.getE(), discordId);
 
-            var embedBuilder = new EmbedBuilder()
+            var embedBuilder = new ChuuEmbedBuilder()
                     .setDescription(a)
                     .setAuthor(String.format("%s's countries", uInfo.getUsername()), PrivacyUtils.getLastFmUser(user.getName()), uInfo.getUrlImage())
                     .setColor(ColorService.computeColor(e))

@@ -2,6 +2,7 @@ package core.commands.albums;
 
 import core.Chuu;
 import core.commands.Context;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -53,7 +54,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
         FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(lastFMData, artist.getArtist(), album);
         String username = getUserString(e, who, lastFMData.getName());
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         String tagsField = albumSummary.getTagList().isEmpty()
                 ? ""
                 : albumSummary.getTagList().stream()

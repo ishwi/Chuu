@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
@@ -83,7 +84,7 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
         long maxSize = e.isFromGuild() ? e.getGuild().getMaxFileSize() : Message.MAX_FILE_SIZE;
 
         if (bytes.length < maxSize) {
-            EmbedBuilder embed = new EmbedBuilder();
+            EmbedBuilder embed = new ChuuEmbedBuilder();
             embed.setImage("attachment://cat.gif").setDescription("");
             e.doSendImage(bytes, ".gif", null);
 

@@ -3,6 +3,7 @@ package core.commands.discovery;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.stats.AffinityCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.Parser;
@@ -117,7 +118,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
                     s.append((String.format("%d. [%s](%s): %d plays%n", artistNum, CommandUtil.cleanMarkdownCharacter(rec.getArtist()), LinkUtils.getLastFmArtistUrl(rec.getArtist()), rec.getCount())));
                     artistNum++;
                 }
-                EmbedBuilder embedBuilder = new EmbedBuilder();
+                EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
 
                 embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
                         .setThumbnail(giverUI.getUrlImage())

@@ -6,6 +6,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
@@ -83,7 +84,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         Optional<GlobalCrown> yourPosition = globalArtistRanking.stream().filter(x -> x.getDiscordId() == userId).findFirst();
         int totalPeople = globalArtistRanking.size();
         int totalPlays = globalArtistRanking.stream().mapToInt(GlobalCrown::getPlaycount).sum();
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setColor(ColorService.computeColor(e));
 
         if (yourPosition.isPresent()) {

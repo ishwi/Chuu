@@ -2,6 +2,7 @@ package core.commands.rym;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
@@ -71,7 +72,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         Context e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
-        EmbedBuilder embedBuilder = new EmbedBuilder().
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().
                 setTitle(userInfoConsideringGuildOrNot.getUsername() + "'s albums rated with a **" + formatter.format(params.getRating() / 2f) + "**");
         List<String> stringList = new ArrayList<>();
         for (ScoredAlbumRatings x : myRatings) {
@@ -90,7 +91,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         Context e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
-        EmbedBuilder embedBuilder = new EmbedBuilder().
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().
                 setTitle(userInfoConsideringGuildOrNot.getUsername() + "'s rating overview");
         List<String> stringList = new ArrayList<>();
         double prevRating = -1d;

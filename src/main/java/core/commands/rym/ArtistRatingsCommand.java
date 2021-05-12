@@ -7,6 +7,7 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -75,7 +76,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
         String artist = scrobbledArtist.getArtist();
         List<AlbumRatings> rating = db.getArtistRatings(scrobbledArtist.getArtistId(), e.getGuild().getIdLong()).stream()
                 .sorted(Comparator.comparingDouble((AlbumRatings y) -> y.getUserRatings().stream().filter(Rating::isSameGuild).mapToLong(Rating::getRating).average().orElse(0) * y.getUserRatings().size()).reversed()).toList();
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
 
 
         NumberFormat formatter = new DecimalFormat("#0.#");

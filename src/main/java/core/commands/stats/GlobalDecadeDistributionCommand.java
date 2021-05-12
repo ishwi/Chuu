@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
@@ -10,7 +11,6 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.ColorService;
 import dao.ChuuService;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.Comparator;
@@ -66,7 +66,7 @@ public class GlobalDecadeDistributionCommand extends ConcurrentCommand<CommandPa
         }
 
         String name = e.getJDA().getSelfUser().getName();
-        var embedBuilder = new EmbedBuilder()
+        var embedBuilder = new ChuuEmbedBuilder()
                 .setDescription(a)
                 .setAuthor(String.format("%s's years", name), null, e.getJDA().getSelfUser().getAvatarUrl())
                 .setColor(ColorService.computeColor(e))

@@ -21,6 +21,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
@@ -79,7 +80,7 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
         }
         Queue<String> queue = manager.getQueue();
         long length = 0L;
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         StringBuilder stringBuilder = new StringBuilder();
         List<String> str = new ArrayList<>();
         for (String s : queue) {
