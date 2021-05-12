@@ -53,3 +53,7 @@ alter table user
 alter table randomlinks
     drop constraint randomlinks_fk_guild,
     drop column guild_id;
+alter table command_logs
+    add column success boolean;
+alter table command_logs
+    add column is_slash boolean;

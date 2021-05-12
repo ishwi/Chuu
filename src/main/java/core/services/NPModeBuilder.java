@@ -175,7 +175,7 @@ public class NPModeBuilder {
             try {
                 CommandUtil.validate(service, scrobbledArtist, lastFM, discogsApi, spotifyApi);
                 if (np.albumName() != null && !np.albumName().isBlank())
-                    preAlbumId = CommandUtil.albumvalidate(service, scrobbledArtist, lastFM, np.albumName());
+                    preAlbumId = CommandUtil.albumvalidate(service, scrobbledArtist, lastFM, np.albumName()).id();
             } catch (LastFmException ignored) {
             }
         }
@@ -221,7 +221,7 @@ public class NPModeBuilder {
                             }
                             if (comboCounter > 1) {
                                 footerSpaces[index] =
-                                        String.format("%s's is on a 🔥 of %d %s", userName, comboCounter, CommandUtil.singlePlural(comboCounter, "play", "plays"));
+                                        String.format("%s is on a 🔥 of %d %s", userName, comboCounter, CommandUtil.singlePlural(comboCounter, "play", "plays"));
                             }
                         } else {
                             try {

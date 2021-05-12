@@ -13,6 +13,7 @@ import core.parsers.ArtistAlbumParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.AlbumValidator;
 import core.services.ColorService;
 import core.services.tracklist.TracklistService;
 import core.services.tracklist.UserTrackListService;
@@ -74,13 +75,14 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
     protected void doSomethingWithAlbumArtist(ScrobbledArtist scrobbledArtist, String album, Context e, long who, ArtistAlbumParameters params) throws LastFmException {
 
         String artist = scrobbledArtist.getArtist();
-        ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, scrobbledArtist.getArtistId(), artist, album, lastFM);
-        scrobbledAlbum.setArtist(scrobbledArtist.getArtist());
+
+        ScrobbledAlbum scrobbledAlbum = new AlbumValidator(db, lastFM).validate(scrobbledArtist.getArtistId(), artist, album);
+
         TracklistService tracklistService = new UserTrackListService(db, params.getLastFMData().getName());
 
         Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData(), scrobbledArtist.getUrl(), e);
         if (trackList.isEmpty()) {
-            sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
+            sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(artist
             ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));
         } else {
 
@@ -108,9 +110,9 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                 case LIST -> {
                     StringBuilder a = new StringBuilder();
                     List<String> lines = fullAlbumEntity.getTrackList().stream().map(t -> ". " + "[" +
-                            CommandUtil.cleanMarkdownCharacter(t.getName()) +
-                            "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
-                            ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").toList();
+                                                                                          CommandUtil.cleanMarkdownCharacter(t.getName()) +
+                                                                                          "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
+                                                                                          ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").toList();
                     for (int i = 0; i < fullAlbumEntity.getTrackList().size() && i <= 20; i++) {
                         String s = lines.get(i);
                         a.append(i + 1).append(s);

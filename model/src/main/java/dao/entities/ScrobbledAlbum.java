@@ -14,6 +14,18 @@ public class ScrobbledAlbum extends ScrobbledArtist {
         this.albumMbid = albumMbid;
     }
 
+    public ScrobbledAlbum(Album album, String artistName) {
+        super(artistName, 0, album.url());
+        this.albumId = album.id();
+        setArtistId(album.artistId());
+        this.album = album.albumName();
+    }
+
+    public ScrobbledAlbum(long albumId, String url) {
+        super(null, 0, url);
+        this.albumId = albumId;
+    }
+
     public ScrobbledAlbum(String artist, int count, String url, long albumId, String album, String albumMbid) {
         super(artist, count, url);
         this.albumId = albumId;
@@ -54,10 +66,10 @@ public class ScrobbledAlbum extends ScrobbledArtist {
     @Override
     public String toString() {
         return "ScrobbledAlbum{" +
-                "albumId=" + albumId +
-                ", album='" + album + '\'' +
-                ", albumMbid='" + albumMbid + '\'' +
-                '}';
+               "albumId=" + albumId +
+               ", album='" + album + '\'' +
+               ", albumMbid='" + albumMbid + '\'' +
+               '}';
     }
 
     @Override

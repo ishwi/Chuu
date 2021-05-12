@@ -8,6 +8,7 @@ import core.imagerenderer.TrackDistributor;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.AlbumValidator;
 import core.services.UserInfoService;
 import core.services.tracklist.UserTrackListService;
 import dao.ChuuService;
@@ -66,9 +67,7 @@ public class MirroredTracksCommand extends AlbumPlaysCommand {
         }
         String artist = scrobbledArtist.getArtist();
         LastFMData ogData = db.findLastFMData(author.getIdLong());
-
-        ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, scrobbledArtist.getArtistId(), artist, album, lastFM);
-        scrobbledAlbum.setArtist(scrobbledArtist.getArtist());
+        ScrobbledAlbum scrobbledAlbum = new AlbumValidator(db, lastFM).validate(scrobbledArtist.getArtistId(), artist, album);
 
         Optional<FullAlbumEntity> trackList1 = new UserTrackListService(db, ogData.getName()).getTrackList(scrobbledAlbum, ogData, scrobbledArtist.getUrl(), e);
         if (trackList1.isEmpty()) {

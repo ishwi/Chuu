@@ -8,10 +8,7 @@ import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import dao.ChuuService;
-import dao.entities.PrivacyMode;
-import dao.entities.ScrobbledArtist;
-import dao.entities.WhoKnowsMode;
-import dao.entities.WrapperReturnNowPlaying;
+import dao.entities.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,19 +57,19 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
         Context e = params.getE();
         long artistId = scrobbledArtist.getArtistId();
         params.setScrobbledArtist(scrobbledArtist);
-        long albumId = CommandUtil.albumvalidate(db, scrobbledArtist, lastFM, params.getAlbum());
+        Album album = CommandUtil.albumvalidate(db, scrobbledArtist, lastFM, params.getAlbum());
         WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
         boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
         long author = params.getE().getAuthor().getIdLong();
         int limit = effectiveMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE;
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                this.db.getGlobalWhoKnowsAlbum(limit, albumId, author, b, hidePrivate(params));
+                this.db.getGlobalWhoKnowsAlbum(limit, album.id(), author, b, hidePrivate(params));
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(params.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist() + " - " + params.getAlbum()));
             return null;
         }
-        wrapperReturnNowPlaying.setUrl(Chuu.getCoverService().getCover(albumId, wrapperReturnNowPlaying.getUrl(), e));
+        wrapperReturnNowPlaying.setUrl(Chuu.getCoverService().getCover(album, e));
         return wrapperReturnNowPlaying;
     }
 

@@ -83,8 +83,8 @@ public class TasteAlbumCommand extends BaseTasteCommand<ArtistAlbumParameters> {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         params.setScrobbledArtist(scrobbledArtist);
         CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
-        long albumvalidate = CommandUtil.albumvalidate(db, scrobbledArtist, lastFM, params.getAlbum());
-        return db.getSimilaritiesAlbumTracks(List.of(og.getName(), second.getName()), albumvalidate, isList ? 200 : Integer.MAX_VALUE);
+        long albumId = CommandUtil.albumvalidate(db, scrobbledArtist, lastFM, params.getAlbum()).id();
+        return db.getSimilaritiesAlbumTracks(List.of(og.getName(), second.getName()), albumId, isList ? 200 : Integer.MAX_VALUE);
     }
 
     @Override

@@ -102,7 +102,7 @@ public abstract class TracklistService {
         } else {
             fullAlbumEntity = opt.get();
         }
-        fullAlbumEntity.setAlbumUrl(Chuu.getCoverService().getCover(albumId, fullAlbumEntity.getAlbumUrl(), event));
+        fullAlbumEntity.setAlbumUrl(Chuu.getCoverService().getCover(scrobbledAlbum.getAlbumId(), scrobbledAlbum.getUrl(), event));
         fullAlbumEntity.setArtistUrl(artistUrl);
         fullAlbumEntity.getTrackList().sort(Comparator.comparingInt(Track::getPosition));
         return Optional.of(fullAlbumEntity);

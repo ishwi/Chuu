@@ -90,7 +90,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         CommandUtil.validate(db, artist, lastFM, discogsApi, spotifyApi);
         Long albumId = null;
         if (combo.getAlbCounter() > 1) {
-            albumId = CommandUtil.albumvalidate(db, artist, lastFM, combo.getCurrentAlbum());
+            albumId = CommandUtil.albumvalidate(db, artist, lastFM, combo.getCurrentAlbum()).id();
         }
 
         if (combo.getaCounter() >= 3) {

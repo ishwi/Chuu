@@ -94,8 +94,8 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
         mySql.append(",(?,?,?,?)".repeat(Math.max(0, nonExistingId.size() - 1)));
         mySql.append(" on duplicate key update " +
-                " mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " +
-                " url = if(url is null and values(url) is not null,values(url),url)  returning id ");
+                     " mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " +
+                     " url = if(url is null and values(url) is not null,values(url),url)  returning id ");
 
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
@@ -128,10 +128,10 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     public void insertLastFmAlbum(Connection connection, ScrobbledAlbum x) {
 
         String sql = "INSERT INTO album (artist_id,album_name,url,mbid) VALUES (?,?,?,?) on duplicate key update" +
-                " mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " +
-                " url = if(url is null and values(url) is not null,values(url),url) " +
+                     " mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " +
+                     " url = if(url is null and values(url) is not null,values(url),url) " +
 
-                "";
+                     "";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setLong(+1, x.getArtistId());
             String album = x.getAlbum();
@@ -332,7 +332,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
                 String spotify_id = execute.getString(7);
 
 
-                return new Album(id, artist_id, albumName, url, rym_id, UUID.fromString(mbid), spotify_id);
+                return new Album(id, artist_id, albumName, url, rym_id, mbid == null ? null : UUID.fromString(mbid), spotify_id);
             }
             throw new InstanceNotFoundException(album);
         } catch (SQLException e) {
@@ -346,7 +346,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
         StringBuilder mySql =
                 new StringBuilder("INSERT INTO  scrobbled_album" +
-                        "                  (artist_id,album_id,lastfm_id,playnumber) VALUES (?,?,?,?) ");
+                                  "                  (artist_id,album_id,lastfm_id,playnumber) VALUES (?,?,?,?) ");
 
         mySql.append(", (?,?,?,?)".repeat(Math.max(0, scrobbledAlbums.size() - 1)));
         mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  VALUES(playnumber) + playnumber");
@@ -371,7 +371,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     public List<AlbumUserPlays> getUserTopArtistAlbums(Connection connection, long discord_id, long artistId, int limit) {
         List<AlbumUserPlays> returnList = new ArrayList<>();
         String mySql = "select a.playnumber,b.album_name,d.name,b.url from scrobbled_album a join album b on a.album_id = b.id join user c on a.lastfm_id = c.lastfm_id " +
-                "join artist d on b.artist_id = d.id  where c.discord_id = ? and a.artist_id = ?  order by a.playnumber desc  limit ? ";
+                       "join artist d on b.artist_id = d.id  where c.discord_id = ? and a.artist_id = ?  order by a.playnumber desc  limit ? ";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql);
             int i = 1;
@@ -392,10 +392,10 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     public List<AlbumUserPlays> getServerTopArtistAlbums(Connection connection, long guildId, long artistId, int limit) {
         List<AlbumUserPlays> returnList = new ArrayList<>();
         String mySql = "select sum(a.playnumber) as ord,b.album_name,d.name,b.url from scrobbled_album a join album b on a.album_id = b.id join user c on a.lastfm_id = c.lastfm_id" +
-                " join user_guild e on c.discord_id = e.discord_id " +
-                "join artist d on b.artist_id = d.id  where e.guild_id = ? and a.artist_id = ?  " +
-                " group by a.album_id " +
-                "order by ord desc  limit ? ";
+                       " join user_guild e on c.discord_id = e.discord_id " +
+                       "join artist d on b.artist_id = d.id  where e.guild_id = ? and a.artist_id = ?  " +
+                       " group by a.album_id " +
+                       "order by ord desc  limit ? ";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql);
             int i = 1;
@@ -417,9 +417,9 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     public List<AlbumUserPlays> getGlobalTopArtistAlbums(Connection connection, long artistId, int limit) {
         List<AlbumUserPlays> returnList = new ArrayList<>();
         String mySql = "select sum(a.playnumber) as ord,b.album_name,d.name,b.url from scrobbled_album a join album b on a.album_id = b.id" +
-                " join artist d on b.artist_id = d.id  where  a.artist_id = ?" +
-                " group by a.album_id " +
-                "  order by ord desc  limit ? ";
+                       " join artist d on b.artist_id = d.id  where  a.artist_id = ?" +
+                       " group by a.album_id " +
+                       "  order by ord desc  limit ? ";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql);
             int i = 1;
@@ -489,7 +489,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     public Map<Year, Integer> countByYears(Connection connection, String lastfmId, List<AlbumInfo> albumInfos) {
 
         String queryString = "SELECT" +
-                " release_year,count(*) as coun FROM scrobbled_album c join  album a on c.album_id = a.id  join artist b on a.artist_id =b.id  WHERE (name) in (%s) and (album_name)  IN (%s) and release_year is not null  and lastfm_id = ? group by release_year";
+                             " release_year,count(*) as coun FROM scrobbled_album c join  album a on c.album_id = a.id  join artist b on a.artist_id =b.id  WHERE (name) in (%s) and (album_name)  IN (%s) and release_year is not null  and lastfm_id = ? group by release_year";
 
         String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()));
 
@@ -522,7 +522,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     public Map<Year, Integer> countByDecades(Connection connection, String lastfmId, List<AlbumInfo> albumInfos) {
 
         String queryString = "SELECT" +
-                " floor(release_year/10) * 10,count(*) as coun FROM scrobbled_album c join  album a on c.album_id = a.id  join artist b on a.artist_id =b.id  WHERE (name) in (%s) and (album_name)  IN (%s) and release_year is not null  and lastfm_id = ? group by floor(release_year/10)*10 ";
+                             " floor(release_year/10) * 10,count(*) as coun FROM scrobbled_album c join  album a on c.album_id = a.id  join artist b on a.artist_id =b.id  WHERE (name) in (%s) and (album_name)  IN (%s) and release_year is not null  and lastfm_id = ? group by floor(release_year/10)*10 ";
 
         String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQuerySingle(albumInfos.size()));
 

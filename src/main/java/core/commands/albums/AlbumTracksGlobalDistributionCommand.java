@@ -14,6 +14,7 @@ import core.parsers.DaoParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.AlbumValidator;
 import core.services.ColorService;
 import core.services.tracklist.GlobalTracklistService;
 import core.services.tracklist.TracklistService;
@@ -78,8 +79,8 @@ public class AlbumTracksGlobalDistributionCommand extends AlbumPlaysCommand {
     protected void doSomethingWithAlbumArtist(ScrobbledArtist scrobbledArtist, String album, Context e, long who, ArtistAlbumParameters params) throws LastFmException {
 
         String artist = scrobbledArtist.getArtist();
-        ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, scrobbledArtist.getArtistId(), artist, album, lastFM);
-        scrobbledAlbum.setArtist(scrobbledArtist.getArtist());
+        ScrobbledAlbum scrobbledAlbum = new AlbumValidator(db, lastFM).validate(scrobbledArtist.getArtistId(), artist, album);
+
         TracklistService tracklistService = new GlobalTracklistService(db);
 
         Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData(), scrobbledArtist.getUrl(), e);
