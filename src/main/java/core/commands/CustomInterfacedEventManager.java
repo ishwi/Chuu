@@ -117,7 +117,7 @@ public class CustomInterfacedEventManager implements IEventManager {
             ContextMessageReceived ctx = new ContextMessageReceived(mes);
             Character correspondingPrefix = Chuu.getCorrespondingPrefix(ctx);
             String contentRaw = mes.getMessage().getContentRaw();
-            if (contentRaw.length() <= 1 || contentRaw.charAt(0) != correspondingPrefix) {
+            if (mes.isFromGuild() && ((contentRaw.length() <= 1) || contentRaw.charAt(0) != correspondingPrefix)) {
                 if (mes.getMessage().getMentionedUsers().contains(mes
                         .getJDA().getSelfUser()) && mes.getMessage().getType() != MessageType.INLINE_REPLY) {
                     mes.getChannel().sendMessage("My prefix is: `" + Chuu.getCorrespondingPrefix(ctx) + "`").queue();
