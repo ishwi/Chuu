@@ -106,20 +106,18 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         int minx = (int) Math.ceil((double) chartSize / x);
         if (minx == 1)
             x = chartSize;
-        if (e.isFromGuild()) {
-            if ((e.isFromGuild() && e.getGuild().getMaxFileSize() == Message.MAX_FILE_SIZE) || !e.isFromGuild()) {
-                if (chartSize > 45 && chartSize < 200)
-                    chartQuality = ChartQuality.JPEG_BIG;
-                else if (chartSize >= 200)
-                    chartQuality = ChartQuality.JPEG_SMALL;
-            } else {
-                if (e.getGuild().getMaxFileSize() == (50 << 20)) {
-                    if (chartSize > 1000) {
-                        chartQuality = ChartQuality.JPEG_BIG;
-                    }
-                } else if (chartSize > 4000) {
+        if ((e.isFromGuild() && e.getGuild().getMaxFileSize() == Message.MAX_FILE_SIZE) || !e.isFromGuild()) {
+            if (chartSize > 45 && chartSize < 200)
+                chartQuality = ChartQuality.JPEG_BIG;
+            else if (chartSize >= 200)
+                chartQuality = ChartQuality.JPEG_SMALL;
+        } else {
+            if (e.getGuild().getMaxFileSize() == (50 << 20)) {
+                if (chartSize > 1000) {
                     chartQuality = ChartQuality.JPEG_BIG;
                 }
+            } else if (chartSize > 4000) {
+                chartQuality = ChartQuality.JPEG_BIG;
             }
         }
         BufferedImage image = CollageMaker

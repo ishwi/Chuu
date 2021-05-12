@@ -132,17 +132,11 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
             chartSize = chartParserAux.getChartSize();
         } catch (
                 InvalidChartValuesException ex) {
-            sendError(getErrorMessage(8), e);
+            sendError(getErrorMessage(6), e);
             return null;
         }
 
         if (chartSize != null) {
-
-            boolean conflictFlag = hasOptional("nolimit", e);
-            if (conflictFlag) {
-                sendError(getErrorMessage(7), e);
-                return null;
-            }
             x = chartSize.x;
             y = chartSize.y;
         }

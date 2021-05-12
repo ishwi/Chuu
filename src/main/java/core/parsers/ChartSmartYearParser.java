@@ -91,23 +91,18 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
         try {
             chartSize = chartParserAux.getChartSize();
         } catch (InvalidChartValuesException ex) {
-            sendError(getErrorMessage(8), e);
+            sendError(getErrorMessage(6), e);
             return null;
         }
 
         if (chartSize != null) {
-            boolean conflictFlag = hasOptional("nolimit", e);
-            if (conflictFlag) {
-                sendError(getErrorMessage(7), e);
-                return null;
-            }
             x = chartSize.x;
             y = chartSize.y;
         }
         Year year = chartParserAux.parseYear();
         words = chartParserAux.getMessage();
         if (Year.now().compareTo(year) < 0) {
-            sendError(getErrorMessage(6), e);
+            sendError(getErrorMessage(9), e);
             return null;
         }
         TimeFrameEnum timeFrameEnum = calculateTimeFrame(year);
@@ -122,10 +117,7 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
 
     @Override
     protected void setUpErrorMessages() {
-        errorMessages.put(5, "You Introduced too many words");
-        errorMessages.put(6, "YEAR must be the current year or lower");
-        errorMessages.put(7, "Can't use a size for the chart if you specify the --nolimit flag!");
-        errorMessages.put(8, "0 is not a valid value for a chart!");
+        errorMessages.put(9, "YEAR must be the current year or lower");
 
     }
 }
