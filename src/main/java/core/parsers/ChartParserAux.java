@@ -147,8 +147,11 @@ public class ChartParserAux {
         return year;
     }
 
-    private int getYearFromDecade(int decade) {
+    public static int getYearFromDecade(int decade) {
         int value = Year.now().getValue();
+        if (decade > 100) {
+            return decade;
+        }
         int year;
         if (decade <= value % 100) {
             year = 2000 + decade;

@@ -22,7 +22,6 @@ import java.awt.*;
 import java.time.Year;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -49,7 +48,7 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
         SlashCommandEvent e = ctx.e();
         TimeFrameEnum tfe = InteractionAux.parseTimeFrame(e, defaultTFE);
         User user = InteractionAux.parseUser(e);
-        OptionMapping option = e.getOption(DecadeExplanation.NAME);
+        OptionMapping decade = e.getOption(DecadeExplanation.NAME);
         Point size = InteractionAux.parseSize(e, () -> sendError(getErrorMessage(8), ctx));
         if (size == null) {
             return null;
@@ -57,10 +56,10 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
 
         int baseYear;
         int numberOfYears;
-        if (option != null) {
-            String value = option.getAsString();
+        if (decade != null) {
+            String value = decade.getAsString();
             value = value.substring(0, value.length() - 1);
-            baseYear = CommandUtil.getDecade(Integer.parseInt(value));
+            baseYear = ChartParserAux.getYearFromDecade(Integer.parseInt(value));
             numberOfYears = 9;
         } else {
             OptionMapping start = e.getOption(DecadeExplanation.RANGE_START);
@@ -115,8 +114,7 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
             numberOfYears = secondYear2.minusYears(i).getValue();
             matched = true;
             String replace = join.replace(matcher.group(1), "");
-            String[] parts = replace.split("\\s+");
-            subMessage = Arrays.copyOfRange(parts, 1, parts.length);
+            subMessage = replace.split("\\s+");
         }
 
 

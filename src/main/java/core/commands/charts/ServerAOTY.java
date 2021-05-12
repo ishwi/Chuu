@@ -68,7 +68,7 @@ public class ServerAOTY extends ChartableCommand<ChartYearParameters> {
         Year year = params.getYear();
 
         int limit = params.isList() ? 200 : x * y;
-        ResultWrapper<ScrobbledAlbum> albums = db.getCollectiveAOTY(params.getE().getGuild().getIdLong(), limit, params.isList() || params.isPieFormat(), year);
+        ResultWrapper<ScrobbledAlbum> albums = db.getCollectiveAOTY(params.getE().getGuild().getIdLong(), limit, params.needCount(), year);
         List<ScrobbledAlbum> userAlbumByMbid = albums.getResultList();
         AtomicInteger atomicInteger = new AtomicInteger(0);
         BlockingQueue<UrlCapsule> queue = userAlbumByMbid.stream()

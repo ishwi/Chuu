@@ -92,11 +92,27 @@ public class ChartParameters extends CommandParameters {
     }
 
     public boolean isList() {
-        return hasOptional("list");
+        ChartMode chartMode = chartMode();
+        return ((chartMode == ChartMode.LIST && !hasOptional("list") && !hasOptional("pie") && !hasOptional("aside"))
+                ||
+                (chartMode != ChartMode.LIST && hasOptional("list")));
+    }
+
+    public boolean needCount() {
+        return isList() || isPieFormat() || chartMode() == ChartMode.IMAGE_INFO;
+    }
+
+    public boolean isPie() {
+        ChartMode chartMode = chartMode();
+        return ((chartMode == ChartMode.PIE) && !hasOptional("pie") && !hasOptional("list") && !hasOptional("aside"))
+               || ((chartMode != ChartMode.PIE) && hasOptional("pie"));
     }
 
     public boolean isAside() {
-        return hasOptional("aside");
+        ChartMode chartMode = chartMode();
+        return ((chartMode == ChartMode.IMAGE && hasOptional("aside")))
+               ||
+               chartMode == ChartMode.IMAGE_ASIDE && !isPie() && !isList();
     }
 
     public long getDiscordId() {

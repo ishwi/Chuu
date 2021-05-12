@@ -65,7 +65,7 @@ public class ServerAOTD extends ChartableCommand<ChartYearRangeParameters> {
         int end = params.getNumberOfYears();
 
         int limit = params.isList() ? 200 : x * y;
-        ResultWrapper<ScrobbledAlbum> albums = db.getCollectiveAOTD(params.getE().getGuild().getIdLong(), limit, params.isList() || params.isPieFormat(), year, end);
+        ResultWrapper<ScrobbledAlbum> albums = db.getCollectiveAOTD(params.getE().getGuild().getIdLong(), limit, params.needCount(), year, end);
         List<ScrobbledAlbum> userAlbumByMbid = albums.getResultList();
         AtomicInteger atomicInteger = new AtomicInteger(0);
         BlockingQueue<UrlCapsule> queue = userAlbumByMbid.stream()

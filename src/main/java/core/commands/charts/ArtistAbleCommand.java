@@ -31,7 +31,7 @@ public abstract class ArtistAbleCommand<T extends ChartParameters> extends Chart
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(T param) throws LastFmException {
-        ArtistQueue queue = new ArtistQueue(db, discogsApi, spotifyApi, !param.isList());
+        ArtistQueue queue = new ArtistQueue(db, discogsApi, spotifyApi, !param.isList() && !param.isPie());
         int i = param.makeCommand(lastFM, queue, TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getUser()));
         return new CountWrapper<>(i, queue);
     }

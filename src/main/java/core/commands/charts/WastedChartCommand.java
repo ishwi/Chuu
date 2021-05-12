@@ -45,16 +45,13 @@ public class WastedChartCommand extends GroupingChartCommand {
     public CountWrapper<GroupingQueue> processGroupedQueue(ChartGroupParameters params) throws LastFmException {
         GroupingQueue queue;
 
-        if (params.isList()) {
+        if (params.isList() || params.isPie()) {
             queue = new TrackGroupArtistQueue(db, discogsApi, spotifyApi, 200);
-
-            lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 1499, 1, TopEntity.TRACK,
-                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getUser()), queue);
         } else {
             queue = new TrackGroupArtistQueue(db, discogsApi, spotifyApi, params.getX() * params.getY());
-            lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 1499, 1, TopEntity.TRACK,
-                    ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getUser()), queue);
         }
+        lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 1499, 1, TopEntity.TRACK,
+                ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getUser()), queue);
         return new CountWrapper<>(-1, queue);
     }
 

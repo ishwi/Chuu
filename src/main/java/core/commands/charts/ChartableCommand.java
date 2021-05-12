@@ -55,17 +55,12 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     public abstract ChartableParser<T> initParser();
 
     ChartMode getEffectiveMode(ChartParameters chartParameters) {
-        ChartMode chartMode = chartParameters.chartMode();
-        if ((chartMode.equals(ChartMode.LIST) && !chartParameters.isList() && !chartParameters.isPieFormat() && !chartParameters.isAside())
-            ||
-            (!chartMode.equals(ChartMode.LIST) && chartParameters.isList())) {
+        if (chartParameters.isList()) {
             return ChartMode.LIST;
-        } else if ((chartMode.equals(ChartMode.PIE) && !chartParameters.isPieFormat() && !chartParameters.isList() && !chartParameters.isAside())
-                   || (!chartMode.equals(ChartMode.PIE) && chartParameters.isPieFormat())) {
+        } else if (chartParameters.isPie()) {
             return ChartMode.PIE;
-        } else {
-            return ChartMode.IMAGE;
         }
+        return ChartMode.IMAGE;
     }
 
     @Override

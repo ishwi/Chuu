@@ -17,7 +17,6 @@ import core.parsers.ChartableParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
-import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -40,17 +39,6 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
         spotifyApi = SpotifySingleton.getInstance();
     }
 
-    @Override
-    ChartMode getEffectiveMode(ChartParameters chartParameters) {
-        if (chartParameters.isList()) {
-            return ChartMode.LIST;
-        }
-        if (chartParameters.isPieFormat()) {
-            return ChartMode.PIE;
-        }
-        return ChartMode.IMAGE;
-
-    }
 
     @Override
     protected CommandCategory initCategory() {

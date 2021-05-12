@@ -34,7 +34,7 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
         List<UrlCapsule> albumList = new ArrayList<>(albumQueu.size());
         albumQueu.drainTo(albumList);
         GroupingQueue queue;
-        if (params.isList()) {
+        if (params.isList() || params.isPie()) {
             queue = new TrackGroupAlbumQueue(db, discogsApi, spotifyApi, 200, albumList);
         } else {
             queue = new TrackGroupAlbumQueue(db, discogsApi, spotifyApi, params.getX() * params.getY(), albumList);
