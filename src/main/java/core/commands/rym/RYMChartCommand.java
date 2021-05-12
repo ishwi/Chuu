@@ -3,6 +3,7 @@ package core.commands.rym;
 import core.apis.last.entities.chartentities.RYMChartEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.charts.ChartableCommand;
+import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.parsers.ChartableParser;
@@ -29,15 +30,19 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
     }
 
     @Override
-    public ChartableParser<ChartSizeParameters> initParser() {
-        OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(db, TimeFrameEnum.ALL);
-        onlyChartSizeParser.addOptional(new OptionalEntity("global", " show ratings from all bot users instead of only from this server"));
-        onlyChartSizeParser.addOptional(new OptionalEntity("server", " show ratings from users only in this server"));
-        onlyChartSizeParser.addOptional(new OptionalEntity("usestars", "show stars instead of numbers on global and server chart"));
+    protected CommandCategory initCategory() {
+        return CommandCategory.RYM;
+    }
 
-        onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noratings", "don't display ratings"));
-        onlyChartSizeParser.addOptional(new OptionalEntity("plays", "shows this with ratings", true, "noratings"));
-        return onlyChartSizeParser;
+    @Override
+    public ChartableParser<ChartSizeParameters> initParser() {
+        OnlyChartSizeParser p = new OnlyChartSizeParser(db, TimeFrameEnum.ALL);
+        p.addOptional(new OptionalEntity("global", " show ratings from all bot users instead of only from this server"))
+                .addOptional(new OptionalEntity("server", " show ratings from users only in this server"))
+                .addOptional(new OptionalEntity("usestars", "show stars instead of numbers on global and server chart"))
+                .replaceOptional("plays", new OptionalEntity("noratings", "don't display ratings"))
+                .addOptional(new OptionalEntity("plays", "shows this with ratings", true, "noratings"));
+        return p;
     }
 
     @Override

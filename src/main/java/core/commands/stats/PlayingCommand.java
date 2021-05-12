@@ -9,7 +9,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
-import core.parsers.OptionableParser;
+import core.parsers.NoOpParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -56,7 +56,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new OptionableParser(new OptionalEntity("recent", "show last song from ALL users"));
+        return new NoOpParser(new OptionalEntity("recent", "show last song from ALL users"));
     }
 
 

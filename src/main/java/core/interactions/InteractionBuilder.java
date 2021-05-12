@@ -7,10 +7,7 @@ import core.commands.charts.WastedTrackCommand;
 import core.commands.moderation.EvalCommand;
 import core.commands.moderation.MbidUpdatedCommand;
 import core.commands.moderation.RefreshSlashCommand;
-import core.commands.stats.DailyCommand;
-import core.commands.stats.NowPlayingCommand;
-import core.commands.stats.TimeSpentCommand;
-import core.commands.stats.WeeklyCommand;
+import core.commands.stats.*;
 import core.commands.utils.CommandCategory;
 import core.parsers.OptionalEntity;
 import core.parsers.explanation.util.Explanation;
@@ -28,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.CheckReturnValue;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -37,7 +33,7 @@ import java.util.stream.Collectors;
 import static java.util.function.Predicate.not;
 
 public class InteractionBuilder {
-    private static final Set<CommandCategory> grouped = Set.of(
+    private static final Set<CommandCategory> categorized = Set.of(
             CommandCategory.RYM,
             CommandCategory.BOT_INFO,
             CommandCategory.CROWNS,
@@ -53,18 +49,20 @@ public class InteractionBuilder {
             CommandCategory.MUSIC,
             CommandCategory.DISCOVERY
     );
-    private static final Set<Class<? extends MyCommand<?>>> filtered = Set.of(EvalCommand.class, MbidUpdatedCommand.class, RefreshSlashCommand.class);
+    private static final Set<Class<? extends MyCommand<?>>> ignored = Set.of(EvalCommand.class, MbidUpdatedCommand.class, RefreshSlashCommand.class);
 
-    private static final Set<Class<? extends MyCommand<?>>> grouped2 =
+    private static final Set<Class<? extends MyCommand<?>>> timeGrouped =
             Set.of(WastedChartCommand.class,
                     WastedTrackCommand.class,
+                    FirstArtistCommand.class,
+                    FirstPlayedCommand.class,
+                    LastPlayedArtistCommand.class,
+                    LastPlayedCommand.class,
                     TimeSpentCommand.class,
                     WastedAlbumChartCommand.class,
                     WeeklyCommand.class,
                     DailyCommand.class);
 
-
-    private static Map<? extends Class<? extends MyCommand<?>>, Triple> classes1;
 
     @CheckReturnValue
     public static CommandUpdateAction setGlobalCommands(JDA jda) {
@@ -95,11 +93,11 @@ public class InteractionBuilder {
                 .map(t -> (MyCommand<?>) t)
                 .sorted(Comparator.comparingInt(t -> t.order))
                 .filter(test)
-                .filter(t -> !filtered.contains(t.getClass()))
+                .filter(t -> !ignored.contains(t.getClass()))
                 .toList();
 
         var categoryToCommand = myCommands.stream().collect(Collectors.groupingBy(MyCommand::getCategory));
-        List<CommandData> categoryCommands = categoryToCommand.entrySet().stream().filter(t -> grouped.contains(t.getKey())).map((k) -> k.getValue().stream().reduce(new CommandData(k.getKey().getPrefix(), k.getKey().getDescription()),
+        List<CommandData> categoryCommands = categoryToCommand.entrySet().stream().filter(t -> categorized.contains(t.getKey())).map((k) -> k.getValue().stream().reduce(new CommandData(k.getKey().getPrefix(), k.getKey().getDescription()),
                 (commandData, myCommand) -> {
                     SubcommandData subcommandData = processSubComand(myCommand);
                     commandData.addSubcommand(subcommandData);
@@ -110,10 +108,10 @@ public class InteractionBuilder {
                     return c;
                 })).toList();
 
-        myCommands = myCommands.stream().filter(not(t -> grouped.contains(t.getCategory()))).toList();
+        myCommands = myCommands.stream().filter(not(t -> categorized.contains(t.getCategory()))).toList();
 
         // Fake time category
-        CommandData timeCommands = myCommands.stream().filter(t -> grouped2.contains(t.getClass())).reduce(new CommandData("time", "Commands that use timed data"),
+        CommandData timeCommands = myCommands.stream().filter(t -> timeGrouped.contains(t.getClass())).reduce(new CommandData("time", "Commands that use timed data"),
                 (commandData, myCommand) -> {
                     SubcommandData subcommandData = processSubComand(myCommand);
                     commandData.addSubcommand(subcommandData);
@@ -126,7 +124,7 @@ public class InteractionBuilder {
 
 
         //noinspection ResultOfMethodCallIgnored
-        myCommands.stream().filter(t -> !grouped2.contains(t.getClass()))
+        myCommands.stream().filter(t -> !timeGrouped.contains(t.getClass()))
                 .map(InteractionBuilder::processCommand)
                 .forEach(commandUpdateAction::addCommands);
 
@@ -191,25 +189,5 @@ public class InteractionBuilder {
         });
     }
 
-    record Triple(Class<? extends MyCommand<?>> user, Class<? extends MyCommand<?>> server,
-                  Class<? extends MyCommand<?>> global) {
-    }
-
-    static final class TripleInstance {
-        MyCommand<?> user;
-        MyCommand<?> server;
-        MyCommand<?> global;
-
-        TripleInstance(MyCommand<?> user, MyCommand<?> server,
-                       MyCommand<?> global) {
-            this.user = user;
-            this.server = server;
-            this.global = global;
-        }
-
-        public TripleInstance() {
-
-        }
-    }
 
 }

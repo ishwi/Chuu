@@ -54,7 +54,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("server", "guild", "general");
+        return Arrays.asList("guild", "server", "general");
     }
 
 

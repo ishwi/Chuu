@@ -1,6 +1,8 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.RainbowParams;
 import dao.ChuuService;
@@ -15,8 +17,14 @@ public class RainbowParser extends ChartableParser<RainbowParams> {
         inner = new ChartNormalParser(dao, defaultTFE);
     }
 
+
     @Override
-    public void replaceOptional(String previousOptional, OptionalEntity optionalEntity) {
+    public RainbowParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        ChartParameters chartParameters = inner.parseSlashLogic(ctx);
+        if (chartParameters == null) {
+            return null;
+        }
+        return new RainbowParams(ctx, chartParameters.getUser(), chartParameters.getTimeFrameEnum(), chartParameters.getX(), chartParameters.getY());
     }
 
     @Override

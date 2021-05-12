@@ -162,8 +162,6 @@ public abstract class Parser<T extends CommandParameters> {
     }
 
 
-
-
     public void sendError(String message, Context e) {
         String errorBase = "Error on " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + "'s request:\n";
         e.sendMessage(errorBase + message).queue();
@@ -181,13 +179,15 @@ public abstract class Parser<T extends CommandParameters> {
     }
 
 
-    public void replaceOptional(String previousOptional, OptionalEntity optionalEntity) {
+    public Parser<T> replaceOptional(String previousOptional, OptionalEntity optionalEntity) {
         opts.remove(new OptionalEntity(previousOptional, null));
         opts.add(optionalEntity);
+        return this;
     }
 
-    public void addOptional(OptionalEntity... optionalEntity) {
+    public Parser<T> addOptional(OptionalEntity... optionalEntity) {
         this.opts.addAll(Arrays.asList(optionalEntity));
+        return this;
     }
 
     public void removeOptional(String previousOptional) {

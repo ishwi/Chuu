@@ -70,7 +70,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
     public abstract Parser<T> initParser();
 
-    public Parser<T> getParser() {
+    public final Parser<T> getParser() {
         return parser;
     }
 
@@ -143,7 +143,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         measureTime(ctx);
     }
 
-    public CommandCategory getCategory() {
+    public final CommandCategory getCategory() {
         return category;
     }
 
