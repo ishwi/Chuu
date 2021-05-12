@@ -27,7 +27,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
     private static final Pattern digitMatcher = Pattern.compile("[1-9]([0-9]+)?[kKmM]?");
     private static final Pattern allow0 = Pattern.compile("[0-9]+[kKmM]?");
     private static final Predicate<String> predicate = digitMatcher.asMatchPredicate();
-    private static final Function<Interactible, String> nameObtainer = s -> s.options().stream().filter(t -> t.getType() == OptionType.STRING).map(OptionData::getName).findFirst().orElse("number");
+    private static final Function<Interactible, String> nameObtainer = s -> s.options().stream().filter(t -> t.getType() == OptionType.INTEGER).map(OptionData::getName).findFirst().orElse("number");
     private static final Function<String, Function<SlashCommandEvent, Long>> slash = s -> event ->
     {
         OptionMapping number = event.getOption(s);
@@ -43,7 +43,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                         long max,
                         Map<Integer, String> errorMessages,
                         Interactible explanationLine,
-                        BiPredicate<K, Long> innerPredicate
+                        BiPredicate<K, Long> innerPredicate, boolean reverseOrder
     ) {
         super(innerParser,
                 defaultItem,
@@ -54,7 +54,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 innerPredicate,
                 (k, aLong) ->
                         new NumberParameters<>(k.getE(), k, aLong), Collections.singletonList(() -> explanationLine), slash.apply(nameObtainer.apply(explanationLine)));
-
+        this.reverseOrder = reverseOrder;
     }
 
     public NumberParser(T innerParser,

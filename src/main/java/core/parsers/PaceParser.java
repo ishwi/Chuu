@@ -30,14 +30,13 @@ public class PaceParser extends NumberParser<NumberParameters<NaturalTimeParams>
                                 Long.MAX_VALUE,
                                 errorMessages,
                                 new ExplanationLineType("scrobble-goal", "The total number of scrobbles you want to see", OptionType.INTEGER),
-                                PaceParser::matches),
+                                PaceParser::matches, true),
                 null,
                 Long.MAX_VALUE,
                 new HashMap<>(),
                 "Number that represents the number of periods of the specified timeframe",
                 false,
                 PaceParser::chooser, "unit-count");
-        this.setReverseOrder(true);
 
     }
 

@@ -45,7 +45,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
     private final BiPredicate<Y, J> innerPredicate;
     private final Function<SlashCommandEvent, J> fromSlash;
     private final BiFunction<Y, J, Z> finalReducer;
-    private boolean reverseOrder = false;
+    boolean reverseOrder = false;
 
     public ExtraParser(T innerParser,
                        J defaultItem,

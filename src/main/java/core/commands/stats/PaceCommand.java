@@ -85,8 +85,8 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         String userString = getUserString(e, discordId, lastfmId);
         long unitNumber;
         long goal;
-        Long tempS = hopefullyNoOneSeesThis.getExtraParam();
-        Long tempU = unitCount.getExtraParam();
+        Long tempU = hopefullyNoOneSeesThis.getExtraParam();
+        Long tempS = unitCount.getExtraParam();
 
         if (tempU == null) {
             if (tempS == null) {
@@ -105,8 +105,19 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
                 }
             }
         } else {
-            unitNumber = tempU;
-            goal = tempS;
+            // We only have tempU
+            if (tempS == null) {
+                if (tempU < playCount) {
+                    unitNumber = tempU;
+                    goal = (long) (Math.ceil(playCount / 10_000.) * 10_000);
+                } else {
+                    goal = tempU;
+                    unitNumber = 1;
+                }
+            } else {
+                unitNumber = Math.min(tempU, tempS);
+                goal = Math.max(tempU, tempS);
+            }
         }
 
         // UTC was not working with last.fm smh
