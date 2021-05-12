@@ -69,7 +69,7 @@ dependencies {
     implementation 'com.neovisionaries:nv-i18n:1.28'
     implementation 'com.github.natanbc:java-eval:1.0'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation("com.github.DV8FromTheWorld:JDA:5336c2912d0aa33f8a93aedc2ec96d6360598380")
+    implementation("com.github.DV8FromTheWorld:JDA:e50798d89824614002ebeca99ee172cd205560d6")
 //    implementation('net.dv8tion:JDA:4.2.1_255')
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'org.json', name: 'json', version: '20210307'

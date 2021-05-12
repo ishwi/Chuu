@@ -29,7 +29,7 @@ public class PaceParser extends NumberParser<NumberParameters<NaturalTimeParams>
                                 null,
                                 Long.MAX_VALUE,
                                 errorMessages,
-                                new ExplanationLineType("Scrobble Goal", "The total number of scrobbles you want to see", OptionType.INTEGER),
+                                new ExplanationLineType("scrobble-goal", "The total number of scrobbles you want to see", OptionType.INTEGER),
                                 PaceParser::matches),
                 null,
                 Long.MAX_VALUE,

@@ -4,10 +4,9 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
 import core.commands.Context;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import dao.ChuuService;
+import dao.entities.Album;
 import dao.entities.CoverItem;
-import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -52,6 +51,10 @@ public class CoverService {
         return obtain(replacement, e, () -> bannedCoversById.get(albumId));
     }
 
+    public String getCover(Album album, Context e) {
+        return obtain(album.url(), e, () -> bannedCoversById.get(album.id()));
+    }
+
     public List<String> getCovers(long albumId) {
         return bannedCoversById.get(albumId);
     }
@@ -78,16 +81,6 @@ public class CoverService {
     }
 
 
-    public String getCover(long artistId, String album, String replacement, Context e) {
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist("", 0, "");
-        scrobbledArtist.setArtistId(artistId);
-        try {
-            long albumvalidate = CommandUtil.albumvalidate(db, scrobbledArtist, lastFM, album);
-            return getCover(albumvalidate, replacement, e);
-        } catch (LastFmException ex) {
-            return replacement;
-        }
-    }
 
     public Map<CoverItem, Integer> getCounts() {
         return bannedCovers.asMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, t -> t.getValue().size()));

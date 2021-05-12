@@ -238,11 +238,10 @@ public record BubblePacker(List<StringFrequency> frequencies, Supplier<Color> co
             Bubble n = map(circle, max);
             if (firstBubble == null) {
                 firstBubble = n;
-                lastinsertednode = n;
             } else {
                 lastinsertednode.insertNext = n;
-                lastinsertednode = n;
             }
+            lastinsertednode = n;
         }
         return firstBubble;
     }

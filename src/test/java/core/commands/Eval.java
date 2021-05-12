@@ -20,7 +20,19 @@ public class Eval {
 
     static BufferedImage deepCopy(BufferedImage bi) {
         EvalContext ctx = null;
-
+        ctx.jda().getRegisteredListeners().stream().filter(x -> x instanceof core.commands.moderation.UrlQueueReview).map(x -> (core.commands.moderation.UrlQueueReview) x).forEach(
+                x -> {
+                    try {
+                        var f = x.getClass().getDeclaredField("isActive"); //NoSuchFieldException
+                        f.setAccessible(true);
+                        var a = (java.util.concurrent.atomic.AtomicBoolean) f.get(x);
+                        a.set(false);
+                        ctx.sendMessage(a);
+                    } catch (Exception e) {
+                        ctx.sendMessage(e);
+                    }
+                }
+        );
         core.Chuu.getShardManager().getTextChannelById(693124899220226178L).sendMessage("https:" + "//github.com/ishwi/Chuu").queue();
         class A extends core.commands.abstracts.ConcurrentCommand<core.parsers.params.CommandParameters> {
             public A(ChuuService dao) {

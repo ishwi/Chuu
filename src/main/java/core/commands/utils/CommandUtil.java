@@ -166,15 +166,15 @@ public class CommandUtil {
         }
     }
 
-    public static long albumvalidate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, String album) throws LastFmException {
+    public static Album albumvalidate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, String album) throws LastFmException {
         try {
-            return dao.findAlbumIdByName(scrobbledArtist.getArtistId(), album);
+            return dao.getAlbum(scrobbledArtist.getArtistId(), album);
         } catch (InstanceNotFoundException exception) {
             FullAlbumEntityExtended chuu = lastFM.getAlbumSummary(LastFMData.ofDefault(), scrobbledArtist.getArtist(), album);
             ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(chuu.getAlbum(), chuu.getArtist(), chuu.getAlbumUrl(), chuu.getMbid());
             scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
             dao.insertAlbum(scrobbledAlbum);
-            return scrobbledAlbum.getAlbumId();
+            return new Album(scrobbledAlbum.getAlbumId(), scrobbledArtist.getArtistId(), chuu.getAlbum(), chuu.getAlbumUrl(), null, null, null);
         }
     }
 
@@ -218,35 +218,25 @@ public class CommandUtil {
         return scrobbledArtist;
     }
 
-    public static ScrobbledAlbum validateAlbum(ChuuService dao, String artist, String album, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck, boolean findCorrection) throws LastFmException {
+    public static ScrobbledAlbum validateAlbum(ChuuService dao, String artist, String albumName, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck, boolean findCorrection) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, "");
         CommandUtil.validate(dao, scrobbledArtist, lastFM, discogsApi, spotify, doUrlCheck, findCorrection);
-        long albumvalidate = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, album);
-        ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), null, null);
-        scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
-        scrobbledAlbum.setAlbumId(albumvalidate);
-        return scrobbledAlbum;
+        Album album = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, albumName);
+        return new ScrobbledAlbum(album, scrobbledArtist.getArtist());
     }
 
-    public static ScrobbledAlbum validateAlbum(ChuuService dao, long artistId, String artist, String album, ConcurrentLastFM lastFM) throws LastFmException {
+    public static ScrobbledAlbum validateAlbum(ChuuService dao, long artistId, String artist, String albumName, ConcurrentLastFM lastFM) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         scrobbledArtist.setArtistId(artistId);
-        long albumvalidate = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, album);
-        ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), null, null);
-        scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
-        scrobbledAlbum.setAlbumId(albumvalidate);
-        return scrobbledAlbum;
+        Album album = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, albumName);
+        return new ScrobbledAlbum(album, scrobbledArtist.getArtist());
     }
 
-    public static ScrobbledAlbum lightAlbumValidate(ChuuService dao, String artist, String album, ConcurrentLastFM lastFM) throws LastFmException {
+    public static ScrobbledAlbum lightAlbumValidate(ChuuService dao, String artist, String albumName, ConcurrentLastFM lastFM) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, "");
         CommandUtil.validate(dao, scrobbledArtist, lastFM, null, null, false, true);
-        long albumvalidate = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, album);
-
-        ScrobbledAlbum scrobbledAlbum = new ScrobbledAlbum(album, scrobbledArtist.getArtist(), null, null);
-        scrobbledAlbum.setArtistId(scrobbledArtist.getArtistId());
-        scrobbledAlbum.setAlbumId(albumvalidate);
-        return scrobbledAlbum;
+        Album album = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, albumName);
+        return new ScrobbledAlbum(album, scrobbledArtist.getArtist());
     }
 
 

@@ -2211,6 +2211,14 @@ public class ChuuService {
         }
     }
 
+    public Album getAlbum(long artistId, String name) throws InstanceNotFoundException {
+        try (Connection connection = dataSource.getConnection()) {
+            return albumDao.getAlbumByName(connection, name, artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public long findAlbumIdByName(long artistId, String name) throws InstanceNotFoundException {
         try (Connection connection = dataSource.getConnection()) {
             return albumDao.getAlbumIdByName(connection, name, artistId);
@@ -2218,6 +2226,7 @@ public class ChuuService {
             throw new ChuuServiceException(e);
         }
     }
+
 
     public String findAlbumUrlByName(long artistId, String name) throws InstanceNotFoundException {
         try (Connection connection = dataSource.getConnection()) {

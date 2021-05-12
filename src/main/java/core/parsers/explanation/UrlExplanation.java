@@ -6,7 +6,7 @@ import core.parsers.explanation.util.Interactible;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 public class UrlExplanation implements Explanation {
-    public static final String NAME = "URL";
+    public static final String NAME = "url";
 
     @Override
     public Interactible explanation() {
