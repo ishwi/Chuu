@@ -69,7 +69,7 @@ dependencies {
     implementation 'com.neovisionaries:nv-i18n:1.28'
     implementation 'com.github.natanbc:java-eval:1.0'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation("com.github.DV8FromTheWorld:JDA:e50798d89824614002ebeca99ee172cd205560d6")
+    implementation("com.github.DV8FromTheWorld:JDA:2cc5036359cc797c49e58a47ab19ac5e9ac31507")
 //    implementation('net.dv8tion:JDA:4.2.1_255')
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'org.json', name: 'json', version: '20210307'
@@ -87,7 +87,7 @@ dependencies {
 
     // TEST
 // https://mvnrepository.com/artifact/org.awaitility/awaitility
-    testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.0.3'
+    testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.1.0'
     testImplementation group: 'com.openpojo', name: 'openpojo', version: '0.8.13'
 
 // https://mvnrepository.com/artifact/org.ow2.asm/asm
@@ -101,10 +101,10 @@ dependencies {
 // https://mvnrepository.com/artifact/com.pholser/junit-quickcheck-core
     //a
     testImplementation group: 'com.pholser', name: 'junit-quickcheck-core', version: '1.0'
-    testImplementation "org.mockito:mockito-core:3.9.0"
+    testImplementation "org.mockito:mockito-core:3.10.0"
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 
-    testImplementation group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.29'
+    testImplementation group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.31'
     testAnnotationProcessor group: 'org.openjdk.jmh', name: 'jmh-generator-annprocess', version: '1.29'
 
 
